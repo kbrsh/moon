@@ -1,8 +1,10 @@
 (function(window) {
     
     function Moon(opts) {
-        var el = opts.el,
-            model = opts.model
+        var el = document.querySelector(opts.el),
+            model = opts.model;
+            
+        
     }
     
     
