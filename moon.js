@@ -30,8 +30,16 @@
             if (child.hasAttribute('m-model')) {
                 var modelVal = child.value;
                 var modelName = child.getAttribute("m-model");
+                this.modal[modelName] = modelVal;
                 
-                update(start, end, modelName, modelVal, el);
+                child.addEventListener(['keyup', 'blur'], function(e) {
+                    var name = e.target.getAttribute("m-model");
+                    if (name) {
+                        if (e.target.value != model[name]) {
+                            this.model[name] = e.target.value;
+                        }
+                    }
+                });
             }
         }
     }
