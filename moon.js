@@ -17,25 +17,28 @@
                     },
                     set: function(val) {
                         model[key] = val;
-                        update(start, end, key, model, el);
+                        update(start, end, key, model[key], el);
                     }
                 });
-                update(start, end, key, model, el);
+                update(start, end, key, model[key], el);
             }
         }
         
         // two way data binding
-        for (var i = 0; i < el.childNodes.length; i++) {
-            if (el.childNodes[i].hasAttribute('m-model')) {
-                var modelVal = el.childNodes[i].value;
-                update(start, end)
+        for (var i = 0; i < el.children.length; i++) {
+            var child = el.children[i];
+            if (child.hasAttribute('m-model')) {
+                var modelVal = child.value;
+                var modelName = child.getAttribute("m-model");
+                
+                update(start, end, modelName, modelVal, el);
             }
         }
     }
     
-    var update = function(start, end, key, model, el) {
+    var update = function(start, end, key, replace, el) {
         var pattern = start + key + end;
-        el.innerHTML = el.innerHTML.replace(new RegExp(pattern, 'g'), model[key]);
+        el.innerHTML = el.innerHTML.replace(new RegExp(pattern, 'g'), replace);
     }
     
     window.Moon = Moon;

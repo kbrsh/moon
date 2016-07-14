@@ -15,6 +15,7 @@ Coming Soon!
 - persist data
 - two way data binding with m-model
 - methods and events with m-on
+- localStorage
 
 ## License
 
