@@ -6,6 +6,9 @@
             children = el.childNodes
             
         // one way data binding
+        for (m in model) {
+            
+        }   
     }
     
     
