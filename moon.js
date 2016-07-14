@@ -13,7 +13,7 @@
                 var pattern = start + key + end;
                 el.innerHTML = el.innerHTML.replace(new RegExp(pattern, 'g'), model[key]);
             }
-        }   
+        }
     }
     
     
