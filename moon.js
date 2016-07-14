@@ -40,6 +40,7 @@
         var modelVal = child.value;
         var modelName = child.getAttribute("m-model");
         opts.model[modelName] = modelVal;
+        modelVal = modelName;
 
         child.addEventListener(['keyup', 'blur'], function(e) {
             var name = e.target.getAttribute("m-model");
