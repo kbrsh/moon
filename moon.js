@@ -23,6 +23,14 @@
                 update(start, end, key, model, el);
             }
         }
+        
+        // two way data binding
+        for (var i = 0; i < el.childNodes.length; i++) {
+            if (el.childNodes[i].hasAttribute('m-model')) {
+                var modelVal = el.childNodes[i].value;
+                update(start, end)
+            }
+        }
     }
     
     var update = function(start, end, key, model, el) {
@@ -31,7 +39,6 @@
     }
     
     window.Moon = Moon;
-    
     
     
 })(window);
