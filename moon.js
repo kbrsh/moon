@@ -6,8 +6,10 @@
             children = el.childNodes
             
         // one way data binding
-        for (m in model) {
-            
+        for (var key in model) {
+            if (model.hasOwnProperty(key)) {
+                el.innerHTML = el.innerHTML.replace("{{" + key + "}}", model[key]);
+            }
         }   
     }
     
