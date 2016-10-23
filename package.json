@@ -1,0 +1,27 @@
+{
+  "name": "moonjs",
+  "version": "0.0.0",
+  "description": "A minimal mvvm library",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KingPixil/moon.git"
+  },
+  "keywords": [
+    "moon",
+    "mvvm",
+    "two",
+    "way",
+    "data",
+    "binding"
+  ],
+  "author": "Kabir Shah",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/KingPixil/moon/issues"
+  },
+  "homepage": "https://github.com/KingPixil/moon#readme"
+}
