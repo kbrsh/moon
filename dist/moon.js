@@ -41,9 +41,7 @@
         this.build = function() {
             var generated = this.html;
             for (prop in this.data) {
-                console.log("%c Generating HTML =>", "font-size: 1rem; color: #018d55");
                 generated = generated.replace(new RegExp("{{" + prop + "}}", "gi"), this.data[prop]);
-                console.log("%c \t Generated ✓", "font-size: 0.8rem");
             }
             this.el.innerHTML = generated;
         }
