@@ -26,5 +26,8 @@
   "homepage": "https://github.com/KingPixil/moon#readme",
   "devDependencies": {
     "gulp": "^3.9.1"
+  },
+  "dependencies": {
+    "gulp-size": "^2.1.0"
   }
 }
