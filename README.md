@@ -1,8 +1,8 @@
 # Moon
 
-two way data binding made simple
+minimal mvvm library
 
-## What?
+## What is it?
 
 Moon is a simple framework similar to Vue.js, in which you bind data in real time.
 
@@ -10,13 +10,5 @@ Moon is a simple framework similar to Vue.js, in which you bind data in real tim
 
 Coming Soon!
 
-## TODO
 
-- persist data
-- two way data binding with m-model
-- methods and events with m-on
-- localStorage
-
-## License
-
-[License Available Here](http://kingpixil.github.io/license)
+## [License](http://kingpixil.github.io/license)
