@@ -23,5 +23,8 @@
   "bugs": {
     "url": "https://github.com/KingPixil/moon/issues"
   },
-  "homepage": "https://github.com/KingPixil/moon#readme"
+  "homepage": "https://github.com/KingPixil/moon#readme",
+  "devDependencies": {
+    "gulp": "^3.9.1"
+  }
 }
