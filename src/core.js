@@ -36,3 +36,5 @@ function Moon(opts) {
 
   this.build();
 }
+
+window.Moon = Moon;
