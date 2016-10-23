@@ -1,3 +1,11 @@
+/*
+* Moon 0.0.0
+* Copyright 2016, Kabir Shah
+* https://github.com/KingPixil/moon/
+* Free to use under the MIT license.
+* https://kingpixil.github.io/license
+*/
+
 (function(window) {
     function Moon(opts) {
         var _el = opts.el;
@@ -7,7 +15,7 @@
         this.html = this.el.innerHTML;
         this.logs = _logs;
 
-        if(this.logs) {
+        if (this.logs) {
             console.log('%c ======= 🌚 MOON 🌚 ======= ', 'font-size: 2rem; color: #010edc');
             console.log("%c Initial Data =>", "font-size: 1rem; color: #018d55");
             console.log("%c \t Element: " + JSON.stringify(_el), "font-size: 0.8rem");
@@ -21,11 +29,6 @@
             set: function(value) {
                 _data = value;
                 this.build();
-                if(this.logs) {
-                  console.log("%c Changing Data =>", "font-size: 1rem; color: #018d55");
-                  console.log("%c \t Element: " + JSON.stringify(_el), "font-size: 0.8rem");
-                  console.log("%c \t Data: " + JSON.stringify(_data), "font-size: 0.8rem");
-                }
             }
         });
 
