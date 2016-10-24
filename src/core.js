@@ -4,7 +4,6 @@
         var _data = opts.data;
         var _logs = opts.logs;
         this.el = document.getElementById(_el);
-        this.children = this.el.children;
         this.html = this.el.innerHTML;
         this.logs = _logs;
 
