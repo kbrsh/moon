@@ -111,6 +111,7 @@
           xmlHttp.send(method === "POST" ? urlParams : null);
         }
 
+        // Call a method defined in _methods
         this.method = function(method) {
           _methods[method]();
         }
