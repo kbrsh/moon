@@ -18,6 +18,17 @@
             }
         });
 
+        this.extractAttrs = function(node) {
+          var attrs = {};
+          if(!node.attributes) return attrs;
+          var rawAttrs = node.attributes;
+          for(var i = 0; i < rawAttrs.length; i++) {
+            attrs[rawAttrs[i].name] = rawAttrs[i].value
+          }
+
+          return attrs;
+        }
+
 
         this.build = function(children) {
           var tempData = this.$data;
@@ -65,17 +76,6 @@
 
         this.seed = function() {
           this.createVirtualDOM(this.$el);
-        }
-
-        this.extractAttrs = function(node) {
-          var attrs = {};
-          if(!node.attributes) return attrs;
-          var rawAttrs = node.attributes;
-          for(var i = 0; i < rawAttrs.length; i++) {
-            attrs[rawAttrs[i].name] = rawAttrs[i].value
-          }
-
-          return attrs;
         }
 
         this.set = function(key, val) {
