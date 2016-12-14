@@ -59,7 +59,7 @@
           var tempData = this.$data;
           for(var i = 0; i < children.length; i++) {
             var el = children[i];
-            
+
             if(el.type === "#text") {
               var tmpVal = el.val;
               el.val.replace(/{{(\w+)}}/gi, function(match, p1) {
@@ -71,8 +71,11 @@
                 for(var prop in el.props) {
                   var tmpVal = el.props[prop];
 
-                  if(prop === "m-if") {
-                    tempData[tmpVal] ? el.node.textContent = el.val : el.node.textContent = "";
+                  switch (prop) {
+                    case "m-if":
+                      tempData[tmpVal] ? el.node.textContent = el.val : el.node.textContent = "";
+                      break;
+                    default:
                   }
 
                   el.props[prop].replace(/{{(\w+)}}/gi, function(match, p1) {
