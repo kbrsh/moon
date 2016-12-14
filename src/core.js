@@ -89,6 +89,7 @@
           return this.$data[key];
         }
 
+        // Make AJAX GET/POST requests
         this.ajax = function(method, url, params, cb) {
           var xmlHttp = new XMLHttpRequest();
           method = method.toUpperCase();
