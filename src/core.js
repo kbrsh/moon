@@ -24,15 +24,20 @@
           for(var i = 0; i < children.length; i++) {
             var el = children[i];
             if(el.type === "#text") {
+              var tmpVal = el.val;
               el.val.replace(/{{(\w+)}}/gi, function(match, p1) {
-                var dataToAdd = tempData[p1];
-                el.node.textContent = el.val.replace(new RegExp(match, "gi"), dataToAdd);
+                var newVal = tmpVal.replace(match, tempData[p1]);
+                el.node.textContent = newVal;
+                tmpVal = newVal;
               });
             } else {
                 for(var prop in el.props) {
+                  var tmpVal = el.props[prop];
                   el.props[prop].replace(/{{(\w+)}}/gi, function(match, p1) {
                     var dataToAdd = tempData[p1];
-                    el.node.setAttribute(prop, el.props[prop].replace(new RegExp(match, "gi"), dataToAdd));
+                    var newVal = tmpVal.replace(new RegExp(match, "gi"), dataToAdd);
+                    el.node.setAttribute(prop, newVal);
+                    tmpVal = newVal;
                   });
                 }
                 this.build(el.children);
