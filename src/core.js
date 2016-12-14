@@ -18,7 +18,7 @@
             }
         });
 
-        this.extractAttrs = function(node) {
+        var extractAttrs = function(node) {
           var attrs = {};
           if(!node.attributes) return attrs;
           var rawAttrs = node.attributes;
