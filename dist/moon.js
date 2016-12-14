@@ -39,18 +39,18 @@
         }
 
         // Utility: Create Elements Recursively For all Children
-        var recursiveChildren = function(children) {
+        this.recursiveChildren = function(children) {
           var recursiveChildrenArr = [];
           for(var i = 0; i < children.length; i++) {
             var child = children[i];
-            recursiveChildrenArr.push(this.createElement(child.nodeName, recursiveChildren(child.childNodes), child.textContent, extractAttrs(child), child));
+            recursiveChildrenArr.push(this.createElement(child.nodeName, this.recursiveChildren(child.childNodes), child.textContent, extractAttrs(child), child));
           }
           return recursiveChildrenArr;
         }
 
         // Utility: Create Virtual DOM Instance
         this.createVirtualDOM = function(node) {
-          var vdom = this.createElement(node.nodeName, recursiveChildren(node.childNodes), node.textContent, extractAttrs(node), node);
+          var vdom = this.createElement(node.nodeName, this.recursiveChildren(node.childNodes), node.textContent, extractAttrs(node), node);
           this.dom = vdom;
         }
 
