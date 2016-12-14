@@ -40,11 +40,13 @@
           return recursiveChildrenArr;
         }
 
+        // Utility: Create Virtual DOM Instance
         var createVirtualDOM = function(node) {
           var vdom = this.createElement(node.nodeName, recursiveChildren(node.childNodes), node.textContent, extractAttrs(node), node);
           this.dom = vdom;
         }
 
+        // Build the DOM with $data
         this.build = function(children) {
           var tempData = this.$data;
           for(var i = 0; i < children.length; i++) {
