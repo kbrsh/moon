@@ -29,7 +29,7 @@
           return attrs;
         }
 
-        this.recursiveChildren = function(children) {
+        var recursiveChildren = function(children) {
           var recursiveChildrenArr = [];
           for(var i = 0; i < children.length; i++) {
             var child = children[i];
