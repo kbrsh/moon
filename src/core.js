@@ -30,6 +30,7 @@
           return attrs;
         }
 
+        // Utility: Create Elements Recursively For all Children
         var recursiveChildren = function(children) {
           var recursiveChildrenArr = [];
           for(var i = 0; i < children.length; i++) {
