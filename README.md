@@ -22,7 +22,7 @@ Coming Soon!
   - Every build, replace (first version) of virtual dom with new data
   - Run diff algorithm against real DOM and rerender
 - Methods
-- Filters
+<!-- - Filters -->
 - Attributes/Properties Binding
 - Model
 - If
