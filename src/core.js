@@ -43,8 +43,8 @@
           return recursiveChildrenArr;
         }
 
-        this.createElement = function(type, children, val, node) {
-          return {type: type, children: children, val: val, node: node};
+        this.createElement = function(type, children, val, props, node) {
+          return {type: type, children: children, val: val, props: props, node: node};
         }
 
         this.createVirtualDOM = function(node) {
