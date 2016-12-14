@@ -89,6 +89,7 @@
         this.method = function(method) {
           _methods[method]();
         }
+
         this.seed();
         this.build(this.dom.children);
     }
