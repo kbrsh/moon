@@ -4,9 +4,9 @@
         var _el = opts.el;
         var _data = opts.data;
         var _methods = opts.methods;
-        this.el = document.getElementById(_el);
-        this.html = this.el.innerHTML;
-        this.dom = {type: this.el.nodeName, children: [], node: this.el};
+        this.$el = document.getElementById(_el);
+        this.html = this.$el.innerHTML;
+        this.dom = {type: this.$el.nodeName, children: [], node: this.$el};
 
         Object.defineProperty(this, 'data', {
             get: function() {
@@ -53,7 +53,7 @@
         }
 
         this.seed = function() {
-          this.createVirtualDOM(this.el);
+          this.createVirtualDOM(this.$el);
         }
 
         this.set = function(key, val) {
