@@ -29,6 +29,12 @@
                 el.node.textContent = el.val.replace(new RegExp(match, "gi"), dataToAdd);
               });
             } else {
+                for(var prop in el.props) {
+                  el.props[prop].replace(/{{(\w+)}}/gi, function(match, p1) {
+                    var dataToAdd = tempData[p1];
+                    el.node.setAttribute(prop, el.props[prop].replace(new RegExp(match, "gi"), dataToAdd));
+                  });
+                }
                 this.build(el.children);
             }
           }
