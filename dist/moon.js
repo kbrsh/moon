@@ -120,7 +120,7 @@
         }
 
         // Call a method defined in _methods
-        this.method = function(method) {
+        this.method = function(method, args) {
           _methods[method]();
         }
 
