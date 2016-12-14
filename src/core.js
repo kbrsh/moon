@@ -74,10 +74,6 @@
           return {type: type, children: children, val: val, props: props, node: node};
         }
 
-        this.seed = function() {
-          this.createVirtualDOM(this.$el);
-        }
-
         this.set = function(key, val) {
           this.$data[key] = val;
           this.build(this.dom.children);
@@ -112,7 +108,7 @@
           _methods[method]();
         }
 
-        this.seed();
+        this.createVirtualDOM(this.$el);
         this.build(this.dom.children);
     }
 
