@@ -29,6 +29,15 @@
           return attrs;
         }
 
+        this.recursiveChildren = function(children) {
+          var recursiveChildrenArr = [];
+          for(var i = 0; i < children.length; i++) {
+            var child = children[i];
+            recursiveChildrenArr.push(this.createElement(child.nodeName, this.recursiveChildren(child.childNodes), child.textContent, this.extractAttrs(child), child));
+          }
+          return recursiveChildrenArr;
+        }
+
 
         this.build = function(children) {
           var tempData = this.$data;
@@ -56,14 +65,6 @@
           }
         }
 
-        this.recursiveChildren = function(children) {
-          var recursiveChildrenArr = [];
-          for(var i = 0; i < children.length; i++) {
-            var child = children[i];
-            recursiveChildrenArr.push(this.createElement(child.nodeName, this.recursiveChildren(child.childNodes), child.textContent, this.extractAttrs(child), child));
-          }
-          return recursiveChildrenArr;
-        }
 
         this.createElement = function(type, children, val, props, node) {
           return {type: type, children: children, val: val, props: props, node: node};
