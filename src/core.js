@@ -29,7 +29,7 @@
                 el.node.textContent = el.val.replace(new RegExp(match, "gi"), dataToAdd);
               });
             } else {
-               this.build(el.children);
+                this.build(el.children);
             }
           }
         }
