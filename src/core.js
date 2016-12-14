@@ -108,7 +108,7 @@
           _methods[method]();
         }
 
-        this.createVirtualDOM(this.$el);
+        createVirtualDOM(this.$el);
         this.build(this.dom.children);
     }
 
