@@ -58,10 +58,10 @@
 
         this.extractAttrs = function(node) {
           var attrs = {};
-            var rawAttrs = node.attributes;
-            for(var i = 0; i < rawAttrs.length; i++) {
-              attrs[rawAttrs[i].name] = rawAttrs[i].value
-            }
+          var rawAttrs = node.attributes;
+          for(var i = 0; i < rawAttrs.length; i++) {
+            attrs[rawAttrs[i].name] = rawAttrs[i].value
+          }
 
           return attrs;
         }
