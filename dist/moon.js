@@ -13,9 +13,9 @@
         var _data = opts.data;
         var _methods = opts.methods;
         this.$el = document.getElementById(_el);
-        this.html = this.$el.innerHTML;
         this.dom = {type: this.$el.nodeName, children: [], node: this.$el};
 
+        // Change state when $data is changed
         Object.defineProperty(this, '$data', {
             get: function() {
                 return _data;
@@ -26,7 +26,35 @@
             }
         });
 
+        // Utility: Raw Attributes -> Key Value Pairs
+        var extractAttrs = function(node) {
+          var attrs = {};
+          if(!node.attributes) return attrs;
+          var rawAttrs = node.attributes;
+          for(var i = 0; i < rawAttrs.length; i++) {
+            attrs[rawAttrs[i].name] = rawAttrs[i].value
+          }
 
+          return attrs;
+        }
+
+        // Utility: Create Elements Recursively For all Children
+        var recursiveChildren = function(children) {
+          var recursiveChildrenArr = [];
+          for(var i = 0; i < children.length; i++) {
+            var child = children[i];
+            recursiveChildrenArr.push(this.createElement(child.nodeName, recursiveChildren(child.childNodes), child.textContent, extractAttrs(child), child));
+          }
+          return recursiveChildrenArr;
+        }
+
+        // Utility: Create Virtual DOM Instance
+        var createVirtualDOM = function(node) {
+          var vdom = this.createElement(node.nodeName, recursiveChildren(node.childNodes), node.textContent, extractAttrs(node), node);
+          this.dom = vdom;
+        }
+
+        // Build the DOM with $data
         this.build = function(children) {
           var tempData = this.$data;
           for(var i = 0; i < children.length; i++) {
@@ -53,48 +81,23 @@
           }
         }
 
-        this.recursiveChildren = function(children) {
-          var recursiveChildrenArr = [];
-          for(var i = 0; i < children.length; i++) {
-            var child = children[i];
-            recursiveChildrenArr.push(this.createElement(child.nodeName, this.recursiveChildren(child.childNodes), child.textContent, this.extractAttrs(child), child));
-          }
-          return recursiveChildrenArr;
-        }
-
+        // Create Virtual DOM Object from Params
         this.createElement = function(type, children, val, props, node) {
           return {type: type, children: children, val: val, props: props, node: node};
         }
 
-        this.createVirtualDOM = function(node) {
-          var vdom = this.createElement(node.nodeName, this.recursiveChildren(node.childNodes), node.textContent, this.extractAttrs(node), node);
-          this.dom = vdom;
-        }
-
-        this.seed = function() {
-          this.createVirtualDOM(this.$el);
-        }
-
-        this.extractAttrs = function(node) {
-          var attrs = {};
-          if(!node.attributes) return attrs;
-          var rawAttrs = node.attributes;
-          for(var i = 0; i < rawAttrs.length; i++) {
-            attrs[rawAttrs[i].name] = rawAttrs[i].value
-          }
-
-          return attrs;
-        }
-
+        // Set any value in $data
         this.set = function(key, val) {
           this.$data[key] = val;
           this.build(this.dom.children);
         }
 
+        // Get any value in $data
         this.get = function(key) {
           return this.$data[key];
         }
 
+        // Make AJAX GET/POST requests
         this.ajax = function(method, url, params, cb) {
           var xmlHttp = new XMLHttpRequest();
           method = method.toUpperCase();
@@ -116,11 +119,13 @@
           xmlHttp.send(method === "POST" ? urlParams : null);
         }
 
+        // Call a method defined in _methods
         this.method = function(method) {
           _methods[method]();
         }
 
-        this.seed();
+        // Initialize
+        createVirtualDOM(this.$el);
         this.build(this.dom.children);
     }
 
