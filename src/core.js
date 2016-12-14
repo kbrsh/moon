@@ -78,11 +78,13 @@
           return {type: type, children: children, val: val, props: props, node: node};
         }
 
+        // Set any value in $data
         this.set = function(key, val) {
           this.$data[key] = val;
           this.build(this.dom.children);
         }
 
+        // Get any value in $data
         this.get = function(key) {
           return this.$data[key];
         }
