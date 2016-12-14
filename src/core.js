@@ -73,7 +73,7 @@
           }
         }
 
-
+        // Create Virtual DOM Object from Params
         this.createElement = function(type, children, val, props, node) {
           return {type: type, children: children, val: val, props: props, node: node};
         }
