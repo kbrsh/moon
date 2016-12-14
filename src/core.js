@@ -58,7 +58,7 @@
 
         this.extractAttrs = function(node) {
           var attrs = {};
-          if(node.nodeName === "#text") return attrs;
+          if(!node.attributes) return attrs;
           var rawAttrs = node.attributes;
           for(var i = 0; i < rawAttrs.length; i++) {
             attrs[rawAttrs[i].name] = rawAttrs[i].value
