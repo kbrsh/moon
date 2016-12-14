@@ -7,6 +7,7 @@
         this.$el = document.getElementById(_el);
         this.dom = {type: this.$el.nodeName, children: [], node: this.$el};
 
+        // Change state when $data is changed
         Object.defineProperty(this, '$data', {
             get: function() {
                 return _data;
@@ -17,6 +18,7 @@
             }
         });
 
+        // Utility: Raw Attributes -> Key Value Pairs
         var extractAttrs = function(node) {
           var attrs = {};
           if(!node.attributes) return attrs;
