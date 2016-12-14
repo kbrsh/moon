@@ -2,13 +2,31 @@
 
 minimal mvvm library
 
-## What is it?
+### What is it?
 
-Moon is a simple framework similar to Vue.js, in which you bind data in real time.
+Moon is a simple framework similar to Vue.js, but much faster and ultralight.
 
-## Usage
+### Usage
 
 Coming Soon!
 
+### Benchmarks
 
-## [License](http://kingpixil.github.io/license)
+- Rendering Time: 70μs
+- ~110,175 ops/sec
+
+### Roadmap
+
+- Use Virtual DOM
+  - Create Virtual DOM while seeding
+  - Every build, replace (first version) of virtual dom with new data
+  - Run diff algorithm against real DOM and rerender
+- Methods
+- Filters
+- Attributes/Properties Binding
+- Model
+- If
+- For
+
+
+### [License](http://kingpixil.github.io/license)
