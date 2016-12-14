@@ -32,12 +32,23 @@
           for(var i = 0; i < children.length; i++) {
             var el = children[i];
             if(el.type === "#text") {
+              var tmpVal = el.val;
               el.val.replace(/{{(\w+)}}/gi, function(match, p1) {
-                var dataToAdd = tempData[p1];
-                el.node.textContent = el.val.replace(new RegExp(match, "gi"), dataToAdd);
+                var newVal = tmpVal.replace(match, tempData[p1]);
+                el.node.textContent = newVal;
+                tmpVal = newVal;
               });
             } else {
-               this.build(el.children);
+                for(var prop in el.props) {
+                  var tmpVal = el.props[prop];
+                  el.props[prop].replace(/{{(\w+)}}/gi, function(match, p1) {
+                    var dataToAdd = tempData[p1];
+                    var newVal = tmpVal.replace(new RegExp(match, "gi"), dataToAdd);
+                    el.node.setAttribute(prop, newVal);
+                    tmpVal = newVal;
+                  });
+                }
+                this.build(el.children);
             }
           }
         }
@@ -46,22 +57,33 @@
           var recursiveChildrenArr = [];
           for(var i = 0; i < children.length; i++) {
             var child = children[i];
-            recursiveChildrenArr.push(this.createElement(child.nodeName, this.recursiveChildren(child.childNodes), child.textContent, child));
+            recursiveChildrenArr.push(this.createElement(child.nodeName, this.recursiveChildren(child.childNodes), child.textContent, this.extractAttrs(child), child));
           }
           return recursiveChildrenArr;
         }
 
-        this.createElement = function(type, children, val, node) {
-          return {type: type, children: children, val: val, node: node};
+        this.createElement = function(type, children, val, props, node) {
+          return {type: type, children: children, val: val, props: props, node: node};
         }
 
         this.createVirtualDOM = function(node) {
-          var vdom = this.createElement(node.nodeName, this.recursiveChildren(node.childNodes), node.textContent, node);
+          var vdom = this.createElement(node.nodeName, this.recursiveChildren(node.childNodes), node.textContent, this.extractAttrs(node), node);
           this.dom = vdom;
         }
 
         this.seed = function() {
           this.createVirtualDOM(this.$el);
+        }
+
+        this.extractAttrs = function(node) {
+          var attrs = {};
+          if(!node.attributes) return attrs;
+          var rawAttrs = node.attributes;
+          for(var i = 0; i < rawAttrs.length; i++) {
+            attrs[rawAttrs[i].name] = rawAttrs[i].value
+          }
+
+          return attrs;
         }
 
         this.set = function(key, val) {
@@ -97,6 +119,7 @@
         this.method = function(method) {
           _methods[method]();
         }
+
         this.seed();
         this.build(this.dom.children);
     }
