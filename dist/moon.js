@@ -59,6 +59,7 @@
           var tempData = this.$data;
           for(var i = 0; i < children.length; i++) {
             var el = children[i];
+            
             if(el.type === "#text") {
               var tmpVal = el.val;
               el.val.replace(/{{(\w+)}}/gi, function(match, p1) {
@@ -69,12 +70,18 @@
             } else {
                 for(var prop in el.props) {
                   var tmpVal = el.props[prop];
+
+                  if(prop === "m-if") {
+                    tempData[tmpVal] ? el.node.textContent = el.val : el.node.textContent = "";
+                  }
+
                   el.props[prop].replace(/{{(\w+)}}/gi, function(match, p1) {
                     var dataToAdd = tempData[p1];
                     var newVal = tmpVal.replace(new RegExp(match, "gi"), dataToAdd);
                     el.node.setAttribute(prop, newVal);
                     tmpVal = newVal;
                   });
+
                 }
                 this.build(el.children);
             }
@@ -120,7 +127,7 @@
         }
 
         // Call a method defined in _methods
-        this.method = function(method, args) {
+        this.method = function(method) {
           _methods[method]();
         }
 
