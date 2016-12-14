@@ -38,7 +38,7 @@
           var recursiveChildrenArr = [];
           for(var i = 0; i < children.length; i++) {
             var child = children[i];
-            recursiveChildrenArr.push(this.createElement(child.nodeName, this.recursiveChildren(child.childNodes), child.textContent, child));
+            recursiveChildrenArr.push(this.createElement(child.nodeName, this.recursiveChildren(child.childNodes), child.textContent, this.extractAttrs(child), child));
           }
           return recursiveChildrenArr;
         }
@@ -48,7 +48,7 @@
         }
 
         this.createVirtualDOM = function(node) {
-          var vdom = this.createElement(node.nodeName, this.recursiveChildren(node.childNodes), node.textContent, node);
+          var vdom = this.createElement(node.nodeName, this.recursiveChildren(node.childNodes), node.textContent, this.extractAttrs(node), node);
           this.dom = vdom;
         }
 
