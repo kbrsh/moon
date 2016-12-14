@@ -12,11 +12,11 @@
         var _el = opts.el;
         var _data = opts.data;
         var _methods = opts.methods;
-        this.el = document.getElementById(_el);
-        this.html = this.el.innerHTML;
-        this.dom = {type: this.el.nodeName, children: [], node: this.el};
+        this.$el = document.getElementById(_el);
+        this.html = this.$el.innerHTML;
+        this.dom = {type: this.$el.nodeName, children: [], node: this.$el};
 
-        Object.defineProperty(this, 'data', {
+        Object.defineProperty(this, '$data', {
             get: function() {
                 return _data;
             },
@@ -28,7 +28,7 @@
 
 
         this.build = function(children) {
-          var tempData = this.data;
+          var tempData = this.$data;
           for(var i = 0; i < children.length; i++) {
             var el = children[i];
             if(el.type === "#text") {
@@ -61,16 +61,16 @@
         }
 
         this.seed = function() {
-          this.createVirtualDOM(this.el);
+          this.createVirtualDOM(this.$el);
         }
 
         this.set = function(key, val) {
-          this.data[key] = val;
+          this.$data[key] = val;
           this.build(this.dom.children);
         }
 
         this.get = function(key) {
-          return this.data[key];
+          return this.$data[key];
         }
 
         this.ajax = function(method, url, params, cb) {
