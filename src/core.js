@@ -38,6 +38,10 @@
           return recursiveChildrenArr;
         }
 
+        var createVirtualDOM = function(node) {
+          var vdom = this.createElement(node.nodeName, recursiveChildren(node.childNodes), node.textContent, extractAttrs(node), node);
+          this.dom = vdom;
+        }
 
         this.build = function(children) {
           var tempData = this.$data;
@@ -68,11 +72,6 @@
 
         this.createElement = function(type, children, val, props, node) {
           return {type: type, children: children, val: val, props: props, node: node};
-        }
-
-        this.createVirtualDOM = function(node) {
-          var vdom = this.createElement(node.nodeName, recursiveChildren(node.childNodes), node.textContent, extractAttrs(node), node);
-          this.dom = vdom;
         }
 
         this.seed = function() {
