@@ -59,34 +59,6 @@
                 el.node.textContent = newVal;
                 tmpVal = newVal;
               });
-            } else {
-                for(var prop in el.props) {
-                  var tmpVal = el.props[prop];
-
-                  switch (prop) {
-                    case "m-if":
-                      tempData[tmpVal] ? el.node.textContent = el.val : el.node.textContent = "";
-                      break;
-                    // case "m-model":
-                    //   var events = "propertychange change click keyup input paste".split(" ");
-                    //   for(var i = 0; i < events.length; i++) {
-                    //     var self = this;
-                    //     el.node.addEventListener(events[i], function() {
-                    //       self.set(tmpVal, el.node.value);
-                    //     });
-                    //   }
-                    default:
-                  }
-
-                  el.props[prop].replace(/{{(\w+)}}/gi, function(match, p1) {
-                    var dataToAdd = tempData[p1];
-                    var newVal = tmpVal.replace(new RegExp(match, "gi"), dataToAdd);
-                    el.node.setAttribute(prop, newVal);
-                    tmpVal = newVal;
-                  });
-
-                }
-                this.build(el.children);
             }
           }
         }
