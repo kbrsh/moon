@@ -121,7 +121,7 @@
 
         // Directive Initialization
         this.directive = function(name, action) {
-
+          directives[name] = action;
         }
 
         // Initialize
