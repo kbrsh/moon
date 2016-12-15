@@ -38,46 +38,48 @@
           return attrs;
         }
 
+        // Utility: Compile a template and return html
+        var compileTemplate = function(template, data) {
+          var code = template,
+              re = /{{([.]?\w+)}}/gi;
+          code.replace(re, function(match, p) {
+            code = code.replace(match, "` + data." + p + " + `");
+          });
+          var compile = new Function("data", "var out = `" + code + "`; return out");
+          return compile(data);
+        }
+
         // Utility: Create Elements Recursively For all Children
-        var recursiveChildren = function(children) {
+        this.recursiveChildren = function(children) {
           var recursiveChildrenArr = [];
           for(var i = 0; i < children.length; i++) {
             var child = children[i];
-            recursiveChildrenArr.push(this.createElement(child.nodeName, recursiveChildren(child.childNodes), child.textContent, extractAttrs(child), child));
+            recursiveChildrenArr.push(this.createElement(child.nodeName, this.recursiveChildren(child.childNodes), child.textContent, extractAttrs(child), child));
           }
           return recursiveChildrenArr;
         }
 
         // Utility: Create Virtual DOM Instance
-        var createVirtualDOM = function(node) {
-          var vdom = this.createElement(node.nodeName, recursiveChildren(node.childNodes), node.textContent, extractAttrs(node), node);
+        this.createVirtualDOM = function(node) {
+          var vdom = this.createElement(node.nodeName, this.recursiveChildren(node.childNodes), node.textContent, extractAttrs(node), node);
           this.dom = vdom;
         }
 
         // Build the DOM with $data
         this.build = function(children) {
-          var tempData = this.$data;
           for(var i = 0; i < children.length; i++) {
             var el = children[i];
+
             if(el.type === "#text") {
-              var tmpVal = el.val;
-              el.val.replace(/{{(\w+)}}/gi, function(match, p1) {
-                var newVal = tmpVal.replace(match, tempData[p1]);
-                el.node.textContent = newVal;
-                tmpVal = newVal;
-              });
+              el.node.textContent = compileTemplate(el.val, this.$data);
             } else {
-                for(var prop in el.props) {
-                  var tmpVal = el.props[prop];
-                  el.props[prop].replace(/{{(\w+)}}/gi, function(match, p1) {
-                    var dataToAdd = tempData[p1];
-                    var newVal = tmpVal.replace(new RegExp(match, "gi"), dataToAdd);
-                    el.node.setAttribute(prop, newVal);
-                    tmpVal = newVal;
-                  });
-                }
-                this.build(el.children);
+              for(var prop in el.props) {
+                var propVal = el.props[prop];
+                el.node.setAttribute(prop, compileTemplate(propVal, this.$data));
+              }
             }
+
+            this.build(el.children);
           }
         }
 
@@ -125,7 +127,7 @@
         }
 
         // Initialize
-        createVirtualDOM(this.$el);
+        this.createVirtualDOM(this.$el);
         this.build(this.dom.children);
     }
 
