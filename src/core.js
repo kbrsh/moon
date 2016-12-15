@@ -65,6 +65,8 @@
             if(el.type === "#text") {
               el.node.textContent = compileTemplate(el.val, this.$data);
             }
+
+            this.build(this.el.children);
           }
         }
 
