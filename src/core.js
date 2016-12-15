@@ -68,6 +68,9 @@
             } else {
               for(var prop in el.props) {
                 var propVal = el.props[prop];
+                if(directives[prop]) {
+                  directives[prop](el.node);
+                }
                 el.node.setAttribute(prop, compileTemplate(propVal, this.$data));
               }
             }
