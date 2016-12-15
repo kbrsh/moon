@@ -4,6 +4,7 @@
         var _el = opts.el;
         var _data = opts.data;
         var _methods = opts.methods;
+        var directives = {};
         this.$el = document.getElementById(_el);
         this.dom = {type: this.$el.nodeName, children: [], node: this.$el};
 
