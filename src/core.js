@@ -33,11 +33,12 @@
         // Utility: Compile a template and return html
         var compileTemplate = function(template, data) {
           var code = template,
-              re = /{{(\w+)}}/gi;
+              re = /{{(\w.+)}}/gi;
           code.replace(re, function(match, p) {
-
+            code = code.replace(match, "' + data." + p + " + '");
           });
-          var compile = new Function("data", code);
+          console.log("var out = '" + code + "'; return out")
+          var compile = new Function("data", "var out = '" + code + "'; return out");
           return compile(data);
         }
 
