@@ -12,8 +12,8 @@ Coming Soon!
 
 ### Benchmarks
 
-- Rendering Time: 70μs
-- ~110,175 ops/sec
+- Rendering Time: 100μs
+- ~51,175 ops/sec
 
 ### Roadmap
 
@@ -23,7 +23,7 @@ Coming Soon!
   - Run diff algorithm against real DOM and rerender
 - Methods
 <!-- - Filters -->
-- Attributes/Properties Binding
+<!-- - Attributes/Properties Binding -->
 - Model
 - If
 - For
