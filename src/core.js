@@ -59,12 +59,11 @@
 
         // Build the DOM with $data
         this.build = function(children) {
-          var tempData = this.$data;
           for(var i = 0; i < children.length; i++) {
             var el = children[i];
 
             if(el.type === "#text") {
-
+              el.node.textContent = compileTemplate(el.val, this.$data);
             }
           }
         }
