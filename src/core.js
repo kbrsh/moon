@@ -66,7 +66,7 @@
               el.node.textContent = compileTemplate(el.val, this.$data);
             }
 
-            this.build(this.el.children);
+            this.build(el.children);
           }
         }
 
