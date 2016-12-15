@@ -67,7 +67,7 @@
             } else {
               for(prop in el.props) {
                 var propVal = el.props[prop];
-                compileTemplate(propVal, this.$data);
+                el.node.setAttribute(prop, setcompileTemplate(propVal, this.$data));
               }
             }
 
