@@ -32,6 +32,9 @@
 
         // Utility: Compile a template and return html
         var compileTemplate = function(template, data) {
+          var code = template,
+              re = /{{(\w+)}}/gi;
+          code.replace()
           var compile = new Function("data", code);
           return compile(data);
         }
