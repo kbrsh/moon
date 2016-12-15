@@ -75,6 +75,8 @@
                     case "m-if":
                       tempData[tmpVal] ? el.node.textContent = el.val : el.node.textContent = "";
                       break;
+                    case "m-model":
+                      
                     default:
                   }
 
