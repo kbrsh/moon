@@ -75,14 +75,14 @@
                     case "m-if":
                       tempData[tmpVal] ? el.node.textContent = el.val : el.node.textContent = "";
                       break;
-                    case "m-model":
-                      var events = "propertychange change click keyup input paste".split(" ");
-                      for(var i = 0; i < events.length; i++) {
-                        var self = this;
-                        el.node.addEventListener(events[i], function() {
-                          self.set(tmpVal, el.node.value);
-                        });
-                      }
+                    // case "m-model":
+                    //   var events = "propertychange change click keyup input paste".split(" ");
+                    //   for(var i = 0; i < events.length; i++) {
+                    //     var self = this;
+                    //     el.node.addEventListener(events[i], function() {
+                    //       self.set(tmpVal, el.node.value);
+                    //     });
+                    //   }
                     default:
                   }
 
