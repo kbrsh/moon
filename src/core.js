@@ -37,7 +37,6 @@
           code.replace(re, function(match, p) {
             code = code.replace(match, "' + data." + p + " + '");
           });
-          console.log("var out = '" + code + "'; return out")
           var compile = new Function("data", "var out = '" + code + "'; return out");
           return compile(data);
         }
