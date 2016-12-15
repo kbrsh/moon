@@ -119,6 +119,11 @@
           _methods[method]();
         }
 
+        // Directive Initialization
+        this.directive = function(name, action) {
+
+        }
+
         // Initialize
         this.createVirtualDOM(this.$el);
         this.build(this.dom.children);
