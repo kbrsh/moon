@@ -76,7 +76,7 @@
                       tempData[tmpVal] ? el.node.textContent = el.val : el.node.textContent = "";
                       break;
                     case "m-model":
-                      
+                      var events = "propertychange change click keyup input paste".split(" ");
                     default:
                   }
 
