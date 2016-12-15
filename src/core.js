@@ -30,6 +30,11 @@
           return attrs;
         }
 
+        // Utility: Compile a template and return html
+        var compileTemplate = function(template, data) {
+          
+        }
+
         // Utility: Create Elements Recursively For all Children
         this.recursiveChildren = function(children) {
           var recursiveChildrenArr = [];
@@ -53,7 +58,7 @@
             var el = children[i];
 
             if(el.type === "#text") {
-              
+
             }
           }
         }
