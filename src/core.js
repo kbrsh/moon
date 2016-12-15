@@ -65,7 +65,7 @@
             if(el.type === "#text") {
               el.node.textContent = compileTemplate(el.val, this.$data);
             } else {
-              for(prop in el.props) {
+              for(var prop in el.props) {
                 var propVal = el.props[prop];
                 el.node.setAttribute(prop, setcompileTemplate(propVal, this.$data));
               }
