@@ -53,12 +53,7 @@
             var el = children[i];
 
             if(el.type === "#text") {
-              var tmpVal = el.val;
-              el.val.replace(/{{(\w+)}}/gi, function(match, p1) {
-                var newVal = tmpVal.replace(match, tempData[p1]);
-                el.node.textContent = newVal;
-                tmpVal = newVal;
-              });
+              
             }
           }
         }
