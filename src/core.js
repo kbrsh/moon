@@ -32,7 +32,8 @@
 
         // Utility: Compile a template and return html
         var compileTemplate = function(template, data) {
-          
+          var compile = new Function("data", code);
+          return compile(data);
         }
 
         // Utility: Create Elements Recursively For all Children
