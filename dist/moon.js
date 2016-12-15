@@ -77,6 +77,11 @@
                       break;
                     case "m-model":
                       var events = "propertychange change click keyup input paste".split(" ");
+                      for(var i = 0; i < events.length; i++) {
+                        el.node.addEventListener(events[i], function() {
+                          this.set(tmpVal, el.node.textContent);
+                        });
+                      }
                     default:
                   }
 
