@@ -39,18 +39,18 @@
         }
 
         // Utility: Create Elements Recursively For all Children
-        this.recursiveChildren = function(children) {
+        var recursiveChildren = function(children) {
           var recursiveChildrenArr = [];
           for(var i = 0; i < children.length; i++) {
             var child = children[i];
-            recursiveChildrenArr.push(this.createElement(child.nodeName, this.recursiveChildren(child.childNodes), child.textContent, extractAttrs(child), child));
+            recursiveChildrenArr.push(this.createElement(child.nodeName, recursiveChildren(child.childNodes), child.textContent, extractAttrs(child), child));
           }
           return recursiveChildrenArr;
         }
 
         // Utility: Create Virtual DOM Instance
-        this.createVirtualDOM = function(node) {
-          var vdom = this.createElement(node.nodeName, this.recursiveChildren(node.childNodes), node.textContent, extractAttrs(node), node);
+        var createVirtualDOM = function(node) {
+          var vdom = this.createElement(node.nodeName, recursiveChildren(node.childNodes), node.textContent, extractAttrs(node), node);
           this.dom = vdom;
         }
 
@@ -59,7 +59,6 @@
           var tempData = this.$data;
           for(var i = 0; i < children.length; i++) {
             var el = children[i];
-
             if(el.type === "#text") {
               var tmpVal = el.val;
               el.val.replace(/{{(\w+)}}/gi, function(match, p1) {
@@ -70,29 +69,12 @@
             } else {
                 for(var prop in el.props) {
                   var tmpVal = el.props[prop];
-
-                  switch (prop) {
-                    case "m-if":
-                      tempData[tmpVal] ? el.node.textContent = el.val : el.node.textContent = "";
-                      break;
-                    // case "m-model":
-                    //   var events = "propertychange change click keyup input paste".split(" ");
-                    //   for(var i = 0; i < events.length; i++) {
-                    //     var self = this;
-                    //     el.node.addEventListener(events[i], function() {
-                    //       self.set(tmpVal, el.node.value);
-                    //     });
-                    //   }
-                    default:
-                  }
-
                   el.props[prop].replace(/{{(\w+)}}/gi, function(match, p1) {
                     var dataToAdd = tempData[p1];
                     var newVal = tmpVal.replace(new RegExp(match, "gi"), dataToAdd);
                     el.node.setAttribute(prop, newVal);
                     tmpVal = newVal;
                   });
-
                 }
                 this.build(el.children);
             }
@@ -143,7 +125,7 @@
         }
 
         // Initialize
-        this.createVirtualDOM(this.$el);
+        createVirtualDOM(this.$el);
         this.build(this.dom.children);
     }
 
