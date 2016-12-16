@@ -95,6 +95,7 @@
         this.componentsToHTML = function() {
           for(var component in this.components) {
             var componentsFound = document.getElementsByTagName(component);
+            componentsFound = Array.prototype.slice.call(componentsFound);
             for(var i = 0; i < componentsFound.length; i++) {
               var componentFound = componentsFound[i];
               var componentProps = extractAttrs(componentFound);
