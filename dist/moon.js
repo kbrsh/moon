@@ -74,7 +74,7 @@
 
             if(el.type === "#text") {
               el.node.textContent = compileTemplate(el.val, this.$data);
-            } else {
+            } else if(el.props) {
               for(var prop in el.props) {
                 var propVal = el.props[prop];
                 var compiledProperty = compileTemplate(propVal, this.$data);
