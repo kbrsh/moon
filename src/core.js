@@ -194,7 +194,7 @@
 
         directives["m-model"] = function(el, val, vdom) {
           el.addEventListener("onchange", function() {
-
+            self.set(val, el.value);
           });
           el.removeAttribute("m-model");
           delete vdom.props["m-model"];
