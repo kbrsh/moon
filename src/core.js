@@ -73,7 +73,7 @@
               for(var prop in el.props) {
                 var propVal = el.props[prop];
                 var compiledProperty = compileTemplate(propVal, this.$data);
-                var directive = this.directives[prop];
+                var directive = directives[prop];
                 if(directive) {
                   directive(el.node, compiledProperty);
                 }
@@ -132,7 +132,6 @@
         // Directive Initialization
         this.directive = function(name, action) {
           directives["m-" + name] = action;
-          this.build(this.dom.children);
         }
 
         // Default Directives
@@ -140,6 +139,8 @@
           var evaluated = new Function("return " + val);
           if(!evaluated) {
             el.textContent = "";
+          } else {
+            el.textContent = el.val;
           }
         }
 
