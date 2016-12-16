@@ -12,7 +12,9 @@
         var _el = opts.el;
         var _data = opts.data;
         var _methods = opts.methods;
+        var directives = {};
         this.$el = document.getElementById(_el);
+        this.components = opts.components;
         this.dom = {type: this.$el.nodeName, children: [], node: this.$el};
 
         // Change state when $data is changed
@@ -75,7 +77,13 @@
             } else {
               for(var prop in el.props) {
                 var propVal = el.props[prop];
-                el.node.setAttribute(prop, compileTemplate(propVal, this.$data));
+                var compiledProperty = compileTemplate(propVal, this.$data);
+                var directive = directives[prop];
+                if(directive) {
+                  directive(el.node, compiledProperty);
+                }
+
+                el.node.setAttribute(prop, compiledProperty);
               }
             }
 
@@ -124,6 +132,21 @@
         // Call a method defined in _methods
         this.method = function(method) {
           _methods[method]();
+        }
+
+        // Directive Initialization
+        this.directive = function(name, action) {
+          directives["m-" + name] = action;
+          this.build(this.dom.children);
+        }
+
+        // Default Directives
+        var dirSelf = this;
+        directives["m-if"] = function(el, val) {
+          var evaluated = new Function("return " + val);
+          if(!evaluated) {
+            el.textContent = "";
+          }
         }
 
         // Initialize
