@@ -75,7 +75,7 @@
                 var compiledProperty = compileTemplate(propVal, this.$data);
                 var directive = directives[prop];
                 if(directive) {
-                  directive(el.node, compiledProperty);
+                  directive(el.node, compiledProperty, el);
                 }
 
                 el.node.setAttribute(prop, compiledProperty);
