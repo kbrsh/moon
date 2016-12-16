@@ -55,9 +55,6 @@
 
         // Utility: Create Virtual DOM Instance
         this.createVirtualDOM = function(node) {
-          // if(this.components[node.nodeName.toLowerCase()]) {
-          //   var component = this.components[type.toLowerCase()].template;
-          // }
           var vdom = this.createElement(node.nodeName, this.recursiveChildren(node.childNodes), node.textContent, extractAttrs(node), node);
           this.dom = vdom;
         }
