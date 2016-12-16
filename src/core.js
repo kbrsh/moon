@@ -6,6 +6,7 @@
         var _methods = opts.methods;
         var directives = {};
         this.$el = document.getElementById(_el);
+        this.components = opts.components;
         this.dom = {type: this.$el.nodeName, children: [], node: this.$el};
 
         // Change state when $data is changed
