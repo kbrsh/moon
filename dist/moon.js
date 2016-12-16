@@ -200,6 +200,15 @@
           delete vdom.props["m-on"];
         }
 
+        directives["m-model"] = function(el, val, vdom) {
+          el.value = self.get(val);
+          el.addEventListener("input", function() {
+            self.set(val, el.value);
+          });
+          el.removeAttribute("m-model");
+          delete vdom.props["m-model"];
+        }
+
         /**
         * Builds the DOM With Data
         * @param {Array} children
