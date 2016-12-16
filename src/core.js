@@ -5,6 +5,7 @@
         var _data = opts.data;
         var _methods = opts.methods;
         var directives = {};
+        var self = this;
         this.$el = document.getElementById(_el);
         this.components = opts.components;
         this.dom = {type: this.$el.nodeName, children: [], node: this.$el};
@@ -141,7 +142,6 @@
         }
 
         // Default Directives
-        var self = this;
         directives["m-if"] = function(el, val, vdom) {
           var evaluated = new Function("return " + val);
           if(!evaluated()) {
