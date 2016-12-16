@@ -85,7 +85,10 @@
 
         this.componentsToHTML = function() {
           for(var component in this.components) {
-            
+            var componentsFound = document.getElementsByTagName(component);
+            for(var i = 0; i < componentsFound.length; i++) {
+              component.outerHTML = this.components[component].template;
+            }
           }
         }
 
