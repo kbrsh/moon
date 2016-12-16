@@ -173,7 +173,7 @@
 
         // Default Directives
         directives["m-if"] = function(el, val, vdom) {
-          var evaluated = new Function("if()");
+          var evaluated = new Function("return " + val);
           if(!evaluated()) {
             el.textContent = "";
           } else {
