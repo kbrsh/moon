@@ -48,7 +48,6 @@
           var recursiveChildrenArr = [];
           for(var i = 0; i < children.length; i++) {
             var child = children[i];
-            if()
             recursiveChildrenArr.push(this.createElement(child.nodeName, this.recursiveChildren(child.childNodes), child.textContent, extractAttrs(child), child));
           }
           return recursiveChildrenArr;
@@ -86,6 +85,12 @@
 
         // Create Virtual DOM Object from Params
         this.createElement = function(type, children, val, props, node) {
+          if(this.components[el.type.toLowerCase()]) {
+            var component = this.components[el.type.toLowerCase()];
+            var div = document.createElement('div');
+            div.innerHTML = component;
+            children = div.childNodes;
+          }
           return {type: type, children: children, val: val, props: props, node: node};
         }
 
