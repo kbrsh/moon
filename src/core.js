@@ -111,7 +111,11 @@
           this.build(this.dom.children);
         }
 
-        // Get any value in $data
+        /**
+        * Gets Value in Data
+        * @param {String} key
+        * @return {String} Value of key in data
+        */
         this.get = function(key) {
           return this.$data[key];
         }
