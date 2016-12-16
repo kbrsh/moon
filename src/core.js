@@ -83,16 +83,12 @@
           }
         }
 
-        this.componentToHTML = function(html) {
+        this.componentsToHTML = function() {
 
         }
 
         // Create Virtual DOM Object from Params
         this.createElement = function(type, children, val, props, node) {
-          if(this.components[type.toLowerCase()]) {
-            this.componentToHTML(this.components[type.toLowerCase()]);
-
-          }
           return {type: type, children: children, val: val, props: props, node: node};
         }
 
