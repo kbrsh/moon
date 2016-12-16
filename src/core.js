@@ -132,19 +132,12 @@
         }
 
         // Default Directives
+        var dirSelf = this;
         directives["m-if"] = function(el, val) {
           var evaluated = new Function("return " + val);
           if(!evaluated) {
             el.textContent = "";
           }
-        }
-
-        directives["m-on"] = function(el, val) {
-          val = val.split(":");
-          var methodToCall = this.method(val[1]);
-          el.addEventListener(val[0], function() {
-            methodToCall();
-          });
         }
 
         // Initialize
