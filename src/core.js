@@ -171,7 +171,10 @@
           }
         }
 
-        // Build the DOM with $data
+        /**
+        * Builds the DOM With Data
+        * @param {Array} children
+        */
         this.build = function(children) {
           for(var i = 0; i < children.length; i++) {
             var el = children[i];
