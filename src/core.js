@@ -139,6 +139,10 @@
           }
         }
 
+        directives["m-on"] = function(el, val) {
+          
+        }
+
         // Initialize
         this.createVirtualDOM(this.$el);
         this.build(this.dom.children);
