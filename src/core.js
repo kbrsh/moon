@@ -148,7 +148,10 @@
           xmlHttp.send(method === "POST" ? urlParams : null);
         }
 
-        // Call a method defined in _methods
+        /**
+        * Calls a method
+        * @param {String} method
+        */
         this.method = function(method) {
           _methods[method]();
         }
