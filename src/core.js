@@ -192,6 +192,14 @@
           delete vdom.props["m-on"];
         }
 
+        directives["m-model"] = function(el, val, vdom) {
+          el.addEventListener("onchange", function() {
+
+          });
+          el.removeAttribute("m-model");
+          delete vdom.props["m-model"];
+        }
+
         /**
         * Builds the DOM With Data
         * @param {Array} children
