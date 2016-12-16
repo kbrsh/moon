@@ -68,12 +68,13 @@
             } else {
               for(var prop in el.props) {
                 var propVal = el.props[prop];
+                var compiledProperty = compileTemplate(propVal, this.$data);
                 var directive = directives[prop];
                 if(directive) {
-                  directive(el.node, propVal);
+                  directive(el.node, compiledProperty);
                 }
 
-                el.node.setAttribute(prop, compileTemplate(propVal, this.$data));
+                el.node.setAttribute(prop, compiledProperty);
               }
             }
 
