@@ -186,7 +186,7 @@
           var eventToCall = splitVal[0];
           var methodToCall = splitVal[1];
           val.addEventListener(eventToCall, function() {
-            
+            self.method(methodToCall);
           });
         }
 
