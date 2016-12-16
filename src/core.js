@@ -127,6 +127,7 @@
         // Directive Initialization
         this.directive = function(name, action) {
           directives[name] = action;
+          this.build(this.dom.children);
         }
 
         // Initialize
