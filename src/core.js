@@ -80,7 +80,7 @@
             }
 
             if(this.components[el.type.toLowerCase()]) {
-              
+              var component = this.components[el.type.toLowerCase()];
             }
 
             this.build(el.children);
