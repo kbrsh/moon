@@ -89,7 +89,9 @@
           this.dom = vdom;
         }
 
-        //
+        /**
+        * Turns Custom Components into their Corresponding Templates
+        */
         this.componentsToHTML = function() {
           for(var component in this.components) {
             var componentsFound = document.getElementsByTagName(component);
