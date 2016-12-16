@@ -70,7 +70,7 @@
                 var propVal = el.props[prop];
                 var directive = directives[prop];
                 if(directive) {
-                  directive(el.node);
+                  directive(el.node, propVal);
                 }
 
                 el.node.setAttribute(prop, compileTemplate(propVal, this.$data));
