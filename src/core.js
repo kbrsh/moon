@@ -37,7 +37,12 @@
           return attrs;
         }
 
-        // Utility: Compile a template and return html
+        /**
+        * Compiles a template with given data
+        * @param {String} template
+        * @param {Object} data
+        * @return {String} Template with data rendered
+        */
         var compileTemplate = function(template, data) {
           var code = template,
               re = /{{([.]?\w+)}}/gi;
