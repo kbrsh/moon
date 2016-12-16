@@ -140,6 +140,10 @@
           }
         }
 
+        directives["m-model"] = function(el, val) {
+          
+        }
+
         // Initialize
         this.createVirtualDOM(this.$el);
         this.build(this.dom.children);
