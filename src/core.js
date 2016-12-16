@@ -136,8 +136,7 @@
         }
 
         // Default Directives
-        var dirSelf = this;
-        directives["m-if"] = function(el, val) {
+        this.directives["m-if"] = function(el, val) {
           var evaluated = new Function("return " + val);
           if(!evaluated) {
             el.textContent = "";
