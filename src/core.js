@@ -101,7 +101,11 @@
           }
         }
 
-        // Set any value in $data
+        /**
+        * Sets Value in Data
+        * @param {String} key
+        * @param {String} val
+        */
         this.set = function(key, val) {
           this.$data[key] = val;
           this.build(this.dom.children);
