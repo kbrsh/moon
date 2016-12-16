@@ -183,6 +183,9 @@
 
         directives["m-on"] = function(el, val, vdom) {
           var splitVal = val.split(":");
+          var eventToCall = splitVal[0];
+          var methodToCall = splitVal[1];
+          val.addEventListener()
         }
 
         /**
