@@ -4,7 +4,7 @@
         var _el = opts.el;
         var _data = opts.data;
         var _methods = opts.methods;
-        this.directives = {};
+        var directives = {};
         this.$el = document.getElementById(_el);
         this.components = opts.components;
         this.dom = {type: this.$el.nodeName, children: [], node: this.$el};
@@ -136,7 +136,8 @@
         }
 
         // Default Directives
-        this.directives["m-if"] = function(el, val) {
+        var dirSelf = this;
+        directives["m-if"] = function(el, val) {
           var evaluated = new Function("return " + val);
           if(!evaluated) {
             el.textContent = "";
