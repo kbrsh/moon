@@ -80,7 +80,10 @@
           return recursiveChildrenArr;
         }
 
-        // Utility: Create Virtual DOM Instance
+        /**
+        * Creates Virtual DOM
+        * @param {Node} node
+        */
         this.createVirtualDOM = function(node) {
           var vdom = this.createElement(node.nodeName, this.recursiveChildren(node.childNodes), node.textContent, extractAttrs(node), node);
           this.dom = vdom;
