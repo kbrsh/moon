@@ -79,6 +79,8 @@
               }
             }
 
+            if(this.components[el.type])
+
             this.build(el.children);
           }
         }
