@@ -53,7 +53,15 @@
           return compile(data);
         }
 
-        // Create Virtual DOM Object from Params
+        /**
+        * Creates an object to be used in a Virtual DOM
+        * @param {String} type
+        * @param {Array} children
+        * @param {String} val
+        * @param {Object} props
+        * @param {Node} node
+        * @return {Object} Object usable in Virtual DOM
+        */
         this.createElement = function(type, children, val, props, node) {
           return {type: type, children: children, val: val, props: props, node: node};
         }
