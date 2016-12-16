@@ -4,7 +4,7 @@
         var _el = opts.el;
         var _data = opts.data;
         var _methods = opts.methods;
-        var directives = {};
+        this.directives = {};
         this.$el = document.getElementById(_el);
         this.components = opts.components;
         this.dom = {type: this.$el.nodeName, children: [], node: this.$el};
@@ -73,7 +73,7 @@
               for(var prop in el.props) {
                 var propVal = el.props[prop];
                 var compiledProperty = compileTemplate(propVal, this.$data);
-                var directive = directives[prop];
+                var directive = this.directives[prop];
                 if(directive) {
                   directive(el.node, compiledProperty);
                 }
