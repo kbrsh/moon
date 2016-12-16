@@ -198,7 +198,7 @@
           }
         }
 
-        // Initialize
+        // Initialize 🎉
         this.componentsToHTML();
         this.createVirtualDOM(this.$el);
         this.build(this.dom.children);
