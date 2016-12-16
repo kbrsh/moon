@@ -131,6 +131,9 @@
         }
 
         // Default Directives
+        directives["m-if"] = function(el, val) {
+          
+        }
 
         // Initialize
         this.createVirtualDOM(this.$el);
