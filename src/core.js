@@ -21,7 +21,11 @@
             }
         });
 
-        // Utility: Raw Attributes -> Key Value Pairs
+        /**
+        * Converts attributes into key-value pairs
+        * @param {Node} node
+        * @return {Object} Key-Value pairs of Attributes
+        */
         var extractAttrs = function(node) {
           var attrs = {};
           if(!node.attributes) return attrs;
@@ -65,6 +69,7 @@
           this.dom = vdom;
         }
 
+        //
         this.componentsToHTML = function() {
           for(var component in this.components) {
             var componentsFound = document.getElementsByTagName(component);
