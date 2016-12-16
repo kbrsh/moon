@@ -6,7 +6,7 @@
         var _methods = opts.methods;
         var directives = {};
         var self = this;
-        this.$el = document.getElementById(_el);
+        this.$el = document.querySelector(_el);
         this.components = opts.components;
         this.dom = {type: this.$el.nodeName, children: [], node: this.$el};
 
