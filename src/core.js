@@ -66,7 +66,11 @@
           return {type: type, children: children, val: val, props: props, node: node};
         }
 
-        // Utility: Create Elements Recursively For all Children
+        /**
+        * Create Elements Recursively For all Children
+        * @param {Array} children
+        * @return {Array} Array of elements usable in Virtual DOM
+        */
         this.recursiveChildren = function(children) {
           var recursiveChildrenArr = [];
           for(var i = 0; i < children.length; i++) {
