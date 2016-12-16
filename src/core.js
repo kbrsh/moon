@@ -96,7 +96,8 @@
           for(var component in this.components) {
             var componentsFound = document.getElementsByTagName(component);
             for(var i = 0; i < componentsFound.length; i++) {
-              componentsFound[i].outerHTML = this.components[component].template;
+              var componentFound = componentsFound[i];
+              componentFound.outerHTML = this.components[component].template;
             }
           }
         }
