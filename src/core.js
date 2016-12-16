@@ -130,6 +130,8 @@
           this.build(this.dom.children);
         }
 
+        // Default Directives
+
         // Initialize
         this.createVirtualDOM(this.$el);
         this.build(this.dom.children);
