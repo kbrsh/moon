@@ -185,7 +185,9 @@
           var splitVal = val.split(":");
           var eventToCall = splitVal[0];
           var methodToCall = splitVal[1];
-          val.addEventListener(eventToCall, self.method(methodToCall));
+          val.addEventListener(eventToCall, function() {
+            
+          });
         }
 
         /**
