@@ -189,6 +189,7 @@
             self.method(methodToCall);
           });
           el.removeAttribute("m-on");
+          delete vdom.props["m-on"];
         }
 
         /**
