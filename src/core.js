@@ -140,7 +140,10 @@
         }
 
         directives["m-on"] = function(el, val) {
-          
+          val = val.split(":");
+          el.addEventListener(, function() {
+
+          });
         }
 
         // Initialize
