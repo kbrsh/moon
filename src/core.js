@@ -120,7 +120,13 @@
           return this.$data[key];
         }
 
-        // Make AJAX GET/POST requests
+        /**
+        * Makes an AJAX Request
+        * @param {String} method
+        * @param {String} url
+        * @param {Object} params
+        * @param {Function} cb
+        */
         this.ajax = function(method, url, params, cb) {
           var xmlHttp = new XMLHttpRequest();
           method = method.toUpperCase();
