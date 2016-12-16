@@ -133,7 +133,8 @@
 
         // Default Directives
         directives["m-if"] = function(el, val) {
-          if(!val) {
+          var evaluated = new Function("return " + val);
+          if(!evaluated) {
             el.textContent = "";
           }
         }
