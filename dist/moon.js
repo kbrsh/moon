@@ -13,7 +13,8 @@
         var _data = opts.data;
         var _methods = opts.methods;
         var directives = {};
-        this.$el = document.getElementById(_el);
+        var self = this;
+        this.$el = document.querySelector(_el);
         this.components = opts.components;
         this.dom = {type: this.$el.nodeName, children: [], node: this.$el};
 
@@ -28,7 +29,11 @@
             }
         });
 
-        // Utility: Raw Attributes -> Key Value Pairs
+        /**
+        * Converts attributes into key-value pairs
+        * @param {Node} node
+        * @return {Object} Key-Value pairs of Attributes
+        */
         var extractAttrs = function(node) {
           var attrs = {};
           if(!node.attributes) return attrs;
@@ -40,7 +45,12 @@
           return attrs;
         }
 
-        // Utility: Compile a template and return html
+        /**
+        * Compiles a template with given data
+        * @param {String} template
+        * @param {Object} data
+        * @return {String} Template with data rendered
+        */
         var compileTemplate = function(template, data) {
           var code = template,
               re = /{{([.]?\w+)}}/gi;
@@ -51,7 +61,24 @@
           return compile(data);
         }
 
-        // Utility: Create Elements Recursively For all Children
+        /**
+        * Creates an object to be used in a Virtual DOM
+        * @param {String} type
+        * @param {Array} children
+        * @param {String} val
+        * @param {Object} props
+        * @param {Node} node
+        * @return {Object} Object usable in Virtual DOM
+        */
+        this.createElement = function(type, children, val, props, node) {
+          return {type: type, children: children, val: val, props: props, node: node};
+        }
+
+        /**
+        * Create Elements Recursively For all Children
+        * @param {Array} children
+        * @return {Array} Array of elements usable in Virtual DOM
+        */
         this.recursiveChildren = function(children) {
           var recursiveChildrenArr = [];
           for(var i = 0; i < children.length; i++) {
@@ -61,53 +88,53 @@
           return recursiveChildrenArr;
         }
 
-        // Utility: Create Virtual DOM Instance
+        /**
+        * Creates Virtual DOM
+        * @param {Node} node
+        */
         this.createVirtualDOM = function(node) {
           var vdom = this.createElement(node.nodeName, this.recursiveChildren(node.childNodes), node.textContent, extractAttrs(node), node);
           this.dom = vdom;
         }
 
-        // Build the DOM with $data
-        this.build = function(children) {
-          for(var i = 0; i < children.length; i++) {
-            var el = children[i];
-
-            if(el.type === "#text") {
-              el.node.textContent = compileTemplate(el.val, this.$data);
-            } else if(el.props) {
-              for(var prop in el.props) {
-                var propVal = el.props[prop];
-                var compiledProperty = compileTemplate(propVal, this.$data);
-                var directive = directives[prop];
-                if(directive) {
-                  directive(el.node, compiledProperty);
-                }
-
-                el.node.setAttribute(prop, compiledProperty);
-              }
+        /**
+        * Turns Custom Components into their Corresponding Templates
+        */
+        this.componentsToHTML = function() {
+          for(var component in this.components) {
+            var componentsFound = document.getElementsByTagName(component);
+            for(var i = 0; i < componentsFound.length; i++) {
+              componentsFound[i].outerHTML = this.components[component].template;
             }
-
-            this.build(el.children);
           }
         }
 
-        // Create Virtual DOM Object from Params
-        this.createElement = function(type, children, val, props, node) {
-          return {type: type, children: children, val: val, props: props, node: node};
-        }
-
-        // Set any value in $data
+        /**
+        * Sets Value in Data
+        * @param {String} key
+        * @param {String} val
+        */
         this.set = function(key, val) {
           this.$data[key] = val;
           this.build(this.dom.children);
         }
 
-        // Get any value in $data
+        /**
+        * Gets Value in Data
+        * @param {String} key
+        * @return {String} Value of key in data
+        */
         this.get = function(key) {
           return this.$data[key];
         }
 
-        // Make AJAX GET/POST requests
+        /**
+        * Makes an AJAX Request
+        * @param {String} method
+        * @param {String} url
+        * @param {Object} params
+        * @param {Function} cb
+        */
         this.ajax = function(method, url, params, cb) {
           var xmlHttp = new XMLHttpRequest();
           method = method.toUpperCase();
@@ -129,7 +156,10 @@
           xmlHttp.send(method === "POST" ? urlParams : null);
         }
 
-        // Call a method defined in _methods
+        /**
+        * Calls a method
+        * @param {String} method
+        */
         this.method = function(method) {
           _methods[method]();
         }
@@ -137,19 +167,47 @@
         // Directive Initialization
         this.directive = function(name, action) {
           directives["m-" + name] = action;
-          this.build(this.dom.children);
         }
 
         // Default Directives
-        var dirSelf = this;
-        directives["m-if"] = function(el, val) {
+        directives["m-if"] = function(el, val, vdom) {
           var evaluated = new Function("return " + val);
-          if(!evaluated) {
+          if(!evaluated()) {
             el.textContent = "";
+          } else {
+            el.textContent = compileTemplate(vdom.val, self.$data);
           }
         }
 
-        // Initialize
+        /**
+        * Builds the DOM With Data
+        * @param {Array} children
+        */
+        this.build = function(children) {
+          for(var i = 0; i < children.length; i++) {
+            var el = children[i];
+
+            if(el.type === "#text") {
+              el.node.textContent = compileTemplate(el.val, this.$data);
+            } else if(el.props) {
+              for(var prop in el.props) {
+                var propVal = el.props[prop];
+                var compiledProperty = compileTemplate(propVal, this.$data);
+                var directive = directives[prop];
+                if(directive) {
+                  directive(el.node, compiledProperty, el);
+                }
+
+                el.node.setAttribute(prop, compiledProperty);
+              }
+            }
+
+            this.build(el.children);
+          }
+        }
+
+        // Initialize 🎉
+        this.componentsToHTML();
         this.createVirtualDOM(this.$el);
         this.build(this.dom.children);
     }
