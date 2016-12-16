@@ -193,6 +193,7 @@
         }
 
         directives["m-model"] = function(el, val, vdom) {
+          el.value = self.get(val);
           el.addEventListener("input", function() {
             self.set(val, el.value);
           });
