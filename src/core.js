@@ -141,7 +141,9 @@
         }
 
         directives["m-model"] = function(el, val) {
-          
+          el.addEventListener("keyup", function() {
+            dirSelf.set(val, el.value);
+          });
         }
 
         // Initialize
