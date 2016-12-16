@@ -106,7 +106,7 @@
                 componentDummy.setAttribute(attr, componentProps[attr]);
               }
 
-              componentFound.outerHTML = this.components[component].template;
+              componentFound.outerHTML = componentDummy.outerHTML;
             }
           }
         }
