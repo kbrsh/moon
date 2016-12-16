@@ -103,9 +103,9 @@
               componentDummy = componentDummy.firstChild;
 
               for(attr in componentProps) {
-
+                componentDummy.setAttribute(attr, componentProps[attr]);
               }
-              
+
               componentFound.outerHTML = this.components[component].template;
             }
           }
