@@ -74,30 +74,6 @@
           }
         }
 
-        // Build the DOM with $data
-        this.build = function(children) {
-          for(var i = 0; i < children.length; i++) {
-            var el = children[i];
-
-            if(el.type === "#text") {
-              el.node.textContent = compileTemplate(el.val, this.$data);
-            } else if(el.props) {
-              for(var prop in el.props) {
-                var propVal = el.props[prop];
-                var compiledProperty = compileTemplate(propVal, this.$data);
-                var directive = directives[prop];
-                if(directive) {
-                  directive(el.node, compiledProperty, el);
-                }
-
-                el.node.setAttribute(prop, compiledProperty);
-              }
-            }
-
-            this.build(el.children);
-          }
-        }
-
         // Set any value in $data
         this.set = function(key, val) {
           this.$data[key] = val;
@@ -148,6 +124,30 @@
             el.textContent = "";
           } else {
             el.textContent = compileTemplate(vdom.val, self.$data);
+          }
+        }
+
+        // Build the DOM with $data
+        this.build = function(children) {
+          for(var i = 0; i < children.length; i++) {
+            var el = children[i];
+
+            if(el.type === "#text") {
+              el.node.textContent = compileTemplate(el.val, this.$data);
+            } else if(el.props) {
+              for(var prop in el.props) {
+                var propVal = el.props[prop];
+                var compiledProperty = compileTemplate(propVal, this.$data);
+                var directive = directives[prop];
+                if(directive) {
+                  directive(el.node, compiledProperty, el);
+                }
+
+                el.node.setAttribute(prop, compiledProperty);
+              }
+            }
+
+            this.build(el.children);
           }
         }
 
