@@ -43,6 +43,11 @@
           return compile(data);
         }
 
+        // Create Virtual DOM Object from Params
+        this.createElement = function(type, children, val, props, node) {
+          return {type: type, children: children, val: val, props: props, node: node};
+        }
+
         // Utility: Create Elements Recursively For all Children
         this.recursiveChildren = function(children) {
           var recursiveChildrenArr = [];
@@ -90,11 +95,6 @@
               componentsFound[i].outerHTML = this.components[component].template;
             }
           }
-        }
-
-        // Create Virtual DOM Object from Params
-        this.createElement = function(type, children, val, props, node) {
-          return {type: type, children: children, val: val, props: props, node: node};
         }
 
         // Set any value in $data
