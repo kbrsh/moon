@@ -135,12 +135,13 @@
         }
 
         // Default Directives
+        var self = this;
         directives["m-if"] = function(el, val, vdom) {
           var evaluated = new Function("return " + val);
           if(!evaluated()) {
             el.textContent = "";
           } else {
-            el.textContent = vdom.val;
+            el.textContent = compileTemplate(vdom.val, self.$data);
           }
         }
 
