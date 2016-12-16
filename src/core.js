@@ -141,8 +141,9 @@
 
         directives["m-on"] = function(el, val) {
           val = val.split(":");
+          var methodToCall = this.method(val[1]);
           el.addEventListener(val[0], function() {
-            this.method(val[1]);
+            methodToCall();
           });
         }
 
