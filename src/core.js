@@ -85,12 +85,6 @@
 
         // Create Virtual DOM Object from Params
         this.createElement = function(type, children, val, props, node) {
-          if(this.components[el.type.toLowerCase()]) {
-            var component = this.components[el.type.toLowerCase()];
-            var div = document.createElement('div');
-            div.innerHTML = component;
-            children = div.childNodes;
-          }
           return {type: type, children: children, val: val, props: props, node: node};
         }
 
