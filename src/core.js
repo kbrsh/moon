@@ -102,7 +102,7 @@
               componentDummy.innerHTML = this.components[component].template;
               componentDummy = componentDummy.firstChild;
 
-              for(attr in componentProps) {
+              for(var attr in componentProps) {
                 componentDummy.setAttribute(attr, componentProps[attr]);
               }
 
