@@ -181,6 +181,10 @@
           }
         }
 
+        directives["m-on"] = function(el, val, vdom) {
+          var splitVal = val.split(":");
+        }
+
         /**
         * Builds the DOM With Data
         * @param {Array} children
