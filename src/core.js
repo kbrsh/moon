@@ -81,8 +81,7 @@
 
             if(this.components[el.type.toLowerCase()]) {
               var component = this.components[el.type.toLowerCase()];
-              el.innerHTML = component.template;
-              this.build(el.children);
+              el.innerHTML = compileTemplate(component.template);
             }
 
             this.build(el.children);
