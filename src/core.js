@@ -140,12 +140,6 @@
           }
         }
 
-        directives["m-model"] = function(el, val) {
-          el.addEventListener("keyup", function() {
-            dirSelf.set(val, el.value);
-          });
-        }
-
         // Initialize
         this.createVirtualDOM(this.$el);
         this.build(this.dom.children);
