@@ -135,12 +135,12 @@
         }
 
         // Default Directives
-        directives["m-if"] = function(el, val) {
+        directives["m-if"] = function(el, val, vdomVal) {
           var evaluated = new Function("return " + val);
           if(!evaluated()) {
             el.textContent = "";
           } else {
-            el.textContent = el.val;
+            el.textContent = vdomVal;
           }
         }
 
