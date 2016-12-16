@@ -79,11 +79,6 @@
               }
             }
 
-            if(this.components[el.type.toLowerCase()]) {
-              var component = this.components[el.type.toLowerCase()];
-              el.innerHTML = compileTemplate(component.template, this.$data);
-            }
-
             this.build(el.children);
           }
         }
