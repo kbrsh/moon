@@ -64,6 +64,15 @@
           this.dom = vdom;
         }
 
+        this.componentsToHTML = function() {
+          for(var component in this.components) {
+            var componentsFound = document.getElementsByTagName(component);
+            for(var i = 0; i < componentsFound.length; i++) {
+              componentsFound[i].outerHTML = this.components[component].template;
+            }
+          }
+        }
+
         // Build the DOM with $data
         this.build = function(children) {
           for(var i = 0; i < children.length; i++) {
@@ -85,15 +94,6 @@
             }
 
             this.build(el.children);
-          }
-        }
-
-        this.componentsToHTML = function() {
-          for(var component in this.components) {
-            var componentsFound = document.getElementsByTagName(component);
-            for(var i = 0; i < componentsFound.length; i++) {
-              componentsFound[i].outerHTML = this.components[component].template;
-            }
           }
         }
 
