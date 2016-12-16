@@ -84,7 +84,9 @@
         }
 
         this.componentsToHTML = function() {
-
+          for(var component in this.components) {
+            
+          }
         }
 
         // Create Virtual DOM Object from Params
