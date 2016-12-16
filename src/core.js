@@ -188,6 +188,7 @@
           el.addEventListener(eventToCall, function() {
             self.method(methodToCall);
           });
+          el.removeAttribute("m-on");
         }
 
         /**
