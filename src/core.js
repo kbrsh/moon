@@ -48,6 +48,7 @@
           var recursiveChildrenArr = [];
           for(var i = 0; i < children.length; i++) {
             var child = children[i];
+            if()
             recursiveChildrenArr.push(this.createElement(child.nodeName, this.recursiveChildren(child.childNodes), child.textContent, extractAttrs(child), child));
           }
           return recursiveChildrenArr;
@@ -77,10 +78,6 @@
 
                 el.node.setAttribute(prop, compiledProperty);
               }
-            }
-
-            if(this.components[el.type.toLowerCase()]) {
-              var component = this.components[el.type.toLowerCase()];
             }
 
             this.build(el.children);
