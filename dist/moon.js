@@ -104,7 +104,17 @@
           for(var component in this.components) {
             var componentsFound = document.getElementsByTagName(component);
             for(var i = 0; i < componentsFound.length; i++) {
-              componentsFound[i].outerHTML = this.components[component].template;
+              var componentFound = componentsFound[i];
+              var componentProps = extractAttrs(componentFound);
+              var componentDummy = document.createElement('div');
+              componentDummy.innerHTML = this.components[component].template;
+              componentDummy = componentDummy.firstChild;
+
+              for(var attr in componentProps) {
+                componentDummy.setAttribute(attr, componentProps[attr]);
+              }
+
+              componentFound.outerHTML = componentDummy.outerHTML;
             }
           }
         }
@@ -177,6 +187,17 @@
           } else {
             el.textContent = compileTemplate(vdom.val, self.$data);
           }
+        }
+
+        directives["m-on"] = function(el, val, vdom) {
+          var splitVal = val.split(":");
+          var eventToCall = splitVal[0];
+          var methodToCall = splitVal[1];
+          el.addEventListener(eventToCall, function() {
+            self.method(methodToCall);
+          });
+          el.removeAttribute("m-on");
+          delete vdom.props["m-on"];
         }
 
         /**
