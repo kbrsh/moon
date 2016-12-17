@@ -100,8 +100,8 @@
               var componentFound = componentsFound[i];
               var componentProps = extractAttrs(componentFound);
               var componentDummy = document.createElement('div');
-              if(this.components[component].charAt(0) === "#") {
-
+              if(this.components[component].template.charAt(0) === "#") {
+                this.components[component].template = document.querySelector(this.components[component].template);
               }
               componentDummy.innerHTML = this.components[component].template;
               componentDummy = componentDummy.firstChild;
