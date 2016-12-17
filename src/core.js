@@ -161,6 +161,9 @@
         this.set = function(key, val) {
           this.$data[key] = val;
           this.build(this.dom.children);
+          if(_hooks.updated) {
+            _hooks.updated();
+          }
         }
 
         /**
