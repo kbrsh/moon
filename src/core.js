@@ -3,6 +3,7 @@
     var config = {
       silent: false
     }
+    var directives = {};
 
     /**
     * Converts attributes into key-value pairs
@@ -35,8 +36,6 @@
       var compile = new Function("data", "var out = `" + code + "`; return out");
       return compile(data);
     }
-
-    var directives = {};
 
     function Moon(opts) {
         var _el = opts.el;
