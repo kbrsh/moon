@@ -238,7 +238,9 @@
           vdom.val = compileTemplate(compilable, self.$data);
           el.innerHTML = vdom.val;
           for(var i = 0; i < vdom.children.length; i++) {
-            
+            if(vdom.children[i].type === "#text") {
+              
+            }
           }
           for(var i = 1; i < arr.length; i++) {
             var newClone = clone.cloneNode(true);
