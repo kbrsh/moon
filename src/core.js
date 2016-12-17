@@ -37,6 +37,10 @@
       return compile(data);
     }
 
+    var getRootElement = function(el) {
+      
+    }
+
     function Moon(opts) {
         var _el = opts.el;
         var _data = opts.data;
