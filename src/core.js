@@ -280,7 +280,7 @@
 
     Moon.config = function(opts) {
       if(opts.silent) {
-        this.silent = opts.silent;
+        silent = opts.silent;
       }
     }
 
