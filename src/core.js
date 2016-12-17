@@ -133,13 +133,6 @@
         }
 
         /**
-        * Compiles all Directives
-        */
-        this.compileDirectives = function() {
-          
-        }
-
-        /**
         * Sets Value in Data
         * @param {String} key
         * @param {String} val
