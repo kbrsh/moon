@@ -54,6 +54,14 @@
         }
 
         /**
+        * Throws an Error
+        * @param {String} msg
+        */
+        this.error = function(msg) {
+          console.log("Moon ERR: " + msg)
+        }
+
+        /**
         * Creates an object to be used in a Virtual DOM
         * @param {String} type
         * @param {Array} children
