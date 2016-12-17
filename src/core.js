@@ -212,6 +212,11 @@
           _methods[method]();
         }
 
+        
+        this.destroy = function() {
+
+        }
+
         // Default Directives
         directives["m-if"] = function(el, val, vdom) {
           var evaluated = new Function("return " + val);
