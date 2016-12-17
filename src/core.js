@@ -203,7 +203,7 @@
         }
 
         directives["m-for"] = function(el, val, vdom) {
-          
+          var splitVal = val.split(" in ");
         }
 
         /**
