@@ -61,7 +61,7 @@
         * @param {String} msg
         */
         this.log = function(msg) {
-          if(!silent) console.log(msg);
+          if(!config.silent) console.log(msg);
         }
 
         /**
