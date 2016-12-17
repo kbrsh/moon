@@ -207,18 +207,16 @@
           var alias = splitVal[0];
           var arr = self.get(splitVal[1]);
           var clone = el.cloneNode(true);
-          var children = [];
           var compilable = vdom.val.replace(new RegExp(alias, "gi"), splitVal[1] + '[0]');
           el.innerHTML = compilable;
           for(var i = 1; i < arr.length; i++) {
             var newClone = clone.cloneNode(true);
             newClone.innerHTML = vdom.val.replace(new RegExp(alias, "gi"), splitVal[1] + '[' + i + ']');
-            children.push(newClone);
             var parent = el.parentNode;
             parent.appendChild(newClone);
           }
           vdom.val = el.textContent;
-          vdom.children = self.recursiveChildren(children);
+          vdom.children = self.recursiveChildren();
           delete vdom.props["m-for"];
         }
 
