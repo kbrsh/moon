@@ -268,8 +268,10 @@
         this.build(this.dom.children);
     }
 
-    Moon.prototype.config = function() {
-      
+    Moon.prototype.config = function(opts) {
+      if(opts.silent) {
+        this.silent = opts.silent;
+      }
     }
 
     window.Moon = Moon;
