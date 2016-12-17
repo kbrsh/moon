@@ -314,7 +314,7 @@
     * @param {Function} action
     */
     Moon.directive = function(name, action) {
-
+      directives["m-" + name] = action;
     }
 
     window.Moon = Moon;
