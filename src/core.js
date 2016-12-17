@@ -187,11 +187,6 @@
           _methods[method]();
         }
 
-        // Directive Initialization
-        this.directive = function(name, action) {
-          directives["m-" + name] = action;
-        }
-
         // Default Directives
         directives["m-if"] = function(el, val, vdom) {
           var evaluated = new Function("return " + val);
