@@ -284,7 +284,7 @@
         }
 
         // Initialize 🎉
-
+        this.init();
     }
 
     /**
