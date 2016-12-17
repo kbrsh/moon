@@ -212,9 +212,13 @@
           _methods[method]();
         }
 
-        
-        this.destroy = function() {
 
+        this.destroy = function() {
+          Object.defineProperty(this, '$data', {
+            set: function(value) {
+              _data = value;
+            }
+          });
         }
 
         // Default Directives
