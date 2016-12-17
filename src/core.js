@@ -206,8 +206,9 @@
           var splitVal = val.split(" in ");
           var alias = splitVal[0];
           var arr = self.get(splitVal[1]);
+          var compilable = vdom.val.replace(new Regexp(splitVal[1]), alias + "." + splitVal[1]);
+          el.innerHTML = compilable;
           for(var i = 0; i < arr.length; i++) {
-            var compilable = vdom.val.replace(new Regexp(splitVal[1]), alias + "." + splitVal[1]);
           }
         }
 
