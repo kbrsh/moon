@@ -39,7 +39,7 @@
 
     var getRootElement = function(html) {
       var dummy = document.createElement('div');
-
+      dummy.innerHTML = html;
     }
 
     function Moon(opts) {
