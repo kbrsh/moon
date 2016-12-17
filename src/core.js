@@ -37,6 +37,11 @@
       return compile(data);
     }
 
+    /**
+    * Gets Root Element
+    * @param {String} html
+    * @return {Node} Root Element
+    */
     var getRootElement = function(html) {
       var dummy = document.createElement('div');
       dummy.innerHTML = html;
