@@ -222,6 +222,7 @@
             }
           });
           this.$destroyed = true;
+          if(_hooks.destroyed) _hooks.destroyed();
         }
 
         // Default Directives
