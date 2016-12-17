@@ -4,6 +4,7 @@
       silent: false
     }
     var directives = {};
+    var components = {};
 
     /**
     * Converts attributes into key-value pairs
