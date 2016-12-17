@@ -11,6 +11,7 @@
     var config = {
       silent: false
     }
+    var directives = {};
 
     /**
     * Converts attributes into key-value pairs
@@ -44,11 +45,34 @@
       return compile(data);
     }
 
+    /**
+    * Gets Root Element
+    * @param {String} html
+    * @return {Node} Root Element
+    */
+    var getRootElement = function(html) {
+      var dummy = document.createElement('div');
+      dummy.innerHTML = html;
+      return dummy.firstChild;
+    }
+
+    /**
+    * Merges two Objects
+    * @param {Object} obj
+    * @param {Object} obj2
+    * @return {Object} Merged Objects
+    */
+    function merge(obj, obj2) {
+      for (var key in obj2) {
+        if (obj2.hasOwnProperty(key)) obj[key] = obj[key];
+      }
+      return obj;
+    }
+
     function Moon(opts) {
         var _el = opts.el;
         var _data = opts.data;
         var _methods = opts.methods;
-        var directives = {};
         var self = this;
         this.$el = document.querySelector(_el);
         this.components = opts.components;
@@ -127,14 +151,10 @@
             for(var i = 0; i < componentsFound.length; i++) {
               var componentFound = componentsFound[i];
               var componentProps = extractAttrs(componentFound);
-              var componentDummy = document.createElement('div');
-              componentDummy.innerHTML = this.components[component].template;
-              componentDummy = componentDummy.firstChild;
-
+              var componentDummy = getRootElement(this.components[component].template);
               for(var attr in componentProps) {
                 componentDummy.setAttribute(attr, componentProps[attr]);
               }
-
               componentFound.outerHTML = componentDummy.outerHTML;
             }
           }
@@ -195,11 +215,6 @@
           _methods[method]();
         }
 
-        // Directive Initialization
-        this.directive = function(name, action) {
-          directives["m-" + name] = action;
-        }
-
         // Default Directives
         directives["m-if"] = function(el, val, vdom) {
           var evaluated = new Function("return " + val);
@@ -242,16 +257,18 @@
         //   var alias = splitVal[0];
         //   var arr = self.get(splitVal[1]);
         //   var clone = el.cloneNode(true);
+        //   var oldVal = vdom.val;
         //   var compilable = vdom.val.replace(new RegExp(alias, "gi"), splitVal[1] + '[0]');
-        //   el.innerHTML = compilable;
+        //   vdom.val = compileTemplate(compilable, self.$data);
+        //   el.innerHTML = vdom.val;
         //   for(var i = 1; i < arr.length; i++) {
         //     var newClone = clone.cloneNode(true);
-        //     newClone.innerHTML = vdom.val.replace(new RegExp(alias, "gi"), splitVal[1] + '[' + i + ']');
+        //     var compilable = oldVal.replace(new RegExp(alias, "gi"), splitVal[1] + '[' + i + ']');
+        //     newClone.innerHTML = compileTemplate(compilable, self.$data);
         //     var parent = el.parentNode;
         //     parent.appendChild(newClone);
         //   }
         //   vdom.val = el.textContent;
-        //   vdom.children = self.recursiveChildren();
         //   delete vdom.props["m-for"];
         // }
 
@@ -312,6 +329,15 @@
     */
     Moon.use = function(plugin) {
       plugin.init(Moon);
+    }
+
+    /**
+    * Creates a Directive
+    * @param {String} name
+    * @param {Function} action
+    */
+    Moon.directive = function(name, action) {
+      directives["m-" + name] = action;
     }
 
     window.Moon = Moon;
