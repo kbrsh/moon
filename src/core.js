@@ -202,6 +202,10 @@
           delete vdom.props["m-model"];
         }
 
+        directives["m-for"] = function(el, val, vdom) {
+          
+        }
+
         /**
         * Builds the DOM With Data
         * @param {Array} children
