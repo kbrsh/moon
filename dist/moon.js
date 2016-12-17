@@ -8,6 +8,42 @@
 
 "use strict";
 (function(window) {
+    var config = {
+      silent: false
+    }
+
+    /**
+    * Converts attributes into key-value pairs
+    * @param {Node} node
+    * @return {Object} Key-Value pairs of Attributes
+    */
+    var extractAttrs = function(node) {
+      var attrs = {};
+      if(!node.attributes) return attrs;
+      var rawAttrs = node.attributes;
+      for(var i = 0; i < rawAttrs.length; i++) {
+        attrs[rawAttrs[i].name] = rawAttrs[i].value
+      }
+
+      return attrs;
+    }
+
+    /**
+    * Compiles a template with given data
+    * @param {String} template
+    * @param {Object} data
+    * @return {String} Template with data rendered
+    */
+    var compileTemplate = function(template, data) {
+      var code = template,
+          re = /{{([A-Za-z0-9_.\[\]]+)}}/gi;
+      code.replace(re, function(match, p) {
+        code = code.replace(match, "` + data." + p + " + `");
+      });
+      var compile = new Function("data", "var out = `" + code + "`; return out");
+      return compile(data);
+    }
+
     function Moon(opts) {
         var _el = opts.el;
         var _data = opts.data;
@@ -30,35 +66,19 @@
         });
 
         /**
-        * Converts attributes into key-value pairs
-        * @param {Node} node
-        * @return {Object} Key-Value pairs of Attributes
+        * Logs a Message
+        * @param {String} msg
         */
-        var extractAttrs = function(node) {
-          var attrs = {};
-          if(!node.attributes) return attrs;
-          var rawAttrs = node.attributes;
-          for(var i = 0; i < rawAttrs.length; i++) {
-            attrs[rawAttrs[i].name] = rawAttrs[i].value
-          }
-
-          return attrs;
+        this.log = function(msg) {
+          if(!config.silent) console.log(msg);
         }
 
         /**
-        * Compiles a template with given data
-        * @param {String} template
-        * @param {Object} data
-        * @return {String} Template with data rendered
+        * Throws an Error
+        * @param {String} msg
         */
-        var compileTemplate = function(template, data) {
-          var code = template,
-              re = /{{([A-Za-z0-9_.]+)}}/gi;
-          code.replace(re, function(match, p) {
-            code = code.replace(match, "` + data." + p + " + `");
-          });
-          var compile = new Function("data", "var out = `" + code + "`; return out");
-          return compile(data);
+        this.error = function(msg) {
+          console.log("Moon ERR: " + msg);
         }
 
         /**
@@ -210,6 +230,31 @@
           delete vdom.props["m-model"];
         }
 
+        directives["m-once"] = function(el, val, vdom) {
+          vdom.val = el.textContent;
+          for(var child in vdom.children) {
+            vdom.children[child].val = compileTemplate(vdom.children[child].val, self.$data);
+          }
+        }
+
+        // directives["m-for"] = function(el, val, vdom) {
+        //   var splitVal = val.split(" in ");
+        //   var alias = splitVal[0];
+        //   var arr = self.get(splitVal[1]);
+        //   var clone = el.cloneNode(true);
+        //   var compilable = vdom.val.replace(new RegExp(alias, "gi"), splitVal[1] + '[0]');
+        //   el.innerHTML = compilable;
+        //   for(var i = 1; i < arr.length; i++) {
+        //     var newClone = clone.cloneNode(true);
+        //     newClone.innerHTML = vdom.val.replace(new RegExp(alias, "gi"), splitVal[1] + '[' + i + ']');
+        //     var parent = el.parentNode;
+        //     parent.appendChild(newClone);
+        //   }
+        //   vdom.val = el.textContent;
+        //   vdom.children = self.recursiveChildren();
+        //   delete vdom.props["m-for"];
+        // }
+
         /**
         * Builds the DOM With Data
         * @param {Array} children
@@ -237,10 +282,36 @@
           }
         }
 
+        /**
+        * Initializes Moon
+        */
+        this.init = function() {
+          this.log("======= Moon =======");
+          this.componentsToHTML();
+          this.createVirtualDOM(this.$el);
+          this.build(this.dom.children);
+        }
+
         // Initialize 🎉
-        this.componentsToHTML();
-        this.createVirtualDOM(this.$el);
-        this.build(this.dom.children);
+        this.init();
+    }
+
+    /**
+    * Sets the Configuration of Moon
+    * @param {Object} opts
+    */
+    Moon.config = function(opts) {
+      if(opts.silent) {
+        config.silent = opts.silent;
+      }
+    }
+
+    /**
+    * Runs an external Plugin
+    * @param {Object} plugin
+    */
+    Moon.use = function(plugin) {
+      plugin.init(Moon);
     }
 
     window.Moon = Moon;
