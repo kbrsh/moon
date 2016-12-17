@@ -207,9 +207,9 @@
           var alias = splitVal[0];
           var arr = self.get(splitVal[1]);
           var clone = el.cloneNode(true);
-          var compilable = vdom.val.replace(new RegExp(alias, "gi"), splitVal[1] + '[]');
+          var compilable = vdom.val.replace(new RegExp(alias, "gi"), splitVal[1] + '[0]');
           el.innerHTML = compilable;
-          for(var i = 0; i < arr.length; i++) {
+          for(var i = 1; i < arr.length; i++) {
             var newClone = clone.cloneNode(true);
             newClone.innerHTML = vdom.val.replace(new RegExp(alias, "gi"), splitVal[1] + '[' + i + ']');
             var parent = el.parentNode;
@@ -217,6 +217,7 @@
           }
           vdom.val = el.textContent;
           vdom.children = self.recursiveChildren(el);
+          delete vdom.props["m-for"]
         }
 
         /**
