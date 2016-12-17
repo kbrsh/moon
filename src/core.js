@@ -134,7 +134,6 @@
               for(var attr in componentProps) {
                 componentDummy.setAttribute(attr, componentProps[attr]);
               }
-
               componentFound.outerHTML = componentDummy.outerHTML;
             }
           }
