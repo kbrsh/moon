@@ -202,6 +202,10 @@
           delete vdom.props["m-model"];
         }
 
+        directives["m-once"] = function(el, val, vdom) {
+
+        }
+
         // directives["m-for"] = function(el, val, vdom) {
         //   var splitVal = val.split(" in ");
         //   var alias = splitVal[0];
