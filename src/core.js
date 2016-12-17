@@ -130,10 +130,7 @@
             for(var i = 0; i < componentsFound.length; i++) {
               var componentFound = componentsFound[i];
               var componentProps = extractAttrs(componentFound);
-              var componentDummy = document.createElement('div');
-              componentDummy.innerHTML = this.components[component].template;
-              componentDummy = componentDummy.firstChild;
-
+              var componentDummy = getRootElement(this.components[component].template);
               for(var attr in componentProps) {
                 componentDummy.setAttribute(attr, componentProps[attr]);
               }
