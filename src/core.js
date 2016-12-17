@@ -66,6 +66,7 @@
         var _data = opts.data;
         var _methods = opts.methods;
         var _template = opts.template;
+        var _hooks = opts.hooks || {created: function() {}, mounted: function() {}, updated: function() {}, destroyed: function() {}};
         var self = this;
         this.$el = document.querySelector(_el);
         this.components = opts.components;
@@ -298,7 +299,7 @@
         */
         this.init = function() {
           this.log("======= Moon =======");
-          
+
           this.componentsToHTML();
           this.createVirtualDOM(this.$el);
           this.build(this.dom.children);
