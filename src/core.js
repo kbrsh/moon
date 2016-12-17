@@ -299,7 +299,9 @@
         */
         this.init = function() {
           this.log("======= Moon =======");
-
+          if(_hooks[created]) {
+            _hooks[created]();
+          }
           this.componentsToHTML();
           this.createVirtualDOM(this.$el);
           this.build(this.dom.children);
