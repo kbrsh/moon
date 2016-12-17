@@ -38,7 +38,7 @@
     }
 
     var getRootElement = function(el) {
-      
+      var dummy = document.createElement('div');
     }
 
     function Moon(opts) {
