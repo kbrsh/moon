@@ -283,7 +283,7 @@
                   directive(el.node, compiledProperty, el);
                 }
 
-                el.node.setAttribute(prop, compiledProperty);
+                if(!directive) el.node.setAttribute(prop, compiledProperty);
               }
             }
 
