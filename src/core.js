@@ -207,7 +207,7 @@
           var alias = splitVal[0];
           var arr = self.get(splitVal[1]);
           for(var i = 0; i < arr.length; i++) {
-            
+            var compilable = vdom.val.replace(new Regexp(splitVal[1]), )
           }
         }
 
