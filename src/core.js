@@ -206,7 +206,7 @@
           var splitVal = val.split(" in ");
           var alias = splitVal[0];
           var arr = self.get(splitVal[1]);
-          var compilable = vdom.val.replace(new RegExp(alias), splitVal[1] + "." + alias, "gi");
+          var compilable = vdom.val.replace(new RegExp(alias, "gi"), splitVal[1]);
           el.innerHTML = compilable;
           for(var i = 1; i < arr.length; i++) {
             var clone = el.cloneNode(true);
