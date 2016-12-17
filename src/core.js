@@ -215,6 +215,8 @@
             var parent = el.parentNode;
             parent.appendChild(newClone);
           }
+          vdom.val = el.textContent;
+          vdom.children = self.recursiveChildren(el);
         }
 
         /**
