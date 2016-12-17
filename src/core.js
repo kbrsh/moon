@@ -58,7 +58,7 @@
         * @param {String} msg
         */
         this.error = function(msg) {
-          if(!this.silent) console.log("Moon ERR: " + msg);
+          console.log("Moon ERR: " + msg);
         }
 
         /**
@@ -268,7 +268,7 @@
         this.build(this.dom.children);
     }
 
-    Moon.prototype.config = function(opts) {
+    Moon.config = function(opts) {
       if(opts.silent) {
         this.silent = opts.silent;
       }
