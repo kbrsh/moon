@@ -298,7 +298,7 @@
     }
 
     Moon.use = function(plugin) {
-      
+      plugin.init(Moon);
     }
 
     window.Moon = Moon;
