@@ -297,6 +297,10 @@
       }
     }
 
+    Moon.use = function(plugin) {
+      
+    }
+
     window.Moon = Moon;
     window.$ = function(el) {
       el = document.querySelectorAll(el);
