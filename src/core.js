@@ -308,6 +308,15 @@
       plugin.init(Moon);
     }
 
+    /**
+    * Creates a Directive
+    * @param {String} name
+    * @param {Function} action
+    */
+    Moon.directive = function(name, action) {
+
+    }
+
     window.Moon = Moon;
     window.$ = function(el) {
       el = document.querySelectorAll(el);
