@@ -210,6 +210,7 @@
           el.innerHTML = compilable;
           for(var i = 1; i < arr.length; i++) {
             var clone = el.cloneNode(true);
+            var parent = el.parentNode;
           }
         }
 
