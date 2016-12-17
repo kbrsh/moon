@@ -268,6 +268,10 @@
         this.build(this.dom.children);
     }
 
+    Moon.prototype.config = function() {
+      
+    }
+
     window.Moon = Moon;
     window.$ = function(el) {
       el = document.querySelectorAll(el);
