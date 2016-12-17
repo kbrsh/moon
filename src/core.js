@@ -218,7 +218,7 @@
             parent.appendChild(newClone);
           }
           vdom.val = el.textContent;
-          vdom.children = self.recursiveChildren(el.childNodes);
+          vdom.children = self.recursiveChildren(children);
           delete vdom.props["m-for"];
         }
 
