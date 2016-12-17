@@ -202,8 +202,8 @@
           delete vdom.props["m-model"];
         }
 
-        directives["m-pre"] = function(el, val, vdom) {
-          
+        directives["m-skip"] = function(el, val, vdom) {
+
         }
 
         // directives["m-for"] = function(el, val, vdom) {
