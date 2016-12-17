@@ -303,6 +303,9 @@
           }
           this.componentsToHTML();
           this.createVirtualDOM(this.$el);
+          if(_hooks.mounted) {
+            _hooks.mounted();
+          }
           this.build(this.dom.children);
         }
 
