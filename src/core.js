@@ -58,7 +58,7 @@
         * @param {String} msg
         */
         this.error = function(msg) {
-          console.log("Moon ERR: " + msg)
+          if(this.silent) console.log("Moon ERR: " + msg);
         }
 
         /**
