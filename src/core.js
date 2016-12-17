@@ -205,7 +205,7 @@
         directives["m-once"] = function(el, val, vdom) {
           vdom.val = el.textContent;
           for(var child in vdom.children) {
-            vdom.children[child].val = compileTemplate(vdom.children[child].val);
+            vdom.children[child].val = compileTemplate(vdom.children[child].val, self.$data);
           }
         }
 
