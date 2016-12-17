@@ -276,12 +276,15 @@
         /**
         * Initializes Moon
         */
+        this.init = function() {
+          this.log("======= Moon =======");
+          this.componentsToHTML();
+          this.createVirtualDOM(this.$el);
+          this.build(this.dom.children);
+        }
 
         // Initialize 🎉
-        this.log("======= Moon =======");
-        this.componentsToHTML();
-        this.createVirtualDOM(this.$el);
-        this.build(this.dom.children);
+
     }
 
     /**
