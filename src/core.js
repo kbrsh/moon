@@ -237,6 +237,9 @@
           var compilable = vdom.val.replace(new RegExp(alias, "gi"), splitVal[1] + '[0]');
           vdom.val = compileTemplate(compilable, self.$data);
           el.innerHTML = vdom.val;
+          for(var i = 0; i < vdom.children.length; i++) {
+            
+          }
           for(var i = 1; i < arr.length; i++) {
             var newClone = clone.cloneNode(true);
             newClone.innerHTML = vdom.val.replace(new RegExp(alias, "gi"), splitVal[1] + '[' + i + ']');
