@@ -280,6 +280,10 @@
         this.build(this.dom.children);
     }
 
+    /**
+    * Sets the Configuration of Moon
+    * @param {Object} opts
+    */
     Moon.config = function(opts) {
       if(opts.silent) {
         config.silent = opts.silent;
