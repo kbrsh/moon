@@ -127,7 +127,7 @@
                 componentDummy.setAttribute(attr, componentProps[attr]);
               }
 
-              componentFound.outerHTML = componentDummy.outerHTML;
+              componentFound.outerHTML = compileTemplate(componentDummy.outerHTML, {props:componentProps});
             }
           }
         }
