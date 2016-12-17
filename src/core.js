@@ -1,5 +1,6 @@
 "use strict";
 (function(window) {
+    var silent = false;
     function Moon(opts) {
         var _el = opts.el;
         var _data = opts.data;
