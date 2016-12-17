@@ -280,6 +280,7 @@
                 var compiledProperty = compileTemplate(propVal, this.$data);
                 var directive = directives[prop];
                 if(directive) {
+                  el.node.removeAttribute(prop);
                   directive(el.node, compiledProperty, el);
                 }
 
