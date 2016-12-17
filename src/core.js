@@ -59,7 +59,7 @@
         * @param {String} msg
         */
         this.log = function(msg) {
-          console.log("Moon: " msg);
+          console.log(msg);
         }
 
         /**
