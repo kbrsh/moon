@@ -235,7 +235,8 @@
           var arr = self.get(splitVal[1]);
           var clone = el.cloneNode(true);
           var compilable = vdom.val.replace(new RegExp(alias, "gi"), splitVal[1] + '[0]');
-          el.innerHTML = compilable;
+          vdom.val = compileTemplate(compilable, self.$data);
+          el.innerHTML = vdom.val;
           for(var i = 1; i < arr.length; i++) {
             var newClone = clone.cloneNode(true);
             newClone.innerHTML = vdom.val.replace(new RegExp(alias, "gi"), splitVal[1] + '[' + i + ']');
