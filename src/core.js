@@ -68,7 +68,7 @@
         var _hooks = opts.hooks || {created: function() {}, mounted: function() {}, updated: function() {}, destroyed: function() {}};
         var self = this;
         this.$el = document.querySelector(_el);
-        this.components = opts.components;
+        this.$components = opts.components;
         this.$dom = {type: this.$el.nodeName, children: [], node: this.$el};
 
         // Change state when $data is changed
@@ -138,13 +138,13 @@
         * Turns Custom Components into their Corresponding Templates
         */
         this.componentsToHTML = function() {
-          for(var component in this.components) {
+          for(var component in this.$components) {
             var componentsFound = document.getElementsByTagName(component);
             componentsFound = Array.prototype.slice.call(componentsFound);
             for(var i = 0; i < componentsFound.length; i++) {
               var componentFound = componentsFound[i];
               var componentProps = extractAttrs(componentFound);
-              var componentDummy = getRootElement(this.components[component].template);
+              var componentDummy = getRootElement(this.$components[component].template);
               for(var attr in componentProps) {
                 componentDummy.setAttribute(attr, componentProps[attr]);
               }
