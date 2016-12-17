@@ -209,7 +209,6 @@
           var compilable = vdom.val.replace(new RegExp(alias, "gi"), splitVal[1] + '[]');
           el.innerHTML = compilable;
           for(var i = 0; i < arr.length; i++) {
-            el.innerHTML = compilable.replace(new RegExp("Moon_For_Directive_Set_Value", "gi"), i);
             var clone = el.cloneNode(true);
             var parent = el.parentNode;
             parent.appendChild(clone);
