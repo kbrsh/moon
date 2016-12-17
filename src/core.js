@@ -297,6 +297,10 @@
       }
     }
 
+    /**
+    * Runs an external Plugin
+    * @param {Object} plugin
+    */
     Moon.use = function(plugin) {
       plugin.init(Moon);
     }
