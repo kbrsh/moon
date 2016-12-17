@@ -344,6 +344,15 @@
       directives["m-" + name] = action;
     }
 
+    /**
+    * Creates a Component
+    * @param {String} name
+    * @param {Function} action
+    */
+    Moon.component = function(name, action) {
+      components[name] = action;
+    }
+
     window.Moon = Moon;
     window.$ = function(el) {
       el = document.querySelectorAll(el);
