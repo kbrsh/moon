@@ -65,6 +65,7 @@
         var _el = opts.el;
         var _data = opts.data;
         var _methods = opts.methods;
+        var _template = opts.template;
         var self = this;
         this.$el = document.querySelector(_el);
         this.components = opts.components;
@@ -297,6 +298,9 @@
         */
         this.init = function() {
           this.log("======= Moon =======");
+          if(this.template) {
+
+          }
           this.componentsToHTML();
           this.createVirtualDOM(this.$el);
           this.build(this.dom.children);
