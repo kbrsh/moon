@@ -40,6 +40,7 @@
     var getRootElement = function(html) {
       var dummy = document.createElement('div');
       dummy.innerHTML = html;
+      return dummy.firstChild;
     }
 
     function Moon(opts) {
