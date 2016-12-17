@@ -272,6 +272,7 @@
         }
 
         // Initialize 🎉
+        this.log("======= Moon =======");
         this.componentsToHTML();
         this.createVirtualDOM(this.$el);
         this.build(this.dom.children);
