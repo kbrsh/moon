@@ -273,6 +273,10 @@
           }
         }
 
+        /**
+        * Initializes Moon
+        */
+
         // Initialize 🎉
         this.log("======= Moon =======");
         this.componentsToHTML();
