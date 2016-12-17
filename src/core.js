@@ -202,11 +202,6 @@
           delete vdom.props["m-model"];
         }
 
-        directives["m-text"] = function(el, val, vdom) {
-          el.innerHTML = "{{" + val + "}}";
-          vdom.val = el.textContent;
-        }
-
         // directives["m-for"] = function(el, val, vdom) {
         //   var splitVal = val.split(" in ");
         //   var alias = splitVal[0];
