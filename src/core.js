@@ -37,8 +37,9 @@
       return compile(data);
     }
 
-    var getRootElement = function(el) {
+    var getRootElement = function(html) {
       var dummy = document.createElement('div');
+
     }
 
     function Moon(opts) {
