@@ -298,9 +298,7 @@
         */
         this.init = function() {
           this.log("======= Moon =======");
-          if(this.template) {
-
-          }
+          
           this.componentsToHTML();
           this.createVirtualDOM(this.$el);
           this.build(this.dom.children);
