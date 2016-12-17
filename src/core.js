@@ -36,11 +36,12 @@
       return compile(data);
     }
 
+    var directives = {};
+
     function Moon(opts) {
         var _el = opts.el;
         var _data = opts.data;
         var _methods = opts.methods;
-        var directives = {};
         var self = this;
         this.$el = document.querySelector(_el);
         this.components = opts.components;
