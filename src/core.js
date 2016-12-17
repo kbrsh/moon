@@ -205,7 +205,7 @@
         directives["m-for"] = function(el, val, vdom) {
           var splitVal = val.split(" in ");
           var alias = splitVal[0];
-          var arr = splitVal[1];
+          var arr = self.get(splitVal[1]);
         }
 
         /**
