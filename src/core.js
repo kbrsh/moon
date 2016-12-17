@@ -203,7 +203,10 @@
         }
 
         directives["m-once"] = function(el, val, vdom) {
-
+          vdom.val = el.textContent;
+          for(var child in vdom.children) {
+            
+          }
         }
 
         // directives["m-for"] = function(el, val, vdom) {
