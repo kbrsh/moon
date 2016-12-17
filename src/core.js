@@ -210,8 +210,10 @@
           var compilable = vdom.val.replace(new RegExp(alias, "gi"), splitVal[1] + '[]');
           el.innerHTML = compilable;
           for(var i = 0; i < arr.length; i++) {
+            var newClone = clone.cloneNode(true);
+            newClone.innerHTML = vdom.val.replace(new RegExp(alias, "gi"), splitVal[1] + '[' + i + ']');
             var parent = el.parentNode;
-            parent.appendChild(clone);
+            parent.appendChild(newClone);
           }
         }
 
