@@ -221,6 +221,7 @@
               _data = value;
             }
           });
+          this.$destroyed = true;
         }
 
         // Default Directives
