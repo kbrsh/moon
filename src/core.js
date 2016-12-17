@@ -45,7 +45,7 @@
         */
         var compileTemplate = function(template, data) {
           var code = template,
-              re = /{{([A-Za-z0-9_.]+)}}/gi;
+              re = /{{([A-Za-z0-9_.\[\]]+)}}/gi;
           code.replace(re, function(match, p) {
             code = code.replace(match, "` + data." + p + " + `");
           });
@@ -206,7 +206,7 @@
           var splitVal = val.split(" in ");
           var alias = splitVal[0];
           var arr = self.get(splitVal[1]);
-          var compilable = vdom.val.replace(new RegExp(alias, "gi"), splitVal[1] + '[Moon_For_Directive_Set_Value]');
+          var compilable = vdom.val.replace(new RegExp(alias, "gi"), splitVal[1] + '[]');
           el.innerHTML = compilable;
           for(var i = 0; i < arr.length; i++) {
             el.innerHTML = compilable.replace(new RegExp("Moon_For_Directive_Set_Value", "gi"), i);
