@@ -78,7 +78,7 @@
             },
             set: function(value) {
                 _data = value;
-                this.build(this.dom.children);
+                this.build(this.$dom.children);
             }
         });
 
@@ -131,7 +131,7 @@
         */
         this.createVirtualDOM = function(node) {
           var vdom = this.createElement(node.nodeName, this.recursiveChildren(node.childNodes), node.textContent, extractAttrs(node), node);
-          this.dom = vdom;
+          this.$dom = vdom;
         }
 
         /**
@@ -160,7 +160,7 @@
         */
         this.set = function(key, val) {
           this.$data[key] = val;
-          this.build(this.dom.children);
+          this.build(this.$dom.children);
           if(_hooks.updated) {
             _hooks.updated();
           }
@@ -309,7 +309,7 @@
           if(_hooks.mounted) {
             _hooks.mounted();
           }
-          this.build(this.dom.children);
+          this.build(this.$dom.children);
         }
 
         // Initialize 🎉
