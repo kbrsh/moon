@@ -69,7 +69,7 @@
         var _hooks = opts.hooks || {created: function() {}, mounted: function() {}, updated: function() {}, destroyed: function() {}};
         var self = this;
         this.$el = document.querySelector(_el);
-        this.$components = opts.components;
+        this.$components = merge(opts.components, components);
         this.$dom = {type: this.$el.nodeName, children: [], node: this.$el};
 
         // Change state when $data is changed
