@@ -236,7 +236,12 @@
         }
 
         directives["m-show"] = function(el, val, vdom) {
-          
+          var evaluated = new Function("return " + val);
+          if(!evaluated()) {
+            el.style.display = '';
+          } else {
+            el.style.display = 'block';
+          }
         }
 
         directives["m-on"] = function(el, val, vdom) {
