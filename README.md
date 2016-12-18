@@ -10,10 +10,10 @@ Moon is a simple library heavily inspired by Vue.js. It's much lighter, and prov
 
 Coming Soon!
 
-### Benchmarks
+<!-- ### Benchmarks
 
 - Rendering Time: 100μs
-- ~51,175 ops/sec
+- ~51,175 ops/sec -->
 
 ### Roadmap
 
