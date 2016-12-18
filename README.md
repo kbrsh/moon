@@ -17,15 +17,15 @@ Coming Soon!
 
 ### Roadmap
 
-- Use Virtual DOM
+<!-- - Use Virtual DOM
   - Create Virtual DOM while seeding
   - Every build, replace (first version) of virtual dom with new data
-  - Run diff algorithm against real DOM and rerender
-- Methods
+  - Run diff algorithm against real DOM and rerender -->
+<!-- - Methods -->
 <!-- - Filters -->
 <!-- - Attributes/Properties Binding -->
-- Model
-- If
+<!-- - Model -->
+<!-- - If -->
 - For
 
 
