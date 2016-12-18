@@ -36,7 +36,7 @@
       });
       var compile = new Function("data", "var out = `" + code + "`; return out");
       var output = compile(data);
-      return compile(data);
+      return output;
     }
 
     /**
