@@ -1,6 +1,6 @@
 # Moon
 
-minimal mvvm library
+A minimal, blazing fast UI library.
 
 ### What is it?
 
