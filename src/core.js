@@ -163,7 +163,7 @@
         */
         this.set = function(key, val) {
           this.$data[key] = val;
-          if(!this.$destroyed) this.build(this.$dom.children);
+          if(!_destroyed) this.build(this.$dom.children);
           if(_hooks.updated) {
             _hooks.updated();
           }
@@ -221,7 +221,7 @@
               _data = value;
             }
           });
-          this.$destroyed = true;
+          _destroyed = true;
           if(_hooks.destroyed) _hooks.destroyed();
         }
 
