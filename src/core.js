@@ -280,7 +280,9 @@
           el.innerHTML = val;
         }
 
-        directives["m-mask"]
+        directives["m-mask"] = function(el, val, vdom) {
+          
+        }
 
         // directives["m-for"] = function(el, val, vdom) {
         //   var splitVal = val.split(" in ");
