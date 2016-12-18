@@ -235,6 +235,10 @@
           }
         }
 
+        directives["m-show"] = function(el, val, vdom) {
+          
+        }
+
         directives["m-on"] = function(el, val, vdom) {
           var splitVal = val.split(":");
           var eventToCall = splitVal[0];
