@@ -12,6 +12,7 @@
       silent: false
     }
     var directives = {};
+    var components = {};
 
     /**
     * Converts attributes into key-value pairs
@@ -64,7 +65,7 @@
     */
     function merge(obj, obj2) {
       for (var key in obj2) {
-        if (obj2.hasOwnProperty(key)) obj[key] = obj[key];
+        if (obj2.hasOwnProperty(key)) obj[key] = obj2[key];
       }
       return obj;
     }
@@ -73,10 +74,12 @@
         var _el = opts.el;
         var _data = opts.data;
         var _methods = opts.methods;
+        var _hooks = opts.hooks || {created: function() {}, mounted: function() {}, updated: function() {}, destroyed: function() {}};
+        var _destroyed = false;
         var self = this;
         this.$el = document.querySelector(_el);
-        this.components = opts.components;
-        this.dom = {type: this.$el.nodeName, children: [], node: this.$el};
+        this.$components = merge(opts.components || {}, components);
+        this.$dom = {type: this.$el.nodeName, children: [], node: this.$el};
 
         // Change state when $data is changed
         Object.defineProperty(this, '$data', {
@@ -85,8 +88,9 @@
             },
             set: function(value) {
                 _data = value;
-                this.build(this.dom.children);
-            }
+                this.build(this.$dom.children);
+            },
+            configurable: true
         });
 
         /**
@@ -138,20 +142,20 @@
         */
         this.createVirtualDOM = function(node) {
           var vdom = this.createElement(node.nodeName, this.recursiveChildren(node.childNodes), node.textContent, extractAttrs(node), node);
-          this.dom = vdom;
+          this.$dom = vdom;
         }
 
         /**
         * Turns Custom Components into their Corresponding Templates
         */
         this.componentsToHTML = function() {
-          for(var component in this.components) {
+          for(var component in this.$components) {
             var componentsFound = document.getElementsByTagName(component);
             componentsFound = Array.prototype.slice.call(componentsFound);
             for(var i = 0; i < componentsFound.length; i++) {
               var componentFound = componentsFound[i];
               var componentProps = extractAttrs(componentFound);
-              var componentDummy = getRootElement(this.components[component].template);
+              var componentDummy = getRootElement(this.$components[component].template);
               for(var attr in componentProps) {
                 componentDummy.setAttribute(attr, componentProps[attr]);
               }
@@ -167,7 +171,10 @@
         */
         this.set = function(key, val) {
           this.$data[key] = val;
-          this.build(this.dom.children);
+          if(!_destroyed) this.build(this.$dom.children);
+          if(_hooks.updated) {
+            _hooks.updated();
+          }
         }
 
         /**
@@ -215,6 +222,17 @@
           _methods[method]();
         }
 
+
+        this.destroy = function() {
+          Object.defineProperty(this, '$data', {
+            set: function(value) {
+              _data = value;
+            }
+          });
+          _destroyed = true;
+          if(_hooks.destroyed) _hooks.destroyed();
+        }
+
         // Default Directives
         directives["m-if"] = function(el, val, vdom) {
           var evaluated = new Function("return " + val);
@@ -222,6 +240,15 @@
             el.textContent = "";
           } else {
             el.textContent = compileTemplate(vdom.val, self.$data);
+          }
+        }
+
+        directives["m-show"] = function(el, val, vdom) {
+          var evaluated = new Function("return " + val);
+          if(!evaluated()) {
+            el.style.display = '';
+          } else {
+            el.style.display = 'block';
           }
         }
 
@@ -288,10 +315,11 @@
                 var compiledProperty = compileTemplate(propVal, this.$data);
                 var directive = directives[prop];
                 if(directive) {
+                  el.node.removeAttribute(prop);
                   directive(el.node, compiledProperty, el);
                 }
 
-                el.node.setAttribute(prop, compiledProperty);
+                if(!directive) el.node.setAttribute(prop, compiledProperty);
               }
             }
 
@@ -304,9 +332,15 @@
         */
         this.init = function() {
           this.log("======= Moon =======");
+          if(_hooks.created) {
+            _hooks.created();
+          }
           this.componentsToHTML();
           this.createVirtualDOM(this.$el);
-          this.build(this.dom.children);
+          if(_hooks.mounted) {
+            _hooks.mounted();
+          }
+          this.build(this.$dom.children);
         }
 
         // Initialize 🎉
@@ -338,6 +372,15 @@
     */
     Moon.directive = function(name, action) {
       directives["m-" + name] = action;
+    }
+
+    /**
+    * Creates a Component
+    * @param {String} name
+    * @param {Function} action
+    */
+    Moon.component = function(name, action) {
+      components[name] = action;
     }
 
     window.Moon = Moon;
