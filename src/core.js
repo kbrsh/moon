@@ -272,6 +272,10 @@
           }
         }
 
+        directives["m-text"] = function(el, val, vdom) {
+          el.textContent = val;
+        }
+
         // directives["m-for"] = function(el, val, vdom) {
         //   var splitVal = val.split(" in ");
         //   var alias = splitVal[0];
