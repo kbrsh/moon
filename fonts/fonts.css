@@ -1,11 +1,11 @@
 @font-face {
   font-family: 'Qanelas-Bold';
   font-style: normal;
-  src: local('Qanelas-Bold'), url(./Qanelas-SoftDEMO-ExtraBold.otf) format('opentype');
+  src: local('Qanelas-Bold'), url(./QanelasSoftDEMO-ExtraBold.otf) format('opentype');
 }
 
 @font-face {
   font-family: 'Qanelas-Light';
   font-style: normal;
-  src: local('Qanelas-Light'), url(./Qanelas-SoftDEMO-UltraLight.otf) format('opentype');
+  src: local('Qanelas-Light'), url(./QanelasSoftDEMO-UltraLight.otf) format('opentype');
 }
