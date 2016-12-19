@@ -17,6 +17,10 @@ h1, h2, h3, h4, h5, h6 {
   text-align: center;
 }
 
+.cta {
+  padding: 2rem 7rem;
+}
+
 #logo {
   height: 175px;
 }
