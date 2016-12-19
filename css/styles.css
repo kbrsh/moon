@@ -71,6 +71,26 @@ pre code::after {
   color: #02C1A7;
 }
 
+/* Example Styles */
+
+#app {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background: #E7E7E7;
+  text-align: center;
+  height: 100%;
+}
+
+#app input[type=text] {
+  width: 250px;
+}
+
+#app h1 {
+  margin: 1rem;
+}
+
 /* === Footer === */
 footer {
 	position: absolute;
