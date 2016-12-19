@@ -45,6 +45,32 @@ h1, h2, h3, h4, h5, h6 {
   font-family: "Qanelas-Bold";
 }
 
+/* Code Styles */
+pre code {
+  background: #FAFAFA;
+  font-family: "Inconsolata";
+  position: relative;
+  min-width: 600px;
+  font-size: 1.5rem;
+}
+pre code::after {
+  content: attr(lang);
+  font-size: 1.5rem;
+  color: #CFCFCF;
+  position: absolute;
+  top: 5px;
+  right: 10px;
+}
+.tag {
+  color: #00A2CD;
+}
+.special {
+  color: #AC2EC5;
+}
+.string {
+  color: #02C1A7;
+}
+
 /* === Footer === */
 footer {
 	position: absolute;
