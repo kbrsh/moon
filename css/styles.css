@@ -1,9 +1,11 @@
 body {
   background: #f5f5f5;
+  color: #6B6B6B;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: "Qanelas-Light";
+  color: #6B6B6B;
 }
 
 #hero {
