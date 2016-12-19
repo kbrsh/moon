@@ -10,6 +10,10 @@ h1, h2, h3, h4, h5, h6 {
   min-height: 100vh;
 }
 
+#hero .container {
+  width: 500px;
+}
+
 /* === Footer === */
 footer {
 	position: absolute;
