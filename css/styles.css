@@ -51,7 +51,6 @@ pre code {
   font-family: "Inconsolata";
   position: relative;
   border: none;
-  min-width: 600px;
   font-size: 1.5rem;
 }
 pre code::after {
