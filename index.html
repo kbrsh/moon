@@ -38,9 +38,15 @@
       <div class="row">
         <div class="col-6">
           <pre><code lang="HTML"><span class="tag">&lt;div id=<span class="string">'app'</span>&gt;</span>
-  <span class="tag">&lt;h1&gt;</span>{{message}}<span class="tag">&lt;/h1&gt;</span>
+  <span class="tag">&lt;h1&gt;</span>{{msg}}<span class="tag">&lt;/h1&gt;</span>
   <span class="tag">&lt;input type=<span class="string">'text'</span> m-model=<span class="string">'message'</span>/&gt;</span>
 <span class="tag">&lt;/div&gt;</span></code></pre>
+          <pre><code lang="JS"><span class="special">var</span> app = <span class="special">new</span> Moon({
+  el: <span class="string">'#app'</span>,
+  data: {
+    msg: <span class="string">'Hello Moon!'</span>
+  }
+});</code></pre>
         </div>
 
         <div class="col-6">
