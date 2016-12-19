@@ -1,7 +1,7 @@
 {
   "name": "moonjs",
   "version": "0.1.0",
-  "description": "A minimal mvvm library",
+  "description": "A minimal, blazing fast user interface library.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
