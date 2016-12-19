@@ -8,7 +8,7 @@ Moon is a simple library heavily inspired by Vue.js. It's much lighter, and prov
 
 ### Usage
 
-Coming Soon!
+See [the website.](https://kingpixil.github.io/moon)
 
 <!-- ### Benchmarks
 
