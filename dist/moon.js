@@ -1,5 +1,5 @@
 /*
-* Moon 0.0.0
+* Moon 0.1.0
 * Copyright 2016, Kabir Shah
 * https://github.com/KingPixil/moon/
 * Free to use under the MIT license.
@@ -43,7 +43,8 @@
         code = code.replace(match, "` + data." + p + " + `");
       });
       var compile = new Function("data", "var out = `" + code + "`; return out");
-      return compile(data);
+      var output = compile(data);
+      return output;
     }
 
     /**
@@ -279,6 +280,18 @@
           }
         }
 
+        directives["m-text"] = function(el, val, vdom) {
+          el.textContent = val;
+        }
+
+        directives["m-html"] = function(el, val, vdom) {
+          el.innerHTML = val;
+        }
+
+        directives["m-mask"] = function(el, val, vdom) {
+          
+        }
+
         // directives["m-for"] = function(el, val, vdom) {
         //   var splitVal = val.split(" in ");
         //   var alias = splitVal[0];
@@ -286,8 +299,7 @@
         //   var clone = el.cloneNode(true);
         //   var oldVal = vdom.val;
         //   var compilable = vdom.val.replace(new RegExp(alias, "gi"), splitVal[1] + '[0]');
-        //   vdom.val = compileTemplate(compilable, self.$data);
-        //   el.innerHTML = vdom.val;
+        //   el.innerHTML = compileTemplate(compilable, self.$data);
         //   for(var i = 1; i < arr.length; i++) {
         //     var newClone = clone.cloneNode(true);
         //     var compilable = oldVal.replace(new RegExp(alias, "gi"), splitVal[1] + '[' + i + ']');
