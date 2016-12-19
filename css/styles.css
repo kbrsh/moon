@@ -47,9 +47,10 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Code Styles */
 pre code {
-  background: #F2F2F2;
+  background: #E7E7E7;
   font-family: "Inconsolata";
   position: relative;
+  border: none;
   min-width: 600px;
   font-size: 1.5rem;
 }
