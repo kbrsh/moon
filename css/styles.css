@@ -19,9 +19,10 @@ h1, h2, h3, h4, h5, h6 {
 
 .cta {
   padding: 2rem 7rem;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   background: #00C2FC;
   margin-top: 2rem;
+  color: #f5f5f5;
 }
 
 #logo {
