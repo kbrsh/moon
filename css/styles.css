@@ -23,6 +23,8 @@ h1, h2, h3, h4, h5, h6 {
 
 #nav {
   position: absolute;
+  margin-top: 15px;
+  margin-left: 150px;
 }
 
 #wordMark {
