@@ -14,6 +14,12 @@ h1, h2, h3, h4, h5, h6 {
   text-align: center;
 }
 
+.container-small {
+  max-width: 600px;
+  margin: 0 auto;
+  width: 80%;
+}
+
 #hero {
   min-height: 100vh;
 }
