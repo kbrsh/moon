@@ -77,6 +77,11 @@ pre code::after {
   top: 5px;
   right: 10px;
 }
+
+code {
+  font-family: "Inconsolata";
+}
+
 .tag {
   color: #00A2CD;
 }
