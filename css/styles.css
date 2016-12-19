@@ -15,6 +15,10 @@ footer {
 	margin-top: 0;
 }
 
+#footer-madeby {
+  font-family: "Qanelas-Light";
+}
+
 #footer-name {
 	font-family: "Qanelas-Bold";
 }
