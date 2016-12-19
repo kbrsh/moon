@@ -57,7 +57,7 @@ pre code {
 pre code::after {
   content: attr(lang);
   font-size: 1.5rem;
-  color: #CFCFCF;
+  color: #BFBFBF;
   position: absolute;
   top: 5px;
   right: 10px;
