@@ -115,11 +115,11 @@ code {
 /*Link To Docs*/
 
 .secondary {
-  padding: 2rem 7rem;
+  padding: 1.5rem 5rem;
   font-size: 1.4rem;
   border: 2px solid #00C2FC;
   margin-top: 2rem;
-  color: #6B6B6B;
+  color: #00C2FC;
   background: none;
 }
 
