@@ -114,6 +114,10 @@ code {
 
 /*Link To Docs*/
 
+#docs-link {
+  flex-direction: column;
+}
+
 .secondary {
   padding: 1.5rem 5rem;
   font-size: 1.4rem;
