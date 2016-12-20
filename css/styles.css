@@ -112,6 +112,17 @@ code {
   margin: 1rem;
 }
 
+/*Link To Docs*/
+
+.secondary {
+  padding: 2rem 7rem;
+  font-size: 1.4rem;
+  border: 2px solid #00C2FC;
+  margin-top: 2rem;
+  color: #6B6B6B;
+  background: none;
+}
+
 /* === Footer === */
 footer {
 	position: absolute;
