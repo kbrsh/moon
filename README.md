@@ -17,7 +17,7 @@ Coming Soon!
 - Rendering Time: 100μs
 - ~51,175 ops/sec -->
 
-### Roadmap
+<!-- ### Roadmap
 
 - Use Virtual DOM
   - Create Virtual DOM while seeding
@@ -28,7 +28,7 @@ Coming Soon!
 - Attributes/Properties Binding
 - Model
 - If
-- For
+- For -->
 
 
 ### [License](http://kingpixil.github.io/license)
