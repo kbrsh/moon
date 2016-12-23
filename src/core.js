@@ -281,7 +281,7 @@
         }
 
         directives["m-mask"] = function(el, val, vdom) {
-          
+
         }
 
         // directives["m-for"] = function(el, val, vdom) {
@@ -341,10 +341,10 @@
           }
           this.componentsToHTML();
           this.createVirtualDOM(this.$el);
+          this.build(this.$dom.children);
           if(_hooks.mounted) {
             _hooks.mounted();
           }
-          this.build(this.$dom.children);
         }
 
         // Initialize 🎉
