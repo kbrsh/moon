@@ -201,7 +201,14 @@ app3.method(<span class="string">'change'</span>);</code></pre>
           <pre><code lang="HTML"><span class="tag">&lt;div id=<span class="string">'app5'</span>&gt;</span>
   {{msg}}
 <span class="tag">&lt;/div&gt;</span></code></pre>
-          <pre><code></code></pre>
+          <pre><code lang="JS"><span class="special">var</span> app5 = <span class="special">new</span> Moon({
+  el: <span class="string">'#app5'</span>,
+  data: {
+    msg: <span class="string">'Hello Moon'</span>
+  }
+});
+
+console.log(<span class="string">'App 5 Message: '</span> + app5.get(<span class="string">'msg'</span>));</code></pre>
         </div>
       </div>
     </div>
