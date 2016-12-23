@@ -25,3 +25,24 @@ var app3 = new Moon({
 });
 
 app3.method('change');
+
+var app4 = new Moon({
+  el: '#app4',
+  data: {
+    msg: 'Hello Moon!'
+  },
+  hooks: {
+    created: function() {
+      console.log('App 4 Created!');
+    },
+    mounted: function() {
+      console.log('App 4 Mounted!');
+    },
+    updated: function() {
+      console.log('App 4 Updated!');
+    },
+    destroyed: function() {
+      console.log('App 4 Destroyed!');
+    }
+  }
+});
