@@ -215,6 +215,14 @@ console.log(app5.get(<span class="string">'msg'</span>));</code></pre>
           <pre><code lang="HTML"><span class="tag">&lt;div id=<span class="string">'app6'</span>&gt;</span>
   {{msg}}
 <span class="tag">&lt;/div&gt;</span></code></pre>
+          <pre><code lang="JS"><span class="special">var</span> app6 = <span class="special">new</span> Moon({
+  el: <span class="string">'#app6'</span>,
+  data: {
+    msg: <span class="string">'Hello Moon!'</span>
+  }
+});
+
+app6.set(<span class="string">'msg'</span>, <span class="string">'New Message!'</span>);</code></pre>
         </div>
       </div>
     </div>
