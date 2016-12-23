@@ -352,7 +352,18 @@ app8.destroy();</code></pre>
   <span class="tag">&lt;p&gt;</span>{{count}}<span class="tag">&lt;/p&gt;</span>
   <span class="tag">&lt;button m-on=<span class="string">'click:increment'</span>&gt;</span>Increment<span class="tag">&lt;/button&gt;</span>
 <span class="tag">&lt;/div&gt;</span></code></pre>
-          <pre><code lang="JS"></code></pre>
+          <pre><code lang="JS"><span class="special"><span class="special">var</span></span> app11 = <span class="special">new</span> Moon({
+  el: <span class="string">'#app11'</span>,
+  data: {
+    count:<span class="user-special"> 0
+</span>  },
+  methods: {
+    increment: <span class="special">function</span>() {
+      var count = app11.get(<span class="string"><span class="string">'count'</span></span>);
+      app11.set('count', count + <span class="user-special">1</span>);
+    }
+  }
+});</code></pre>
         </div>
       </div>
     </div>
