@@ -60,3 +60,10 @@ var app8 = new Moon({
 });
 
 app8.destroy();
+
+var app9 = new Moon({
+  el: '#app9',
+  data: {
+    condition: true
+  }
+});
