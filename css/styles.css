@@ -123,21 +123,6 @@ code {
   margin: 1rem;
 }
 
-/*Link To Docs*/
-
-#docs-link {
-  flex-direction: column;
-}
-
-.secondary {
-  padding: 1.5rem 5rem;
-  font-size: 1.4rem;
-  border: 2px solid #00C2FC;
-  margin-top: 2rem;
-  color: #00C2FC;
-  background: none;
-}
-
 /* === Footer === */
 footer {
 	position: absolute;
