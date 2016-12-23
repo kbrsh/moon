@@ -51,3 +51,12 @@ var app7 = new Moon({
 });
 
 app7.method('increment');
+
+var app8 = new Moon({
+  el: '#app8',
+  data: {
+    msg: 'Hello Moon!'
+  }
+});
+
+app8.destroy();
