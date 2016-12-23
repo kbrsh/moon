@@ -310,7 +310,12 @@ app8.destroy();</code></pre>
           <pre><code lang="HTML"><span class="tag">&lt;div id=<span class="string">'app9'</span>&gt;</span>
   <span class="tag">&lt;p m-if=<span class="string">'condition'</span>&gt;</span><span class="tag">&lt;/p&gt;</span>
 <span class="tag">&lt;/div&gt;</span></code></pre>
-          <pre><code lang="JS"></code></pre>
+          <pre><code lang="JS"><span class="special">var</span> app9 = <span class="special">new</span> Moon({
+  el: <span class="string">'#app9'</span>,
+  data: {
+    condition: <span class="user-special">true</span>
+  }
+});</code></pre>
         </div>
       </div>
     </div>
