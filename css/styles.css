@@ -78,6 +78,13 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 1.7rem;
 }
 
+.accepts {
+  padding: 3px;
+  font-family: "Inconsolata", monospace;
+  background-color: #E7E7E7;
+  color: #00C2FC;
+}
+
 .docs-subhead {
   text-transform: uppercase;
   font-family: "Qanelas-Bold";
