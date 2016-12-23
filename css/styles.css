@@ -8,6 +8,24 @@ h1, h2, h3, h4, h5, h6 {
   color: #6B6B6B;
 }
 
+ul {
+  display: table;
+  margin-left: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+li {
+  display: table-row;
+}
+
+li::before {
+  content: "•";
+  display: table-cell;
+  padding-bottom: 1rem;
+  padding-right: 1rem;
+}
+
 .subhead {
   text-transform: uppercase;
   font-family: "Qanelas-Bold";
