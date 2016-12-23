@@ -90,6 +90,12 @@ h1, h2, h3, h4, h5, h6 {
   font-family: "Qanelas-Bold";
 }
 
+.sample {
+  border: 2px solid #6B6B6B;
+  padding: 2rem;
+  font-size: 2rem;
+}
+
 /* Code Styles */
 pre code {
   background: #E7E7E7;
