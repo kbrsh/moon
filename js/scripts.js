@@ -34,3 +34,20 @@ var app6 = new Moon({
 });
 
 app6.set('msg', 'New Message!');
+
+var app7_count = 0;
+
+var app7 = new Moon({
+  el: '#app7',
+  data: {
+    count: app7_count
+  },
+  methods: {
+    increment: function() {
+      app7_count++;
+      app7.set('count', app7_count);
+    }
+  }
+});
+
+app7.method('increment');
