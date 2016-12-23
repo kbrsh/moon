@@ -12,10 +12,11 @@ h1, h2, h3, h4, h5, h6 {
   text-transform: uppercase;
   font-family: "Qanelas-Bold";
   text-align: center;
+  font-size: 3.5rem;
 }
 
 .smallerHead {
-  font-size: 2rem;
+  font-size: 2.5rem;
 }
 
 .container-small {
@@ -75,7 +76,7 @@ h1, h2, h3, h4, h5, h6 {
 /*Documentation*/
 
 .docs-section p {
-  font-size: 1.7rem;
+  font-size: 1.6rem;
 }
 
 .accepts {
@@ -86,6 +87,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .docs-subhead {
+  font-size: 3.5rem;
   text-transform: uppercase;
   font-family: "Qanelas-Bold";
 }
