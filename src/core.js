@@ -359,6 +359,34 @@
       components[name] = action;
     }
 
+    /**
+    * Makes an AJAX Request
+    * @param {String} method
+    * @param {String} url
+    * @param {Object} params
+    * @param {Function} cb
+    */
+    Moon.ajax = function(method, url, params, cb) {
+      var xmlHttp = new XMLHttpRequest();
+      method = method.toUpperCase();
+      if(typeof params === "function") {
+        cb = params;
+      }
+      var urlParams = "?";
+      if(method === "POST") {
+        http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        for(var param in params) {
+          urlParams += param + "=" + params[param] + "&";
+        }
+      }
+      xmlHttp.onreadystatechange = function() {
+      if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+        cb(JSON.parse(xmlHttp.responseText));
+      }
+      xmlHttp.open(method, url, true);
+      xmlHttp.send(method === "POST" ? urlParams : null);
+    }
+
     window.Moon = Moon;
     window.$ = function(el) {
       el = document.querySelectorAll(el);
