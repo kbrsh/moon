@@ -308,7 +308,7 @@ app8.destroy();</code></pre>
           <p>Accepts - <span class="accepts">String</span>, should be a property in <code>data</code>.</p>
           <p>The <code>m-if</code> directive checks if the property in data provided in the attribute evaluates to <code>true</code>. If so, the html inside will be displayed. If not, the html will not even be present.</p>
           <pre><code lang="HTML"><span class="tag">&lt;div id=<span class="string">'app9'</span>&gt;</span>
-  <span class="tag">&lt;p m-if=<span class="string">'condition'</span>&gt;</span>Condition is True!<span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;p m-if=<span class="string">'{{condition}}'</span>&gt;</span>Condition is True!<span class="tag">&lt;/p&gt;</span>
 <span class="tag">&lt;/div&gt;</span></code></pre>
           <pre><code lang="JS"><span class="special">var</span> app9 = <span class="special">new</span> Moon({
   el: <span class="string">'#app9'</span>,
@@ -318,7 +318,7 @@ app8.destroy();</code></pre>
 });</code></pre>
 
           <div id="app9" class="sample">
-            <p m-if='condition'>Condition is True!</p>
+            <p m-if='{{condition}}'>Condition is True!</p>
           </div>
 
           <p>Go ahead, open the console and try entering <code>app9.set('condition', false)</code>, and watch the sample update in real time!</p>
