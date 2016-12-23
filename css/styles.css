@@ -72,6 +72,13 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 2rem;
 }
 
+/*Documentation*/
+
+.docs-subhead {
+  text-transform: uppercase;
+  font-family: "Qanelas-Bold";
+}
+
 /* Code Styles */
 pre code {
   background: #E7E7E7;
