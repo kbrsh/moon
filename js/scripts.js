@@ -19,9 +19,9 @@ var app3 = new Moon({
   },
   methods: {
     change: function() {
-      app3.$set('msg', 'Changed the Value!');
+      app3.set('msg', 'Changed the Value!');
     }
   }
 });
 
-app3.$method('change');
+app3.method('change');
