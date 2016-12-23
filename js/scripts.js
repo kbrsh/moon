@@ -25,3 +25,12 @@ var app3 = new Moon({
 });
 
 app3.method('change');
+
+var app6 = new Moon({
+  el: '#app6',
+  data: {
+    msg: 'Hello Moon!'
+  }
+});
+
+app6.set('msg', 'New Message!');
