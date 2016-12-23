@@ -160,6 +160,26 @@ app3.method(<span class="string">'change'</span>);</code></pre>
             <li><code>updated</code> - Called when data changes, and the element has been updated with new data.</li>
             <li><code>destroyed</code> - Called when instance has been destroyed, the element will not be updated anymore.</li>
           </ul>
+          <pre><code><span class="special">var</span> app4 = <span class="special">new</span> Moon({
+  el: <span class="string">'#app4'</span>,
+  data: {
+    msg: <span class="string">'Hello Moon'</span>
+  },
+  hooks: {
+    created: <span class="special"><span class="special"><span class="special"><span class="special">function</span></span></span></span>() {
+      console.log(<span class="string">'App 4 Created!'</span>);
+    },
+    mounted: function() {
+      console.log(<span class="string">'App 4 Mounted!'</span>);
+    },
+    updated: function() {
+      console.log(<span class="string">'App 4 Updated!'</span>);
+    },
+    destroyed: function() {
+      console.log(<span class="string">'App 4 Destroyed!'</span>);
+    }
+  }
+});</code></pre>
         </div>
       </div>
 
