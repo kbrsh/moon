@@ -26,6 +26,10 @@ li::before {
   padding-right: 1rem;
 }
 
+button {
+  margin-left: 0;
+}
+
 .subhead {
   text-transform: uppercase;
   font-family: "Qanelas-Bold";
