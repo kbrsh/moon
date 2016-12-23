@@ -45,7 +45,7 @@ h1, h2, h3, h4, h5, h6 {
   height: 150px;
 }
 
-@media screen and (min-width: 400px) {
+@media screen and (max-width: 600px) {
   #hero h1 {
     font-size: 3rem;
   }
