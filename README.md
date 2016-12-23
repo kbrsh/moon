@@ -6,7 +6,7 @@ This is the website repository, containing the documentation.
 
 ### What is it?
 
-Moon is a simple library heavily inspired by Vue.js. It's much lighter, and provides an API that is easy to learn.
+Moon is a simple library heavily inspired by Vue. It's much lighter, and provides an API that is easy to learn.
 
 ### Usage
 
