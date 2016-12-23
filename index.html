@@ -281,6 +281,14 @@ app7.method(<span class="string">'increment'</span>);</code></pre>
           <pre><code lang="HTML"><span class="tag">&lt;div id=<span class="string">'app8'</span>&gt;</span>
   {{msg}}
 <span class="tag">&lt;/div&gt;</span></code></pre>
+          <pre><code lang="JS"><span class="special">var</span> app8 = <span class="special">new</span> Moon({
+  el: <span class="string">'#app8'</span>,
+  data: {
+    msg: <span class="string">'Hello Moon!'</span>
+  }
+});
+
+app8.destroy();</code></pre>
         </div>
       </div>
     </div>
