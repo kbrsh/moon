@@ -74,3 +74,16 @@ var app10 = new Moon({
     msg: 'Hello Moon!'
   }
 });
+
+var app11 = new Moon({
+  el: '#app11',
+  data: {
+    count: 0
+  },
+  methods: {
+    increment: function() {
+      var count = app11.get('count');
+      app11.set('count', count + 1);
+    }
+  }
+});
