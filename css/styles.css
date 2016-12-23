@@ -74,6 +74,10 @@ h1, h2, h3, h4, h5, h6 {
 
 /*Documentation*/
 
+.docs-section p {
+  font-size: 1.7rem;
+}
+
 .docs-subhead {
   text-transform: uppercase;
   font-family: "Qanelas-Bold";
