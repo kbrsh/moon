@@ -129,7 +129,19 @@
           <h6 class="smallerHead" id="instance-methods">Methods</h6>
           <p>Accepts - <span class="accepts">Object</span></p>
           <p>The methods, provided in  <code>methods</code>, are the methods that can be used throughout an application. They are helper functions that can be used to manipulate data or the DOM.</p>
+          <pre><code><span class="special">var</span> app3 = <span class="special">new</span> Moon({
+  el: <span class="string">'#app3'</span>,
+  data: {
+    msg: <span class="string">'Hello Moon!'</span>
+  },
+  methods: {
+    change: <span class="special">function</span>() {
+      app3.$set(<span class="string">'msg'</span>, <span class="string">'Changed the Value!'</span>);
+    }
+  }
+});
 
+app3.method(<span class="string">'change'</span>);</code></pre>
         </div>
 
       </div>
