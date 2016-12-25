@@ -282,13 +282,12 @@
 
             if(this.$components[el.type.toLowerCase()]) {
               var component = this.$components[el.type.toLowerCase()];
+              var props = component.props;
               var dummy = document.createElement('div');
               dummy.innerHTML = getRootElement(component.template).outerHTML;
               dummy = dummy.firstChild;
 
-
-
-              el.node.outerHTML = component.template;
+              el.node.outerHTML = dummy.outerHTML;
             }
 
             this.build(el.children);
