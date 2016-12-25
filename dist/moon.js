@@ -1,5 +1,5 @@
 /*
-* Moon 0.1.1
+* Moon 0.1.2
 * Copyright 2016, Kabir Shah
 * https://github.com/KingPixil/moon/
 * Free to use under the MIT license.
@@ -219,7 +219,7 @@
         directives["m-show"] = function(el, val, vdom) {
           var evaluated = new Function("return " + val);
           if(!evaluated()) {
-            el.style.display = '';
+            el.style.display = 'none';
           } else {
             el.style.display = 'block';
           }
