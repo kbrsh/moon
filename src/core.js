@@ -139,25 +139,6 @@
         }
 
         /**
-        * Turns Custom Components into their Corresponding Templates
-        */
-        this.componentsToHTML = function() {
-          for(var component in this.$components) {
-            var componentsFound = document.getElementsByTagName(component);
-            componentsFound = Array.prototype.slice.call(componentsFound);
-            for(var i = 0; i < componentsFound.length; i++) {
-              var componentFound = componentsFound[i];
-              var componentProps = extractAttrs(componentFound);
-              var componentDummy = getRootElement(this.$components[component].template);
-              for(var attr in componentProps) {
-                componentDummy.setAttribute(attr, componentProps[attr]);
-              }
-              componentFound.outerHTML = componentDummy.outerHTML;
-            }
-          }
-        }
-
-        /**
         * Sets Value in Data
         * @param {String} key
         * @param {String} val
