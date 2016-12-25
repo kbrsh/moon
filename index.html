@@ -335,17 +335,17 @@ app8.destroy();</code></pre>
           <h6 class="smallerHead" id="directives-model">Model</h6>
           <p>Accepts - <span class="accepts">String</span></p>
           <p>The <code>m-model</code> directive is used for two way data binding with an input and a value from data. Everytime the user puts a value in an input with this directive, it will set the provided property in the data. As you expect, the rest of the DOM will update when this property changes as well.</p>
-          <pre><code lang="HTML"><span class="tag">&lt;div id=<span class="string">'app10'</span>&gt;</span>
+          <pre><code lang="HTML"><span class="tag">&lt;div id=<span class="string">'app11'</span>&gt;</span>
   <span class="tag">&lt;p&gt;</span>{{msg}}<span class="tag">&lt;/p&gt;</span>
   <span class="tag">&lt;input m-model=<span class="string">'msg'</span>/&gt;</span>
 <span class="tag">&lt;/div&gt;</span></code></pre>
-          <pre><code lang="JS"><span class="special">var</span> app10 = <span class="special">new</span> Moon({
-  el: <span class="string">'#app10'</span>,
+          <pre><code lang="JS"><span class="special">var</span> app11 = <span class="special">new</span> Moon({
+  el: <span class="string">'#app11'</span>,
   data: {
     msg: <span class="string">'Hello Moon!'</span>
   }
 });</code></pre>
-          <div id="app10" class="sample">
+          <div id="app11" class="sample">
             <p>{{msg}}</p>
             <input m-model='msg' type='text'/>
           </div>
