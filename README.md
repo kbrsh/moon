@@ -4,14 +4,6 @@ A minimal, blazing fast UI library.
 
 This is the website repository, containing the documentation.
 
-### What is it?
-
-Moon is a simple library heavily inspired by Vue. It's much lighter, and provides an API that is easy to learn.
-
-### Usage
-
-Coming Soon!
-
 <!-- ### Benchmarks
 
 - Rendering Time: 100μs
