@@ -68,7 +68,7 @@ var app9 = new Moon({
   }
 });
 
-var app10 = new Moon({
+var app11 = new Moon({
   el: '#app10',
   data: {
     msg: 'Hello Moon!'
