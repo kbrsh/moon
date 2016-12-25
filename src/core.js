@@ -291,7 +291,7 @@
                 var prop = props[j];
                 propObj[prop] = el.node.getAttribute(prop);
               }
-              el.node.outerHTML = dummy.outerHTML;
+              el.node.outerHTML = compileTemplate(dummy.outerHTML, propObj);
             }
 
             this.build(el.children);
