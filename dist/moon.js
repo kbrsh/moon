@@ -290,6 +290,7 @@
 
             if(this.$components[el.type.toLowerCase()]) {
               var component = this.$components[el.type.toLowerCase()];
+              el.node.outerHTML = component.template;
             }
 
             this.build(el.children);
