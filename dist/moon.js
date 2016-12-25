@@ -147,6 +147,25 @@
         }
 
         /**
+        * Turns Custom Components into their Corresponding Templates
+        */
+        this.componentsToHTML = function() {
+          for(var component in this.$components) {
+            var componentsFound = document.getElementsByTagName(component);
+            componentsFound = Array.prototype.slice.call(componentsFound);
+            for(var i = 0; i < componentsFound.length; i++) {
+              var componentFound = componentsFound[i];
+              var componentProps = extractAttrs(componentFound);
+              var componentDummy = getRootElement(this.$components[component].template);
+              for(var attr in componentProps) {
+                componentDummy.setAttribute(attr, componentProps[attr]);
+              }
+              componentFound.outerHTML = componentDummy.outerHTML;
+            }
+          }
+        }
+
+        /**
         * Sets Value in Data
         * @param {String} key
         * @param {String} val
@@ -288,15 +307,6 @@
               }
             }
 
-            if(this.$components[el.type.toLowerCase()]) {
-              var component = this.$components[el.type.toLowerCase()];
-              var dummy = document.createElement('div');
-              dummy.innerHTML = getRootElement(component.template).outerHTML;
-              dummy = dummy.firstChild;
-
-              el.node.outerHTML = component.template;
-            }
-
             this.build(el.children);
           }
         }
@@ -309,6 +319,7 @@
           if(_hooks.created) {
             _hooks.created();
           }
+          this.componentsToHTML();
           this.createVirtualDOM(this.$el);
           this.build(this.$dom.children);
           if(_hooks.mounted) {
