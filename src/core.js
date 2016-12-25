@@ -286,7 +286,9 @@
               var dummy = document.createElement('div');
               dummy.innerHTML = getRootElement(component.template).outerHTML;
               dummy = dummy.firstChild;
-
+              for(var i = 0; i < props.length; i++) {
+                var prop = props[prop];
+              }
               el.node.outerHTML = dummy.outerHTML;
             }
 
