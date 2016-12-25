@@ -68,6 +68,13 @@ var app9 = new Moon({
   }
 });
 
+var app10 = new Moon({
+  el: '#app10',
+  data: {
+    condition: true
+  }
+});
+
 var app11 = new Moon({
   el: '#app11',
   data: {
