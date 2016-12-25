@@ -283,6 +283,7 @@
             if(this.$components[el.type.toLowerCase()]) {
               var component = this.$components[el.type.toLowerCase()];
               var props = component.props;
+              var propObj = {};
               var dummy = document.createElement('div');
               dummy.innerHTML = getRootElement(component.template).outerHTML;
               dummy = dummy.firstChild;
