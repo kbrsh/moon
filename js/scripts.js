@@ -69,21 +69,21 @@ var app9 = new Moon({
 });
 
 var app11 = new Moon({
-  el: '#app10',
+  el: '#app11',
   data: {
     msg: 'Hello Moon!'
   }
 });
 
-var app11 = new Moon({
-  el: '#app11',
+var app12 = new Moon({
+  el: '#app12',
   data: {
     count: 0
   },
   methods: {
     increment: function() {
-      var count = app11.get('count');
-      app11.set('count', count + 1);
+      var count = app12.get('count');
+      app12.set('count', count + 1);
     }
   }
 });

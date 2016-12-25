@@ -355,23 +355,23 @@ app8.destroy();</code></pre>
           <h6 class="smallerHead" id="directives-on">On</h6>
           <p>Accepts - <span class="accepts">String</span></p>
           <p>The <code>m-on</code> directive takes a string that should have a colon. The first end is the event type, the second end should be the method defined in the instance to call. Moon will call the method when the event is fired on the selected element.</p>
-          <pre><code lang="HTML"><span class="tag">&lt;div id=<span class="string">'app11'</span>&gt;</span>
+          <pre><code lang="HTML"><span class="tag">&lt;div id=<span class="string">'app12'</span>&gt;</span>
   <span class="tag">&lt;p&gt;</span>{{count}}<span class="tag">&lt;/p&gt;</span>
   <span class="tag">&lt;button m-on=<span class="string">'click:increment'</span>&gt;</span>Increment<span class="tag">&lt;/button&gt;</span>
 <span class="tag">&lt;/div&gt;</span></code></pre>
-          <pre><code lang="JS"><span class="special"><span class="special">var</span></span> app11 = <span class="special">new</span> Moon({
-  el: <span class="string">'#app11'</span>,
+          <pre><code lang="JS"><span class="special"><span class="special">var</span></span> app12 = <span class="special">new</span> Moon({
+  el: <span class="string">'#app12'</span>,
   data: {
     count:<span class="user-special"> 0
 </span>  },
   methods: {
     increment: <span class="special">function</span>() {
-      <span class="special">var</span> count = app11.get(<span class="string"><span class="string">'count'</span></span>);
-      app11.set(<span class="string">'count'</span>, count + <span class="user-special">1</span>);
+      <span class="special">var</span> count = app12.get(<span class="string"><span class="string">'count'</span></span>);
+      app12.set(<span class="string">'count'</span>, count + <span class="user-special">1</span>);
     }
   }
 });</code></pre>
-          <div id="app11" class="sample">
+          <div id="app12" class="sample">
             <p>{{count}}</p>
             <button m-on='click:increment'>Increment</button>
           </div>
