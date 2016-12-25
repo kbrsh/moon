@@ -211,7 +211,7 @@
         directives["m-show"] = function(el, val, vdom) {
           var evaluated = new Function("return " + val);
           if(!evaluated()) {
-            el.style.display = '';
+            el.style.display = 'none';
           } else {
             el.style.display = 'block';
           }
