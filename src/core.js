@@ -177,11 +177,7 @@
 
 
         this.destroy = function() {
-          Object.defineProperty(this, '$data', {
-            set: function(value) {
-              _data = value;
-            }
-          });
+          
           _destroyed = true;
           if(_hooks.destroyed) _hooks.destroyed();
         }
