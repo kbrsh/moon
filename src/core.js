@@ -139,6 +139,14 @@
         }
 
         /**
+        * Compiles a Component
+        * @param {Node} node
+        */
+        this.compileComponent = function(component) {
+          
+        }
+
+        /**
         * Sets Value in Data
         * @param {String} key
         * @param {String} val
