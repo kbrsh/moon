@@ -144,10 +144,7 @@
         */
         this.compileComponent = function(name, component) {
           var dummy = document.createElement('div');
-          var props = component.attributes;
-          for(var i = 0; i < props.length; i++) {
-            var prop = props[i];
-          }
+          var props = extractAttrs(component.attributes);
           dummy.innerHTML = getRootElement(this.$components[name].template).outerHTML;
           component.outerHTML = dummy.outerHTML;
         }
