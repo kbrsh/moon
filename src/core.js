@@ -143,9 +143,10 @@
         */
         this.compileComponents = function() {
           for(var componentName in this.$components) {
+            var component = this.$components[componentName];
             var foundComponents = this.$el.getElementsByTagName(componentName);
             for(var i = 0; i < foundComponents.length; i++) {
-              
+              foundComponents[i].outerHTML = component.template;
             }
           }
         }
