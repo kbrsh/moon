@@ -145,6 +145,7 @@
         this.compileComponent = function(component) {
           var dummy = document.createElement('div');
           dummy.innerHTML = getRootElement(component);
+          component.outerHTML = dummy.outerHTML;
         }
 
         /**
@@ -290,17 +291,7 @@
             }
 
             if(this.$components[el.type.toLowerCase()]) {
-              var component = this.$components[el.type.toLowerCase()];
-              var props = component.props;
-              var propObj = {};
-              var dummy = document.createElement('div');
-              dummy.innerHTML = getRootElement(component.template).outerHTML;
-              dummy = dummy.firstChild;
-              for(var j = 0; j < props.length; j++) {
-                var prop = props[j];
-                propObj[prop] = el.node.getAttribute(prop);
-              }
-              el.node.outerHTML = compileTemplate(dummy.outerHTML, propObj);
+              this.compileComponent(el.node);
             }
 
             this.build(el.children);
