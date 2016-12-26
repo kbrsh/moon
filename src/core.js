@@ -143,7 +143,8 @@
         * @param {Node} node
         */
         this.compileComponent = function(component) {
-          
+          var dummy = document.createElement('div');
+          dummy.innerHTML = getRootElement(component);
         }
 
         /**
