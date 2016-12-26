@@ -142,8 +142,11 @@
         * Compiles all Components to HTML
         */
         this.compileComponents = function() {
-          for(var component in this.$components) {
-            
+          for(var componentName in this.$components) {
+            var foundComponents = this.$el.getElementsByTagName(componentName);
+            for(var i = 0; i < foundComponents.length; i++) {
+              
+            }
           }
         }
 
