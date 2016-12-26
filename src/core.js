@@ -141,7 +141,7 @@
         /**
         * Compiles all Components to HTML
         */
-        this.compileComponents = function(name, component) {
+        this.compileComponents = function() {
 
         }
 
@@ -288,7 +288,7 @@
             }
 
             if(this.$components[el.type.toLowerCase()]) {
-              this.compileComponent(el.type.toLowerCase(), el.node);
+              
             }
 
             this.build(el.children);
