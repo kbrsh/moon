@@ -144,7 +144,7 @@
         */
         this.compileComponent = function(name, component) {
           var dummy = document.createElement('div');
-          dummy.innerHTML = getRootElement(component);
+          dummy.innerHTML = getRootElement(this.$components[name].template).outerHTML;
           component.outerHTML = dummy.outerHTML;
         }
 
