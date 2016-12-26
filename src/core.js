@@ -288,7 +288,7 @@
             }
 
             if(this.$components[el.type.toLowerCase()]) {
-              
+
             }
 
             this.build(el.children);
@@ -303,6 +303,7 @@
           if(_hooks.created) {
             _hooks.created();
           }
+          this.compileComponents();
           this.createVirtualDOM(this.$el);
           this.build(this.$dom.children);
           if(_hooks.mounted) {
