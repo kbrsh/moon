@@ -291,7 +291,7 @@
             }
 
             if(this.$components[el.type.toLowerCase()]) {
-              this.compileComponent(el.node);
+              this.compileComponent(el.type.toLowerCase(), el.node);
             }
 
             this.build(el.children);
