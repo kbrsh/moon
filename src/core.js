@@ -303,8 +303,6 @@
           if(_hooks.created) {
             _hooks.created();
           }
-          var realEl = document.querySelector(_el);
-          realEl.parentNode.replaceChild(this.$el, realEl);
           this.compileComponents();
           this.createVirtualDOM(this.$el);
           this.build(this.$dom.children);
