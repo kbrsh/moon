@@ -142,7 +142,9 @@
         * Compiles all Components to HTML
         */
         this.compileComponents = function() {
-
+          for(var component in this.$components) {
+            
+          }
         }
 
         /**
