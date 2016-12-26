@@ -142,7 +142,7 @@
         * Compiles a Component
         * @param {Node} node
         */
-        this.compileComponent = function(component) {
+        this.compileComponent = function(name, component) {
           var dummy = document.createElement('div');
           dummy.innerHTML = getRootElement(component);
           component.outerHTML = dummy.outerHTML;
