@@ -152,7 +152,7 @@
         */
         this.set = function(key, val) {
           this.$data[key] = val;
-          this.build(this.$dom.children);
+          if(!_destroyed) this.build(this.$dom.children);
           if(_hooks.updated) {
             _hooks.updated();
           }
@@ -177,7 +177,11 @@
 
 
         this.destroy = function() {
-          
+          Object.defineProperty(this, '$data', {
+            set: function(value) {
+              _data = value;
+            }
+          });
           _destroyed = true;
           if(_hooks.destroyed) _hooks.destroyed();
         }
