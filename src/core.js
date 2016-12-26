@@ -139,14 +139,10 @@
         }
 
         /**
-        * Compiles a Component
-        * @param {Node} node
+        * Compiles all Components to HTML
         */
-        this.compileComponent = function(name, component) {
-          var dummy = document.createElement('div');
-          var props = extractAttrs(component);
-          dummy.innerHTML = getRootElement(this.$components[name].template).outerHTML;
-          component.outerHTML = compileTemplate(dummy.innerHTML, props);
+        this.compileComponents = function() {
+
         }
 
         /**
