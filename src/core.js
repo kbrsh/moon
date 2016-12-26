@@ -152,7 +152,7 @@
         */
         this.set = function(key, val) {
           this.$data[key] = val;
-          if(!_destroyed) this.build(this.$dom.children);
+          this.build(this.$dom.children);
           if(_hooks.updated) {
             _hooks.updated();
           }
