@@ -384,9 +384,4 @@
     }
 
     window.Moon = Moon;
-    window.$ = function(el) {
-      el = document.querySelectorAll(el);
-      return el.length === 1 ? el[0] : el;
-    }
-
 })(window);
