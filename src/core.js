@@ -147,8 +147,8 @@
             var foundComponents = this.$el.getElementsByTagName(componentName);
             for(var i = 0; i < foundComponents.length; i++) {
               var foundComponent = foundComponents[i];
-              var props = extractAttrs(foundComponent.attributes);
-              foundComponent.outerHTML = component.template;
+              var props = extractAttrs(foundComponent);
+              foundComponent.outerHTML = compileTemplate(component.template, props);
             }
           }
         }
