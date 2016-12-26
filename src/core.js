@@ -141,7 +141,7 @@
         /**
         * Compiles all Components to HTML
         */
-        this.compileComponents = function() {
+        this.compileComponents = function(name, component) {
 
         }
 
