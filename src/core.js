@@ -144,7 +144,7 @@
         this.compileComponents = function() {
           for(var componentName in this.$components) {
             var component = this.$components[componentName];
-            var foundComponents = this.$el.getElementsByTagName(componentName);
+            var foundComponents = Array.prototype.slice.call(this.$el.getElementsByTagName(componentName));
             for(var i = 0; i < foundComponents.length; i++) {
               var foundComponent = foundComponents[i];
               var props = extractAttrs(foundComponent);
