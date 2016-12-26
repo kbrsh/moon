@@ -293,10 +293,6 @@
               }
             }
 
-            if(this.$components[el.type.toLowerCase()]) {
-
-            }
-
             this.build(el.children);
           }
         }
