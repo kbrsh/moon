@@ -335,7 +335,10 @@
     * @param {Object} opts
     */
     Moon.extend = function(opts) {
-      
+      var Super = this;
+      function Sub(opts) {
+        Super.call(this, opts);
+      }
     }
 
     /**
