@@ -161,7 +161,7 @@
           for(var property in this.$computed) {
             Object.defineProperty(this.data, property, {
               get: function() {
-
+                return this.$computed[property]();
               }
             });
           }
