@@ -180,7 +180,7 @@
         * @param {String} method
         */
         this.method = function(method) {
-          _methods[method]();
+          this.$methods[method]();
         }
 
 
