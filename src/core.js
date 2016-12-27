@@ -144,11 +144,12 @@
         this.compileComponents = function() {
           for(var componentName in this.$components) {
             var component = this.$components[componentName];
+            var data = component.data();
             var foundComponents = Array.prototype.slice.call(this.$el.getElementsByTagName(componentName));
             for(var i = 0; i < foundComponents.length; i++) {
               var foundComponent = foundComponents[i];
               var props = extractAttrs(foundComponent);
-              foundComponent.outerHTML = compileTemplate(component.template, {props:props});
+              foundComponent.outerHTML = compileTemplate(component.template, merge(props, data));
             }
           }
         }
