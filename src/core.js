@@ -66,11 +66,11 @@
     function Moon(opts) {
         var _el = opts.el;
         var _data = opts.data;
-        var _methods = opts.methods;
         var _hooks = opts.hooks || {created: function() {}, mounted: function() {}, updated: function() {}, destroyed: function() {}};
         var _destroyed = false;
         var self = this;
         this.$el = document.querySelector(_el);
+        this.$methods = opts.methods;
         this.$components = merge(opts.components || {}, components);
         this.$dom = {type: this.$el.nodeName, children: [], node: this.$el};
 
