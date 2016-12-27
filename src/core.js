@@ -5,7 +5,6 @@
     }
     var directives = {};
     var components = {};
-    var methods = {};
 
     /**
     * Converts attributes into key-value pairs
@@ -71,7 +70,7 @@
         var _destroyed = false;
         var self = this;
         this.$el = document.querySelector(_el);
-        this.$methods = merge(opts.methods || {}, methods);
+        this.$methods = opts.methods || {};
         this.$components = merge(opts.components || {}, components);
         this.$dom = {type: this.$el.nodeName, children: [], node: this.$el};
 
@@ -147,7 +146,7 @@
             var component = this.$components[componentName];
             var componentMethods = component.methods || {};
             for(var method in componentMethods) {
-              methods[method] = componentMethods[method];
+              this.$methods[method] = componentMethods[method];
             }
             var foundComponents = Array.prototype.slice.call(this.$el.getElementsByTagName(componentName));
             for(var i = 0; i < foundComponents.length; i++) {
