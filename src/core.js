@@ -155,19 +155,6 @@
         }
 
         /**
-        * Creates getters for Computed Properties
-        */
-        this.createComputed = function() {
-          for(var property in this.$computed) {
-            Object.defineProperty(this.data, property, {
-              get: function() {
-                return this.$computed[property]();
-              }
-            });
-          }
-        }
-
-        /**
         * Sets Value in Data
         * @param {String} key
         * @param {String} val
@@ -318,7 +305,6 @@
         */
         this.init = function() {
           this.log("======= Moon =======");
-          this.createComputed();
           if(_hooks.created) {
             _hooks.created();
           }
