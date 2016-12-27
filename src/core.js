@@ -158,7 +158,13 @@
         * Creates getters for Computed Properties
         */
         this.createComputed = function() {
+          for(var property in this.$computed) {
+            Object.defineProperty(this.data, property, {
+              get: function() {
 
+              }
+            });
+          }
         }
 
         /**
