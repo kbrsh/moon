@@ -333,6 +333,7 @@
     /**
     * Creates a subclass of Moon
     * @param {Object} opts
+    * @return {Object} subclass of Moon
     */
     Moon.extend = function(opts) {
       var Super = this;
