@@ -145,7 +145,10 @@
         this.compileComponents = function() {
           for(var componentName in this.$components) {
             var component = this.$components[componentName];
-            var methods = component.methods || {};
+            var componentMethods = component.methods || {};
+            for(var method in componentMethods) {
+              methods[method] = componentMethods[method];
+            }
             var foundComponents = Array.prototype.slice.call(this.$el.getElementsByTagName(componentName));
             for(var i = 0; i < foundComponents.length; i++) {
               var foundComponent = foundComponents[i];
