@@ -341,6 +341,7 @@
       }
       Sub.prototype = Object.create(Super.prototype);
       Sub.prototype.constructor = Sub;
+      return Sub;
     }
 
     /**
