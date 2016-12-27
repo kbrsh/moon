@@ -5,6 +5,7 @@
     }
     var directives = {};
     var components = {};
+    var methods = {};
 
     /**
     * Converts attributes into key-value pairs
