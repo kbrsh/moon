@@ -335,8 +335,8 @@
     * @param {String} name
     * @param {Function} action
     */
-    Moon.component = function(name, action) {
-      components[name] = action;
+    Moon.component = function(name, opts) {
+      components[name] = opts;
     }
 
     /**
