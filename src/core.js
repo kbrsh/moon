@@ -148,7 +148,7 @@
             for(var i = 0; i < foundComponents.length; i++) {
               var foundComponent = foundComponents[i];
               var props = extractAttrs(foundComponent);
-              foundComponent.outerHTML = compileTemplate(component.template, props);
+              foundComponent.outerHTML = compileTemplate(component.template, {props:props});
             }
           }
         }
