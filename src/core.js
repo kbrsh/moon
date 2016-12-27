@@ -339,6 +339,7 @@
       function Sub(opts) {
         Super.call(this, opts);
       }
+      Sub.prototype = Object.create(Super.prototype);
     }
 
     /**
