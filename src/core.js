@@ -71,7 +71,7 @@
         var _destroyed = false;
         var self = this;
         this.$el = document.querySelector(_el);
-        this.$methods = opts.methods;
+        this.$methods = merge(opts.methods || {}, methods);
         this.$components = merge(opts.components || {}, components);
         this.$dom = {type: this.$el.nodeName, children: [], node: this.$el};
 
