@@ -158,7 +158,7 @@
         * Creates getters for Computed Properties
         */
         this.createComputed = function() {
-          
+
         }
 
         /**
@@ -312,6 +312,7 @@
         */
         this.init = function() {
           this.log("======= Moon =======");
+          this.createComputed();
           if(_hooks.created) {
             _hooks.created();
           }
