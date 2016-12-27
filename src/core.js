@@ -139,6 +139,13 @@
         }
 
         /**
+        * Compiles all Components
+        */
+        this.compileComponents = function() {
+          
+        }
+
+        /**
         * Sets Value in Data
         * @param {String} key
         * @param {String} val
