@@ -139,26 +139,6 @@
         }
 
         /**
-        * Compiles all Components to HTML
-        */
-        this.compileComponents = function() {
-          for(var componentName in this.$components) {
-            var component = this.$components[componentName];
-            var componentMethods = component.methods || {};
-            for(var method in componentMethods) {
-              this.$methods[method] = componentMethods[method];
-            }
-            var foundComponents = Array.prototype.slice.call(this.$el.getElementsByTagName(componentName));
-            for(var i = 0; i < foundComponents.length; i++) {
-              var foundComponent = foundComponents[i];
-              var data = component.data() || {};
-              var props = extractAttrs(foundComponent);
-              foundComponent.outerHTML = compileTemplate(component.template, merge(props, data));
-            }
-          }
-        }
-
-        /**
         * Sets Value in Data
         * @param {String} key
         * @param {String} val
@@ -312,7 +292,6 @@
           if(_hooks.created) {
             _hooks.created();
           }
-          this.compileComponents();
           this.createVirtualDOM(this.$el);
           this.build(this.$dom.children);
           if(_hooks.mounted) {
