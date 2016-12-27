@@ -331,21 +331,6 @@
     }
 
     /**
-    * Creates a subclass of Moon
-    * @param {Object} opts
-    * @return {Object} subclass of Moon
-    */
-    Moon.extend = function(opts) {
-      var Super = this;
-      function Sub(opts) {
-        Super.call(this, opts);
-      }
-      Sub.prototype = Object.create(Super.prototype);
-      Sub.prototype.constructor = Sub;
-      return Sub;
-    }
-
-    /**
     * Creates a Component
     * @param {String} name
     * @param {Function} action
