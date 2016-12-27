@@ -72,7 +72,7 @@
         this.$el = document.querySelector(_el);
         this.$methods = opts.methods;
         this.$components = merge(opts.components || {}, components);
-        this.$computed = {};
+        this.$computed = opts.computed;
         this.$dom = {type: this.$el.nodeName, children: [], node: this.$el};
 
         // Change state when $data is changed
