@@ -155,6 +155,13 @@
         }
 
         /**
+        * Creates getters for Computed Properties
+        */
+        this.createComputed = function() {
+          
+        }
+
+        /**
         * Sets Value in Data
         * @param {String} key
         * @param {String} val
