@@ -331,6 +331,14 @@
     }
 
     /**
+    * Creates a subclass of Moon
+    * @param {Object} opts
+    */
+    Moon.extend = function(opts) {
+      
+    }
+
+    /**
     * Creates a Component
     * @param {String} name
     * @param {Function} action
