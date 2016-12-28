@@ -8,12 +8,16 @@
 
 "use strict";
 (function(window) {
+
+    /* ======= Global Variables ======= */
     var config = {
       silent: false
     }
     var directives = {};
     var components = {};
 
+    /* ======= Global Utilities ======= */
+    
     /**
     * Converts attributes into key-value pairs
     * @param {Node} node
@@ -26,10 +30,10 @@
       for(var i = 0; i < rawAttrs.length; i++) {
         attrs[rawAttrs[i].name] = rawAttrs[i].value
       }
-
+    
       return attrs;
     }
-
+    
     /**
     * Compiles a template with given data
     * @param {String} template
@@ -38,7 +42,7 @@
     */
     var compileTemplate = function(template, data) {
       var code = template,
-          re = /{{([A-Za-z0-9_.\[\]]+)}}/gi;
+          re = /{{([A-Za-z0-9_.()\[\]]+)}}/gi;
       code.replace(re, function(match, p) {
         code = code.replace(match, "` + data." + p + " + `");
       });
@@ -46,7 +50,7 @@
       var output = compile(data);
       return output;
     }
-
+    
     /**
     * Gets Root Element
     * @param {String} html
@@ -57,7 +61,7 @@
       dummy.innerHTML = html;
       return dummy.firstChild;
     }
-
+    
     /**
     * Merges two Objects
     * @param {Object} obj
@@ -70,19 +74,21 @@
       }
       return obj;
     }
+    
 
     function Moon(opts) {
+        /* ======= Initial Values ======= */
         var _el = opts.el;
         var _data = opts.data;
-        var _methods = opts.methods;
-        var _hooks = opts.hooks || {created: function() {}, mounted: function() {}, updated: function() {}, destroyed: function() {}};
-        var _destroyed = false;
         var self = this;
         this.$el = document.querySelector(_el);
+        this.$hooks = opts.hooks || {created: function() {}, mounted: function() {}, updated: function() {}, destroyed: function() {}};
+        this.$methods = opts.methods || {};
         this.$components = merge(opts.components || {}, components);
         this.$dom = {type: this.$el.nodeName, children: [], node: this.$el};
+        this.$destroyed = false;
 
-        // Change state when $data is changed
+        /* ======= Listen for Changes ======= */
         Object.defineProperty(this, '$data', {
             get: function() {
                 return _data;
@@ -94,119 +100,7 @@
             configurable: true
         });
 
-        /**
-        * Logs a Message
-        * @param {String} msg
-        */
-        this.log = function(msg) {
-          if(!config.silent) console.log(msg);
-        }
-
-        /**
-        * Throws an Error
-        * @param {String} msg
-        */
-        this.error = function(msg) {
-          console.log("Moon ERR: " + msg);
-        }
-
-        /**
-        * Creates an object to be used in a Virtual DOM
-        * @param {String} type
-        * @param {Array} children
-        * @param {String} val
-        * @param {Object} props
-        * @param {Node} node
-        * @return {Object} Object usable in Virtual DOM
-        */
-        this.createElement = function(type, children, val, props, node) {
-          return {type: type, children: children, val: val, props: props, node: node};
-        }
-
-        /**
-        * Create Elements Recursively For all Children
-        * @param {Array} children
-        * @return {Array} Array of elements usable in Virtual DOM
-        */
-        this.recursiveChildren = function(children) {
-          var recursiveChildrenArr = [];
-          for(var i = 0; i < children.length; i++) {
-            var child = children[i];
-            recursiveChildrenArr.push(this.createElement(child.nodeName, this.recursiveChildren(child.childNodes), child.textContent, extractAttrs(child), child));
-          }
-          return recursiveChildrenArr;
-        }
-
-        /**
-        * Creates Virtual DOM
-        * @param {Node} node
-        */
-        this.createVirtualDOM = function(node) {
-          var vdom = this.createElement(node.nodeName, this.recursiveChildren(node.childNodes), node.textContent, extractAttrs(node), node);
-          this.$dom = vdom;
-        }
-
-        /**
-        * Turns Custom Components into their Corresponding Templates
-        */
-        this.componentsToHTML = function() {
-          for(var component in this.$components) {
-            var componentsFound = document.getElementsByTagName(component);
-            componentsFound = Array.prototype.slice.call(componentsFound);
-            for(var i = 0; i < componentsFound.length; i++) {
-              var componentFound = componentsFound[i];
-              var componentProps = extractAttrs(componentFound);
-              var componentDummy = getRootElement(this.$components[component].template);
-              for(var attr in componentProps) {
-                componentDummy.setAttribute(attr, componentProps[attr]);
-              }
-              componentFound.outerHTML = componentDummy.outerHTML;
-            }
-          }
-        }
-
-        /**
-        * Sets Value in Data
-        * @param {String} key
-        * @param {String} val
-        */
-        this.set = function(key, val) {
-          this.$data[key] = val;
-          if(!_destroyed) this.build(this.$dom.children);
-          if(_hooks.updated) {
-            _hooks.updated();
-          }
-        }
-
-        /**
-        * Gets Value in Data
-        * @param {String} key
-        * @return {String} Value of key in data
-        */
-        this.get = function(key) {
-          return this.$data[key];
-        }
-
-        /**
-        * Calls a method
-        * @param {String} method
-        */
-        this.method = function(method) {
-          _methods[method]();
-        }
-
-
-        this.destroy = function() {
-          Object.defineProperty(this, '$data', {
-            set: function(value) {
-              _data = value;
-            }
-          });
-          _destroyed = true;
-          if(_hooks.destroyed) _hooks.destroyed();
-        }
-
-        // Default Directives
+        /* ======= Default Directives ======= */
         directives["m-if"] = function(el, val, vdom) {
           var evaluated = new Function("return " + val);
           if(!evaluated()) {
@@ -260,76 +154,153 @@
           el.innerHTML = val;
         }
 
-        directives["m-mask"] = function(el, val, vdom) {
+        directives["m-mask"] = function(el, val, vdom) {}
 
-        }
-
-        // directives["m-for"] = function(el, val, vdom) {
-        //   var splitVal = val.split(" in ");
-        //   var alias = splitVal[0];
-        //   var arr = self.get(splitVal[1]);
-        //   var clone = el.cloneNode(true);
-        //   var oldVal = vdom.val;
-        //   var compilable = vdom.val.replace(new RegExp(alias, "gi"), splitVal[1] + '[0]');
-        //   el.innerHTML = compileTemplate(compilable, self.$data);
-        //   for(var i = 1; i < arr.length; i++) {
-        //     var newClone = clone.cloneNode(true);
-        //     var compilable = oldVal.replace(new RegExp(alias, "gi"), splitVal[1] + '[' + i + ']');
-        //     newClone.innerHTML = compileTemplate(compilable, self.$data);
-        //     var parent = el.parentNode;
-        //     parent.appendChild(newClone);
-        //   }
-        //   vdom.val = el.textContent;
-        //   delete vdom.props["m-for"];
-        // }
-
-        /**
-        * Builds the DOM With Data
-        * @param {Array} children
-        */
-        this.build = function(children) {
-          for(var i = 0; i < children.length; i++) {
-            var el = children[i];
-
-            if(el.type === "#text") {
-              el.node.textContent = compileTemplate(el.val, this.$data);
-            } else if(el.props) {
-              for(var prop in el.props) {
-                var propVal = el.props[prop];
-                var compiledProperty = compileTemplate(propVal, this.$data);
-                var directive = directives[prop];
-                if(directive) {
-                  el.node.removeAttribute(prop);
-                  directive(el.node, compiledProperty, el);
-                }
-
-                if(!directive) el.node.setAttribute(prop, compiledProperty);
-              }
-            }
-
-            this.build(el.children);
-          }
-        }
-
-        /**
-        * Initializes Moon
-        */
-        this.init = function() {
-          this.log("======= Moon =======");
-          if(_hooks.created) {
-            _hooks.created();
-          }
-          this.componentsToHTML();
-          this.createVirtualDOM(this.$el);
-          this.build(this.$dom.children);
-          if(_hooks.mounted) {
-            _hooks.mounted();
-          }
-        }
-
-        // Initialize 🎉
+        /* ======= Initialize 🎉 ======= */
         this.init();
     }
+
+    /* ======= Instance Methods ======= */
+
+    /**
+    * Logs a Message
+    * @param {String} msg
+    */
+    Moon.prototype.log = function(msg) {
+      if(!config.silent) console.log(msg);
+    }
+
+    /**
+    * Throws an Error
+    * @param {String} msg
+    */
+    Moon.prototype.error = function(msg) {
+      console.log("Moon ERR: " + msg);
+    }
+
+    /**
+    * Creates an object to be used in a Virtual DOM
+    * @param {String} type
+    * @param {Array} children
+    * @param {String} val
+    * @param {Object} props
+    * @param {Node} node
+    * @return {Object} Object usable in Virtual DOM
+    */
+    Moon.prototype.createElement = function(type, children, val, props, node) {
+      return {type: type, children: children, val: val, props: props, node: node};
+    }
+
+    /**
+    * Create Elements Recursively For all Children
+    * @param {Array} children
+    * @return {Array} Array of elements usable in Virtual DOM
+    */
+    Moon.prototype.recursiveChildren = function(children) {
+      var recursiveChildrenArr = [];
+      for(var i = 0; i < children.length; i++) {
+        var child = children[i];
+        recursiveChildrenArr.push(this.createElement(child.nodeName, this.recursiveChildren(child.childNodes), child.textContent, extractAttrs(child), child));
+      }
+      return recursiveChildrenArr;
+    }
+
+    /**
+    * Creates Virtual DOM
+    * @param {Node} node
+    */
+    Moon.prototype.createVirtualDOM = function(node) {
+      var vdom = this.createElement(node.nodeName, this.recursiveChildren(node.childNodes), node.textContent, extractAttrs(node), node);
+      this.$dom = vdom;
+    }
+
+    /**
+    * Sets Value in Data
+    * @param {String} key
+    * @param {String} val
+    */
+    Moon.prototype.set = function(key, val) {
+      this.$data[key] = val;
+      if(!this.$destroyed) this.build(this.$dom.children);
+      if(this.$hooks.updated) {
+        this.$hooks.updated();
+      }
+    }
+
+    /**
+    * Gets Value in Data
+    * @param {String} key
+    * @return {String} Value of key in data
+    */
+    Moon.prototype.get = function(key) {
+      return this.$data[key];
+    }
+
+    /**
+    * Calls a method
+    * @param {String} method
+    */
+    Moon.prototype.method = function(method) {
+      this.$methods[method]();
+    }
+
+    /**
+    * Destroys Moon Instance
+    */
+    Moon.prototype.destroy = function() {
+      Object.defineProperty(this, '$data', {
+        set: function(value) {
+          _data = value;
+        }
+      });
+      this.$destroyed = true;
+      if(this.$hooks.destroyed) this.$hooks.destroyed();
+    }
+
+    /**
+    * Builds the DOM With Data
+    * @param {Array} children
+    */
+    Moon.prototype.build = function(children) {
+      for(var i = 0; i < children.length; i++) {
+        var el = children[i];
+
+        if(el.type === "#text") {
+          el.node.textContent = compileTemplate(el.val, this.$data);
+        } else if(el.props) {
+          for(var prop in el.props) {
+            var propVal = el.props[prop];
+            var compiledProperty = compileTemplate(propVal, this.$data);
+            var directive = directives[prop];
+            if(directive) {
+              el.node.removeAttribute(prop);
+              directive(el.node, compiledProperty, el);
+            }
+
+            if(!directive) el.node.setAttribute(prop, compiledProperty);
+          }
+        }
+
+        this.build(el.children);
+      }
+    }
+
+    /**
+    * Initializes Moon
+    */
+    Moon.prototype.init = function() {
+      this.log("======= Moon =======");
+      if(this.$hooks.created) {
+        this.$hooks.created();
+      }
+      this.createVirtualDOM(this.$el);
+      this.build(this.$dom.children);
+      if(this.$hooks.mounted) {
+        this.$hooks.mounted();
+      }
+    }
+
+    /* ======= Global API ======= */
 
     /**
     * Sets the Configuration of Moon
@@ -363,42 +334,23 @@
     * @param {String} name
     * @param {Function} action
     */
-    Moon.component = function(name, action) {
-      components[name] = action;
+    Moon.component = function(name, opts) {
+      components[name] = opts;
     }
 
     /**
-    * Makes an AJAX Request
-    * @param {String} method
-    * @param {String} url
-    * @param {Object} params
-    * @param {Function} cb
+    * Creates Subclass of Moon
+    * @param {Object} opts
     */
-    Moon.ajax = function(method, url, params, cb) {
-      var xmlHttp = new XMLHttpRequest();
-      method = method.toUpperCase();
-      if(typeof params === "function") {
-        cb = params;
+    Moon.extend = function(opts) {
+      var Parent = this;
+      function MoonComponent() {
+        Moon.call(this, opts);
       }
-      var urlParams = "?";
-      if(method === "POST") {
-        http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-        for(var param in params) {
-          urlParams += param + "=" + params[param] + "&";
-        }
-      }
-      xmlHttp.onreadystatechange = function() {
-      if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-        cb(JSON.parse(xmlHttp.responseText));
-      }
-      xmlHttp.open(method, url, true);
-      xmlHttp.send(method === "POST" ? urlParams : null);
+      MoonComponent.prototype = Object.create(Parent.prototype);
+      MoonComponent.prototype.constructor = MoonComponent;
+      return MoonComponent;
     }
 
     window.Moon = Moon;
-    window.$ = function(el) {
-      el = document.querySelectorAll(el);
-      return el.length === 1 ? el[0] : el;
-    }
-
 })(window);
