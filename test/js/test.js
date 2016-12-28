@@ -76,3 +76,19 @@ describe('If Directive', function() {
     expect(document.getElementById('if-condition').innerHTML).to.not.equal('Condition True');
   });
 });
+
+describe('If Directive', function() {
+  var showApp = new Moon({
+    el: "#show",
+    data: {
+      condition: true
+    }
+  });
+  it('should display when true', function() {
+    expect(document.getElementById('show-condition').style.display).to.equal('block');
+  });
+  it('should not display when false', function() {
+    showApp.set('condition', false);
+    expect(document.getElementById('show-condition').style.display).to.equal('none');
+  });
+});
