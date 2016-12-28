@@ -23,3 +23,21 @@ describe('Data', function() {
     expect(dataApp.get('msg')).to.equal("New Value");
   });
 });
+
+describe('Methods', function() {
+  var methodApp = new Moon({
+    el: "#method",
+    data: {
+      count: 0
+    },
+    methods: {
+      increment: function() {
+        methodApp.set('count', methodApp.get('count') + 1);
+      }
+    }
+  });
+  it('when calling a method', function() {
+    methodApp.method('increment');
+    expect(methodApp.get('count')).to.equal(1);
+  });
+});
