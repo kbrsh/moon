@@ -87,20 +87,6 @@
         });
 
         /**
-        * Create Elements Recursively For all Children
-        * @param {Array} children
-        * @return {Array} Array of elements usable in Virtual DOM
-        */
-        this.recursiveChildren = function(children) {
-          var recursiveChildrenArr = [];
-          for(var i = 0; i < children.length; i++) {
-            var child = children[i];
-            recursiveChildrenArr.push(this.createElement(child.nodeName, this.recursiveChildren(child.childNodes), child.textContent, extractAttrs(child), child));
-          }
-          return recursiveChildrenArr;
-        }
-
-        /**
         * Creates Virtual DOM
         * @param {Node} node
         */
@@ -285,6 +271,20 @@
     */
     Moon.prototype.createElement = function(type, children, val, props, node) {
       return {type: type, children: children, val: val, props: props, node: node};
+    }
+
+    /**
+    * Create Elements Recursively For all Children
+    * @param {Array} children
+    * @return {Array} Array of elements usable in Virtual DOM
+    */
+    Moon.prototype.recursiveChildren = function(children) {
+      var recursiveChildrenArr = [];
+      for(var i = 0; i < children.length; i++) {
+        var child = children[i];
+        recursiveChildrenArr.push(this.createElement(child.nodeName, this.recursiveChildren(child.childNodes), child.textContent, extractAttrs(child), child));
+      }
+      return recursiveChildrenArr;
     }
 
     /**
