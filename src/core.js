@@ -66,7 +66,6 @@
     function Moon(opts) {
         var _el = opts.el;
         var _data = opts.data;
-        var _destroyed = false;
         var self = this;
         this.$el = document.querySelector(_el);
         this.$hooks = {created: opts.hooks.created || function() {}, mounted: opts.hooks.mounted || function() {}, updated: opts.hooks.updated || function() {}, destroyed: opts.hooks.destroyed || function() {}};
@@ -124,7 +123,7 @@
         */
         this.set = function(key, val) {
           this.$data[key] = val;
-          if(!_destroyed) this.build(this.$dom.children);
+          if(!this.$destroyed) this.build(this.$dom.children);
           if(this.$hooks.updated) {
             this.$hooks.updated();
           }
@@ -153,7 +152,7 @@
               _data = value;
             }
           });
-          _destroyed = true;
+          this.$destroyed = true;
           if(this.$hooks.destroyed) this.$hooks.destroyed();
         }
 
