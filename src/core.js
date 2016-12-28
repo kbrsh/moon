@@ -352,7 +352,10 @@
     * @param {Object} opts
     */
     Moon.extend = function(opts) {
-
+      var Parent = this;
+      function MoonComponent(opts) {
+        Moon.call(this, opts);
+      }
     }
 
     /**
