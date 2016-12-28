@@ -147,6 +147,8 @@
         this.init();
     }
 
+    /* ======= Instance Methods ======= */
+
     /**
     * Logs a Message
     * @param {String} msg
