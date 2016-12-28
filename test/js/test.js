@@ -5,6 +5,20 @@ describe('Initializing', function() {
   });
 });
 
+describe('Instance', function() {
+  var destroyApp = new Moon({
+    el: "#destroy",
+    data: {
+      msg: "Hello Moon!"
+    }
+  });
+  it('when destroyed', function() {
+    destroyApp.destroy();
+    destroyApp.set('msg', 'New Value!');
+    expect(document.getElementById("destroy").innerHTML).to.not.equal("New Value!")
+  });
+});
+
 describe('Data', function() {
   var dataApp = new Moon({
     el: "#data",
