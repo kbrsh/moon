@@ -109,7 +109,7 @@
             el.textContent = compileTemplate(vdom.val, self.$data);
           }
         }
-
+        
         directives["m-show"] = function(el, val, vdom) {
           var evaluated = new Function("return " + val);
           if(!evaluated()) {
@@ -118,7 +118,7 @@
             el.style.display = 'block';
           }
         }
-
+        
         directives["m-on"] = function(el, val, vdom) {
           var splitVal = val.split(":");
           var eventToCall = splitVal[0];
@@ -129,7 +129,7 @@
           el.removeAttribute("m-on");
           delete vdom.props["m-on"];
         }
-
+        
         directives["m-model"] = function(el, val, vdom) {
           el.value = self.get(val);
           el.addEventListener("input", function() {
@@ -138,30 +138,31 @@
           el.removeAttribute("m-model");
           delete vdom.props["m-model"];
         }
-
+        
         directives["m-once"] = function(el, val, vdom) {
           vdom.val = el.textContent;
           for(var child in vdom.children) {
             vdom.children[child].val = compileTemplate(vdom.children[child].val, self.$data);
           }
         }
-
+        
         directives["m-text"] = function(el, val, vdom) {
           el.textContent = val;
         }
-
+        
         directives["m-html"] = function(el, val, vdom) {
           el.innerHTML = val;
         }
-
+        
         directives["m-mask"] = function(el, val, vdom) {}
+        
 
         /* ======= Initialize 🎉 ======= */
         this.init();
     }
 
     /* ======= Instance Methods ======= */
-
+    
     /**
     * Logs a Message
     * @param {String} msg
@@ -169,7 +170,7 @@
     Moon.prototype.log = function(msg) {
       if(!config.silent) console.log(msg);
     }
-
+    
     /**
     * Throws an Error
     * @param {String} msg
@@ -177,7 +178,7 @@
     Moon.prototype.error = function(msg) {
       console.log("Moon ERR: " + msg);
     }
-
+    
     /**
     * Creates an object to be used in a Virtual DOM
     * @param {String} type
@@ -190,7 +191,7 @@
     Moon.prototype.createElement = function(type, children, val, props, node) {
       return {type: type, children: children, val: val, props: props, node: node};
     }
-
+    
     /**
     * Create Elements Recursively For all Children
     * @param {Array} children
@@ -204,7 +205,7 @@
       }
       return recursiveChildrenArr;
     }
-
+    
     /**
     * Creates Virtual DOM
     * @param {Node} node
@@ -213,7 +214,7 @@
       var vdom = this.createElement(node.nodeName, this.recursiveChildren(node.childNodes), node.textContent, extractAttrs(node), node);
       this.$dom = vdom;
     }
-
+    
     /**
     * Sets Value in Data
     * @param {String} key
@@ -226,7 +227,7 @@
         this.$hooks.updated();
       }
     }
-
+    
     /**
     * Gets Value in Data
     * @param {String} key
@@ -235,7 +236,7 @@
     Moon.prototype.get = function(key) {
       return this.$data[key];
     }
-
+    
     /**
     * Calls a method
     * @param {String} method
@@ -243,7 +244,7 @@
     Moon.prototype.method = function(method) {
       this.$methods[method]();
     }
-
+    
     /**
     * Destroys Moon Instance
     */
@@ -256,7 +257,7 @@
       this.$destroyed = true;
       if(this.$hooks.destroyed) this.$hooks.destroyed();
     }
-
+    
     /**
     * Builds the DOM With Data
     * @param {Array} children
@@ -264,7 +265,7 @@
     Moon.prototype.build = function(children) {
       for(var i = 0; i < children.length; i++) {
         var el = children[i];
-
+    
         if(el.type === "#text") {
           el.node.textContent = compileTemplate(el.val, this.$data);
         } else if(el.props) {
@@ -276,15 +277,15 @@
               el.node.removeAttribute(prop);
               directive(el.node, compiledProperty, el);
             }
-
+    
             if(!directive) el.node.setAttribute(prop, compiledProperty);
           }
         }
-
+    
         this.build(el.children);
       }
     }
-
+    
     /**
     * Initializes Moon
     */
@@ -299,9 +300,10 @@
         this.$hooks.mounted();
       }
     }
+    
 
     /* ======= Global API ======= */
-
+    
     /**
     * Sets the Configuration of Moon
     * @param {Object} opts
@@ -311,7 +313,7 @@
         config.silent = opts.silent;
       }
     }
-
+    
     /**
     * Runs an external Plugin
     * @param {Object} plugin
@@ -319,7 +321,7 @@
     Moon.use = function(plugin) {
       plugin.init(Moon);
     }
-
+    
     /**
     * Creates a Directive
     * @param {String} name
@@ -328,7 +330,7 @@
     Moon.directive = function(name, action) {
       directives["m-" + name] = action;
     }
-
+    
     /**
     * Creates a Component
     * @param {String} name
@@ -337,7 +339,7 @@
     Moon.component = function(name, opts) {
       components[name] = opts;
     }
-
+    
     /**
     * Creates Subclass of Moon
     * @param {Object} opts
@@ -351,6 +353,7 @@
       MoonComponent.prototype.constructor = MoonComponent;
       return MoonComponent;
     }
+    
 
     window.Moon = Moon;
 })(window);
