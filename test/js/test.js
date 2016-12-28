@@ -17,6 +17,6 @@ describe('Data', function() {
   });
   it('when setting', function() {
     dataApp.set('msg', 'New Value');
+    expect(document.getElementById("data").innerHTML).to.equal("New Value");
   });
-  expect(document.getElementById("data").innerHTML).to.equal("New Value");
 });
