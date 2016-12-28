@@ -35,17 +35,3 @@ Moon.directive = function(name, action) {
 Moon.component = function(name, opts) {
   components[name] = opts;
 }
-
-/**
-* Creates Subclass of Moon
-* @param {Object} opts
-*/
-Moon.extend = function(opts) {
-  var Parent = this;
-  function MoonComponent() {
-    Moon.call(this, opts);
-  }
-  MoonComponent.prototype = Object.create(Parent.prototype);
-  MoonComponent.prototype.constructor = MoonComponent;
-  return MoonComponent;
-}
