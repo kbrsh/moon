@@ -296,14 +296,14 @@
         */
         this.init = function() {
           this.log("======= Moon =======");
-          if(_hooks.created) {
-            _hooks.created();
+          if(this.$hooks.created) {
+            this.$hooks.created();
           }
           this.compileComponents();
           this.createVirtualDOM(this.$el);
           this.build(this.$dom.children);
-          if(_hooks.mounted) {
-            _hooks.mounted();
+          if(this.$hooks.mounted) {
+            this.$hooks.mounted();
           }
         }
 
