@@ -88,14 +88,6 @@
         });
 
         /**
-        * Logs a Message
-        * @param {String} msg
-        */
-        this.log = function(msg) {
-          if(!config.silent) console.log(msg);
-        }
-
-        /**
         * Throws an Error
         * @param {String} msg
         */
@@ -309,6 +301,14 @@
 
         // Initialize 🎉
         this.init();
+    }
+
+    /**
+    * Logs a Message
+    * @param {String} msg
+    */
+    Moon.prototype.log = function(msg) {
+      if(!config.silent) console.log(msg);
     }
 
     /**
