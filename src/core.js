@@ -68,7 +68,7 @@
         var _data = opts.data;
         var self = this;
         this.$el = document.querySelector(_el);
-        this.$hooks = {created: opts.hooks.created || function() {}, mounted: opts.hooks.mounted || function() {}, updated: opts.hooks.updated || function() {}, destroyed: opts.hooks.destroyed || function() {}};
+        this.$hooks = opts.hooks || {created: function() {}, mounted: function() {}, updated: function() {}, destroyed: function() {}};
         this.$methods = opts.methods || {};
         this.$components = merge(opts.components || {}, components);
         this.$dom = {type: this.$el.nodeName, children: [], node: this.$el};
