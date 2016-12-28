@@ -286,6 +286,10 @@
       }
     }
 
+    /* ================= *
+     *  Global API       *
+     * ================= */
+
     /**
     * Sets the Configuration of Moon
     * @param {Object} opts
