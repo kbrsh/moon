@@ -6,13 +6,17 @@ describe('Initializing', function() {
 });
 
 describe('Data', function() {
+  var dataApp = new Moon({
+    el: "#data",
+    data: {
+      msg: "Hello Moon!"
+    }
+  });
   it('while initializing', function() {
-    var dataApp = new Moon({
-      el: "#data",
-      data: {
-        msg: "Hello Moon!"
-      }
-    });
     expect(document.getElementById("data").innerHTML).to.equal("Hello Moon!");
   });
+  it('when setting', function() {
+    dataApp.set('msg', 'New Value');
+  });
+  expect(document.getElementById("data").innerHTML).to.equal("New Value");
 });
