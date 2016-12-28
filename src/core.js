@@ -154,8 +154,8 @@
         this.set = function(key, val) {
           this.$data[key] = val;
           if(!_destroyed) this.build(this.$dom.children);
-          if(_hooks.updated) {
-            _hooks.updated();
+          if(this.$hooks.updated) {
+            this.$hooks.updated();
           }
         }
 
@@ -183,7 +183,7 @@
             }
           });
           _destroyed = true;
-          if(this.$hooks.destroyed) _hooks.destroyed();
+          if(this.$hooks.destroyed) this.$hooks.destroyed();
         }
 
         // Default Directives
