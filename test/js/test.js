@@ -59,3 +59,16 @@ describe('Methods', function() {
     expect(document.getElementById("method").innerHTML).to.equal('2');
   });
 });
+
+
+describe('If Directive', function() {
+  var ifApp = new Moon({
+    el: "#if",
+    data: {
+      condition: true
+    }
+  });
+  it('should display when true', function() {
+    expect(document.getElementById('if-condition').innerHTML).to.equal('Condition True');
+  });
+});
