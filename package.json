@@ -4,7 +4,7 @@
   "description": "A minimal, blazing fast user interface library.",
   "main": "dist/moon.min.js",
   "scripts": {
-    "test": "echo 'No Test'"
+    "test": "node test/test.js"
   },
   "repository": {
     "type": "git",
