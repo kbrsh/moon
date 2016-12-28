@@ -142,7 +142,7 @@
         * Compiles all Components
         */
         this.compileComponents = function() {
-          
+
         }
 
         /**
@@ -345,6 +345,14 @@
     */
     Moon.component = function(name, opts) {
       components[name] = opts;
+    }
+
+    /**
+    * Creates Subclass of Moon
+    * @param {Object} opts
+    */
+    Moon.extend = function(opts) {
+
     }
 
     /**
