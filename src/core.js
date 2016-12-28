@@ -64,6 +64,7 @@
     }
 
     function Moon(opts) {
+        /* ======= Initial Values ======= */
         var _el = opts.el;
         var _data = opts.data;
         var self = this;
@@ -74,7 +75,7 @@
         this.$dom = {type: this.$el.nodeName, children: [], node: this.$el};
         this.$destroyed = false;
 
-        // Change state when $data is changed
+        /* ======= Listen for Changes ======= */
         Object.defineProperty(this, '$data', {
             get: function() {
                 return _data;
@@ -86,7 +87,7 @@
             configurable: true
         });
 
-        // Default Directives
+        /* ======= Default Directives ======= */
         directives["m-if"] = function(el, val, vdom) {
           var evaluated = new Function("return " + val);
           if(!evaluated()) {
@@ -140,11 +141,9 @@
           el.innerHTML = val;
         }
 
-        directives["m-mask"] = function(el, val, vdom) {
+        directives["m-mask"] = function(el, val, vdom) {}
 
-        }
-
-        // Initialize 🎉
+        /* ======= Initialize 🎉 ======= */
         this.init();
     }
 
@@ -286,9 +285,7 @@
       }
     }
 
-    /* ================= *
-     *  Global API       *
-     * ================= */
+    /* ======= Global API ======= */
 
     /**
     * Sets the Configuration of Moon
