@@ -40,4 +40,8 @@ describe('Methods', function() {
     methodApp.method('increment');
     expect(methodApp.get('count')).to.equal(1);
   });
+  it('should update DOM', function() {
+    methodApp.method('increment');
+    expect(document.getElementById("method").innerHTML).to.equal('2');
+  });
 });
