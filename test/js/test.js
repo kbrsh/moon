@@ -104,3 +104,25 @@ describe('Model Directive', function() {
     expect(document.getElementById('model-msg').innerHTML).to.equal('Hello Moon!');
   });
 });
+
+describe('On Directive', function() {
+  var onApp = new Moon({
+    el: "#on",
+    data: {
+      count: 0
+    },
+    methods: {
+      increment: function() {
+        onApp.set('count', onApp.get('count') + 1);
+      }
+    }
+  });
+  it('should call a method', function() {
+    document.getElementById("on-increment-button").click();
+    expect(onApp.get('count')).to.equal(1);
+  });
+  it('should update DOM', function() {
+    document.getElementById("on-increment-button").click();
+    expect(document.getElementById("on-count").innerHTML).to.equal('2');
+  });
+});
