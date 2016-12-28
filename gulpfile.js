@@ -8,6 +8,7 @@ var $ = require('gulp-load-plugins')();
 
 gulp.task('build', function () {
   return gulp.src(['./src/core.js'])
+    .pipe($.include())
     .pipe($.concat('moon.js'))
     .pipe($.header(comment + '\n'))
     .pipe($.size())
