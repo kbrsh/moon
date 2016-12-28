@@ -92,3 +92,15 @@ describe('Show Directive', function() {
     expect(document.getElementById('show-condition').style.display).to.equal('none');
   });
 });
+
+describe('Model Directive', function() {
+  var modelApp = new Moon({
+    el: "#model",
+    data: {
+      msg: "Hello Moon!"
+    }
+  });
+  it('should update value when initialized', function() {
+    expect(document.getElementById('model-msg').innerHTML).to.equal('Hello Moon!');
+  });
+});
