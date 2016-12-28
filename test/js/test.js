@@ -77,7 +77,7 @@ describe('If Directive', function() {
   });
 });
 
-describe('If Directive', function() {
+describe('Show Directive', function() {
   var showApp = new Moon({
     el: "#show",
     data: {
