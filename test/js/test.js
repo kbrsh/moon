@@ -68,7 +68,11 @@ describe('If Directive', function() {
       condition: true
     }
   });
-  it('should display when true', function() {
+  it('should exist when true', function() {
     expect(document.getElementById('if-condition').innerHTML).to.equal('Condition True');
+  });
+  it('should not exist when false', function() {
+    ifApp.set('condition', false);
+    expect(document.getElementById('if-condition').innerHTML).to.not.equal('Condition True');
   });
 });
