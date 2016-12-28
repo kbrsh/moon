@@ -262,7 +262,6 @@
           if(this.$hooks.created) {
             this.$hooks.created();
           }
-          this.compileComponents();
           this.createVirtualDOM(this.$el);
           this.build(this.$dom.children);
           if(this.$hooks.mounted) {
