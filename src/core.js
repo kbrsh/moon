@@ -254,21 +254,6 @@
           }
         }
 
-        /**
-        * Initializes Moon
-        */
-        this.init = function() {
-          this.log("======= Moon =======");
-          if(this.$hooks.created) {
-            this.$hooks.created();
-          }
-          this.createVirtualDOM(this.$el);
-          this.build(this.$dom.children);
-          if(this.$hooks.mounted) {
-            this.$hooks.mounted();
-          }
-        }
-
         // Initialize 🎉
         this.init();
     }
@@ -300,6 +285,21 @@
     */
     Moon.prototype.createElement = function(type, children, val, props, node) {
       return {type: type, children: children, val: val, props: props, node: node};
+    }
+
+    /**
+    * Initializes Moon
+    */
+    Moon.prototype.init = function() {
+      this.log("======= Moon =======");
+      if(this.$hooks.created) {
+        this.$hooks.created();
+      }
+      this.createVirtualDOM(this.$el);
+      this.build(this.$dom.children);
+      if(this.$hooks.mounted) {
+        this.$hooks.mounted();
+      }
     }
 
     /**
