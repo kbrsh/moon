@@ -356,6 +356,7 @@
       function MoonComponent(opts) {
         Moon.call(this, opts);
       }
+      MoonComponent.prototype = Object.create(Parent.prototype);
     }
 
     /**
