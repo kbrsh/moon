@@ -87,15 +87,6 @@
         });
 
         /**
-        * Creates Virtual DOM
-        * @param {Node} node
-        */
-        this.createVirtualDOM = function(node) {
-          var vdom = this.createElement(node.nodeName, this.recursiveChildren(node.childNodes), node.textContent, extractAttrs(node), node);
-          this.$dom = vdom;
-        }
-
-        /**
         * Sets Value in Data
         * @param {String} key
         * @param {String} val
@@ -285,6 +276,15 @@
         recursiveChildrenArr.push(this.createElement(child.nodeName, this.recursiveChildren(child.childNodes), child.textContent, extractAttrs(child), child));
       }
       return recursiveChildrenArr;
+    }
+
+    /**
+    * Creates Virtual DOM
+    * @param {Node} node
+    */
+    Moon.prototype.createVirtualDOM = function(node) {
+      var vdom = this.createElement(node.nodeName, this.recursiveChildren(node.childNodes), node.textContent, extractAttrs(node), node);
+      this.$dom = vdom;
     }
 
     /**
