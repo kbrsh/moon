@@ -73,6 +73,7 @@
         this.$methods = opts.methods || {};
         this.$components = merge(opts.components || {}, components);
         this.$dom = {type: this.$el.nodeName, children: [], node: this.$el};
+        this.$destroyed = false;
 
         // Change state when $data is changed
         Object.defineProperty(this, '$data', {
@@ -175,7 +176,6 @@
           this.$methods[method]();
         }
 
-
         this.destroy = function() {
           Object.defineProperty(this, '$data', {
             set: function(value) {
@@ -183,7 +183,7 @@
             }
           });
           _destroyed = true;
-          if(_hooks.destroyed) _hooks.destroyed();
+          if(this.$hooks.destroyed) _hooks.destroyed();
         }
 
         // Default Directives
