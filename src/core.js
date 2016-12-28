@@ -94,6 +94,9 @@
           this.$methods[method]();
         }
 
+        /**
+        * Destroys Moon Instance
+        */
         this.destroy = function() {
           Object.defineProperty(this, '$data', {
             set: function(value) {
