@@ -88,19 +88,6 @@
         });
 
         /**
-        * Creates an object to be used in a Virtual DOM
-        * @param {String} type
-        * @param {Array} children
-        * @param {String} val
-        * @param {Object} props
-        * @param {Node} node
-        * @return {Object} Object usable in Virtual DOM
-        */
-        this.createElement = function(type, children, val, props, node) {
-          return {type: type, children: children, val: val, props: props, node: node};
-        }
-
-        /**
         * Create Elements Recursively For all Children
         * @param {Array} children
         * @return {Array} Array of elements usable in Virtual DOM
@@ -309,6 +296,19 @@
     */
     Moon.prototype.error = function(msg) {
       console.log("Moon ERR: " + msg);
+    }
+
+    /**
+    * Creates an object to be used in a Virtual DOM
+    * @param {String} type
+    * @param {Array} children
+    * @param {String} val
+    * @param {Object} props
+    * @param {Node} node
+    * @return {Object} Object usable in Virtual DOM
+    */
+    Moon.prototype.createElement = function(type, children, val, props, node) {
+      return {type: type, children: children, val: val, props: props, node: node};
     }
 
     /**
