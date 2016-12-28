@@ -69,7 +69,7 @@
         var _destroyed = false;
         var self = this;
         this.$el = document.querySelector(_el);
-        this.$hooks = opts.hooks || {created: function() {}, mounted: function() {}, updated: function() {}, destroyed: function() {}};
+        this.$hooks = {created: opts.hooks.created || function() {}, mounted: opts.hooks.mounted || function() {}, updated: opts.hooks.updated || function() {}, destroyed: opts.hooks.destroyed || function() {}};
         this.$methods = opts.methods || {};
         this.$components = merge(opts.components || {}, components);
         this.$dom = {type: this.$el.nodeName, children: [], node: this.$el};
