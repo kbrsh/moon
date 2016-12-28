@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/KingPixil/moon#readme",
   "devDependencies": {
+    "chai": "^3.5.0",
     "gulp": "^3.9.1",
     "gulp-concat": "^2.6.0",
     "gulp-header": "^1.8.8",
