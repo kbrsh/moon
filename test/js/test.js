@@ -19,4 +19,7 @@ describe('Data', function() {
     dataApp.set('msg', 'New Value');
     expect(document.getElementById("data").innerHTML).to.equal("New Value");
   });
+  it('when getting', function() {
+    expect(dataApp.get('msg')).to.equal("New Value");
+  });
 });
