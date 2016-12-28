@@ -12,7 +12,7 @@ describe('Data', function() {
       msg: "Hello Moon!"
     }
   });
-  it('while initializing', function() {
+  it('when initializing', function() {
     expect(document.getElementById("data").innerHTML).to.equal("Hello Moon!");
   });
   it('when setting', function() {
