@@ -1,5 +1,6 @@
+var expect = chai.expect;
 describe('Initializing', function() {
-  it('with new', () => {
-    (new Moon() instanceof Moon).should.equal(true);
-  })
-})
+  it('with new', function() {
+    expect(new Moon({el: "#initialize"}) instanceof Moon).to.equal(true);
+  });
+});
