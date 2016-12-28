@@ -7,7 +7,7 @@ var comment = '\/*\r\n* Moon ' + pkg.version + '\r\n* Copyright 2016, Kabir Shah
 var $ = require('gulp-load-plugins')();
 
 gulp.task('build', function () {
-  return gulp.src(['./src/core.js'])
+  return gulp.src(['./src/index.js'])
     .pipe($.include())
     .pipe($.concat('moon.js'))
     .pipe($.header(comment + '\n'))
