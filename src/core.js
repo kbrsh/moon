@@ -86,27 +86,6 @@
             configurable: true
         });
 
-        /**
-        * Calls a method
-        * @param {String} method
-        */
-        this.method = function(method) {
-          this.$methods[method]();
-        }
-
-        /**
-        * Destroys Moon Instance
-        */
-        this.destroy = function() {
-          Object.defineProperty(this, '$data', {
-            set: function(value) {
-              _data = value;
-            }
-          });
-          this.$destroyed = true;
-          if(this.$hooks.destroyed) this.$hooks.destroyed();
-        }
-
         // Default Directives
         directives["m-if"] = function(el, val, vdom) {
           var evaluated = new Function("return " + val);
@@ -288,6 +267,27 @@
     */
     Moon.prototype.get = function(key) {
       return this.$data[key];
+    }
+
+    /**
+    * Calls a method
+    * @param {String} method
+    */
+    Moon.prototype.method = function(method) {
+      this.$methods[method]();
+    }
+
+    /**
+    * Destroys Moon Instance
+    */
+    Moon.prototype.destroy = function() {
+      Object.defineProperty(this, '$data', {
+        set: function(value) {
+          _data = value;
+        }
+      });
+      this.$destroyed = true;
+      if(this.$hooks.destroyed) this.$hooks.destroyed();
     }
 
     /**
