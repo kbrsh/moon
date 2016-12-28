@@ -87,28 +87,6 @@
         });
 
         /**
-        * Sets Value in Data
-        * @param {String} key
-        * @param {String} val
-        */
-        this.set = function(key, val) {
-          this.$data[key] = val;
-          if(!this.$destroyed) this.build(this.$dom.children);
-          if(this.$hooks.updated) {
-            this.$hooks.updated();
-          }
-        }
-
-        /**
-        * Gets Value in Data
-        * @param {String} key
-        * @return {String} Value of key in data
-        */
-        this.get = function(key) {
-          return this.$data[key];
-        }
-
-        /**
         * Calls a method
         * @param {String} method
         */
@@ -285,6 +263,28 @@
     Moon.prototype.createVirtualDOM = function(node) {
       var vdom = this.createElement(node.nodeName, this.recursiveChildren(node.childNodes), node.textContent, extractAttrs(node), node);
       this.$dom = vdom;
+    }
+
+    /**
+    * Sets Value in Data
+    * @param {String} key
+    * @param {String} val
+    */
+    Moon.prototype.set = function(key, val) {
+      this.$data[key] = val;
+      if(!this.$destroyed) this.build(this.$dom.children);
+      if(this.$hooks.updated) {
+        this.$hooks.updated();
+      }
+    }
+
+    /**
+    * Gets Value in Data
+    * @param {String} key
+    * @return {String} Value of key in data
+    */
+    Moon.prototype.get = function(key) {
+      return this.$data[key];
     }
 
     /**
