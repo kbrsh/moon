@@ -353,7 +353,7 @@
     */
     Moon.extend = function(opts) {
       var Parent = this;
-      function MoonComponent(opts) {
+      function MoonComponent() {
         Moon.call(this, opts);
       }
       MoonComponent.prototype = Object.create(Parent.prototype);
