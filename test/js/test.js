@@ -126,3 +126,15 @@ describe('On Directive', function() {
     expect(document.getElementById("on-count").innerHTML).to.equal('2');
   });
 });
+
+describe('Text Directive', function() {
+  var textApp = new Moon({
+    el: "#text",
+    data: {
+      msg: "Hello Moon!"
+    }
+  });
+  it('should fill DOM with a value', function() {
+    expect(document.getElementById("text-directive-span").innerHTML).to.equal("Hello Moon!");
+  });
+});
