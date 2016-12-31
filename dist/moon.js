@@ -11,8 +11,7 @@
 
     /* ======= Global Variables ======= */
     var config = {
-      silent: false,
-      prefix: "m"
+      silent: false
     }
     var directives = {};
     var components = {};
@@ -332,7 +331,7 @@
     * @param {Function} action
     */
     Moon.directive = function(name, action) {
-      directives[config.prefix + "-" + name] = action;
+      directives["m-" + name] = action;
     }
     
     /**
