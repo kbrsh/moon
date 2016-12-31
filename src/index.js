@@ -3,8 +3,7 @@
 
     /* ======= Global Variables ======= */
     var config = {
-      silent: false,
-      prefix: "m"
+      silent: false
     }
     var directives = {};
     var components = {};
