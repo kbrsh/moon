@@ -4,7 +4,7 @@
     /* ======= Global Variables ======= */
     var config = {
       silent: false,
-      prefix: "m-"
+      prefix: "m"
     }
     var directives = {};
     var components = {};
