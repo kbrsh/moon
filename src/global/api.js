@@ -8,6 +8,9 @@ Moon.config = function(opts) {
   if(opts.silent) {
     config.silent = opts.silent;
   }
+  if(opts.prefix) {
+    config.prefix = opts.prefix;
+  }
 }
 
 /**
