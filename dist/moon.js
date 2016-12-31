@@ -11,7 +11,8 @@
 
     /* ======= Global Variables ======= */
     var config = {
-      silent: false
+      silent: false,
+      prefix: "m"
     }
     var directives = {};
     var components = {};
@@ -312,6 +313,9 @@
       if(opts.silent) {
         config.silent = opts.silent;
       }
+      if(opts.prefix) {
+        config.prefix = opts.prefix;
+      }
     }
     
     /**
@@ -328,7 +332,7 @@
     * @param {Function} action
     */
     Moon.directive = function(name, action) {
-      directives["m-" + name] = action;
+      directives[config.prefix + "-" + name] = action;
     }
     
     /**
@@ -337,21 +341,15 @@
     * @param {Function} action
     */
     Moon.component = function(name, opts) {
-      components[name] = opts;
-    }
-    
-    /**
-    * Creates Subclass of Moon
-    * @param {Object} opts
-    */
-    Moon.extend = function(opts) {
       var Parent = this;
       function MoonComponent() {
         Moon.call(this, opts);
       }
       MoonComponent.prototype = Object.create(Parent.prototype);
       MoonComponent.prototype.constructor = MoonComponent;
-      return MoonComponent;
+      var component = new MoonComponent();
+      components[name] = component;
+      return component;
     }
     
 
