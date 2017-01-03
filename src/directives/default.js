@@ -37,6 +37,10 @@ directives["m-model"] = function(el, val, vdom) {
   delete vdom.props["m-model"];
 }
 
+directives["m-for"] = function(el, val, vdom) {
+  
+}
+
 directives["m-once"] = function(el, val, vdom) {
   vdom.val = el.textContent;
   for(var child in vdom.children) {
