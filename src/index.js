@@ -16,7 +16,7 @@
         var _data = opts.data;
         var self = this;
         this.$el = document.querySelector(_el);
-        this.$hooks = merge({created: function() {}, mounted: function() {}, updated: function() {}, destroyed: function() {}}, opts.hooks);
+        this.$hooks = merge({created: noop, mounted: noop, updated: noop, destroyed: noop}, opts.hooks);
         this.$methods = opts.methods || {};
         this.$components = merge(opts.components || {}, components);
         this.$dom = {type: this.$el.nodeName, children: [], node: this.$el};
