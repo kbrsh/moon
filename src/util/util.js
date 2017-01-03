@@ -93,3 +93,10 @@ var createVirtualDOM = function(node) {
   var vdom = createElement(node.nodeName, recursiveChildren(node.childNodes), node.textContent, extractAttrs(node), node);
   return vdom;
 }
+
+/**
+ * Does No Operation
+ */
+var noop = function() {
+
+}
