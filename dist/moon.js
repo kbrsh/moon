@@ -75,6 +75,43 @@
       return obj;
     }
     
+    /**
+    * Creates an object to be used in a Virtual DOM
+    * @param {String} type
+    * @param {Array} children
+    * @param {String} val
+    * @param {Object} props
+    * @param {Node} node
+    * @return {Object} Object usable in Virtual DOM
+    */
+    var createElement = function(type, children, val, props, node) {
+      return {type: type, children: children, val: val, props: props, node: node};
+    }
+    
+    /**
+    * Create Elements Recursively For all Children
+    * @param {Array} children
+    * @return {Array} Array of elements usable in Virtual DOM
+    */
+    var recursiveChildren = function(children) {
+      var recursiveChildrenArr = [];
+      for(var i = 0; i < children.length; i++) {
+        var child = children[i];
+        recursiveChildrenArr.push(createElement(child.nodeName, recursiveChildren(child.childNodes), child.textContent, extractAttrs(child), child));
+      }
+      return recursiveChildrenArr;
+    }
+    
+    /**
+    * Creates Virtual DOM
+    * @param {Node} node
+    * @return {Object} Virtual DOM
+    */
+    var createVirtualDOM = function(node) {
+      var vdom = createElement(node.nodeName, recursiveChildren(node.childNodes), node.textContent, extractAttrs(node), node);
+      return vdom;
+    }
+    
 
     function Moon(opts) {
         /* ======= Initial Values ======= */
@@ -176,43 +213,7 @@
     * @param {String} msg
     */
     Moon.prototype.error = function(msg) {
-      console.log("Moon ERR: " + msg);
-    }
-    
-    /**
-    * Creates an object to be used in a Virtual DOM
-    * @param {String} type
-    * @param {Array} children
-    * @param {String} val
-    * @param {Object} props
-    * @param {Node} node
-    * @return {Object} Object usable in Virtual DOM
-    */
-    Moon.prototype.createElement = function(type, children, val, props, node) {
-      return {type: type, children: children, val: val, props: props, node: node};
-    }
-    
-    /**
-    * Create Elements Recursively For all Children
-    * @param {Array} children
-    * @return {Array} Array of elements usable in Virtual DOM
-    */
-    Moon.prototype.recursiveChildren = function(children) {
-      var recursiveChildrenArr = [];
-      for(var i = 0; i < children.length; i++) {
-        var child = children[i];
-        recursiveChildrenArr.push(this.createElement(child.nodeName, this.recursiveChildren(child.childNodes), child.textContent, extractAttrs(child), child));
-      }
-      return recursiveChildrenArr;
-    }
-    
-    /**
-    * Creates Virtual DOM
-    * @param {Node} node
-    */
-    Moon.prototype.createVirtualDOM = function(node) {
-      var vdom = this.createElement(node.nodeName, this.recursiveChildren(node.childNodes), node.textContent, extractAttrs(node), node);
-      this.$dom = vdom;
+      console.log("[Moon] ERR: " + msg);
     }
     
     /**
@@ -294,7 +295,7 @@
       if(this.$hooks.created) {
         this.$hooks.created();
       }
-      this.createVirtualDOM(this.$el);
+      this.$dom = createVirtualDOM(this.$el);
       this.build(this.$dom.children);
       if(this.$hooks.mounted) {
         this.$hooks.mounted();
