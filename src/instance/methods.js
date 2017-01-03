@@ -1,11 +1,13 @@
 /* ======= Instance Methods ======= */
 
+var hasConsole = window.console !== undefined;
+
 /**
 * Logs a Message
 * @param {String} msg
 */
 Moon.prototype.log = function(msg) {
-  if(!config.silent) console.log(msg);
+  if(!config.silent && hasConsole) console.log(msg);
 }
 
 /**
@@ -13,7 +15,7 @@ Moon.prototype.log = function(msg) {
 * @param {String} msg
 */
 Moon.prototype.error = function(msg) {
-  console.log("[Moon] ERR: " + msg);
+  if(hasConsole) console.log("[Moon] ERR: " + msg);
 }
 
 /**
