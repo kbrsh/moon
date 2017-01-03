@@ -112,6 +112,13 @@
       return vdom;
     }
     
+    /**
+     * Does No Operation
+     */
+    var noop = function() {
+    
+    }
+    
 
     function Moon(opts) {
         /* ======= Initial Values ======= */
@@ -119,7 +126,7 @@
         var _data = opts.data;
         var self = this;
         this.$el = document.querySelector(_el);
-        this.$hooks = opts.hooks || {created: function() {}, mounted: function() {}, updated: function() {}, destroyed: function() {}};
+        this.$hooks = merge({created: noop, mounted: noop, updated: noop, destroyed: noop}, opts.hooks);
         this.$methods = opts.methods || {};
         this.$components = merge(opts.components || {}, components);
         this.$dom = {type: this.$el.nodeName, children: [], node: this.$el};
