@@ -56,7 +56,7 @@ Moon.prototype.destroy = function() {
     }
   });
   this.$destroyed = true;
-  if(this.$hooks.destroyed) this.$hooks.destroyed();
+  this.$hooks.destroyed();
 }
 
 /**
