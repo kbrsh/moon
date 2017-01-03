@@ -207,12 +207,14 @@
 
     /* ======= Instance Methods ======= */
     
+    var hasConsole = typeof window.console !== undefined;
+    
     /**
     * Logs a Message
     * @param {String} msg
     */
     Moon.prototype.log = function(msg) {
-      if(!config.silent) console.log(msg);
+      if(!config.silent && hasConsole) console.log(msg);
     }
     
     /**
@@ -220,7 +222,7 @@
     * @param {String} msg
     */
     Moon.prototype.error = function(msg) {
-      console.log("[Moon] ERR: " + msg);
+      if(hasConsole) console.error("[Moon] ERR: " + msg);
     }
     
     /**

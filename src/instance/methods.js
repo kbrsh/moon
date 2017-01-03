@@ -1,6 +1,6 @@
 /* ======= Instance Methods ======= */
 
-var hasConsole = window.console !== undefined;
+var hasConsole = typeof window.console !== undefined;
 
 /**
 * Logs a Message
