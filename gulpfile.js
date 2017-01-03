@@ -27,5 +27,5 @@ gulp.task('minify', ['build'], function() {
 });
 
 
-
+// Default task
 gulp.task('default', ['build', 'minify']);
