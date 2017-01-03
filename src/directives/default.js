@@ -38,7 +38,9 @@ directives["m-model"] = function(el, val, vdom) {
 }
 
 directives["m-for"] = function(el, val, vdom) {
-  
+  var parts = val.split(" in ");
+  var alias = parts[0];
+  var array = self.get(parts[1]);
 }
 
 directives["m-once"] = function(el, val, vdom) {
