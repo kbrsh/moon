@@ -231,9 +231,7 @@
     Moon.prototype.set = function(key, val) {
       this.$data[key] = val;
       if(!this.$destroyed) this.build(this.$dom.children);
-      if(this.$hooks.updated) {
-        this.$hooks.updated();
-      }
+      this.$hooks.updated();
     }
     
     /**
@@ -263,7 +261,7 @@
         }
       });
       this.$destroyed = true;
-      if(this.$hooks.destroyed) this.$hooks.destroyed();
+      this.$hooks.destroyed();
     }
     
     /**
@@ -299,14 +297,10 @@
     */
     Moon.prototype.init = function() {
       this.log("======= Moon =======");
-      if(this.$hooks.created) {
-        this.$hooks.created();
-      }
+      this.$hooks.created();
       this.$dom = createVirtualDOM(this.$el);
       this.build(this.$dom.children);
-      if(this.$hooks.mounted) {
-        this.$hooks.mounted();
-      }
+      this.$hooks.mounted();
     }
     
 
