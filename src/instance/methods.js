@@ -95,7 +95,7 @@ Moon.prototype.init = function() {
   if(this.$hooks.created) {
     this.$hooks.created();
   }
-  this.createVirtualDOM(this.$el);
+  this.$dom = createVirtualDOM(this.$el);
   this.build(this.$dom.children);
   if(this.$hooks.mounted) {
     this.$hooks.mounted();
