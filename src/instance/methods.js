@@ -15,7 +15,7 @@ Moon.prototype.log = function(msg) {
 * @param {String} msg
 */
 Moon.prototype.error = function(msg) {
-  if(hasConsole) console.log("[Moon] ERR: " + msg);
+  if(hasConsole) console.error("[Moon] ERR: " + msg);
 }
 
 /**
