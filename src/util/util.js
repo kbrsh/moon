@@ -111,7 +111,7 @@ var h = function(tag, attrs, children) {
  * @param {String} value
  */
 var setInitialElementValue = function(el, value) {
-
+  el.innerHTML = value;
 }
 
 /**
