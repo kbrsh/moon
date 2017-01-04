@@ -106,13 +106,6 @@ var h = function(tag, attrs, children) {
 };
 
 /**
- * Compiles an elements innerHTML
- */
-var noop = function() {
-
-}
-
-/**
  * Does No Operation
  */
 var noop = function() {
