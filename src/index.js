@@ -16,6 +16,7 @@
         var _data = opts.data;
         var self = this;
         this.$el = document.querySelector(_el);
+        this.$template = opts.template || this.$el.innerHTML;
         this.$hooks = merge({created: noop, mounted: noop, updated: noop, destroyed: noop}, opts.hooks);
         this.$methods = opts.methods || {};
         this.$components = merge(opts.components || {}, components);
