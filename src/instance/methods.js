@@ -39,6 +39,14 @@ Moon.prototype.get = function(key) {
 }
 
 /**
+* Calls a method
+* @param {String} method
+*/
+Moon.prototype.method = function(method) {
+  this.$methods[method]();
+}
+
+/**
 * Destroys Moon Instance
 */
 Moon.prototype.destroy = function() {
