@@ -127,7 +127,6 @@
         var self = this;
         this.$el = document.querySelector(_el);
         this.$hooks = merge({created: noop, mounted: noop, updated: noop, destroyed: noop}, opts.hooks);
-        this.$methods = opts.methods || {};
         this.$components = merge(opts.components || {}, components);
         this.$dom = {type: this.$el.nodeName, children: [], node: this.$el};
         this.$destroyed = false;
@@ -168,7 +167,7 @@
           var eventToCall = splitVal[0];
           var methodToCall = splitVal[1];
           el.addEventListener(eventToCall, function() {
-            self.method(methodToCall);
+            self.$data[methodToCall]();
           });
           delete vdom.props["m-on"];
         }
@@ -202,7 +201,9 @@
           el.innerHTML = val;
         }
         
-        directives["m-mask"] = function(el, val, vdom) {}
+        directives["m-mask"] = function(el, val, vdom) {
+        
+        }
         
 
         /* ======= Initialize 🎉 ======= */
@@ -247,14 +248,6 @@
     */
     Moon.prototype.get = function(key) {
       return this.$data[key];
-    }
-    
-    /**
-    * Calls a method
-    * @param {String} method
-    */
-    Moon.prototype.method = function(method) {
-      this.$methods[method]();
     }
     
     /**
