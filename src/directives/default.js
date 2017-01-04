@@ -24,7 +24,6 @@ directives["m-on"] = function(el, val, vdom) {
   el.addEventListener(eventToCall, function() {
     self.method(methodToCall);
   });
-  el.removeAttribute("m-on");
   delete vdom.props["m-on"];
 }
 
@@ -33,7 +32,6 @@ directives["m-model"] = function(el, val, vdom) {
   el.addEventListener("input", function() {
     self.set(val, el.value);
   });
-  el.removeAttribute("m-model");
   delete vdom.props["m-model"];
 }
 
