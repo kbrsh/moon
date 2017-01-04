@@ -56,4 +56,6 @@ directives["m-html"] = function(el, val, vdom) {
   el.innerHTML = val;
 }
 
-directives["m-mask"] = function(el, val, vdom) {}
+directives["m-mask"] = function(el, val, vdom) {
+  
+}
