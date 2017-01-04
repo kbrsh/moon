@@ -75,6 +75,9 @@ describe('If Directive', function() {
     ifApp.set('condition', false);
     expect(document.getElementById('if-condition').innerHTML).to.not.equal('Condition True');
   });
+  it('should not be present at runtime', function() {
+    expect(document.getElementById('if-condition').getAttribute("m-if")).to.be.null;
+  });
 });
 
 describe('Show Directive', function() {
@@ -91,6 +94,9 @@ describe('Show Directive', function() {
     showApp.set('condition', false);
     expect(document.getElementById('show-condition').style.display).to.equal('none');
   });
+  it('should not be present at runtime', function() {
+    expect(document.getElementById('show-condition').getAttribute("m-show")).to.be.null;
+  });
 });
 
 describe('Model Directive', function() {
@@ -102,6 +108,9 @@ describe('Model Directive', function() {
   });
   it('should update value when initialized', function() {
     expect(document.getElementById('model-msg').innerHTML).to.equal('Hello Moon!');
+  });
+  it('should not be present at runtime', function() {
+    expect(document.getElementById('model-msg-input').getAttribute("m-model")).to.be.null;
   });
 });
 
@@ -125,6 +134,9 @@ describe('On Directive', function() {
     document.getElementById("on-increment-button").click();
     expect(document.getElementById("on-count").innerHTML).to.equal('2');
   });
+  it('should not be present at runtime', function() {
+    expect(document.getElementById('on-increment-button').getAttribute("m-on")).to.be.null;
+  });
 });
 
 describe('Text Directive', function() {
@@ -136,5 +148,8 @@ describe('Text Directive', function() {
   });
   it('should fill DOM with a value', function() {
     expect(document.getElementById("text-directive-span").innerHTML).to.equal("Hello Moon!");
+  });
+  it('should not be present at runtime', function() {
+    expect(document.getElementById('text-directive-span').getAttribute("m-text")).to.be.null;
   });
 });
