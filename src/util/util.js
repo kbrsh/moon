@@ -95,6 +95,24 @@ var createVirtualDOM = function(node) {
 }
 
 /**
+ * Compiles JSX to HTML
+ * @param {String} tag
+ * @param {Object} attrs
+ * @param {Array} children
+ * @return {String} HTML compiled from JSX
+ */
+var h = function(tag, attrs, children) {
+	return "<" + tag + Object.keys(attrs||{}).reduce(function(total, current) {return (total||" ") + current + "='" + attrs[current] + "'"}, "") + ">" + children + "<" + tag + "/>";
+};
+
+/**
+ * Compiles an elements innerHTML
+ */
+var noop = function() {
+
+}
+
+/**
  * Does No Operation
  */
 var noop = function() {
