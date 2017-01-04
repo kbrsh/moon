@@ -170,7 +170,6 @@
           el.addEventListener(eventToCall, function() {
             self.method(methodToCall);
           });
-          el.removeAttribute("m-on");
           delete vdom.props["m-on"];
         }
         
@@ -179,7 +178,6 @@
           el.addEventListener("input", function() {
             self.set(val, el.value);
           });
-          el.removeAttribute("m-model");
           delete vdom.props["m-model"];
         }
         
