@@ -22,7 +22,7 @@ directives["m-on"] = function(el, val, vdom) {
   var eventToCall = splitVal[0];
   var methodToCall = splitVal[1];
   el.addEventListener(eventToCall, function() {
-    self.$data[methodToCall]();
+    self.method(methodToCall);
   });
   delete vdom.props["m-on"];
 }
@@ -57,5 +57,5 @@ directives["m-html"] = function(el, val, vdom) {
 }
 
 directives["m-mask"] = function(el, val, vdom) {
-
+  
 }
