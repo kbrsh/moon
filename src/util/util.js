@@ -105,6 +105,9 @@ var h = function(tag, attrs, children) {
 	return "<" + tag + Object.keys(attrs||{}).reduce(function(total, current) {return (total||" ") + current + "='" + attrs[current] + "'"}, "") + ">" + children + "<" + tag + "/>";
 };
 
+var setInitialElementValue = function(el, value) {
+  
+}
 /**
  * Does No Operation
  */
