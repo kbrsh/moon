@@ -129,11 +129,7 @@
      * @param {String} value
      */
     var setInitialElementValue = function(el, value) {
-      if(typeof value === Function) {
-        el.innerHTML = value(h);
-      } else {
-        el.innerHTML = value;
-      }
+      el.innerHTML = value;
     }
 
     /**
