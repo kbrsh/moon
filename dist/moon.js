@@ -17,7 +17,7 @@
     var components = {};
 
     /* ======= Global Utilities ======= */
-    
+
     /**
     * Converts attributes into key-value pairs
     * @param {Node} node
@@ -30,10 +30,10 @@
       for(var i = 0; i < rawAttrs.length; i++) {
         attrs[rawAttrs[i].name] = rawAttrs[i].value
       }
-    
+
       return attrs;
     }
-    
+
     /**
     * Compiles a template with given data
     * @param {String} template
@@ -50,7 +50,7 @@
       var output = compile(data);
       return output;
     }
-    
+
     /**
     * Gets Root Element
     * @param {String} html
@@ -61,7 +61,7 @@
       dummy.innerHTML = html;
       return dummy.firstChild;
     }
-    
+
     /**
     * Merges two Objects
     * @param {Object} obj
@@ -74,7 +74,7 @@
       }
       return obj;
     }
-    
+
     /**
     * Creates an object to be used in a Virtual DOM
     * @param {String} type
@@ -87,7 +87,7 @@
     var createElement = function(type, children, val, props, node) {
       return {type: type, children: children, val: val, props: props, node: node};
     }
-    
+
     /**
     * Create Elements Recursively For all Children
     * @param {Array} children
@@ -101,7 +101,7 @@
       }
       return recursiveChildrenArr;
     }
-    
+
     /**
     * Creates Virtual DOM
     * @param {Node} node
@@ -111,14 +111,38 @@
       var vdom = createElement(node.nodeName, recursiveChildren(node.childNodes), node.textContent, extractAttrs(node), node);
       return vdom;
     }
-    
+
+    /**
+     * Compiles JSX to HTML
+     * @param {String} tag
+     * @param {Object} attrs
+     * @param {Array} children
+     * @return {String} HTML compiled from JSX
+     */
+    var h = function(tag, attrs, children) {
+    	return "<" + tag + Object.keys(attrs||{}).reduce(function(total, current) {return (total||" ") + current + "='" + attrs[current] + "'"}, "") + ">" + children + "<" + tag + "/>";
+    };
+
+    /**
+     * Sets the Elements Initial Value
+     * @param {Node} el
+     * @param {String} value
+     */
+    var setInitialElementValue = function(el, value) {
+      if(typeof value === Function) {
+        el.innerHTML = value(h);
+      } else {
+        el.innerHTML = value;
+      }
+    }
+
     /**
      * Does No Operation
      */
     var noop = function() {
-    
+
     }
-    
+
 
     function Moon(opts) {
         /* ======= Initial Values ======= */
@@ -154,7 +178,7 @@
             el.textContent = compileTemplate(vdom.val, self.$data);
           }
         }
-        
+
         directives["m-show"] = function(el, val, vdom) {
           var evaluated = new Function("return " + val);
           if(!evaluated()) {
@@ -163,7 +187,7 @@
             el.style.display = 'block';
           }
         }
-        
+
         directives["m-on"] = function(el, val, vdom) {
           var splitVal = val.split(":");
           var eventToCall = splitVal[0];
@@ -173,7 +197,7 @@
           });
           delete vdom.props["m-on"];
         }
-        
+
         directives["m-model"] = function(el, val, vdom) {
           el.value = self.get(val);
           el.addEventListener("input", function() {
@@ -181,41 +205,41 @@
           });
           delete vdom.props["m-model"];
         }
-        
+
         directives["m-for"] = function(el, val, vdom) {
           var parts = val.split(" in ");
           var alias = parts[0];
           var array = self.get(parts[1]);
         }
-        
+
         directives["m-once"] = function(el, val, vdom) {
           vdom.val = el.textContent;
           for(var child in vdom.children) {
             vdom.children[child].val = compileTemplate(vdom.children[child].val, self.$data);
           }
         }
-        
+
         directives["m-text"] = function(el, val, vdom) {
           el.textContent = val;
         }
-        
+
         directives["m-html"] = function(el, val, vdom) {
           el.innerHTML = val;
         }
-        
+
         directives["m-mask"] = function(el, val, vdom) {
-          
+
         }
-        
+
 
         /* ======= Initialize 🎉 ======= */
         this.init();
     }
 
     /* ======= Instance Methods ======= */
-    
+
     var hasConsole = typeof window.console !== undefined;
-    
+
     /**
     * Logs a Message
     * @param {String} msg
@@ -223,7 +247,7 @@
     Moon.prototype.log = function(msg) {
       if(!config.silent && hasConsole) console.log(msg);
     }
-    
+
     /**
     * Throws an Error
     * @param {String} msg
@@ -231,7 +255,7 @@
     Moon.prototype.error = function(msg) {
       if(hasConsole) console.error("[Moon] ERR: " + msg);
     }
-    
+
     /**
     * Sets Value in Data
     * @param {String} key
@@ -242,7 +266,7 @@
       if(!this.$destroyed) this.build(this.$dom.children);
       this.$hooks.updated();
     }
-    
+
     /**
     * Gets Value in Data
     * @param {String} key
@@ -251,7 +275,7 @@
     Moon.prototype.get = function(key) {
       return this.$data[key];
     }
-    
+
     /**
     * Calls a method
     * @param {String} method
@@ -259,7 +283,7 @@
     Moon.prototype.method = function(method) {
       this.$methods[method]();
     }
-    
+
     /**
     * Destroys Moon Instance
     */
@@ -272,7 +296,7 @@
       this.$destroyed = true;
       this.$hooks.destroyed();
     }
-    
+
     /**
     * Builds the DOM With Data
     * @param {Array} children
@@ -280,7 +304,7 @@
     Moon.prototype.build = function(children) {
       for(var i = 0; i < children.length; i++) {
         var el = children[i];
-    
+
         if(el.type === "#text") {
           el.node.textContent = compileTemplate(el.val, this.$data);
         } else if(el.props) {
@@ -292,30 +316,30 @@
               el.node.removeAttribute(prop);
               directive(el.node, compiledProperty, el);
             }
-    
+
             if(!directive) el.node.setAttribute(prop, compiledProperty);
           }
         }
-    
+
         this.build(el.children);
       }
     }
-    
+
     /**
     * Initializes Moon
     */
     Moon.prototype.init = function() {
       this.log("======= Moon =======");
       this.$hooks.created();
-      this.$el.innerHTML = this.$template;
+      setInitialElementValue(this.$el, this.$template);
       this.$dom = createVirtualDOM(this.$el);
       this.build(this.$dom.children);
       this.$hooks.mounted();
     }
-    
+
 
     /* ======= Global API ======= */
-    
+
     /**
     * Sets the Configuration of Moon
     * @param {Object} opts
@@ -328,7 +352,7 @@
         config.prefix = opts.prefix;
       }
     }
-    
+
     /**
     * Runs an external Plugin
     * @param {Object} plugin
@@ -336,7 +360,7 @@
     Moon.use = function(plugin) {
       plugin.init(Moon);
     }
-    
+
     /**
     * Creates a Directive
     * @param {String} name
@@ -345,7 +369,7 @@
     Moon.directive = function(name, action) {
       directives["m-" + name] = action;
     }
-    
+
     /**
     * Creates a Component
     * @param {String} name
@@ -362,7 +386,7 @@
       components[name] = component;
       return component;
     }
-    
+
 
     window.Moon = Moon;
 })(window);
