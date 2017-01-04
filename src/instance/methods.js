@@ -93,9 +93,7 @@ Moon.prototype.build = function(children) {
 Moon.prototype.init = function() {
   this.log("======= Moon =======");
   this.$hooks.created();
-  if(this.opts.template) {
-    this.$el.innerHTML = this.opts.template
-  }
+  this.$el.innerHTML = this.$template;
   this.$dom = createVirtualDOM(this.$el);
   this.build(this.$dom.children);
   this.$hooks.mounted();
