@@ -1,5 +1,5 @@
 (function(root, factory) {
-
+  root.Moon = factory();
 }(this, function() {
 
     /* ======= Global Variables ======= */
