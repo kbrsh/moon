@@ -1,6 +1,6 @@
 /*
 * Moon 0.1.3
-* Copyright 2016, Kabir Shah
+* Copyright 2016-2017, Kabir Shah
 * https://github.com/KingPixil/moon/
 * Free to use under the MIT license.
 * https://kingpixil.github.io/license
