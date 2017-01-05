@@ -1,5 +1,6 @@
-"use strict";
-(function(window) {
+(function(root, factory) {
+
+}(this, function() {
 
     /* ======= Global Variables ======= */
     var config = {
@@ -45,5 +46,5 @@
 
     //=require global/api.js
 
-    window.Moon = Moon;
-})(window);
+    return Moon;
+}));
