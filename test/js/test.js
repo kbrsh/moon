@@ -1,4 +1,15 @@
 var expect = chai.expect;
+var MoonBuild = Moon.prototype.build;
+
+Moon.prototype.build = function() {
+  var id = "root@build";
+  marky.mark(id);
+  MoonBuild.apply(this, arguments);
+  var time = marky.stop(id);
+  console.log(id + " - " + time.duration);
+}
+
+
 describe('Initializing', function() {
   it('with new', function() {
     expect(new Moon({el: "#initialize"}) instanceof Moon).to.equal(true);
