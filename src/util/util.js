@@ -102,7 +102,11 @@ var createVirtualDOM = function(node) {
  * @return {String} HTML compiled from JSX
  */
 var h = function(tag, attrs, children) {
-	return "<" + tag + Object.keys(attrs||{}).reduce(function(total, current) {return (total||" ") + current + "='" + attrs[current] + "'"}, "") + ">" + children + "<" + tag + "/>";
+  var args = Array.prototype.slice.call(arguments);
+  var tag = args.shift();
+  var attrs = args.shift();
+  var children = args.join("");
+  return "<" + tag + Object.keys(attrs||{}).reduce(function(total, current) {return (total||" ") + current + "='" + attrs[current] + "'"}, "") + ">" + children + "<" + tag + "/>";
 };
 
 /**
