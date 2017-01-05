@@ -119,13 +119,19 @@
      * @param {Array} children
      * @return {String} HTML compiled from JSX
      */
-    var h = function(tag, attrs, children) {
-      var args = Array.prototype.slice.call(arguments);
-      var tag = args.shift();
-      var attrs = args.shift();
-      var children = args.join("");
-      return "<" + tag + Object.keys(attrs||{}).reduce(function(total, current) {return (total||" ") + current + "='" + attrs[current] + "'"}, "") + ">" + children + "<" + tag + "/>";
-    };
+     var h = function() {
+     	 var args = Array.prototype.slice.call(arguments);
+     	 var tag = args.shift();
+       var attrs = args.shift() || {};
+       var kids = args;
+       var formattedAttrs = Object.keys(attrs).reduce(function(all, attr) {
+       		return all + " " + attr + "='" + attrs[attr] + "'";
+       }, '');
+       var startTag = "<" + tag + formattedAttrs + ">";
+       var endTag = "</" + tag + ">";
+       var html = startTag + kids.join("") + endTag;
+     	 return html;
+     };
     
     /**
      * Sets the Elements Initial Value
