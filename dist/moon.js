@@ -6,8 +6,9 @@
 * https://kingpixil.github.io/license
 */
 
-"use strict";
-(function(window) {
+(function(root, factory) {
+  root.Moon = factory();
+}(this, function() {
 
     /* ======= Global Variables ======= */
     var config = {
@@ -394,5 +395,5 @@
     }
     
 
-    window.Moon = Moon;
-})(window);
+    return Moon;
+}));
