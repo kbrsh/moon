@@ -1,5 +1,5 @@
 (function(root, factory) {
-  root.Moon = factory();
+  (typeof module === "object" && module.exports) ? module.exports = factory() : root.Moon = factory();
 }(this, function() {
 
     /* ======= Global Variables ======= */
