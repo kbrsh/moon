@@ -3,7 +3,7 @@
 var gulp = require('gulp');
 var pkg = require('./package.json');
 var uglify = require("gulp-uglifyjs")
-var comment = '\/*\r\n* Moon ' + pkg.version + '\r\n* Copyright 2016, Kabir Shah\r\n* https:\/\/github.com\/KingPixil\/moon\/\r\n* Free to use under the MIT license.\r\n* https:\/\/kingpixil.github.io\/license\r\n*\/\r\n';
+var comment = '\/*\r\n* Moon ' + pkg.version + '\r\n* Copyright 2017, Kabir Shah\r\n* https:\/\/github.com\/KingPixil\/moon\/\r\n* Free to use under the MIT license.\r\n* https:\/\/kingpixil.github.io\/license\r\n*\/\r\n';
 var $ = require('gulp-load-plugins')();
 
 // Build Moon
