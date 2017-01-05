@@ -1,5 +1,14 @@
 var expect = chai.expect;
 var MoonBuild = Moon.prototype.build;
+var MoonInit = Moon.prototype.init;
+
+Moon.prototype.init = function() {
+  var id = "root@init";
+  marky.mark(id);
+  MoonInit.apply(this, arguments);
+  var time = marky.stop(id);
+  console.log(id + " - " + time.duration);
+}
 
 Moon.prototype.build = function() {
   var id = "root@build";
