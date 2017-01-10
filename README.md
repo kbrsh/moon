@@ -10,6 +10,8 @@ Moon is a simple library heavily inspired by Vue.js. It's much lighter, and prov
 
 See [the website.](https://kingpixil.github.io/moon)
 
+More documentation coming soon, Moon is under active development.
+
 <!-- ### Benchmarks
 
 - Rendering Time: 100μs
