@@ -10,7 +10,7 @@ var compileTemplate = function(template, data) {
   var code = template,
       re = /{{([A-Za-z0-9_.()\[\]]+)}}/gi;
   code.replace(re, function(match, p) {
-    code = code.replace(match, "` + data." + p + " + `");
+    code = code.replace(match, "` + data[" + p + "] + `");
   });
   var compile = new Function("data", "var out = `" + code + "`; return out");
   var output = compile(data);
