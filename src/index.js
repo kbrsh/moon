@@ -22,7 +22,7 @@
         this.$hooks = merge({created: noop, mounted: noop, updated: noop, destroyed: noop}, opts.hooks);
         this.$methods = opts.methods || {};
         this.$components = merge(opts.components || {}, components);
-        this.$dom = {type: this.$el.nodeName, children: [], node: this.$el};
+        this.$dom = {};
         this.$destroyed = false;
 
         /* ======= Listen for Changes ======= */
