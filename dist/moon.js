@@ -161,7 +161,7 @@
             },
             set: function(value) {
                 _data = value;
-                this.build(this.$dom.children);
+                this.build(this.$el.childNodes, this.$dom.children);
             },
             configurable: true
         });
@@ -260,7 +260,7 @@
     */
     Moon.prototype.set = function(key, val) {
       this.$data[key] = val;
-      if(!this.$destroyed) this.build(this.$dom.children);
+      if(!this.$destroyed) this.build(this.$el.childNodes, this.$dom.children);
       this.$hooks.updated();
     }
     
@@ -298,13 +298,13 @@
     * Builds the DOM With Data
     * @param {Array} children
     */
-    Moon.prototype.build = function(children) {
+    Moon.prototype.build = function(children, vdom) {
       for(var i = 0; i < children.length; i++) {
-        var vnode = this.$dom[i];
+        var vnode = vdom[i];
         var child = children[i];
     
         if(child.nodeName === "#text") {
-          child.textContent = compileTemplate(vnode.template, this.$data);
+          child.textContent = compileTemplate(vnode.val, this.$data);
         }
       }
     }
@@ -317,7 +317,7 @@
       this.$hooks.created();
       setInitialElementValue(this.$el, this.$template);
       this.$dom = createVirtualDOM(this.$el);
-      this.build(this.$el.childNodes);
+      this.build(this.$el.childNodes, this.$dom.children);
       this.$hooks.mounted();
     }
     
