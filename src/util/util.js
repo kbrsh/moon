@@ -18,6 +18,47 @@ var compileTemplate = function(template, data) {
 }
 
 /**
+* Converts attributes into key-value pairs
+* @param {Node} node
+* @return {Object} Key-Value pairs of Attributes
+*/
+var extractAttrs = function(node) {
+  var attrs = {};
+  if(!node.attributes) return attrs;
+  var rawAttrs = node.attributes;
+  for(var i = 0; i < rawAttrs.length; i++) {
+    attrs[rawAttrs[i].name] = rawAttrs[i].value
+  }
+
+  return attrs;
+}
+
+/**
+* Creates a Virtual DOM Node
+* @param {String} type
+* @param {Array} children
+* @param {Object} props
+* @return {Object} Node For Virtual DOM
+*/
+var createElement = function(type, props, children) {
+  return {type: type, props: props, children: children};
+}
+
+/**
+* Creates Virtual DOM
+* @param {Node} node
+* @return {Object} Virtual DOM
+*/
+var createVirtualDOM = function(node) {
+  var children = [];
+  if(node.nodeName === "#text") children.push(node.textContent);
+  for(var i = 0; i < node.childNodes.length; i++) {
+    children.push(createVirtualDOM(node.childNodes[i]));
+  }
+  return createElement(node.nodeName, extractAttrs(node), children);
+}
+
+/**
 * Gets Root Element
 * @param {String} html
 * @return {Node} Root Element
@@ -39,26 +80,6 @@ function merge(obj, obj2) {
     if (obj2.hasOwnProperty(key)) obj[key] = obj2[key];
   }
   return obj;
-}
-
-/**
-* Creates a Virtual DOM Node
-* @param {String} type
-* @param {Array} children
-* @param {Object} props
-* @return {Object} Node For Virtual DOM
-*/
-var createElement = function(type, children, props) {
-  return {type: type, props: props, children: children};
-}
-
-/**
-* Creates Virtual DOM
-* @param {Node} node
-* @return {Object} Virtual DOM
-*/
-var createVirtualDOM = function(node) {
-
 }
 
 /**
