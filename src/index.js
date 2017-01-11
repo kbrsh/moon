@@ -34,7 +34,7 @@
             },
             set: function(value) {
                 _data = value;
-                this.build(this.$el.childNodes);
+                this.build(this.$el.childNodes, this.$dom.children);
             },
             configurable: true
         });
