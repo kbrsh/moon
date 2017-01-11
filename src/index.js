@@ -15,6 +15,7 @@
 
     function Moon(opts) {
         /* ======= Initial Values ======= */
+        opts = opts || {};
         var _el = opts.el;
         var _data = opts.data;
         var self = this;
