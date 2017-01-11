@@ -64,27 +64,7 @@ Moon.prototype.destroy = function() {
 * @param {Array} children
 */
 Moon.prototype.build = function(children) {
-  for(var i = 0; i < children.length; i++) {
-    var el = children[i];
-
-    if(el.type === "#text") {
-      el.node.textContent = compileTemplate(el.val, this.$data);
-    } else if(el.props) {
-      for(var prop in el.props) {
-        var propVal = el.props[prop];
-        var compiledProperty = compileTemplate(propVal, this.$data);
-        var directive = directives[prop];
-        if(directive) {
-          el.node.removeAttribute(prop);
-          directive(el.node, compiledProperty, el);
-        }
-
-        if(!directive) el.node.setAttribute(prop, compiledProperty);
-      }
-    }
-
-    this.build(el.children);
-  }
+  
 }
 
 /**
