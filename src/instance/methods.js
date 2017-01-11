@@ -63,9 +63,9 @@ Moon.prototype.destroy = function() {
 * Builds the DOM With Data
 * @param {Array} children
 */
-Moon.prototype.build = function(children) {
+Moon.prototype.build = function(children, vdom) {
   for(var i = 0; i < children.length; i++) {
-    var vnode = this.$dom[i];
+    var vnode = vdom[i];
     var child = children[i];
 
     if(child.nodeName === "#text") {
