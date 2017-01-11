@@ -66,6 +66,7 @@ Moon.prototype.destroy = function() {
 Moon.prototype.build = function(children) {
   for(var i = 0; i < children.length; i++) {
     var vnode = this.$dom[i];
+    var child = children[i];
   }
 }
 
