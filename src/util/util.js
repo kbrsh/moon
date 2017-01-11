@@ -90,8 +90,7 @@ var recursiveChildren = function(children) {
 * @return {Object} Virtual DOM
 */
 var createVirtualDOM = function(node) {
-  var vdom = createElement(node.nodeName, recursiveChildren(node.childNodes), node.textContent, extractAttrs(node), node);
-  return vdom;
+  
 }
 
 /**
