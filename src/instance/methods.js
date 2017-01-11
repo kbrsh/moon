@@ -69,7 +69,7 @@ Moon.prototype.build = function(children) {
     var child = children[i];
 
     if(child.nodeName === "#text") {
-      child.textContent = compileTemplate(vnode.template);
+      child.textContent = compileTemplate(vnode.template, this.$data);
     }
   }
 }
