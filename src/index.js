@@ -22,6 +22,7 @@
         this.$hooks = merge({created: noop, mounted: noop, updated: noop, destroyed: noop}, opts.hooks);
         this.$methods = opts.methods || {};
         this.$components = merge(opts.components || {}, components);
+        this.$directives = merge(opts.directives || {}, directives);
         this.$dom = {};
         this.$destroyed = false;
 
