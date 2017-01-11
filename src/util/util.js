@@ -71,26 +71,12 @@ var createElement = function(type, children, val, props, node) {
 }
 
 /**
-* Create Elements Recursively For all Children
-* @param {Array} children
-* @return {Array} Array of elements usable in Virtual DOM
-*/
-var recursiveChildren = function(children) {
-  var recursiveChildrenArr = [];
-  for(var i = 0; i < children.length; i++) {
-    var child = children[i];
-    recursiveChildrenArr.push(createElement(child.nodeName, recursiveChildren(child.childNodes), child.textContent, extractAttrs(child), child));
-  }
-  return recursiveChildrenArr;
-}
-
-/**
 * Creates Virtual DOM
 * @param {Node} node
 * @return {Object} Virtual DOM
 */
 var createVirtualDOM = function(node) {
-  
+
 }
 
 /**
