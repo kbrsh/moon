@@ -7,33 +7,19 @@
 */
 
 (function(root, factory) {
+  /* ======= Global Moon ======= */
   (typeof module === "object" && module.exports) ? module.exports = factory() : root.Moon = factory();
 }(this, function() {
 
     /* ======= Global Variables ======= */
     var config = {
-      silent: false
+      silent: false,
+      prefix: "m-"
     }
     var directives = {};
     var components = {};
 
     /* ======= Global Utilities ======= */
-    
-    /**
-    * Converts attributes into key-value pairs
-    * @param {Node} node
-    * @return {Object} Key-Value pairs of Attributes
-    */
-    var extractAttrs = function(node) {
-      var attrs = {};
-      if(!node.attributes) return attrs;
-      var rawAttrs = node.attributes;
-      for(var i = 0; i < rawAttrs.length; i++) {
-        attrs[rawAttrs[i].name] = rawAttrs[i].value
-      }
-    
-      return attrs;
-    }
     
     /**
     * Compiles a template with given data
@@ -77,30 +63,14 @@
     }
     
     /**
-    * Creates an object to be used in a Virtual DOM
+    * Creates a Virtual DOM Node
     * @param {String} type
     * @param {Array} children
-    * @param {String} val
     * @param {Object} props
-    * @param {Node} node
-    * @return {Object} Object usable in Virtual DOM
+    * @return {Object} Node For Virtual DOM
     */
-    var createElement = function(type, children, val, props, node) {
-      return {type: type, children: children, val: val, props: props, node: node};
-    }
-    
-    /**
-    * Create Elements Recursively For all Children
-    * @param {Array} children
-    * @return {Array} Array of elements usable in Virtual DOM
-    */
-    var recursiveChildren = function(children) {
-      var recursiveChildrenArr = [];
-      for(var i = 0; i < children.length; i++) {
-        var child = children[i];
-        recursiveChildrenArr.push(createElement(child.nodeName, recursiveChildren(child.childNodes), child.textContent, extractAttrs(child), child));
-      }
-      return recursiveChildrenArr;
+    var createElement = function(type, children, props) {
+      return {type: type, props: props, children: children};
     }
     
     /**
@@ -109,8 +79,7 @@
     * @return {Object} Virtual DOM
     */
     var createVirtualDOM = function(node) {
-      var vdom = createElement(node.nodeName, recursiveChildren(node.childNodes), node.textContent, extractAttrs(node), node);
-      return vdom;
+    
     }
     
     /**
@@ -161,7 +130,8 @@
         this.$hooks = merge({created: noop, mounted: noop, updated: noop, destroyed: noop}, opts.hooks);
         this.$methods = opts.methods || {};
         this.$components = merge(opts.components || {}, components);
-        this.$dom = {type: this.$el.nodeName, children: [], node: this.$el};
+        this.$directives = merge(opts.directives || {}, directives);
+        this.$dom = {};
         this.$destroyed = false;
 
         /* ======= Listen for Changes ======= */
@@ -309,27 +279,7 @@
     * @param {Array} children
     */
     Moon.prototype.build = function(children) {
-      for(var i = 0; i < children.length; i++) {
-        var el = children[i];
-    
-        if(el.type === "#text") {
-          el.node.textContent = compileTemplate(el.val, this.$data);
-        } else if(el.props) {
-          for(var prop in el.props) {
-            var propVal = el.props[prop];
-            var compiledProperty = compileTemplate(propVal, this.$data);
-            var directive = directives[prop];
-            if(directive) {
-              el.node.removeAttribute(prop);
-              directive(el.node, compiledProperty, el);
-            }
-    
-            if(!directive) el.node.setAttribute(prop, compiledProperty);
-          }
-        }
-    
-        this.build(el.children);
-      }
+      
     }
     
     /**
@@ -340,7 +290,7 @@
       this.$hooks.created();
       setInitialElementValue(this.$el, this.$template);
       this.$dom = createVirtualDOM(this.$el);
-      this.build(this.$dom.children);
+      this.build(this.$el.childNodes);
       this.$hooks.mounted();
     }
     
@@ -374,7 +324,7 @@
     * @param {Function} action
     */
     Moon.directive = function(name, action) {
-      directives["m-" + name] = action;
+      directives[config.prefix + name] = action;
     }
     
     /**
