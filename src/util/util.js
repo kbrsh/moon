@@ -1,22 +1,6 @@
 /* ======= Global Utilities ======= */
 
 /**
-* Converts attributes into key-value pairs
-* @param {Node} node
-* @return {Object} Key-Value pairs of Attributes
-*/
-var extractAttrs = function(node) {
-  var attrs = {};
-  if(!node.attributes) return attrs;
-  var rawAttrs = node.attributes;
-  for(var i = 0; i < rawAttrs.length; i++) {
-    attrs[rawAttrs[i].name] = rawAttrs[i].value
-  }
-
-  return attrs;
-}
-
-/**
 * Compiles a template with given data
 * @param {String} template
 * @param {Object} data
