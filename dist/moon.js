@@ -29,13 +29,53 @@
     */
     var compileTemplate = function(template, data) {
       var code = template,
-          re = /{{([A-Za-z0-9_.()\[\]]+)}}/gi;
-      code.replace(re, function(match, p) {
-        code = code.replace(match, "` + data." + p + " + `");
+          templateRe = /{{([A-Za-z0-9_.()\[\]]+)}}/gi;
+      code.replace(templateRe, function(match, key) {
+        code = code.replace(match, "` + data[" + key + "] + `");
       });
       var compile = new Function("data", "var out = `" + code + "`; return out");
       var output = compile(data);
       return output;
+    }
+    
+    /**
+    * Converts attributes into key-value pairs
+    * @param {Node} node
+    * @return {Object} Key-Value pairs of Attributes
+    */
+    var extractAttrs = function(node) {
+      var attrs = {};
+      if(!node.attributes) return attrs;
+      var rawAttrs = node.attributes;
+      for(var i = 0; i < rawAttrs.length; i++) {
+        attrs[rawAttrs[i].name] = rawAttrs[i].value
+      }
+    
+      return attrs;
+    }
+    
+    /**
+    * Creates a Virtual DOM Node
+    * @param {String} type
+    * @param {Array} children
+    * @param {Object} props
+    * @return {Object} Node For Virtual DOM
+    */
+    var createElement = function(type, val, props, children) {
+      return {type: type, props: props, children: children};
+    }
+    
+    /**
+    * Creates Virtual DOM
+    * @param {Node} node
+    * @return {Object} Virtual DOM
+    */
+    var createVirtualDOM = function(node) {
+      var children = [];
+      for(var i = 0; i < node.childNodes.length; i++) {
+        children.push(createVirtualDOM(node.childNodes[i]));
+      }
+      return createElement(node.nodeName, node.textContent, extractAttrs(node), children);
     }
     
     /**
@@ -60,26 +100,6 @@
         if (obj2.hasOwnProperty(key)) obj[key] = obj2[key];
       }
       return obj;
-    }
-    
-    /**
-    * Creates a Virtual DOM Node
-    * @param {String} type
-    * @param {Array} children
-    * @param {Object} props
-    * @return {Object} Node For Virtual DOM
-    */
-    var createElement = function(type, children, props) {
-      return {type: type, props: props, children: children};
-    }
-    
-    /**
-    * Creates Virtual DOM
-    * @param {Node} node
-    * @return {Object} Virtual DOM
-    */
-    var createVirtualDOM = function(node) {
-    
     }
     
     /**
@@ -279,7 +299,14 @@
     * @param {Array} children
     */
     Moon.prototype.build = function(children) {
-      
+      for(var i = 0; i < children.length; i++) {
+        var vnode = this.$dom[i];
+        var child = children[i];
+    
+        if(child.nodeName === "#text") {
+          child.textContent = compileTemplate(vnode.template);
+        }
+      }
     }
     
     /**
