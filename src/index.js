@@ -18,7 +18,7 @@
         this.$opts = opts || {};
 
         var self = this;
-        var _data = opts.data;
+        var _data = this.$opts.data;
 
         this.$el = document.querySelector(this.$opts.el);
         this.$template = this.$opts.template || this.$el.innerHTML;
