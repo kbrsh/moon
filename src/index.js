@@ -21,6 +21,7 @@
         var self = this;
         var _data = this.$opts.data;
 
+        this.$id = id++;
         this.$el = document.querySelector(this.$opts.el);
         this.$template = this.$opts.template || this.$el.innerHTML;
         this.$hooks = merge({created: noop, mounted: noop, updated: noop, destroyed: noop}, this.$opts.hooks);
