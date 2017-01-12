@@ -69,7 +69,7 @@ Moon.prototype.build = function(children, vdom) {
     var child = children[i];
 
     if(child.nodeName === "#text") {
-      child.textContent = compileTemplate(vnode.val, this.$data);
+      if(vnode !== undefined) child.textContent = compileTemplate(vnode.val, this.$data);
     } else if(vnode.props) {
       for(var attr in vnode.props) {
         var compiledProp = compileTemplate(vnode.props[attr], this.$data);
