@@ -346,7 +346,7 @@
         config.silent = opts.silent;
       }
       if(opts.prefix) {
-        config.prefix = opts.prefix;
+        config.prefix = opts.prefix + "-";
       }
     }
     
