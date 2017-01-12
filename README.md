@@ -10,6 +10,8 @@ Moon is currently being **rewritten** to be faster, and more flexible. It will b
   - This means you can use JSX, to allow the full power of JavaScript in your templates
 - Server Side Rendering: You can compile templates on the server side and get HTML.
 
+You can check out the progress on the [rewrite branch](https://github.com/KingPixil/moon/tree/rewrite).
+
 
 ### What is it?
 
