@@ -309,6 +309,7 @@
           for(var attr in vnode.props) {
             child.setAttribute(attr, compileTemplate(vnode.props[attr], this.$data));
             if(directives[attr]) {
+              child.removeAttribute(attr);
               directives[attr](child, child.getAttribute(attr), vnode);
             }
           }
