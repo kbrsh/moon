@@ -72,7 +72,7 @@ Moon.prototype.build = function(children, vdom) {
       child.textContent = compileTemplate(vnode.val, this.$data);
     } else if(vnode.props) {
       for(var attr in vnode.props) {
-
+        child.setAttribute(attr, compileTemplate(vnode.props[attr], this.$data));
       }
     }
 
