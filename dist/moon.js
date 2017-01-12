@@ -261,6 +261,7 @@
     * @param {String} val
     */
     Moon.prototype.set = function(key, val) {
+      if(!this.$data[key]) this.error("Don't set new data properties here, instead, declare them when creating the instance");
       this.$data[key] = val;
       if(!this.$destroyed) this.build(this.$el.childNodes, this.$dom.children);
       this.$hooks.updated();
