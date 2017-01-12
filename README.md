@@ -2,7 +2,14 @@
 
 A minimal, blazing fast UI library.
 
-#### Moon is currently being rewritten
+### Rewrite
+
+Moon is currently being **rewritten** to be faster, and more flexible. It will be able to support:
+
+- Custom Render functions: this is faster, as Moon doesn't have to create a virtual DOM from nodes.
+  - This means you can use JSX, to allow the full power of JavaScript in your templates
+- Server Side Rendering: You can compile templates on the server side and get HTML.
+
 
 ### What is it?
 
