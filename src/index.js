@@ -15,9 +15,11 @@
 
     function Moon(opts) {
         /* ======= Initial Values ======= */
-        opts = opts || {};
+        this.$opts = opts || {};
+
         var self = this;
         var _data = opts.data;
+        
         this.$el = document.querySelector(opts.el);
         this.$template = opts.template || this.$el.innerHTML;
         this.$hooks = merge({created: noop, mounted: noop, updated: noop, destroyed: noop}, opts.hooks);
