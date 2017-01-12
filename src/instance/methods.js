@@ -73,7 +73,7 @@ Moon.prototype.build = function(children, vdom) {
     } else if(vnode.props) {
       for(var attr in vnode.props) {
         if(directives[attr]) {
-          this.directives[attr](child, child.getAttribute(attr), vnode);
+          directives[attr](child, child.getAttribute(attr), vnode);
         }
         child.setAttribute(attr, compileTemplate(vnode.props[attr], this.$data));
       }
