@@ -306,6 +306,8 @@
         if(child.nodeName === "#text") {
           child.textContent = compileTemplate(vnode.val, this.$data);
         }
+    
+        this.build(child.childNodes, vnode.children);
       }
     }
     
