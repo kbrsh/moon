@@ -70,6 +70,10 @@ Moon.prototype.build = function(children, vdom) {
 
     if(child.nodeName === "#text") {
       child.textContent = compileTemplate(vnode.val, this.$data);
+    } else if(vnode.props) {
+      for(var attr in vnode.props) {
+
+      }
     }
 
     this.build(child.childNodes, vnode.children);
