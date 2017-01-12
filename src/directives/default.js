@@ -57,5 +57,5 @@ directives["m-html"] = function(el, val, vdom) {
 }
 
 directives["m-mask"] = function(el, val, vdom) {
-  
+
 }
