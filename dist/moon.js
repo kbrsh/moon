@@ -31,7 +31,7 @@
       var code = template,
           templateRe = /{{([A-Za-z0-9_.()\[\]]+)}}/gi;
       code.replace(templateRe, function(match, key) {
-        code = code.replace(match, "` + data[" + key + "] + `");
+        code = code.replace(match, "` + data[`" + key + "`] + `");
       });
       var compile = new Function("data", "var out = `" + code + "`; return out");
       var output = compile(data);
