@@ -67,22 +67,23 @@ Moon.prototype.build = function(children, vdom) {
   for(var i = 0; i < children.length; i++) {
     var vnode = vdom[i];
     var child = children[i];
-
-    if(child.nodeName === "#text") {
-      if(vnode !== undefined) child.textContent = compileTemplate(vnode.val, this.$data);
-    } else if(vnode.props) {
-      for(var attr in vnode.props) {
-        var compiledProp = compileTemplate(vnode.props[attr], this.$data);
-        if(directives[attr]) {
-          child.removeAttribute(attr);
-          directives[attr](child, compiledProp, vnode);
-        } else {
-          child.setAttribute(attr, compiledProp);
+    if(vnode !== undefined) {
+      if(child.nodeName === "#text") {
+        child.textContent = compileTemplate(vnode.val, this.$data);
+      } else if(vnode.props) {
+        for(var attr in vnode.props) {
+          var compiledProp = compileTemplate(vnode.props[attr], this.$data);
+          if(directives[attr]) {
+            child.removeAttribute(attr);
+            directives[attr](child, compiledProp, vnode);
+          } else {
+            child.setAttribute(attr, compiledProp);
+          }
         }
       }
-    }
 
-    this.build(child.childNodes, vnode.children);
+      this.build(child.childNodes, vnode.children);
+    }
   }
 }
 
