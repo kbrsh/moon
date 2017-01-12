@@ -22,7 +22,7 @@ directives[config.prefix + "on"] = function(el, val, vdom) {
   var eventToCall = splitVal[0];
   var methodToCall = splitVal[1];
   el.addEventListener(eventToCall, function() {
-    self.method(methodToCall);
+    self.callMethod(methodToCall);
   });
   delete vdom.props[config.prefix + "on"];
 }
