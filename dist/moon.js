@@ -31,7 +31,7 @@
       var code = template,
           templateRe = /{{([A-Za-z0-9_.()\[\]]+)}}/gi;
       code.replace(templateRe, function(match, key) {
-        code = code.replace(match, "` + data[`" + key + "`] + `");
+        code = code.replace(match, "` + this.$data[`" + key + "`] + `");
       });
       var compile = new Function("data", "var out = `" + code + "`; return out");
       var output = compile(data);
@@ -75,7 +75,7 @@
       for(var i = 0; i < node.childNodes.length; i++) {
         children.push(createVirtualDOM(node.childNodes[i]));
       }
-      return createElement(node.nodeName, node.textContent, extractAttrs(node), children);
+      return createElement(node.nodeName, compileTemplate(node.textContent), extractAttrs(node), children);
     }
     
     /**
