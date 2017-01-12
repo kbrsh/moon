@@ -142,15 +142,17 @@
 
     function Moon(opts) {
         /* ======= Initial Values ======= */
-        opts = opts || {};
+        this.$opts = opts || {};
+
         var self = this;
-        var _data = opts.data;
-        this.$el = document.querySelector(opts.el);
-        this.$template = opts.template || this.$el.innerHTML;
-        this.$hooks = merge({created: noop, mounted: noop, updated: noop, destroyed: noop}, opts.hooks);
-        this.$methods = opts.methods || {};
-        this.$components = merge(opts.components || {}, components);
-        this.$directives = merge(opts.directives || {}, directives);
+        var _data = this.$opts.data;
+
+        this.$el = document.querySelector(this.$opts.el);
+        this.$template = this.$opts.template || this.$el.innerHTML;
+        this.$hooks = merge({created: noop, mounted: noop, updated: noop, destroyed: noop}, this.$opts.hooks);
+        this.$methods = this.$opts.methods || {};
+        this.$components = merge(this.$opts.components || {}, components);
+        this.$directives = merge(this.$opts.directives || {}, directives);
         this.$dom = {};
         this.$destroyed = false;
 
