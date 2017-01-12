@@ -9,7 +9,7 @@ Moon.config = function(opts) {
     config.silent = opts.silent;
   }
   if(opts.prefix) {
-    config.prefix = opts.prefix;
+    config.prefix = opts.prefix + "-";
   }
 }
 
