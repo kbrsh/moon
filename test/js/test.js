@@ -71,11 +71,11 @@ describe('Methods', function() {
     }
   });
   it('when calling a method', function() {
-    methodApp.method('increment');
+    methodApp.callMethod('increment');
     expect(methodApp.get('count')).to.equal(1);
   });
   it('should update DOM', function() {
-    methodApp.method('increment');
+    methodApp.callMethod('increment');
     expect(document.getElementById("method").innerHTML).to.equal('2');
   });
 });
