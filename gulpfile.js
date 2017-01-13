@@ -3,6 +3,7 @@
 var gulp = require('gulp');
 var pkg = require('./package.json');
 var uglify = require("gulp-uglifyjs");
+var istanbul = require("gulp-istanbul");
 var mochaPhantomJS = require('gulp-mocha-phantomjs');
 var comment = '\/*\r\n* Moon ' + pkg.version + '\r\n* Copyright 2016-2017, Kabir Shah\r\n* https:\/\/github.com\/KingPixil\/moon\/\r\n* Free to use under the MIT license.\r\n* https:\/\/kingpixil.github.io\/license\r\n*\/\r\n';
 var $ = require('gulp-load-plugins')();
@@ -27,13 +28,21 @@ gulp.task('minify', ['build'], function() {
     .pipe(gulp.dest('./dist/'));
 });
 
+gulp.task('instrument', function () {
+	return gulp.src(['dist/moon.min.js'])
+		.pipe(istanbul({
+			coverageVariable: '__coverage__'
+		}))
+		.pipe(gulp.dest('coverage/'))
+});
+
 // Run Tests
-gulp.task('test', function () {
+gulp.task('test', ['instrument'], function () {
     return gulp.src('test/test.html', {read:false})
       .pipe(mochaPhantomJS({
         phantomjs: {
           hooks: 'mocha-phantomjs-istanbul',
-          coverageFile: './coverage.json'
+          coverageFile: './coverage/coverage.json'
         },
         reporter: 'spec'
       }));
