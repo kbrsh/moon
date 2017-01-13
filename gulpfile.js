@@ -30,7 +30,7 @@ gulp.task('minify', ['build'], function() {
 });
 
 gulp.task('instrument', function () {
-	return gulp.src(['dist/moon.min.js'])
+	return gulp.src(['dist/moon.js'])
 		.pipe(istanbul({
 			coverageVariable: '__coverage__'
 		}))
