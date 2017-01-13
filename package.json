@@ -24,6 +24,7 @@
   "homepage": "https://github.com/KingPixil/moon#readme",
   "devDependencies": {
     "browserify": "^13.3.0",
+    "browserify-istanbul": "^2.0.0",
     "chai": "^3.5.0",
     "gulp": "^3.9.1",
     "gulp-concat": "^2.6.0",
