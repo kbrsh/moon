@@ -1,0 +1,78 @@
+{
+  "name": "detect-file",
+  "description": "Detect if a filepath exists and resolves the full filepath.",
+  "version": "0.1.0",
+  "homepage": "https://github.com/doowb/detect-file",
+  "author": {
+    "name": "Brian Woodward",
+    "url": "https://github.com/doowb"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/doowb/detect-file.git"
+  },
+  "bugs": {
+    "url": "https://github.com/doowb/detect-file/issues"
+  },
+  "license": "MIT",
+  "files": [
+    "index.js"
+  ],
+  "main": "index.js",
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "dependencies": {
+    "fs-exists-sync": "^0.1.0"
+  },
+  "devDependencies": {
+    "gulp-format-md": "*",
+    "mocha": "*"
+  },
+  "keywords": [],
+  "verb": {
+    "layout": "default",
+    "plugins": [
+      "gulp-format-md"
+    ],
+    "related": {
+      "list": [
+        "fs-exists-sync"
+      ]
+    },
+    "reflinks": [
+      "verb",
+      "verb-readme-generator"
+    ]
+  },
+  "gitHead": "0e4111c071470ce4be0804c01a0248331418f8c6",
+  "_id": "detect-file@0.1.0",
+  "_shasum": "4935dedfd9488648e006b0129566e9386711ea63",
+  "_from": "detect-file@>=0.1.0 <0.2.0",
+  "_npmVersion": "3.7.5",
+  "_nodeVersion": "5.1.1",
+  "_npmUser": {
+    "name": "doowb",
+    "email": "brian.woodward@gmail.com"
+  },
+  "dist": {
+    "shasum": "4935dedfd9488648e006b0129566e9386711ea63",
+    "tarball": "https://registry.npmjs.org/detect-file/-/detect-file-0.1.0.tgz"
+  },
+  "maintainers": [
+    {
+      "name": "doowb",
+      "email": "brian.woodward@gmail.com"
+    }
+  ],
+  "_npmOperationalInternal": {
+    "host": "packages-16-east.internal.npmjs.com",
+    "tmp": "tmp/detect-file-0.1.0.tgz_1467841748733_0.7613796112127602"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/detect-file/-/detect-file-0.1.0.tgz",
+  "readme": "ERROR: No README data found!"
+}

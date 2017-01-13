@@ -1,0 +1,97 @@
+{
+  "name": "global-prefix",
+  "description": "Get the npm global path prefix.",
+  "version": "0.1.4",
+  "homepage": "https://github.com/jonschlinkert/global-prefix",
+  "author": {
+    "name": "Jon Schlinkert",
+    "url": "https://github.com/jonschlinkert"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jonschlinkert/global-prefix.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jonschlinkert/global-prefix/issues"
+  },
+  "license": "MIT",
+  "files": [
+    "index.js"
+  ],
+  "main": "index.js",
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "dependencies": {
+    "ini": "^1.3.4",
+    "is-windows": "^0.2.0",
+    "osenv": "^0.1.3",
+    "which": "^1.2.10"
+  },
+  "devDependencies": {
+    "gulp-format-md": "^0.1.9",
+    "mocha": "^2.5.3"
+  },
+  "keywords": [
+    "global",
+    "module",
+    "modules",
+    "npm",
+    "path",
+    "prefix",
+    "resolve"
+  ],
+  "verb": {
+    "run": true,
+    "toc": false,
+    "layout": "default",
+    "tasks": [
+      "readme"
+    ],
+    "plugins": [
+      "gulp-format-md"
+    ],
+    "related": {
+      "list": [
+        "global-modules",
+        "global-paths"
+      ]
+    },
+    "reflinks": [
+      "verb"
+    ],
+    "lint": {
+      "reflinks": true
+    }
+  },
+  "gitHead": "e436842c55f6a711a1d801e19d5142e58b80a8fd",
+  "_id": "global-prefix@0.1.4",
+  "_shasum": "05158db1cde2dd491b455e290eb3ab8bfc45c6e1",
+  "_from": "global-prefix@>=0.1.4 <0.2.0",
+  "_npmVersion": "3.8.9",
+  "_nodeVersion": "6.2.0",
+  "_npmUser": {
+    "name": "jonschlinkert",
+    "email": "github@sellside.com"
+  },
+  "maintainers": [
+    {
+      "name": "jonschlinkert",
+      "email": "github@sellside.com"
+    }
+  ],
+  "dist": {
+    "shasum": "05158db1cde2dd491b455e290eb3ab8bfc45c6e1",
+    "tarball": "https://registry.npmjs.org/global-prefix/-/global-prefix-0.1.4.tgz"
+  },
+  "_npmOperationalInternal": {
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/global-prefix-0.1.4.tgz_1465117849156_0.5271593367215246"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/global-prefix/-/global-prefix-0.1.4.tgz",
+  "readme": "ERROR: No README data found!"
+}

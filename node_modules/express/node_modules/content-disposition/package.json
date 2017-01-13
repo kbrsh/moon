@@ -1,0 +1,66 @@
+{
+  "name": "content-disposition",
+  "description": "Create and parse Content-Disposition header",
+  "version": "0.5.1",
+  "contributors": [
+    {
+      "name": "Douglas Christopher Wilson",
+      "email": "doug@somethingdoug.com"
+    }
+  ],
+  "license": "MIT",
+  "keywords": [
+    "content-disposition",
+    "http",
+    "rfc6266",
+    "res"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jshttp/content-disposition.git"
+  },
+  "devDependencies": {
+    "istanbul": "0.4.2",
+    "mocha": "1.21.5"
+  },
+  "files": [
+    "LICENSE",
+    "HISTORY.md",
+    "README.md",
+    "index.js"
+  ],
+  "engines": {
+    "node": ">= 0.6"
+  },
+  "scripts": {
+    "test": "mocha --reporter spec --bail --check-leaks test/",
+    "test-cov": "istanbul cover node_modules/mocha/bin/_mocha -- --reporter dot --check-leaks test/",
+    "test-travis": "istanbul cover node_modules/mocha/bin/_mocha --report lcovonly -- --reporter spec --check-leaks test/"
+  },
+  "gitHead": "7b391db3af5629d4c698f1de21802940bb9f22a5",
+  "bugs": {
+    "url": "https://github.com/jshttp/content-disposition/issues"
+  },
+  "homepage": "https://github.com/jshttp/content-disposition",
+  "_id": "content-disposition@0.5.1",
+  "_shasum": "87476c6a67c8daa87e32e87616df883ba7fb071b",
+  "_from": "content-disposition@0.5.1",
+  "_npmVersion": "1.4.28",
+  "_npmUser": {
+    "name": "dougwilson",
+    "email": "doug@somethingdoug.com"
+  },
+  "maintainers": [
+    {
+      "name": "dougwilson",
+      "email": "doug@somethingdoug.com"
+    }
+  ],
+  "dist": {
+    "shasum": "87476c6a67c8daa87e32e87616df883ba7fb071b",
+    "tarball": "https://registry.npmjs.org/content-disposition/-/content-disposition-0.5.1.tgz"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/content-disposition/-/content-disposition-0.5.1.tgz",
+  "readme": "ERROR: No README data found!"
+}

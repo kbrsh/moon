@@ -1,0 +1,61 @@
+{
+  "name": "pretty-hrtime",
+  "description": "process.hrtime() to words",
+  "version": "1.0.2",
+  "homepage": "https://github.com/robrich/pretty-hrtime",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/robrich/pretty-hrtime.git"
+  },
+  "author": {
+    "name": "Rob Richardson",
+    "url": "http://robrich.org/"
+  },
+  "main": "./index.js",
+  "keywords": [
+    "hrtime",
+    "benchmark"
+  ],
+  "devDependencies": {
+    "jshint": "^2.8.0",
+    "mocha": "^2.3.3",
+    "should": "^7.1.0"
+  },
+  "scripts": {
+    "test": "mocha && jshint ."
+  },
+  "engines": {
+    "node": ">= 0.8"
+  },
+  "license": "MIT",
+  "gitHead": "3ac6e19e8d9cc65e29ce9e45e81fc4f331d4a71a",
+  "bugs": {
+    "url": "https://github.com/robrich/pretty-hrtime/issues"
+  },
+  "_id": "pretty-hrtime@1.0.2",
+  "_shasum": "70ca96f4d0628a443b918758f79416a9a7bc9fa8",
+  "_from": "pretty-hrtime@>=1.0.0 <2.0.0",
+  "_npmVersion": "2.14.18",
+  "_nodeVersion": "4.3.0",
+  "_npmUser": {
+    "name": "robrich",
+    "email": "robrich@robrich.org"
+  },
+  "maintainers": [
+    {
+      "name": "robrich",
+      "email": "robrich@robrich.org"
+    }
+  ],
+  "dist": {
+    "shasum": "70ca96f4d0628a443b918758f79416a9a7bc9fa8",
+    "tarball": "https://registry.npmjs.org/pretty-hrtime/-/pretty-hrtime-1.0.2.tgz"
+  },
+  "_npmOperationalInternal": {
+    "host": "packages-6-west.internal.npmjs.com",
+    "tmp": "tmp/pretty-hrtime-1.0.2.tgz_1455771577547_0.672698044218123"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/pretty-hrtime/-/pretty-hrtime-1.0.2.tgz",
+  "readme": "ERROR: No README data found!"
+}

@@ -1,0 +1,99 @@
+{
+  "name": "global-modules",
+  "description": "The directory used by npm for globally installed npm modules.",
+  "version": "0.2.3",
+  "homepage": "https://github.com/jonschlinkert/global-modules",
+  "author": {
+    "name": "Jon Schlinkert",
+    "url": "https://github.com/jonschlinkert"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jonschlinkert/global-modules.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jonschlinkert/global-modules/issues"
+  },
+  "license": "MIT",
+  "files": [
+    "index.js"
+  ],
+  "main": "index.js",
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "dependencies": {
+    "global-prefix": "^0.1.4",
+    "is-windows": "^0.2.0"
+  },
+  "devDependencies": {
+    "fs-exists-sync": "^0.1.0",
+    "gulp-format-md": "^0.1.9",
+    "mocha": "^2.5.3"
+  },
+  "keywords": [
+    "directory",
+    "dirname",
+    "global",
+    "module",
+    "package",
+    "path",
+    "prefix",
+    "resolve"
+  ],
+  "verb": {
+    "run": true,
+    "toc": false,
+    "layout": "default",
+    "tasks": [
+      "readme"
+    ],
+    "plugins": [
+      "gulp-format-md"
+    ],
+    "related": {
+      "list": [
+        "global-prefix",
+        "git-config-path",
+        "npm-paths",
+        "contains-path"
+      ]
+    },
+    "reflinks": [
+      "verb"
+    ],
+    "lint": {
+      "reflinks": true
+    }
+  },
+  "gitHead": "49887f70849463067e3c771473d8c16f5cfb76cc",
+  "_id": "global-modules@0.2.3",
+  "_shasum": "ea5a3bed42c6d6ce995a4f8a1269b5dae223828d",
+  "_from": "global-modules@>=0.2.3 <0.3.0",
+  "_npmVersion": "3.10.3",
+  "_nodeVersion": "6.3.0",
+  "_npmUser": {
+    "name": "jonschlinkert",
+    "email": "github@sellside.com"
+  },
+  "maintainers": [
+    {
+      "name": "jonschlinkert",
+      "email": "github@sellside.com"
+    }
+  ],
+  "dist": {
+    "shasum": "ea5a3bed42c6d6ce995a4f8a1269b5dae223828d",
+    "tarball": "https://registry.npmjs.org/global-modules/-/global-modules-0.2.3.tgz"
+  },
+  "_npmOperationalInternal": {
+    "host": "packages-16-east.internal.npmjs.com",
+    "tmp": "tmp/global-modules-0.2.3.tgz_1469511881835_0.8791879329364747"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/global-modules/-/global-modules-0.2.3.tgz",
+  "readme": "ERROR: No README data found!"
+}

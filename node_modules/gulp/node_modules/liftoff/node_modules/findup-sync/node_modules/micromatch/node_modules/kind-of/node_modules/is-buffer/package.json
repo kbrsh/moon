@@ -1,0 +1,79 @@
+{
+  "name": "is-buffer",
+  "description": "Determine if an object is a Buffer",
+  "version": "1.1.4",
+  "author": {
+    "name": "Feross Aboukhadijeh",
+    "email": "feross@feross.org",
+    "url": "http://feross.org/"
+  },
+  "bugs": {
+    "url": "https://github.com/feross/is-buffer/issues"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "standard": "^7.0.0",
+    "tape": "^4.0.0",
+    "zuul": "^3.0.0"
+  },
+  "keywords": [
+    "buffer",
+    "buffers",
+    "type",
+    "core buffer",
+    "browser buffer",
+    "browserify",
+    "typed array",
+    "uint32array",
+    "int16array",
+    "int32array",
+    "float32array",
+    "float64array",
+    "browser",
+    "arraybuffer",
+    "dataview"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/feross/is-buffer.git"
+  },
+  "scripts": {
+    "test": "standard && npm run test-node && npm run test-browser",
+    "test-browser": "zuul -- test/*.js",
+    "test-browser-local": "zuul --local -- test/*.js",
+    "test-node": "tape test/*.js"
+  },
+  "testling": {
+    "files": "test/*.js"
+  },
+  "gitHead": "fd1a429f6ab8092f2e39cb5cc7175b5d9a986c31",
+  "homepage": "https://github.com/feross/is-buffer#readme",
+  "_id": "is-buffer@1.1.4",
+  "_shasum": "cfc86ccd5dc5a52fa80489111c6920c457e2d98b",
+  "_from": "is-buffer@>=1.0.2 <2.0.0",
+  "_npmVersion": "2.15.1",
+  "_nodeVersion": "0.10.46",
+  "_npmUser": {
+    "name": "feross",
+    "email": "feross@feross.org"
+  },
+  "dist": {
+    "shasum": "cfc86ccd5dc5a52fa80489111c6920c457e2d98b",
+    "tarball": "https://registry.npmjs.org/is-buffer/-/is-buffer-1.1.4.tgz"
+  },
+  "maintainers": [
+    {
+      "name": "feross",
+      "email": "feross@feross.org"
+    }
+  ],
+  "_npmOperationalInternal": {
+    "host": "packages-16-east.internal.npmjs.com",
+    "tmp": "tmp/is-buffer-1.1.4.tgz_1470267365943_0.6724087686743587"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/is-buffer/-/is-buffer-1.1.4.tgz",
+  "readme": "ERROR: No README data found!"
+}

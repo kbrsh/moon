@@ -1,0 +1,116 @@
+{
+  "name": "parse-filepath",
+  "description": "Pollyfill for node.js `path.parse`, parses a filepath into an object.",
+  "version": "1.0.1",
+  "homepage": "https://github.com/jonschlinkert/parse-filepath",
+  "author": {
+    "name": "Jon Schlinkert",
+    "url": "https://github.com/jonschlinkert"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jonschlinkert/parse-filepath.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jonschlinkert/parse-filepath/issues"
+  },
+  "license": "MIT",
+  "files": [
+    "index.js"
+  ],
+  "main": "index.js",
+  "engines": {
+    "node": ">=0.8"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "dependencies": {
+    "is-absolute": "^0.2.3",
+    "map-cache": "^0.2.0",
+    "path-root": "^0.1.1"
+  },
+  "devDependencies": {
+    "gulp-format-md": "^0.1.7",
+    "mocha": "^2.2.5",
+    "should": "^7.0.2"
+  },
+  "keywords": [
+    "absolute",
+    "basename",
+    "dir",
+    "directory",
+    "dirname",
+    "ext",
+    "extension",
+    "extname",
+    "file",
+    "filename",
+    "filepath",
+    "is-absolute",
+    "name",
+    "object",
+    "parse",
+    "parser",
+    "parts",
+    "path",
+    "segment"
+  ],
+  "verb": {
+    "run": true,
+    "toc": false,
+    "layout": "default",
+    "tasks": [
+      "readme"
+    ],
+    "plugins": [
+      "gulp-format-md"
+    ],
+    "related": {
+      "highlight": "global-prefix",
+      "list": [
+        "global-prefix",
+        "is-absolute",
+        "is-relative",
+        "relative"
+      ]
+    },
+    "reflinks": [
+      "verb"
+    ],
+    "lint": {
+      "reflinks": true
+    }
+  },
+  "gitHead": "dd14a3c2caecfb59a9bbdfca120e9009e4934c45",
+  "_id": "parse-filepath@1.0.1",
+  "_shasum": "159d6155d43904d16c10ef698911da1e91969b73",
+  "_from": "parse-filepath@>=1.0.1 <2.0.0",
+  "_npmVersion": "3.6.0",
+  "_nodeVersion": "5.5.0",
+  "_npmUser": {
+    "name": "jonschlinkert",
+    "email": "github@sellside.com"
+  },
+  "maintainers": [
+    {
+      "name": "jonschlinkert",
+      "email": "github@sellside.com"
+    },
+    {
+      "name": "doowb",
+      "email": "brian.woodward@gmail.com"
+    }
+  ],
+  "dist": {
+    "shasum": "159d6155d43904d16c10ef698911da1e91969b73",
+    "tarball": "https://registry.npmjs.org/parse-filepath/-/parse-filepath-1.0.1.tgz"
+  },
+  "_npmOperationalInternal": {
+    "host": "packages-16-east.internal.npmjs.com",
+    "tmp": "tmp/parse-filepath-1.0.1.tgz_1459236882404_0.5455310363322496"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/parse-filepath/-/parse-filepath-1.0.1.tgz",
+  "readme": "ERROR: No README data found!"
+}
