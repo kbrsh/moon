@@ -1,4 +1,7 @@
 var expect = chai.expect;
+Moon.config({
+  silent: true
+})
 // var MoonPerformance = {
 //   init: function() {
 //     var MoonBuild = Moon.prototype.build;
