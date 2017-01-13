@@ -218,4 +218,13 @@ describe('Plugin', function() {
       });
     }
   }
+  var pluginApp = new Moon({
+    el: "#plugin",
+    data: {
+      msg: "Hello Moon!"
+    }
+  });
+  it('should execute', function() {
+    expect(document.getElementById("plugin-span").innerHTML.to.equal(""));
+  });
 });
