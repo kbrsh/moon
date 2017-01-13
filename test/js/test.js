@@ -209,3 +209,13 @@ describe('HTML Directive', function() {
     expect(document.getElementById('html-directive-span').getAttribute("m-html")).to.be.null;
   });
 });
+
+describe('Plugin', function() {
+  var emptyPlugin = {
+    init: function(Moon) {
+      Moon.directive('empty', function(el, val, vdom) {
+        el.innerHTML = "";
+      });
+    }
+  }
+});
