@@ -218,6 +218,7 @@ describe('Plugin', function() {
       });
     }
   }
+  Moon.use(emptyPlugin);
   var pluginApp = new Moon({
     el: "#plugin",
     data: {
@@ -225,6 +226,6 @@ describe('Plugin', function() {
     }
   });
   it('should execute', function() {
-    expect(document.getElementById("plugin-span").innerHTML.to.equal(""));
+    expect(document.getElementById("plugin-span").innerHTML).to.equal("");
   });
 });
