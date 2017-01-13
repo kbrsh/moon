@@ -4,6 +4,7 @@ var gulp = require('gulp');
 var pkg = require('./package.json');
 var uglify = require("gulp-uglifyjs");
 var istanbul = require("gulp-istanbul");
+var istanbulReport = require('gulp-istanbul-report');
 var mochaPhantomJS = require('gulp-mocha-phantomjs');
 var comment = '\/*\r\n* Moon ' + pkg.version + '\r\n* Copyright 2016-2017, Kabir Shah\r\n* https:\/\/github.com\/KingPixil\/moon\/\r\n* Free to use under the MIT license.\r\n* https:\/\/kingpixil.github.io\/license\r\n*\/\r\n';
 var $ = require('gulp-load-plugins')();
