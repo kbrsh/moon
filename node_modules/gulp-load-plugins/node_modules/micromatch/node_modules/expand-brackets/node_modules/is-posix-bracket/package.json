@@ -1,0 +1,97 @@
+{
+  "name": "is-posix-bracket",
+  "description": "Returns true if the given string is a POSIX bracket expression (POSIX character class).",
+  "version": "0.1.1",
+  "homepage": "https://github.com/jonschlinkert/is-posix-bracket",
+  "author": {
+    "name": "Jon Schlinkert",
+    "url": "https://github.com/jonschlinkert"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jonschlinkert/is-posix-bracket.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jonschlinkert/is-posix-bracket/issues"
+  },
+  "license": "MIT",
+  "files": [
+    "index.js"
+  ],
+  "main": "index.js",
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "devDependencies": {
+    "gulp-format-md": "^0.1.7",
+    "mocha": "^2.4.5"
+  },
+  "keywords": [
+    "braces",
+    "brackets",
+    "character",
+    "character-class",
+    "class",
+    "expression",
+    "posix",
+    "regex",
+    "regexp",
+    "regular"
+  ],
+  "verb": {
+    "run": true,
+    "toc": false,
+    "layout": "default",
+    "tasks": [
+      "readme"
+    ],
+    "plugins": [
+      "gulp-format-md"
+    ],
+    "related": {
+      "list": [
+        "braces",
+        "expand-brackets",
+        "is-extglob",
+        "is-glob",
+        "micromatch"
+      ]
+    },
+    "reflinks": [
+      "verb"
+    ],
+    "lint": {
+      "reflinks": true
+    }
+  },
+  "gitHead": "43972556cfdbb681a15072da75c97952c4e4deba",
+  "_id": "is-posix-bracket@0.1.1",
+  "_shasum": "3334dc79774368e92f016e6fbc0a88f5cd6e6bc4",
+  "_from": "is-posix-bracket@>=0.1.0 <0.2.0",
+  "_npmVersion": "3.6.0",
+  "_nodeVersion": "5.5.0",
+  "_npmUser": {
+    "name": "jonschlinkert",
+    "email": "github@sellside.com"
+  },
+  "maintainers": [
+    {
+      "name": "jonschlinkert",
+      "email": "github@sellside.com"
+    }
+  ],
+  "dist": {
+    "shasum": "3334dc79774368e92f016e6fbc0a88f5cd6e6bc4",
+    "tarball": "https://registry.npmjs.org/is-posix-bracket/-/is-posix-bracket-0.1.1.tgz"
+  },
+  "_npmOperationalInternal": {
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/is-posix-bracket-0.1.1.tgz_1459834297811_0.5273812564555556"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/is-posix-bracket/-/is-posix-bracket-0.1.1.tgz",
+  "readme": "ERROR: No README data found!"
+}

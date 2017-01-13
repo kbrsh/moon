@@ -1,0 +1,72 @@
+{
+  "name": "destroy",
+  "description": "destroy a stream if possible",
+  "version": "1.0.4",
+  "author": {
+    "name": "Jonathan Ong",
+    "email": "me@jongleberry.com",
+    "url": "http://jongleberry.com"
+  },
+  "contributors": [
+    {
+      "name": "Douglas Christopher Wilson",
+      "email": "doug@somethingdoug.com"
+    }
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stream-utils/destroy.git"
+  },
+  "devDependencies": {
+    "istanbul": "0.4.2",
+    "mocha": "2.3.4"
+  },
+  "scripts": {
+    "test": "mocha --reporter spec",
+    "test-cov": "istanbul cover node_modules/mocha/bin/_mocha -- --reporter dot",
+    "test-travis": "istanbul cover node_modules/mocha/bin/_mocha --report lcovonly -- --reporter dot"
+  },
+  "files": [
+    "index.js",
+    "LICENSE"
+  ],
+  "keywords": [
+    "stream",
+    "streams",
+    "destroy",
+    "cleanup",
+    "leak",
+    "fd"
+  ],
+  "gitHead": "86edea01456f5fa1027f6a47250c34c713cbcc3b",
+  "bugs": {
+    "url": "https://github.com/stream-utils/destroy/issues"
+  },
+  "homepage": "https://github.com/stream-utils/destroy",
+  "_id": "destroy@1.0.4",
+  "_shasum": "978857442c44749e4206613e37946205826abd80",
+  "_from": "destroy@>=1.0.4 <1.1.0",
+  "_npmVersion": "1.4.28",
+  "_npmUser": {
+    "name": "dougwilson",
+    "email": "doug@somethingdoug.com"
+  },
+  "maintainers": [
+    {
+      "name": "jongleberry",
+      "email": "jonathanrichardong@gmail.com"
+    },
+    {
+      "name": "dougwilson",
+      "email": "doug@somethingdoug.com"
+    }
+  ],
+  "dist": {
+    "shasum": "978857442c44749e4206613e37946205826abd80",
+    "tarball": "http://registry.npmjs.org/destroy/-/destroy-1.0.4.tgz"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/destroy/-/destroy-1.0.4.tgz",
+  "readme": "ERROR: No README data found!"
+}

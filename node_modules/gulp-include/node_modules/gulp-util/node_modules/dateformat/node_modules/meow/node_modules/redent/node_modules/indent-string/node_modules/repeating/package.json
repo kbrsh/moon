@@ -1,0 +1,71 @@
+{
+  "name": "repeating",
+  "version": "2.0.1",
+  "description": "Repeat a string - fast",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sindresorhus/repeating.git"
+  },
+  "author": {
+    "name": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "sindresorhus.com"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "xo && ava"
+  },
+  "files": [
+    "index.js"
+  ],
+  "keywords": [
+    "repeat",
+    "string",
+    "repeating",
+    "str",
+    "text",
+    "fill",
+    "pad"
+  ],
+  "dependencies": {
+    "is-finite": "^1.0.0"
+  },
+  "devDependencies": {
+    "ava": "*",
+    "xo": "*"
+  },
+  "gitHead": "be02bcaf9a674b3c155477b3bf282136bcf44770",
+  "bugs": {
+    "url": "https://github.com/sindresorhus/repeating/issues"
+  },
+  "homepage": "https://github.com/sindresorhus/repeating#readme",
+  "_id": "repeating@2.0.1",
+  "_shasum": "5214c53a926d3552707527fbab415dbc08d06dda",
+  "_from": "repeating@>=2.0.0 <3.0.0",
+  "_npmVersion": "3.8.6",
+  "_nodeVersion": "4.4.2",
+  "_npmUser": {
+    "name": "sindresorhus",
+    "email": "sindresorhus@gmail.com"
+  },
+  "dist": {
+    "shasum": "5214c53a926d3552707527fbab415dbc08d06dda",
+    "tarball": "https://registry.npmjs.org/repeating/-/repeating-2.0.1.tgz"
+  },
+  "maintainers": [
+    {
+      "name": "sindresorhus",
+      "email": "sindresorhus@gmail.com"
+    }
+  ],
+  "_npmOperationalInternal": {
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/repeating-2.0.1.tgz_1460395966602_0.9193919147364795"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/repeating/-/repeating-2.0.1.tgz",
+  "readme": "ERROR: No README data found!"
+}

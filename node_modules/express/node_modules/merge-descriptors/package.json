@@ -1,0 +1,138 @@
+{
+  "name": "merge-descriptors",
+  "description": "Merge objects using descriptors",
+  "version": "1.0.1",
+  "author": {
+    "name": "Jonathan Ong",
+    "email": "me@jongleberry.com",
+    "url": "http://jongleberry.com"
+  },
+  "contributors": [
+    {
+      "name": "Douglas Christopher Wilson",
+      "email": "doug@somethingdoug.com"
+    },
+    {
+      "name": "Mike Grabowski",
+      "email": "grabbou@gmail.com"
+    }
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/component/merge-descriptors.git"
+  },
+  "devDependencies": {
+    "istanbul": "0.4.1",
+    "mocha": "1.21.5"
+  },
+  "files": [
+    "HISTORY.md",
+    "LICENSE",
+    "README.md",
+    "index.js"
+  ],
+  "scripts": {
+    "test": "mocha --reporter spec --bail --check-leaks test/",
+    "test-ci": "istanbul cover node_modules/mocha/bin/_mocha --report lcovonly -- --reporter spec --check-leaks test/",
+    "test-cov": "istanbul cover node_modules/mocha/bin/_mocha -- --reporter dot --check-leaks test/"
+  },
+  "gitHead": "f26c49c3b423b0b2ac31f6e32a84e1632f2d7ac2",
+  "bugs": {
+    "url": "https://github.com/component/merge-descriptors/issues"
+  },
+  "homepage": "https://github.com/component/merge-descriptors",
+  "_id": "merge-descriptors@1.0.1",
+  "_shasum": "b00aaa556dd8b44568150ec9d1b953f3f90cbb61",
+  "_from": "merge-descriptors@1.0.1",
+  "_npmVersion": "1.4.28",
+  "_npmUser": {
+    "name": "dougwilson",
+    "email": "doug@somethingdoug.com"
+  },
+  "maintainers": [
+    {
+      "name": "anthonyshort",
+      "email": "antshort@gmail.com"
+    },
+    {
+      "name": "clintwood",
+      "email": "clint@anotherway.co.za"
+    },
+    {
+      "name": "dfcreative",
+      "email": "df.creative@gmail.com"
+    },
+    {
+      "name": "dominicbarnes",
+      "email": "dominic@dbarnes.info"
+    },
+    {
+      "name": "dougwilson",
+      "email": "doug@somethingdoug.com"
+    },
+    {
+      "name": "ianstormtaylor",
+      "email": "ian@ianstormtaylor.com"
+    },
+    {
+      "name": "jonathanong",
+      "email": "jonathanrichardong@gmail.com"
+    },
+    {
+      "name": "jongleberry",
+      "email": "jonathanrichardong@gmail.com"
+    },
+    {
+      "name": "juliangruber",
+      "email": "julian@juliangruber.com"
+    },
+    {
+      "name": "mattmueller",
+      "email": "mattmuelle@gmail.com"
+    },
+    {
+      "name": "queckezz",
+      "email": "fabian.eichenberger@gmail.com"
+    },
+    {
+      "name": "stephenmathieson",
+      "email": "me@stephenmathieson.com"
+    },
+    {
+      "name": "thehydroimpulse",
+      "email": "dnfagnan@gmail.com"
+    },
+    {
+      "name": "timaschew",
+      "email": "timaschew@gmail.com"
+    },
+    {
+      "name": "timoxley",
+      "email": "secoif@gmail.com"
+    },
+    {
+      "name": "tjholowaychuk",
+      "email": "tj@vision-media.ca"
+    },
+    {
+      "name": "tootallnate",
+      "email": "nathan@tootallnate.net"
+    },
+    {
+      "name": "trevorgerhardt",
+      "email": "trevorgerhardt@gmail.com"
+    },
+    {
+      "name": "yields",
+      "email": "yields@icloud.com"
+    }
+  ],
+  "dist": {
+    "shasum": "b00aaa556dd8b44568150ec9d1b953f3f90cbb61",
+    "tarball": "https://registry.npmjs.org/merge-descriptors/-/merge-descriptors-1.0.1.tgz"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/merge-descriptors/-/merge-descriptors-1.0.1.tgz",
+  "readme": "ERROR: No README data found!"
+}

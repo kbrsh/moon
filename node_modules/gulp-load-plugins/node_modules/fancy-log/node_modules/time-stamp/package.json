@@ -1,0 +1,102 @@
+{
+  "name": "time-stamp",
+  "description": "Get a formatted timestamp.",
+  "version": "1.0.1",
+  "homepage": "https://github.com/jonschlinkert/time-stamp",
+  "author": {
+    "name": "Jon Schlinkert",
+    "url": "https://github.com/jonschlinkert"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jonschlinkert/time-stamp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jonschlinkert/time-stamp/issues"
+  },
+  "license": "MIT",
+  "files": [
+    "index.js"
+  ],
+  "main": "index.js",
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "devDependencies": {
+    "gulp-format-md": "^0.1.7",
+    "mocha": "^2.4.5",
+    "pad-left": "^2.0.3"
+  },
+  "keywords": [
+    "console",
+    "date",
+    "format",
+    "formatting",
+    "log",
+    "pretty",
+    "stamp",
+    "terminal",
+    "time",
+    "time-stamp"
+  ],
+  "verb": {
+    "run": true,
+    "toc": false,
+    "layout": "default",
+    "tasks": [
+      "readme"
+    ],
+    "plugins": [
+      "gulp-format-md"
+    ],
+    "related": {
+      "list": [
+        "days",
+        "iso-week",
+        "month",
+        "months",
+        "o-clock",
+        "seconds",
+        "week",
+        "weekday",
+        "year"
+      ]
+    },
+    "reflinks": [
+      "verb"
+    ],
+    "lint": {
+      "reflinks": true
+    }
+  },
+  "gitHead": "66fc623cf26a5f85fe22a6a7acc91568cddf301c",
+  "_id": "time-stamp@1.0.1",
+  "_shasum": "9f4bd23559c9365966f3302dbba2b07c6b99b151",
+  "_from": "time-stamp@>=1.0.0 <2.0.0",
+  "_npmVersion": "3.6.0",
+  "_nodeVersion": "5.5.0",
+  "_npmUser": {
+    "name": "jonschlinkert",
+    "email": "github@sellside.com"
+  },
+  "maintainers": [
+    {
+      "name": "jonschlinkert",
+      "email": "github@sellside.com"
+    }
+  ],
+  "dist": {
+    "shasum": "9f4bd23559c9365966f3302dbba2b07c6b99b151",
+    "tarball": "https://registry.npmjs.org/time-stamp/-/time-stamp-1.0.1.tgz"
+  },
+  "_npmOperationalInternal": {
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/time-stamp-1.0.1.tgz_1460014127254_0.9380003691185266"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/time-stamp/-/time-stamp-1.0.1.tgz",
+  "readme": "ERROR: No README data found!"
+}
