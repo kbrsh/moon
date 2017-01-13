@@ -27,6 +27,11 @@ gulp.task('minify', ['build'], function() {
     .pipe(gulp.dest('./dist/'));
 });
 
+gulp.task('test', function () {
+    return gulp.src('test/test.html')
+      .pipe(mochaPhantomJS({reporter: 'spec'}));
+});
+
 
 // Default task
 gulp.task('default', ['build', 'minify']);
