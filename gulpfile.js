@@ -45,7 +45,11 @@ gulp.task('test', ['instrument'], function () {
           coverageFile: './coverage/coverage.json'
         },
         reporter: 'spec'
-      }));
+      }))
+      .on('finish', function() {
+        gulp.src('./coverage/coverage.json')
+          .pipe(istanbulReport())
+      });
 });
 
 
