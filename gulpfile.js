@@ -27,6 +27,7 @@ gulp.task('minify', ['build'], function() {
     .pipe(gulp.dest('./dist/'));
 });
 
+// Run Tests
 gulp.task('test', function () {
     return gulp.src('test/test.html')
       .pipe(mochaPhantomJS({reporter: 'spec'}));
