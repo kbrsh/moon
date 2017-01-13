@@ -1,36 +1,19 @@
-# Moon
 
-A minimal, blazing fast UI library.
+<p align="center"><a href="https://kingpixil.github.io/moon" target="_blank"><img width="150"src="https://raw.githubusercontent.com/KingPixil/moon/gh-pages/img/logo.png"></a></p>
 
-#### Moon is currently being rewritten
+<h1 align="center">Moon</h1>
+
+<p align="center">A minimal, blazing fast UI library.</p>
 
 ### What is it?
 
-Moon is a simple library heavily inspired by Vue.js. It's much lighter, and provides an API that is easy to learn.
+Moon is a simple front end javascript library heavily inspired by [Vue](https://vuejs.org). The library is fast, flexible, and easy to learn.
 
 ### Usage
 
 See [the website.](https://kingpixil.github.io/moon)
 
-More documentation coming soon, Moon is under active development.
 
-<!-- ### Benchmarks
+### License
 
-- Rendering Time: 100μs
-- ~51,175 ops/sec -->
-
-### Roadmap
-
-<!-- - Use Virtual DOM
-  - Create Virtual DOM while seeding
-  - Every build, replace (first version) of virtual dom with new data
-  - Run diff algorithm against real DOM and rerender -->
-<!-- - Methods -->
-<!-- - Filters -->
-<!-- - Attributes/Properties Binding -->
-<!-- - Model -->
-<!-- - If -->
-- For
-
-
-### [License](http://kingpixil.github.io/license)
+Licensed under the [MIT License](http://kingpixil.github.io/license) by [Kabir Shah](https://kabir.ml)
