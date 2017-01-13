@@ -4,6 +4,13 @@
 <h1 align="center">Moon</h1>
 
 <p align="center">A minimal, blazing fast UI library.</p>
+<p align="center">
+[![Build Status](https://travis-ci.org/KingPixil/moon.svg?branch=rewrite)](https://travis-ci.org/KingPixil/moon)
+
+[![codecov](https://codecov.io/gh/KingPixil/moon/branch/rewrite/graph/badge.svg)](https://codecov.io/gh/KingPixil/moon)
+
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)]()
+</p>
 
 ### What is it?
 
