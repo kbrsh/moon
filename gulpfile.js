@@ -29,8 +29,14 @@ gulp.task('minify', ['build'], function() {
 
 // Run Tests
 gulp.task('test', function () {
-    return gulp.src('test/test.html')
-      .pipe(mochaPhantomJS({reporter: 'spec'}));
+    return gulp.src('test/test.html', {read:false})
+      .pipe(mochaPhantomJS({
+        phantomjs: {
+          hooks: 'mocha-phantomjs-istanbul',
+          coverageFile: './coverage.json'
+        },
+        reporter: 'spec'
+      }));
 });
 
 
