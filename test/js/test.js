@@ -194,3 +194,18 @@ describe('Text Directive', function() {
     expect(document.getElementById('text-directive-span').getAttribute("m-text")).to.be.null;
   });
 });
+
+describe('HTML Directive', function() {
+  var htmlApp = new Moon({
+    el: "#html",
+    data: {
+      msg: "<strong>Hello Moon!</strong>"
+    }
+  });
+  it('should fill DOM with a value', function() {
+    expect(document.getElementById("html-directive-span").innerHTML).to.equal("<strong>Hello Moon!</strong>");
+  });
+  it('should not be present at runtime', function() {
+    expect(document.getElementById('html-directive-span').getAttribute("m-html")).to.be.null;
+  });
+});
