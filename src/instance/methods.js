@@ -94,10 +94,6 @@ Moon.prototype.init = function() {
   this.log("======= Moon =======");
   this.$hooks.created();
 
-  if(!this.$el) {
-    this.error("Element " + this.$opts.el + " not found");
-  }
-
   setInitialElementValue(this.$el, this.$template);
 
   if(this.$render) {
@@ -105,7 +101,7 @@ Moon.prototype.init = function() {
   } else {
     this.$dom = createVirtualDOM(this.$el);
   }
-  
+
   this.build(this.$el.childNodes, this.$dom.children);
   this.$hooks.mounted();
 }
