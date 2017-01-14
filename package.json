@@ -4,7 +4,7 @@
   "description": "A minimal, blazing fast user interface library.",
   "main": "dist/moon.min.js",
   "scripts": {
-    "buid": "gulp",
+    "build": "gulp",
     "test": "gulp test && node test/test.js"
   },
   "repository": {
