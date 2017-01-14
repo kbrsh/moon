@@ -51,11 +51,14 @@ var createElement = function(type, val, props, children) {
 * @return {Object} Virtual DOM
 */
 var createVirtualDOM = function(node) {
+  var tag = node.nodeName;
+  var content = node.textContent;
+  var attrs = extractAttrs(node);
   var children = [];
   for(var i = 0; i < node.childNodes.length; i++) {
     children.push(createVirtualDOM(node.childNodes[i]));
   }
-  return createElement(node.nodeName, node.textContent, extractAttrs(node), children);
+  return createElement(tag, content, attrs, children);
 }
 
 /**
