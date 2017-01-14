@@ -180,7 +180,7 @@
           if(!evaluated()) {
             el.textContent = "";
           } else {
-            el.textContent = compileTemplate(vdom.val, self.$data);
+            el.textContent = vdom.val(self.$data);
           }
         }
         
