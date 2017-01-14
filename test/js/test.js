@@ -247,8 +247,9 @@ describe('Plugin', function() {
   it('should execute', function() {
     expect(document.getElementById("plugin-span").innerHTML).to.equal("");
   });
+});
 
-  describe('Template', function() {
+describe('Template', function() {
     var templateApp = new Moon({
       el: "#template",
       template: "{{msg}}",
