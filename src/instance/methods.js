@@ -68,12 +68,12 @@ Moon.prototype.build = function(children, vdom) {
     var vnode = vdom[i];
     var child = children[i];
     if(vnode !== undefined && !vnode.once) {
-      var valueOfNode = ""
+      var valueOfVNode = ""
       if(child.nodeName === "#text") {
         if(vnode.val) {
-          valueOfNode = vnode.val(this.$data);
+          valueOfVNode = vnode.val(this.$data);
         } else {
-          valueOfNode = vnode;
+          valueOfVNode = vnode;
         }
         child.textContent = valueOfVNode;
       } else if(vnode.props) {
