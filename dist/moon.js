@@ -218,9 +218,14 @@
         }
         
         directives[config.prefix + "once"] = function(el, val, vdom) {
-          vdom.val = el.textContent;
+          vdom.val = function() {
+            el.textContent;
+          }
           for(var child in vdom.children) {
-            vdom.children[child].val = compileTemplate(vdom.children[child].val, self.$data);
+            var compiledChild = vdom.children[child].val(self.$data);
+            vdom.children[child].val = function() {
+              return compiledChild;
+            }
           }
         }
         
