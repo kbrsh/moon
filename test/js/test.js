@@ -247,4 +247,20 @@ describe('Plugin', function() {
   it('should execute', function() {
     expect(document.getElementById("plugin-span").innerHTML).to.equal("");
   });
+
+  describe('Template', function() {
+    var templateApp = new Moon({
+      el: "#template",
+      template: "{{msg}}",
+      data: {
+        msg: "Hello Moon!"
+      }
+    });
+    it('should use provided template', function() {
+      expect(document.getElementById("template").innerHTML).to.equal("Hello Moon!");
+    });
+    it('should update', function() {
+      templateApp.set("msg", "Changed");
+      expect(document.getElementById("template").innerHTML).to.equal("Changed");
+    });
 });
