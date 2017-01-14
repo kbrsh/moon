@@ -24,6 +24,7 @@
         this.$id = id++;
         this.$el = document.querySelector(this.$opts.el);
         this.$template = this.$opts.template || this.$el.innerHTML;
+        this.$render = this.$opts.render || noop;
         this.$hooks = merge({created: noop, mounted: noop, updated: noop, destroyed: noop}, this.$opts.hooks);
         this.$methods = this.$opts.methods || {};
         this.$components = merge(this.$opts.components || {}, components);
