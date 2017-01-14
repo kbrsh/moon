@@ -6,16 +6,15 @@
 * @param {Object} data
 * @return {String} Template with data rendered
 */
-var compileTemplate = function(template, data) {
-  var code = template,
-      templateRe = /{{([A-Za-z0-9_.()\[\]]+)}}/gi;
+var compileTemplate = function(template) {
+  var code = template;
+  var templateRe = /{{([A-Za-z0-9_.()\[\]]+)}}/gi;
   code.replace(templateRe, function(match, key) {
     code = code.replace(match, "' + data['" + key + "'] + '");
   });
   code = code.replace(/\n/g, "' + \n'");
   var compile = new Function("data", "var out = '" + code + "'; return out");
-  var output = compile(data);
-  return output;
+  return compile;
 }
 
 /**
