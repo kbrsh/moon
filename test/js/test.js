@@ -168,14 +168,16 @@ describe('Model Directive', function() {
 });
 
 describe('On Directive', function() {
+  var evt;
   var onApp = new Moon({
     el: "#on",
     data: {
       count: 0
     },
     methods: {
-      increment: function() {
+      increment: function(e) {
         onApp.set('count', onApp.get('count') + 1);
+        evt = e;
       }
     }
   });
@@ -186,6 +188,9 @@ describe('On Directive', function() {
   it('should update DOM', function() {
     document.getElementById("on-increment-button").click();
     expect(document.getElementById("on-count").innerHTML).to.equal('2');
+  });
+  it('should pass an event object', function() {
+    expect(evt.target.tagName).to.equal('BUTTON');
   });
   it('should not be present at runtime', function() {
     expect(document.getElementById('on-increment-button').getAttribute("m-on")).to.be.null;
