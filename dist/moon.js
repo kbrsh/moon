@@ -316,7 +316,7 @@
             child.textContent = valueOfVNode;
           } else if(vnode.props) {
             for(var attr in vnode.props) {
-              var compiledProp = vnode.props[attr]();
+              var compiledProp = vnode.props[attr](this.$data);
               if(directives[attr]) {
                 child.removeAttribute(attr);
                 directives[attr](child, compiledProp, vnode);
