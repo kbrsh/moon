@@ -28,16 +28,15 @@
     * @param {Object} data
     * @return {String} Template with data rendered
     */
-    var compileTemplate = function(template, data) {
-      var code = template,
-          templateRe = /{{([A-Za-z0-9_.()\[\]]+)}}/gi;
+    var compileTemplate = function(template) {
+      var code = template;
+      var templateRe = /{{([A-Za-z0-9_.()\[\]]+)}}/gi;
       code.replace(templateRe, function(match, key) {
         code = code.replace(match, "' + data['" + key + "'] + '");
       });
       code = code.replace(/\n/g, "' + \n'");
       var compile = new Function("data", "var out = '" + code + "'; return out");
-      var output = compile(data);
-      return output;
+      return compile;
     }
     
     /**
@@ -50,7 +49,7 @@
       if(!node.attributes) return attrs;
       var rawAttrs = node.attributes;
       for(var i = 0; i < rawAttrs.length; i++) {
-        attrs[rawAttrs[i].name] = rawAttrs[i].value
+        attrs[rawAttrs[i].name] = compileTemplate(rawAttrs[i].value);
       }
     
       return attrs;
@@ -73,11 +72,15 @@
     * @return {Object} Virtual DOM
     */
     var createVirtualDOM = function(node) {
+      var tag = node.nodeName;
+      var content = compileTemplate(node.textContent);
+      var attrs = extractAttrs(node);
+    
       var children = [];
       for(var i = 0; i < node.childNodes.length; i++) {
         children.push(createVirtualDOM(node.childNodes[i]));
       }
-      return createElement(node.nodeName, node.textContent, extractAttrs(node), children);
+      return createElement(tag, content, attrs, children);
     }
     
     /**
@@ -309,12 +312,11 @@
         var child = children[i];
         if(vnode !== undefined) {
           if(child.nodeName === "#text") {
-            var valueOfVNode = vnode.val;
-            if(valueOfVNode === undefined) valueOfVNode = vnode;
-            child.textContent = compileTemplate(valueOfVNode, this.$data);
+            var valueOfVNode = vnode.val(this.$data);
+            child.textContent = valueOfVNode;
           } else if(vnode.props) {
             for(var attr in vnode.props) {
-              var compiledProp = compileTemplate(vnode.props[attr], this.$data);
+              var compiledProp = vnode.props[attr]();
               if(directives[attr]) {
                 child.removeAttribute(attr);
                 directives[attr](child, compiledProp, vnode);
