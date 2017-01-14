@@ -43,9 +43,6 @@ directives[config.prefix + "for"] = function(el, val, vdom) {
 
 directives[config.prefix + "once"] = function(el, val, vdom) {
   vdom.once = true;
-  for(var child in vdom.children) {
-    vdom.children[child].once = true;
-  }
 }
 
 directives[config.prefix + "text"] = function(el, val, vdom) {
