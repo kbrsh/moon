@@ -229,6 +229,15 @@ describe('Once Directive', function() {
   });
 });
 
+describe('Mask Directive', function() {
+  var maskApp = new Moon({
+    el: "#mask"
+  });
+  it('should not be present at runtime', function() {
+    expect(document.getElementById('mask-directive-span').getAttribute("m-mask")).to.be.null;
+  });
+});
+
 describe('Plugin', function() {
   var emptyPlugin = {
     init: function(Moon) {
