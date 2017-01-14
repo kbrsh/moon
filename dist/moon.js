@@ -34,6 +34,7 @@
       code.replace(templateRe, function(match, key) {
         code = code.replace(match, "' + data['" + key + "'] + '");
       });
+      code = code.replace("\n", "' + \n'");
       var compile = new Function("data", "var out = '" + code + "'; return out");
       var output = compile(data);
       return output;
