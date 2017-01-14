@@ -210,6 +210,25 @@ describe('HTML Directive', function() {
   });
 });
 
+describe('Once Directive', function() {
+  var onceApp = new Moon({
+    el: "#once",
+    data: {
+      msg: "Hello Moon!"
+    }
+  });
+  it('should fill DOM with a value', function() {
+    expect(document.getElementById("once-directive-span").innerHTML).to.equal("Hello Moon!");
+  });
+  it('should not update element once value is updated', function() {
+    onceApp.set('msg', "Changed");
+    expect(document.getElementById("once-directive-span").innerHTML).to.equal("Hello Moon!");
+  });
+  it('should not be present at runtime', function() {
+    expect(document.getElementById('once-directive-span').getAttribute("m-once")).to.be.null;
+  });
+});
+
 describe('Plugin', function() {
   var emptyPlugin = {
     init: function(Moon) {
