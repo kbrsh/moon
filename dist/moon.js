@@ -309,7 +309,9 @@
         var child = children[i];
         if(vnode !== undefined) {
           if(child.nodeName === "#text") {
-            child.textContent = compileTemplate(vnode.val, this.$data);
+            var valueOfVNode = vnode.val;
+            if(valueOfVNode === undefined) valueOfVNode = vnode;
+            child.textContent = compileTemplate(valueOfVNode, this.$data);
           } else if(vnode.props) {
             for(var attr in vnode.props) {
               var compiledProp = compileTemplate(vnode.props[attr], this.$data);
