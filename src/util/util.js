@@ -27,7 +27,7 @@ var extractAttrs = function(node) {
   if(!node.attributes) return attrs;
   var rawAttrs = node.attributes;
   for(var i = 0; i < rawAttrs.length; i++) {
-    attrs[rawAttrs[i].name] = rawAttrs[i].value
+    attrs[rawAttrs[i].name] = compileTemplate(rawAttrs[i].value);
   }
 
   return attrs;
