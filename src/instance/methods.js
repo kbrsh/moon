@@ -96,7 +96,7 @@ Moon.prototype.init = function() {
 
   setInitialElementValue(this.$el, this.$template);
 
-  if(this.$render) {
+  if(this.$render !== noop) {
     this.$dom = this.$render(h);
   } else {
     this.$dom = createVirtualDOM(this.$el);
