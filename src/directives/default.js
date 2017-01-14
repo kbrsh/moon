@@ -21,8 +21,8 @@ directives[config.prefix + "on"] = function(el, val, vdom) {
   var splitVal = val.split(":");
   var eventToCall = splitVal[0];
   var methodToCall = splitVal[1];
-  el.addEventListener(eventToCall, function() {
-    self.callMethod(methodToCall);
+  el.addEventListener(eventToCall, function(e) {
+    self.callMethod(methodToCall, [e]);
   });
   delete vdom.props[config.prefix + "on"];
 }
