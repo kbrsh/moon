@@ -105,25 +105,19 @@
     }
     
     /**
-     * Compiles JSX to HTML
+     * Compiles JSX to Virtual DOM
      * @param {String} tag
      * @param {Object} attrs
      * @param {Array} children
-     * @return {String} HTML compiled from JSX
+     * @return {String} Object usable in Virtual DOM
      */
-     var h = function() {
-     	 var args = Array.prototype.slice.call(arguments);
-     	 var tag = args.shift();
-       var attrs = args.shift() || {};
-       var kids = args;
-       var formattedAttrs = Object.keys(attrs).reduce(function(all, attr) {
-       		return all + " " + attr + "='" + attrs[attr] + "'";
-       }, '');
-       var startTag = "<" + tag + formattedAttrs + ">";
-       var endTag = "</" + tag + ">";
-       var html = startTag + kids.join("") + endTag;
-     	 return html;
-     };
+    var h = function() {
+      var args = Array.prototype.slice.call(arguments);
+      var tag = args.shift();
+      var attrs = args.shift() || {};
+      var children = args;
+      return createElement(tag, children.join(""), attrs, children);
+    };
     
     /**
      * Sets the Elements Initial Value
