@@ -218,15 +218,10 @@
         }
         
         directives[config.prefix + "once"] = function(el, val, vdom) {
-          vdom.val = function() {
-            el.textContent;
-          }
-          for(var child in vdom.children) {
-            var compiledChild = vdom.children[child].val(self.$data);
-            vdom.children[child].val = function() {
-              return compiledChild;
-            }
-          }
+          vdom.once = true;
+          // for(var child in vdom.children) {
+          //   vdom.children[child].once = true;
+          // }
         }
         
         directives[config.prefix + "text"] = function(el, val, vdom) {
@@ -315,7 +310,7 @@
       for(var i = 0; i < children.length; i++) {
         var vnode = vdom[i];
         var child = children[i];
-        if(vnode !== undefined) {
+        if(vnode !== undefined && !vnode.once) {
           if(child.nodeName === "#text") {
             var valueOfVNode = vnode.val(this.$data);
             child.textContent = valueOfVNode;
