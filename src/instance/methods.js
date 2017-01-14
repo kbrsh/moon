@@ -42,8 +42,9 @@ Moon.prototype.get = function(key) {
 * Calls a method
 * @param {String} method
 */
-Moon.prototype.callMethod = function(method) {
-  this.$methods[method]();
+Moon.prototype.callMethod = function(method, args) {
+  args = args || [];
+  this.$methods[method].apply(this, args);
 }
 
 /**
