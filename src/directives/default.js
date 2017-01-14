@@ -42,14 +42,9 @@ directives[config.prefix + "for"] = function(el, val, vdom) {
 }
 
 directives[config.prefix + "once"] = function(el, val, vdom) {
-  vdom.val = function() {
-    el.textContent;
-  }
+  vdom.once = true;
   for(var child in vdom.children) {
-    var compiledChild = vdom.children[child].val(self.$data);
-    vdom.children[child].val = function() {
-      return compiledChild;
-    }
+    vdom.children[child].once = true;
   }
 }
 
