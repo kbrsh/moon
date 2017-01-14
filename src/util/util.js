@@ -89,16 +89,16 @@ function merge(obj, obj2) {
  * @param {Array} children
  * @return {String} Object usable in Virtual DOM
  */
- var h = function() {
- 	 var args = Array.prototype.slice.call(arguments);
- 	 var tag = args.shift();
-   var attrs = args.shift() || {};
-   var children = args;
-   if(!tag) {
-     tag = "#text";
-   }
-   return createElement(tag, children.join(""), attrs, children);
- };
+var h = function() {
+  var args = Array.prototype.slice.call(arguments);
+  var tag = args.shift();
+  var attrs = args.shift() || {};
+  var children = args;
+  if(!tag) {
+    tag = "#text";
+  }
+  return createElement(tag, children.join(""), attrs, children);
+};
 
 /**
  * Sets the Elements Initial Value
