@@ -83,11 +83,11 @@ function merge(obj, obj2) {
 }
 
 /**
- * Compiles JSX to HTML
+ * Compiles JSX to Virtual DOM
  * @param {String} tag
  * @param {Object} attrs
  * @param {Array} children
- * @return {String} HTML compiled from JSX
+ * @return {String} Object usable in Virtual DOM
  */
  var h = function() {
  	 var args = Array.prototype.slice.call(arguments);
@@ -95,15 +95,7 @@ function merge(obj, obj2) {
    var attrs = args.shift() || {};
    var children = args;
 
-   var formattedAttrs = Object.keys(attrs).reduce(function(all, attr) {
-   		return all + " " + attr + "='" + attrs[attr] + "'";
-   }, '');
 
-   var startTag = "<" + tag + formattedAttrs + ">";
-   var endTag = "</" + tag + ">";
-   var html = startTag + children.join("") + endTag;
-   
- 	 return html;
  };
 
 /**
