@@ -93,13 +93,16 @@ function merge(obj, obj2) {
  	 var args = Array.prototype.slice.call(arguments);
  	 var tag = args.shift();
    var attrs = args.shift() || {};
-   var kids = args;
+   var children = args;
+
    var formattedAttrs = Object.keys(attrs).reduce(function(all, attr) {
    		return all + " " + attr + "='" + attrs[attr] + "'";
    }, '');
+
    var startTag = "<" + tag + formattedAttrs + ">";
    var endTag = "</" + tag + ">";
-   var html = startTag + kids.join("") + endTag;
+   var html = startTag + children.join("") + endTag;
+   
  	 return html;
  };
 
