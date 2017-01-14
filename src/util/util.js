@@ -94,9 +94,6 @@ var h = function() {
   var tag = args.shift();
   var attrs = args.shift() || {};
   var children = args;
-  if(!tag) {
-    tag = "#text";
-  }
   return createElement(tag, children.join(""), attrs, children);
 };
 
