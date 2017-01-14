@@ -101,6 +101,18 @@ describe('Methods', function() {
   });
 });
 
+describe('Custom Directive', function() {
+  Moon.directive("square", function(el, val, vdom) {
+    var num = parseInt(val);
+    el.textContent = val*val;
+  });
+  var customDirectiveApp = new Moon({
+    el: "#customDirective"
+  });
+  it('execute', function() {
+    expect(document.getElementById("custom-directive-span").innerHTML).to.equal("4");
+  });
+});
 
 describe('If Directive', function() {
   var ifApp = new Moon({
