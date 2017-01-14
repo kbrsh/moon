@@ -282,8 +282,8 @@
     * Calls a method
     * @param {String} method
     */
-    Moon.prototype.callMethod = function(method) {
-      this.$methods[method]();
+    Moon.prototype.callMethod = function(method, args) {
+      this.$methods[method].apply(this, args || []);
     }
     
     /**
