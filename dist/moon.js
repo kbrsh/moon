@@ -34,7 +34,7 @@
       code.replace(templateRe, function(match, key) {
         code = code.replace(match, "' + data['" + key + "'] + '");
       });
-      code = code.replace("\n", "' + \n'");
+      code = code.replace(/\n/g, "' + \n'");
       var compile = new Function("data", "var out = '" + code + "'; return out");
       var output = compile(data);
       return output;
@@ -145,6 +145,11 @@
 
         this.$id = id++;
         this.$el = document.querySelector(this.$opts.el);
+
+        if(!this.$el) {
+          this.error("Element " + this.$opts.el + " not found");
+        }
+        
         this.$template = this.$opts.template || this.$el.innerHTML;
         this.$render = this.$opts.render || noop;
         this.$hooks = merge({created: noop, mounted: noop, updated: noop, destroyed: noop}, this.$opts.hooks);
@@ -329,18 +334,14 @@
       this.log("======= Moon =======");
       this.$hooks.created();
     
-      if(!this.$el) {
-        this.error("Element " + this.$opts.el + " not found");
-      }
-    
       setInitialElementValue(this.$el, this.$template);
     
-      if(this.$render) {
+      if(this.$render !== noop) {
         this.$dom = this.$render(h);
       } else {
         this.$dom = createVirtualDOM(this.$el);
       }
-      
+    
       this.build(this.$el.childNodes, this.$dom.children);
       this.$hooks.mounted();
     }
