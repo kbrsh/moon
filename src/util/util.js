@@ -37,7 +37,7 @@ var extractAttrs = function(node) {
     }
   }
 
-  return returned;
+  return attrs;
 }
 
 /**
