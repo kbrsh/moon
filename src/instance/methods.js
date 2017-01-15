@@ -67,10 +67,10 @@ Moon.prototype.destroy = function() {
 Moon.prototype.build = function(vdom) {
   for(var vnode in vdom) {
     if(vnode !== undefined && !vnode.once) {
-      if(child.nodeName === "#text") {
+      if(vnode.type === "#text") {
         var valueOfVNode = "";
         valueOfVNode = vnode.val(this.$data);
-        child.textContent = valueOfVNode;
+        vnode.node.textContent = valueOfVNode;
       } else if(vnode.props) {
         for(var attr in vnode.props) {
           var compiledProp = vnode.props[attr](this.$data);
