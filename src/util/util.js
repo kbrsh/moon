@@ -63,6 +63,10 @@ var createVirtualDOM = function(node) {
   var shouldRender = false;
   var children = [];
 
+  if(node.textContent !== content) {
+    shouldRender = true;
+  }
+
   if(attrs.shouldRender) {
     shouldRender = attrs.shouldRender;
   }
