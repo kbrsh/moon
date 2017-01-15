@@ -40,8 +40,8 @@ var extractAttrs = function(node) {
 * @param {Object} props
 * @return {Object} Node For Virtual DOM
 */
-var createElement = function(type, val, props, children) {
-  return {type: type, val: val, props: props, children: children};
+var createElement = function(type, val, props, children, node) {
+  return {type: type, val: val, props: props, children: children, node:node};
 }
 
 /**
@@ -58,7 +58,7 @@ var createVirtualDOM = function(node) {
   for(var i = 0; i < node.childNodes.length; i++) {
     children.push(createVirtualDOM(node.childNodes[i]));
   }
-  return createElement(tag, content, attrs, children);
+  return createElement(tag, content, attrs, children, node);
 }
 
 /**
