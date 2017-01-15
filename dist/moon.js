@@ -307,7 +307,7 @@
     Moon.prototype.build = function(vdom) {
       for(var i = 0; i < vdom.length; i++) {
         var vnode = vdom[i];
-        if(vnode !== undefined && !vnode.once) {
+        if(!vnode.once) {
           if(vnode.type === "#text") {
             var valueOfVNode = "";
             valueOfVNode = vnode.val(this.$data);
