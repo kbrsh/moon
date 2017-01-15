@@ -25,14 +25,14 @@ var compileTemplate = function(template) {
 var extractAttrs = function(node) {
   var attrs = {
     attrs: {},
-    shouldRender = false
+    shouldRender: false
   };
   if(!node.attributes) return attrs;
   var rawAttrs = node.attributes;
   for(var i = 0; i < rawAttrs.length; i++) {
     var compiledAttr = compileTemplate(rawAttrs[i].value);
     attrs.attrs[rawAttrs[i].name] = compiledAttr;
-    if(attrs.attrs[rawAttrs[i].name] === compiledAttr) {
+    if(attrs.attrs[rawAttrs[i].name] !== compiledAttr) {
       attrs.shouldRender = true;
     }
   }
