@@ -25,7 +25,7 @@ Moon.prototype.error = function(msg) {
 */
 Moon.prototype.set = function(key, val) {
   this.$data[key] = val;
-  if(!this.$destroyed) this.build(this.$el.childNodes, this.$dom.children);
+  if(!this.$destroyed) this.build(this.$dom.children);
   this.$hooks.updated();
 }
 
@@ -100,6 +100,6 @@ Moon.prototype.init = function() {
 
   this.$dom = createVirtualDOM(this.$el);
 
-  this.build(this.$el.childNodes, this.$dom.children);
+  this.build(this.$dom.children);
   this.$hooks.mounted();
 }
