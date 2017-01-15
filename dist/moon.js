@@ -59,7 +59,7 @@
         }
       }
     
-      return returned;
+      return attrs;
     }
     
     /**
