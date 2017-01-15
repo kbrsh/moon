@@ -65,8 +65,7 @@ Moon.prototype.destroy = function() {
 * @param {Array} children
 */
 Moon.prototype.build = function(vdom) {
-  for(var i = 0; i < children.length; i++) {
-    var vnode = vdom[i];
+  for(var vnode in vdom) {
     if(vnode !== undefined && !vnode.once) {
       if(child.nodeName === "#text") {
         var valueOfVNode = "";
