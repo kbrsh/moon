@@ -62,8 +62,8 @@
     * @param {Object} props
     * @return {Object} Node For Virtual DOM
     */
-    var createElement = function(type, val, props, children) {
-      return {type: type, val: val, props: props, children: children};
+    var createElement = function(type, val, props, children, node) {
+      return {type: type, val: val, props: props, children: children, node:node};
     }
     
     /**
@@ -80,7 +80,7 @@
       for(var i = 0; i < node.childNodes.length; i++) {
         children.push(createVirtualDOM(node.childNodes[i]));
       }
-      return createElement(tag, content, attrs, children);
+      return createElement(tag, content, attrs, children, node);
     }
     
     /**
@@ -265,7 +265,7 @@
     */
     Moon.prototype.set = function(key, val) {
       this.$data[key] = val;
-      if(!this.$destroyed) this.build(this.$el.childNodes, this.$dom.children);
+      if(!this.$destroyed) this.build(this.$dom.children);
       this.$hooks.updated();
     }
     
@@ -304,32 +304,27 @@
     * Builds the DOM With Data
     * @param {Array} children
     */
-    Moon.prototype.build = function(children, vdom) {
-      for(var i = 0; i < children.length; i++) {
+    Moon.prototype.build = function(vdom) {
+      for(var i = 0; i < vdom.length; i++) {
         var vnode = vdom[i];
-        var child = children[i];
         if(vnode !== undefined && !vnode.once) {
-          var valueOfVNode = ""
-          if(child.nodeName === "#text") {
-            if(vnode.val) {
-              valueOfVNode = vnode.val(this.$data);
-            } else {
-              valueOfVNode = vnode;
-            }
-            child.textContent = valueOfVNode;
+          if(vnode.type === "#text") {
+            var valueOfVNode = "";
+            valueOfVNode = vnode.val(this.$data);
+            vnode.node.textContent = valueOfVNode;
           } else if(vnode.props) {
             for(var attr in vnode.props) {
               var compiledProp = vnode.props[attr](this.$data);
               if(directives[attr]) {
-                child.removeAttribute(attr);
-                directives[attr](child, compiledProp, vnode);
+                vnode.node.removeAttribute(attr);
+                directives[attr](vnode.node, compiledProp, vnode);
               } else {
-                child.setAttribute(attr, compiledProp);
+                vnode.node.setAttribute(attr, compiledProp);
               }
             }
           }
     
-          this.build(child.childNodes, vnode.children);
+          this.build(vnode.children);
         }
       }
     }
@@ -343,13 +338,9 @@
     
       setInitialElementValue(this.$el, this.$template);
     
-      if(this.$render !== noop) {
-        this.$dom = this.$render(h);
-      } else {
-        this.$dom = createVirtualDOM(this.$el);
-      }
+      this.$dom = createVirtualDOM(this.$el);
     
-      this.build(this.$el.childNodes, this.$dom.children);
+      this.build(this.$dom.children);
       this.$hooks.mounted();
     }
     
