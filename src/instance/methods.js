@@ -75,10 +75,10 @@ Moon.prototype.build = function(vdom) {
         for(var attr in vnode.props) {
           var compiledProp = vnode.props[attr](this.$data);
           if(directives[attr]) {
-            child.removeAttribute(attr);
+            vnode.node.removeAttribute(attr);
             directives[attr](child, compiledProp, vnode);
           } else {
-            child.setAttribute(attr, compiledProp);
+            vnode.node.setAttribute(attr, compiledProp);
           }
         }
       }
