@@ -23,18 +23,11 @@ var compileTemplate = function(template) {
 * @return {Object} Key-Value pairs of Attributes
 */
 var extractAttrs = function(node) {
-  var attrs = {
-    attrs: {},
-    shouldRender: false
-  };
+  var attrs = {};
   if(!node.attributes) return attrs;
   var rawAttrs = node.attributes;
   for(var i = 0; i < rawAttrs.length; i++) {
-    var compiledAttr = compileTemplate(rawAttrs[i].value);
-    attrs.attrs[rawAttrs[i].name] = compiledAttr;
-    if(attrs.attrs[rawAttrs[i].name] !== compiledAttr) {
-      attrs.shouldRender = true;
-    }
+    attrs[rawAttrs[i].name] = compileTemplate(rawAttrs[i].value);
   }
 
   return attrs;
@@ -47,8 +40,8 @@ var extractAttrs = function(node) {
 * @param {Object} props
 * @return {Object} Node For Virtual DOM
 */
-var createElement = function(type, val, props, children, shouldRender) {
-  return {type: type, val: val, props: props, children: children, shouldRender: shouldRender};
+var createElement = function(type, val, props, children) {
+  return {type: type, val: val, props: props, children: children};
 }
 
 /**
@@ -59,22 +52,13 @@ var createElement = function(type, val, props, children, shouldRender) {
 var createVirtualDOM = function(node) {
   var tag = node.nodeName;
   var content = compileTemplate(node.textContent);
-  var attrs = extractAttrs(node).attrs;
-  var shouldRender = false;
+  var attrs = extractAttrs(node);
+
   var children = [];
-
-  if(node.textContent !== content) {
-    shouldRender = true;
-  }
-
-  if(attrs.shouldRender) {
-    shouldRender = attrs.shouldRender;
-  }
-
   for(var i = 0; i < node.childNodes.length; i++) {
     children.push(createVirtualDOM(node.childNodes[i]));
   }
-  return createElement(tag, content, attrs, children, shouldRender);
+  return createElement(tag, content, attrs, children);
 }
 
 /**
