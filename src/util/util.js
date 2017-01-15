@@ -23,7 +23,10 @@ var compileTemplate = function(template) {
 * @return {Object} Key-Value pairs of Attributes
 */
 var extractAttrs = function(node) {
-  var attrs = {};
+  var attrs = {
+    attrs: {},
+    shouldRender = false
+  };
   if(!node.attributes) return attrs;
   var rawAttrs = node.attributes;
   for(var i = 0; i < rawAttrs.length; i++) {
@@ -44,8 +47,8 @@ var extractAttrs = function(node) {
 * @param {Object} props
 * @return {Object} Node For Virtual DOM
 */
-var createElement = function(type, val, props, children) {
-  return {type: type, val: val, props: props, children: children};
+var createElement = function(type, val, props, children, shouldRender) {
+  return {type: type, val: val, props: props, children: children, shouldRender: shouldRender};
 }
 
 /**
@@ -56,13 +59,18 @@ var createElement = function(type, val, props, children) {
 var createVirtualDOM = function(node) {
   var tag = node.nodeName;
   var content = compileTemplate(node.textContent);
-  var attrs = extractAttrs(node);
-
+  var attrs = extractAttrs(node).attrs;
+  var shouldRender = false;
   var children = [];
+
+  if(attrs.shouldRender) {
+    shouldRender = attrs.shouldRender;
+  }
+
   for(var i = 0; i < node.childNodes.length; i++) {
     children.push(createVirtualDOM(node.childNodes[i]));
   }
-  return createElement(tag, content, attrs, children);
+  return createElement(tag, content, attrs, children, shouldRender);
 }
 
 /**
