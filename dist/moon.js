@@ -73,7 +73,7 @@
     */
     var createVirtualDOM = function(node) {
       var tag = node.nodeName;
-      var content = (tag === "#text" && tag.trim() !== "") ? compileTemplate(node.textContent) : false;
+      var content = compileTemplate(node.textContent);
       var attrs = extractAttrs(node);
     
       var children = [];
@@ -307,7 +307,7 @@
     Moon.prototype.build = function(vdom) {
       for(var i = 0; i < vdom.length; i++) {
         var vnode = vdom[i];
-        if(!vnode.once && vnode.val) {
+        if(!vnode.once) {
           if(vnode.type === "#text") {
             var valueOfVNode = "";
             valueOfVNode = vnode.val(this.$data);
