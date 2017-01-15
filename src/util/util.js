@@ -51,7 +51,7 @@ var createElement = function(type, val, props, children, node) {
 */
 var createVirtualDOM = function(node) {
   var tag = node.nodeName;
-  var content = compileTemplate(node.textContent);
+  var content = tag === "#text" ? compileTemplate(node.textContent) : null;
   var attrs = extractAttrs(node);
 
   var children = [];
