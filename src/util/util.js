@@ -27,10 +27,14 @@ var extractAttrs = function(node) {
   if(!node.attributes) return attrs;
   var rawAttrs = node.attributes;
   for(var i = 0; i < rawAttrs.length; i++) {
-    attrs[rawAttrs[i].name] = compileTemplate(rawAttrs[i].value);
+    var compiledAttr = compileTemplate(rawAttrs[i].value);
+    attrs.attrs[rawAttrs[i].name] = compiledAttr;
+    if(attrs.attrs[rawAttrs[i].name] === compiledAttr) {
+      attrs.shouldRender = true;
+    }
   }
 
-  return attrs;
+  return returned;
 }
 
 /**
