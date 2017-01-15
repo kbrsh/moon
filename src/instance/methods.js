@@ -83,7 +83,7 @@ Moon.prototype.build = function(vdom) {
         }
       }
 
-      this.build(child.childNodes, vnode.children);
+      this.build(vnode.children);
     }
   }
 }
