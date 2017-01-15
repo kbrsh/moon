@@ -63,7 +63,7 @@
     * @return {Object} Node For Virtual DOM
     */
     var createElement = function(type, val, props, children, node) {
-      return {type: type, val: val, props: props, children: children, node:node};
+      return {type: type, val: val, props: props, children: children, node: node};
     }
     
     /**
@@ -73,7 +73,7 @@
     */
     var createVirtualDOM = function(node) {
       var tag = node.nodeName;
-      var content = compileTemplate(node.textContent);
+      var content = tag === "#text" ? compileTemplate(node.textContent) : null;
       var attrs = extractAttrs(node);
     
       var children = [];
@@ -307,7 +307,7 @@
     Moon.prototype.build = function(vdom) {
       for(var i = 0; i < vdom.length; i++) {
         var vnode = vdom[i];
-        if(!vnode.once) {
+        if(!vnode.once && vnode.val) {
           if(vnode.type === "#text") {
             var valueOfVNode = "";
             valueOfVNode = vnode.val(this.$data);
