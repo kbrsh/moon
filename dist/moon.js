@@ -184,7 +184,7 @@
           var evaluated = new Function("return " + val);
           if(!evaluated()) {
             vdom.meta.shouldRender = false;
-            el.textContent = "<!---->";
+            el.innerHTML = "<!---->";
           } else {
             vdom.meta.shouldRender = true;
           }
