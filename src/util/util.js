@@ -55,14 +55,14 @@ var createVirtualDOM = function(node) {
   var attrs = extractAttrs(node);
   var defaultMeta = {
     once: false,
-    shouldRender: true
+    shouldRender: false
   }
   var children = [];
 
   for(var i = 0; i < node.childNodes.length; i++) {
     children.push(createVirtualDOM(node.childNodes[i]));
   }
-  
+
   return createElement(tag, content, attrs, children, defaultMeta, node);
 }
 
