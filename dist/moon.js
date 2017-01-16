@@ -223,7 +223,7 @@
         }
         
         directives[config.prefix + "once"] = function(el, val, vdom) {
-          vdom.meta.once = true;
+          vdom.meta.shouldRender = false;
         }
         
         directives[config.prefix + "text"] = function(el, val, vdom) {
@@ -312,7 +312,7 @@
     Moon.prototype.build = function(vdom) {
       for(var i = 0; i < vdom.length; i++) {
         var vnode = vdom[i];
-        if(vnode.meta.shouldRender && !vnode.meta.once) {
+        if(vnode.meta.shouldRender) {
           if(vnode.type === "#text") {
             var valueOfVNode = "";
             valueOfVNode = vnode.val(this.$data);
