@@ -42,7 +42,7 @@ directives[config.prefix + "for"] = function(el, val, vdom) {
 }
 
 directives[config.prefix + "once"] = function(el, val, vdom) {
-  vdom.meta.once = true;
+  vdom.meta.shouldRender = false;
 }
 
 directives[config.prefix + "text"] = function(el, val, vdom) {
