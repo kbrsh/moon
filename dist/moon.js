@@ -73,7 +73,7 @@
     */
     var createVirtualDOM = function(node) {
       var tag = node.nodeName;
-      var content = node.textContent.trim() !== "" ? compileTemplate(node.textContent) : "";
+      var content = tag === "#text" ? compileTemplate(node.textContent) : node.textContent;
       var attrs = extractAttrs(node);
       var defaultMeta = {
         once: false,

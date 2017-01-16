@@ -2,9 +2,9 @@
 directives[config.prefix + "if"] = function(el, val, vdom) {
   var evaluated = new Function("return " + val);
   if(!evaluated()) {
-    el.textContent = "";
+    vdom.meta.shouldRender = false;
   } else {
-    el.textContent = vdom.val(self.$data);
+    vdom.meta.shouldRender = true;
   }
 }
 
