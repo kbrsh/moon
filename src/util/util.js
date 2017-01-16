@@ -54,7 +54,8 @@ var createVirtualDOM = function(node) {
   var content = compileTemplate(node.textContent);
   var attrs = extractAttrs(node);
   var defaultMeta = {
-    once: false
+    once: false,
+    shouldRender: true
   }
 
   var children = [];
