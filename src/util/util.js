@@ -57,11 +57,12 @@ var createVirtualDOM = function(node) {
     once: false,
     shouldRender: true
   }
-
   var children = [];
+
   for(var i = 0; i < node.childNodes.length; i++) {
     children.push(createVirtualDOM(node.childNodes[i]));
   }
+  
   return createElement(tag, content, attrs, children, defaultMeta, node);
 }
 
