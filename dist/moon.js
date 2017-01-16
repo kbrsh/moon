@@ -73,7 +73,7 @@
     */
     var createVirtualDOM = function(node) {
       var tag = node.nodeName;
-      var content = "";
+      var content = compileTemplate(node.textContent);
       var attrs = extractAttrs(node);
       var defaultMeta = {
         once: false,
@@ -81,11 +81,11 @@
       }
       var children = [];
     
-      if(tag === "#text") {
-        content = compileTemplate(node.textContent);
-      } else {
-        content = node.textContent;
-      }
+      // if(tag === "#text") {
+      //   content = ;
+      // } else {
+      //   content = node.textContent;
+      // }
     
       for(var i = 0; i < node.childNodes.length; i++) {
         children.push(createVirtualDOM(node.childNodes[i]));
