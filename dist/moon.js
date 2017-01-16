@@ -76,7 +76,8 @@
       var content = compileTemplate(node.textContent);
       var attrs = extractAttrs(node);
       var defaultMeta = {
-        once: false
+        once: false,
+        shouldRender: true
       }
     
       var children = [];
@@ -310,7 +311,7 @@
     Moon.prototype.build = function(vdom) {
       for(var i = 0; i < vdom.length; i++) {
         var vnode = vdom[i];
-        if(vnode.shouldRender && !vnode.meta.once) {
+        if(vnode.meta.shouldRender && !vnode.meta.once) {
           if(vnode.type === "#text") {
             var valueOfVNode = "";
             valueOfVNode = vnode.val(this.$data);
