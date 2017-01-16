@@ -62,8 +62,8 @@
     * @param {Object} props
     * @return {Object} Node For Virtual DOM
     */
-    var createElement = function(type, val, props, children, node) {
-      return {type: type, val: val, props: props, children: children, node: node};
+    var createElement = function(type, val, props, children, meta, node) {
+      return {type: type, val: val, props: props, children: children, meta: meta, node: node};
     }
     
     /**
@@ -75,12 +75,15 @@
       var tag = node.nodeName;
       var content = compileTemplate(node.textContent);
       var attrs = extractAttrs(node);
+      var defaultMeta = {
+        once: false
+      }
     
       var children = [];
       for(var i = 0; i < node.childNodes.length; i++) {
         children.push(createVirtualDOM(node.childNodes[i]));
       }
-      return createElement(tag, content, attrs, children, node);
+      return createElement(tag, content, attrs, children, defaultMeta, node);
     }
     
     /**
@@ -218,7 +221,7 @@
         }
         
         directives[config.prefix + "once"] = function(el, val, vdom) {
-          vdom.once = true;
+          vdom.meta.once = true;
         }
         
         directives[config.prefix + "text"] = function(el, val, vdom) {
@@ -307,7 +310,7 @@
     Moon.prototype.build = function(vdom) {
       for(var i = 0; i < vdom.length; i++) {
         var vnode = vdom[i];
-        if(!vnode.once) {
+        if(vnode.shouldRender && !vnode.meta.once) {
           if(vnode.type === "#text") {
             var valueOfVNode = "";
             valueOfVNode = vnode.val(this.$data);
