@@ -67,7 +67,7 @@ Moon.prototype.destroy = function() {
 Moon.prototype.build = function(vdom) {
   for(var i = 0; i < vdom.length; i++) {
     var vnode = vdom[i];
-    if(vnode.meta.shouldRender && !vnode.meta.once) {
+    if(vnode.meta.shouldRender) {
       if(vnode.type === "#text") {
         var valueOfVNode = "";
         valueOfVNode = vnode.val(this.$data);
