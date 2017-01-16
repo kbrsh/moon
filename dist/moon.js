@@ -73,19 +73,13 @@
     */
     var createVirtualDOM = function(node) {
       var tag = node.nodeName;
-      var content = compileTemplate(node.textContent);
+      var content = node.textContent.trim() !== "" ? compileTemplate(node.textContent) : "";
       var attrs = extractAttrs(node);
       var defaultMeta = {
         once: false,
         shouldRender: true
       }
       var children = [];
-    
-      // if(tag === "#text") {
-      //   content = ;
-      // } else {
-      //   content = node.textContent;
-      // }
     
       for(var i = 0; i < node.childNodes.length; i++) {
         children.push(createVirtualDOM(node.childNodes[i]));
