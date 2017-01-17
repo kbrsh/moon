@@ -53,7 +53,12 @@ Moon.prototype.callMethod = function(method, args) {
 * @param {Object} meta
 */
 Moon.prototype.emit = function(eventName, meta) {
-  
+  meta.type = eventName;
+
+  for(var i = 0; i < this.$events[eventName].length; i++) {
+    var handler = this.$events[eventName][i];
+    handler(meta);
+  }
 }
 
 /**
