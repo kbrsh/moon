@@ -56,7 +56,7 @@ Moon.prototype.on = function(eventName, action) {
   if(this.$events[eventName]) {
     this.$events[eventName].push(action);
   } else {
-    this.$events[eventName] = [];
+    this.$events[eventName] = [action];
   }
 }
 
