@@ -183,9 +183,15 @@
         directives[config.prefix + "if"] = function(el, val, vdom) {
           var evaluated = new Function("return " + val);
           if(!evaluated()) {
-            el.outerHTML = "<!---->";
+            el.textContent = "<!---->";
+            for(var i = 0; i < vdom.children.length; i++) {
+              vdom.children[i].shouldRender = false;
+            }
           } else {
             el.textContent = vdom.val;
+            for(var i = 0; i < vdom.children.length; i++) {
+              vdom.children[i].shouldRender = false;
+            }
           }
         }
         
