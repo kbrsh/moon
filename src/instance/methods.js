@@ -61,6 +61,18 @@ Moon.prototype.on = function(eventName, action) {
 }
 
 /**
+* Removes an Event Listener
+* @param {String} eventName
+* @param {Function} action
+*/
+Moon.prototype.off = function(eventName, action) {
+  var index = this.$events[eventName].indexOf(action);
+  if(index !== -1) {
+    this.$events[eventName].splice(index, 1);
+  }
+}
+
+/**
 * Emits an Event
 * @param {String} eventName
 * @param {Object} meta
