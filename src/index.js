@@ -10,7 +10,6 @@
     }
     var directives = {};
     var components = {};
-    var events = {};
     var id = 0;
 
     //=require util/util.js
@@ -35,6 +34,7 @@
         this.$methods = this.$opts.methods || {};
         this.$components = merge(this.$opts.components || {}, components);
         this.$directives = merge(this.$opts.directives || {}, directives);
+        this.$events = {};
         this.$dom = {};
         this.$destroyed = false;
 
