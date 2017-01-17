@@ -164,6 +164,7 @@
         this.$methods = this.$opts.methods || {};
         this.$components = merge(this.$opts.components || {}, components);
         this.$directives = merge(this.$opts.directives || {}, directives);
+        this.$events = {};
         this.$dom = {};
         this.$destroyed = false;
 
@@ -208,9 +209,13 @@
           var splitVal = val.split(":");
           var eventToCall = splitVal[0];
           var methodToCall = splitVal[1];
-          el.addEventListener(eventToCall, function(e) {
-            self.callMethod(methodToCall, [e]);
-          });
+          if(self.$events[eventToCall]) {
+            self.emit(eventToCall);
+          } else {
+            el.addEventListener(eventToCall, function(e) {
+              self.callMethod(methodToCall, [e]);
+            });
+          }
           delete vdom.props[config.prefix + "on"];
         }
         
@@ -296,6 +301,45 @@
     Moon.prototype.callMethod = function(method, args) {
       args = args || [];
       this.$methods[method].apply(this, args);
+    }
+    
+    /**
+    * Attaches an Event Listener
+    * @param {String} eventName
+    * @param {Function} action
+    */
+    Moon.prototype.on = function(eventName, action) {
+      if(this.$events[eventName]) {
+        this.$events[eventName].push(action);
+      } else {
+        this.$events[eventName] = [];
+      }
+    }
+    
+    /**
+    * Removes an Event Listener
+    * @param {String} eventName
+    * @param {Function} action
+    */
+    Moon.prototype.off = function(eventName, action) {
+      var index = this.$events[eventName].indexOf(action);
+      if(index !== -1) {
+        this.$events[eventName].splice(index, 1);
+      }
+    }
+    
+    /**
+    * Emits an Event
+    * @param {String} eventName
+    * @param {Object} meta
+    */
+    Moon.prototype.emit = function(eventName, meta) {
+      meta.type = eventName;
+    
+      for(var i = 0; i < this.$events[eventName].length; i++) {
+        var handler = this.$events[eventName][i];
+        handler(meta);
+      }
     }
     
     /**
