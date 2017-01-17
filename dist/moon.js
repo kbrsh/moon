@@ -303,6 +303,8 @@
       this.$methods[method].apply(this, args);
     }
     
+    // Event Emitter, adapted from https://github.com/KingPixil/voke
+    
     /**
     * Attaches an Event Listener
     * @param {String} eventName
@@ -336,6 +338,13 @@
     Moon.prototype.emit = function(eventName, meta) {
       meta = meta || {};
       meta.type = eventName;
+    
+      if(this.$events["*"]) {
+        for(var i = 0; i < this.$events["*"].length; i++) {
+          var globalHandler = this.$events["*"][i];
+          globalHandler(meta);
+        }
+      }
     
       for(var i = 0; i < this.$events[eventName].length; i++) {
         var handler = this.$events[eventName][i];
