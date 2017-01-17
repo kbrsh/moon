@@ -48,6 +48,15 @@ Moon.prototype.callMethod = function(method, args) {
 }
 
 /**
+* Emits an Event
+* @param {String} eventName
+* @param {Object} meta
+*/
+Moon.prototype.emit = function(eventName, meta) {
+  
+}
+
+/**
 * Destroys Moon Instance
 */
 Moon.prototype.destroy = function() {
