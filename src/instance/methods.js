@@ -53,7 +53,11 @@ Moon.prototype.callMethod = function(method, args) {
 * @param {Function} action
 */
 Moon.prototype.on = function(eventName, action) {
-  this.$events[eventName] = action;
+  if(this.$events[eventName]) {
+    this.$events[eventName].push(action);
+  } else {
+    this.$events[eventName] = [];
+  }
 }
 
 /**
