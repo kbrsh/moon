@@ -48,6 +48,15 @@ Moon.prototype.callMethod = function(method, args) {
 }
 
 /**
+* Attaches an Event Listener
+* @param {String} eventName
+* @param {Function} action
+*/
+Moon.prototype.on = function(eventName, action) {
+  this.$events[eventName] = action;
+}
+
+/**
 * Emits an Event
 * @param {String} eventName
 * @param {Object} meta
