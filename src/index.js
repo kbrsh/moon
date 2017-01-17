@@ -10,6 +10,7 @@
     }
     var directives = {};
     var components = {};
+    var events = {};
     var id = 0;
 
     //=require util/util.js
