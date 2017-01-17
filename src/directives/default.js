@@ -28,7 +28,7 @@ directives[config.prefix + "on"] = function(el, val, vdom) {
   var eventToCall = splitVal[0];
   var methodToCall = splitVal[1];
   if(self.$events[eventToCall]) {
-    self.emit(eventToCall);
+    self.on(eventToCall, methodToCall);
   } else {
     el.addEventListener(eventToCall, function(e) {
       self.callMethod(methodToCall, [e]);
