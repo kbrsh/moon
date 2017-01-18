@@ -354,7 +354,7 @@
       if(!this.$el) {
         this.error("Element " + this.$opts.el + " not found");
       }
-      
+    
       this.$template = this.$opts.template || this.$el.innerHTML;
     
       setInitialElementValue(this.$el, this.$template);
@@ -414,8 +414,8 @@
       this.log("======= Moon =======");
       this.$hooks.created();
     
-      if(this.opts.el) {
-        this.mount(this.$el);
+      if(this.$opts.el) {
+        this.mount(this.$opts.el);
       }
     }
     
