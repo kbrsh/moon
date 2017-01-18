@@ -2,14 +2,13 @@
 directives[config.prefix + "if"] = function(el, val, vdom) {
   var evaluated = new Function("return " + val);
   if(!evaluated()) {
-    el.textContent = "";
     for(var i = 0; i < vdom.children.length; i++) {
-      vdom.children[i].shouldRender = false;
+      vdom.children[i].node.textContent = "";
+      vdom.children[i].meta.shouldRender = false;
     }
   } else {
-    el.textContent = vdom.val;
     for(var i = 0; i < vdom.children.length; i++) {
-      vdom.children[i].shouldRender = true;
+      vdom.children[i].meta.shouldRender = true;
     }
   }
 }
