@@ -79,7 +79,7 @@ Moon.prototype.off = function(eventName, action) {
 * @param {String} eventName
 * @param {Function} action
 */
-Moon.prototype.teardownEvents = function() {
+Moon.prototype.removeEvents = function() {
   for(var evt in this.$events) {
     this.$events[evt] = [];
   }
