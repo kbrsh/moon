@@ -75,6 +75,17 @@ Moon.prototype.off = function(eventName, action) {
 }
 
 /**
+* Removes All Event Listeners
+* @param {String} eventName
+* @param {Function} action
+*/
+Moon.prototype.teardownEvents = function() {
+  for(var evt in this.$events) {
+    this.$events[evt] = [];
+  }
+}
+
+/**
 * Emits an Event
 * @param {String} eventName
 * @param {Object} meta
