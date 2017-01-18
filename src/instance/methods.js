@@ -19,6 +19,15 @@ Moon.prototype.error = function(msg) {
 }
 
 /**
+* Gets Value in Data
+* @param {String} key
+* @return {String} Value of key in data
+*/
+Moon.prototype.get = function(key) {
+  return this.$data[key];
+}
+
+/**
 * Sets Value in Data
 * @param {String} key
 * @param {String} val
@@ -27,15 +36,6 @@ Moon.prototype.set = function(key, val) {
   this.$data[key] = val;
   if(!this.$destroyed) this.build(this.$dom.children);
   this.$hooks.updated();
-}
-
-/**
-* Gets Value in Data
-* @param {String} key
-* @return {String} Value of key in data
-*/
-Moon.prototype.get = function(key) {
-  return this.$data[key];
 }
 
 /**
