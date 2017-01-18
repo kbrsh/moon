@@ -97,6 +97,26 @@ Moon.prototype.emit = function(eventName, meta) {
 }
 
 /**
+* Mounts Moon Element
+*/
+Moon.prototype.mount = function(el) {
+  this.$el = document.querySelector(el);
+
+  if(!this.$el) {
+    this.error("Element " + this.$opts.el + " not found");
+  }
+  
+  this.$template = this.$opts.template || this.$el.innerHTML;
+
+  setInitialElementValue(this.$el, this.$template);
+
+  this.$dom = createVirtualDOM(this.$el);
+
+  this.build(this.$dom.children);
+  this.$hooks.mounted();
+}
+
+/**
 * Destroys Moon Instance
 */
 Moon.prototype.destroy = function() {
@@ -145,10 +165,7 @@ Moon.prototype.init = function() {
   this.log("======= Moon =======");
   this.$hooks.created();
 
-  setInitialElementValue(this.$el, this.$template);
-
-  this.$dom = createVirtualDOM(this.$el);
-
-  this.build(this.$dom.children);
-  this.$hooks.mounted();
+  if(this.opts.el) {
+    this.mount(this.$el);
+  }
 }
