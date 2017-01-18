@@ -152,13 +152,7 @@
         var _data = this.$opts.data;
 
         this.$id = id++;
-        this.$el = document.querySelector(this.$opts.el);
 
-        if(!this.$el) {
-          this.error("Element " + this.$opts.el + " not found");
-        }
-
-        this.$template = this.$opts.template || this.$el.innerHTML;
         this.$render = this.$opts.render || noop;
         this.$hooks = merge({created: noop, mounted: noop, updated: noop, destroyed: noop}, this.$opts.hooks);
         this.$methods = this.$opts.methods || {};
@@ -274,6 +268,15 @@
     }
     
     /**
+    * Gets Value in Data
+    * @param {String} key
+    * @return {String} Value of key in data
+    */
+    Moon.prototype.get = function(key) {
+      return this.$data[key];
+    }
+    
+    /**
     * Sets Value in Data
     * @param {String} key
     * @param {String} val
@@ -282,15 +285,6 @@
       this.$data[key] = val;
       if(!this.$destroyed) this.build(this.$dom.children);
       this.$hooks.updated();
-    }
-    
-    /**
-    * Gets Value in Data
-    * @param {String} key
-    * @return {String} Value of key in data
-    */
-    Moon.prototype.get = function(key) {
-      return this.$data[key];
     }
     
     /**
@@ -352,6 +346,26 @@
     }
     
     /**
+    * Mounts Moon Element
+    */
+    Moon.prototype.mount = function(el) {
+      this.$el = document.querySelector(el);
+    
+      if(!this.$el) {
+        this.error("Element " + this.$opts.el + " not found");
+      }
+      
+      this.$template = this.$opts.template || this.$el.innerHTML;
+    
+      setInitialElementValue(this.$el, this.$template);
+    
+      this.$dom = createVirtualDOM(this.$el);
+    
+      this.build(this.$dom.children);
+      this.$hooks.mounted();
+    }
+    
+    /**
     * Destroys Moon Instance
     */
     Moon.prototype.destroy = function() {
@@ -400,12 +414,9 @@
       this.log("======= Moon =======");
       this.$hooks.created();
     
-      setInitialElementValue(this.$el, this.$template);
-    
-      this.$dom = createVirtualDOM(this.$el);
-    
-      this.build(this.$dom.children);
-      this.$hooks.mounted();
+      if(this.opts.el) {
+        this.mount(this.$el);
+      }
     }
     
 
