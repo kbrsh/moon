@@ -9,7 +9,7 @@ directives[config.prefix + "if"] = function(el, val, vdom) {
   } else {
     el.textContent = vdom.val;
     for(var i = 0; i < vdom.children.length; i++) {
-      vdom.children[i].shouldRender = false;
+      vdom.children[i].shouldRender = true;
     }
   }
 }
