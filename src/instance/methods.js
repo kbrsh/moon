@@ -136,6 +136,7 @@ Moon.prototype.destroy = function() {
       _data = value;
     }
   });
+  this.removeEvents();
   this.$destroyed = true;
   this.$hooks.destroyed();
 }
