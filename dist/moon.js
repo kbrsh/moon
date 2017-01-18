@@ -324,6 +324,17 @@
     }
     
     /**
+    * Removes All Event Listeners
+    * @param {String} eventName
+    * @param {Function} action
+    */
+    Moon.prototype.removeEvents = function() {
+      for(var evt in this.$events) {
+        this.$events[evt] = [];
+      }
+    }
+    
+    /**
     * Emits an Event
     * @param {String} eventName
     * @param {Object} meta
@@ -374,6 +385,7 @@
           _data = value;
         }
       });
+      this.removeEvents();
       this.$destroyed = true;
       this.$hooks.destroyed();
     }
