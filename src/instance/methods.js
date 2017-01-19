@@ -143,12 +143,16 @@ Moon.prototype.destroy = function() {
 
 /**
 * Builds the DOM With Data
-* @param {Array} children
+* @param {Array} vdom
 */
 Moon.prototype.build = function(vdom) {
   this.buildNodes(vdom);
 }
 
+/**
+* Builds Nodes With Data
+* @param {Array} vdom
+*/
 Moon.prototype.buildNodes = function(vdom) {
   for(var i = 0; i < vdom.length; i++) {
     var vnode = vdom[i];
