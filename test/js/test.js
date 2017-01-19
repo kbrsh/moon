@@ -2,42 +2,42 @@ var expect = chai.expect;
 Moon.config({
   silent: true
 });
-// var MoonPerformance = {
-//   init: function() {
-//     var MoonBuild = Moon.prototype.build;
-//     var MoonInit = Moon.prototype.init;
-//
-//     var formatNum = function(num) {
-//       if(num >= 0.5) {
-//       	return num.toFixed(2) + 'ms'
-//       } else {
-//       	return num.toFixed(2)*1000 + "µs";
-//       }
-//     }
-//
-//     Moon.prototype.init = function() {
-//       var id = this.$opts.el + "@init";
-//       performance.mark("start " + id);
-//       MoonInit.apply(this, arguments);
-//       performance.mark("end " + id);
-//       performance.measure(id, "start " + id, "end " + id);
-//       var entries = performance.getEntriesByName(id);
-//       console.log("[Moon Performance] " + id + " - " + formatNum(entries[entries.length - 1].duration));
-//     }
-//
-//     Moon.prototype.build = function() {
-//       var id = this.$opts.el + "@init";
-//       performance.mark("start " + id);
-//       MoonBuild.apply(this, arguments);
-//       performance.mark("end " + id);
-//       performance.measure(id, "start " + id, "end " + id);
-//       var entries = performance.getEntriesByName(id);
-//       console.log("[Moon Performance] " + id + " - " + formatNum(entries[entries.length - 1].duration));
-//     }
-//   }
-// }
-//
-// Moon.use(MoonPerformance);
+var MoonPerformance = {
+  init: function() {
+    var MoonBuild = Moon.prototype.build;
+    var MoonInit = Moon.prototype.init;
+
+    var formatNum = function(num) {
+      if(num >= 0.5) {
+      	return num.toFixed(2) + 'ms'
+      } else {
+      	return num.toFixed(2)*1000 + "µs";
+      }
+    }
+
+    Moon.prototype.init = function() {
+      var id = this.$opts.el + "@init";
+      performance.mark("start " + id);
+      MoonInit.apply(this, arguments);
+      performance.mark("end " + id);
+      performance.measure(id, "start " + id, "end " + id);
+      var entries = performance.getEntriesByName(id);
+      console.log("[Moon Performance] " + id + " - " + formatNum(entries[entries.length - 1].duration));
+    }
+
+    Moon.prototype.build = function() {
+      var id = this.$opts.el + "@build";
+      performance.mark("start " + id);
+      MoonBuild.apply(this, arguments);
+      performance.mark("end " + id);
+      performance.measure(id, "start " + id, "end " + id);
+      var entries = performance.getEntriesByName(id);
+      console.log("[Moon Performance] " + id + " - " + formatNum(entries[entries.length - 1].duration));
+    }
+  }
+}
+
+Moon.use(MoonPerformance);
 
 
 describe('Initializing', function() {
