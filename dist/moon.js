@@ -370,10 +370,21 @@
     
       setInitialElementValue(this.$el, this.$template);
     
-      this.$dom = createVirtualDOM(this.$el);
+      this.$dom = this.render();
     
       this.build(this.$dom.children);
       this.$hooks.mounted();
+    }
+    
+    /**
+    * Renders Virtual DOM
+    */
+    Moon.prototype.render = function() {
+      if(this.$opts.render) {
+        return this.$opts.render(h);
+      } else {
+        return createVirtualDOM(this.$el);
+      }
     }
     
     /**
@@ -392,12 +403,17 @@
     
     /**
     * Builds the DOM With Data
-    * @param {Array} children
+    * @param {Array} vdom
     */
     Moon.prototype.build = function(vdom) {
+      //this.render();
       this.buildNodes(vdom);
     }
     
+    /**
+    * Builds Nodes With Data
+    * @param {Array} vdom
+    */
     Moon.prototype.buildNodes = function(vdom) {
       for(var i = 0; i < vdom.length; i++) {
         var vnode = vdom[i];
