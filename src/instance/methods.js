@@ -121,10 +121,21 @@ Moon.prototype.mount = function(el) {
 
   setInitialElementValue(this.$el, this.$template);
 
-  this.$dom = createVirtualDOM(this.$el);
+  this.$dom = this.render();
 
   this.build(this.$dom.children);
   this.$hooks.mounted();
+}
+
+/**
+* Renders Virtual DOM
+*/
+Moon.prototype.render = function() {
+  if(this.$opts.render) {
+    return this.$opts.render(h);
+  } else {
+    return createVirtualDOM(this.$el);
+  }
 }
 
 /**
@@ -146,6 +157,7 @@ Moon.prototype.destroy = function() {
 * @param {Array} vdom
 */
 Moon.prototype.build = function(vdom) {
+  //this.render();
   this.buildNodes(vdom);
 }
 
