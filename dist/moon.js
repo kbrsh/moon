@@ -421,7 +421,9 @@
           if(vnode.type === "#text") {
             var valueOfVNode = "";
             valueOfVNode = vnode.val(this.$data);
-            if(vnode.node.textContent === valueOfVNode) vnode.meta.shouldRender = false;
+            if(vnode.node.textContent === valueOfVNode) {
+              vnode.meta.shouldRender = false;
+            }
             vnode.node.textContent = valueOfVNode;
           } else if(vnode.props) {
             for(var attr in vnode.props) {
