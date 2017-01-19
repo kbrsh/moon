@@ -34,10 +34,10 @@ Moon.prototype.get = function(key) {
 */
 Moon.prototype.set = function(key, val) {
   setTimeout(function() {
-    self.$data[key] = val;
-    if(!this.$destroyed) self.build(self.$dom.children);
-    self.$hooks.updated();
-  }, 0);
+    this.$data[key] = val;
+    if(!this.$destroyed) this.build(this.$dom.children);
+    this.$hooks.updated();
+  }.bind(this), 0);
 }
 
 /**
