@@ -282,11 +282,9 @@
     * @param {String} val
     */
     Moon.prototype.set = function(key, val) {
-      setTimeout(function() {
-        this.$data[key] = val;
-        if(!this.$destroyed) this.build(this.$dom.children);
-        this.$hooks.updated();
-      }.bind(this), 0);
+      this.$data[key] = val;
+      if(!this.$destroyed) this.build(this.$dom.children);
+      this.$hooks.updated();
     }
     
     /**
