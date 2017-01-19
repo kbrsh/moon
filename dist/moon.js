@@ -283,7 +283,7 @@
     */
     Moon.prototype.set = function(key, val) {
       this.$data[key] = val;
-      if(!this.$destroyed) this.build(this.$dom.children);
+      if(!this.$destroyed) setTimeout(this.build(this.$dom.children), 0);
       this.$hooks.updated();
     }
     
