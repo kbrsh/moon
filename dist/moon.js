@@ -437,7 +437,7 @@
             }
           }
     
-          this.build(vnode.children);
+          this.buildNodes(vnode.children);
         }
       }
     }
