@@ -1,7 +1,7 @@
 var expect = chai.expect;
 Moon.config({
   silent: true
-})
+});
 // var MoonPerformance = {
 //   init: function() {
 //     var MoonBuild = Moon.prototype.build;
@@ -16,7 +16,7 @@ Moon.config({
 //     }
 //
 //     Moon.prototype.init = function() {
-//       var id = "root@init";
+//       var id = this.$opts.el + "@init";
 //       performance.mark("start " + id);
 //       MoonInit.apply(this, arguments);
 //       performance.mark("end " + id);
@@ -26,7 +26,7 @@ Moon.config({
 //     }
 //
 //     Moon.prototype.build = function() {
-//       var id = "root@build";
+//       var id = this.$opts.el + "@init";
 //       performance.mark("start " + id);
 //       MoonBuild.apply(this, arguments);
 //       performance.mark("end " + id);
