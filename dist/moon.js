@@ -282,7 +282,7 @@
     * @param {String} val
     */
     Moon.prototype.set = function(key, val) {
-      setInterval(function() {
+      setTimeout(function() {
         this.$data[key] = val;
         if(!this.$destroyed) this.build(this.$dom.children);
         this.$hooks.updated();
