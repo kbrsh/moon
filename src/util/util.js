@@ -35,9 +35,12 @@ var extractAttrs = function(node) {
 /**
 * Creates a Virtual DOM Node
 * @param {String} type
-* @param {Array} children
+* @param {Function} val
 * @param {Object} props
-* @return {Object} Node For Virtual DOM
+* @param {Array} children
+* @param {Object} meta
+* @param {Node} node
+* @return {Object} Virtual DOM Node
 */
 var createElement = function(type, val, props, children, meta, node) {
   return {
