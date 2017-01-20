@@ -106,7 +106,7 @@
     var renderVirtualDOM = function(vdom, data) {
       for(var i = 0; i < vdom.children.length; i++) {
         var child = vdom.children[i];
-        child.compiled = compileTemplate(children.val)(data);
+        child.compiled = compileTemplate(child.val)(data);
         if(child.children) {
           child.children = renderVirtualDOM(child.children);
         }
