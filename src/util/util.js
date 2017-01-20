@@ -75,7 +75,7 @@ var createElement = function(type, val, props, children, meta, node) {
     compiledProps: props,
     children: children,
     meta: meta,
-    node: {}
+    node: false
   };
 }
 
