@@ -89,6 +89,11 @@ var renderVirtualDOM = function(vdom, data) {
     if(child.compiled === child.val) {
       child.meta.shouldRender = false;
     }
+    if(child.props) {
+      for(var prop in child.props) {
+        child.props[prop] = compileTemplate(child.props[prop])(data);
+      }
+    }
     if(child.children) {
       child.children = renderVirtualDOM(child);
     }
