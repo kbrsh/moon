@@ -85,7 +85,6 @@
       var content = tag === "#text" ? compileTemplate(node.textContent) : node.textContent;
       var attrs = extractAttrs(node);
       var defaultMeta = {
-        once: false,
         shouldRender: true
       }
       var children = [];
@@ -95,6 +94,15 @@
       }
     
       return createElement(tag, content, attrs, children, defaultMeta, node);
+    }
+    
+    /**
+    * Renders Virtual DOM
+    * @param {Object} vdom
+    * @return {Object} Rendered Virtual DOM
+    */
+    var renderVirtualDOM = function(vdom) {
+      return vdom;
     }
     
     /**
@@ -380,7 +388,11 @@
     
       setInitialElementValue(this.$el, this.$template);
     
-      this.$dom = this.render();
+      if(this.$opts.render) {
+        this.$dom = this.$opts.render(h);
+      } else {
+        this.$dom = createVirtualDOM(this.$el);
+      }
     
       this.build(this.$dom.children);
       this.$hooks.mounted();
@@ -394,7 +406,7 @@
       if(this.$opts.render) {
         return this.$opts.render(h);
       } else {
-        return createVirtualDOM(this.$el);
+        return renderVirtualDOM(this.$dom);
       }
     }
     
