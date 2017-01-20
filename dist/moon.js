@@ -57,7 +57,7 @@
     /**
     * Creates a Virtual DOM Node
     * @param {String} type
-    * @param {Function} val
+    * @param {String} val
     * @param {Object} props
     * @param {Array} children
     * @param {Object} meta
@@ -68,6 +68,7 @@
       return {
         type: type,
         val: val,
+        compiled: val,
         props: props,
         children: children,
         meta: meta,
@@ -82,7 +83,7 @@
     */
     var createVirtualDOM = function(node) {
       var tag = node.nodeName;
-      var content = tag === "#text" ? compileTemplate(node.textContent) : node.textContent;
+      var content = node.textContent;
       var attrs = extractAttrs(node);
       var defaultMeta = {
         shouldRender: true
@@ -99,9 +100,17 @@
     /**
     * Renders Virtual DOM
     * @param {Object} vdom
+    * @param {Object} data
     * @return {Object} Rendered Virtual DOM
     */
-    var renderVirtualDOM = function(vdom) {
+    var renderVirtualDOM = function(vdom, data) {
+      for(var i = 0; i < vdom.children.length; i++) {
+        var child = vdom.children[i];
+        child.compiled = compileTemplate(children.val)(data);
+        if(child.children) {
+          child.children = renderVirtualDOM(child.children);
+        }
+      }
       return vdom;
     }
     
@@ -300,7 +309,7 @@
     */
     Moon.prototype.set = function(key, val) {
       this.$data[key] = val;
-      if(!this.$destroyed) this.build(this.$dom.children);
+      if(!this.$destroyed) this.build(this.$dom);
       this.$hooks.updated();
     }
     
@@ -394,7 +403,7 @@
         this.$dom = createVirtualDOM(this.$el);
       }
     
-      this.build(this.$dom.children);
+      this.build(this.$dom);
       this.$hooks.mounted();
     }
     
@@ -406,7 +415,7 @@
       if(this.$opts.render) {
         return this.$opts.render(h);
       } else {
-        return renderVirtualDOM(this.$dom);
+        return renderVirtualDOM(this.$dom, this.$data);
       }
     }
     
@@ -429,7 +438,7 @@
     * @param {Array} vdom
     */
     Moon.prototype.build = function(vdom) {
-      //this.render();
+      this.$dom = this.render();
       this.buildNodes(vdom);
     }
     
@@ -438,8 +447,8 @@
     * @param {Array} vdom
     */
     Moon.prototype.buildNodes = function(vdom) {
-      for(var i = 0; i < vdom.length; i++) {
-        var vnode = vdom[i];
+      for(var i = 0; i < vdom.children.length; i++) {
+        var vnode = vdom.children[i];
         if(vnode.meta.shouldRender) {
           if(vnode.type === "#text") {
             var valueOfVNode = "";
