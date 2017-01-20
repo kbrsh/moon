@@ -475,12 +475,7 @@
         var vnode = vdom.children[i];
         if(vnode.meta.shouldRender) {
           if(vnode.type === "#text") {
-            var valueOfVNode = "";
-            valueOfVNode = vnode.compiled;
-            if(valueOfVNode === vnode.val) {
-              vnode.meta.shouldRender = false;
-            }
-            vnode.node.textContent = valueOfVNode;
+            vnode.node.textContent = vnode.compiled;
           } else if(vnode.props) {
             for(var attr in vnode.compiledProps) {
               var compiledProp = vnode.compiledProps[attr];
