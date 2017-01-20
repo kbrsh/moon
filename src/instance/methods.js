@@ -191,7 +191,7 @@ Moon.prototype.buildNodes = function(vdom) {
         }
       }
 
-      this.buildNodes(vnode.children);
+      this.buildNodes(vnode);
     }
   }
 }
