@@ -75,7 +75,7 @@ var createElement = function(type, val, props, children, meta, node) {
     compiledProps: props,
     children: children,
     meta: meta,
-    node: node
+    node: {}
   };
 }
 
@@ -94,7 +94,7 @@ var createVirtualDOM = function(node) {
     children.push(createVirtualDOM(node.childNodes[i]));
   }
 
-  return createElement(tag, content, attrs, children, defaultMeta(), node);
+  return createElement(tag, content, attrs, children, defaultMeta());
 }
 
 /**
