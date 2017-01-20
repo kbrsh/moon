@@ -179,7 +179,7 @@ Moon.prototype.buildNodes = function(vdom, childNodes, parent) {
     if(!vnode.node) {
       var node = childNode.cloneNode(true);
       parent.replaceChild(node, childNode);
-      vnod.node = node;
+      vnode.node = node;
     }
     // Check if Moon should render this VNode
     if(vnode.meta.shouldRender) {
