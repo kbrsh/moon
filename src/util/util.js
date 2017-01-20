@@ -81,7 +81,9 @@ var createVirtualDOM = function(node) {
 * @return {Object} Rendered Virtual DOM
 */
 var renderVirtualDOM = function(vdom) {
-
+  for(var i = 0; i < vdom.children.length; i++) {
+    
+  }
   return vdom;
 }
 
