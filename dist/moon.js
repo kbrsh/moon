@@ -108,7 +108,7 @@
         var child = vdom.children[i];
         child.compiled = compileTemplate(child.val)(data);
         if(child.children) {
-          child.children = renderVirtualDOM(child.children);
+          child.children = renderVirtualDOM(child);
         }
       }
       return vdom;
@@ -452,14 +452,14 @@
         if(vnode.meta.shouldRender) {
           if(vnode.type === "#text") {
             var valueOfVNode = "";
-            valueOfVNode = vnode.val(this.$data);
+            valueOfVNode = vnode.compiled;
             if(vnode.node.textContent === valueOfVNode) {
               vnode.meta.shouldRender = false;
             }
             vnode.node.textContent = valueOfVNode;
           } else if(vnode.props) {
             for(var attr in vnode.props) {
-              var compiledProp = vnode.props[attr](this.$data);
+              var compiledProp = vnode.props[attr];
               if(directives[attr]) {
                 vnode.node.removeAttribute(attr);
                 directives[attr](vnode.node, compiledProp, vnode);
