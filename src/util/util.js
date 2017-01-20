@@ -91,7 +91,7 @@ var renderVirtualDOM = function(vdom, data) {
     }
     if(child.props) {
       for(var prop in child.props) {
-        child.props[prop] = compileTemplate(child.props[prop])(data);
+        child.compiledProps[prop] = compileTemplate(child.props[prop])(data);
       }
     }
     if(child.children) {
