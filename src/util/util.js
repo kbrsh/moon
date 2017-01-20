@@ -74,7 +74,14 @@ var createVirtualDOM = function(node) {
   return createElement(tag, content, attrs, children, defaultMeta, node);
 }
 
-
+/**
+* Renders Virtual DOM
+* @param {Object} vdom
+* @return {Object} Rendered Virtual DOM
+*/
+var renderVirtualDOM = function(vdom) {
+  return vdom;
+}
 
 /**
 * Gets Root Element
