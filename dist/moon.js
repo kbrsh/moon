@@ -117,7 +117,7 @@
           }
         }
         if(child.children) {
-          child.children = renderVirtualDOM(child);
+          child.children = renderVirtualDOM(child, data);
         }
       }
       return vdom;
