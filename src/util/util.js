@@ -1,7 +1,13 @@
 /* ======= Global Utilities ======= */
 
-var defaultMeta = {
-  shouldRender: true
+/**
+* Creates Default Metadata
+* @return {Object} Metadata
+*/
+var defaultMeta = function() {
+  return {
+    shouldRender: true
+  }
 }
 
 /**
@@ -88,7 +94,7 @@ var createVirtualDOM = function(node) {
     children.push(createVirtualDOM(node.childNodes[i]));
   }
 
-  return createElement(tag, content, attrs, children, defaultMeta, node);
+  return createElement(tag, content, attrs, children, defaultMeta(), node);
 }
 
 /**
@@ -154,9 +160,9 @@ var h = function() {
   var attrs = args.shift() || {};
   var children = args;
   if(typeof children[0] === "string") {
-    children[0] = createElement("#text", children[0], null, null, defaultMeta, null)
+    children[0] = createElement("#text", children[0], null, null, defaultMeta(), null)
   }
-  return createElement(tag, children.join(""), attrs, children, defaultMeta, null);
+  return createElement(tag, children.join(""), attrs, children, defaultMeta(), null);
 };
 
 /**
