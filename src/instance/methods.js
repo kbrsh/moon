@@ -172,8 +172,8 @@ Moon.prototype.build = function(vdom) {
 * @param {Array} vdom
 */
 Moon.prototype.buildNodes = function(vdom) {
-  for(var i = 0; i < vdom.length; i++) {
-    var vnode = vdom[i];
+  for(var i = 0; i < vdom.children.length; i++) {
+    var vnode = vdom.children[i];
     if(vnode.meta.shouldRender) {
       if(vnode.type === "#text") {
         var valueOfVNode = "";
