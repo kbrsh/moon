@@ -460,7 +460,7 @@
             var valueOfVNode = "";
             valueOfVNode = vnode.compiled;
             if(valueOfVNode === vnode.val) {
-              child.meta.shouldRender = false;
+              vnode.meta.shouldRender = false;
             }
             vnode.node.textContent = valueOfVNode;
           } else if(vnode.props) {
