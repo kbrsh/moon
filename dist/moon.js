@@ -25,8 +25,7 @@
     /**
     * Compiles a template with given data
     * @param {String} template
-    * @param {Object} data
-    * @return {String} Template with data rendered
+    * @return {String} Template Render Function
     */
     var compileTemplate = function(template) {
       var code = template;
@@ -58,12 +57,22 @@
     /**
     * Creates a Virtual DOM Node
     * @param {String} type
-    * @param {Array} children
+    * @param {Function} val
     * @param {Object} props
-    * @return {Object} Node For Virtual DOM
+    * @param {Array} children
+    * @param {Object} meta
+    * @param {Node} node
+    * @return {Object} Virtual DOM Node
     */
     var createElement = function(type, val, props, children, meta, node) {
-      return {type: type, val: val, props: props, children: children, meta: meta, node: node};
+      return {
+        type: type,
+        val: val,
+        props: props,
+        children: children,
+        meta: meta,
+        node: node
+      };
     }
     
     /**
@@ -358,6 +367,7 @@
     
     /**
     * Mounts Moon Element
+    * @param {Node} el
     */
     Moon.prototype.mount = function(el) {
       this.$el = document.querySelector(el);
@@ -378,6 +388,7 @@
     
     /**
     * Renders Virtual DOM
+    * @return Virtual DOM
     */
     Moon.prototype.render = function() {
       if(this.$opts.render) {
@@ -402,7 +413,7 @@
     }
     
     /**
-    * Builds the DOM With Data
+    * Render and Builds the DOM With Data
     * @param {Array} vdom
     */
     Moon.prototype.build = function(vdom) {
