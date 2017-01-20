@@ -164,7 +164,7 @@ Moon.prototype.destroy = function() {
  */
 Moon.prototype.build = function() {
   this.$dom = this.render();
-  this.buildNodes(this.$dom, this.$el.childNodes);
+  this.buildNodes(this.$dom, this.$el.childNodes, this.$el);
 }
 
 /**
@@ -179,7 +179,8 @@ Moon.prototype.buildNodes = function(vdom, childNodes, parent) {
       if(vnode.type === "#text") {
         if(!vnode.node) {
           var node = document.createTextNode(vnode.compiled);
-          parent.replaceChild(node, childNode)
+          parent.replaceChild(node, childNode);
+          vnod.node = node;
         }
         vnode.node.textContent = vnode.compiled;
       } else if(vnode.props) {
@@ -187,6 +188,7 @@ Moon.prototype.buildNodes = function(vdom, childNodes, parent) {
           var node = document.createElement(vnode.type);
           node.textContent = vnode.compiled;
           parent.replaceChild(node, childNode);
+          vnode.node = node;
         }
         for(var attr in vnode.compiledProps) {
           var compiledProp = vnode.compiledProps[attr];
