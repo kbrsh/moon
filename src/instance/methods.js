@@ -109,6 +109,7 @@ Moon.prototype.emit = function(eventName, meta) {
 
 /**
 * Mounts Moon Element
+* @param {Node} el
 */
 Moon.prototype.mount = function(el) {
   this.$el = document.querySelector(el);
@@ -129,6 +130,7 @@ Moon.prototype.mount = function(el) {
 
 /**
 * Renders Virtual DOM
+* @return Virtual DOM
 */
 Moon.prototype.render = function() {
   if(this.$opts.render) {
