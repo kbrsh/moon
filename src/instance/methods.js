@@ -181,7 +181,7 @@ Moon.prototype.buildNodes = function(vdom) {
         vnode.node.textContent = valueOfVNode;
       } else if(vnode.props) {
         for(var attr in vnode.compiledProps) {
-          var compiledProp = vnode.props[attr];
+          var compiledProp = vnode.compiledProps[attr];
           if(directives[attr]) {
             vnode.node.removeAttribute(attr);
             directives[attr](vnode.node, compiledProp, vnode);
