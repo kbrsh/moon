@@ -108,9 +108,6 @@
       for(var i = 0; i < vdom.children.length; i++) {
         var child = vdom.children[i];
         child.compiled = compileTemplate(child.val)(data);
-        if(child.compiled === child.val) {
-          child.meta.shouldRender = false;
-        }
         if(child.props) {
           for(var prop in child.props) {
             child.compiledProps[prop] = compileTemplate(child.props[prop])(data);
@@ -462,6 +459,9 @@
           if(vnode.type === "#text") {
             var valueOfVNode = "";
             valueOfVNode = vnode.compiled;
+            if(valueOfVNode === child.val) {
+              child.meta.shouldRender = false;
+            }
             vnode.node.textContent = valueOfVNode;
           } else if(vnode.props) {
             for(var attr in vnode.compiledProps) {
