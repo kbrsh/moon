@@ -160,17 +160,17 @@ var h = function() {
 };
 
 /**
- * Sets the Elements Initial Value
- * @param {Node} el
- * @param {String} value
- */
+* Sets the Elements Initial Value
+* @param {Node} el
+* @param {String} value
+*/
 var setInitialElementValue = function(el, value) {
   el.innerHTML = value;
 }
 
 /**
- * Does No Operation
- */
+* Does No Operation
+*/
 var noop = function() {
 
 }
