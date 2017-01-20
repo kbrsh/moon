@@ -60,7 +60,7 @@ var createElement = function(type, val, props, children, meta, node) {
 */
 var createVirtualDOM = function(node) {
   var tag = node.nodeName;
-  var content = tag === "#text" ? compileTemplate(node.textContent) : node.textContent;
+  var content = node.textContent;
   var attrs = extractAttrs(node);
   var defaultMeta = {
     shouldRender: true
