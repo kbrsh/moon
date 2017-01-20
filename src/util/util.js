@@ -1,5 +1,9 @@
 /* ======= Global Utilities ======= */
 
+var defaultMeta = {
+  shouldRender: true
+}
+
 /**
 * Compiles a template with given data
 * @param {String} template
@@ -78,9 +82,6 @@ var createVirtualDOM = function(node) {
   var tag = node.nodeName;
   var content = node.textContent;
   var attrs = extractAttrs(node);
-  var defaultMeta = {
-    shouldRender: true
-  }
   var children = [];
 
   for(var i = 0; i < node.childNodes.length; i++) {
@@ -99,7 +100,7 @@ var createVirtualDOM = function(node) {
 var renderVirtualDOM = function(vdom, data) {
   for(var i = 0; i < vdom.children.length; i++) {
     var child = vdom.children[i];
-    
+
     if(child.type === "#text") {
       child.compiled = compileTemplate(child.val)(data);
       if(child.compiled === child.val) {
@@ -141,18 +142,21 @@ function merge(obj, obj2) {
 }
 
 /**
- * Compiles JSX to Virtual DOM
- * @param {String} tag
- * @param {Object} attrs
- * @param {Array} children
- * @return {String} Object usable in Virtual DOM
- */
+* Compiles JSX to Virtual DOM
+* @param {String} tag
+* @param {Object} attrs
+* @param {Array} children
+* @return {String} Object usable in Virtual DOM
+*/
 var h = function() {
   var args = Array.prototype.slice.call(arguments);
   var tag = args.shift();
   var attrs = args.shift() || {};
   var children = args;
-  return createElement(tag, children.join(""), attrs, children);
+  if(typeof children[0] === "string") {
+    children[0] = createElement("#text", children[0], null, null, defaultMeta, null)
+  }
+  return createElement(tag, children.join(""), attrs, children, defaultMeta, null);
 };
 
 /**
