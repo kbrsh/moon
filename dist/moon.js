@@ -484,19 +484,20 @@
       for(var i = 0; i < vdom.children.length; i++) {
         var vnode = vdom.children[i];
         var childNode = childNodes[i];
+        // If there is no node associated with the VNode, create a new one and replace the old
+        if(!vnode.node) {
+          var node = childNode.cloneNode(true);
+          parent.replaceChild(node, childNode);
+          vnod.node = node;
+        }
+        // Check if Moon should render this VNode
         if(vnode.meta.shouldRender) {
+          // If it is a text node, render it
           if(vnode.type === "#text") {
-            if(!vnode.node) {
-              var node = document.createTextNode(vnode.compiled);
-              parent.replaceChild(node, childNode)
-            }
             vnode.node.textContent = vnode.compiled;
+          // If it is a different node, render the props
           } else if(vnode.props) {
-            if(!vnode.node) {
-              var node = document.createElement(vnode.type);
-              node.textContent = vnode.compiled;
-              parent.replaceChild(node, childNode);
-            }
+            // Compile the properties
             for(var attr in vnode.compiledProps) {
               var compiledProp = vnode.compiledProps[attr];
               if(directives[attr]) {
