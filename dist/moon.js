@@ -48,7 +48,7 @@
       if(!node.attributes) return attrs;
       var rawAttrs = node.attributes;
       for(var i = 0; i < rawAttrs.length; i++) {
-        attrs[rawAttrs[i].name] = compileTemplate(rawAttrs[i].value);
+        attrs[rawAttrs[i].name] = rawAttrs[i].value;
       }
     
       return attrs;
@@ -70,6 +70,7 @@
         val: val,
         compiled: val,
         props: props,
+        compiledProps: props,
         children: children,
         meta: meta,
         node: node
@@ -109,6 +110,11 @@
         child.compiled = compileTemplate(child.val)(data);
         if(child.compiled === child.val) {
           child.meta.shouldRender = false;
+        }
+        if(child.props) {
+          for(var prop in child.props) {
+            child.compiledProps[prop] = compileTemplate(child.props[prop])(data);
+          }
         }
         if(child.children) {
           child.children = renderVirtualDOM(child);
@@ -458,8 +464,8 @@
             valueOfVNode = vnode.compiled;
             vnode.node.textContent = valueOfVNode;
           } else if(vnode.props) {
-            for(var attr in vnode.props) {
-              var compiledProp = vnode.props[attr];
+            for(var attr in vnode.compiledProps) {
+              var compiledProp = vnode.compiledProps[attr];
               if(directives[attr]) {
                 vnode.node.removeAttribute(attr);
                 directives[attr](vnode.node, compiledProp, vnode);
