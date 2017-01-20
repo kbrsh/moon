@@ -95,7 +95,7 @@ var renderVirtualDOM = function(vdom, data) {
       }
     }
     if(child.children) {
-      child.children = renderVirtualDOM(child, data);
+      child = renderVirtualDOM(child, data);
     }
   }
   return vdom;

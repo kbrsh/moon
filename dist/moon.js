@@ -475,7 +475,7 @@
             }
           }
     
-          this.buildNodes(vnode.children);
+          this.buildNodes(vnode);
         }
       }
     }
