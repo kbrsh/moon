@@ -162,9 +162,9 @@ Moon.prototype.destroy = function() {
 * Render and Builds the DOM With Data
 * @param {Array} vdom
 */
-Moon.prototype.build = function(vdom) {
+Moon.prototype.build = function() {
   this.$dom = this.render();
-  this.buildNodes(vdom);
+  this.buildNodes(this.$dom);
 }
 
 /**
