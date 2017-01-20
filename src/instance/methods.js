@@ -140,7 +140,7 @@ Moon.prototype.render = function() {
   if(this.$opts.render) {
     return this.$opts.render(h);
   } else {
-    return createVirtualDOM(this.$el);
+    return renderVirtualDOM(this.$dom);
   }
 }
 
