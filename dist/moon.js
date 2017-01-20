@@ -22,15 +22,21 @@
 
     /* ======= Global Utilities ======= */
     
-    var defaultMeta = {
-      shouldRender: true
+    /**
+     * Creates Default Metadata
+     * @return {Object} Metadata
+     */
+    var defaultMeta = function() {
+      return {
+        shouldRender: true
+      }
     }
     
     /**
-    * Compiles a template with given data
-    * @param {String} template
-    * @return {String} Template Render Function
-    */
+     * Compiles a template with given data
+     * @param {String} template
+     * @return {String} Template Render Function
+     */
     var compileTemplate = function(template) {
       var code = template;
       var templateRe = /{{([A-Za-z0-9_.()\[\]]+)}}/gi;
@@ -43,10 +49,10 @@
     }
     
     /**
-    * Converts attributes into key-value pairs
-    * @param {Node} node
-    * @return {Object} Key-Value pairs of Attributes
-    */
+     * Converts attributes into key-value pairs
+     * @param {Node} node
+     * @return {Object} Key-Value pairs of Attributes
+     */
     var extractAttrs = function(node) {
       var attrs = {};
       if(!node.attributes) return attrs;
@@ -59,11 +65,11 @@
     }
     
     /**
-    * Compiles Attributes
-    * @param {Object} attrs
-    * @param {Object} data
-    * @return {Object} Compiled Key-Value pairs of Attributes
-    */
+     * Compiles Attributes
+     * @param {Object} attrs
+     * @param {Object} data
+     * @return {Object} Compiled Key-Value pairs of Attributes
+     */
     var compileAttrs = function(attrs, data) {
       var compiled = {};
       for(var attr in attrs) {
@@ -73,15 +79,15 @@
     }
     
     /**
-    * Creates a Virtual DOM Node
-    * @param {String} type
-    * @param {String} val
-    * @param {Object} props
-    * @param {Array} children
-    * @param {Object} meta
-    * @param {Node} node
-    * @return {Object} Virtual DOM Node
-    */
+     * Creates a Virtual DOM Node
+     * @param {String} type
+     * @param {String} val
+     * @param {Object} props
+     * @param {Array} children
+     * @param {Object} meta
+     * @param {Node} node
+     * @return {Object} Virtual DOM Node
+     */
     var createElement = function(type, val, props, children, meta, node) {
       return {
         type: type,
@@ -96,10 +102,10 @@
     }
     
     /**
-    * Creates Virtual DOM
-    * @param {Node} node
-    * @return {Object} Virtual DOM
-    */
+      * Creates Virtual DOM
+      * @param {Node} node
+      * @return {Object} Virtual DOM
+      */
     var createVirtualDOM = function(node) {
       var tag = node.nodeName;
       var content = node.textContent;
@@ -110,15 +116,15 @@
         children.push(createVirtualDOM(node.childNodes[i]));
       }
     
-      return createElement(tag, content, attrs, children, defaultMeta, node);
+      return createElement(tag, content, attrs, children, defaultMeta(), node);
     }
     
     /**
-    * Renders Virtual DOM
-    * @param {Object} vdom
-    * @param {Object} data
-    * @return {Object} Rendered Virtual DOM
-    */
+     * Renders Virtual DOM
+     * @param {Object} vdom
+     * @param {Object} data
+     * @return {Object} Rendered Virtual DOM
+     */
     var renderVirtualDOM = function(vdom, data) {
       for(var i = 0; i < vdom.children.length; i++) {
         var child = vdom.children[i];
@@ -140,10 +146,10 @@
     }
     
     /**
-    * Gets Root Element
-    * @param {String} html
-    * @return {Node} Root Element
-    */
+      * Gets Root Element
+      * @param {String} html
+      * @return {Node} Root Element
+      */
     var getRootElement = function(html) {
       var dummy = document.createElement('div');
       dummy.innerHTML = html;
@@ -151,11 +157,11 @@
     }
     
     /**
-    * Merges two Objects
-    * @param {Object} obj
-    * @param {Object} obj2
-    * @return {Object} Merged Objects
-    */
+     * Merges two Objects
+     * @param {Object} obj
+     * @param {Object} obj2
+     * @return {Object} Merged Objects
+     */
     function merge(obj, obj2) {
       for (var key in obj2) {
         if (obj2.hasOwnProperty(key)) obj[key] = obj2[key];
@@ -164,35 +170,35 @@
     }
     
     /**
-    * Compiles JSX to Virtual DOM
-    * @param {String} tag
-    * @param {Object} attrs
-    * @param {Array} children
-    * @return {String} Object usable in Virtual DOM
-    */
+     * Compiles JSX to Virtual DOM
+     * @param {String} tag
+     * @param {Object} attrs
+     * @param {Array} children
+     * @return {String} Object usable in Virtual DOM
+     */
     var h = function() {
       var args = Array.prototype.slice.call(arguments);
       var tag = args.shift();
       var attrs = args.shift() || {};
       var children = args;
       if(typeof children[0] === "string") {
-        children[0] = createElement("#text", children[0], null, null, defaultMeta, null)
+        children[0] = createElement("#text", children[0], null, null, defaultMeta(), null)
       }
-      return createElement(tag, children.join(""), attrs, children, defaultMeta, null);
+      return createElement(tag, children.join(""), attrs, children, defaultMeta(), null);
     };
     
     /**
-    * Sets the Elements Initial Value
-    * @param {Node} el
-    * @param {String} value
-    */
+     * Sets the Elements Initial Value
+     * @param {Node} el
+     * @param {String} value
+     */
     var setInitialElementValue = function(el, value) {
       el.innerHTML = value;
     }
     
     /**
-    * Does No Operation
-    */
+     * Does No Operation
+     */
     var noop = function() {
     
     }
@@ -353,10 +359,10 @@
     // Event Emitter, adapted from https://github.com/KingPixil/voke
     
     /**
-    * Attaches an Event Listener
-    * @param {String} eventName
-    * @param {Function} action
-    */
+     * Attaches an Event Listener
+     * @param {String} eventName
+     * @param {Function} action
+     */
     Moon.prototype.on = function(eventName, action) {
       if(this.$events[eventName]) {
         this.$events[eventName].push(action);
