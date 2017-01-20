@@ -63,7 +63,6 @@ var createVirtualDOM = function(node) {
   var content = tag === "#text" ? compileTemplate(node.textContent) : node.textContent;
   var attrs = extractAttrs(node);
   var defaultMeta = {
-    once: false,
     shouldRender: true
   }
   var children = [];
@@ -74,6 +73,8 @@ var createVirtualDOM = function(node) {
 
   return createElement(tag, content, attrs, children, defaultMeta, node);
 }
+
+
 
 /**
 * Gets Root Element
