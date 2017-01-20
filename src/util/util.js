@@ -77,14 +77,14 @@ var createVirtualDOM = function(node) {
 
 /**
 * Renders Virtual DOM
-* @param {Object} vdom
+* @param {Array} children
 * @return {Object} Rendered Virtual DOM
 */
-var renderVirtualDOM = function(vdom) {
-  for(var i = 0; i < vdom.children.length; i++) {
-    
+var renderVirtualDOM = function(children) {
+  for(var i = 0; i < children; i++) {
+
   }
-  return vdom;
+  return children;
 }
 
 /**
