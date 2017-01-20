@@ -78,11 +78,16 @@ var createVirtualDOM = function(node) {
 /**
 * Renders Virtual DOM
 * @param {Array} children
+* @param {Object} data
 * @return {Object} Rendered Virtual DOM
 */
-var renderVirtualDOM = function(children) {
-  for(var i = 0; i < children; i++) {
-
+var renderVirtualDOM = function(children, data) {
+  for(var i = 0; i < children.length; i++) {
+    var child = children[i];
+    child.compiled = compileTemplate(children.val)(data);
+    if(child.children) {
+      child.children = renderVirtualDOM(child.children);
+    }
   }
   return children;
 }
