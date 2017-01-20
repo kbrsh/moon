@@ -179,7 +179,7 @@ Moon.prototype.buildNodes = function(vdom, childNodes, parent) {
       if(vnode.type === "#text") {
         if(!vnode.node) {
           var node = document.createTextNode(vnode.compiled);
-          document.replaceChild(node, childNode)
+          parent.replaceChild(node, childNode)
         }
         vnode.node.textContent = vnode.compiled;
       } else if(vnode.props) {
