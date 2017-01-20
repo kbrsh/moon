@@ -122,7 +122,11 @@ Moon.prototype.mount = function(el) {
 
   setInitialElementValue(this.$el, this.$template);
 
-  this.$dom = this.render();
+  if(this.$opts.render) {
+    this.$dom = this.$opts.render(h);
+  } else {
+    this.$dom = createVirtualDOM(this.$el);
+  }
 
   this.build(this.$dom.children);
   this.$hooks.mounted();
