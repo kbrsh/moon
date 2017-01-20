@@ -126,8 +126,23 @@
      * @return {Object} Rendered Virtual DOM
      */
     var renderVirtualDOM = function(vdom, data) {
-      var compiled = compileTemplate(vdom);
-      console.log(compiled)
+      for(var i = 0; i < vdom.children.length; i++) {
+        var child = vdom.children[i];
+    
+        if(child.type === "#text") {
+          child.compiled = compileTemplate(child.val)(data);
+          if(child.compiled === child.val) {
+            child.meta.shouldRender = false;
+          }
+        } else {
+          child.compiledProps = compileAttrs(child.props, data);
+        }
+    
+        if(child.children) {
+          child = renderVirtualDOM(child, data);
+        }
+      }
+      return vdom;
     }
     
     /**
