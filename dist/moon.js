@@ -372,10 +372,10 @@
     }
     
     /**
-    * Removes an Event Listener
-    * @param {String} eventName
-    * @param {Function} action
-    */
+     * Removes an Event Listener
+     * @param {String} eventName
+     * @param {Function} action
+     */
     Moon.prototype.off = function(eventName, action) {
       var index = this.$events[eventName].indexOf(action);
       if(index !== -1) {
@@ -384,10 +384,10 @@
     }
     
     /**
-    * Removes All Event Listeners
-    * @param {String} eventName
-    * @param {Function} action
-    */
+     * Removes All Event Listeners
+     * @param {String} eventName
+     * @param {Function} action
+     */
     Moon.prototype.removeEvents = function() {
       for(var evt in this.$events) {
         this.$events[evt] = [];
@@ -395,10 +395,10 @@
     }
     
     /**
-    * Emits an Event
-    * @param {String} eventName
-    * @param {Object} meta
-    */
+     * Emits an Event
+     * @param {String} eventName
+     * @param {Object} meta
+     */
     Moon.prototype.emit = function(eventName, meta) {
       meta = meta || {};
       meta.type = eventName;
@@ -417,9 +417,9 @@
     }
     
     /**
-    * Mounts Moon Element
-    * @param {Node} el
-    */
+     * Mounts Moon Element
+     * @param {Node} el
+     */
     Moon.prototype.mount = function(el) {
       this.$el = document.querySelector(el);
     
@@ -442,9 +442,9 @@
     }
     
     /**
-    * Renders Virtual DOM
-    * @return Virtual DOM
-    */
+     * Renders Virtual DOM
+     * @return Virtual DOM
+     */
     Moon.prototype.render = function() {
       if(this.$opts.render) {
         return this.$opts.render(h);
@@ -454,8 +454,8 @@
     }
     
     /**
-    * Destroys Moon Instance
-    */
+     * Destroys Moon Instance
+     */
     Moon.prototype.destroy = function() {
       Object.defineProperty(this, '$data', {
         set: function(value) {
@@ -468,18 +468,18 @@
     }
     
     /**
-    * Render and Builds the DOM With Data
-    * @param {Array} vdom
-    */
+     * Render and Builds the DOM With Data
+     * @param {Array} vdom
+     */
     Moon.prototype.build = function() {
       this.$dom = this.render();
       this.buildNodes(this.$dom);
     }
     
     /**
-    * Builds Nodes With Data
-    * @param {Array} vdom
-    */
+     * Builds Nodes With Data
+     * @param {Array} vdom
+     */
     Moon.prototype.buildNodes = function(vdom) {
       for(var i = 0; i < vdom.children.length; i++) {
         var vnode = vdom.children[i];
@@ -504,8 +504,8 @@
     }
     
     /**
-    * Initializes Moon
-    */
+     * Initializes Moon
+     */
     Moon.prototype.init = function() {
       this.log("======= Moon =======");
       this.$hooks.created();
@@ -519,9 +519,9 @@
     /* ======= Global API ======= */
     
     /**
-    * Sets the Configuration of Moon
-    * @param {Object} opts
-    */
+     * Sets the Configuration of Moon
+     * @param {Object} opts
+     */
     Moon.config = function(opts) {
       if(opts.silent) {
         config.silent = opts.silent;
@@ -532,27 +532,27 @@
     }
     
     /**
-    * Runs an external Plugin
-    * @param {Object} plugin
-    */
+     * Runs an external Plugin
+     * @param {Object} plugin
+     */
     Moon.use = function(plugin) {
       plugin.init(Moon);
     }
     
     /**
-    * Creates a Directive
-    * @param {String} name
-    * @param {Function} action
-    */
+     * Creates a Directive
+     * @param {String} name
+     * @param {Function} action
+     */
     Moon.directive = function(name, action) {
       directives[config.prefix + name] = action;
     }
     
     /**
-    * Creates a Component
-    * @param {String} name
-    * @param {Function} action
-    */
+     * Creates a Component
+     * @param {String} name
+     * @param {Function} action
+     */
     Moon.component = function(name, opts) {
       var Parent = this;
       function MoonComponent() {
