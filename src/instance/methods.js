@@ -155,7 +155,7 @@ Moon.prototype.destroy = function() {
 }
 
 /**
-* Builds the DOM With Data
+* Render and Builds the DOM With Data
 * @param {Array} vdom
 */
 Moon.prototype.build = function(vdom) {
