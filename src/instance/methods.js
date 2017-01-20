@@ -140,7 +140,7 @@ Moon.prototype.render = function() {
   if(this.$opts.render) {
     return this.$opts.render(h);
   } else {
-    return renderVirtualDOM(this.$dom);
+    return renderVirtualDOM(this.$dom.children);
   }
 }
 
@@ -163,7 +163,7 @@ Moon.prototype.destroy = function() {
 * @param {Array} vdom
 */
 Moon.prototype.build = function(vdom) {
-  //this.render();
+  this.render();
   this.buildNodes(vdom);
 }
 
