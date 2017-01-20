@@ -34,7 +34,7 @@ Moon.prototype.get = function(key) {
 */
 Moon.prototype.set = function(key, val) {
   this.$data[key] = val;
-  if(!this.$destroyed) this.build(this.$dom);
+  if(!this.$destroyed) this.build();
   this.$hooks.updated();
 }
 
@@ -128,7 +128,7 @@ Moon.prototype.mount = function(el) {
     this.$dom = createVirtualDOM(this.$el);
   }
 
-  this.build(this.$dom);
+  this.build();
   this.$hooks.mounted();
 }
 
