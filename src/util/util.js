@@ -99,7 +99,7 @@ var createVirtualDOM = function(node) {
 var renderVirtualDOM = function(vdom, data) {
   for(var i = 0; i < vdom.children.length; i++) {
     var child = vdom.children[i];
-    child.compiled = compileTemplate(child.val)(data);
+    child.compiled = child.type === "#text" ? compileTemplate(child.val)(data) : child.val;
     child.compiledProps = compileAttrs(child.props, data);
     if(child.children) {
       child = renderVirtualDOM(child, data);
