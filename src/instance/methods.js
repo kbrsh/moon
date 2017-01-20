@@ -128,7 +128,7 @@ Moon.prototype.mount = function(el) {
     this.$dom = createVirtualDOM(this.$el);
   }
 
-  this.build(this.$dom.children);
+  this.build(this.$dom);
   this.$hooks.mounted();
 }
 
