@@ -3,8 +3,7 @@
 /**
 * Compiles a template with given data
 * @param {String} template
-* @param {Object} data
-* @return {String} Template with data rendered
+* @return {String} Template Render Function
 */
 var compileTemplate = function(template) {
   var code = template;
