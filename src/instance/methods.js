@@ -50,10 +50,10 @@ Moon.prototype.callMethod = function(method, args) {
 // Event Emitter, adapted from https://github.com/KingPixil/voke
 
 /**
-* Attaches an Event Listener
-* @param {String} eventName
-* @param {Function} action
-*/
+ * Attaches an Event Listener
+ * @param {String} eventName
+ * @param {Function} action
+ */
 Moon.prototype.on = function(eventName, action) {
   if(this.$events[eventName]) {
     this.$events[eventName].push(action);
@@ -63,10 +63,10 @@ Moon.prototype.on = function(eventName, action) {
 }
 
 /**
-* Removes an Event Listener
-* @param {String} eventName
-* @param {Function} action
-*/
+ * Removes an Event Listener
+ * @param {String} eventName
+ * @param {Function} action
+ */
 Moon.prototype.off = function(eventName, action) {
   var index = this.$events[eventName].indexOf(action);
   if(index !== -1) {
@@ -75,10 +75,10 @@ Moon.prototype.off = function(eventName, action) {
 }
 
 /**
-* Removes All Event Listeners
-* @param {String} eventName
-* @param {Function} action
-*/
+ * Removes All Event Listeners
+ * @param {String} eventName
+ * @param {Function} action
+ */
 Moon.prototype.removeEvents = function() {
   for(var evt in this.$events) {
     this.$events[evt] = [];
@@ -86,10 +86,10 @@ Moon.prototype.removeEvents = function() {
 }
 
 /**
-* Emits an Event
-* @param {String} eventName
-* @param {Object} meta
-*/
+ * Emits an Event
+ * @param {String} eventName
+ * @param {Object} meta
+ */
 Moon.prototype.emit = function(eventName, meta) {
   meta = meta || {};
   meta.type = eventName;
@@ -108,9 +108,9 @@ Moon.prototype.emit = function(eventName, meta) {
 }
 
 /**
-* Mounts Moon Element
-* @param {Node} el
-*/
+ * Mounts Moon Element
+ * @param {Node} el
+ */
 Moon.prototype.mount = function(el) {
   this.$el = document.querySelector(el);
 
@@ -133,9 +133,9 @@ Moon.prototype.mount = function(el) {
 }
 
 /**
-* Renders Virtual DOM
-* @return Virtual DOM
-*/
+ * Renders Virtual DOM
+ * @return Virtual DOM
+ */
 Moon.prototype.render = function() {
   if(this.$opts.render) {
     return this.$opts.render(h);
@@ -145,8 +145,8 @@ Moon.prototype.render = function() {
 }
 
 /**
-* Destroys Moon Instance
-*/
+ * Destroys Moon Instance
+ */
 Moon.prototype.destroy = function() {
   Object.defineProperty(this, '$data', {
     set: function(value) {
@@ -159,18 +159,18 @@ Moon.prototype.destroy = function() {
 }
 
 /**
-* Render and Builds the DOM With Data
-* @param {Array} vdom
-*/
+ * Render and Builds the DOM With Data
+ * @param {Array} vdom
+ */
 Moon.prototype.build = function() {
   this.$dom = this.render();
   this.buildNodes(this.$dom);
 }
 
 /**
-* Builds Nodes With Data
-* @param {Array} vdom
-*/
+ * Builds Nodes With Data
+ * @param {Array} vdom
+ */
 Moon.prototype.buildNodes = function(vdom) {
   for(var i = 0; i < vdom.children.length; i++) {
     var vnode = vdom.children[i];
@@ -195,8 +195,8 @@ Moon.prototype.buildNodes = function(vdom) {
 }
 
 /**
-* Initializes Moon
-*/
+ * Initializes Moon
+ */
 Moon.prototype.init = function() {
   this.log("======= Moon =======");
   this.$hooks.created();
