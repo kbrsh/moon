@@ -55,6 +55,20 @@
     }
     
     /**
+    * Compiles Attributes
+    * @param {Object} attrs
+    * @param {Object} data
+    * @return {Object} Compiled Key-Value pairs of Attributes
+    */
+    var compileAttrs = function(attrs, data) {
+      var compiled = {};
+      for(var attr in attrs) {
+        compiled[attr] = compileTemplate(attrs[attr])(data);
+      }
+      return compiled;
+    }
+    
+    /**
     * Creates a Virtual DOM Node
     * @param {String} type
     * @param {String} val
@@ -108,11 +122,7 @@
       for(var i = 0; i < vdom.children.length; i++) {
         var child = vdom.children[i];
         child.compiled = compileTemplate(child.val)(data);
-        if(child.props) {
-          for(var prop in child.props) {
-            child.compiledProps[prop] = compileTemplate(child.props[prop])(data);
-          }
-        }
+        child.compiledProps = compileAttributes(child.props, data);
         if(child.children) {
           child = renderVirtualDOM(child, data);
         }
