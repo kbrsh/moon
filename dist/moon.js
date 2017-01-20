@@ -459,7 +459,7 @@
           if(vnode.type === "#text") {
             var valueOfVNode = "";
             valueOfVNode = vnode.compiled;
-            if(valueOfVNode === child.val) {
+            if(valueOfVNode === vnode.val) {
               child.meta.shouldRender = false;
             }
             vnode.node.textContent = valueOfVNode;
