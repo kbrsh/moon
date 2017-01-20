@@ -312,7 +312,7 @@
     */
     Moon.prototype.set = function(key, val) {
       this.$data[key] = val;
-      if(!this.$destroyed) this.build(this.$dom);
+      if(!this.$destroyed) this.build();
       this.$hooks.updated();
     }
     
@@ -406,7 +406,7 @@
         this.$dom = createVirtualDOM(this.$el);
       }
     
-      this.build(this.$dom);
+      this.build();
       this.$hooks.mounted();
     }
     
@@ -440,9 +440,9 @@
     * Render and Builds the DOM With Data
     * @param {Array} vdom
     */
-    Moon.prototype.build = function(vdom) {
+    Moon.prototype.build = function() {
       this.$dom = this.render();
-      this.buildNodes(vdom);
+      this.buildNodes(this.$dom);
     }
     
     /**
