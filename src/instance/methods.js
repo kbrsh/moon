@@ -163,7 +163,7 @@ Moon.prototype.destroy = function() {
 * @param {Array} vdom
 */
 Moon.prototype.build = function(vdom) {
-  this.render();
+  this.$dom = this.render();
   this.buildNodes(vdom);
 }
 
