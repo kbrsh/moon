@@ -22,17 +22,6 @@ var createElement = function(type, val, props, children, meta) {
 }
 
 /**
-  * Gets Root Element
-  * @param {String} html
-  * @return {Node} Root Element
-  */
-var getRootElement = function(html) {
-  var dummy = document.createElement('div');
-  dummy.innerHTML = html;
-  return dummy.firstChild;
-}
-
-/**
  * Merges two Objects
  * @param {Object} obj
  * @param {Object} obj2
