@@ -168,6 +168,7 @@ Moon.prototype.build = function() {
 /**
  * Builds Nodes With Data
  * @param {Array} vdom
+ * @param {Array} nodes
  * @param {Node} parent
  */
 Moon.prototype.buildNodes = function(vdom, nodes, parent) {
