@@ -63,9 +63,10 @@ var compileAttrs = function(attrs, data) {
  * @param {Object} props
  * @param {Array} children
  * @param {Object} meta
+ * @param {Node} node
  * @return {Object} Virtual DOM Node
  */
-var createElement = function(type, val, props, children, meta) {
+var createElement = function(type, val, props, children, meta, node) {
   return {
     type: type,
     val: val,
@@ -73,17 +74,17 @@ var createElement = function(type, val, props, children, meta) {
     props: props,
     compiledProps: props,
     children: children,
-    meta: meta
+    meta: meta,
+    node: node
   };
 }
 
 /**
   * Creates Virtual DOM
   * @param {Node} node
-  * @param {Object} nodes
   * @return {Object} Virtual DOM
   */
-var createVirtualDOM = function(node, nodes) {
+var createVirtualDOM = function(node) {
   var tag = node.nodeName;
   var content = node.textContent;
   var attrs = extractAttrs(node);
@@ -93,7 +94,7 @@ var createVirtualDOM = function(node, nodes) {
     children.push(createVirtualDOM(node.childNodes[i]));
   }
 
-  return createElement(tag, content, attrs, children, defaultMeta());
+  return createElement(tag, content, attrs, children, defaultMeta(), node);
 }
 
 /**

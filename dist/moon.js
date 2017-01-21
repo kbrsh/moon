@@ -216,6 +216,7 @@
         this.$directives = merge(this.$opts.directives || {}, directives);
         this.$events = {};
         this.$dom = {};
+        this.$nodes = {};
         this.$destroyed = false;
 
         /* ======= Listen for Changes ======= */
@@ -488,6 +489,7 @@
             node.textContent = vnode.textContent;
           }
           parent.appendChild(node);
+          vnode.node = node;
         }
         // Check if Moon should render this VNode
         if(vnode.meta.shouldRender) {
