@@ -1,16 +1,11 @@
 /* ======= Global API ======= */
 
 /**
- * Sets the Configuration of Moon
- * @param {Object} opts
+ * Configuration of Moon
  */
-Moon.config = function(opts) {
-  if(opts.silent) {
-    config.silent = opts.silent;
-  }
-  if(opts.prefix) {
-    config.prefix = opts.prefix + "-";
-  }
+Moon.config = {
+  silent: false,
+  prefix: "m-"
 }
 
 /**
