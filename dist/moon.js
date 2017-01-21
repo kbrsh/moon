@@ -473,23 +473,16 @@
      */
     Moon.prototype.build = function() {
       this.$dom = this.render();
-      this.buildNodes(this.$dom, this.$el.childNodes, this.$el);
+      this.buildNodes(this.$dom);
     }
     
     /**
      * Builds Nodes With Data
      * @param {Array} vdom
      */
-    Moon.prototype.buildNodes = function(vdom, childNodes, parent) {
+    Moon.prototype.buildNodes = function(vdom) {
       for(var i = 0; i < vdom.children.length; i++) {
         var vnode = vdom.children[i];
-        var childNode = childNodes[i];
-        // If there is no node associated with the VNode, create a new one and replace the old
-        if(!vnode.node) {
-          var node = childNode.cloneNode(true);
-          parent.replaceChild(node, childNode);
-          vnod.node = node;
-        }
         // Check if Moon should render this VNode
         if(vnode.meta.shouldRender) {
           // If it is a text node, render it
@@ -509,7 +502,7 @@
             }
           }
     
-          this.buildNodes(vnode, childNode.childNodes, childNode);
+          this.buildNodes(vnode);
         }
       }
     }
