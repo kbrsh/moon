@@ -134,10 +134,8 @@ Moon.prototype.mount = function(el) {
 
   this.$el.innerHTML = this.$template;
 
-  if(this.$opts.render) {
-    this.$dom = this.$render(h);
-  } else {
-    this.$dom = createVirtualDOM(this.$el);
+  if(this.$render === noop) {
+    this.$render = createRender(this.$template);
   }
 
   this.build();
