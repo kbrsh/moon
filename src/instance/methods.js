@@ -137,7 +137,7 @@ Moon.prototype.mount = function(el) {
   if(this.$opts.render) {
     this.$dom = this.$render(h);
   } else {
-    createVirtualDOM(this.$el, this.$dom, this.$nodes);
+    this.$dom = createVirtualDOM(this.$el);
   }
 
   this.build();
@@ -168,10 +168,9 @@ Moon.prototype.build = function() {
 /**
  * Builds Nodes With Data
  * @param {Array} vdom
- * @param {Array} nodes
  * @param {Node} parent
  */
-Moon.prototype.buildNodes = function(vdom, nodes, parent) {
+Moon.prototype.buildNodes = function(vdom, parent) {
   for(var i = 0; i < vdom.children.length; i++) {
     var vnode = vdom.children[i];
     // If no node, create one
@@ -184,6 +183,7 @@ Moon.prototype.buildNodes = function(vdom, nodes, parent) {
         node.textContent = vnode.textContent;
       }
       parent.appendChild(node);
+      vnode.node = node;
     }
     // Check if Moon should render this VNode
     if(vnode.meta.shouldRender) {
