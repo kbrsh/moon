@@ -80,9 +80,10 @@ var createElement = function(type, val, props, children, meta) {
 /**
   * Creates Virtual DOM
   * @param {Node} node
+  * @param {Object} nodes
   * @return {Object} Virtual DOM
   */
-var createVirtualDOM = function(node) {
+var createVirtualDOM = function(node, nodes) {
   var tag = node.nodeName;
   var content = node.textContent;
   var attrs = extractAttrs(node);
@@ -92,7 +93,7 @@ var createVirtualDOM = function(node) {
     children.push(createVirtualDOM(node.childNodes[i]));
   }
 
-  return createElement(tag, content, attrs, children, defaultMeta(), node);
+  return createElement(tag, content, attrs, children, defaultMeta());
 }
 
 /**
