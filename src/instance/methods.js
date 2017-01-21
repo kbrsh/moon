@@ -173,6 +173,17 @@ Moon.prototype.build = function() {
 Moon.prototype.buildNodes = function(vdom, parent) {
   for(var i = 0; i < vdom.children.length; i++) {
     var vnode = vdom.children[i];
+    // If no node, create one
+    if(!vnode.node) {
+      var node;
+      if(vnode.type === "#text") {
+        node = document.createTextNode(vnode.val);
+      } else {
+        node = document.createElement(vnode.type);
+        node.textContent = vnode.textContent;
+      }
+      parent.appendChild(node);
+    }
     // Check if Moon should render this VNode
     if(vnode.meta.shouldRender) {
       // If it is a text node, render it
@@ -192,7 +203,7 @@ Moon.prototype.buildNodes = function(vdom, parent) {
         }
       }
 
-      this.buildNodes(vnode);
+      this.buildNodes(vnode, parent);
     }
   }
 }
