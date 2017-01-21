@@ -5,7 +5,7 @@
  * @param {String} msg
  */
 Moon.prototype.log = function(msg) {
-  if(!config.silent && hasConsole) console.log(msg);
+  if(!config.silent) console.log(msg);
 }
 
 /**
@@ -13,7 +13,7 @@ Moon.prototype.log = function(msg) {
  * @param {String} msg
  */
 Moon.prototype.error = function(msg) {
-  if(hasConsole) console.error("[Moon] ERR: " + msg);
+  console.error("[Moon] ERR: " + msg);
 }
 
 /**
