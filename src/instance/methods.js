@@ -162,7 +162,7 @@ Moon.prototype.patch = function() {
  */
 Moon.prototype.build = function() {
   this.$dom = this.render();
-  this.buildNodes(this.$dom, this.$el);
+  this.patch(this.$dom, this.$el);
 }
 
 /**
