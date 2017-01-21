@@ -523,7 +523,7 @@
             }
           }
     
-          this.buildNodes(vnode, parent);
+          this.buildNodes(vnode, parent.childNodes[i]);
         }
       }
     }
