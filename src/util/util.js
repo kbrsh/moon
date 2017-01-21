@@ -63,19 +63,15 @@ var compileAttrs = function(attrs, data) {
  * @param {Object} props
  * @param {Array} children
  * @param {Object} meta
- * @param {Node} node
  * @return {Object} Virtual DOM Node
  */
-var createElement = function(type, val, props, children, meta, node) {
+var createElement = function(type, val, props, children, meta) {
   return {
     type: type,
     val: val,
-    compiled: val,
     props: props,
-    compiledProps: props,
     children: children,
-    meta: meta,
-    node: node
+    meta: meta
   };
 }
 
