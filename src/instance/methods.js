@@ -149,64 +149,22 @@ Moon.prototype.mount = function(el) {
  * @return Virtual DOM
  */
 Moon.prototype.render = function() {
-  if(this.$opts.render) {
-    return addNodes(this.$render(h), this.$dom);
-  } else {
-    return renderVirtualDOM(this.$dom, this.$data);
-  }
+
 }
 
 /**
- * Render and Builds the DOM With Data
- * @param {Array} vdom
+ * Diff then Patches Nodes With Data
+ */
+Moon.prototype.patch = function() {
+
+}
+
+/**
+ * Render and Patches the DOM With Data
  */
 Moon.prototype.build = function() {
   this.$dom = this.render();
   this.buildNodes(this.$dom, this.$el);
-}
-
-/**
- * Builds Nodes With Data
- * @param {Array} vdom
- * @param {Node} parent
- */
-Moon.prototype.buildNodes = function(vdom, parent) {
-  for(var i = 0; i < vdom.children.length; i++) {
-    var vnode = vdom.children[i];
-    // If no node, create one
-    if(!vnode.node) {
-      var node;
-      if(vnode.type === "#text") {
-        node = document.createTextNode(vnode.val);
-      } else {
-        node = document.createElement(vnode.type);
-        node.textContent = vnode.textContent;
-      }
-      parent.appendChild(node);
-      vnode.node = node;
-    }
-    // Check if Moon should render this VNode
-    if(vnode.meta.shouldRender) {
-      // If it is a text node, render it
-      if(vnode.type === "#text") {
-        vnode.node.textContent = vnode.compiled;
-      // If it is a different node, render the props
-      } else if(vnode.props) {
-        // Compile the properties
-        for(var attr in vnode.compiledProps) {
-          var compiledProp = vnode.compiledProps[attr];
-          if(directives[attr]) {
-            vnode.node.removeAttribute(attr);
-            directives[attr](vnode.node, compiledProp, vnode);
-          } else {
-            vnode.node.setAttribute(attr, compiledProp);
-          }
-        }
-      }
-
-      this.buildNodes(vnode, parent.childNodes[i]);
-    }
-  }
 }
 
 /**
