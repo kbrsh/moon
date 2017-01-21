@@ -123,7 +123,7 @@ Moon.prototype.mount = function(el) {
   setInitialElementValue(this.$el, this.$template);
 
   if(this.$opts.render) {
-    this.$dom = this.$opts.render(h);
+    this.$dom = this.$render(h);
   } else {
     this.$dom = createVirtualDOM(this.$el);
   }
@@ -137,11 +137,7 @@ Moon.prototype.mount = function(el) {
  * @return Virtual DOM
  */
 Moon.prototype.render = function() {
-  if(this.$opts.render) {
-    return this.$opts.render(h);
-  } else {
-    return renderVirtualDOM(this.$dom, this.$data);
-  }
+  return this.$render(h);
 }
 
 /**
