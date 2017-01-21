@@ -170,7 +170,7 @@ Moon.prototype.build = function() {
  * @param {Array} vdom
  * @param {Node} parent
  */
-Moon.prototype.buildNodes = function(vdom, parent) {
+Moon.prototype.buildNodes = function(vdom, nodes, parent) {
   for(var i = 0; i < vdom.children.length; i++) {
     var vnode = vdom.children[i];
     // If no node, create one
