@@ -4,10 +4,6 @@
 }(this, function() {
 
     /* ======= Global Variables ======= */
-    var config = {
-      silent: false,
-      prefix: "m-"
-    }
     var directives = {};
     var components = {};
     var id = 0;
