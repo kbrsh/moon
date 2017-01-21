@@ -22,7 +22,7 @@ Moon.use = function(plugin) {
  * @param {Function} action
  */
 Moon.directive = function(name, action) {
-  directives[config.prefix + name] = action;
+  directives[Moon.config.prefix + name] = action;
 }
 
 /**
