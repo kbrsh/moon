@@ -342,6 +342,20 @@
     }
     
     /**
+     * Destroys Moon Instance
+     */
+    Moon.prototype.destroy = function() {
+      Object.defineProperty(this, '$data', {
+        set: function(value) {
+          _data = value;
+        }
+      });
+      this.removeEvents();
+      this.$destroyed = true;
+      this.$hooks.destroyed();
+    }
+    
+    /**
      * Calls a method
      * @param {String} method
      */
@@ -448,35 +462,33 @@
     }
     
     /**
-     * Destroys Moon Instance
-     */
-    Moon.prototype.destroy = function() {
-      Object.defineProperty(this, '$data', {
-        set: function(value) {
-          _data = value;
-        }
-      });
-      this.removeEvents();
-      this.$destroyed = true;
-      this.$hooks.destroyed();
-    }
-    
-    /**
      * Render and Builds the DOM With Data
      * @param {Array} vdom
      */
     Moon.prototype.build = function() {
       this.$dom = this.render();
-      this.buildNodes(this.$dom);
+      this.buildNodes(this.$dom, this.$el);
     }
     
     /**
      * Builds Nodes With Data
      * @param {Array} vdom
+     * @param {Node} parent
      */
-    Moon.prototype.buildNodes = function(vdom) {
+    Moon.prototype.buildNodes = function(vdom, parent) {
       for(var i = 0; i < vdom.children.length; i++) {
         var vnode = vdom.children[i];
+        // If no node, create one
+        if(!vnode.node) {
+          var node;
+          if(vnode.type === "#text") {
+            node = document.createTextNode(vnode.val);
+          } else {
+            node = document.createElement(vnode.type);
+            node.textContent = vnode.textContent;
+          }
+          parent.appendChild(node);
+        }
         // Check if Moon should render this VNode
         if(vnode.meta.shouldRender) {
           // If it is a text node, render it
@@ -496,7 +508,7 @@
             }
           }
     
-          this.buildNodes(vnode);
+          this.buildNodes(vnode, parent);
         }
       }
     }

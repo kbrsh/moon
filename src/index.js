@@ -26,6 +26,7 @@
         this.$directives = merge(this.$opts.directives || {}, directives);
         this.$events = {};
         this.$dom = {};
+        this.$nodes = {};
         this.$destroyed = false;
 
         /* ======= Listen for Changes ======= */
