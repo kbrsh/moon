@@ -309,38 +309,36 @@
 
     /* ======= Instance Methods ======= */
     
-    var hasConsole = typeof window.console !== undefined;
-    
     /**
-    * Logs a Message
-    * @param {String} msg
-    */
+     * Logs a Message
+     * @param {String} msg
+     */
     Moon.prototype.log = function(msg) {
-      if(!config.silent && hasConsole) console.log(msg);
+      if(!config.silent) console.log(msg);
     }
     
     /**
-    * Throws an Error
-    * @param {String} msg
-    */
+     * Throws an Error
+     * @param {String} msg
+     */
     Moon.prototype.error = function(msg) {
-      if(hasConsole) console.error("[Moon] ERR: " + msg);
+      console.error("[Moon] ERR: " + msg);
     }
     
     /**
-    * Gets Value in Data
-    * @param {String} key
-    * @return {String} Value of key in data
-    */
+     * Gets Value in Data
+     * @param {String} key
+     * @return {String} Value of key in data
+     */
     Moon.prototype.get = function(key) {
       return this.$data[key];
     }
     
     /**
-    * Sets Value in Data
-    * @param {String} key
-    * @param {String} val
-    */
+     * Sets Value in Data
+     * @param {String} key
+     * @param {String} val
+     */
     Moon.prototype.set = function(key, val) {
       this.$data[key] = val;
       if(!this.$destroyed) this.build();
@@ -348,9 +346,9 @@
     }
     
     /**
-    * Calls a method
-    * @param {String} method
-    */
+     * Calls a method
+     * @param {String} method
+     */
     Moon.prototype.callMethod = function(method, args) {
       args = args || [];
       this.$methods[method].apply(this, args);
