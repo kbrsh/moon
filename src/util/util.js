@@ -43,20 +43,6 @@ var extractAttrs = function(node) {
 }
 
 /**
- * Compiles Attributes
- * @param {Object} attrs
- * @param {Object} data
- * @return {Object} Compiled Key-Value pairs of Attributes
- */
-var compileAttrs = function(attrs, data) {
-  var compiled = {};
-  for(var attr in attrs) {
-    compiled[attr] = compileTemplate(attrs[attr])(data);
-  }
-  return compiled;
-}
-
-/**
  * Creates a Virtual DOM Node
  * @param {String} type
  * @param {String} val
