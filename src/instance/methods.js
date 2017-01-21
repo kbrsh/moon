@@ -37,6 +37,20 @@ Moon.prototype.set = function(key, val) {
 }
 
 /**
+ * Destroys Moon Instance
+ */
+Moon.prototype.destroy = function() {
+  Object.defineProperty(this, '$data', {
+    set: function(value) {
+      _data = value;
+    }
+  });
+  this.removeEvents();
+  this.$destroyed = true;
+  this.$hooks.destroyed();
+}
+
+/**
  * Calls a method
  * @param {String} method
  */
@@ -143,33 +157,20 @@ Moon.prototype.render = function() {
 }
 
 /**
- * Destroys Moon Instance
- */
-Moon.prototype.destroy = function() {
-  Object.defineProperty(this, '$data', {
-    set: function(value) {
-      _data = value;
-    }
-  });
-  this.removeEvents();
-  this.$destroyed = true;
-  this.$hooks.destroyed();
-}
-
-/**
  * Render and Builds the DOM With Data
  * @param {Array} vdom
  */
 Moon.prototype.build = function() {
   this.$dom = this.render();
-  this.buildNodes(this.$dom);
+  this.buildNodes(this.$dom, this.$el);
 }
 
 /**
  * Builds Nodes With Data
  * @param {Array} vdom
+ * @param {Node} parent
  */
-Moon.prototype.buildNodes = function(vdom) {
+Moon.prototype.buildNodes = function(vdom, parent) {
   for(var i = 0; i < vdom.children.length; i++) {
     var vnode = vdom.children[i];
     // Check if Moon should render this VNode
