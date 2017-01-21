@@ -80,50 +80,6 @@ var createElement = function(type, val, props, children, meta, node) {
 }
 
 /**
-  * Creates Virtual DOM
-  * @param {Node} node
-  * @return {Object} Virtual DOM
-  */
-var createVirtualDOM = function(node) {
-  var tag = node.nodeName;
-  var content = node.textContent;
-  var attrs = extractAttrs(node);
-  var children = [];
-
-  for(var i = 0; i < node.childNodes.length; i++) {
-    children.push(createVirtualDOM(node.childNodes[i]));
-  }
-
-  return createElement(tag, content, attrs, children, defaultMeta(), node);
-}
-
-/**
- * Renders Virtual DOM
- * @param {Object} vdom
- * @param {Object} data
- * @return {Object} Rendered Virtual DOM
- */
-var renderVirtualDOM = function(vdom, data) {
-  for(var i = 0; i < vdom.children.length; i++) {
-    var child = vdom.children[i];
-
-    if(child.type === "#text") {
-      child.compiled = compileTemplate(child.val)(data);
-      if(child.compiled === child.val) {
-        child.meta.shouldRender = false;
-      }
-    } else {
-      child.compiledProps = compileAttrs(child.props, data);
-    }
-
-    if(child.children) {
-      child = renderVirtualDOM(child, data);
-    }
-  }
-  return vdom;
-}
-
-/**
  * Adds Nodes to Rendered Virtual DOM
  * @param {Object} rdom
  * @param {Object} vdom
