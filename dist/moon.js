@@ -97,7 +97,7 @@
         compiledProps: props,
         children: children,
         meta: meta,
-        node: false
+        node: node
       };
     }
     
@@ -116,7 +116,7 @@
         children.push(createVirtualDOM(node.childNodes[i]));
       }
     
-      return createElement(tag, content, attrs, children, defaultMeta());
+      return createElement(tag, content, attrs, children, defaultMeta(), node);
     }
     
     /**
@@ -125,8 +125,24 @@
      * @param {Object} data
      * @return {Object} Rendered Virtual DOM
      */
-    var createRender = function(vdom, data) {
-      return new Function("")
+    var renderVirtualDOM = function(vdom, data) {
+      for(var i = 0; i < vdom.children.length; i++) {
+        var child = vdom.children[i];
+    
+        if(child.type === "#text") {
+          child.compiled = compileTemplate(child.val)(data);
+          if(child.compiled === child.val) {
+            child.meta.shouldRender = false;
+          }
+        } else {
+          child.compiledProps = compileAttrs(child.props, data);
+        }
+    
+        if(child.children) {
+          child = renderVirtualDOM(child, data);
+        }
+      }
+      return vdom;
     }
     
     /**
@@ -431,7 +447,11 @@
      * @return Virtual DOM
      */
     Moon.prototype.render = function() {
-      return this.$render(h);
+      if(this.$opts.render) {
+        return this.$render(h);
+      } else {
+        return renderVirtualDOM(this.$dom, this.$data);
+      }
     }
     
     /**
