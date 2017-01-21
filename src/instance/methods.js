@@ -132,7 +132,7 @@ Moon.prototype.mount = function(el) {
 
   this.$template = this.$opts.template || this.$el.innerHTML;
 
-  setInitialElementValue(this.$el, this.$template);
+  this.$el.innerHTML = this.$template;
 
   if(this.$opts.render) {
     this.$dom = this.$render(h);
