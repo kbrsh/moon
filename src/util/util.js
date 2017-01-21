@@ -21,7 +21,7 @@ var compileTemplate = function(template) {
   code.replace(templateRe, function(match, key) {
     code = code.replace(match, "' + data['" + key + "'] + '");
   });
-  code = code.replace(/\\n/g, "' + \n'");
+  code = code.replace(/\n/g, "' + \n'");
   var compile = new Function("data", "var out = '" + code + "'; return out");
   return compile;
 }
@@ -75,7 +75,7 @@ var createElement = function(type, val, props, children, meta, node) {
     compiledProps: props,
     children: children,
     meta: meta,
-    node: false
+    node: node
   };
 }
 
@@ -94,7 +94,7 @@ var createVirtualDOM = function(node) {
     children.push(createVirtualDOM(node.childNodes[i]));
   }
 
-  return createElement(tag, content, attrs, children, defaultMeta());
+  return createElement(tag, content, attrs, children, defaultMeta(), node);
 }
 
 /**
@@ -103,8 +103,24 @@ var createVirtualDOM = function(node) {
  * @param {Object} data
  * @return {Object} Rendered Virtual DOM
  */
-var createRender = function(vdom, data) {
-  var compile = new Function("vdom", "data", "compileTemplate", "var strToCompile = JSON.stringify(vdom); var compileStr = compileTemplate(strToCompile); return JSON.parse(compileStr(data))");
+var renderVirtualDOM = function(vdom, data) {
+  for(var i = 0; i < vdom.children.length; i++) {
+    var child = vdom.children[i];
+
+    if(child.type === "#text") {
+      child.compiled = compileTemplate(child.val)(data);
+      if(child.compiled === child.val) {
+        child.meta.shouldRender = false;
+      }
+    } else {
+      child.compiledProps = compileAttrs(child.props, data);
+    }
+
+    if(child.children) {
+      child = renderVirtualDOM(child, data);
+    }
+  }
+  return vdom;
 }
 
 /**

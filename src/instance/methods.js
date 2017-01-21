@@ -138,7 +138,11 @@ Moon.prototype.mount = function(el) {
  * @return Virtual DOM
  */
 Moon.prototype.render = function() {
-  return this.$render(h);
+  if(this.$opts.render) {
+    return this.$render(h);
+  } else {
+    return renderVirtualDOM(this.$dom, this.$data);
+  }
 }
 
 /**
