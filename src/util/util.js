@@ -22,20 +22,6 @@ var createElement = function(type, val, props, children, meta) {
 }
 
 /**
- * Adds Nodes to Rendered Virtual DOM
- * @param {Object} rdom
- * @param {Object} vdom
- * @return {Object} Rendered Virtual DOM with Nodes
- */
-var addNodes = function(rdom, vdom) {
-  rdom.node = vdom.node;
-  for(var vnode in rdom.children) {
-    rdom.children[vnode] = addNodes(rdom.children[vnode], vdom.children[vnode]);
-  }
-  return rdom;
-}
-
-/**
   * Gets Root Element
   * @param {String} html
   * @return {Node} Root Element
