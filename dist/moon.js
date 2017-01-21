@@ -216,7 +216,6 @@
         this.$directives = merge(this.$opts.directives || {}, directives);
         this.$events = {};
         this.$dom = {};
-        this.$nodes = {};
         this.$destroyed = false;
 
         /* ======= Listen for Changes ======= */
@@ -456,6 +455,7 @@
      */
     Moon.prototype.render = function() {
       if(this.$opts.render) {
+        var renderedDom = this.$render(h);
         return this.$render(h);
       } else {
         return renderVirtualDOM(this.$dom, this.$data);
