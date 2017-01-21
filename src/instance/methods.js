@@ -5,7 +5,7 @@
  * @param {String} msg
  */
 Moon.prototype.log = function(msg) {
-  if(!config.silent) console.log(msg);
+  if(!Moon.config.silent) console.log(msg);
 }
 
 /**
