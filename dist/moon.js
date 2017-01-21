@@ -150,7 +150,7 @@
     var addNodes = function(rdom, vdom) {
       rdom.node = vdom.node;
       for(var vnode in rdom.children) {
-        rdom.children[vnode].node = vdom.children[vnode].node;
+        rdom.children[vnode] = addNodes(rdom.children[vnode], vdom.children[vnode]);
       }
       return rdom;
     }
