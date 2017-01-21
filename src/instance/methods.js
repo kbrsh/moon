@@ -204,7 +204,7 @@ Moon.prototype.buildNodes = function(vdom, parent) {
         }
       }
 
-      this.buildNodes(vnode, parent);
+      this.buildNodes(vnode, parent.childNodes[i]);
     }
   }
 }

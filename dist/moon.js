@@ -142,6 +142,20 @@
     }
     
     /**
+     * Adds Nodes to Rendered Virtual DOM
+     * @param {Object} rdom
+     * @param {Object} vdom
+     * @return {Object} Rendered Virtual DOM with Nodes
+     */
+    var addNodes = function(rdom, vdom) {
+      rdom.node = vdom.node;
+      for(var vnode in rdom.children) {
+        rdom.children[vnode].node = vdom.children[vnode].node;
+      }
+      return rdom;
+    }
+    
+    /**
       * Gets Root Element
       * @param {String} html
       * @return {Node} Root Element
@@ -178,7 +192,7 @@
       var attrs = args.shift() || {};
       var children = args;
       if(typeof children[0] === "string") {
-        children[0] = createElement("#text", children[0], null, null, defaultMeta(), null)
+        children[0] = createElement("#text", children[0], {}, [], defaultMeta(), null)
       }
       return createElement(tag, children.join(""), attrs, children, defaultMeta(), null);
     };
@@ -455,8 +469,7 @@
      */
     Moon.prototype.render = function() {
       if(this.$opts.render) {
-        var renderedDom = this.$render(h);
-        return this.$render(h);
+        return addNodes(this.$render(h), this.$dom);
       } else {
         return renderVirtualDOM(this.$dom, this.$data);
       }
