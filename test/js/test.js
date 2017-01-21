@@ -1,7 +1,5 @@
 var expect = chai.expect;
-Moon.config({
-  silent: true
-});
+Moon.config.silent = true;
 
 // var MoonPerformance = {
 //   init: function() {
