@@ -121,7 +121,7 @@ Moon.prototype.emit = function(eventName, meta) {
 
 /**
  * Mounts Moon Element
- * @param {Node} el
+ * @param {Object} el
  */
 Moon.prototype.mount = function(el) {
   this.$el = document.querySelector(el);
@@ -152,8 +152,10 @@ Moon.prototype.render = function() {
 
 /**
  * Diff then Patches Nodes With Data
+ * @param {Object} node
+ * @param {Object} vnode
  */
-Moon.prototype.patch = function() {
+Moon.prototype.patch = function(node, vnode) {
 
 }
 
