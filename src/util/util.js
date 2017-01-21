@@ -22,19 +22,6 @@ var createElement = function(type, val, props, children, meta) {
 }
 
 /**
- * Merges two Objects
- * @param {Object} obj
- * @param {Object} obj2
- * @return {Object} Merged Objects
- */
-function merge(obj, obj2) {
-  for (var key in obj2) {
-    if (obj2.hasOwnProperty(key)) obj[key] = obj2[key];
-  }
-  return obj;
-}
-
-/**
  * Compiles JSX to Virtual DOM
  * @param {String} tag
  * @param {Object} attrs
@@ -53,12 +40,16 @@ var h = function() {
 };
 
 /**
- * Sets the Elements Initial Value
- * @param {Node} el
- * @param {String} value
+ * Merges two Objects
+ * @param {Object} obj
+ * @param {Object} obj2
+ * @return {Object} Merged Objects
  */
-var setInitialElementValue = function(el, value) {
-  el.innerHTML = value;
+function merge(obj, obj2) {
+  for (var key in obj2) {
+    if (obj2.hasOwnProperty(key)) obj[key] = obj2[key];
+  }
+  return obj;
 }
 
 /**
