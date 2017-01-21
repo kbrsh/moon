@@ -150,8 +150,7 @@ Moon.prototype.mount = function(el) {
  */
 Moon.prototype.render = function() {
   if(this.$opts.render) {
-    var renderedDom = this.$render(h);
-    return this.$render(h);
+    return addNodes(this.$render(h), this.$dom);
   } else {
     return renderVirtualDOM(this.$dom, this.$data);
   }
