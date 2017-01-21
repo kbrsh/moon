@@ -174,9 +174,9 @@ var h = function() {
   var attrs = args.shift() || {};
   var children = args;
   if(typeof children[0] === "string") {
-    children[0] = createElement("#text", children[0], {}, [], defaultMeta(), null)
+    children[0] = createElement("#text", children[0], {}, [], defaultMeta())
   }
-  return createElement(tag, children.join(""), attrs, children, defaultMeta(), null);
+  return createElement(tag, children.join(""), attrs, children, defaultMeta());
 };
 
 /**
