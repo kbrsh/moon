@@ -1,16 +1,6 @@
 /* ======= Global Utilities ======= */
 
 /**
- * Creates Default Metadata
- * @return {Object} Metadata
- */
-var defaultMeta = function() {
-  return {
-    shouldRender: true
-  }
-}
-
-/**
  * Creates a Virtual DOM Node
  * @param {String} type
  * @param {String} val
@@ -25,7 +15,9 @@ var createElement = function(type, val, props, children, meta) {
     val: val,
     props: props,
     children: children,
-    meta: meta
+    meta: meta || {
+      shouldRender: true
+    }
   };
 }
 
