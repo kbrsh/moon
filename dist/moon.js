@@ -19,164 +19,24 @@
     /* ======= Global Utilities ======= */
     
     /**
-     * Creates Default Metadata
-     * @return {Object} Metadata
-     */
-    var defaultMeta = function() {
-      return {
-        shouldRender: true
-      }
-    }
-    
-    /**
-     * Compiles a template with given data
-     * @param {String} template
-     * @return {String} Template Render Function
-     */
-    var compileTemplate = function(template) {
-      var code = template;
-      var templateRe = /{{([A-Za-z0-9_.()\[\]]+)}}/gi;
-      code.replace(templateRe, function(match, key) {
-        code = code.replace(match, "' + data['" + key + "'] + '");
-      });
-      code = code.replace(/\n/g, "' + \n'");
-      var compile = new Function("data", "var out = '" + code + "'; return out");
-      return compile;
-    }
-    
-    /**
-     * Converts attributes into key-value pairs
-     * @param {Node} node
-     * @return {Object} Key-Value pairs of Attributes
-     */
-    var extractAttrs = function(node) {
-      var attrs = {};
-      if(!node.attributes) return attrs;
-      var rawAttrs = node.attributes;
-      for(var i = 0; i < rawAttrs.length; i++) {
-        attrs[rawAttrs[i].name] = rawAttrs[i].value;
-      }
-    
-      return attrs;
-    }
-    
-    /**
-     * Compiles Attributes
-     * @param {Object} attrs
-     * @param {Object} data
-     * @return {Object} Compiled Key-Value pairs of Attributes
-     */
-    var compileAttrs = function(attrs, data) {
-      var compiled = {};
-      for(var attr in attrs) {
-        compiled[attr] = compileTemplate(attrs[attr])(data);
-      }
-      return compiled;
-    }
-    
-    /**
      * Creates a Virtual DOM Node
      * @param {String} type
      * @param {String} val
      * @param {Object} props
      * @param {Array} children
      * @param {Object} meta
-     * @param {Node} node
      * @return {Object} Virtual DOM Node
      */
-    var createElement = function(type, val, props, children, meta, node) {
+    var createElement = function(type, val, props, children, meta) {
       return {
         type: type,
         val: val,
-        compiled: val,
         props: props,
-        compiledProps: props,
         children: children,
-        meta: meta,
-        node: node
+        meta: meta || {
+          shouldRender: true
+        }
       };
-    }
-    
-    /**
-      * Creates Virtual DOM
-      * @param {Node} node
-      * @return {Object} Virtual DOM
-      */
-    var createVirtualDOM = function(node) {
-      var tag = node.nodeName;
-      var content = node.textContent;
-      var attrs = extractAttrs(node);
-      var children = [];
-    
-      for(var i = 0; i < node.childNodes.length; i++) {
-        children.push(createVirtualDOM(node.childNodes[i]));
-      }
-    
-      return createElement(tag, content, attrs, children, defaultMeta(), node);
-    }
-    
-    /**
-     * Renders Virtual DOM
-     * @param {Object} vdom
-     * @param {Object} data
-     * @return {Object} Rendered Virtual DOM
-     */
-    var renderVirtualDOM = function(vdom, data) {
-      for(var i = 0; i < vdom.children.length; i++) {
-        var child = vdom.children[i];
-    
-        if(child.type === "#text") {
-          child.compiled = compileTemplate(child.val)(data);
-          if(child.compiled === child.val) {
-            child.meta.shouldRender = false;
-          }
-        } else {
-          child.compiledProps = compileAttrs(child.props, data);
-        }
-    
-        if(child.children) {
-          child = renderVirtualDOM(child, data);
-        }
-      }
-      return vdom;
-    }
-    
-    /**
-     * Adds Nodes to Rendered Virtual DOM
-     * @param {Object} rdom
-     * @param {Object} vdom
-     * @return {Object} Rendered Virtual DOM with Nodes
-     */
-    var addNodes = function(rdom, vdom) {
-      rdom.node = vdom.node;
-      for(var vnode in rdom.children) {
-        rdom.children[vnode] = addNodes(rdom.children[vnode], vdom.children[vnode]);
-      }
-      return rdom;
-    }
-    
-    /**
-      * Gets Root Element
-      * @param {String} html
-      * @return {Node} Root Element
-      */
-    var getRootElement = function(html) {
-      var dummy = document.createElement('div');
-      dummy.innerHTML = html;
-      return dummy.firstChild;
-    }
-    
-    /**
-     * Merges two Objects
-     * @param {Object} obj
-     * @param {Object} obj2
-     * @return {Object} Merged Objects
-     */
-    function merge(obj, obj2) {
-      for (var key in obj2) {
-        if (obj2.hasOwnProperty(key)) obj[key] = obj2[key];
-      }
-      return obj;
     }
     
     /**
@@ -192,18 +52,22 @@
       var attrs = args.shift() || {};
       var children = args;
       if(typeof children[0] === "string") {
-        children[0] = createElement("#text", children[0], {}, [], defaultMeta(), null)
+        children[0] = createElement("#text", children[0], {}, [], defaultMeta())
       }
-      return createElement(tag, children.join(""), attrs, children, defaultMeta(), null);
+      return createElement(tag, children.join(""), attrs, children, defaultMeta());
     };
     
     /**
-     * Sets the Elements Initial Value
-     * @param {Node} el
-     * @param {String} value
+     * Merges two Objects
+     * @param {Object} obj
+     * @param {Object} obj2
+     * @return {Object} Merged Objects
      */
-    var setInitialElementValue = function(el, value) {
-      el.innerHTML = value;
+    function merge(obj, obj2) {
+      for (var key in obj2) {
+        if (obj2.hasOwnProperty(key)) obj[key] = obj2[key];
+      }
+      return obj;
     }
     
     /**
@@ -440,7 +304,7 @@
     
     /**
      * Mounts Moon Element
-     * @param {Node} el
+     * @param {Object} el
      */
     Moon.prototype.mount = function(el) {
       this.$el = document.querySelector(el);
@@ -451,12 +315,10 @@
     
       this.$template = this.$opts.template || this.$el.innerHTML;
     
-      setInitialElementValue(this.$el, this.$template);
+      this.$el.innerHTML = this.$template;
     
-      if(this.$opts.render) {
-        this.$dom = this.$render(h);
-      } else {
-        this.$dom = createVirtualDOM(this.$el);
+      if(this.$render === noop) {
+        this.$render = createRender(this.$template);
       }
     
       this.build();
@@ -468,64 +330,24 @@
      * @return Virtual DOM
      */
     Moon.prototype.render = function() {
-      if(this.$opts.render) {
-        return addNodes(this.$render(h), this.$dom);
-      } else {
-        return renderVirtualDOM(this.$dom, this.$data);
-      }
+      return this.$render(h);
     }
     
     /**
-     * Render and Builds the DOM With Data
-     * @param {Array} vdom
+     * Diff then Patches Nodes With Data
+     * @param {Object} node
+     * @param {Object} vnode
+     */
+    Moon.prototype.patch = function(node, vnode) {
+    
+    }
+    
+    /**
+     * Render and Patches the DOM With Data
      */
     Moon.prototype.build = function() {
       this.$dom = this.render();
-      this.buildNodes(this.$dom, this.$el);
-    }
-    
-    /**
-     * Builds Nodes With Data
-     * @param {Array} vdom
-     * @param {Node} parent
-     */
-    Moon.prototype.buildNodes = function(vdom, parent) {
-      for(var i = 0; i < vdom.children.length; i++) {
-        var vnode = vdom.children[i];
-        // If no node, create one
-        if(!vnode.node) {
-          var node;
-          if(vnode.type === "#text") {
-            node = document.createTextNode(vnode.val);
-          } else {
-            node = document.createElement(vnode.type);
-            node.textContent = vnode.textContent;
-          }
-          parent.appendChild(node);
-          vnode.node = node;
-        }
-        // Check if Moon should render this VNode
-        if(vnode.meta.shouldRender) {
-          // If it is a text node, render it
-          if(vnode.type === "#text") {
-            vnode.node.textContent = vnode.compiled;
-          // If it is a different node, render the props
-          } else if(vnode.props) {
-            // Compile the properties
-            for(var attr in vnode.compiledProps) {
-              var compiledProp = vnode.compiledProps[attr];
-              if(directives[attr]) {
-                vnode.node.removeAttribute(attr);
-                directives[attr](vnode.node, compiledProp, vnode);
-              } else {
-                vnode.node.setAttribute(attr, compiledProp);
-              }
-            }
-          }
-    
-          this.buildNodes(vnode, parent.childNodes[i]);
-        }
-      }
+      this.patch(this.$el, this.$dom);
     }
     
     /**
