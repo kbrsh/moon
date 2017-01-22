@@ -2,23 +2,45 @@ var generateEl = function(el) {
 	var code = "";
 	for(var i = 0; i < el.children.length; i++) {
   	var child = el.children[i];
-  	code += `createElement("${child.type}")`;
+    var c;
+    if(child.children) {
+      c = generateEl(child);
+    }
+  	code += `h("${child.type}", "${JSON.stringify(child.props)}", ${JSON.stringify(c)})`;
   }
   return code;
 }
 
 var generate = function(ast) {
-
-  var code = JSON.stringify(ast);
-  code.replace(TEMPLATE_RE, function(match, key) {
-    code = code.replace(match, "' + data['" + key + "'] + '");
-  });
-  var render = new Function("data", "var out = '" + code + "'; return out");
-  return render;
-}
-
-var generate = function(ast) {
   var TEMPLATE_RE = /{{([A-Za-z0-9_.()\[\]]+)}}/gi;
   var code = "return " + generateEl(ast);
-  return new Function("createElement", code)
+  code.replace(TEMPLATE_RE, function(match, key) {
+    code = code.replace(match, '" + data["' + key + '"] + "');
+  });
+  return new Function("h", code)
 }
+
+var l = generate({
+  type: 'root',
+  props: {
+
+  },
+  children: [
+    {
+      type: "h1",
+      props: {
+
+      },
+      children: [
+        {
+          type: "#text",
+          props: {
+
+          },
+          children: ['Hello']
+        }
+      ]
+    }
+  ]
+});
+console.log(l(h))
