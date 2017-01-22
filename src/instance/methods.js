@@ -1,22 +1,6 @@
 /* ======= Instance Methods ======= */
 
 /**
- * Logs a Message
- * @param {String} msg
- */
-Moon.prototype.log = function(msg) {
-  if(!Moon.config.silent) console.log(msg);
-}
-
-/**
- * Throws an Error
- * @param {String} msg
- */
-Moon.prototype.error = function(msg) {
-  console.error("[Moon] ERR: " + msg);
-}
-
-/**
  * Gets Value in Data
  * @param {String} key
  * @return {String} Value of key in data
