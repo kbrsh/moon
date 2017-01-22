@@ -1,5 +1,4 @@
 var compile = function(template) {
-  var tokens = lex(input);
-  var ast = parse(tokens);
+  var ast = parse(template);
   return generate(ast);
 }
