@@ -111,7 +111,7 @@ Moon.prototype.mount = function(el) {
   this.$el = document.querySelector(el);
 
   if(!this.$el) {
-    this.error("Element " + this.$opts.el + " not found");
+    error("Element " + this.$opts.el + " not found");
   }
 
   this.$template = this.$opts.template || this.$el.innerHTML;
@@ -155,7 +155,7 @@ Moon.prototype.build = function() {
  * Initializes Moon
  */
 Moon.prototype.init = function() {
-  this.log("======= Moon =======");
+  log("======= Moon =======");
   this.$hooks.created();
 
   if(this.$opts.el) {
