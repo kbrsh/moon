@@ -20,5 +20,5 @@ var generate = function(ast) {
 var generate = function(ast) {
   var TEMPLATE_RE = /{{([A-Za-z0-9_.()\[\]]+)}}/gi;
   var code = "return " + generateEl(ast);
-  return new Function("data", "createElement", code)
+  return new Function("createElement", code)
 }
