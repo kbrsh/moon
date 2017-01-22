@@ -45,7 +45,7 @@ var h = function() {
  * @return {Function} Render Function
  */
 var createRender = function(template) {
-
+  return new Function('return "' + template + '"');
 }
 
 /**
