@@ -46,6 +46,12 @@
         this.init();
     }
 
+    /* ======= Compiler ======= */
+    //=require compiler/lexer.js
+    //=require compiler/parser.js
+    //=require compiler/generator.js
+    //=require compiler/compiler.js
+    
     //=require instance/methods.js
 
     //=require global/api.js
