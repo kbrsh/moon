@@ -1,0 +1,3 @@
+var generate = function(ast) {
+
+}
