@@ -2,11 +2,16 @@ var generateEl = function(el) {
 	var code = "";
 	for(var i = 0; i < el.children.length; i++) {
   	var child = el.children[i];
-    var c;
     if(child.children) {
-      c = generateEl(child);
+      child.children = child.children.map(function(c){
+        return generateEl(c);
+      });
     }
-  	code += `h("${child.type}", "${JSON.stringify(child.props)}", ${JSON.stringify(c)})`;
+    if(typeof child === "string") {
+      code += "h(null, null, \"" + child + "\")";
+    } else {
+      code += "h(\"" + child.type + "\", " + JSON.stringify(child.props) + ", " + child.children + ")";
+    }
   }
   return code;
 }
@@ -19,28 +24,3 @@ var generate = function(ast) {
   });
   return new Function("h", code)
 }
-
-var l = generate({
-  type: 'root',
-  props: {
-
-  },
-  children: [
-    {
-      type: "h1",
-      props: {
-
-      },
-      children: [
-        {
-          type: "#text",
-          props: {
-
-          },
-          children: ['Hello']
-        }
-      ]
-    }
-  ]
-});
-console.log(l(h))
