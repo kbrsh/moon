@@ -1,6 +1,22 @@
 /* ======= Global Utilities ======= */
 
 /**
+ * Logs a Message
+ * @param {String} msg
+ */
+var log = function(msg) {
+  if(!Moon.config.silent) console.log(msg);
+}
+
+/**
+ * Throws an Error
+ * @param {String} msg
+ */
+var error = function(msg) {
+  console.error("[Moon] ERR: " + msg);
+}
+
+/**
  * Creates a Virtual DOM Node
  * @param {String} type
  * @param {String} val
@@ -45,7 +61,7 @@ var h = function() {
  * @return {Function} Render Function
  */
 var createRender = function(template) {
-  
+
 }
 
 /**
