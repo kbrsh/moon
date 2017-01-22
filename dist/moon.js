@@ -93,110 +93,7 @@
     
     }
     
-
-    function Moon(opts) {
-        /* ======= Initial Values ======= */
-        this.$opts = opts || {};
-
-        var self = this;
-        var _data = this.$opts.data;
-
-        this.$id = id++;
-
-        this.$render = this.$opts.render || noop;
-        this.$hooks = merge({created: noop, mounted: noop, updated: noop, destroyed: noop}, this.$opts.hooks);
-        this.$methods = this.$opts.methods || {};
-        this.$components = merge(this.$opts.components || {}, components);
-        this.$directives = merge(this.$opts.directives || {}, directives);
-        this.$events = {};
-        this.$dom = {};
-        this.$destroyed = false;
-
-        /* ======= Listen for Changes ======= */
-        Object.defineProperty(this, '$data', {
-            get: function() {
-                return _data;
-            },
-            set: function(value) {
-                _data = value;
-                this.build(this.$dom.children);
-            },
-            configurable: true
-        });
-
-        /* ======= Default Directives ======= */
-        directives[Moon.config.prefix + "if"] = function(el, val, vdom) {
-          var evaluated = new Function("return " + val);
-          if(!evaluated()) {
-            for(var i = 0; i < vdom.children.length; i++) {
-              vdom.children[i].node.textContent = "";
-              vdom.children[i].meta.shouldRender = false;
-            }
-          } else {
-            for(var i = 0; i < vdom.children.length; i++) {
-              vdom.children[i].meta.shouldRender = true;
-            }
-          }
-        }
-        
-        directives[Moon.config.prefix + "show"] = function(el, val, vdom) {
-          var evaluated = new Function("return " + val);
-          if(!evaluated()) {
-            el.style.display = 'none';
-          } else {
-            el.style.display = 'block';
-          }
-        }
-        
-        directives[Moon.config.prefix + "on"] = function(el, val, vdom) {
-          var splitVal = val.split(":");
-          var eventToCall = splitVal[0];
-          var methodToCall = splitVal[1];
-          if(self.$events[eventToCall]) {
-            self.on(eventToCall, methodToCall);
-          } else {
-            el.addEventListener(eventToCall, function(e) {
-              self.callMethod(methodToCall, [e]);
-            });
-          }
-          delete vdom.props[Moon.config.prefix + "on"];
-        }
-        
-        directives[Moon.config.prefix + "model"] = function(el, val, vdom) {
-          el.value = self.get(val);
-          el.addEventListener("input", function() {
-            self.set(val, el.value);
-          });
-          delete vdom.props[Moon.config.prefix + "model"];
-        }
-        
-        directives[Moon.config.prefix + "for"] = function(el, val, vdom) {
-          var parts = val.split(" in ");
-          var alias = parts[0];
-          var array = self.get(parts[1]);
-        }
-        
-        directives[Moon.config.prefix + "once"] = function(el, val, vdom) {
-          vdom.meta.shouldRender = false;
-        }
-        
-        directives[Moon.config.prefix + "text"] = function(el, val, vdom) {
-          el.textContent = val;
-        }
-        
-        directives[Moon.config.prefix + "html"] = function(el, val, vdom) {
-          el.innerHTML = val;
-        }
-        
-        directives[Moon.config.prefix + "mask"] = function(el, val, vdom) {
-        
-        }
-        
-
-        /* ======= Initialize 🎉 ======= */
-        this.init();
-    }
-
+    
     /* ======= Compiler ======= */
     var lex = function(input) {
       var state = {
@@ -377,176 +274,280 @@
     }
     
     var compile = function(template) {
-      var tokens = lex(tokens);
+      var tokens = lex(template);
       var ast = parse(tokens);
       return generate(ast);
     }
     
-        /* ======= Instance Methods ======= */
-        
-        /**
-         * Gets Value in Data
-         * @param {String} key
-         * @return {String} Value of key in data
-         */
-        Moon.prototype.get = function(key) {
-          return this.$data[key];
-        }
-        
-        /**
-         * Sets Value in Data
-         * @param {String} key
-         * @param {String} val
-         */
-        Moon.prototype.set = function(key, val) {
-          this.$data[key] = val;
-          if(!this.$destroyed) this.build();
-          this.$hooks.updated();
-        }
-        
-        /**
-         * Destroys Moon Instance
-         */
-        Moon.prototype.destroy = function() {
-          Object.defineProperty(this, '$data', {
+
+    function Moon(opts) {
+        /* ======= Initial Values ======= */
+        this.$opts = opts || {};
+
+        var self = this;
+        var _data = this.$opts.data;
+
+        this.$id = id++;
+
+        this.$render = this.$opts.render || noop;
+        this.$hooks = merge({created: noop, mounted: noop, updated: noop, destroyed: noop}, this.$opts.hooks);
+        this.$methods = this.$opts.methods || {};
+        this.$components = merge(this.$opts.components || {}, components);
+        this.$directives = merge(this.$opts.directives || {}, directives);
+        this.$events = {};
+        this.$dom = {};
+        this.$destroyed = false;
+
+        /* ======= Listen for Changes ======= */
+        Object.defineProperty(this, '$data', {
+            get: function() {
+                return _data;
+            },
             set: function(value) {
-              _data = value;
+                _data = value;
+                this.build(this.$dom.children);
+            },
+            configurable: true
+        });
+
+        /* ======= Default Directives ======= */
+        directives[Moon.config.prefix + "if"] = function(el, val, vdom) {
+          var evaluated = new Function("return " + val);
+          if(!evaluated()) {
+            for(var i = 0; i < vdom.children.length; i++) {
+              vdom.children[i].node.textContent = "";
+              vdom.children[i].meta.shouldRender = false;
             }
-          });
-          this.removeEvents();
-          this.$destroyed = true;
-          this.$hooks.destroyed();
-        }
-        
-        /**
-         * Calls a method
-         * @param {String} method
-         */
-        Moon.prototype.callMethod = function(method, args) {
-          args = args || [];
-          this.$methods[method].apply(this, args);
-        }
-        
-        // Event Emitter, adapted from https://github.com/KingPixil/voke
-        
-        /**
-         * Attaches an Event Listener
-         * @param {String} eventName
-         * @param {Function} action
-         */
-        Moon.prototype.on = function(eventName, action) {
-          if(this.$events[eventName]) {
-            this.$events[eventName].push(action);
           } else {
-            this.$events[eventName] = [action];
-          }
-        }
-        
-        /**
-         * Removes an Event Listener
-         * @param {String} eventName
-         * @param {Function} action
-         */
-        Moon.prototype.off = function(eventName, action) {
-          var index = this.$events[eventName].indexOf(action);
-          if(index !== -1) {
-            this.$events[eventName].splice(index, 1);
-          }
-        }
-        
-        /**
-         * Removes All Event Listeners
-         * @param {String} eventName
-         * @param {Function} action
-         */
-        Moon.prototype.removeEvents = function() {
-          for(var evt in this.$events) {
-            this.$events[evt] = [];
-          }
-        }
-        
-        /**
-         * Emits an Event
-         * @param {String} eventName
-         * @param {Object} meta
-         */
-        Moon.prototype.emit = function(eventName, meta) {
-          meta = meta || {};
-          meta.type = eventName;
-        
-          if(this.$events["*"]) {
-            for(var i = 0; i < this.$events["*"].length; i++) {
-              var globalHandler = this.$events["*"][i];
-              globalHandler(meta);
+            for(var i = 0; i < vdom.children.length; i++) {
+              vdom.children[i].meta.shouldRender = true;
             }
           }
+        }
         
-          for(var i = 0; i < this.$events[eventName].length; i++) {
-            var handler = this.$events[eventName][i];
-            handler(meta);
+        directives[Moon.config.prefix + "show"] = function(el, val, vdom) {
+          var evaluated = new Function("return " + val);
+          if(!evaluated()) {
+            el.style.display = 'none';
+          } else {
+            el.style.display = 'block';
           }
         }
         
-        /**
-         * Mounts Moon Element
-         * @param {Object} el
-         */
-        Moon.prototype.mount = function(el) {
-          this.$el = document.querySelector(el);
-        
-          if(!this.$el) {
-            error("Element " + this.$opts.el + " not found");
+        directives[Moon.config.prefix + "on"] = function(el, val, vdom) {
+          var splitVal = val.split(":");
+          var eventToCall = splitVal[0];
+          var methodToCall = splitVal[1];
+          if(self.$events[eventToCall]) {
+            self.on(eventToCall, methodToCall);
+          } else {
+            el.addEventListener(eventToCall, function(e) {
+              self.callMethod(methodToCall, [e]);
+            });
           }
-        
-          this.$template = this.$opts.template || this.$el.innerHTML;
-        
-          this.$el.innerHTML = this.$template;
-        
-          if(this.$render === noop) {
-            this.$render = Moon.compile(this.$template);
-          }
-        
-          this.build();
-          this.$hooks.mounted();
+          delete vdom.props[Moon.config.prefix + "on"];
         }
         
-        /**
-         * Renders Virtual DOM
-         * @return Virtual DOM
-         */
-        Moon.prototype.render = function() {
-          return this.$render(h);
+        directives[Moon.config.prefix + "model"] = function(el, val, vdom) {
+          el.value = self.get(val);
+          el.addEventListener("input", function() {
+            self.set(val, el.value);
+          });
+          delete vdom.props[Moon.config.prefix + "model"];
         }
         
-        /**
-         * Diff then Patches Nodes With Data
-         * @param {Object} node
-         * @param {Object} vnode
-         */
-        Moon.prototype.patch = function(node, vnode) {
+        directives[Moon.config.prefix + "for"] = function(el, val, vdom) {
+          var parts = val.split(" in ");
+          var alias = parts[0];
+          var array = self.get(parts[1]);
+        }
+        
+        directives[Moon.config.prefix + "once"] = function(el, val, vdom) {
+          vdom.meta.shouldRender = false;
+        }
+        
+        directives[Moon.config.prefix + "text"] = function(el, val, vdom) {
+          el.textContent = val;
+        }
+        
+        directives[Moon.config.prefix + "html"] = function(el, val, vdom) {
+          el.innerHTML = val;
+        }
+        
+        directives[Moon.config.prefix + "mask"] = function(el, val, vdom) {
         
         }
         
-        /**
-         * Render and Patches the DOM With Data
-         */
-        Moon.prototype.build = function() {
-          this.$dom = this.render();
-          this.patch(this.$el, this.$dom);
+
+        /* ======= Initialize 🎉 ======= */
+        this.init();
+    }
+
+    /* ======= Instance Methods ======= */
+    
+    /**
+     * Gets Value in Data
+     * @param {String} key
+     * @return {String} Value of key in data
+     */
+    Moon.prototype.get = function(key) {
+      return this.$data[key];
+    }
+    
+    /**
+     * Sets Value in Data
+     * @param {String} key
+     * @param {String} val
+     */
+    Moon.prototype.set = function(key, val) {
+      this.$data[key] = val;
+      if(!this.$destroyed) this.build();
+      this.$hooks.updated();
+    }
+    
+    /**
+     * Destroys Moon Instance
+     */
+    Moon.prototype.destroy = function() {
+      Object.defineProperty(this, '$data', {
+        set: function(value) {
+          _data = value;
         }
-        
-        /**
-         * Initializes Moon
-         */
-        Moon.prototype.init = function() {
-          log("======= Moon =======");
-          this.$hooks.created();
-        
-          if(this.$opts.el) {
-            this.mount(this.$opts.el);
-          }
+      });
+      this.removeEvents();
+      this.$destroyed = true;
+      this.$hooks.destroyed();
+    }
+    
+    /**
+     * Calls a method
+     * @param {String} method
+     */
+    Moon.prototype.callMethod = function(method, args) {
+      args = args || [];
+      this.$methods[method].apply(this, args);
+    }
+    
+    // Event Emitter, adapted from https://github.com/KingPixil/voke
+    
+    /**
+     * Attaches an Event Listener
+     * @param {String} eventName
+     * @param {Function} action
+     */
+    Moon.prototype.on = function(eventName, action) {
+      if(this.$events[eventName]) {
+        this.$events[eventName].push(action);
+      } else {
+        this.$events[eventName] = [action];
+      }
+    }
+    
+    /**
+     * Removes an Event Listener
+     * @param {String} eventName
+     * @param {Function} action
+     */
+    Moon.prototype.off = function(eventName, action) {
+      var index = this.$events[eventName].indexOf(action);
+      if(index !== -1) {
+        this.$events[eventName].splice(index, 1);
+      }
+    }
+    
+    /**
+     * Removes All Event Listeners
+     * @param {String} eventName
+     * @param {Function} action
+     */
+    Moon.prototype.removeEvents = function() {
+      for(var evt in this.$events) {
+        this.$events[evt] = [];
+      }
+    }
+    
+    /**
+     * Emits an Event
+     * @param {String} eventName
+     * @param {Object} meta
+     */
+    Moon.prototype.emit = function(eventName, meta) {
+      meta = meta || {};
+      meta.type = eventName;
+    
+      if(this.$events["*"]) {
+        for(var i = 0; i < this.$events["*"].length; i++) {
+          var globalHandler = this.$events["*"][i];
+          globalHandler(meta);
         }
-        
+      }
+    
+      for(var i = 0; i < this.$events[eventName].length; i++) {
+        var handler = this.$events[eventName][i];
+        handler(meta);
+      }
+    }
+    
+    /**
+     * Mounts Moon Element
+     * @param {Object} el
+     */
+    Moon.prototype.mount = function(el) {
+      this.$el = document.querySelector(el);
+    
+      if(!this.$el) {
+        error("Element " + this.$opts.el + " not found");
+      }
+    
+      this.$template = this.$opts.template || this.$el.innerHTML;
+    
+      this.$el.innerHTML = this.$template;
+    
+      if(this.$render === noop) {
+        this.$render = Moon.compile(this.$template);
+      }
+    
+      this.build();
+      this.$hooks.mounted();
+    }
+    
+    /**
+     * Renders Virtual DOM
+     * @return Virtual DOM
+     */
+    Moon.prototype.render = function() {
+      return this.$render(h);
+    }
+    
+    /**
+     * Diff then Patches Nodes With Data
+     * @param {Object} node
+     * @param {Object} vnode
+     */
+    Moon.prototype.patch = function(node, vnode) {
+    
+    }
+    
+    /**
+     * Render and Patches the DOM With Data
+     */
+    Moon.prototype.build = function() {
+      this.$dom = this.render();
+      this.patch(this.$el, this.$dom);
+    }
+    
+    /**
+     * Initializes Moon
+     */
+    Moon.prototype.init = function() {
+      log("======= Moon =======");
+      this.$hooks.created();
+    
+      if(this.$opts.el) {
+        this.mount(this.$opts.el);
+      }
+    }
+    
 
     /* ======= Global API ======= */
     
