@@ -58,6 +58,16 @@
     };
     
     /**
+     * Compiles Template to Render Function
+     * @param {String} template
+     * @return {Function} Render Function
+     */
+    var createRender = function(template) {
+      console.log('return "' + template + '"')
+      return new Function('return "' + template + '"');
+    }
+    
+    /**
      * Merges two Objects
      * @param {Object} obj
      * @param {Object} obj2
