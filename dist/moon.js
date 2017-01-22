@@ -368,7 +368,12 @@
       code.replace(TEMPLATE_RE, function(match, key) {
         code = code.replace(match, '" + data["' + key + '"] + "');
       });
-      return new Function("h", code);
+      try {
+        return new Function("h", code);
+      } catch(e) {
+        error("Could not create render function");
+        return noop;
+      }
     }
     
     var compile = function(template) {
