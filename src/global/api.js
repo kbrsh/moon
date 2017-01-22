@@ -41,3 +41,12 @@ Moon.component = function(name, opts) {
   components[name] = component;
   return component;
 }
+
+/**
+ * Compiles HTML to a Render Function
+ * @param {String} template
+ * @return {Function} render function
+ */
+Moon.compile = function(template) {
+  return compile(template);
+}

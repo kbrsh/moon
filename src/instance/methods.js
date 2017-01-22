@@ -119,7 +119,7 @@ Moon.prototype.mount = function(el) {
   this.$el.innerHTML = this.$template;
 
   if(this.$render === noop) {
-    this.$render = createRender(this.$template);
+    this.$render = Moon.compile(this.$template);
   }
 
   this.build();
