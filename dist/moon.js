@@ -63,8 +63,7 @@
      * @return {Function} Render Function
      */
     var createRender = function(template) {
-      console.log('return "' + template + '"')
-      return new Function('return "' + template + '"');
+      return new Function('return "' + template.replace(/"/g, '\\"') + '"');
     }
     
     /**
