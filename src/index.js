@@ -9,6 +9,12 @@
     var id = 0;
 
     //=require util/util.js
+    
+    /* ======= Compiler ======= */
+    //=require compiler/lexer.js
+    //=require compiler/parser.js
+    //=require compiler/generator.js
+    //=require compiler/compiler.js
 
     function Moon(opts) {
         /* ======= Initial Values ======= */
@@ -46,12 +52,6 @@
         this.init();
     }
 
-    /* ======= Compiler ======= */
-    //=require compiler/lexer.js
-    //=require compiler/parser.js
-    //=require compiler/generator.js
-    //=require compiler/compiler.js
-    
     //=require instance/methods.js
 
     //=require global/api.js
