@@ -13,7 +13,7 @@ var parse = function(tokens) {
     root.children.push(walk(state));
   }
 
-  return root;
+  return root.children[0];
 }
 
 var createParseNode = function(type, props, children) {
