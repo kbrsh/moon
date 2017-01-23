@@ -114,9 +114,9 @@ Moon.prototype.mount = function(el) {
     error("Element " + this.$opts.el + " not found");
   }
 
-  this.$template = this.$opts.template || this.$el.innerHTML;
+  this.$template = this.$opts.template || this.$el.outerHTML;
 
-  this.$el.innerHTML = this.$template;
+  this.$el.outerHTML = this.$template;
 
   if(this.$render === noop) {
     this.$render = Moon.compile(this.$template);
