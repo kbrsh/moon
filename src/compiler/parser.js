@@ -1,16 +1,19 @@
 var parse = function(tokens) {
   var root = {
     type: "ROOT",
-    props: {},
     children: []
   }
+
   var state = {
-    tokens: tokens,
     current: 0,
-    stack: root,
+    tokens: tokens
   }
-  parseState(state);
-  return root.children[0];
+
+  while(state.current < tokens.length) {
+    root.children.push(walk(state));
+  }
+
+  return root;
 }
 
 var createParseNode = function(type, props, children) {
@@ -21,45 +24,18 @@ var createParseNode = function(type, props, children) {
   }
 }
 
-var parseState = function(state) {
-  var len = state.tokens.length;
+var walk = function(state) {
+  var token = state.tokens[state.current];
+  var secondToken = state.tokens[state.current + 1];
+  var thirdToken = state.tokens[state.current + 2];
+  var fourthToken = state.tokens[state.current + 3]
 
-  while(state.current < len) {
-    var token = state.tokens[state.current];
-    var fourthToken = state.tokens[state.current+3];
-
-    // Check for opening tag
-    if(token.type === "tagStart" && !token.close && !fourthToken.close) {
-      state.current++;
-      var tagToken = state.tokens[state.current];
-
-      state.current++;
-      var attributeToken = state.tokens[state.current];
-      state.stack.children.push(createParseNode(tagToken.value, attributeToken.value, []));
-      continue;
-    }
-
-    // Check for closing tag
-    if(token.type === "tagStart" && (token.close || fourthToken.close)) {
-      state.current++;
-      var tagToken = state.tokens[state.current];
-      var currentPos = state.current;
-      var collectedTokens = [];
-      for(state.current; state.current > -1; state.current--) {
-        var currentToken = state.tokens[state.current];
-        var startCurrentToken = state.tokens[state.current - 1];
-        var endCurrentToken = state.tokens[state.current + 2];
-        var pendingToken = state.stack.children[state.stack.children.length - 1];
-        if(currentToken.type === "tag" && !startCurrentToken.close && !endCurrentToken.close && currentToken.value === pendingToken.type) {
-          break;
-        }
-
-        collectedTokens.push(currentToken);
-      }
-      console.log(collectedTokens)
-      state.current = currentPos;
-    }
+  if(token.type === "text") {
     state.current++;
+    return createParseNode("#text", {}, [token.value]);
+  }
+  if(token.type === "tagStart" && !token.close && !fourthToken.close) {
+
   }
 }
 
