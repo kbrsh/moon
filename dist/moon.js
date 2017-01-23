@@ -365,7 +365,7 @@
       var TEMPLATE_RE = /{{([A-Za-z0-9_.()\[\]]+)}}/gi;
       var code = "return " + generateEl(ast);
       code.replace(TEMPLATE_RE, function(match, key) {
-        code = code.replace(match, '" + data["' + key + '"] + "');
+        code = code.replace(match, '" + this.get("' + key + '") + "');
       });
       try {
         return new Function("h", code);
