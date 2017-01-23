@@ -93,9 +93,11 @@ var lexTag = function(state) {
   });
   state.current += isClosingStart ? 2 : 1;
 
+  // Lex type and attributes
   lexTagType(state);
   lexAttributes(state);
 
+  // Lex ending tag
   var isClosingEnd = input.charAt(state.current) === "/";
   var endChar = input.charAt(state.current);
   state.tokens.push({
@@ -144,6 +146,7 @@ var lexAttributes = function(state) {
   var attrs = {};
   var rawAttrs = "";
 
+  // Captures attributes
   var ATTRIBUTE_RE = /([^=\s]*)(=?)("[^"]*"|[^\s"]*)/gi
 
   while(end < len) {
@@ -158,12 +161,15 @@ var lexAttributes = function(state) {
   rawAttrs.replace(ATTRIBUTE_RE, function(match, key, equal, value) {
     var firstChar = value[0];
     var lastChar = value[value.length - 1];
+    // Quotes were included in the value
     if((firstChar === "'" && lastChar === "'") || (firstChar === "\"" && lastChar === "\"")) {
       value = value.slice(1, -1);
     }
+    // If there is no value provided
     if(!value) {
       value = true
     }
+    // Set attribute value
     if(key && value) {
       attrs[key] = value;
     }
