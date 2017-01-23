@@ -28,23 +28,36 @@ var walk = function(state) {
   var token = state.tokens[state.current];
   var secondToken = state.tokens[state.current + 1];
   var thirdToken = state.tokens[state.current + 2];
-  var fourthToken = state.tokens[state.current + 3]
+  var fourthToken = state.tokens[state.current + 3];
+
+  var increment = function(num) {
+    state.current += num || 1;
+    token = state.tokens[state.current];
+    secondToken = state.tokens[state.current + 1];
+    thirdToken = state.tokens[state.current + 2];
+    fourthToken = state.tokens[state.current + 3];
+  }
 
   if(token.type === "text") {
-    state.current++;
     return createParseNode("#text", {}, [token.value]);
+    increment();
   }
+
+  // Start of new Tag
   if(token.type === "tagStart" && !token.close && !fourthToken.close) {
+    increment();
 
+    var node = createParseNode(token.value, secondToken.value, []);
+
+    increment(3);
+    while(token.type !== 'tagStart' && !token.close && !fourthToken.close) {
+      node.children.push(walk(state));
+      increment();
+    }
+
+    increment(4);
+    return node;
   }
-}
 
-console.log(parse([ { type: 'tagStart', close: false },
-  { type: 'tag', value: 'h1' },
-  { type: 'attribute', value: {} },
-  { type: 'tagEnd', close: false },
-  { type: 'text', value: '{{msg}}' },
-  { type: 'tagStart', close: true },
-  { type: 'tag', value: 'h1' },
-  { type: 'attribute', value: {} },
-  { type: 'tagEnd', close: false } ]));
+  return;
+}
