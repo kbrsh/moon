@@ -1,4 +1,4 @@
-var lex = function(input) {
+var lex = function(input, opts) {
   var state = {
     input: input,
     current: 0,
@@ -93,9 +93,10 @@ var lexTag = function(state) {
   });
   state.current += isClosingStart ? 2 : 1;
 
-  lexTagContents(state);
+  lexTagType(state);
+  lexAttributes(state);
 
-  var isClosingEnd = input.charAt(state.current + 1) === ">";
+  var isClosingEnd = input.charAt(state.current) === "/";
   var endChar = input.charAt(state.current);
   state.tokens.push({
     type: "tagEnd",
@@ -104,38 +105,73 @@ var lexTag = function(state) {
   state.current += isClosingEnd ? 2 : 1;
 }
 
-var lexTagContents = function(state) {
+var lexTagType = function(state) {
   var input = state.input;
   var len = input.length;
-  var tagName = "";
-
-  while(state.current < len) {
-    var char = input.charAt(state.current);
-    var next = input.charAt(state.current + 1);
-    if((char === "/" && next === ">") || (char === ">") || (char === " ")) {
+  var start = state.current;
+  while(start < len) {
+    var char = input.charAt(start);
+    if((char === "/") || (char === ">") || (char === " ")) {
+      start++;
+    } else {
       break;
     }
-    tagName += char;
-    state.current++;
   }
 
+  var end = start;
+  while(end < len) {
+    var char = input.charAt(end);
+    if((char === "/") || (char === ">") || (char === " ")) {
+      break;
+    } else {
+      end++;
+    }
+  }
+
+  var tagType = input.slice(start, end);
   state.tokens.push({
     type: "tag",
-    value: tagName
+    value: tagType
   });
-
-  lexAttributes(state);
+  state.current = end;
 }
 
 var lexAttributes = function(state) {
   var input = state.input;
   var len = input.length;
-  while(state.current < len) {
-    var char = input.charAt(state.current);
-    var next = input.charAt(state.current + 1);
-    if((char === "/" && next === ">") || (char === ">")) {
+  var end = state.current;
+
+  var attrs = {};
+  var rawAttrs = "";
+
+  var ATTRIBUTE_RE = /([^=\s]*)(=?)("[^"]*"|[^\s"]*)/gi
+
+  while(end < len) {
+    var char = input.charAt(end);
+    if(char === ">" || char === "/") {
       break;
     }
-    state.current++;
+    rawAttrs += char;
+    end++;
   }
+
+  rawAttrs.replace(ATTRIBUTE_RE, function(match, key, equal, value) {
+    var firstChar = value[0];
+    var lastChar = value[value.length - 1];
+    if((firstChar === "'" && lastChar === "'") || (firstChar === "\"" && lastChar === "\"")) {
+      value = value.slice(1, -1);
+    }
+    if(!value) {
+      value = true
+    }
+    if(key && value) {
+      attrs[key] = value;
+    }
+  });
+
+  state.current = end;
+  state.tokens.push({
+    type: "attribute",
+    value: attrs
+  });
 }
