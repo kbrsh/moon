@@ -200,5 +200,3 @@ var lexAttributes = function(state) {
     value: attrs
   });
 }
-
-console.log(lex("<input/>"))
