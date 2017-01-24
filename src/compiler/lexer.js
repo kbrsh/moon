@@ -186,7 +186,7 @@ var lexAttributes = function(state) {
     }
     // If there is no value provided
     if(!value) {
-      value = true
+      value = value
     }
     // Set attribute value
     if(key && value) {
