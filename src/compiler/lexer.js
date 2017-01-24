@@ -94,17 +94,35 @@ var lexTag = function(state) {
   state.current += isClosingStart ? 2 : 1;
 
   // Lex type and attributes
-  lexTagType(state);
+  var tagType = lexTagType(state);
   lexAttributes(state);
 
   // Lex ending tag
   var isClosingEnd = input.charAt(state.current) === "/";
-  var endChar = input.charAt(state.current);
   state.tokens.push({
     type: "tagEnd",
-    close: isClosingEnd
+    close: false
   });
   state.current += isClosingEnd ? 2 : 1;
+
+  if(isClosingEnd) {
+    state.tokens.push({
+      type: "tagStart",
+      close: true
+    });
+    state.tokens.push({
+      type: "tag",
+      value: tagType
+    });
+    state.tokens.push({
+      type: "attribute",
+      value: {}
+    });
+    state.tokens.push({
+      type: "tagEnd",
+      close: false
+    });
+  }
 }
 
 var lexTagType = function(state) {
@@ -136,6 +154,7 @@ var lexTagType = function(state) {
     value: tagType
   });
   state.current = end;
+  return tagType;
 }
 
 var lexAttributes = function(state) {
@@ -181,3 +200,5 @@ var lexAttributes = function(state) {
     value: attrs
   });
 }
+
+console.log(lex("<input/>"))
