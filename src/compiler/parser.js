@@ -10,7 +10,10 @@ var parse = function(tokens) {
   }
 
   while(state.current < tokens.length) {
-    root.children.push(walk(state));
+    var child = walk(state);
+    if(child) {
+      root.children.push(child);
+    }
   }
 
   return root.children[0];
@@ -31,33 +34,34 @@ var walk = function(state) {
   var fourthToken = state.tokens[state.current + 3];
 
   var increment = function(num) {
-    state.current += num || 1;
+    state.current += num === undefined ? 1 : num;
     token = state.tokens[state.current];
+    previousToken = state.tokens[state.current - 1];
     secondToken = state.tokens[state.current + 1];
     thirdToken = state.tokens[state.current + 2];
-    fourthToken = state.tokens[state.current + 3];
   }
 
   if(token.type === "text") {
-    return token.value;
     increment();
+    return previousToken.value;
   }
 
   // Start of new Tag
-  if(token.type === "tagStart" && !token.close && !fourthToken.close) {
-    increment();
-
+  if(token.type === "tag" && !previousToken.close && !thirdToken.close) {
     var node = createParseNode(token.value, secondToken.value, []);
-
+    var tagType = token.value;
     increment(3);
-    while(token.type !== 'tagStart' && !token.close && !fourthToken.close) {
-      node.children.push(walk(state));
-      increment();
+    while((token.type !== "tag") || (token.type === "tag" && token.value !== tagType && (!previousToken.close || !thirdToken.close))) {
+      var parsedChildState = walk(state);
+      if(parsedChildState) {
+        node.children.push(parsedChildState);
+      }
+      increment(0)
     }
 
-    increment(4);
     return node;
   }
 
+  increment();
   return;
 }
