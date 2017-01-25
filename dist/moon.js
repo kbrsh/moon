@@ -282,9 +282,10 @@
         if((firstChar === "'" && lastChar === "'") || (firstChar === "\"" && lastChar === "\"")) {
           value = value.slice(1, -1);
         }
+    
         // If there is no value provided
         if(!value) {
-          value = value
+          value = key
         }
         // Set attribute value
         if(key && value) {
