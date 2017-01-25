@@ -29,7 +29,7 @@ var createParseNode = function(type, props, children) {
 
 var walk = function(state) {
   var token = state.tokens[state.current];
-  var secondToken = state.tokens[state.current - 1];
+  var previousToken = state.tokens[state.current - 1];
   var secondToken = state.tokens[state.current + 1];
   var thirdToken = state.tokens[state.current + 2];
   var fourthToken = state.tokens[state.current + 3];
