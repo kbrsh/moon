@@ -43,7 +43,7 @@ var walk = function(state) {
 
   if(token.type === "text") {
     increment();
-    return createParseNode("#text", previousToken.value, []);
+    return previousToken.value;
   }
 
   if(token.type === "comment") {

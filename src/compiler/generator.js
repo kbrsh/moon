@@ -3,14 +3,12 @@ var generateEl = function(el) {
 	for(var i = 0; i < el.children.length; i++) {
   	var child = el.children[i];
     if(child.children) {
-      child.children = child.children.map(function(c){
-        return generateEl(c);
-      });
+      child.children = child.children.map(generateEl);
     }
     if(typeof child === "string") {
       code += "h(null, null, \"" + child + "\")";
     } else {
-      code += "h(\"" + child.type + "\", " + JSON.stringify(child.props) + ", " + child.children + ")";
+      code += "h(\"" + child.type + "\", " + JSON.stringify(child.props) + ", " + child.children.join(",") + ")";
     }
   }
   return code;
