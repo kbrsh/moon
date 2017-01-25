@@ -1,7 +1,7 @@
 (function(root, factory) {
   /* ======= Global Moon ======= */
   (typeof module === "object" && module.exports) ? module.exports = factory() : root.Moon = factory();
-}(this, function() {
+}(this, function() { "use strict";
 
     /* ======= Global Variables ======= */
     var directives = {};
@@ -9,7 +9,7 @@
     var id = 0;
 
     //=require util/util.js
-    
+
     /* ======= Compiler ======= */
     //=require compiler/lexer.js
     //=require compiler/parser.js
