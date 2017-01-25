@@ -10,6 +10,7 @@
   /* ======= Global Moon ======= */
   (typeof module === "object" && module.exports) ? module.exports = factory() : root.Moon = factory();
 }(this, function() {
+    "use strict";
 
     /* ======= Global Variables ======= */
     var directives = {};
@@ -93,7 +94,7 @@
     
     }
     
-    
+
     /* ======= Compiler ======= */
     var lex = function(input, opts) {
       var state = {
