@@ -351,12 +351,14 @@
         var node = createParseNode(token.value, secondToken.value, []);
         var tagType = token.value;
         increment(3);
-        while((token.type !== "tag") || (token.type === "tag" && token.value !== tagType && (!previousToken.close || !thirdToken.close))) {
-          var parsedChildState = walk(state);
-          if(parsedChildState) {
-            node.children.push(parsedChildState);
+        if(token) {
+          while((token.type !== "tag") || (token.type === "tag" && token.value !== tagType && (!previousToken.close || !thirdToken.close))) {
+            var parsedChildState = walk(state);
+            if(parsedChildState) {
+              node.children.push(parsedChildState);
+            }
+            increment(0)
           }
-          increment(0)
         }
     
         return node;
