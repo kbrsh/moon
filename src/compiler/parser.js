@@ -46,6 +46,11 @@ var walk = function(state) {
     return previousToken.value;
   }
 
+  if(token.type === "comment") {
+    increment();
+    return createParseNode("#comment", {}, previousToken.value);
+  }
+
   // Start of new Tag
   if(token.type === "tag" && !previousToken.close && !thirdToken.close) {
     var node = createParseNode(token.value, secondToken.value, []);
