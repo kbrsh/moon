@@ -350,14 +350,26 @@
       if(token.type === "tag" && !previousToken.close && !thirdToken.close) {
         var node = createParseNode(token.value, secondToken.value, []);
         var tagType = token.value;
+        // Exit Start Tag
         increment(3);
+        var startContentIndex = state.current;
+        // Make sure it has content and is closed
         if(token) {
+          // Find Closing Tag, and push children recursively
           while((token.type !== "tag") || (token.type === "tag" && token.value !== tagType && (!previousToken.close || !thirdToken.close))) {
+            if(token.type === "tagStart" && secondToken.value !== tagType && (token.close || fourthToken.close)) {
+              // Tag is a voidElement, empty children, and reset stack to start of content
+              state.current = startContentIndex;
+              node.children = [];
+              increment(0);
+              break;
+            }
+            // Push a child to the current node
             var parsedChildState = walk(state);
             if(parsedChildState) {
               node.children.push(parsedChildState);
             }
-            increment(0)
+            increment(0);
           }
         }
     
