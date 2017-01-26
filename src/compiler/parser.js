@@ -16,7 +16,7 @@ var parse = function(tokens) {
     }
   }
 
-  return root.children[0];
+  return root;
 }
 
 var createParseNode = function(type, props, children) {
