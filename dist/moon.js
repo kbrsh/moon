@@ -407,7 +407,7 @@
     
       // Compile Templates
       code.replace(TEMPLATE_RE, function (match, key) {
-        code = code.replace(match, '" + this.get("' + key + '") + "');
+        code = code.replace(match, "\" + this.get(\"" + key + "\") + \"");
       });
     
       try {
