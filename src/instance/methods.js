@@ -16,8 +16,14 @@ Moon.prototype.get = function(key) {
  */
 Moon.prototype.set = function(key, val) {
   this.$data[key] = val;
-  if(!this.$destroyed) this.build();
-  this.$hooks.updated();
+  if(!this.$queued && !this.$destroyed) {
+    this.$queued = true;
+    setTimeout(function() {
+      self.build();
+      self.$hooks.updated();
+      this.$queued = false;
+    }, 0);
+  }
 }
 
 /**
