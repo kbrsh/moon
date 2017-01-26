@@ -277,7 +277,7 @@ describe('Plugin', function() {
 describe('Template', function() {
     var templateApp = new Moon({
       el: "#template",
-      template: "{{msg}}",
+      template: "<div id='template'>{{msg}}</div>",
       data: {
         msg: "Hello Moon!"
       }
