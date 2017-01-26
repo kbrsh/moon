@@ -401,6 +401,7 @@
     var generate = function (ast) {
       // Matches a template string
       var TEMPLATE_RE = /{{([A-Za-z0-9_.()\[\]]+)}}/gi;
+      var NEWLINE_RE = /\n/g;
       // Get root element
       var root = ast.children[0];
       var code = "return " + generateEl(root);
@@ -409,6 +410,9 @@
       code.replace(TEMPLATE_RE, function (match, key) {
         code = code.replace(match, "\" + this.get(\"" + key + "\") + \"");
       });
+    
+      // Escape Newlines
+      code = code.replace(NEWLINE_RE, "\" + \"\\n\" + \"");
     
       try {
         return new Function("h", code);
