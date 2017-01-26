@@ -11,19 +11,19 @@ var comment = '\/*\r\n* Moon ' + pkg.version + '\r\n* Copyright 2016-2017, Kabir
 var $ = require('gulp-load-plugins')();
 
 // Build Moon
-gulp.task('build-content', function () {
+gulp.task('transpile', function () {
   return gulp.src(['./src/index.js'])
     .pipe($.include())
+    // .pipe(babel({
+    //   presets: ['transpile-moon']
+    // }))
     .pipe($.concat('moon.js'))
     .pipe(gulp.dest('./dist/'));
 });
 
-gulp.task('build', ['build-content'], function () {
+gulp.task('build', ['transpile'], function () {
   return gulp.src(['./src/wrapper.js'])
     .pipe($.include())
-    .pipe(babel({
-      presets: ['es2015']
-    }))
     .pipe($.concat('moon.js'))
     .pipe($.header(comment + '\n'))
     .pipe($.size())
