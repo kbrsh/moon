@@ -30,6 +30,7 @@ function Moon(opts) {
     this.$events = {};
     this.$dom = {};
     this.$destroyed = false;
+    this.$queued = false;
 
     /* ======= Listen for Changes ======= */
     Object.defineProperty(this, '$data', {
