@@ -1,11 +1,11 @@
 var generateEl = function(el) {
 	var code = "";
 	if(typeof el === "string") {
-		code += `"${el}"`;
+		code += "\"" + el + "\"";;
 	} else {
 		// Recursively generate code for children
 		el.children = el.children.map(generateEl);
-		code += `h("${el.type}", ${JSON.stringify(el.props)}, ${el.children.join(",")})`;
+		code += "h(\"" + el.type + "\", " + JSON.stringify(el.props) + ", " + el.children.join(",") + ")";
 	}
   return code;
 }
