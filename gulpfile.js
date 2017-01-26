@@ -14,9 +14,9 @@ var $ = require('gulp-load-plugins')();
 gulp.task('transpile', function () {
   return gulp.src(['./src/index.js'])
     .pipe($.include())
-    // .pipe(babel({
-    //   presets: ['transpile-moon']
-    // }))
+    .pipe(babel({
+      presets: ['transpile-moon']
+    }))
     .pipe($.concat('moon.js'))
     .pipe(gulp.dest('./dist/'));
 });
