@@ -5,7 +5,14 @@ var generateEl = function(el) {
 	} else {
 		// Recursively generate code for children
 		el.children = el.children.map(generateEl);
-		code += `h("${el.type}", ${JSON.stringify(el.props)}, ${el.children.join(",") || null})`;
+		var compiledCode = `h("${el.type}", ${JSON.stringify(el.props)}, ${el.children.join(",") || null})`;
+		for(var prop in el.props) {
+			if(directives[prop]) {
+				compiledCode = directives[prop].beforeGenerate(el.props[prop], compiledCode, el);
+			}
+			delete directives[prop];
+		}
+		code += compiledCode;
 	}
   return code;
 }
@@ -16,6 +23,7 @@ var generate = function(ast) {
 	var NEWLINE_RE = /\n/g;
 	// Get root element
 	var root = ast.children[0];
+	// Begin Code
   var code = "return " + generateEl(root);
 
 	// Compile Templates

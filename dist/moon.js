@@ -439,7 +439,14 @@
       } else {
         // Recursively generate code for children
         el.children = el.children.map(generateEl);
-        code += "h(\"" + el.type + "\", " + JSON.stringify(el.props) + ", " + (el.children.join(",") || null) + ")";
+        var compiledCode = "h(\"" + el.type + "\", " + JSON.stringify(el.props) + ", " + (el.children.join(",") || null) + ")";
+        for (var prop in el.props) {
+          if (directives[prop]) {
+            compiledCode = directives[prop].beforeGenerate(el.props[prop], compiledCode, el);
+          }
+          delete directives[prop];
+        }
+        code += compiledCode;
       }
       return code;
     };
@@ -450,6 +457,7 @@
       var NEWLINE_RE = /\n/g;
       // Get root element
       var root = ast.children[0];
+      // Begin Code
       var code = "return " + generateEl(root);
     
       // Compile Templates
@@ -506,17 +514,9 @@
       });
     
       /* ======= Default Directives ======= */
-      directives[Moon.config.prefix + "if"] = function (el, val, vdom) {
-        var evaluated = new Function("return " + val);
-        if (!evaluated()) {
-          for (var i = 0; i < vdom.children.length; i++) {
-            vdom.children[i].node.textContent = "";
-            vdom.children[i].meta.shouldRender = false;
-          }
-        } else {
-          for (var i = 0; i < vdom.children.length; i++) {
-            vdom.children[i].meta.shouldRender = true;
-          }
+      directives[Moon.config.prefix + "if"] = {
+        beforeGenerate: function (value, code, vnode) {
+          return "(\"" + value + "\") ? " + code + " : ''";
         }
       };
     

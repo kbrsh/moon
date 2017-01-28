@@ -1,15 +1,7 @@
 /* ======= Default Directives ======= */
-directives[Moon.config.prefix + "if"] = function(el, val, vdom) {
-  var evaluated = new Function("return " + val);
-  if(!evaluated()) {
-    for(var i = 0; i < vdom.children.length; i++) {
-      vdom.children[i].node.textContent = "";
-      vdom.children[i].meta.shouldRender = false;
-    }
-  } else {
-    for(var i = 0; i < vdom.children.length; i++) {
-      vdom.children[i].meta.shouldRender = true;
-    }
+directives[Moon.config.prefix + "if"] = {
+  beforeGenerate: function(value, code, vnode) {
+    return `("${value}") ? ${code} : ''`;
   }
 }
 
