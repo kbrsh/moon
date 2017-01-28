@@ -83,7 +83,7 @@
         el = document.createTextNode(vnode);
       } else {
         el = document.createElement(vnode.type);
-        var children = el.children.map(createNodeFromVNode);
+        var children = vnode.children.map(createNodeFromVNode);
         for (var i = 0; i < children.length; i++) {
           el.appendChild(children[i]);
         }
@@ -114,10 +114,7 @@
         parent.replaceChild(createNodeFromVNode(vnode), node);
       } else if (nodeName === "#text" && typeof vnode === "string") {
         node.textContent = vnode;
-      }
-    
-      // If there are children, deeply diff them
-      if (vnode.children) {
+      } else if (vnode.children) {
         for (var i = 0; i < vnode.children.length || i < node.childNodes.length; i++) {
           diff(node.childNodes[i], vnode.children[i], node);
         }
