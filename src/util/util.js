@@ -63,7 +63,7 @@ var createNodeFromVNode = function(vnode) {
     el = document.createTextNode(vnode);
   } else {
     el = document.createElement(vnode.type);
-    var children = el.children.map(createNodeFromVNode);
+    var children = vnode.children.map(createNodeFromVNode);
     for(var i = 0; i < children.length; i++) {
       el.appendChild(children[i]);
     }
@@ -95,6 +95,10 @@ var diff = function(node, vnode, parent) {
     parent.replaceChild(createNodeFromVNode(vnode), node);
   } else if(nodeName === "#text" && typeof vnode === "string") {
     node.textContent = vnode;
+  }
+
+  if(vnode.props) {
+
   }
 
   // If there are children, deeply diff them
