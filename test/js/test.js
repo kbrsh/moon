@@ -71,7 +71,9 @@ describe('Data', function() {
   });
   it('when setting', function() {
     dataApp.set('msg', 'New Value');
-    expect(document.getElementById("data").innerHTML).to.equal("New Value");
+    Moon.nextTick(function() {
+      expect(document.getElementById("data").innerHTML).to.equal("New Value");
+    });
   });
   it('when getting', function() {
     expect(dataApp.get('msg')).to.equal("New Value");
@@ -96,7 +98,9 @@ describe('Methods', function() {
   });
   it('should update DOM', function() {
     methodApp.callMethod('increment');
-    expect(document.getElementById("method").innerHTML).to.equal('2');
+    Moon.nextTick(function() {
+      expect(document.getElementById("method").innerHTML).to.equal('2');
+    });
   });
 });
 
@@ -287,6 +291,8 @@ describe('Template', function() {
     });
     it('should update', function() {
       templateApp.set("msg", "Changed");
-      expect(document.getElementById("template").innerHTML).to.equal("Changed");
+      Moon.nextTick(function() {
+        expect(document.getElementById("template").innerHTML).to.equal("Changed");
+      });
     });
 });
