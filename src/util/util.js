@@ -95,14 +95,7 @@ var diff = function(node, vnode, parent) {
     parent.replaceChild(createNodeFromVNode(vnode), node);
   } else if(nodeName === "#text" && typeof vnode === "string") {
     node.textContent = vnode;
-  }
-
-  if(vnode.props) {
-
-  }
-
-  // If there are children, deeply diff them
-  if(vnode.children) {
+  } else if(vnode.children) {
     for(var i = 0; i < vnode.children.length || i < node.childNodes.length; i++) {
       diff(node.childNodes[i], vnode.children[i], node);
     }
