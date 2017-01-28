@@ -15,13 +15,14 @@ Moon.prototype.get = function(key) {
  * @param {String} val
  */
 Moon.prototype.set = function(key, val) {
+  var self = this;
   this.$data[key] = val;
   if(!this.$queued && !this.$destroyed) {
     this.$queued = true;
     setTimeout(function() {
       self.build();
       self.$hooks.updated();
-      this.$queued = false;
+      self.$queued = false;
     }, 0);
   }
 }
@@ -154,7 +155,7 @@ Moon.prototype.patch = function(node, vnode, parent) {
  */
 Moon.prototype.build = function() {
   this.$dom = this.render();
-  this.patch(this.$el, this.$dom, this.$el);
+  this.patch(this.$el, this.$dom, this.$el.parentNode);
 }
 
 /**
