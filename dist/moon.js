@@ -767,6 +767,23 @@
     };
     
     /**
+     * Compiles HTML to a Render Function
+     * @param {String} template
+     * @return {Function} render function
+     */
+    Moon.compile = function (template) {
+      return compile(template);
+    };
+    
+    /**
+     * Runs a Task After Update Queue
+     * @param {Function} task
+     */
+    Moon.nextTick = function (task) {
+      setTimeout(task, 0);
+    };
+    
+    /**
      * Creates a Directive
      * @param {String} name
      * @param {Function} action
@@ -790,15 +807,6 @@
       var component = new MoonComponent();
       components[name] = component;
       return component;
-    };
-    
-    /**
-     * Compiles HTML to a Render Function
-     * @param {String} template
-     * @return {Function} render function
-     */
-    Moon.compile = function (template) {
-      return compile(template);
     };
     return Moon;
 }));
