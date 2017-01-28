@@ -38,6 +38,21 @@ var createElement = function(type, val, props, children, meta) {
 }
 
 /**
+ * Creates DOM Node from VNode
+ * @param {Object} vnode
+ * @return {Object} DOM Node
+ */
+var createNodeFromVNode = function(vnode) {
+  var el;
+  if(typeof vnode === "string") {
+    el = document.createTextNode(vnode.val);
+  } else {
+    el = document.createElement(vnode.type);
+  }
+  return el;
+}
+
+/**
  * Compiles JSX to Virtual DOM
  * @param {String} tag
  * @param {Object} attrs
@@ -49,11 +64,22 @@ var h = function() {
   var tag = args.shift();
   var attrs = args.shift() || {};
   var children = args;
-  if(typeof children[0] === "string") {
-    children[0] = createElement("#text", children[0], {}, [], null);
-  }
   return createElement(tag, children.join(""), attrs, children, null);
 };
+
+
+/**
+ * Diffs Node and a VNode, and Mutates Node into Shape of VNode
+ * @param {Object} node
+ * @param {Object} vnode
+ * @param {Object} parent
+ */
+var diff = function(node, vnode, parent) {
+  if(!node) {
+    parent.appendChild(createNodeFromVNode(vnode));
+  }
+}
+
 
 /**
  * Merges two Objects
