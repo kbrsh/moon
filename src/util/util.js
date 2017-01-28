@@ -45,7 +45,7 @@ var createElement = function(type, val, props, children, meta) {
 var createNodeFromVNode = function(vnode) {
   var el;
   if(typeof vnode === "string") {
-    el = document.createTextNode(vnode.val);
+    el = document.createTextNode(vnode);
   } else {
     el = document.createElement(vnode.type);
   }
@@ -77,6 +77,16 @@ var h = function() {
 var diff = function(node, vnode, parent) {
   if(!node) {
     parent.appendChild(createNodeFromVNode(vnode));
+  } else if(!vnode) {
+    parent.removeChild(node);
+  } else if(node.nodeName !== (vnode.type || "#text")) {
+    parent.replaceChild(createNodeFromVNode(vnode), node);
+  }
+
+  if(vnode.children) {
+    for(var i = 0; i < vnode.children.length; i++) {
+      diff(node.childNodes[i], vnode.children[i], node);
+    }
   }
 }
 

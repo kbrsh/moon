@@ -58,6 +58,21 @@
     };
     
     /**
+     * Creates DOM Node from VNode
+     * @param {Object} vnode
+     * @return {Object} DOM Node
+     */
+    var createNodeFromVNode = function (vnode) {
+      var el;
+      if (typeof vnode === "string") {
+        el = document.createTextNode(vnode);
+      } else {
+        el = document.createElement(vnode.type);
+      }
+      return el;
+    };
+    
+    /**
      * Compiles JSX to Virtual DOM
      * @param {String} tag
      * @param {Object} attrs
@@ -69,10 +84,29 @@
       var tag = args.shift();
       var attrs = args.shift() || {};
       var children = args;
-      if (typeof children[0] === "string") {
-        children[0] = createElement("#text", children[0], {}, [], null);
-      }
       return createElement(tag, children.join(""), attrs, children, null);
+    };
+    
+    /**
+     * Diffs Node and a VNode, and Mutates Node into Shape of VNode
+     * @param {Object} node
+     * @param {Object} vnode
+     * @param {Object} parent
+     */
+    var diff = function (node, vnode, parent) {
+      if (!node) {
+        parent.appendChild(createNodeFromVNode(vnode));
+      } else if (!vnode) {
+        parent.removeChild(node);
+      } else if (node.nodeName !== (vnode.type || "#text")) {
+        parent.replaceChild(createNodeFromVNode(vnode), node);
+      }
+    
+      if (vnode.children) {
+        for (var i = 0; i < vnode.children.length; i++) {
+          diff(node.childNodes[i], vnode.children[i], node);
+        }
+      }
     };
     
     /**
@@ -546,13 +580,14 @@
      * @param {String} val
      */
     Moon.prototype.set = function (key, val) {
+      var self = this;
       this.$data[key] = val;
       if (!this.$queued && !this.$destroyed) {
         this.$queued = true;
         setTimeout(function () {
           self.build();
           self.$hooks.updated();
-          this.$queued = false;
+          self.$queued = false;
         }, 0);
       }
     };
@@ -676,14 +711,16 @@
      * @param {Object} node
      * @param {Object} vnode
      */
-    Moon.prototype.patch = function (node, vnode) {};
+    Moon.prototype.patch = function (node, vnode, parent) {
+      diff(node, vnode, parent);
+    };
     
     /**
      * Render and Patches the DOM With Data
      */
     Moon.prototype.build = function () {
       this.$dom = this.render();
-      this.patch(this.$el, this.$dom);
+      this.patch(this.$el, this.$dom, this.$el.parentNode);
     };
     
     /**
