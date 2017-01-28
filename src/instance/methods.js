@@ -145,8 +145,8 @@ Moon.prototype.render = function() {
  * @param {Object} node
  * @param {Object} vnode
  */
-Moon.prototype.patch = function(node, vnode) {
-
+Moon.prototype.patch = function(node, vnode, parent) {
+  diff(node, vnode, parent);
 }
 
 /**
@@ -154,7 +154,7 @@ Moon.prototype.patch = function(node, vnode) {
  */
 Moon.prototype.build = function() {
   this.$dom = this.render();
-  this.patch(this.$el, this.$dom);
+  this.patch(this.$el, this.$dom, this.$el);
 }
 
 /**
