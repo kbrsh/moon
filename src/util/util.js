@@ -38,21 +38,6 @@ var createElement = function(type, val, props, children, meta) {
 }
 
 /**
- * Creates DOM Node from VNode
- * @param {Object} vnode
- * @return {Object} DOM Node
- */
-var createNodeFromVNode = function(vnode) {
-  var el;
-  if(typeof vnode === "string") {
-    el = document.createTextNode(vnode);
-  } else {
-    el = document.createElement(vnode.type);
-  }
-  return el;
-}
-
-/**
  * Compiles JSX to Virtual DOM
  * @param {String} tag
  * @param {Object} attrs
@@ -67,24 +52,54 @@ var h = function() {
   return createElement(tag, children.join(""), attrs, children, null);
 };
 
+/**
+ * Creates DOM Node from VNode
+ * @param {Object} vnode
+ * @return {Object} DOM Node
+ */
+var createNodeFromVNode = function(vnode) {
+  var el;
+  if(typeof vnode === "string") {
+    el = document.createTextNode(vnode);
+  } else {
+    el = document.createElement(vnode.type);
+    var children = el.children.map(createNodeFromVNode);
+    for(var i = 0; i < children.length; i++) {
+      el.appendChild(children[i]);
+    }
+  }
+  return el;
+}
+
 
 /**
- * Diffs Node and a VNode, and Mutates Node into Shape of VNode
+ * Diffs Node and a VNode, and applys Changes
  * @param {Object} node
  * @param {Object} vnode
  * @param {Object} parent
  */
 var diff = function(node, vnode, parent) {
+  var nodeName;
+  if(node) {
+    nodeName = node.nodeName.toLowerCase();
+  }
+  if(vnode === null) {
+    vnode = '';
+  }
+
   if(!node) {
     parent.appendChild(createNodeFromVNode(vnode));
   } else if(!vnode) {
     parent.removeChild(node);
-  } else if(node.nodeName !== (vnode.type || "#text")) {
+  } else if(nodeName !== (vnode.type || "#text")) {
     parent.replaceChild(createNodeFromVNode(vnode), node);
+  } else if(nodeName === "#text" && typeof vnode === "string") {
+    node.textContent = vnode;
   }
 
+  // If there are children, deeply diff them
   if(vnode.children) {
-    for(var i = 0; i < vnode.children.length; i++) {
+    for(var i = 0; i < vnode.children.length || i < node.childNodes.length; i++) {
       diff(node.childNodes[i], vnode.children[i], node);
     }
   }
