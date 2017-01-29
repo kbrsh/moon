@@ -104,7 +104,6 @@ var lexTag = function(state) {
     close: false
   });
   state.current += isClosingEnd ? 2 : 1;
-
   if(isClosingEnd) {
     state.tokens.push({
       type: "tagStart",
