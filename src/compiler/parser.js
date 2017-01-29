@@ -62,21 +62,19 @@ var walk = function(state) {
     // Make sure it has content and is closed
     if(token) {
       // Find Closing Tag, and push children recursively
-      while((token.type !== "tag") || (token.type === "tag" && token.value !== tagType && (!previousToken.close || !thirdToken.close))) {
-        if(token.type === "tagStart" && secondToken.value !== tagType && (token.close || fourthToken.close)) {
-          // Tag is a voidElement, empty children, and reset stack to start of content
-          state.current = startContentIndex;
-          node.children = [];
-          increment(0);
-          break;
-        }
+      while((token.type !== "tagStart") || (token.type === "tagStart" && !(token.close))) {
         // Push a child to the current node
         var parsedChildState = walk(state);
         if(parsedChildState) {
           node.children.push(parsedChildState);
         }
         increment(0);
+
+        if(!token) {
+          break;
+        }
       }
+      increment();
     }
 
     return node;
