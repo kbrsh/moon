@@ -15,22 +15,16 @@ specialDirectives[Moon.config.prefix + "for"] = function(value, code, vnode) {
 }
 
 specialDirectives[Moon.config.prefix + "on"] = function(value, code, vnode) {
-  var splitVal = val.split(":");
+  var splitVal = value.split(":");
   var eventToCall = splitVal[0];
   var methodToCall = splitVal[1];
-  if(!vnode.eventListeners[eventToCall]) {
-    vnode.eventListeners[eventToCall] = [methodToCall];
+  if(!vnode.meta.eventListeners[eventToCall]) {
+    vnode.meta.eventListeners[eventToCall] = [methodToCall];
   } else {
-    vnode.eventListeners[eventToCall].push(methodToCall);
+    vnode.meta.eventListeners[eventToCall].push(methodToCall);
   }
-  
-  if(self.$events[eventToCall]) {
-    self.on(eventToCall, methodToCall);
-  } else {
-    el.addEventListener(eventToCall, function(e) {
-      self.callMethod(methodToCall, [e]);
-    });
-  }
+
+  return createCall(vnode);
 }
 
 directives[Moon.config.prefix + "model"] = function(el, val, vdom) {
