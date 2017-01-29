@@ -2,6 +2,7 @@
 
 /* ======= Global Variables ======= */
 var directives = {};
+var specialDirectives = {};
 var components = {};
 var id = 0;
 
