@@ -173,7 +173,7 @@
         for (var i = 0; i < children.length; i++) {
           el.appendChild(children[i]);
         }
-        addEventListeners(el, vnode.meta.eventListeners);
+        //addEventListeners(el, vnode.meta.eventListeners);
       }
       return el;
     };
@@ -539,6 +539,7 @@
             increment(0);
     
             if (!token) {
+              state.current = startContentIndex - 1;
               break;
             }
           }
