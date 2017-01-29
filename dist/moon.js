@@ -54,6 +54,17 @@
     };
     
     /**
+     * Gives Default Metadata for a VNode
+     * @return {Object} metadata
+     */
+    var defaultMetadata = function () {
+      return {
+        shouldRender: true,
+        eventListeners: {}
+      };
+    };
+    
+    /**
      * Compiles a Template
      * @param {String} template
      * @param {Boolean} isString
@@ -75,6 +86,15 @@
     };
     
     /**
+     * Creates an "h" Call for a VNode
+     * @param {Object} vnode
+     * @return {String} "h" call
+     */
+    var createCall = function (vnode) {
+      return "h(\"" + vnode.type + "\", " + JSON.stringify(vnode.props) + ", " + JSON.stringify(vnode.meta) + ", " + (vnode.children.join(",") || null) + ")";
+    };
+    
+    /**
      * Creates a Virtual DOM Node
      * @param {String} type
      * @param {String} val
@@ -89,9 +109,7 @@
         val: val,
         props: props,
         children: children,
-        meta: meta || {
-          shouldRender: true
-        }
+        meta: meta || defaultMetadata()
       };
     };
     
@@ -106,18 +124,38 @@
       var args = Array.prototype.slice.call(arguments);
       var tag = args.shift();
       var attrs = args.shift() || {};
+      var meta = args.shift();
       var children = [];
       for (var i = 0; i < args.length; i++) {
         var arg = args[i];
         if (Array.isArray(arg)) {
           children = children.concat(arg);
         } else if (typeof args[i] === "string" || args[i] === null) {
-          children.push(createElement("#text", args[i] || '', {}, [], null));
+          children.push(createElement("#text", args[i] || '', {}, [], meta));
         } else {
           children.push(arg);
         }
       }
-      return createElement(tag, children.join(""), attrs, children, null);
+      return createElement(tag, children.join(""), attrs, children, meta);
+    };
+    
+    /**
+     * Adds metadata Event Listeners to an Element
+     * @param {Object} node
+     */
+    var addEventListeners = function (node, eventListeners) {
+      for (var type in eventListeners) {
+        for (var i = 0; i < eventListeners[type].length; i++) {
+          var method = eventListeners[type][i];
+          if (self.$events[type]) {
+            self.on(type, method);
+          } else {
+            node.addEventListener(type, function (e) {
+              self.callMethod(method, [e]);
+            });
+          }
+        }
+      }
     };
     
     /**
@@ -131,10 +169,11 @@
         el = document.createTextNode(vnode.val);
       } else {
         el = document.createElement(vnode.type);
-        var children = vnode.children.map(createNodeFromVNode);
+        var children = vnode.children.map(createNodeFromVNode, vnode.meta.eventListeners);
         for (var i = 0; i < children.length; i++) {
           el.appendChild(children[i]);
         }
+        addEventListeners(el);
       }
       return el;
     };
@@ -520,7 +559,10 @@
       } else {
         // Recursively generate code for children
         el.children = el.children.map(generateEl);
-        var compiledCode = "h(\"" + el.type + "\", " + JSON.stringify(el.props) + ", " + (el.children.join(",") || null) + ")";
+        if (!el.meta) {
+          el.meta = defaultMetadata();
+        }
+        var compiledCode = createCall(el);
         for (var prop in el.props) {
           if (specialDirectives[prop]) {
             compiledCode = specialDirectives[prop](el.props[prop], compiledCode, el);
@@ -605,27 +647,17 @@
         return "this.renderLoop(" + iteratable + ", function(" + alias + ") { return " + compileTemplate(code, true, customCode) + "; })";
       };
     
-      directives[Moon.config.prefix + "show"] = function (el, val, vdom) {
-        var evaluated = new Function("return " + val);
-        if (!evaluated()) {
-          el.style.display = 'none';
-        } else {
-          el.style.display = 'block';
-        }
-      };
-    
-      directives[Moon.config.prefix + "on"] = function (el, val, vdom) {
-        var splitVal = val.split(":");
+      specialDirectives[Moon.config.prefix + "on"] = function (value, code, vnode) {
+        var splitVal = value.split(":");
         var eventToCall = splitVal[0];
         var methodToCall = splitVal[1];
-        if (self.$events[eventToCall]) {
-          self.on(eventToCall, methodToCall);
+        if (!vnode.meta.eventListeners[eventToCall]) {
+          vnode.meta.eventListeners[eventToCall] = [methodToCall];
         } else {
-          el.addEventListener(eventToCall, function (e) {
-            self.callMethod(methodToCall, [e]);
-          });
+          vnode.meta.eventListeners[eventToCall].push(methodToCall);
         }
-        delete vdom.props[Moon.config.prefix + "on"];
+    
+        return createCall(vnode);
       };
     
       directives[Moon.config.prefix + "model"] = function (el, val, vdom) {
@@ -633,7 +665,15 @@
         el.addEventListener("input", function () {
           self.set(val, el.value);
         });
-        delete vdom.props[Moon.config.prefix + "model"];
+      };
+    
+      directives[Moon.config.prefix + "show"] = function (el, val, vdom) {
+        var evaluated = new Function("return " + val);
+        if (!evaluated()) {
+          el.style.display = 'none';
+        } else {
+          el.style.display = 'block';
+        }
       };
     
       directives[Moon.config.prefix + "once"] = function (el, val, vdom) {
