@@ -895,6 +895,11 @@
     };
     
     /**
+     * Version of Moon
+     */
+    Moon.version = '0.1.3';
+    
+    /**
      * Runs an external Plugin
      * @param {Object} plugin
      */

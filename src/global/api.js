@@ -9,6 +9,11 @@ Moon.config = {
 }
 
 /**
+ * Version of Moon
+ */
+Moon.version = '__VERSION__';
+
+/**
  * Runs an external Plugin
  * @param {Object} plugin
  */
