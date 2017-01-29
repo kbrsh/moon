@@ -148,11 +148,11 @@ var createNodeFromVNode = function(vnode) {
     el = document.createTextNode(vnode.val);
   } else {
     el = document.createElement(vnode.type);
-    var children = vnode.children.map(createNodeFromVNode, vnode.meta.eventListeners);
+    var children = vnode.children.map(createNodeFromVNode);
     for(var i = 0; i < children.length; i++) {
       el.appendChild(children[i]);
     }
-    addEventListeners(el);
+    addEventListeners(el, vnode.meta.eventListeners);
   }
   return el;
 }
