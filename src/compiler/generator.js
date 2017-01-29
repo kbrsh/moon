@@ -23,7 +23,7 @@ var generate = function(ast) {
 	// Begin Code
   var code = "return " + generateEl(root);
 
-	// Compile Templates pass 13 fail 18
+	// Compile Templates
   code = compileTemplate(code, true);
 
 	// Escape Newlines

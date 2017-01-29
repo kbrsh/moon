@@ -43,7 +43,7 @@ var compileTemplate = function(template, isString, customCode) {
   var compiled = template;
   template.replace(TEMPLATE_RE, function(match, key) {
     if(customCode) {
-      compiled = compiled.replace(match, customCode);
+      compiled = customCode(compiled, match, key);
     } else if(isString) {
       compiled = compiled.replace(match, `" + this.get("${key}") + "`);
     } else {
