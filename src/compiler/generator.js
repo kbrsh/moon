@@ -7,10 +7,8 @@ var generateEl = function(el) {
 		el.children = el.children.map(generateEl);
 		var compiledCode = `h("${el.type}", ${JSON.stringify(el.props)}, ${el.children.join(",") || null})`;
 		for(var prop in el.props) {
-			if(directives[prop]) {
-				if(directives[prop].beforeGenerate) {
-					compiledCode = directives[prop].beforeGenerate(el.props[prop], compiledCode, el);
-				}
+			if(specialDirectives[prop]) {
+				compiledCode = specialDirectives[prop](el.props[prop], compiledCode, el);
 			}
 		}
 		code += compiledCode;

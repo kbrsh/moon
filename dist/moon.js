@@ -15,6 +15,7 @@
     /* ======= Global Variables ======= */
     
     var directives = {};
+    var specialDirectives = {};
     var components = {};
     var id = 0;
     
@@ -63,9 +64,9 @@
       var compiled = template;
       template.replace(TEMPLATE_RE, function (match, key) {
         if (isString) {
-          compiled = template.replace(match, "\" + this.get(\"" + key + "\") + \"");
+          compiled = compiled.replace(match, "\" + this.get(\"" + key + "\") + \"");
         } else {
-          compiled = template.replace(match, "this.get(\"" + key + "\")");
+          compiled = compiled.replace(match, "this.get(\"" + key + "\")");
         }
       });
       return compiled;
@@ -93,17 +94,22 @@
     };
     
     /**
-     * Compiles JSX to Virtual DOM
+     * Compiles Arguments to a VNode
      * @param {String} tag
      * @param {Object} attrs
      * @param {Array} children
-     * @return {String} Object usable in Virtual DOM
+     * @return {String} Object usable in Virtual DOM (VNode)
      */
     var h = function () {
       var args = Array.prototype.slice.call(arguments);
       var tag = args.shift();
       var attrs = args.shift() || {};
       var children = args;
+      for (var i = 0; i < children.length; i++) {
+        if (typeof children[i] === "string" || children[i] === null) {
+          children[i] = createElement("#text", children[i] || '', {}, [], null);
+        }
+      }
       return createElement(tag, children.join(""), attrs, children, null);
     };
     
@@ -114,10 +120,10 @@
      */
     var createNodeFromVNode = function (vnode) {
       var el;
-      if (typeof vnode === "string") {
+      if (vnode.type === "#text") {
         el = document.createTextNode(vnode);
       } else {
-        el = document.createElement(vnode.type);
+        el = document.createElement(vnode.val);
         var children = vnode.children.map(createNodeFromVNode);
         for (var i = 0; i < children.length; i++) {
           el.appendChild(children[i]);
@@ -127,27 +133,33 @@
     };
     
     /**
-     * Diffs Node and a VNode, and applys Changes
+     * Diffs Props of Node and a VNode, and apply Changes
      * @param {Object} node
+     * @param {Object} nodeProps
+     * @param {Object} vnodeProps
      * @param {Object} vnode
-     * @param {Object} parent
      */
-    
-    var diffProps = function (node, nodeProps, vnodeProps) {
+    var diffProps = function (node, nodeProps, vnodeProps, vnode) {
       // Get object of all properties being compared
       var allProps = merge(nodeProps, vnodeProps);
     
       for (var propName in allProps) {
-        if (!vnodeProps[propName] || directives[propName]) {
+        // If not in VNode or is Directive, remove it
+        if (!vnodeProps[propName] || directives[propName] || specialDirectives[propName]) {
+          // If it is a directive, run the directive
+          if (directives[propName]) {
+            directives[propName](node, allProps[propName], vnode);
+          }
           node.removeAttribute(propName);
         } else if (!nodeProps[propName] || nodeProps[propName] !== vnodeProps[propName]) {
+          // It has changed or is not in the node in the first place
           node.setAttribute(propName, vnodeProps[propName]);
         }
       }
     };
     
     /**
-     * Diffs Node and a VNode, and applys Changes
+     * Diffs Node and a VNode, and applies Changes
      * @param {Object} node
      * @param {Object} vnode
      * @param {Object} parent
@@ -159,32 +171,28 @@
         nodeName = node.nodeName.toLowerCase();
       }
     
-      if (vnode === null) {
-        vnode = '';
-      }
+      if (vnode && vnode.meta ? vnode.meta.shouldRender : true) {
+        if (!node) {
+          // No node, add it
+          parent.appendChild(createNodeFromVNode(vnode));
+        } else if (!vnode) {
+          // No VNode, remove the node
+          parent.removeChild(node);
+        } else if (nodeName !== vnode.type) {
+          // Different types of Nodes, replace the node
+          parent.replaceChild(createNodeFromVNode(vnode), node);
+        } else if (nodeName === "#text" && vnode.type === "#text") {
+          // Both are text, set the text
+          node.textContent = vnode.val;
+        } else if (vnode.type) {
+          // Diff properties
+          var nodeProps = extractAttrs(node);
+          diffProps(node, nodeProps, vnode.props, vnode);
     
-      if (!node) {
-        parent.appendChild(createNodeFromVNode(vnode));
-      } else if (!vnode) {
-        parent.removeChild(node);
-      } else if (nodeName !== (vnode.type || "#text")) {
-        parent.replaceChild(createNodeFromVNode(vnode), node);
-      } else if (nodeName === "#text" && typeof vnode === "string") {
-        node.textContent = vnode;
-      } else if (vnode.type) {
-        var nodeProps = extractAttrs(node);
-    
-        diffProps(node, nodeProps, vnode.props);
-    
-        nodeProps = extractAttrs(node);
-        for (var propName in nodeProps) {
-          if (directives[propName]) {
-            directives[propName](node, nodeProps[propName], vnode);
+          // Diff children
+          for (var i = 0; i < vnode.children.length || i < node.childNodes.length; i++) {
+            diff(node.childNodes[i], vnode.children[i], node);
           }
-        }
-    
-        for (var i = 0; i < vnode.children.length || i < node.childNodes.length; i++) {
-          diff(node.childNodes[i], vnode.children[i], node);
         }
       }
     };
@@ -510,10 +518,8 @@
         el.children = el.children.map(generateEl);
         var compiledCode = "h(\"" + el.type + "\", " + JSON.stringify(el.props) + ", " + (el.children.join(",") || null) + ")";
         for (var prop in el.props) {
-          if (directives[prop]) {
-            if (directives[prop].beforeGenerate) {
-              compiledCode = directives[prop].beforeGenerate(el.props[prop], compiledCode, el);
-            }
+          if (specialDirectives[prop]) {
+            compiledCode = specialDirectives[prop](el.props[prop], compiledCode, el);
           }
         }
         code += compiledCode;
@@ -580,10 +586,9 @@
       });
     
       /* ======= Default Directives ======= */
-      directives[Moon.config.prefix + "if"] = {
-        beforeGenerate: function (value, code, vnode) {
-          return "(" + compileTemplate(value) + ") ? " + code + " : ''";
-        }
+    
+      specialDirectives[Moon.config.prefix + "if"] = function (value, code, vnode) {
+        return "(" + compileTemplate(value) + ") ? " + code + " : ''";
       };
     
       directives[Moon.config.prefix + "show"] = function (el, val, vdom) {
@@ -629,10 +634,16 @@
     
       directives[Moon.config.prefix + "text"] = function (el, val, vdom) {
         el.textContent = val;
+        for (var i = 0; i < vdom.children.length; i++) {
+          vdom.children[i].meta.shouldRender = false;
+        }
       };
     
       directives[Moon.config.prefix + "html"] = function (el, val, vdom) {
         el.innerHTML = val;
+        for (var i = 0; i < vdom.children.length; i++) {
+          vdom.children[i].meta.shouldRender = false;
+        }
       };
     
       directives[Moon.config.prefix + "mask"] = function (el, val, vdom) {};
