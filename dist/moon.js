@@ -121,9 +121,9 @@
     var createNodeFromVNode = function (vnode) {
       var el;
       if (vnode.type === "#text") {
-        el = document.createTextNode(vnode);
+        el = document.createTextNode(vnode.val);
       } else {
-        el = document.createElement(vnode.val);
+        el = document.createElement(vnode.type);
         var children = vnode.children.map(createNodeFromVNode);
         for (var i = 0; i < children.length; i++) {
           el.appendChild(children[i]);
