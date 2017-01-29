@@ -1,7 +1,7 @@
 /* ======= Default Directives ======= */
 directives[Moon.config.prefix + "if"] = {
   beforeGenerate: function(value, code, vnode) {
-    return `("${value}") ? ${code} : ''`;
+    return `(${compileTemplate(value)}) ? ${code} : ''`;
   }
 }
 
