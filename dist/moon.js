@@ -172,7 +172,17 @@
       } else if (nodeName === "#text" && typeof vnode === "string") {
         node.textContent = vnode;
       } else if (vnode.type) {
-        diffProps(node, extractAttrs(node), vnode.props);
+        var nodeProps = extractAttrs(node);
+    
+        diffProps(node, nodeProps, vnode.props);
+    
+        nodeProps = extractAttrs(node);
+        for (var propName in nodeProps) {
+          if (directives[propName]) {
+            directives[propName](node, nodeProps[propName], vnode);
+          }
+        }
+    
         for (var i = 0; i < vnode.children.length || i < node.childNodes.length; i++) {
           diff(node.childNodes[i], vnode.children[i], node);
         }
