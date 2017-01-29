@@ -43,9 +43,9 @@ var compileTemplate = function(template, isString) {
   var compiled = template;
   template.replace(TEMPLATE_RE, function(match, key) {
     if(isString) {
-      compiled =  template.replace(match, `" + this.get("${key}") + "`);
+      compiled = compiled.replace(match, `" + this.get("${key}") + "`);
     } else {
-      compiled = template.replace(match, `this.get("${key}")`);
+      compiled = compiled.replace(match, `this.get("${key}")`);
     }
   });
   return compiled;
