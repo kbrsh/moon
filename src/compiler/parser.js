@@ -71,6 +71,7 @@ var walk = function(state) {
         increment(0);
 
         if(!token) {
+          state.current = startContentIndex - 1;
           break;
         }
       }

@@ -152,7 +152,7 @@ var createNodeFromVNode = function(vnode) {
     for(var i = 0; i < children.length; i++) {
       el.appendChild(children[i]);
     }
-    addEventListeners(el, vnode.meta.eventListeners);
+    //addEventListeners(el, vnode.meta.eventListeners);
   }
   return el;
 }
