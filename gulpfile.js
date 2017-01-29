@@ -5,6 +5,7 @@ var pkg = require('./package.json');
 var uglify = require("gulp-uglifyjs");
 var istanbul = require("gulp-istanbul");
 var babel = require('gulp-babel');
+var replace = require('gulp-replace');
 var istanbulReport = require('gulp-istanbul-report');
 var mochaPhantomJS = require('gulp-mocha-phantomjs');
 var comment = '\/*\r\n* Moon ' + pkg.version + '\r\n* Copyright 2016-2017, Kabir Shah\r\n* https:\/\/github.com\/KingPixil\/moon\/\r\n* Free to use under the MIT license.\r\n* https:\/\/kingpixil.github.io\/license\r\n*\/\r\n';
@@ -26,6 +27,7 @@ gulp.task('build', ['transpile'], function () {
     .pipe($.include())
     .pipe($.concat('moon.js'))
     .pipe($.header(comment + '\n'))
+    .pipe(replace('__VERSION__', pkg.version))
     .pipe($.size())
     .pipe(gulp.dest('./dist/'));
 });
