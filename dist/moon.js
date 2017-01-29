@@ -900,6 +900,15 @@
     Moon.version = '0.1.3';
     
     /**
+     * Moon Utilities
+     */
+    Moon.util = {
+      noop: noop,
+      error: error,
+      log: log
+    };
+    
+    /**
      * Runs an external Plugin
      * @param {Object} plugin
      */
