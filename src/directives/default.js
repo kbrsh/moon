@@ -1,7 +1,15 @@
 /* ======= Default Directives ======= */
 
 specialDirectives[Moon.config.prefix + "if"] = function(value, code, vnode) {
-  return `(${compileTemplate(value)}) ? ${code} : ''`;
+  return `(${compileTemplate(value, false)}) ? ${code} : ''`;
+}
+
+specialDirectives[Moon.config.prefix + "for"] = function(value, code, vnode) {
+  var parts = value.split(" in ");
+  var alias = parts[0];
+  var iteratable = `this.get("${parts[1]}")`;
+  var customCode = `" + ${alias} + "`;
+  return `this.renderLoop(${iteratable}, function(${alias}) { return ${compileTemplate(code, true, customCode)}; })`;
 }
 
 directives[Moon.config.prefix + "show"] = function(el, val, vdom) {
@@ -33,12 +41,6 @@ directives[Moon.config.prefix + "model"] = function(el, val, vdom) {
     self.set(val, el.value);
   });
   delete vdom.props[Moon.config.prefix + "model"];
-}
-
-directives[Moon.config.prefix + "for"] = function(el, val, vdom) {
-  var parts = val.split(" in ");
-  var alias = parts[0];
-  var array = self.get(parts[1]);
 }
 
 directives[Moon.config.prefix + "once"] = function(el, val, vdom) {
