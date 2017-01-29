@@ -64,7 +64,7 @@
       var compiled = template;
       template.replace(TEMPLATE_RE, function (match, key) {
         if (customCode) {
-          compiled = compiled.replace(match, customCode);
+          compiled = customCode(compiled, match, key);
         } else if (isString) {
           compiled = compiled.replace(match, "\" + this.get(\"" + key + "\") + \"");
         } else {
@@ -538,7 +538,7 @@
       // Begin Code
       var code = "return " + generateEl(root);
     
-      // Compile Templates pass 13 fail 18
+      // Compile Templates
       code = compileTemplate(code, true);
     
       // Escape Newlines
@@ -599,7 +599,9 @@
         var parts = value.split(" in ");
         var alias = parts[0];
         var iteratable = "this.get(\"" + parts[1] + "\")";
-        var customCode = "\" + " + alias + " + \"";
+        var customCode = function (compiled, match, key) {
+          return compiled.replace(match, "\" + " + key + " + \"");
+        };
         return "this.renderLoop(" + iteratable + ", function(" + alias + ") { return " + compileTemplate(code, true, customCode) + "; })";
       };
     
