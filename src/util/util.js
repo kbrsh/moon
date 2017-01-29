@@ -33,6 +33,17 @@ var extractAttrs = function(node) {
 }
 
 /**
+ * Gives Default Metadata for a VNode
+ * @return {Object} metadata
+ */
+var defaultMetadata = function() {
+  return {
+    shouldRender: true,
+    eventListeners: {}
+  }
+}
+
+/**
  * Compiles a Template
  * @param {String} template
  * @param {Boolean} isString
@@ -54,6 +65,15 @@ var compileTemplate = function(template, isString, customCode) {
 }
 
 /**
+ * Creates an "h" Call for a VNode
+ * @param {Object} vnode
+ * @return {String} "h" call
+ */
+var createCall = function(vnode) {
+  return `h("${vnode.type}", ${JSON.stringify(vnode.props)}, ${JSON.stringify(vnode.meta)}, ${vnode.children.join(",") || null})`
+}
+
+/**
  * Creates a Virtual DOM Node
  * @param {String} type
  * @param {String} val
@@ -68,10 +88,7 @@ var createElement = function(type, val, props, children, meta) {
     val: val,
     props: props,
     children: children,
-    meta: meta || {
-      shouldRender: true,
-      eventListeners: {}
-    }
+    meta: meta || defaultMetadata()
   };
 }
 
@@ -86,20 +103,39 @@ var h = function() {
   var args = Array.prototype.slice.call(arguments);
   var tag = args.shift();
   var attrs = args.shift() || {};
-  var meta = args.shift() || {};
+  var meta = args.shift();
   var children = [];
   for(var i = 0; i < args.length; i++) {
     var arg = args[i];
     if(Array.isArray(arg)) {
       children = children.concat(arg);
     } else if(typeof args[i] === "string" || args[i] === null) {
-      children.push(createElement("#text", args[i] || '', {}, [], {}));
+      children.push(createElement("#text", args[i] || '', {}, [], meta));
     } else {
       children.push(arg);
     }
   }
   return createElement(tag, children.join(""), attrs, children, meta);
 };
+
+/**
+ * Adds metadata Event Listeners to an Element
+ * @param {Object} node
+ */
+var addEventListeners = function(node, eventListeners) {
+  for(var type in eventListeners) {
+    for(var i = 0; i < eventListeners[type].length; i++) {
+      var method = eventListeners[type][i];
+      if(self.$events[type]) {
+        self.on(type, method);
+      } else {
+        node.addEventListener(type, function(e) {
+          self.callMethod(method, [e]);
+        });
+      }
+    }
+  }
+}
 
 /**
  * Creates DOM Node from VNode
@@ -112,10 +148,11 @@ var createNodeFromVNode = function(vnode) {
     el = document.createTextNode(vnode.val);
   } else {
     el = document.createElement(vnode.type);
-    var children = vnode.children.map(createNodeFromVNode);
+    var children = vnode.children.map(createNodeFromVNode, vnode.meta.eventListeners);
     for(var i = 0; i < children.length; i++) {
       el.appendChild(children[i]);
     }
+    addEventListeners(el);
   }
   return el;
 }
