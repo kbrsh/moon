@@ -134,7 +134,7 @@ describe('If Directive', function() {
   it('should not exist when false', function() {
     ifApp.set('condition', false);
     Moon.nextTick(function() {
-      expect(document.getElementById('if-condition').innerHTML).to.not.equal('Condition True');
+      expect(document.getElementById('if-condition')).to.be.null;
     });
   });
   it('should not be present at runtime', function() {
