@@ -55,7 +55,9 @@ describe('Instance', function() {
   it('when destroyed', function() {
     destroyApp.destroy();
     destroyApp.set('msg', 'New Value!');
-    expect(document.getElementById("destroy").innerHTML).to.not.equal("New Value!")
+    Moon.nextTick(function() {
+      expect(document.getElementById("destroy").innerHTML).to.not.equal("New Value!");
+    });
   });
 });
 
@@ -113,7 +115,9 @@ describe('Custom Directive', function() {
     el: "#customDirective"
   });
   it('execute', function() {
-    expect(document.getElementById("custom-directive-span").innerHTML).to.equal("4");
+    Moon.nextTick(function() {
+      expect(document.getElementById("custom-directive-span").innerHTML).to.equal("4");
+    });
   });
 });
 
@@ -129,7 +133,9 @@ describe('If Directive', function() {
   });
   it('should not exist when false', function() {
     ifApp.set('condition', false);
-    expect(document.getElementById('if-condition').innerHTML).to.not.equal('Condition True');
+    Moon.nextTick(function() {
+      expect(document.getElementById('if-condition').innerHTML).to.not.equal('Condition True');
+    });
   });
   it('should not be present at runtime', function() {
     expect(document.getElementById('if-condition').getAttribute("m-if")).to.be.null;
@@ -148,7 +154,9 @@ describe('Show Directive', function() {
   });
   it('should not display when false', function() {
     showApp.set('condition', false);
-    expect(document.getElementById('show-condition').style.display).to.equal('none');
+    Moon.nextTick(function() {
+      expect(document.getElementById('show-condition').style.display).to.equal('none');
+    });
   });
   it('should not be present at runtime', function() {
     expect(document.getElementById('show-condition').getAttribute("m-show")).to.be.null;
@@ -190,7 +198,9 @@ describe('On Directive', function() {
   });
   it('should update DOM', function() {
     document.getElementById("on-increment-button").click();
-    expect(document.getElementById("on-count").innerHTML).to.equal('2');
+    Moon.nextTick(function() {
+      expect(document.getElementById("on-count").innerHTML).to.equal('2');
+    });
   });
   it('should pass an event object', function() {
     expect(evt.target.tagName).to.equal('BUTTON');
@@ -242,7 +252,9 @@ describe('Once Directive', function() {
   });
   it('should not update element once value is updated', function() {
     onceApp.set('msg', "Changed");
-    expect(document.getElementById("once-directive-span").innerHTML).to.equal("Hello Moon!");
+    Moon.nextTick(function() {
+      expect(document.getElementById("once-directive-span").innerHTML).to.equal("Hello Moon!");
+    });
   });
   it('should not be present at runtime', function() {
     expect(document.getElementById('once-directive-span').getAttribute("m-once")).to.be.null;
