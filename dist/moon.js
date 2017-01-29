@@ -37,6 +37,22 @@
     };
     
     /**
+     * Converts attributes into key-value pairs
+     * @param {Node} node
+     * @return {Object} Key-Value pairs of Attributes
+     */
+    var extractAttrs = function (node) {
+      var attrs = {};
+      if (!node.attributes) return attrs;
+      var rawAttrs = node.attributes;
+      for (var i = 0; i < rawAttrs.length; i++) {
+        attrs[rawAttrs[i].name] = rawAttrs[i].value;
+      }
+    
+      return attrs;
+    };
+    
+    /**
      * Compiles a Template
      * @param {String} template
      * @param {Boolean} isString
@@ -44,7 +60,7 @@
      */
     var compileTemplate = function (template, isString) {
       var TEMPLATE_RE = /{{([A-Za-z0-9_.()\[\]]+)}}/gi;
-      var compiled = "";
+      var compiled = template;
       template.replace(TEMPLATE_RE, function (match, key) {
         if (isString) {
           compiled = template.replace(match, "\" + this.get(\"" + key + "\") + \"");
@@ -116,11 +132,33 @@
      * @param {Object} vnode
      * @param {Object} parent
      */
+    
+    var diffProps = function (node, nodeProps, vnodeProps) {
+      // Get object of all properties being compared
+      var allProps = merge(nodeProps, vnodeProps);
+    
+      for (var propName in allProps) {
+        if (!vnodeProps[propName] || directives[propName]) {
+          node.removeAttribute(propName);
+        } else if (!nodeProps[propName] || nodeProps[propName] !== vnodeProps[propName]) {
+          node.setAttribute(propName, vnodeProps[propName]);
+        }
+      }
+    };
+    
+    /**
+     * Diffs Node and a VNode, and applys Changes
+     * @param {Object} node
+     * @param {Object} vnode
+     * @param {Object} parent
+     */
     var diff = function (node, vnode, parent) {
       var nodeName;
+    
       if (node) {
         nodeName = node.nodeName.toLowerCase();
       }
+    
       if (vnode === null) {
         vnode = '';
       }
@@ -133,7 +171,8 @@
         parent.replaceChild(createNodeFromVNode(vnode), node);
       } else if (nodeName === "#text" && typeof vnode === "string") {
         node.textContent = vnode;
-      } else if (vnode.children) {
+      } else if (vnode.type) {
+        diffProps(node, extractAttrs(node), vnode.props);
         for (var i = 0; i < vnode.children.length || i < node.childNodes.length; i++) {
           diff(node.childNodes[i], vnode.children[i], node);
         }
@@ -147,10 +186,11 @@
      * @return {Object} Merged Objects
      */
     var merge = function (obj, obj2) {
+      var merged = Object.create(obj);
       for (var key in obj2) {
-        if (obj2.hasOwnProperty(key)) obj[key] = obj2[key];
+        if (obj2.hasOwnProperty(key)) merged[key] = obj2[key];
       }
-      return obj;
+      return merged;
     };
     
     /**
@@ -460,10 +500,11 @@
         el.children = el.children.map(generateEl);
         var compiledCode = "h(\"" + el.type + "\", " + JSON.stringify(el.props) + ", " + (el.children.join(",") || null) + ")";
         for (var prop in el.props) {
-          if (directives[prop] && directives[prop].beforeGenerate) {
-            compiledCode = directives[prop].beforeGenerate(el.props[prop], compiledCode, el);
+          if (directives[prop]) {
+            if (directives[prop].beforeGenerate) {
+              compiledCode = directives[prop].beforeGenerate(el.props[prop], compiledCode, el);
+            }
           }
-          delete directives[prop];
         }
         code += compiledCode;
       }
