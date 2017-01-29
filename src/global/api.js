@@ -14,6 +14,15 @@ Moon.config = {
 Moon.version = '__VERSION__';
 
 /**
+ * Moon Utilities
+ */
+Moon.util = {
+  noop: noop,
+  error: error,
+  log: log
+}
+
+/**
  * Runs an external Plugin
  * @param {Object} plugin
  */
