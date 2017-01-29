@@ -5,7 +5,10 @@ var generateEl = function(el) {
 	} else {
 		// Recursively generate code for children
 		el.children = el.children.map(generateEl);
-		var compiledCode = `h("${el.type}", ${JSON.stringify(el.props)}, ${JSON.stringify(el.meta)}, ${el.children.join(",") || null})`;
+		if(!el.meta) {
+			el.meta = defaultMetadata();
+		}
+		var compiledCode = createCall(el);
 		for(var prop in el.props) {
 			if(specialDirectives[prop]) {
 				compiledCode = specialDirectives[prop](el.props[prop], compiledCode, el);
