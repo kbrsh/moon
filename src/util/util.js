@@ -69,7 +69,8 @@ var createElement = function(type, val, props, children, meta) {
     props: props,
     children: children,
     meta: meta || {
-      shouldRender: true
+      shouldRender: true,
+      eventListeners: {}
     }
   };
 }
@@ -85,18 +86,19 @@ var h = function() {
   var args = Array.prototype.slice.call(arguments);
   var tag = args.shift();
   var attrs = args.shift() || {};
+  var meta = args.shift() || {};
   var children = [];
   for(var i = 0; i < args.length; i++) {
     var arg = args[i];
     if(Array.isArray(arg)) {
       children = children.concat(arg);
     } else if(typeof args[i] === "string" || args[i] === null) {
-      children.push(createElement("#text", args[i] || '', {}, [], null));
+      children.push(createElement("#text", args[i] || '', {}, [], {}));
     } else {
       children.push(arg);
     }
   }
-  return createElement(tag, children.join(""), attrs, children, null);
+  return createElement(tag, children.join(""), attrs, children, meta);
 };
 
 /**

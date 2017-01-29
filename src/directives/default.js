@@ -14,19 +14,16 @@ specialDirectives[Moon.config.prefix + "for"] = function(value, code, vnode) {
   return `this.renderLoop(${iteratable}, function(${alias}) { return ${compileTemplate(code, true, customCode)}; })`;
 }
 
-directives[Moon.config.prefix + "show"] = function(el, val, vdom) {
-  var evaluated = new Function("return " + val);
-  if(!evaluated()) {
-    el.style.display = 'none';
-  } else {
-    el.style.display = 'block';
-  }
-}
-
-directives[Moon.config.prefix + "on"] = function(el, val, vdom) {
+specialDirectives[Moon.config.prefix + "on"] = function(value, code, vnode) {
   var splitVal = val.split(":");
   var eventToCall = splitVal[0];
   var methodToCall = splitVal[1];
+  if(!vnode.eventListeners[eventToCall]) {
+    vnode.eventListeners[eventToCall] = [methodToCall];
+  } else {
+    vnode.eventListeners[eventToCall].push(methodToCall);
+  }
+  
   if(self.$events[eventToCall]) {
     self.on(eventToCall, methodToCall);
   } else {
@@ -34,7 +31,6 @@ directives[Moon.config.prefix + "on"] = function(el, val, vdom) {
       self.callMethod(methodToCall, [e]);
     });
   }
-  delete vdom.props[Moon.config.prefix + "on"];
 }
 
 directives[Moon.config.prefix + "model"] = function(el, val, vdom) {
@@ -42,7 +38,15 @@ directives[Moon.config.prefix + "model"] = function(el, val, vdom) {
   el.addEventListener("input", function() {
     self.set(val, el.value);
   });
-  delete vdom.props[Moon.config.prefix + "model"];
+}
+
+directives[Moon.config.prefix + "show"] = function(el, val, vdom) {
+  var evaluated = new Function("return " + val);
+  if(!evaluated()) {
+    el.style.display = 'none';
+  } else {
+    el.style.display = 'block';
+  }
 }
 
 directives[Moon.config.prefix + "once"] = function(el, val, vdom) {
