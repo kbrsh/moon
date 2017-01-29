@@ -831,6 +831,7 @@
      */
     Moon.prototype.mount = function (el) {
       this.$el = document.querySelector(el);
+      this.$destroyed = false;
     
       if (!this.$el) {
         error("Element " + this.$opts.el + " not found");
