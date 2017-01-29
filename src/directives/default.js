@@ -1,8 +1,7 @@
 /* ======= Default Directives ======= */
-directives[Moon.config.prefix + "if"] = {
-  beforeGenerate: function(value, code, vnode) {
-    return `(${compileTemplate(value)}) ? ${code} : ''`;
-  }
+
+specialDirectives[Moon.config.prefix + "if"] = function(value, code, vnode) {
+  return `(${compileTemplate(value)}) ? ${code} : ''`;
 }
 
 directives[Moon.config.prefix + "show"] = function(el, val, vdom) {
@@ -48,10 +47,16 @@ directives[Moon.config.prefix + "once"] = function(el, val, vdom) {
 
 directives[Moon.config.prefix + "text"] = function(el, val, vdom) {
   el.textContent = val;
+  for(var i = 0; i < vdom.children.length; i++) {
+    vdom.children[i].meta.shouldRender = false;
+  }
 }
 
 directives[Moon.config.prefix + "html"] = function(el, val, vdom) {
   el.innerHTML = val;
+  for(var i = 0; i < vdom.children.length; i++) {
+    vdom.children[i].meta.shouldRender = false;
+  }
 }
 
 directives[Moon.config.prefix + "mask"] = function(el, val, vdom) {
