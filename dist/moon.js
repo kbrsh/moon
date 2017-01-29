@@ -483,11 +483,11 @@
       }
     
       // Start of new Tag
-      if (token.type === "tag" && !previousToken.close && !thirdToken.close) {
-        var node = createParseNode(token.value, secondToken.value, []);
-        var tagType = token.value;
+      if (token.type === "tagStart" && !token.close && !fourthToken.close) {
+        var node = createParseNode(secondToken.value, thirdToken.value, []);
+        var tagType = secondToken.value;
         // Exit Start Tag
-        increment(3);
+        increment(4);
         var startContentIndex = state.current;
         // Make sure it has content and is closed
         if (token) {
