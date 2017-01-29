@@ -37,6 +37,25 @@
     };
     
     /**
+     * Compiles a Template
+     * @param {String} template
+     * @param {Boolean} isString
+     * @return {String} compiled template
+     */
+    var compileTemplate = function (template, isString) {
+      var TEMPLATE_RE = /{{([A-Za-z0-9_.()\[\]]+)}}/gi;
+      var compiled = "";
+      template.replace(TEMPLATE_RE, function (match, key) {
+        if (isString) {
+          compiled = template.replace(match, "\" + this.get(\"" + key + "\") + \"");
+        } else {
+          compiled = template.replace(match, "this.get(\"" + key + "\")");
+        }
+      });
+      return compiled;
+    };
+    
+    /**
      * Creates a Virtual DOM Node
      * @param {String} type
      * @param {String} val
@@ -441,7 +460,7 @@
         el.children = el.children.map(generateEl);
         var compiledCode = "h(\"" + el.type + "\", " + JSON.stringify(el.props) + ", " + (el.children.join(",") || null) + ")";
         for (var prop in el.props) {
-          if (directives[prop]) {
+          if (directives[prop] && directives[prop].beforeGenerate) {
             compiledCode = directives[prop].beforeGenerate(el.props[prop], compiledCode, el);
           }
           delete directives[prop];
@@ -452,18 +471,14 @@
     };
     
     var generate = function (ast) {
-      // Matches a template string
-      var TEMPLATE_RE = /{{([A-Za-z0-9_.()\[\]]+)}}/gi;
       var NEWLINE_RE = /\n/g;
       // Get root element
       var root = ast.children[0];
       // Begin Code
       var code = "return " + generateEl(root);
     
-      // Compile Templates
-      code.replace(TEMPLATE_RE, function (match, key) {
-        code = code.replace(match, "\" + this.get(\"" + key + "\") + \"");
-      });
+      // Compile Templates pass 13 fail 18
+      code = compileTemplate(code, true);
     
       // Escape Newlines
       code = code.replace(NEWLINE_RE, "\" + \"\\n\" + \"");
@@ -516,7 +531,7 @@
       /* ======= Default Directives ======= */
       directives[Moon.config.prefix + "if"] = {
         beforeGenerate: function (value, code, vnode) {
-          return "(\"" + value + "\") ? " + code + " : ''";
+          return "(" + compileTemplate(value) + ") ? " + code + " : ''";
         }
       };
     
