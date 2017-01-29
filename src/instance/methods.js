@@ -111,6 +111,19 @@ Moon.prototype.emit = function(eventName, meta) {
 }
 
 /**
+ * Renders "m-for" Directive Array
+ * @param {Array} arr
+ * @param {Function} item
+ */
+Moon.prototype.renderLoop = function(arr, item) {
+  var items = [];
+  for(var i = 0; i < arr.length; i++) {
+    items.push(item(arr[i]));
+  }
+  return items;
+}
+
+/**
  * Mounts Moon Element
  * @param {Object} el
  */

@@ -38,11 +38,13 @@ var extractAttrs = function(node) {
  * @param {Boolean} isString
  * @return {String} compiled template
  */
-var compileTemplate = function(template, isString) {
+var compileTemplate = function(template, isString, customCode) {
   var TEMPLATE_RE = /{{([A-Za-z0-9_.()\[\]]+)}}/gi;
   var compiled = template;
   template.replace(TEMPLATE_RE, function(match, key) {
-    if(isString) {
+    if(customCode) {
+      compiled = compiled.replace(match, customCode);
+    } else if(isString) {
       compiled = compiled.replace(match, `" + this.get("${key}") + "`);
     } else {
       compiled = compiled.replace(match, `this.get("${key}")`);
@@ -83,10 +85,15 @@ var h = function() {
   var args = Array.prototype.slice.call(arguments);
   var tag = args.shift();
   var attrs = args.shift() || {};
-  var children = args;
-  for(var i = 0; i < children.length; i++) {
-    if(typeof children[i] === "string" || children[i] === null) {
-      children[i] = createElement("#text", children[i] || '', {}, [], null);
+  var children = [];
+  for(var i = 0; i < args.length; i++) {
+    var arg = args[i];
+    if(Array.isArray(arg)) {
+      children = children.concat(arg);
+    } else if(typeof args[i] === "string" || args[i] === null) {
+      children.push(createElement("#text", args[i] || '', {}, [], null));
+    } else {
+      children.push(arg);
     }
   }
   return createElement(tag, children.join(""), attrs, children, null);
