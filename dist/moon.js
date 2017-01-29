@@ -59,11 +59,13 @@
      * @param {Boolean} isString
      * @return {String} compiled template
      */
-    var compileTemplate = function (template, isString) {
+    var compileTemplate = function (template, isString, customCode) {
       var TEMPLATE_RE = /{{([A-Za-z0-9_.()\[\]]+)}}/gi;
       var compiled = template;
       template.replace(TEMPLATE_RE, function (match, key) {
-        if (isString) {
+        if (customCode) {
+          compiled = compiled.replace(match, customCode);
+        } else if (isString) {
           compiled = compiled.replace(match, "\" + this.get(\"" + key + "\") + \"");
         } else {
           compiled = compiled.replace(match, "this.get(\"" + key + "\")");
@@ -104,10 +106,15 @@
       var args = Array.prototype.slice.call(arguments);
       var tag = args.shift();
       var attrs = args.shift() || {};
-      var children = args;
-      for (var i = 0; i < children.length; i++) {
-        if (typeof children[i] === "string" || children[i] === null) {
-          children[i] = createElement("#text", children[i] || '', {}, [], null);
+      var children = [];
+      for (var i = 0; i < args.length; i++) {
+        var arg = args[i];
+        if (Array.isArray(arg)) {
+          children = children.concat(arg);
+        } else if (typeof args[i] === "string" || args[i] === null) {
+          children.push(createElement("#text", args[i] || '', {}, [], null));
+        } else {
+          children.push(arg);
         }
       }
       return createElement(tag, children.join(""), attrs, children, null);
@@ -588,7 +595,15 @@
       /* ======= Default Directives ======= */
     
       specialDirectives[Moon.config.prefix + "if"] = function (value, code, vnode) {
-        return "(" + compileTemplate(value) + ") ? " + code + " : ''";
+        return "(" + compileTemplate(value, false) + ") ? " + code + " : ''";
+      };
+    
+      specialDirectives[Moon.config.prefix + "for"] = function (value, code, vnode) {
+        var parts = value.split(" in ");
+        var alias = parts[0];
+        var iteratable = "this.get(\"" + parts[1] + "\")";
+        var customCode = "\" + " + alias + " + \"";
+        return "this.renderLoop(" + iteratable + ", function(" + alias + ") { return " + compileTemplate(code, true, customCode) + "; })";
       };
     
       directives[Moon.config.prefix + "show"] = function (el, val, vdom) {
@@ -620,12 +635,6 @@
           self.set(val, el.value);
         });
         delete vdom.props[Moon.config.prefix + "model"];
-      };
-    
-      directives[Moon.config.prefix + "for"] = function (el, val, vdom) {
-        var parts = val.split(" in ");
-        var alias = parts[0];
-        var array = self.get(parts[1]);
       };
     
       directives[Moon.config.prefix + "once"] = function (el, val, vdom) {
@@ -762,6 +771,19 @@
         var handler = this.$events[eventName][i];
         handler(meta);
       }
+    };
+    
+    /**
+     * Renders "m-for" Directive Array
+     * @param {Array} arr
+     * @param {Function} item
+     */
+    Moon.prototype.renderLoop = function (arr, item) {
+      var items = [];
+      for (var i = 0; i < arr.length; i++) {
+        items.push(item(arr[i]));
+      }
+      return items;
     };
     
     /**
