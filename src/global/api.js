@@ -19,7 +19,9 @@ Moon.version = '__VERSION__';
 Moon.util = {
   noop: noop,
   error: error,
-  log: log
+  log: log,
+  merge: merge,
+  extend: extend
 }
 
 /**

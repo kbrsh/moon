@@ -224,15 +224,31 @@ var diff = function(node, vnode, parent) {
 
 
 /**
- * Merges two Objects
- * @param {Object} obj
- * @param {Object} obj2
- * @return {Object} Merged Objects
+ * Extends an Object with another Object's properties
+ * @param {Object} parent
+ * @param {Object} child
+ * @return {Object} Extended Parent
  */
-var merge = function(obj, obj2) {
-  var merged = Object.create(obj);
-  for (var key in obj2) {
-    if (obj2.hasOwnProperty(key)) merged[key] = obj2[key];
+var extend = function(parent, child) {
+  for (var key in child) {
+    parent[key] = child[key];
+  }
+  return parent;
+}
+
+/**
+ * Merges Two Objects Together
+ * @param {Object} parent
+ * @param {Object} child
+ * @return {Object} Merged Object
+ */
+var merge = function(parent, child) {
+  var merged = {};
+  for(var key in parent) {
+    merged[key] = parent[key];
+  }
+  for (var key in child) {
+    merged[key] = child[key];
   }
   return merged;
 }
