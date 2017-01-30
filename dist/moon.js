@@ -124,7 +124,7 @@
       var args = Array.prototype.slice.call(arguments);
       var tag = args.shift();
       var attrs = args.shift() || {};
-      var meta = args.shift();
+      var meta = args.shift() || defaultMetadata();
       var children = [];
       for (var i = 0; i < args.length; i++) {
         var arg = args[i];
