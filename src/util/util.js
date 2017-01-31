@@ -169,7 +169,9 @@ var createNodeFromVNode = function(vnode, instance) {
     el = document.createTextNode(vnode.val);
   } else {
     el = document.createElement(vnode.type);
-    var children = vnode.children.map(createNodeFromVNode);
+    var children = vnode.children.map(function(item) {
+      return createNodeFromVNode(item, instance);
+    });
     for(var i = 0; i < children.length; i++) {
       el.appendChild(children[i]);
     }
