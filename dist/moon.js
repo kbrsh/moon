@@ -631,7 +631,7 @@
       this.$opts = opts || {};
     
       var self = this;
-      var _data = this.$opts.data;
+      var _data = this.$opts.data || {};
     
       this.$id = id++;
     
@@ -982,7 +982,6 @@
       MoonComponent.prototype.constructor = MoonComponent;
       MoonComponent.prototype.init = function () {
         this.$destroyed = false;
-    
         this.$props = this.$opts.props || [];
     
         this.$template = this.$opts.template;
