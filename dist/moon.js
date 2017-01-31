@@ -151,15 +151,24 @@
     /**
      * Adds metadata Event Listeners to an Element
      * @param {Object} node
-     * @param {Object} eventListeners
+     * @param {Object} vnode
      * @param {Object} instance
      */
-    var addEventListeners = function (node, eventListeners, instance) {
+    var addEventListeners = function (node, vnode, instance) {
+      var eventListeners = vnode.meta.eventListeners;
       for (var type in eventListeners) {
         for (var i = 0; i < eventListeners[type].length; i++) {
           var method = eventListeners[type][i];
+          if (method === "__MOON__MODEL__UPDATE__") {
+            node.addEventListener("input", function (evt) {
+              instance.set(vnode.props["m-model"], evt.target.value);
+            });
+            return;
+          }
           if (instance.$events[type]) {
-            instance.on(type, method);
+            instance.on(type, function () {
+              instance.callMethod(method, [e]);
+            });
           } else {
             node.addEventListener(type, function (e) {
               instance.callMethod(method, [e]);
@@ -185,7 +194,7 @@
         for (var i = 0; i < children.length; i++) {
           el.appendChild(children[i]);
         }
-        addEventListeners(el, vnode.meta.eventListeners, instance);
+        addEventListeners(el, vnode, instance);
       }
       return el;
     };
@@ -249,7 +258,7 @@
           diffProps(node, nodeProps, vnode.props, vnode);
     
           if (instance.$initialRender) {
-            addEventListeners(node, vnode.meta.eventListeners, instance);
+            addEventListeners(node, vnode, instance);
           }
     
           // Diff children
@@ -693,11 +702,17 @@
         return createCall(vnode);
       };
     
+      specialDirectives[Moon.config.prefix + "model"] = function (value, code, vnode) {
+        if (!vnode.meta.eventListeners["input"]) {
+          vnode.meta.eventListeners["input"] = ["__MOON__MODEL__UPDATE__"];
+        } else {
+          vnode.meta.eventListeners["input"].push("__MOON__MODEL__UPDATE__");
+        }
+        return createCall(vnode);
+      };
+    
       directives[Moon.config.prefix + "model"] = function (el, val, vdom) {
         el.value = self.get(val);
-        el.addEventListener("input", function () {
-          self.set(val, el.value);
-        });
       };
     
       directives[Moon.config.prefix + "show"] = function (el, val, vdom) {
