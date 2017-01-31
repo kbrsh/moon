@@ -19,7 +19,7 @@ function Moon(opts) {
     this.$opts = opts || {};
 
     var self = this;
-    var _data = this.$opts.data;
+    var _data = this.$opts.data || {};
 
     this.$id = id++;
 
