@@ -1,50 +1,26 @@
-# Moon
 
-A minimal, blazing fast UI library.
+<p align="center"><a href="https://kingpixil.github.io/moon" target="_blank"><img width="150"src="https://raw.githubusercontent.com/KingPixil/moon/gh-pages/img/logo.png"></a></p>
 
-### Rewrite
+<h1 align="center">Moon</h1>
 
-Moon is currently being **rewritten** to be faster, and more flexible. It will be able to support:
+<p align="center">A minimal, blazing fast UI library.</p>
+<p align="center">
+<a href="https://travis-ci.org/KingPixil/moon"><img src="https://travis-ci.org/KingPixil/moon.svg?branch=rewrite" alt="Build Status"></a>
 
-- Components
-- Support for single file components, letting you have:
-  - Scoped CSS to components
-  - Custom Preprocessor for HTML/CSS/JS
-  - Modularity
-- Custom Render functions: this is faster, as Moon doesn't have to create a virtual DOM from nodes.
-  - This means you can use JSX, to allow the full power of JavaScript in your templates
-- Server Side Rendering: You can compile templates on the server side and get HTML.
+<a href="https://codecov.io/gh/KingPixil/moon"><img src="https://codecov.io/gh/KingPixil/moon/branch/rewrite/graph/badge.svg" alt="Code Coverage"></a>
 
-You can check out the progress on the [rewrite branch](https://github.com/KingPixil/moon/tree/rewrite).
-
+<a href="https://kingpixil.github.io/license"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
+</p>
 
 ### What is it?
 
-Moon is a simple library heavily inspired by Vue.js. It's much lighter, and provides an API that is easy to learn.
+Moon is a simple front end javascript library heavily inspired by [Vue](https://vuejs.org). The library is fast, flexible, and easy to learn.
 
 ### Usage
 
 See [the website.](https://kingpixil.github.io/moon)
 
-More documentation coming soon, Moon is under active development.
 
-<!-- ### Benchmarks
+### License
 
-- Rendering Time: 100μs
-- ~51,175 ops/sec -->
-
-### Roadmap
-
-<!-- - Use Virtual DOM
-  - Create Virtual DOM while seeding
-  - Every build, replace (first version) of virtual dom with new data
-  - Run diff algorithm against real DOM and rerender -->
-<!-- - Methods -->
-<!-- - Filters -->
-<!-- - Attributes/Properties Binding -->
-<!-- - Model -->
-<!-- - If -->
-- For
-
-
-### [License](http://kingpixil.github.io/license)
+Licensed under the [MIT License](http://kingpixil.github.io/license) by [Kabir Shah](https://kabir.ml)
