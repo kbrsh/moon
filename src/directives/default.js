@@ -36,6 +36,14 @@ specialDirectives[Moon.config.prefix + "model"] = function(value, code, vnode) {
   return createCall(vnode);
 }
 
+specialDirectives[Moon.config.prefix + "once"] = function(value, code, vnode) {
+  code = compileTemplate(code, true, function(compiled, match, key) {
+    return compiled.replace(match, `" + ${self.get(key)} + "`)
+  });
+  return code;
+}
+
+
 directives[Moon.config.prefix + "model"] = function(el, val, vdom) {
   el.value = self.get(val);
 }
@@ -49,7 +57,7 @@ directives[Moon.config.prefix + "show"] = function(el, val, vdom) {
   }
 }
 
-directives[Moon.config.prefix + "once"] = function(el, val, vdom) {
+directives[Moon.config.prefix + "pre"] = function(el, val, vdom) {
   vdom.meta.shouldRender = false;
 }
 
