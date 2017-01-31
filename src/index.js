@@ -1,51 +1,55 @@
-(function(root, factory) {
-  /* ======= Global Moon ======= */
-  (typeof module === "object" && module.exports) ? module.exports = factory() : root.Moon = factory();
-}(this, function() {
+"use strict";
 
-    /* ======= Global Variables ======= */
-    var config = {
-      silent: false
-    }
-    var directives = {};
-    var components = {};
+/* ======= Global Variables ======= */
+var directives = {};
+var specialDirectives = {};
+var components = {};
+var id = 0;
 
-    //=require util/util.js
+//=require util/util.js
 
-    function Moon(opts) {
-        /* ======= Initial Values ======= */
-        var _el = opts.el;
-        var _data = opts.data;
-        var self = this;
-        this.$el = document.querySelector(_el);
-        this.$template = opts.template || this.$el.innerHTML;
-        this.$hooks = merge({created: noop, mounted: noop, updated: noop, destroyed: noop}, opts.hooks);
-        this.$methods = opts.methods || {};
-        this.$components = merge(opts.components || {}, components);
-        this.$dom = {type: this.$el.nodeName, children: [], node: this.$el};
-        this.$destroyed = false;
+/* ======= Compiler ======= */
+//=require compiler/lexer.js
+//=require compiler/parser.js
+//=require compiler/generator.js
+//=require compiler/compiler.js
 
-        /* ======= Listen for Changes ======= */
-        Object.defineProperty(this, '$data', {
-            get: function() {
-                return _data;
-            },
-            set: function(value) {
-                _data = value;
-                this.build(this.$dom.children);
-            },
-            configurable: true
-        });
+function Moon(opts) {
+    /* ======= Initial Values ======= */
+    this.$opts = opts || {};
 
-        //=require directives/default.js
+    var self = this;
+    var _data = this.$opts.data || {};
 
-        /* ======= Initialize 🎉 ======= */
-        this.init();
-    }
+    this.$id = id++;
 
-    //=require instance/methods.js
+    this.$render = this.$opts.render || noop;
+    this.$hooks = extend({created: noop, mounted: noop, updated: noop, destroyed: noop}, this.$opts.hooks);
+    this.$methods = this.$opts.methods || {};
+    this.$events = {};
+    this.$dom = {};
+    this.$destroyed = false;
+    this.$initialRender = true;
+    this.$queued = false;
 
-    //=require global/api.js
+    /* ======= Listen for Changes ======= */
+    Object.defineProperty(this, '$data', {
+        get: function() {
+            return _data;
+        },
+        set: function(value) {
+            _data = value;
+            this.build(this.$dom.children);
+        },
+        configurable: true
+    });
 
-    return Moon;
-}));
+    //=require directives/default.js
+
+    /* ======= Initialize 🎉 ======= */
+    this.init();
+}
+
+//=require instance/methods.js
+
+//=require global/api.js

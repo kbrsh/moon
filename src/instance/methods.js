@@ -1,100 +1,184 @@
 /* ======= Instance Methods ======= */
 
-var hasConsole = typeof window.console !== undefined;
-
 /**
-* Logs a Message
-* @param {String} msg
-*/
-Moon.prototype.log = function(msg) {
-  if(!config.silent && hasConsole) console.log(msg);
-}
-
-/**
-* Throws an Error
-* @param {String} msg
-*/
-Moon.prototype.error = function(msg) {
-  if(hasConsole) console.error("[Moon] ERR: " + msg);
-}
-
-/**
-* Sets Value in Data
-* @param {String} key
-* @param {String} val
-*/
-Moon.prototype.set = function(key, val) {
-  this.$data[key] = val;
-  if(!this.$destroyed) this.build(this.$dom.children);
-  this.$hooks.updated();
-}
-
-/**
-* Gets Value in Data
-* @param {String} key
-* @return {String} Value of key in data
-*/
+ * Gets Value in Data
+ * @param {String} key
+ * @return {String} Value of key in data
+ */
 Moon.prototype.get = function(key) {
   return this.$data[key];
 }
 
 /**
-* Calls a method
-* @param {String} method
-*/
-Moon.prototype.method = function(method) {
-  this.$methods[method]();
+ * Sets Value in Data
+ * @param {String} key
+ * @param {String} val
+ */
+Moon.prototype.set = function(key, val) {
+  var self = this;
+  this.$data[key] = val;
+  if(!this.$queued && !this.$destroyed) {
+    this.$queued = true;
+    setTimeout(function() {
+      self.build();
+      self.$hooks.updated();
+      self.$queued = false;
+    }, 0);
+  }
 }
 
 /**
-* Destroys Moon Instance
-*/
+ * Destroys Moon Instance
+ */
 Moon.prototype.destroy = function() {
   Object.defineProperty(this, '$data', {
     set: function(value) {
       _data = value;
     }
   });
+  this.removeEvents();
   this.$destroyed = true;
   this.$hooks.destroyed();
 }
 
 /**
-* Builds the DOM With Data
-* @param {Array} children
-*/
-Moon.prototype.build = function(children) {
-  for(var i = 0; i < children.length; i++) {
-    var el = children[i];
+ * Calls a method
+ * @param {String} method
+ */
+Moon.prototype.callMethod = function(method, args) {
+  args = args || [];
+  this.$methods[method].apply(this, args);
+}
 
-    if(el.type === "#text") {
-      el.node.textContent = compileTemplate(el.val, this.$data);
-    } else if(el.props) {
-      for(var prop in el.props) {
-        var propVal = el.props[prop];
-        var compiledProperty = compileTemplate(propVal, this.$data);
-        var directive = directives[prop];
-        if(directive) {
-          el.node.removeAttribute(prop);
-          directive(el.node, compiledProperty, el);
-        }
+// Event Emitter, adapted from https://github.com/KingPixil/voke
 
-        if(!directive) el.node.setAttribute(prop, compiledProperty);
-      }
-    }
-
-    this.build(el.children);
+/**
+ * Attaches an Event Listener
+ * @param {String} eventName
+ * @param {Function} action
+ */
+Moon.prototype.on = function(eventName, action) {
+  if(this.$events[eventName]) {
+    this.$events[eventName].push(action);
+  } else {
+    this.$events[eventName] = [action];
   }
 }
 
 /**
-* Initializes Moon
-*/
-Moon.prototype.init = function() {
-  this.log("======= Moon =======");
-  this.$hooks.created();
-  setInitialElementValue(this.$el, this.$template);
-  this.$dom = createVirtualDOM(this.$el);
-  this.build(this.$dom.children);
+ * Removes an Event Listener
+ * @param {String} eventName
+ * @param {Function} action
+ */
+Moon.prototype.off = function(eventName, action) {
+  var index = this.$events[eventName].indexOf(action);
+  if(index !== -1) {
+    this.$events[eventName].splice(index, 1);
+  }
+}
+
+/**
+ * Removes All Event Listeners
+ * @param {String} eventName
+ * @param {Function} action
+ */
+Moon.prototype.removeEvents = function() {
+  for(var evt in this.$events) {
+    this.$events[evt] = [];
+  }
+}
+
+/**
+ * Emits an Event
+ * @param {String} eventName
+ * @param {Object} meta
+ */
+Moon.prototype.emit = function(eventName, meta) {
+  meta = meta || {};
+  meta.type = eventName;
+
+  if(this.$events["*"]) {
+    for(var i = 0; i < this.$events["*"].length; i++) {
+      var globalHandler = this.$events["*"][i];
+      globalHandler(meta);
+    }
+  }
+
+  for(var i = 0; i < this.$events[eventName].length; i++) {
+    var handler = this.$events[eventName][i];
+    handler(meta);
+  }
+}
+
+/**
+ * Renders "m-for" Directive Array
+ * @param {Array} arr
+ * @param {Function} item
+ */
+Moon.prototype.renderLoop = function(arr, item) {
+  var items = [];
+  for(var i = 0; i < arr.length; i++) {
+    items.push(item(arr[i]));
+  }
+  return items;
+}
+
+/**
+ * Mounts Moon Element
+ * @param {Object} el
+ */
+Moon.prototype.mount = function(el) {
+  this.$el = document.querySelector(el);
+  this.$destroyed = false;
+
+  if(!this.$el) {
+    error("Element " + this.$opts.el + " not found");
+  }
+
+  this.$template = this.$opts.template || this.$el.outerHTML;
+
+  if(this.$render === noop) {
+    this.$render = Moon.compile(this.$template);
+  }
+
+  this.build();
   this.$hooks.mounted();
+}
+
+/**
+ * Renders Virtual DOM
+ * @return Virtual DOM
+ */
+Moon.prototype.render = function() {
+  return this.$render(h);
+}
+
+/**
+ * Diff then Patches Nodes With Data
+ * @param {Object} node
+ * @param {Object} vnode
+ */
+Moon.prototype.patch = function(node, vnode, parent) {
+  diff(node, vnode, parent, this);
+  this.$initialRender = false;
+}
+
+/**
+ * Render and Patches the DOM With Data
+ */
+Moon.prototype.build = function() {
+  this.$dom = this.render();
+  this.patch(this.$el, this.$dom, this.$el.parentNode);
+}
+
+/**
+ * Initializes Moon
+ */
+Moon.prototype.init = function() {
+  log("======= Moon =======");
+  this.$hooks.created();
+
+  if(this.$opts.el) {
+    this.mount(this.$opts.el);
+  }
 }
