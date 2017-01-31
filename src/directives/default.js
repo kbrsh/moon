@@ -37,8 +37,8 @@ specialDirectives[Moon.config.prefix + "model"] = function(value, code, vnode) {
 }
 
 specialDirectives[Moon.config.prefix + "once"] = function(value, code, vnode) {
-  code = compileTemplate(code, true, function(compiled, match, key) {
-    return compiled.replace(match, `" + ${self.get(key)} + "`)
+  code = compileTemplate(code, false, function(compiled, match, key) {
+    return compiled.replace(match, self.get(key));
   });
   return code;
 }

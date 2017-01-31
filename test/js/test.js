@@ -110,11 +110,14 @@ describe('Custom Directive', function() {
   Moon.directive("square", function(el, val, vdom) {
     var num = parseInt(val);
     el.textContent = val*val;
+    for(var i = 0; i < vdom.children.length; i++) {
+      vdom.children[i].val = val*val;
+    }
   });
   var customDirectiveApp = new Moon({
     el: "#customDirective"
   });
-  it('execute', function() {
+  it('should execute', function() {
     Moon.nextTick(function() {
       expect(document.getElementById("custom-directive-span").innerHTML).to.equal("4");
     });
@@ -261,6 +264,27 @@ describe('Once Directive', function() {
   });
 });
 
+describe('Pre Directive', function() {
+  var preApp = new Moon({
+    el: "#pre",
+    data: {
+      msg: "Hello Moon!"
+    }
+  });
+  it('should not fill DOM with a value', function() {
+    expect(document.getElementById("pre-directive-span").innerHTML).to.equal("{{msg}}");
+  });
+  it('should not update element once value is updated', function() {
+    preApp.set('msg', "Changed");
+    Moon.nextTick(function() {
+      expect(document.getElementById("pre-directive-span").innerHTML).to.equal("{{msg}}");
+    });
+  });
+  it('should not be present at runtime', function() {
+    expect(document.getElementById('pre-directive-span').getAttribute("m-pre")).to.be.null;
+  });
+});
+
 describe('Mask Directive', function() {
   var maskApp = new Moon({
     el: "#mask"
@@ -308,6 +332,27 @@ describe('Template', function() {
       templateApp.set("msg", "Changed");
       Moon.nextTick(function() {
         expect(document.getElementById("template").innerHTML).to.equal("Changed");
+      });
+    });
+});
+
+describe('Custom Render', function() {
+    var renderApp = new Moon({
+      el: "#render",
+      render: function(h) {
+        return h('div', {id: "render"}, null, this.get('msg'))
+      },
+      data: {
+        msg: "Hello Moon!"
+      }
+    });
+    it('should use provided render function', function() {
+      expect(document.getElementById("render").innerHTML).to.equal("Hello Moon!");
+    });
+    it('should update', function() {
+      renderApp.set("msg", "Changed");
+      Moon.nextTick(function() {
+        expect(document.getElementById("render").innerHTML).to.equal("Changed");
       });
     });
 });
