@@ -27,11 +27,17 @@ specialDirectives[Moon.config.prefix + "on"] = function(value, code, vnode) {
   return createCall(vnode);
 }
 
+specialDirectives[Moon.config.prefix + "model"] = function(value, code, vnode) {
+  if(!vnode.meta.eventListeners["input"]) {
+    vnode.meta.eventListeners["input"] = ["__MOON__MODEL__UPDATE__"];
+  } else {
+    vnode.meta.eventListeners["input"].push("__MOON__MODEL__UPDATE__");
+  }
+  return createCall(vnode);
+}
+
 directives[Moon.config.prefix + "model"] = function(el, val, vdom) {
   el.value = self.get(val);
-  el.addEventListener("input", function() {
-    self.set(val, el.value);
-  });
 }
 
 directives[Moon.config.prefix + "show"] = function(el, val, vdom) {
