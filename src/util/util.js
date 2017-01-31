@@ -115,6 +115,9 @@ var h = function() {
       children.push(arg);
     }
   }
+  if(components[tag]) {
+    return components[tag].render();
+  }
   return createElement(tag, children.join(""), attrs, children, meta);
 };
 
