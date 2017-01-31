@@ -72,8 +72,8 @@ Moon.component = function(name, opts) {
   MoonComponent.prototype.constructor = MoonComponent;
   MoonComponent.prototype.init = function() {
     this.$destroyed = false;
-    
-    this.$props = this.$opts.props;
+
+    this.$props = this.$opts.props || [];
 
     this.$template = this.$opts.template;
 
