@@ -29,6 +29,7 @@ function Moon(opts) {
     this.$events = {};
     this.$dom = {};
     this.$destroyed = false;
+    this.$initialRender = true;
     this.$queued = false;
 
     /* ======= Listen for Changes ======= */
