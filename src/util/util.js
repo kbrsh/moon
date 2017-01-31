@@ -116,7 +116,13 @@ var h = function() {
     }
   }
   if(components[tag]) {
-    return components[tag].render();
+    var component = components[tag];
+    var componentProps = component.$props;
+    for(var i = 0; i < componentProps.length; i++) {
+      var componentProp = componentProps[i];
+      component.$data[componentProp] = attrs[componentProp];
+    }
+    return component.render();
   }
   return createElement(tag, children.join(""), attrs, children, meta);
 };
