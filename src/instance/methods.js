@@ -159,7 +159,8 @@ Moon.prototype.render = function() {
  * @param {Object} vnode
  */
 Moon.prototype.patch = function(node, vnode, parent) {
-  diff(node, vnode, parent);
+  diff(node, vnode, parent, this);
+  this.$initialRender = false;
 }
 
 /**

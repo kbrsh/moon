@@ -130,16 +130,18 @@ var h = function() {
 /**
  * Adds metadata Event Listeners to an Element
  * @param {Object} node
+ * @param {Object} eventListeners
+ * @param {Object} instance
  */
-var addEventListeners = function(node, eventListeners) {
+var addEventListeners = function(node, eventListeners, instance) {
   for(var type in eventListeners) {
     for(var i = 0; i < eventListeners[type].length; i++) {
       var method = eventListeners[type][i];
-      if(self.$events[type]) {
-        self.on(type, method);
+      if(instance.$events[type]) {
+        instance.on(type, method);
       } else {
         node.addEventListener(type, function(e) {
-          self.callMethod(method, [e]);
+          instance.callMethod(method, [e]);
         });
       }
     }
@@ -149,9 +151,10 @@ var addEventListeners = function(node, eventListeners) {
 /**
  * Creates DOM Node from VNode
  * @param {Object} vnode
+ * @param {Object} instance
  * @return {Object} DOM Node
  */
-var createNodeFromVNode = function(vnode) {
+var createNodeFromVNode = function(vnode, instance) {
   var el;
   if(vnode.type === "#text") {
     el = document.createTextNode(vnode.val);
@@ -161,7 +164,7 @@ var createNodeFromVNode = function(vnode) {
     for(var i = 0; i < children.length; i++) {
       el.appendChild(children[i]);
     }
-    //addEventListeners(el, vnode.meta.eventListeners);
+    addEventListeners(el, vnode.meta.eventListeners, instance);
   }
   return el;
 }
@@ -197,8 +200,9 @@ var diffProps = function(node, nodeProps, vnodeProps, vnode) {
  * @param {Object} node
  * @param {Object} vnode
  * @param {Object} parent
+ * @param {Object} instance
  */
-var diff = function(node, vnode, parent) {
+var diff = function(node, vnode, parent, instance) {
   var nodeName;
 
   if(node) {
@@ -208,13 +212,13 @@ var diff = function(node, vnode, parent) {
   if(vnode && vnode.meta ? vnode.meta.shouldRender : true) {
     if(!node) {
       // No node, add it
-      parent.appendChild(createNodeFromVNode(vnode));
+      parent.appendChild(createNodeFromVNode(vnode, instance));
     } else if(!vnode) {
       // No VNode, remove the node
       parent.removeChild(node);
     } else if(nodeName !== vnode.type) {
       // Different types of Nodes, replace the node
-      parent.replaceChild(createNodeFromVNode(vnode), node);
+      parent.replaceChild(createNodeFromVNode(vnode, instance), node);
     } else if(nodeName === "#text" && vnode.type === "#text") {
       // Both are text, set the text
       node.textContent = vnode.val;
@@ -222,10 +226,14 @@ var diff = function(node, vnode, parent) {
       // Diff properties
       var nodeProps = extractAttrs(node);
       diffProps(node, nodeProps, vnode.props, vnode);
+      
+      if(instance.$initialRender) {
+        addEventListeners(node, vnode.meta.eventListeners, instance);
+      }
 
       // Diff children
       for(var i = 0; i < vnode.children.length || i < node.childNodes.length; i++) {
-        diff(node.childNodes[i], vnode.children[i], node);
+        diff(node.childNodes[i], vnode.children[i], node, instance);
       }
     }
   }
