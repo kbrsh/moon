@@ -136,6 +136,9 @@
           children.push(arg);
         }
       }
+      if (components[tag]) {
+        return components[tag].render();
+      }
       return createElement(tag, children.join(""), attrs, children, meta);
     };
     
@@ -629,8 +632,6 @@
       this.$render = this.$opts.render || noop;
       this.$hooks = extend({ created: noop, mounted: noop, updated: noop, destroyed: noop }, this.$opts.hooks);
       this.$methods = this.$opts.methods || {};
-      this.$components = extend(this.$opts.components || {}, components);
-      this.$directives = extend(this.$opts.directives || {}, directives);
       this.$events = {};
       this.$dom = {};
       this.$destroyed = false;
@@ -973,6 +974,15 @@
       }
       MoonComponent.prototype = Object.create(Parent.prototype);
       MoonComponent.prototype.constructor = MoonComponent;
+      MoonComponent.prototype.init = function () {
+        this.$destroyed = false;
+    
+        this.$template = this.$opts.template;
+    
+        if (this.$render === noop) {
+          this.$render = Moon.compile(this.$template);
+        }
+      };
       var component = new MoonComponent();
       components[name] = component;
       return component;

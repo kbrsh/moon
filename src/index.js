@@ -26,8 +26,6 @@ function Moon(opts) {
     this.$render = this.$opts.render || noop;
     this.$hooks = extend({created: noop, mounted: noop, updated: noop, destroyed: noop}, this.$opts.hooks);
     this.$methods = this.$opts.methods || {};
-    this.$components = extend(this.$opts.components || {}, components);
-    this.$directives = extend(this.$opts.directives || {}, directives);
     this.$events = {};
     this.$dom = {};
     this.$destroyed = false;
