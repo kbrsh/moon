@@ -70,6 +70,15 @@ Moon.component = function(name, opts) {
   }
   MoonComponent.prototype = Object.create(Parent.prototype);
   MoonComponent.prototype.constructor = MoonComponent;
+  MoonComponent.prototype.init = function() {
+    this.$destroyed = false;
+
+    this.$template = this.$opts.template;
+
+    if(this.$render === noop) {
+      this.$render = Moon.compile(this.$template);
+    }
+  }
   var component = new MoonComponent();
   components[name] = component;
   return component;
