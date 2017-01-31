@@ -1,14 +1,54 @@
 /* ======= Default Directives ======= */
-directives["m-if"] = function(el, val, vdom) {
-  var evaluated = new Function("return " + val);
-  if(!evaluated()) {
-    el.textContent = "";
-  } else {
-    el.textContent = compileTemplate(vdom.val, self.$data);
-  }
+
+specialDirectives[Moon.config.prefix + "if"] = function(value, code, vnode) {
+  return `(${compileTemplate(value, false)}) ? ${code} : ''`;
 }
 
-directives["m-show"] = function(el, val, vdom) {
+specialDirectives[Moon.config.prefix + "for"] = function(value, code, vnode) {
+  var parts = value.split(" in ");
+  var alias = parts[0];
+  var iteratable = `this.get("${parts[1]}")`;
+  var customCode = function(compiled, match, key) {
+    return compiled.replace(match, `" + ${key} + "`);
+  }
+  return `this.renderLoop(${iteratable}, function(${alias}) { return ${compileTemplate(code, true, customCode)}; })`;
+}
+
+specialDirectives[Moon.config.prefix + "on"] = function(value, code, vnode) {
+  var splitVal = value.split(":");
+  var eventToCall = splitVal[0];
+  var methodToCall = splitVal[1];
+  if(!vnode.meta.eventListeners[eventToCall]) {
+    vnode.meta.eventListeners[eventToCall] = [methodToCall];
+  } else {
+    vnode.meta.eventListeners[eventToCall].push(methodToCall);
+  }
+
+  return createCall(vnode);
+}
+
+specialDirectives[Moon.config.prefix + "model"] = function(value, code, vnode) {
+  if(!vnode.meta.eventListeners["input"]) {
+    vnode.meta.eventListeners["input"] = ["__MOON__MODEL__UPDATE__"];
+  } else {
+    vnode.meta.eventListeners["input"].push("__MOON__MODEL__UPDATE__");
+  }
+  return createCall(vnode);
+}
+
+specialDirectives[Moon.config.prefix + "once"] = function(value, code, vnode) {
+  code = compileTemplate(code, false, function(compiled, match, key) {
+    return compiled.replace(match, self.get(key));
+  });
+  return code;
+}
+
+
+directives[Moon.config.prefix + "model"] = function(el, val, vdom) {
+  el.value = self.get(val);
+}
+
+directives[Moon.config.prefix + "show"] = function(el, val, vdom) {
   var evaluated = new Function("return " + val);
   if(!evaluated()) {
     el.style.display = 'none';
@@ -17,45 +57,24 @@ directives["m-show"] = function(el, val, vdom) {
   }
 }
 
-directives["m-on"] = function(el, val, vdom) {
-  var splitVal = val.split(":");
-  var eventToCall = splitVal[0];
-  var methodToCall = splitVal[1];
-  el.addEventListener(eventToCall, function() {
-    self.method(methodToCall);
-  });
-  delete vdom.props["m-on"];
+directives[Moon.config.prefix + "pre"] = function(el, val, vdom) {
+  vdom.meta.shouldRender = false;
 }
 
-directives["m-model"] = function(el, val, vdom) {
-  el.value = self.get(val);
-  el.addEventListener("input", function() {
-    self.set(val, el.value);
-  });
-  delete vdom.props["m-model"];
-}
-
-directives["m-for"] = function(el, val, vdom) {
-  var parts = val.split(" in ");
-  var alias = parts[0];
-  var array = self.get(parts[1]);
-}
-
-directives["m-once"] = function(el, val, vdom) {
-  vdom.val = el.textContent;
-  for(var child in vdom.children) {
-    vdom.children[child].val = compileTemplate(vdom.children[child].val, self.$data);
+directives[Moon.config.prefix + "text"] = function(el, val, vdom) {
+  el.textContent = val;
+  for(var i = 0; i < vdom.children.length; i++) {
+    vdom.children[i].meta.shouldRender = false;
   }
 }
 
-directives["m-text"] = function(el, val, vdom) {
-  el.textContent = val;
-}
-
-directives["m-html"] = function(el, val, vdom) {
+directives[Moon.config.prefix + "html"] = function(el, val, vdom) {
   el.innerHTML = val;
+  for(var i = 0; i < vdom.children.length; i++) {
+    vdom.children[i].meta.shouldRender = false;
+  }
 }
 
-directives["m-mask"] = function(el, val, vdom) {
-  
+directives[Moon.config.prefix + "mask"] = function(el, val, vdom) {
+
 }
