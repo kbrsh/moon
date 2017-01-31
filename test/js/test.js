@@ -356,3 +356,29 @@ describe('Custom Render', function() {
       });
     });
 });
+
+
+describe('Component', function() {
+    Moon.component('my-component', {
+      props: ['componentprop', 'otherprop'],
+      template: "{{componentprop}}</div>"
+    })
+    var componentApp = new Moon({
+      el: "#component",
+      data: {
+        parentMsg: "Hello Moon!"
+      }
+    });
+    it('should render HTML', function() {
+      expect(document.getElementById("component")).to.not.be.null;
+    });
+    it('should render with props', function() {
+      expect(document.getElementById("component").innerHTML).to.equal("Hello Moon!");
+    });
+    it('should render when updated', function() {
+      componentApp.set('parentMsg', 'Changed');
+      Moon.nextTick(function() {
+        expect(document.getElementById("component").innerHTML).to.equal("Changed");
+      });
+    });
+});
