@@ -145,6 +145,7 @@
           component.$data[componentProp] = attrs[componentProp];
         }
         var componentVNode = component.render();
+        componentVNode.meta.component = component;
         return componentVNode;
       }
       return createElement(tag, children.join(""), attrs, children, meta);
@@ -188,6 +189,11 @@
      */
     var createNodeFromVNode = function (vnode, instance) {
       var el;
+    
+      if (vnode.meta.component) {
+        instance = vnode.meta.component;
+      }
+    
       if (vnode.type === "#text") {
         el = document.createTextNode(vnode.val);
       } else {
