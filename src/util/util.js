@@ -256,6 +256,10 @@ var diff = function(node, vnode, parent, instance) {
         diff(node.childNodes[i], vnode.children[i], node, instance);
       }
     }
+
+    if(vnode && vnode.meta.component) {
+      vnode.$parent = instance;
+    }
   }
 }
 
