@@ -1019,10 +1019,12 @@
     Moon.component = function (name, opts) {
       var Parent = this;
       function MoonComponent() {
+        this.$parent = Parent;
         Moon.call(this, opts);
       }
       MoonComponent.prototype = Object.create(Parent.prototype);
       MoonComponent.prototype.constructor = MoonComponent;
+    
       MoonComponent.prototype.init = function () {
         this.$destroyed = false;
         this.$props = this.$opts.props || [];
