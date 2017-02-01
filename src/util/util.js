@@ -258,7 +258,7 @@ var diff = function(node, vnode, parent, instance) {
     }
 
     if(vnode && vnode.meta.component) {
-      vnode.$parent = instance;
+      vnode.meta.component.$parent = instance;
     }
   }
 }

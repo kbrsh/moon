@@ -279,7 +279,7 @@
         }
     
         if (vnode && vnode.meta.component) {
-          vnode.$parent = instance;
+          vnode.meta.component.$parent = instance;
         }
       }
     };
@@ -1039,6 +1039,10 @@
         if (this.$render === noop) {
           this.$render = Moon.compile(this.$template);
         }
+      };
+    
+      MoonComponent.prototype.build = function () {
+        this.$parent.build();
       };
     
       var component = new MoonComponent();
