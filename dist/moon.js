@@ -1023,6 +1023,7 @@
     Moon.component = function (name, opts) {
       var Parent = this;
       function MoonComponent() {
+        this.$name = name;
         this.$parent = Parent;
         Moon.call(this, opts);
       }
