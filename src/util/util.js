@@ -39,6 +39,7 @@ var extractAttrs = function(node) {
 var defaultMetadata = function() {
   return {
     shouldRender: true,
+    component: false,
     eventListeners: {}
   }
 }
@@ -122,7 +123,8 @@ var h = function() {
       var componentProp = componentProps[i];
       component.$data[componentProp] = attrs[componentProp];
     }
-    return component.render();
+    var componentVNode = component.render();
+    return componentVNode;
   }
   return createElement(tag, children.join(""), attrs, children, meta);
 };
@@ -177,6 +179,7 @@ var createNodeFromVNode = function(vnode, instance) {
     }
     addEventListeners(el, vnode, instance);
   }
+  diffProps(el, {}, vnode.props, vnode);
   return el;
 }
 
