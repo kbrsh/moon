@@ -277,6 +277,10 @@
             diff(node.childNodes[i], vnode.children[i], node, instance);
           }
         }
+    
+        if (vnode && vnode.meta.component) {
+          vnode.$parent = instance;
+        }
       }
     };
     
@@ -1035,6 +1039,7 @@
           this.$render = Moon.compile(this.$template);
         }
       };
+    
       var component = new MoonComponent();
       components[name] = component;
       return component;

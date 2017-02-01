@@ -82,6 +82,7 @@ Moon.component = function(name, opts) {
       this.$render = Moon.compile(this.$template);
     }
   }
+
   var component = new MoonComponent();
   components[name] = component;
   return component;
