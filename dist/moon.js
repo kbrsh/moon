@@ -137,17 +137,7 @@
           children.push(arg);
         }
       }
-      if (components[tag]) {
-        var component = components[tag];
-        var componentProps = component.$props;
-        for (var i = 0; i < componentProps.length; i++) {
-          var componentProp = componentProps[i];
-          component.$data[componentProp] = attrs[componentProp];
-        }
-        var componentVNode = component.render();
-        componentVNode.meta.component = component;
-        return componentVNode;
-      }
+    
       return createElement(tag, children.join(""), attrs, children, meta);
     };
     
@@ -189,10 +179,6 @@
      */
     var createNodeFromVNode = function (vnode, instance) {
       var el;
-    
-      if (vnode.meta.component) {
-        instance = vnode.meta.component;
-      }
     
       if (vnode.type === "#text") {
         el = document.createTextNode(vnode.val);
@@ -251,6 +237,7 @@
       }
     
       if (vnode && vnode.meta ? vnode.meta.shouldRender : true) {
+    
         if (!node) {
           // No node, add it
           parent.appendChild(createNodeFromVNode(vnode, instance));
@@ -276,10 +263,6 @@
           for (var i = 0; i < vnode.children.length || i < node.childNodes.length; i++) {
             diff(node.childNodes[i], vnode.children[i], node, instance);
           }
-        }
-    
-        if (vnode && vnode.meta.component) {
-          vnode.meta.component.$parent = instance;
         }
       }
     };
@@ -663,10 +646,12 @@
       this.$opts = opts || {};
     
       var self = this;
-      var _data = this.$opts.data || {};
     
       this.$id = id++;
     
+      this.$name = this.$opts.name || "root";
+      this.$parent = this.$opts.parent || null;
+      this.$data = this.$opts.data || {};
       this.$render = this.$opts.render || noop;
       this.$hooks = extend({ created: noop, mounted: noop, updated: noop, destroyed: noop }, this.$opts.hooks);
       this.$methods = this.$opts.methods || {};
@@ -675,18 +660,6 @@
       this.$destroyed = false;
       this.$initialRender = true;
       this.$queued = false;
-    
-      /* ======= Listen for Changes ======= */
-      Object.defineProperty(this, '$data', {
-        get: function () {
-          return _data;
-        },
-        set: function (value) {
-          _data = value;
-          this.build(this.$dom.children);
-        },
-        configurable: true
-      });
     
       /* ======= Default Directives ======= */
     
@@ -1022,11 +995,13 @@
      */
     Moon.component = function (name, opts) {
       var Parent = this;
+      opts.name = name;
+      opts.parent = parent;
+    
       function MoonComponent() {
-        this.$name = name;
-        this.$parent = Parent;
         Moon.call(this, opts);
       }
+    
       MoonComponent.prototype = Object.create(Parent.prototype);
       MoonComponent.prototype.constructor = MoonComponent;
     
@@ -1045,9 +1020,8 @@
         this.$parent.build();
       };
     
-      var component = new MoonComponent();
-      components[name] = component;
-      return component;
+      components[name] = MoonComponent;
+      return MoonComponent;
     };
     return Moon;
 }));
