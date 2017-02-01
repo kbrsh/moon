@@ -65,11 +65,13 @@ Moon.directive = function(name, action) {
  */
 Moon.component = function(name, opts) {
   var Parent = this;
+  opts.name = name;
+  opts.parent = parent;
+
   function MoonComponent() {
-    this.$name = name;
-    this.$parent = Parent;
     Moon.call(this, opts);
   }
+  
   MoonComponent.prototype = Object.create(Parent.prototype);
   MoonComponent.prototype.constructor = MoonComponent;
 
@@ -88,7 +90,6 @@ Moon.component = function(name, opts) {
     this.$parent.build();
   }
 
-  var component = new MoonComponent();
-  components[name] = component;
-  return component;
+  components[name] = MoonComponent;
+  return MoonComponent;
 }

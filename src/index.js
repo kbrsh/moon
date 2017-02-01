@@ -19,10 +19,12 @@ function Moon(opts) {
     this.$opts = opts || {};
 
     var self = this;
-    var _data = this.$opts.data || {};
 
     this.$id = id++;
 
+    this.$name = this.$opts.name || "root";
+    this.$parent = this.$opts.parent || null;
+    this.$data = this.$opts.data || {};
     this.$render = this.$opts.render || noop;
     this.$hooks = extend({created: noop, mounted: noop, updated: noop, destroyed: noop}, this.$opts.hooks);
     this.$methods = this.$opts.methods || {};
@@ -31,18 +33,6 @@ function Moon(opts) {
     this.$destroyed = false;
     this.$initialRender = true;
     this.$queued = false;
-
-    /* ======= Listen for Changes ======= */
-    Object.defineProperty(this, '$data', {
-        get: function() {
-            return _data;
-        },
-        set: function(value) {
-            _data = value;
-            this.build(this.$dom.children);
-        },
-        configurable: true
-    });
 
     //=require directives/default.js
 
