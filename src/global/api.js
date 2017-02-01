@@ -84,6 +84,10 @@ Moon.component = function(name, opts) {
     }
   }
 
+  MoonComponent.prototype.build = function() {
+    this.$parent.build();
+  }
+
   var component = new MoonComponent();
   components[name] = component;
   return component;
