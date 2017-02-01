@@ -361,7 +361,7 @@ describe('Custom Render', function() {
 describe('Component', function() {
     Moon.component('my-component', {
       props: ['componentprop', 'otherprop'],
-      template: "{{componentprop}}</div>"
+      template: "<div>{{componentprop}}</div>"
     })
     var componentApp = new Moon({
       el: "#component",
@@ -373,12 +373,12 @@ describe('Component', function() {
       expect(document.getElementById("component")).to.not.be.null;
     });
     it('should render with props', function() {
-      expect(document.getElementById("component").innerHTML).to.equal("Hello Moon!");
+      expect(document.getElementById("component").innerHTML).to.equal("<div>Hello Moon!</div>");
     });
     it('should render when updated', function() {
       componentApp.set('parentMsg', 'Changed');
       Moon.nextTick(function() {
-        expect(document.getElementById("component").innerHTML).to.equal("Changed");
+        expect(document.getElementById("component").innerHTML).to.equal("<div>Changed</div>");
       });
     });
 });
