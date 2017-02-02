@@ -135,12 +135,18 @@ Moon.prototype.mount = function(el) {
     error("Element " + this.$opts.el + " not found");
   }
 
+  // Sync Element and Moon instance
+  this.$el.__moon__ = this;
+
+  // Setup template as provided `template` or outerHTML of the Element
   this.$template = this.$opts.template || this.$el.outerHTML;
 
+  // Setup render Function
   if(this.$render === noop) {
     this.$render = Moon.compile(this.$template);
   }
 
+  // Run First Build
   this.build();
   this.$hooks.mounted();
 }
