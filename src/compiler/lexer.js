@@ -86,7 +86,7 @@ var lexTag = function(state) {
 
   // Lex Starting of Tag
   var isClosingStart = input.charAt(state.current + 1) === "/";
-  var startChar = input.charAt(state.currrent);
+  var startChar = input.charAt(state.current);
   state.tokens.push({
     type: "tagStart",
     close: isClosingStart
