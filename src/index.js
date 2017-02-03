@@ -26,7 +26,7 @@ function Moon(opts) {
     this.$parent = this.$opts.parent || null;
     this.$data = this.$opts.data || {};
     this.$render = this.$opts.render || noop;
-    this.$hooks = extend({created: noop, mounted: noop, updated: noop, destroyed: noop}, this.$opts.hooks);
+    this.$hooks = this.$opts.hooks || {};
     this.$methods = this.$opts.methods || {};
     this.$events = {};
     this.$dom = {};
