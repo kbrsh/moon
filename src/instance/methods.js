@@ -31,11 +31,6 @@ Moon.prototype.set = function(key, val) {
  * Destroys Moon Instance
  */
 Moon.prototype.destroy = function() {
-  Object.defineProperty(this, '$data', {
-    set: function(value) {
-      _data = value;
-    }
-  });
   this.removeEvents();
   this.$destroyed = true;
   callHook(this, 'destroyed');
