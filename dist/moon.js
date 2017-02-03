@@ -810,6 +810,15 @@
      */
     Moon.prototype.callMethod = function (method, args) {
       args = args || [];
+      var full = method.split("(");
+      var customParams;
+      if (full[1]) {
+        method = full[0];
+        customParams = full[1].slice(0, -1);
+        var paramsToArr = new Function("return [" + customParams + "]");
+        customParams = paramsToArr();
+        args = args.concat(customParams);
+      }
       this.$methods[method].apply(this, args);
     };
     
