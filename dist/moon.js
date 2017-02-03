@@ -881,7 +881,7 @@
     Moon.prototype.renderLoop = function (arr, item) {
       var items = [];
       for (var i = 0; i < arr.length; i++) {
-        items.push(item(arr[i]));
+        items.push(item(arr[i], i));
       }
       return items;
     };
