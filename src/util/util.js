@@ -60,9 +60,9 @@ var compileTemplate = function(template, isString, customCode) {
     if(customCode) {
       compiled = customCode(compiled, match, key, modifiers);
     } else if(isString) {
-      compiled = compiled.replace(match, `" + this.get("${key}")${modifiers} + "`);
+      compiled = compiled.replace(match, `" + instance.get("${key}")${modifiers} + "`);
     } else {
-      compiled = compiled.replace(match, `this.get("${key}")${modifiers}`);
+      compiled = compiled.replace(match, `instance.get("${key}")${modifiers}`);
     }
   });
   return compiled;
