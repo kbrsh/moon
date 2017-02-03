@@ -51,15 +51,15 @@ var defaultMetadata = function() {
  * @return {String} compiled template
  */
 var compileTemplate = function(template, isString, customCode) {
-  var TEMPLATE_RE = /{{([A-Za-z0-9_.()\[\]]+)}}/gi;
+  var TEMPLATE_RE = /{{([A-Za-z0-9_]+)([A-Za-z0-9_.()\[\]]+)?}}/gi;
   var compiled = template;
-  template.replace(TEMPLATE_RE, function(match, key) {
+  template.replace(TEMPLATE_RE, function(match, key, modifiers) {
     if(customCode) {
-      compiled = customCode(compiled, match, key);
+      compiled = customCode(compiled, match, key, modifiers);
     } else if(isString) {
-      compiled = compiled.replace(match, `" + this.get("${key}") + "`);
+      compiled = compiled.replace(match, `" + this.get("${key}")${modifiers} + "`);
     } else {
-      compiled = compiled.replace(match, `this.get("${key}")`);
+      compiled = compiled.replace(match, `this.get("${key}")${modifiers}`);
     }
   });
   return compiled;
