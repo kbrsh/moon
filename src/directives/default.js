@@ -6,15 +6,20 @@ specialDirectives[Moon.config.prefix + "if"] = function(value, code, vnode) {
 
 specialDirectives[Moon.config.prefix + "for"] = function(value, code, vnode) {
   var parts = value.split(" in ");
-  var alias = parts[0];
+  var aliases = parts[0].split(",");
+
   var iteratable = `instance.get("${parts[1]}")`;
+
+  var params = aliases.join(",");
+
   var customCode = function(compiled, match, key, modifiers) {
-    if(key !== alias) {
+    if(aliases.indexOf(key) === -1) {
       return compiled;
     }
     return compiled.replace(match, `" + ${key}${modifiers} + "`);
   }
-  return `instance.renderLoop(${iteratable}, function(${alias}) { return ${compileTemplate(code, true, customCode)}; })`;
+
+  return `instance.renderLoop(${iteratable}, function(${params}) { return ${compileTemplate(code, true, customCode)}; })`;
 }
 
 specialDirectives[Moon.config.prefix + "on"] = function(value, code, vnode) {
