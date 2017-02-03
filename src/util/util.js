@@ -279,6 +279,18 @@ var merge = function(parent, child) {
 }
 
 /**
+ * Calls a Hook
+ * @param {Object} instance
+ * @param {String} name
+ */
+var callHook = function(instance, name) {
+  var hook = instance.$hooks[name];
+  if(hook) {
+    hook();
+  }
+}
+
+/**
  * Does No Operation
  */
 var noop = function() {
