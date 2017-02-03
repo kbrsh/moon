@@ -24,7 +24,7 @@ var generate = function(ast) {
 	// Get root element
 	var root = ast.children[0];
 	// Begin Code
-  var code = "return " + generateEl(root);
+  var code = "var instance = this; return " + generateEl(root);
 
 	// Compile Templates
   code = compileTemplate(code, true);
