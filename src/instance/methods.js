@@ -21,7 +21,7 @@ Moon.prototype.set = function(key, val) {
     this.$queued = true;
     setTimeout(function() {
       self.build();
-      self.$hooks.updated();
+      callHook(self, 'updated');
       self.$queued = false;
     }, 0);
   }
@@ -38,7 +38,7 @@ Moon.prototype.destroy = function() {
   });
   this.removeEvents();
   this.$destroyed = true;
-  this.$hooks.destroyed();
+  callHook(this, 'destroyed');
 }
 
 /**
@@ -148,7 +148,7 @@ Moon.prototype.mount = function(el) {
 
   // Run First Build
   this.build();
-  this.$hooks.mounted();
+  callHook(this, 'mounted');
 }
 
 /**
@@ -182,7 +182,7 @@ Moon.prototype.build = function() {
  */
 Moon.prototype.init = function() {
   log("======= Moon =======");
-  this.$hooks.created();
+  callHook(this, 'created');
 
   if(this.$opts.el) {
     this.mount(this.$opts.el);

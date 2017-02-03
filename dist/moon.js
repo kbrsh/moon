@@ -298,6 +298,18 @@
     };
     
     /**
+     * Calls a Hook
+     * @param {Object} instance
+     * @param {String} name
+     */
+    var callHook = function (instance, name) {
+      var hook = instance.hooks[name];
+      if (hook) {
+        hook();
+      }
+    };
+    
+    /**
      * Does No Operation
      */
     var noop = function () {};
@@ -653,7 +665,7 @@
       this.$parent = this.$opts.parent || null;
       this.$data = this.$opts.data || {};
       this.$render = this.$opts.render || noop;
-      this.$hooks = extend({ created: noop, mounted: noop, updated: noop, destroyed: noop }, this.$opts.hooks);
+      this.$hooks = this.$opts.hooks || {};
       this.$methods = this.$opts.methods || {};
       this.$events = {};
       this.$dom = {};
@@ -766,7 +778,7 @@
         this.$queued = true;
         setTimeout(function () {
           self.build();
-          self.$hooks.updated();
+          callHook(self, 'updated');
           self.$queued = false;
         }, 0);
       }
@@ -783,7 +795,7 @@
       });
       this.removeEvents();
       this.$destroyed = true;
-      this.$hooks.destroyed();
+      callHook(this, 'destroyed');
     };
     
     /**
@@ -893,7 +905,7 @@
     
       // Run First Build
       this.build();
-      this.$hooks.mounted();
+      callHook(this, 'mounted');
     };
     
     /**
@@ -927,7 +939,7 @@
      */
     Moon.prototype.init = function () {
       log("======= Moon =======");
-      this.$hooks.created();
+      callHook(this, 'created');
     
       if (this.$opts.el) {
         this.mount(this.$opts.el);
