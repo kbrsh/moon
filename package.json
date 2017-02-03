@@ -40,6 +40,7 @@
     "gulp-uglifyjs": "^0.6.2",
     "istanbul": "^0.4.5",
     "mocha": "^3.2.0",
-    "mocha-phantomjs-istanbul": "0.0.2"
+    "mocha-phantomjs-istanbul": "0.0.2",
+    "release": "^1.1.5"
   }
 }
