@@ -56,7 +56,7 @@ specialDirectives[Moon.config.prefix + "on"] = function(value, code, vnode) {
   if(!params) {
     params = "event";
   }
-  methodToCall += `(${params})`;
+  methodToCall += `(${compileTemplate(params, false)})`;
 
   // Code for all metadata
   var metadataCode = "{";
