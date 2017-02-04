@@ -4,6 +4,13 @@
 var directives = {};
 var specialDirectives = {};
 var components = {};
+var eventModifiersCode = {
+  stop: 'event.stopPropagation();',
+  prevent: 'event.preventDefault();',
+  ctrl: 'if(!event.ctrlKey) {return;};',
+  shift: 'if(!event.shiftKey) {return;};',
+  alt: 'if(!event.altKey) {return;};'
+};
 var id = 0;
 
 //=require util/util.js

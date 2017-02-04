@@ -25,9 +25,13 @@ specialDirectives[Moon.config.prefix + "for"] = function(value, code, vnode) {
 specialDirectives[Moon.config.prefix + "on"] = function(value, code, vnode) {
   var splitVal = value.split(":");
   // Extract modifiers and the event
-  var modifiers = splitVal[0].split(".");
-  var eventToCall = modifiers[0];
-  modifiers.shift();
+  var rawModifiers = splitVal[0].split(".");
+  var eventToCall = rawModifiers[0];
+  var modifiers = "";
+  rawModifiers.shift();
+  for(var i = 0; i < rawModifiers.length; i++) {
+    modifiers += eventModifiersCode[rawModifiers[i]];
+  }
 
   // Extract method to call afterwards
   var rawMethod = splitVal[1].split("(");
@@ -46,9 +50,15 @@ specialDirectives[Moon.config.prefix + "on"] = function(value, code, vnode) {
 
   // Add any listeners to the metadata first
   if(!vnode.meta.eventListeners[eventToCall]) {
-    vnode.meta.eventListeners[eventToCall] = [methodToCall];
+    vnode.meta.eventListeners[eventToCall] = [{
+      method: methodToCall,
+      modifiers: modifiers
+    }];
   } else {
-    vnode.meta.eventListeners[eventToCall].push(methodToCall);
+    vnode.meta.eventListeners[eventToCall].push({
+      method: methodToCall,
+      modifiers: modifiers
+    });
   }
 
   // Go through each type of event, and generate code with a function
@@ -56,7 +66,7 @@ specialDirectives[Moon.config.prefix + "on"] = function(value, code, vnode) {
     var handlers = [];
     for(var i = 0; i < vnode.meta.eventListeners[eventType].length; i++) {
       var handler = vnode.meta.eventListeners[eventType][i];
-      handlers.push(`function(event) {instance.$methods.${handler}}`);
+      handlers.push(`function(event) {${handler.modifiers} instance.$methods.${handler.method}}`);
     }
     eventListenersCode += `${eventType}: [${handlers.join(",")}],`;
   }
