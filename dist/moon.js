@@ -708,7 +708,14 @@
         modifiers.shift();
     
         // Extract method to call afterwards
-        var methodToCall = splitVal[1];
+        var rawMethod = splitVal[1].split("(");
+        var methodToCall = rawMethod[0];
+        rawMethod.shift();
+        var params = rawMethod.join(",").slice(0, -1);
+        if (!params) {
+          params = "event";
+        }
+        methodToCall += "(" + params + ")";
     
         // Code for all metadata
         var metadataCode = "{";
@@ -727,7 +734,7 @@
           var handlers = [];
           for (var i = 0; i < vnode.meta.eventListeners[eventType].length; i++) {
             var handler = vnode.meta.eventListeners[eventType][i];
-            handlers.push("function(event) {instance.$methods." + handler + "(event)}");
+            handlers.push("function(event) {instance.$methods." + handler + "}");
           }
           eventListenersCode += eventType + ": [" + handlers.join(",") + "],";
         }
