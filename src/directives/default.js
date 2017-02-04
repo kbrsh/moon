@@ -23,14 +23,29 @@ specialDirectives[Moon.config.prefix + "for"] = function(value, code, vnode) {
 }
 
 specialDirectives[Moon.config.prefix + "on"] = function(value, code, vnode) {
+  var eventModifiersCode = {
+    stop: 'event.stopPropagation();',
+    prevent: 'event.preventDefault();',
+    ctrl: 'if(!event.ctrlKey) {return;};',
+    shift: 'if(!event.shiftKey) {return;};',
+    alt: 'if(!event.altKey) {return;};'
+  };
+
   var splitVal = value.split(":");
   // Extract modifiers and the event
   var rawModifiers = splitVal[0].split(".");
   var eventToCall = rawModifiers[0];
   var modifiers = "";
+
   rawModifiers.shift();
+
   for(var i = 0; i < rawModifiers.length; i++) {
-    modifiers += eventModifiersCode[rawModifiers[i]];
+    var rawModifier = rawModifiers[i];
+    if(Moon.config.keyCodes[rawModifier]) {
+      modifiers += `if(event.keyCode !== ${Moon.config.keyCodes[rawModifier]}) {return;};`;
+    } else if(eventModifiersCode[rawModifier]) {
+      modifiers += eventModifiersCode[rawModifier];
+    }
   }
 
   // Extract method to call afterwards

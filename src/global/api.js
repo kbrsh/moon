@@ -5,7 +5,8 @@
  */
 Moon.config = {
   silent: false,
-  prefix: "m-"
+  prefix: "m-",
+  keyCodes: {}
 }
 
 /**

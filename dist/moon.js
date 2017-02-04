@@ -17,13 +17,6 @@
     var directives = {};
     var specialDirectives = {};
     var components = {};
-    var eventModifiersCode = {
-      stop: 'event.stopPropagation();',
-      prevent: 'event.preventDefault();',
-      ctrl: 'if(!event.ctrlKey) {return;};',
-      shift: 'if(!event.shiftKey) {return;};',
-      alt: 'if(!event.altKey) {return;};'
-    };
     var id = 0;
     
     /* ======= Global Utilities ======= */
@@ -88,9 +81,9 @@
         if (customCode) {
           compiled = customCode(compiled, match, key, modifiers);
         } else if (isString) {
-          compiled = compiled.replace(match, '" + instance.get("' + key + '")' + modifiers + ' + "');
+          compiled = compiled.replace(match, "\" + instance.get(\"" + key + "\")" + modifiers + " + \"");
         } else {
-          compiled = compiled.replace(match, 'instance.get("' + key + '")' + modifiers);
+          compiled = compiled.replace(match, "instance.get(\"" + key + "\")" + modifiers);
         }
       });
       return compiled;
@@ -104,9 +97,9 @@
      */
     var createCall = function (vnode, metaIsString) {
       if (metaIsString) {
-        return 'h("' + vnode.type + '", ' + JSON.stringify(vnode.props) + ', ' + vnode.meta + ', ' + (vnode.children.join(",") || null) + ')';
+        return "h(\"" + vnode.type + "\", " + JSON.stringify(vnode.props) + ", " + vnode.meta + ", " + (vnode.children.join(",") || null) + ")";
       }
-      return 'h("' + vnode.type + '", ' + JSON.stringify(vnode.props) + ', ' + JSON.stringify(vnode.meta) + ', ' + (vnode.children.join(",") || null) + ')';
+      return "h(\"" + vnode.type + "\", " + JSON.stringify(vnode.props) + ", " + JSON.stringify(vnode.meta) + ", " + (vnode.children.join(",") || null) + ")";
     };
     
     /**
@@ -618,7 +611,7 @@
     var generateEl = function (el) {
       var code = "";
       if (typeof el === "string") {
-        code += '"' + el + '"';
+        code += "\"" + el + "\"";
       } else {
         // Recursively generate code for children
         el.children = el.children.map(generateEl);
@@ -647,7 +640,7 @@
       code = compileTemplate(code, true);
     
       // Escape Newlines
-      code = code.replace(NEWLINE_RE, '" + "\\n" + "');
+      code = code.replace(NEWLINE_RE, "\" + \"\\n\" + \"");
     
       try {
         return new Function("h", code);
@@ -686,14 +679,14 @@
       /* ======= Default Directives ======= */
     
       specialDirectives[Moon.config.prefix + "if"] = function (value, code, vnode) {
-        return '(' + compileTemplate(value, false) + ') ? ' + code + ' : \'\'';
+        return "(" + compileTemplate(value, false) + ") ? " + code + " : ''";
       };
     
       specialDirectives[Moon.config.prefix + "for"] = function (value, code, vnode) {
         var parts = value.split(" in ");
         var aliases = parts[0].split(",");
     
-        var iteratable = 'instance.get("' + parts[1] + '")';
+        var iteratable = "instance.get(\"" + parts[1] + "\")";
     
         var params = aliases.join(",");
     
@@ -701,21 +694,36 @@
           if (aliases.indexOf(key) === -1) {
             return compiled;
           }
-          return compiled.replace(match, '" + ' + key + modifiers + ' + "');
+          return compiled.replace(match, "\" + " + key + modifiers + " + \"");
         };
     
-        return 'instance.renderLoop(' + iteratable + ', function(' + params + ') { return ' + compileTemplate(code, true, customCode) + '; })';
+        return "instance.renderLoop(" + iteratable + ", function(" + params + ") { return " + compileTemplate(code, true, customCode) + "; })";
       };
     
       specialDirectives[Moon.config.prefix + "on"] = function (value, code, vnode) {
+        var eventModifiersCode = {
+          stop: 'event.stopPropagation();',
+          prevent: 'event.preventDefault();',
+          ctrl: 'if(!event.ctrlKey) {return;};',
+          shift: 'if(!event.shiftKey) {return;};',
+          alt: 'if(!event.altKey) {return;};'
+        };
+    
         var splitVal = value.split(":");
         // Extract modifiers and the event
         var rawModifiers = splitVal[0].split(".");
         var eventToCall = rawModifiers[0];
         var modifiers = "";
+    
         rawModifiers.shift();
+    
         for (var i = 0; i < rawModifiers.length; i++) {
-          modifiers += eventModifiersCode[rawModifiers[i]];
+          var rawModifier = rawModifiers[i];
+          if (Moon.config.keyCodes[rawModifier]) {
+            modifiers += "if(event.keyCode !== " + Moon.config.keyCodes[rawModifier] + ") {return;};";
+          } else if (eventModifiersCode[rawModifier]) {
+            modifiers += eventModifiersCode[rawModifier];
+          }
         }
     
         // Extract method to call afterwards
@@ -726,7 +734,7 @@
         if (!params) {
           params = "event";
         }
-        methodToCall += '(' + params + ')';
+        methodToCall += "(" + params + ")";
     
         // Code for all metadata
         var metadataCode = "{";
@@ -751,9 +759,9 @@
           var handlers = [];
           for (var i = 0; i < vnode.meta.eventListeners[eventType].length; i++) {
             var handler = vnode.meta.eventListeners[eventType][i];
-            handlers.push('function(event) {' + handler.modifiers + ' instance.$methods.' + handler.method + '}');
+            handlers.push("function(event) {" + handler.modifiers + " instance.$methods." + handler.method + "}");
           }
-          eventListenersCode += eventType + ': [' + handlers.join(",") + '],';
+          eventListenersCode += eventType + ": [" + handlers.join(",") + "],";
         }
     
         // Remove the ending comma, and close the object
@@ -764,7 +772,7 @@
     
         // Generate code for the metadata
         for (var key in vnode.meta) {
-          metadataCode += key + ': ' + vnode.meta[key] + ',';
+          metadataCode += key + ": " + vnode.meta[key] + ",";
         }
     
         // Remove ending comma, and close meta object
@@ -1022,7 +1030,8 @@
      */
     Moon.config = {
       silent: false,
-      prefix: "m-"
+      prefix: "m-",
+      keyCodes: {}
     };
     
     /**
