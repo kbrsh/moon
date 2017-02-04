@@ -71,10 +71,14 @@ var compileTemplate = function(template, isString, customCode) {
 /**
  * Creates an "h" Call for a VNode
  * @param {Object} vnode
+ * @param {Boolean} metaIsString
  * @return {String} "h" call
  */
-var createCall = function(vnode) {
-  return `h("${vnode.type}", ${JSON.stringify(vnode.props)}, ${JSON.stringify(vnode.meta)}, ${vnode.children.join(",") || null})`
+var createCall = function(vnode, metaIsString) {
+  if(metaIsString) {
+    return `h("${vnode.type}", ${JSON.stringify(vnode.props)}, ${vnode.meta}, ${vnode.children.join(",") || null})`;
+  }
+  return `h("${vnode.type}", ${JSON.stringify(vnode.props)}, ${JSON.stringify(vnode.meta)}, ${vnode.children.join(",") || null})`;
 }
 
 /**
@@ -141,13 +145,9 @@ var addEventListeners = function(node, vnode, instance) {
         return;
       }
       if(instance.$events[type]) {
-        instance.on(type, function() {
-          instance.callMethod(method, [e]);
-        });
+        instance.on(type, method);
       } else {
-        node.addEventListener(type, function(e) {
-          instance.callMethod(method, [e]);
-        });
+        node.addEventListener(type, method);
       }
     }
   }

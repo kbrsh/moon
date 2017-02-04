@@ -92,9 +92,13 @@
     /**
      * Creates an "h" Call for a VNode
      * @param {Object} vnode
+     * @param {Boolean} metaIsString
      * @return {String} "h" call
      */
-    var createCall = function (vnode) {
+    var createCall = function (vnode, metaIsString) {
+      if (metaIsString) {
+        return "h(\"" + vnode.type + "\", " + JSON.stringify(vnode.props) + ", " + vnode.meta + ", " + (vnode.children.join(",") || null) + ")";
+      }
       return "h(\"" + vnode.type + "\", " + JSON.stringify(vnode.props) + ", " + JSON.stringify(vnode.meta) + ", " + (vnode.children.join(",") || null) + ")";
     };
     
@@ -162,13 +166,9 @@
             return;
           }
           if (instance.$events[type]) {
-            instance.on(type, function () {
-              instance.callMethod(method, [e]);
-            });
+            instance.on(type, method);
           } else {
-            node.addEventListener(type, function (e) {
-              instance.callMethod(method, [e]);
-            });
+            node.addEventListener(type, method);
           }
         }
       }
@@ -702,15 +702,54 @@
     
       specialDirectives[Moon.config.prefix + "on"] = function (value, code, vnode) {
         var splitVal = value.split(":");
-        var eventToCall = splitVal[0];
+        // Extract modifiers and the event
+        var modifiers = splitVal[0].split(".");
+        var eventToCall = modifiers[0];
+        modifiers.shift();
+    
+        // Extract method to call afterwards
         var methodToCall = splitVal[1];
+    
+        // Code for all metadata
+        var metadataCode = "{";
+        // Code for the event listener
+        var eventListenersCode = "{";
+    
+        // Add any listeners to the metadata first
         if (!vnode.meta.eventListeners[eventToCall]) {
           vnode.meta.eventListeners[eventToCall] = [methodToCall];
         } else {
           vnode.meta.eventListeners[eventToCall].push(methodToCall);
         }
     
-        return createCall(vnode);
+        // Go through each type of event, and generate code with a function
+        for (var eventType in vnode.meta.eventListeners) {
+          var handlers = [];
+          for (var i = 0; i < vnode.meta.eventListeners[eventType].length; i++) {
+            var handler = vnode.meta.eventListeners[eventType][i];
+            handlers.push("function(event) {instance.$methods." + handler + "(event)}");
+          }
+          eventListenersCode += eventType + ": [" + handlers.join(",") + "],";
+        }
+    
+        // Remove the ending comma, and close the object
+        eventListenersCode = eventListenersCode.slice(0, -1);
+        eventListenersCode += "}";
+    
+        vnode.meta.eventListeners = eventListenersCode;
+    
+        // Generate code for the metadata
+        for (var key in vnode.meta) {
+          metadataCode += key + ": " + vnode.meta[key] + ",";
+        }
+    
+        // Remove ending comma, and close meta object
+        metadataCode = metadataCode.slice(0, -1);
+        metadataCode += "}";
+    
+        vnode.meta = metadataCode;
+    
+        return createCall(vnode, true);
       };
     
       specialDirectives[Moon.config.prefix + "model"] = function (value, code, vnode) {
@@ -810,16 +849,6 @@
      */
     Moon.prototype.callMethod = function (method, args) {
       args = args || [];
-      var full = method.split("(");
-      var customParams;
-      if (full[1]) {
-        method = full[0];
-        full.shift();
-        customParams = full.join("(").slice(0, -1);
-        var paramsToArr = new Function("return [" + customParams + "]");
-        customParams = paramsToArr();
-        args = args.concat(customParams);
-      }
       this.$methods[method].apply(this, args);
     };
     
