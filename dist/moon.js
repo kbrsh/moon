@@ -698,8 +698,6 @@
       // Begin Code
       var code = "var instance = this; return " + generateEl(root);
     
-      console.log(code);
-    
       try {
         return new Function("h", code);
       } catch (e) {
