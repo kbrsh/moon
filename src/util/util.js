@@ -45,6 +45,16 @@ var defaultMetadata = function() {
 }
 
 /**
+ * Escapes a String
+ * @param {String} str
+ */
+var escapeString = function(str) {
+	var NEWLINE_RE = /\n/g;
+	var DOUBLE_QUOTE_RE = /"/g;
+  return str.replace(NEWLINE_RE, "\\n").replace(DOUBLE_QUOTE_RE, "\\\"");
+}
+
+/**
  * Compiles a Template
  * @param {String} template
  * @param {Boolean} isString
@@ -66,19 +76,6 @@ var compileTemplate = function(template, isString, customCode) {
     }
   });
   return compiled;
-}
-
-/**
- * Creates an "h" Call for a VNode
- * @param {Object} vnode
- * @param {Boolean} metaIsString
- * @return {String} "h" call
- */
-var createCall = function(vnode, metaIsString) {
-  if(metaIsString) {
-    return `h("${vnode.type}", ${JSON.stringify(vnode.props)}, ${vnode.meta}, ${vnode.children.join(",") || null})`;
-  }
-  return `h("${vnode.type}", ${JSON.stringify(vnode.props)}, ${JSON.stringify(vnode.meta)}, ${vnode.children.join(",") || null})`;
 }
 
 /**
@@ -104,6 +101,7 @@ var createElement = function(type, val, props, children, meta) {
  * Compiles Arguments to a VNode
  * @param {String} tag
  * @param {Object} attrs
+ * @param {Object} meta
  * @param {Array} children
  * @return {String} Object usable in Virtual DOM (VNode)
  */
@@ -114,13 +112,11 @@ var h = function() {
   var meta = args.shift() || defaultMetadata();
   var children = [];
   for(var i = 0; i < args.length; i++) {
-    var arg = args[i];
-    if(Array.isArray(arg)) {
-      children = children.concat(arg);
-    } else if(typeof args[i] === "string" || args[i] === null) {
-      children.push(createElement("#text", args[i] || '', {}, [], meta));
+    var child = args[i];
+    if(typeof child === "string" || child === null) {
+      children.push(createElement("#text", child || '', {}, [], meta));
     } else {
-      children.push(arg);
+      children.push(child);
     }
   }
 
