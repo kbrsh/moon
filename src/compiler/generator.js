@@ -45,7 +45,7 @@ var createCall = function(vnode, children) {
 	var call = `h("${vnode.type}", `;
 	call += generateObject(vnode.props) + ", ";
 	call += generateObject(vnode.meta) + ", ";
-	call += generateArray(children);
+	call += children.length ? generateArray(children) : "\"\"";
 	call += ")";
 
   return call;
