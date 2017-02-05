@@ -119,6 +119,26 @@
     };
     
     /**
+     * Normalizes Children
+     * @param {*} children
+     * @return {Object} Normalized Child
+     */
+    var normalizeChildren = function (children) {
+      var normalizedChildren = [];
+      for (var i = 0; i < children.length; i++) {
+        var child = children[i];
+        if (Array.isArray(child)) {
+          normalizedChildren = normalizedChildren.concat(normalizeChildren(child));
+        } else if (typeof child === "string" || child === null) {
+          normalizedChildren.push(createElement("#text", child || '', {}, [], defaultMetadata()));
+        } else {
+          normalizedChildren.push(child);
+        }
+      }
+      return normalizedChildren;
+    };
+    
+    /**
      * Compiles Arguments to a VNode
      * @param {String} tag
      * @param {Object} attrs
@@ -131,16 +151,7 @@
       var tag = args.shift();
       var attrs = args.shift() || {};
       var meta = args.shift() || defaultMetadata();
-      var children = [];
-      for (var i = 0; i < args.length; i++) {
-        var child = args[i];
-        if (typeof child === "string" || child === null) {
-          children.push(createElement("#text", child || '', {}, [], meta));
-        } else {
-          children.push(child);
-        }
-      }
-    
+      var children = normalizeChildren(args);
       return createElement(tag, children.join(""), attrs, children, meta);
     };
     
