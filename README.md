@@ -20,6 +20,12 @@ Moon is a simple front end javascript library heavily inspired by [Vue](https://
 
 See [the website.](https://kingpixil.github.io/moon)
 
+### TODO
+
+- Fix code generator for directives such as `m-on`, `m-for`, and `m-if`
+- Add functionality to the compiler to be able to handle self closing elements
+- Add component support
+
 
 ### License
 
