@@ -1158,6 +1158,7 @@
       MoonComponent.prototype.constructor = MoonComponent;
     
       MoonComponent.prototype.init = function () {
+        callHook(this, 'created');
         this.$destroyed = false;
         this.$props = this.$opts.props || [];
     
@@ -1166,10 +1167,6 @@
         if (this.$render === noop) {
           this.$render = Moon.compile(this.$template);
         }
-      };
-    
-      MoonComponent.prototype.build = function () {
-        this.$parent.build();
       };
     
       components[name] = MoonComponent;
