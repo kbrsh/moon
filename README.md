@@ -25,6 +25,7 @@ See [the website.](https://kingpixil.github.io/moon)
 - Fix code generator for directives such as `m-on`, `m-for`, and `m-if`
 - Add functionality to the compiler to be able to handle self closing elements
 - Add component support
+- Single file components w/ custom compilers
 
 
 ### License
