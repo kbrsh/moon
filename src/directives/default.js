@@ -38,88 +38,14 @@ specialDirectives[Moon.config.prefix + "on"] = function(value, code, vnode) {
   var modifiers = "";
 
   rawModifiers.shift();
-
-  for(var i = 0; i < rawModifiers.length; i++) {
-    var rawModifier = rawModifiers[i];
-    if(Moon.config.keyCodes[rawModifier]) {
-      modifiers += `if(event.keyCode !== ${Moon.config.keyCodes[rawModifier]}) {return;};`;
-    } else if(eventModifiersCode[rawModifier]) {
-      modifiers += eventModifiersCode[rawModifier];
-    }
-  }
-
-  // Extract method to call afterwards
-  var rawMethod = splitVal[1].split("(");
-  var methodToCall = rawMethod[0];
-  rawMethod.shift();
-  var params = rawMethod.join(",").slice(0, -1);
-  if(!params) {
-    params = "event";
-  }
-  methodToCall += `(${compileTemplate(params, false)})`;
-
-  // Code for all metadata
-  var metadataCode = "{";
-  // Code for the event listener
-  var eventListenersCode = "{";
-
-  // Add any listeners to the metadata first
-  if(!vnode.meta.eventListeners[eventToCall]) {
-    vnode.meta.eventListeners[eventToCall] = [{
-      method: methodToCall,
-      modifiers: modifiers
-    }];
-  } else {
-    vnode.meta.eventListeners[eventToCall].push({
-      method: methodToCall,
-      modifiers: modifiers
-    });
-  }
-
-  // Go through each type of event, and generate code with a function
-  for(var eventType in vnode.meta.eventListeners) {
-    var handlers = [];
-    for(var i = 0; i < vnode.meta.eventListeners[eventType].length; i++) {
-      var handler = vnode.meta.eventListeners[eventType][i];
-      handlers.push(`function(event) {${handler.modifiers} instance.$methods.${handler.method}}`);
-    }
-    eventListenersCode += `${eventType}: [${handlers.join(",")}],`;
-  }
-
-  // Remove the ending comma, and close the object
-  eventListenersCode = eventListenersCode.slice(0, -1);
-  eventListenersCode += "}";
-
-  vnode.meta.eventListeners = eventListenersCode;
-
-  // Generate code for the metadata
-  for(var key in vnode.meta) {
-    metadataCode += `${key}: ${vnode.meta[key]},`;
-  }
-
-  // Remove ending comma, and close meta object
-  metadataCode = metadataCode.slice(0, -1);
-  metadataCode += "}";
-
-  vnode.meta = metadataCode;
-
-  return createCall(vnode, true);
 }
 
 specialDirectives[Moon.config.prefix + "model"] = function(value, code, vnode) {
-  if(!vnode.meta.eventListeners["input"]) {
-    vnode.meta.eventListeners["input"] = ["__MOON__MODEL__UPDATE__"];
-  } else {
-    vnode.meta.eventListeners["input"].push("__MOON__MODEL__UPDATE__");
-  }
-  return createCall(vnode);
+
 }
 
 specialDirectives[Moon.config.prefix + "once"] = function(value, code, vnode) {
-  code = compileTemplate(code, false, function(compiled, match, key) {
-    return compiled.replace(match, self.get(key));
-  });
-  return code;
+
 }
 
 
