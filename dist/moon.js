@@ -218,7 +218,7 @@
       var allProps = merge(nodeProps, vnodeProps);
     
       for (var propName in allProps) {
-        // If not in VNode or is Directive, remove it
+        // If not in VNode or is a Directive, remove it
         if (!vnodeProps[propName] || directives[propName] || specialDirectives[propName]) {
           // If it is a directive, run the directive
           if (directives[propName]) {
@@ -777,10 +777,6 @@
       specialDirectives[Moon.config.prefix + "model"] = function (value, code, vnode) {};
     
       specialDirectives[Moon.config.prefix + "once"] = function (value, code, vnode) {};
-    
-      directives[Moon.config.prefix + "model"] = function (el, val, vdom) {
-        el.value = self.get(val);
-      };
     
       directives[Moon.config.prefix + "show"] = function (el, val, vdom) {
         var evaluated = new Function("return " + val);
