@@ -58,7 +58,7 @@ var generateMeta = function(meta) {
 		if(key === 'eventListeners') {
 			generatedObject += `"${key}": ${generateEventListeners(meta[key])}, `;
 		} else {
-			generatedObject += `"${key}": ${JSON.stringify(meta[key])}, `;
+			generatedObject += `"${key}": ${meta[key]}, `;
 		}
 	}
 

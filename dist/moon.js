@@ -675,7 +675,7 @@
         if (key === 'eventListeners') {
           generatedObject += "\"" + key + "\": " + generateEventListeners(meta[key]) + ", ";
         } else {
-          generatedObject += "\"" + key + "\": " + JSON.stringify(meta[key]) + ", ";
+          generatedObject += "\"" + key + "\": " + meta[key] + ", ";
         }
       }
     
@@ -1128,7 +1128,11 @@
     
     specialDirectives[Moon.config.prefix + "model"] = {};
     
-    specialDirectives[Moon.config.prefix + "once"] = {};
+    specialDirectives[Moon.config.prefix + "once"] = {
+      beforeGenerate: function (value, vnode) {
+        vnode.meta.shouldRender = "instance.$initialRender";
+      }
+    };
     
     directives[Moon.config.prefix + "show"] = function (el, val, vdom) {
       var evaluated = new Function("return " + val);
