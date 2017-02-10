@@ -150,7 +150,7 @@
       var args = Array.prototype.slice.call(arguments);
       var tag = args.shift();
       var attrs = args.shift() || {};
-      var meta = args.shift() || defaultMetadata();
+      var meta = args.shift();
       var children = normalizeChildren(args);
       return createElement(tag, children.join(""), attrs, children, meta);
     };
@@ -616,20 +616,62 @@
     };
     
     /**
-     * Generates Code for an Object
-     * @param {Object} obj
-     * @return {String} generated object
+     * Generates Code for Props
+     * @param {Object} props
+     * @return {String} generated code
      */
-    var generateObject = function (obj) {
-      if (Object.keys(obj).length === 0) {
+    var generateProps = function (props) {
+      if (Object.keys(props).length === 0) {
         return "{}";
       }
     
       var generatedObject = "{";
     
-      for (var prop in obj) {
-        generatedObject += "\"" + prop + "\": " + compileTemplate(JSON.stringify(obj[prop]), true) + ", ";
+      for (var prop in props) {
+        generatedObject += "\"" + prop + "\": " + compileTemplate(JSON.stringify(props[prop]), true) + ", ";
       }
+    
+      generatedObject = generatedObject.slice(0, -2) + "}";
+    
+      return generatedObject;
+    };
+    
+    /**
+     * Generates Code for Event Listeners
+     * @param {Object} listeners
+     * @return {String} generated code
+     */
+    var generateEventListeners = function (listeners) {
+      if (Object.keys(listeners).length === 0) {
+        return "{}";
+      }
+      var generatedObject = "{";
+    
+      for (var type in listeners) {
+        generatedObject += "\"" + key + "\": " + generateArray(listeners[type]) + ", ";
+      }
+    
+      generatedObject = generatedObject.slice(0, -2) + "}";
+    
+      return generatedObject;
+    };
+    
+    /**
+     * Generates Code for Metadata
+     * @param {Object} meta
+     * @return {String} generated code
+     */
+    var generateMeta = function (meta) {
+      var generatedObject = "{";
+    
+      for (var key in meta) {
+        if (key === 'eventListeners') {
+          generatedObject += "\"" + key + "\": " + generateEventListeners(meta[key]) + ", ";
+        } else {
+          generatedObject += "\"" + key + "\": " + JSON.stringify(meta[key]) + ", ";
+        }
+      }
+    
       generatedObject = generatedObject.slice(0, -2) + "}";
     
       return generatedObject;
@@ -660,8 +702,8 @@
      */
     var createCall = function (vnode, children) {
       var call = "h(\"" + vnode.type + "\", ";
-      call += generateObject(vnode.props) + ", ";
-      call += generateObject(vnode.meta) + ", ";
+      call += generateProps(vnode.props) + ", ";
+      call += generateMeta(vnode.meta) + ", ";
       call += children.length ? generateArray(children) : "\"\"";
       call += ")";
     
@@ -684,7 +726,7 @@
         var compiledCode = createCall(el, childrenCode);
         for (var prop in el.props) {
           if (specialDirectives[prop]) {
-            compiledCode = specialDirectives[prop](el.props[prop], compiledCode, el);
+            compiledCode = specialDirectives[prop].afterGenerate(el.props[prop], compiledCode, el);
           }
         }
         code += compiledCode;
@@ -1016,49 +1058,55 @@
     
     /* ======= Default Directives ======= */
     
-    specialDirectives[Moon.config.prefix + "if"] = function (value, code, vnode) {
-      return "(" + compileTemplate(value, false) + ") ? " + code + " : ''";
+    specialDirectives[Moon.config.prefix + "if"] = {
+      afterGenerate: function (value, code, vnode) {
+        return "(" + compileTemplate(value, false) + ") ? " + code + " : ''";
+      }
     };
     
-    specialDirectives[Moon.config.prefix + "for"] = function (value, code, vnode) {
-      var parts = value.split(" in ");
-      var aliases = parts[0].split(",");
+    specialDirectives[Moon.config.prefix + "for"] = {
+      afterGenerate: function (value, code, vnode) {
+        var parts = value.split(" in ");
+        var aliases = parts[0].split(",");
     
-      var iteratable = "instance.get(\"" + parts[1] + "\")";
+        var iteratable = "instance.get(\"" + parts[1] + "\")";
     
-      var params = aliases.join(",");
+        var params = aliases.join(",");
     
-      var customCode = function (compiled, match, key, modifiers) {
-        if (aliases.indexOf(key) === -1) {
-          return compiled;
-        }
-        return compiled.replace(match, "\" + " + key + modifiers + " + \"");
-      };
+        var customCode = function (compiled, match, key, modifiers) {
+          if (aliases.indexOf(key) === -1) {
+            return compiled;
+          }
+          return compiled.replace(match, "\" + " + key + modifiers + " + \"");
+        };
     
-      return "instance.renderLoop(" + iteratable + ", function(" + params + ") { return " + compileTemplate(code, true, customCode) + "; })";
+        return "instance.renderLoop(" + iteratable + ", function(" + params + ") { return " + compileTemplate(code, true, customCode) + "; })";
+      }
     };
     
-    specialDirectives[Moon.config.prefix + "on"] = function (value, code, vnode) {
-      var eventModifiersCode = {
-        stop: 'event.stopPropagation();',
-        prevent: 'event.preventDefault();',
-        ctrl: 'if(!event.ctrlKey) {return;};',
-        shift: 'if(!event.shiftKey) {return;};',
-        alt: 'if(!event.altKey) {return;};'
-      };
+    specialDirectives[Moon.config.prefix + "on"] = {
+      afterGenerate: function (value, code, vnode) {
+        var eventModifiersCode = {
+          stop: 'event.stopPropagation();',
+          prevent: 'event.preventDefault();',
+          ctrl: 'if(!event.ctrlKey) {return;};',
+          shift: 'if(!event.shiftKey) {return;};',
+          alt: 'if(!event.altKey) {return;};'
+        };
     
-      var splitVal = value.split(":");
-      // Extract modifiers and the event
-      var rawModifiers = splitVal[0].split(".");
-      var eventToCall = rawModifiers[0];
-      var modifiers = "";
+        var splitVal = value.split(":");
+        // Extract modifiers and the event
+        var rawModifiers = splitVal[0].split(".");
+        var eventToCall = rawModifiers[0];
+        var modifiers = "";
     
-      rawModifiers.shift();
+        rawModifiers.shift();
+      }
     };
     
-    specialDirectives[Moon.config.prefix + "model"] = function (value, code, vnode) {};
+    specialDirectives[Moon.config.prefix + "model"] = {};
     
-    specialDirectives[Moon.config.prefix + "once"] = function (value, code, vnode) {};
+    specialDirectives[Moon.config.prefix + "once"] = {};
     
     directives[Moon.config.prefix + "show"] = function (el, val, vdom) {
       var evaluated = new Function("return " + val);

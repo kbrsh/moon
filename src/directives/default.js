@@ -1,52 +1,54 @@
 /* ======= Default Directives ======= */
 
-specialDirectives[Moon.config.prefix + "if"] = function(value, code, vnode) {
-  return `(${compileTemplate(value, false)}) ? ${code} : ''`;
-}
-
-specialDirectives[Moon.config.prefix + "for"] = function(value, code, vnode) {
-  var parts = value.split(" in ");
-  var aliases = parts[0].split(",");
-
-  var iteratable = `instance.get("${parts[1]}")`;
-
-  var params = aliases.join(",");
-
-  var customCode = function(compiled, match, key, modifiers) {
-    if(aliases.indexOf(key) === -1) {
-      return compiled;
-    }
-    return compiled.replace(match, `" + ${key}${modifiers} + "`);
+specialDirectives[Moon.config.prefix + "if"] = {
+  afterGenerate: function(value, code, vnode) {
+    return `(${compileTemplate(value, false)}) ? ${code} : ''`;
   }
-
-  return `instance.renderLoop(${iteratable}, function(${params}) { return ${compileTemplate(code, true, customCode)}; })`;
 }
 
-specialDirectives[Moon.config.prefix + "on"] = function(value, code, vnode) {
-  var eventModifiersCode = {
-    stop: 'event.stopPropagation();',
-    prevent: 'event.preventDefault();',
-    ctrl: 'if(!event.ctrlKey) {return;};',
-    shift: 'if(!event.shiftKey) {return;};',
-    alt: 'if(!event.altKey) {return;};'
-  };
+specialDirectives[Moon.config.prefix + "for"] = {
+  afterGenerate: function(value, code, vnode) {
+    var parts = value.split(" in ");
+    var aliases = parts[0].split(",");
 
-  var splitVal = value.split(":");
-  // Extract modifiers and the event
-  var rawModifiers = splitVal[0].split(".");
-  var eventToCall = rawModifiers[0];
-  var modifiers = "";
+    var iteratable = `instance.get("${parts[1]}")`;
 
-  rawModifiers.shift();
+    var params = aliases.join(",");
+
+    var customCode = function(compiled, match, key, modifiers) {
+      if(aliases.indexOf(key) === -1) {
+        return compiled;
+      }
+      return compiled.replace(match, `" + ${key}${modifiers} + "`);
+    }
+
+    return `instance.renderLoop(${iteratable}, function(${params}) { return ${compileTemplate(code, true, customCode)}; })`;
+  }
 }
 
-specialDirectives[Moon.config.prefix + "model"] = function(value, code, vnode) {
+specialDirectives[Moon.config.prefix + "on"] = {
+  afterGenerate: function(value, code, vnode) {
+    var eventModifiersCode = {
+      stop: 'event.stopPropagation();',
+      prevent: 'event.preventDefault();',
+      ctrl: 'if(!event.ctrlKey) {return;};',
+      shift: 'if(!event.shiftKey) {return;};',
+      alt: 'if(!event.altKey) {return;};'
+    };
 
+    var splitVal = value.split(":");
+    // Extract modifiers and the event
+    var rawModifiers = splitVal[0].split(".");
+    var eventToCall = rawModifiers[0];
+    var modifiers = "";
+
+    rawModifiers.shift();
+  }
 }
 
-specialDirectives[Moon.config.prefix + "once"] = function(value, code, vnode) {
+specialDirectives[Moon.config.prefix + "model"] = {};
 
-}
+specialDirectives[Moon.config.prefix + "once"] = {}
 
 directives[Moon.config.prefix + "show"] = function(el, val, vdom) {
   var evaluated = new Function("return " + val);
