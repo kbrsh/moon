@@ -617,10 +617,12 @@
     
     /**
      * Generates Code for Props
-     * @param {Object} props
+     * @param {Object} vnode
      * @return {String} generated code
      */
-    var generateProps = function (props) {
+    var generateProps = function (vnode) {
+      var props = vnode.props;
+    
       if (Object.keys(props).length === 0) {
         return "{}";
       }
@@ -628,6 +630,11 @@
       var generatedObject = "{";
     
       for (var prop in props) {
+        if (specialDirectives[prop]) {
+          if (specialDirectives[prop].beforeGenerate) {
+            specialDirectives[prop].beforeGenerate(props[prop], vnode);
+          }
+        }
         generatedObject += "\"" + prop + "\": " + compileTemplate(JSON.stringify(props[prop]), true) + ", ";
       }
     
@@ -648,7 +655,7 @@
       var generatedObject = "{";
     
       for (var type in listeners) {
-        generatedObject += "\"" + key + "\": " + generateArray(listeners[type]) + ", ";
+        generatedObject += "\"" + type + "\": [" + generateArray(listeners[type]) + "], ";
       }
     
       generatedObject = generatedObject.slice(0, -2) + "}";
@@ -702,7 +709,7 @@
      */
     var createCall = function (vnode, children) {
       var call = "h(\"" + vnode.type + "\", ";
-      call += generateProps(vnode.props) + ", ";
+      call += generateProps(vnode) + ", ";
       call += generateMeta(vnode.meta) + ", ";
       call += children.length ? generateArray(children) : "\"\"";
       call += ")";
@@ -726,7 +733,9 @@
         var compiledCode = createCall(el, childrenCode);
         for (var prop in el.props) {
           if (specialDirectives[prop]) {
-            compiledCode = specialDirectives[prop].afterGenerate(el.props[prop], compiledCode, el);
+            if (specialDirectives[prop].afterGenerate) {
+              compiledCode = specialDirectives[prop].afterGenerate(el.props[prop], compiledCode, el);
+            }
           }
         }
         code += compiledCode;
@@ -1085,7 +1094,7 @@
     };
     
     specialDirectives[Moon.config.prefix + "on"] = {
-      afterGenerate: function (value, code, vnode) {
+      beforeGenerate: function (value, vnode) {
         var eventModifiersCode = {
           stop: 'event.stopPropagation();',
           prevent: 'event.preventDefault();',
@@ -1098,9 +1107,18 @@
         // Extract modifiers and the event
         var rawModifiers = splitVal[0].split(".");
         var eventToCall = rawModifiers[0];
+        var methodToCall = splitVal[1];
+        var params = "(event)";
         var modifiers = "";
     
         rawModifiers.shift();
+    
+        var code = "function(event) {instance.$methods." + methodToCall + params + "}";
+        if (!vnode.meta.eventListeners[eventToCall]) {
+          vnode.meta.eventListeners[eventToCall] = [code];
+        } else {
+          vnode.meta.eventListeners.push(code);
+        }
       }
     };
     
