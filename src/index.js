@@ -18,8 +18,6 @@ function Moon(opts) {
     /* ======= Initial Values ======= */
     this.$opts = opts || {};
 
-    var self = this;
-
     this.$id = id++;
 
     this.$name = this.$opts.name || "root";
@@ -34,8 +32,6 @@ function Moon(opts) {
     this.$initialRender = true;
     this.$queued = false;
 
-    //=require directives/default.js
-
     /* ======= Initialize 🎉 ======= */
     this.init();
 }
@@ -43,3 +39,5 @@ function Moon(opts) {
 //=require instance/methods.js
 
 //=require global/api.js
+
+//=require directives/default.js
