@@ -1109,6 +1109,10 @@
         var eventToCall = rawModifiers[0];
         var methodToCall = splitVal[1];
         var params = "(event)";
+        var rawParams = methodToCall.split("(")[1];
+        if (rawParams) {
+          params = "";
+        }
         var modifiers = "";
     
         rawModifiers.shift();
