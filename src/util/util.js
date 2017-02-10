@@ -129,7 +129,7 @@ var h = function() {
   var args = Array.prototype.slice.call(arguments);
   var tag = args.shift();
   var attrs = args.shift() || {};
-  var meta = args.shift() || defaultMetadata();
+  var meta = args.shift();
   var children = normalizeChildren(args);
   return createElement(tag, children.join(""), attrs, children, meta);
 };

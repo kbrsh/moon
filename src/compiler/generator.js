@@ -1,18 +1,60 @@
 /**
- * Generates Code for an Object
- * @param {Object} obj
- * @return {String} generated object
+ * Generates Code for Props
+ * @param {Object} props
+ * @return {String} generated code
  */
-var generateObject = function(obj) {
-	if(Object.keys(obj).length === 0) {
-		return "{}"
+var generateProps = function(props) {
+	if(Object.keys(props).length === 0) {
+		return "{}";
 	}
 
 	var generatedObject = "{";
 
-	for(var prop in obj) {
-		generatedObject += `"${prop}": ${compileTemplate(JSON.stringify(obj[prop]), true)}, `;
+	for(var prop in props) {
+		generatedObject += `"${prop}": ${compileTemplate(JSON.stringify(props[prop]), true)}, `;
 	}
+
+	generatedObject = generatedObject.slice(0, -2) + "}";
+
+  return generatedObject;
+}
+
+/**
+ * Generates Code for Event Listeners
+ * @param {Object} listeners
+ * @return {String} generated code
+ */
+var generateEventListeners = function(listeners) {
+	if(Object.keys(listeners).length === 0) {
+		return "{}";
+	}
+	var generatedObject = "{";
+
+	for(var type in listeners) {
+		generatedObject += `"${key}": ${generateArray(listeners[type])}, `;
+	}
+
+	generatedObject = generatedObject.slice(0, -2) + "}";
+
+  return generatedObject;
+}
+
+/**
+ * Generates Code for Metadata
+ * @param {Object} meta
+ * @return {String} generated code
+ */
+var generateMeta = function(meta) {
+	var generatedObject = "{";
+
+	for(var key in meta) {
+		if(key === 'eventListeners') {
+			generatedObject += `"${key}": ${generateEventListeners(meta[key])}, `;
+		} else {
+			generatedObject += `"${key}": ${JSON.stringify(meta[key])}, `;
+		}
+	}
+
 	generatedObject = generatedObject.slice(0, -2) + "}";
 
   return generatedObject;
@@ -43,8 +85,8 @@ var generateArray = function(arr) {
  */
 var createCall = function(vnode, children) {
 	var call = `h("${vnode.type}", `;
-	call += generateObject(vnode.props) + ", ";
-	call += generateObject(vnode.meta) + ", ";
+	call += generateProps(vnode.props) + ", ";
+	call += generateMeta(vnode.meta) + ", ";
 	call += children.length ? generateArray(children) : "\"\"";
 	call += ")";
 
@@ -68,7 +110,7 @@ var generateEl = function(el) {
 		var compiledCode = createCall(el, childrenCode);
 		for(var prop in el.props) {
 			if(specialDirectives[prop]) {
-				compiledCode = specialDirectives[prop](el.props[prop], compiledCode, el);
+				compiledCode = specialDirectives[prop].afterGenerate(el.props[prop], compiledCode, el);
 			}
 		}
 		code += compiledCode;
