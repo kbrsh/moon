@@ -27,7 +27,7 @@ specialDirectives[Moon.config.prefix + "for"] = {
 }
 
 specialDirectives[Moon.config.prefix + "on"] = {
-  afterGenerate: function(value, code, vnode) {
+  beforeGenerate: function(value, vnode) {
     var eventModifiersCode = {
       stop: 'event.stopPropagation();',
       prevent: 'event.preventDefault();',
@@ -40,9 +40,18 @@ specialDirectives[Moon.config.prefix + "on"] = {
     // Extract modifiers and the event
     var rawModifiers = splitVal[0].split(".");
     var eventToCall = rawModifiers[0];
+    var methodToCall = splitVal[1];
+    var params = "(event)";
     var modifiers = "";
 
     rawModifiers.shift();
+
+    var code = `function(event) {instance.$methods.${methodToCall}${params}}`;
+    if(!vnode.meta.eventListeners[eventToCall]) {
+      vnode.meta.eventListeners[eventToCall] = [code]
+    } else {
+      vnode.meta.eventListeners.push(code);
+    }
   }
 }
 
