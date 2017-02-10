@@ -48,11 +48,6 @@ specialDirectives[Moon.config.prefix + "once"] = function(value, code, vnode) {
 
 }
 
-
-directives[Moon.config.prefix + "model"] = function(el, val, vdom) {
-  el.value = self.get(val);
-}
-
 directives[Moon.config.prefix + "show"] = function(el, val, vdom) {
   var evaluated = new Function("return " + val);
   if(!evaluated()) {
