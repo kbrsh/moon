@@ -197,7 +197,7 @@ var diffProps = function(node, nodeProps, vnodeProps, vnode) {
   var allProps = merge(nodeProps, vnodeProps);
 
   for(var propName in allProps) {
-    // If not in VNode or is Directive, remove it
+    // If not in VNode or is a Directive, remove it
     if(!vnodeProps[propName] || directives[propName] || specialDirectives[propName]) {
       // If it is a directive, run the directive
       if(directives[propName]) {
