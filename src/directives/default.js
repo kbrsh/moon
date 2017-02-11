@@ -27,15 +27,6 @@ specialDirectives[Moon.config.prefix + "for"] = {
 
 specialDirectives[Moon.config.prefix + "on"] = {
   beforeGenerate: function(value, vnode) {
-    var eventModifiersCode = {
-      stop: 'event.stopPropagation();',
-      prevent: 'event.preventDefault();',
-      ctrl: 'if(!event.ctrlKey) {return;};',
-      shift: 'if(!event.shiftKey) {return;};',
-      alt: 'if(!event.altKey) {return;};',
-      enter: 'if(event.keyCode !== 13) {return;};'
-    };
-
     value = compileTemplate(value, false);
 
     var splitVal = value.split(":");
