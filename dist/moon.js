@@ -1113,7 +1113,11 @@
     
         rawModifiers.shift();
     
-        var code = "function(event) {instance.$methods." + methodToCall + params + "}";
+        for (var i = 0; i < rawModifiers.length; i++) {
+          modifiers += eventModifiersCode[rawModifiers[i]];
+        }
+    
+        var code = "function(event) {" + modifiers + "instance.$methods." + methodToCall + params + "}";
         if (!vnode.meta.eventListeners[eventToCall]) {
           vnode.meta.eventListeners[eventToCall] = [code];
         } else {
