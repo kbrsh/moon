@@ -32,7 +32,8 @@ specialDirectives[Moon.config.prefix + "on"] = {
       prevent: 'event.preventDefault();',
       ctrl: 'if(!event.ctrlKey) {return;};',
       shift: 'if(!event.shiftKey) {return;};',
-      alt: 'if(!event.altKey) {return;};'
+      alt: 'if(!event.altKey) {return;};',
+      enter: 'if(event.keyCode !== 13) {return;};'
     };
 
     value = compileTemplate(value, false);
