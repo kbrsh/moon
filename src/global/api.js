@@ -6,7 +6,11 @@
 Moon.config = {
   silent: false,
   prefix: "m-",
-  keyCodes: {}
+  keyCodes: function(keyCodes) {
+    for(var keyCode in keyCodes) {
+      eventModifiersCode[keyCode] = `if(event.keyCode !== ${keyCodes[keyCode]}) {return;};`;
+    }
+  }
 }
 
 /**
