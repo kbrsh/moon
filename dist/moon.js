@@ -166,12 +166,6 @@
       for (var type in eventListeners) {
         for (var i = 0; i < eventListeners[type].length; i++) {
           var method = eventListeners[type][i];
-          if (method === "__MOON__MODEL__UPDATE__") {
-            node.addEventListener("input", function (evt) {
-              instance.set(vnode.props["m-model"], evt.target.value);
-            });
-            return;
-          }
           if (instance.$events[type]) {
             instance.on(type, method);
           } else {
@@ -274,6 +268,7 @@
           }
         }
       } else if (vnode && !vnode.meta.shouldRender && vnode.props[Moon.config.prefix + "pre"]) {
+        // Not Rendering as a result of the "Pre" Directive, remove it
         node.removeAttribute(Moon.config.prefix + "pre");
       }
     };
@@ -1122,12 +1117,21 @@
         if (!vnode.meta.eventListeners[eventToCall]) {
           vnode.meta.eventListeners[eventToCall] = [code];
         } else {
-          vnode.meta.eventListeners.push(code);
+          vnode.meta.eventListeners[eventToCall].push(code);
         }
       }
     };
     
-    specialDirectives[Moon.config.prefix + "model"] = {};
+    specialDirectives[Moon.config.prefix + "model"] = {
+      beforeGenerate: function (value, vnode) {
+        var code = "function(event) {instance.set(\"" + value + "\", event.target.value)}";
+        if (!vnode.meta.eventListeners["input"]) {
+          vnode.meta.eventListeners["input"] = [code];
+        } else {
+          vnode.meta.eventListeners["input"].push(code);
+        }
+      }
+    };
     
     specialDirectives[Moon.config.prefix + "once"] = {
       beforeGenerate: function (value, vnode) {
