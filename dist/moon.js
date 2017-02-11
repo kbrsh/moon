@@ -17,6 +17,14 @@
     var directives = {};
     var specialDirectives = {};
     var components = {};
+    var eventModifiersCode = {
+      stop: 'event.stopPropagation();',
+      prevent: 'event.preventDefault();',
+      ctrl: 'if(!event.ctrlKey) {return;};',
+      shift: 'if(!event.shiftKey) {return;};',
+      alt: 'if(!event.altKey) {return;};',
+      enter: 'if(event.keyCode !== 13) {return;};'
+    };
     var id = 0;
     
     /* ======= Global Utilities ======= */
@@ -91,9 +99,9 @@
         if (customCode) {
           compiled = customCode(compiled, match, key, modifiers);
         } else if (isString) {
-          compiled = compiled.replace(match, "\" + instance.get(\"" + key + "\")" + modifiers + " + \"");
+          compiled = compiled.replace(match, '" + instance.get("' + key + '")' + modifiers + ' + "');
         } else {
-          compiled = compiled.replace(match, "instance.get(\"" + key + "\")" + modifiers);
+          compiled = compiled.replace(match, 'instance.get("' + key + '")' + modifiers);
         }
       });
       return compiled;
@@ -631,7 +639,7 @@
             specialDirectives[prop].beforeGenerate(props[prop], vnode);
           }
         }
-        generatedObject += "\"" + prop + "\": " + compileTemplate(JSON.stringify(props[prop]), true) + ", ";
+        generatedObject += '"' + prop + '": ' + compileTemplate(JSON.stringify(props[prop]), true) + ', ';
       }
     
       generatedObject = generatedObject.slice(0, -2) + "}";
@@ -651,7 +659,7 @@
       var generatedObject = "{";
     
       for (var type in listeners) {
-        generatedObject += "\"" + type + "\": [" + generateArray(listeners[type]) + "], ";
+        generatedObject += '"' + type + '": [' + generateArray(listeners[type]) + '], ';
       }
     
       generatedObject = generatedObject.slice(0, -2) + "}";
@@ -669,9 +677,9 @@
     
       for (var key in meta) {
         if (key === 'eventListeners') {
-          generatedObject += "\"" + key + "\": " + generateEventListeners(meta[key]) + ", ";
+          generatedObject += '"' + key + '": ' + generateEventListeners(meta[key]) + ', ';
         } else {
-          generatedObject += "\"" + key + "\": " + meta[key] + ", ";
+          generatedObject += '"' + key + '": ' + meta[key] + ', ';
         }
       }
     
@@ -689,7 +697,7 @@
       var generatedArray = "";
     
       for (var i = 0; i < arr.length; i++) {
-        generatedArray += arr[i] + ", ";
+        generatedArray += arr[i] + ', ';
       }
     
       generatedArray = generatedArray.slice(0, -2);
@@ -704,7 +712,7 @@
      * @return {String} "h" call
      */
     var createCall = function (vnode, children) {
-      var call = "h(\"" + vnode.type + "\", ";
+      var call = 'h("' + vnode.type + '", ';
       call += generateProps(vnode) + ", ";
       call += generateMeta(vnode.meta) + ", ";
       call += children.length ? generateArray(children) : "\"\"";
@@ -719,7 +727,7 @@
     
       if (typeof el === "string") {
         // Escape newlines and double quotes, and compile the string
-        code += "\"" + compileTemplate(escapeString(el), true) + "\"";
+        code += '"' + compileTemplate(escapeString(el), true) + '"';
       } else {
         // Recursively generate code for children
         var childrenCode = el.children.map(generateEl);
@@ -975,7 +983,11 @@
     Moon.config = {
       silent: false,
       prefix: "m-",
-      keyCodes: {}
+      keyCodes: function (keyCodes) {
+        for (var keyCode in keyCodes) {
+          eventModifiersCode[keyCode] = 'if(event.keyCode !== ' + keyCodes[keyCode] + ') {return;};';
+        }
+      }
     };
     
     /**
@@ -1065,7 +1077,7 @@
     
     specialDirectives[Moon.config.prefix + "if"] = {
       afterGenerate: function (value, code, vnode) {
-        return "(" + compileTemplate(value, false) + ") ? " + code + " : ''";
+        return '(' + compileTemplate(value, false) + ') ? ' + code + ' : \'\'';
       }
     };
     
@@ -1074,30 +1086,22 @@
         var parts = value.split(" in ");
         var aliases = parts[0].split(",");
     
-        var iteratable = "instance.get(\"" + parts[1] + "\")";
+        var iteratable = 'instance.get("' + parts[1] + '")';
     
         var params = aliases.join(",");
     
         code.replace(/instance\.get\("([^"]+)"\)/g, function (match, alias) {
           if (aliases.indexOf(alias) !== -1) {
-            code = code.replace(new RegExp("instance.get\\(\"" + alias + "\"\\)", "g"), alias);
+            code = code.replace(new RegExp('instance.get\\("' + alias + '"\\)', "g"), alias);
           }
         });
     
-        return "instance.renderLoop(" + iteratable + ", function(" + params + ") { return " + code + "; })";
+        return 'instance.renderLoop(' + iteratable + ', function(' + params + ') { return ' + code + '; })';
       }
     };
     
     specialDirectives[Moon.config.prefix + "on"] = {
       beforeGenerate: function (value, vnode) {
-        var eventModifiersCode = {
-          stop: 'event.stopPropagation();',
-          prevent: 'event.preventDefault();',
-          ctrl: 'if(!event.ctrlKey) {return;};',
-          shift: 'if(!event.shiftKey) {return;};',
-          alt: 'if(!event.altKey) {return;};'
-        };
-    
         value = compileTemplate(value, false);
     
         var splitVal = value.split(":");
@@ -1118,7 +1122,7 @@
           modifiers += eventModifiersCode[rawModifiers[i]];
         }
     
-        var code = "function(event) {" + modifiers + "instance.$methods." + methodToCall + params + "}";
+        var code = 'function(event) {' + modifiers + 'instance.$methods.' + methodToCall + params + '}';
         if (!vnode.meta.eventListeners[eventToCall]) {
           vnode.meta.eventListeners[eventToCall] = [code];
         } else {
@@ -1129,7 +1133,7 @@
     
     specialDirectives[Moon.config.prefix + "model"] = {
       beforeGenerate: function (value, vnode) {
-        var code = "function(event) {instance.set(\"" + value + "\", event.target.value)}";
+        var code = 'function(event) {instance.set("' + value + '", event.target.value)}';
         if (!vnode.meta.eventListeners["input"]) {
           vnode.meta.eventListeners["input"] = [code];
         } else {
