@@ -35,6 +35,8 @@ specialDirectives[Moon.config.prefix + "on"] = {
       alt: 'if(!event.altKey) {return;};'
     };
 
+    value = compileTemplate(value, false);
+
     var splitVal = value.split(":");
     // Extract modifiers and the event
     var rawModifiers = splitVal[0].split(".");

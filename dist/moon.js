@@ -1078,14 +1078,13 @@
     
         var params = aliases.join(",");
     
-        var customCode = function (compiled, match, key, modifiers) {
-          if (aliases.indexOf(key) === -1) {
-            return compiled;
+        code.replace(/instance\.get\("([^"]+)"\)/g, function (match, alias) {
+          if (aliases.indexOf(alias) !== -1) {
+            code = code.replace(new RegExp("instance.get\\(\"" + alias + "\"\\)", "g"), alias);
           }
-          return compiled.replace(match, "\" + " + key + modifiers + " + \"");
-        };
+        });
     
-        return "instance.renderLoop(" + iteratable + ", function(" + params + ") { return " + compileTemplate(code, true, customCode) + "; })";
+        return "instance.renderLoop(" + iteratable + ", function(" + params + ") { return " + code + "; })";
       }
     };
     
@@ -1098,6 +1097,8 @@
           shift: 'if(!event.shiftKey) {return;};',
           alt: 'if(!event.altKey) {return;};'
         };
+    
+        value = compileTemplate(value, false);
     
         var splitVal = value.split(":");
         // Extract modifiers and the event
