@@ -246,8 +246,7 @@
         nodeName = node.nodeName.toLowerCase();
       }
     
-      if (vnode && vnode.meta ? vnode.meta.shouldRender : true) {
-    
+      if (vnode && vnode.meta.shouldRender) {
         if (!node) {
           // No node, add it
           parent.appendChild(createNodeFromVNode(vnode, instance));
@@ -274,6 +273,8 @@
             diff(node.childNodes[i], vnode.children[i], node, instance);
           }
         }
+      } else if (vnode && !vnode.meta.shouldRender && vnode.props[Moon.config.prefix + "pre"]) {
+        node.removeAttribute(Moon.config.prefix + "pre");
       }
     };
     
@@ -1134,7 +1135,13 @@
       }
     };
     
-    directives[Moon.config.prefix + "show"] = function (el, val, vdom) {
+    specialDirectives[Moon.config.prefix + "pre"] = {
+      beforeGenerate: function (value, vnode) {
+        vnode.meta.shouldRender = false;
+      }
+    };
+    
+    directives[Moon.config.prefix + "show"] = function (el, val, vnode) {
       var evaluated = new Function("return " + val);
       if (!evaluated()) {
         el.style.display = 'none';
@@ -1143,24 +1150,20 @@
       }
     };
     
-    directives[Moon.config.prefix + "pre"] = function (el, val, vdom) {
-      vdom.meta.shouldRender = false;
-    };
-    
-    directives[Moon.config.prefix + "text"] = function (el, val, vdom) {
+    directives[Moon.config.prefix + "text"] = function (el, val, vnode) {
       el.textContent = val;
-      for (var i = 0; i < vdom.children.length; i++) {
-        vdom.children[i].meta.shouldRender = false;
+      for (var i = 0; i < vnode.children.length; i++) {
+        vnode.children[i].meta.shouldRender = false;
       }
     };
     
-    directives[Moon.config.prefix + "html"] = function (el, val, vdom) {
+    directives[Moon.config.prefix + "html"] = function (el, val, vnode) {
       el.innerHTML = val;
-      for (var i = 0; i < vdom.children.length; i++) {
-        vdom.children[i].meta.shouldRender = false;
+      for (var i = 0; i < vnode.children.length; i++) {
+        vnode.children[i].meta.shouldRender = false;
       }
     };
     
-    directives[Moon.config.prefix + "mask"] = function (el, val, vdom) {};
+    directives[Moon.config.prefix + "mask"] = function (el, val, vnode) {};
     return Moon;
 }));

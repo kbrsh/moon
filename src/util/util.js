@@ -225,8 +225,7 @@ var diff = function(node, vnode, parent, instance) {
     nodeName = node.nodeName.toLowerCase();
   }
 
-  if(vnode && vnode.meta ? vnode.meta.shouldRender : true) {
-
+  if(vnode && vnode.meta.shouldRender) {
     if(!node) {
       // No node, add it
       parent.appendChild(createNodeFromVNode(vnode, instance));
@@ -253,7 +252,9 @@ var diff = function(node, vnode, parent, instance) {
         diff(node.childNodes[i], vnode.children[i], node, instance);
       }
     }
-
+  } else if(vnode && !vnode.meta.shouldRender && vnode.props[Moon.config.prefix + "pre"]) {
+    // Not Rendering as a result of the "Pre" Directive, remove it
+    node.removeAttribute(Moon.config.prefix + "pre");
   }
 }
 
