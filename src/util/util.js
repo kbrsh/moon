@@ -145,12 +145,6 @@ var addEventListeners = function(node, vnode, instance) {
   for(var type in eventListeners) {
     for(var i = 0; i < eventListeners[type].length; i++) {
       var method = eventListeners[type][i];
-      if(method === "__MOON__MODEL__UPDATE__") {
-        node.addEventListener("input", function(evt) {
-          instance.set(vnode.props["m-model"], evt.target.value);
-        });
-        return;
-      }
       if(instance.$events[type]) {
         instance.on(type, method);
       } else {
