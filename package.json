@@ -1,6 +1,6 @@
 {
   "name": "moonjs",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "A minimal, blazing fast user interface library.",
   "main": "dist/moon.min.js",
   "scripts": {
