@@ -26,6 +26,7 @@ var extractAttrs = function(node) {
   for(var rawAttrs = node.attributes, i = rawAttrs.length; i--;) {
     attrs[rawAttrs[i].name] = rawAttrs[i].value;
   }
+  node.__moon__attrs__ = attrs;
   return attrs;
 }
 
@@ -231,7 +232,7 @@ var diff = function(node, vnode, parent, instance) {
       node.textContent = vnode.val;
     } else if(vnode.type) {
       // Diff properties
-      var nodeProps = extractAttrs(node);
+      var nodeProps = node.__moon__attrs__ || extractAttrs(node);
       diffProps(node, nodeProps, vnode.props, vnode);
 
       if(instance.$initialRender) {
