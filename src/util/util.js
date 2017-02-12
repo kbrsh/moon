@@ -23,12 +23,9 @@ var error = function(msg) {
  */
 var extractAttrs = function(node) {
   var attrs = {};
-  if(!node.attributes) return attrs;
-  var rawAttrs = node.attributes;
-  for(var i = 0; i < rawAttrs.length; i++) {
-    attrs[rawAttrs[i].name] = rawAttrs[i].value
+  for(var rawAttrs = node.attributes, i = rawAttrs.length; i--;) {
+    attrs[rawAttrs[i].name] = rawAttrs[i].value;
   }
-
   return attrs;
 }
 
