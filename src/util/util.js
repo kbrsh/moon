@@ -219,7 +219,7 @@ var diff = function(node, vnode, parent, instance) {
     nodeName = node.nodeName.toLowerCase();
   }
 
-  if(vnode && vnode.meta.shouldRender) {
+  if((vnode && vnode.meta.shouldRender) || (!vnode)) {
     if(!node) {
       // No node, add it
       parent.appendChild(createNodeFromVNode(vnode, instance));
