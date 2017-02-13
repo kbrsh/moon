@@ -130,7 +130,12 @@ var h = function() {
   var meta = args.shift();
   var children = normalizeChildren(args);
   if(components[tag] && components[tag].$opts.functional) {
-    return components[tag].render();
+    var functionalComponent = components[tag];
+    for(var i = 0; i < functionalComponent.$props.length; i++) {
+      var prop = functionalComponent.$props[i];
+      functionalComponent.$data[prop] = attrs[prop];
+    }
+    return functionalComponent.render();
   }
   return createElement(tag, children.join(""), attrs, children, meta);
 };
