@@ -259,7 +259,11 @@ var diff = function(node, vnode, parent, instance) {
       // Diff children
       var currentChildNode = node.firstChild;
       for(var i = 0; i < vnode.children.length || currentChildNode; i++) {
-        diff(currentChildNode, vnode.children[i], node, instance);
+        var replacedNode = diff(currentChildNode, vnode.children[i], node, instance);
+        if(replacedNode) {
+          // Node was replaced, update reference to it
+          currentChildNode = replacedNode;
+        }
         currentChildNode = (currentChildNode ? currentChildNode.nextSibling : null);
       }
     }
