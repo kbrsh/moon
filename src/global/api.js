@@ -92,12 +92,10 @@ Moon.component = function(name, opts) {
     }
   }
 
-  if(opts.functional) {
-    var functionalComponent = new MoonComponent();
-    components[name] = functionalComponent;
-    return functionalComponent;
-  }
+  components[name] = {
+    CTor: MoonComponent,
+    opts: opts
+  };
   
-  components[name] = MoonComponent;
   return MoonComponent;
 }
