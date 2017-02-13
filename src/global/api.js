@@ -92,9 +92,12 @@ Moon.component = function(name, opts) {
     }
   }
 
-  components[name] = MoonComponent;
   if(opts.functional) {
-    return new MoonComponent();
+    var functionalComponent = new MoonComponent();
+    components[name] = functionalComponent;
+    return functionalComponent;
   }
+  
+  components[name] = MoonComponent;
   return MoonComponent;
 }
