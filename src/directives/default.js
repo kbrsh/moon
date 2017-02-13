@@ -90,9 +90,7 @@ directives[Moon.config.prefix + "show"] = function(el, val, vnode) {
 
 directives[Moon.config.prefix + "text"] = function(el, val, vnode) {
   el.textContent = val;
-  for(var i = 0; i < vnode.children.length; i++) {
-    vnode.children[i].meta.shouldRender = false;
-  }
+  vnode.children[0].val = val;
 }
 
 directives[Moon.config.prefix + "html"] = function(el, val, vnode) {

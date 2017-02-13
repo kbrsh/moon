@@ -136,7 +136,7 @@
         if (Array.isArray(child)) {
           normalizedChildren = normalizedChildren.concat(normalizeChildren(child));
         } else if (typeof child === "string" || child === null) {
-          normalizedChildren.push(createElement("#text", child || '', {}, [], defaultMetadata()));
+          normalizedChildren.push(createElement("#text", child || "", {}, [], defaultMetadata()));
         } else {
           normalizedChildren.push(child);
         }
@@ -238,6 +238,7 @@
      * @param {Object} vnode
      * @param {Object} parent
      * @param {Object} instance
+     * @return {Object} adjusted node
      */
     var diff = function (node, vnode, parent, instance) {
       var nodeName;
@@ -259,6 +260,10 @@
         } else if (nodeName === "#text" && vnode.type === "#text") {
           // Both are text, set the text
           node.textContent = vnode.val;
+        } else if (vnode.children.length === 0 && !node.firstChild.nextSibling && node.firstChild.nodeName === "#text" && vnode.children[0].type === "#text") {
+          // Optimization:
+          //  If the node and vnode contain a single text node, update it here
+          node.firstChild.textContent = vnode.children[0].val;
         } else if (vnode.type) {
           // Diff properties
           var nodeProps = node.__moon__attrs__ || extractAttrs(node);
@@ -269,8 +274,10 @@
           }
     
           // Diff children
-          for (var i = 0; i < vnode.children.length || i < node.childNodes.length; i++) {
-            diff(node.childNodes[i], vnode.children[i], node, instance);
+          var currentChildNode = node.firstChild;
+          for (var i = 0; i < vnode.children.length || currentChildNode; i++) {
+            diff(currentChildNode, vnode.children[i], node, instance);
+            currentChildNode = currentChildNode ? currentChildNode.nextSibling : null;
           }
         }
       } else if (vnode && !vnode.meta.shouldRender && vnode.props[Moon.config.prefix + "pre"]) {
@@ -1163,9 +1170,7 @@
     
     directives[Moon.config.prefix + "text"] = function (el, val, vnode) {
       el.textContent = val;
-      for (var i = 0; i < vnode.children.length; i++) {
-        vnode.children[i].meta.shouldRender = false;
-      }
+      vnode.children[0].val = val;
     };
     
     directives[Moon.config.prefix + "html"] = function (el, val, vnode) {
