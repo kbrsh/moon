@@ -5,6 +5,9 @@ Moon.config.silent = true;
 //   init: function() {
 //     var MoonBuild = Moon.prototype.build;
 //     var MoonInit = Moon.prototype.init;
+//     var MoonRender = Moon.prototype.render;
+//     var MoonMount = Moon.prototype.mount;
+//     var MoonPatch = Moon.prototype.patch;
 //
 //     var formatNum = function(num) {
 //       if(num >= 0.5) {
@@ -14,24 +17,54 @@ Moon.config.silent = true;
 //       }
 //     }
 //
+//     var name = function(instance) {
+//       return instance.$parent ? instance.$name : "root";
+//     }
+//
 //     Moon.prototype.init = function() {
-//       var id = this.$opts.el + "@init";
+//       var id = name(this) + "@init";
 //       performance.mark("start " + id);
 //       MoonInit.apply(this, arguments);
 //       performance.mark("end " + id);
 //       performance.measure(id, "start " + id, "end " + id);
 //       var entries = performance.getEntriesByName(id);
-//       console.log("[Moon Performance] " + id + " - " + formatNum(entries[entries.length - 1].duration));
 //     }
 //
 //     Moon.prototype.build = function() {
-//       var id = this.$opts.el + "@build";
+//       var id = name(this) + "@build";
 //       performance.mark("start " + id);
 //       MoonBuild.apply(this, arguments);
 //       performance.mark("end " + id);
 //       performance.measure(id, "start " + id, "end " + id);
 //       var entries = performance.getEntriesByName(id);
-//       console.log("[Moon Performance] " + id + " - " + formatNum(entries[entries.length - 1].duration));
+//     }
+//
+//     Moon.prototype.render = function() {
+//       var id = name(this) + "@render";
+//       performance.mark("start " + id);
+//       var r = MoonRender.apply(this, arguments);
+//       performance.mark("end " + id);
+//       performance.measure(id, "start " + id, "end " + id);
+//       var entries = performance.getEntriesByName(id);
+//       return r;
+//     }
+//
+//     Moon.prototype.mount = function() {
+//       var id = name(this) + "@mount";
+//       performance.mark("start " + id);
+//       MoonMount.apply(this, arguments);
+//       performance.mark("end " + id);
+//       performance.measure(id, "start " + id, "end " + id);
+//       var entries = performance.getEntriesByName(id);
+//     }
+//
+//     Moon.prototype.patch = function() {
+//       var id = name(this) + "@patch";
+//       performance.mark("start " + id);
+//       MoonPatch.apply(this, arguments);
+//       performance.mark("end " + id);
+//       performance.measure(id, "start " + id, "end " + id);
+//       var entries = performance.getEntriesByName(id);
 //     }
 //   }
 // }
