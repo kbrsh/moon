@@ -166,7 +166,7 @@ var createNodeFromVNode = function(vnode, instance) {
   } else {
     el = document.createElement(vnode.type);
     for(var i = 0; i < vnode.children.length; i++) {
-      el.appendChild(createNodeFromVNode(vnode.children[i], instance, true));
+      el.appendChild(createNodeFromVNode(vnode.children[i], instance));
     }
     addEventListeners(el, vnode, instance);
   }
