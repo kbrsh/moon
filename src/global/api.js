@@ -81,7 +81,7 @@ Moon.component = function(name, opts) {
   MoonComponent.prototype.constructor = MoonComponent;
 
   MoonComponent.prototype.init = function() {
-    callHook(this, 'created');
+    callHook(this, 'init');
     this.$destroyed = false;
     this.$props = this.$opts.props || [];
 
