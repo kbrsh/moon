@@ -177,7 +177,7 @@ Moon.prototype.build = function() {
  */
 Moon.prototype.init = function() {
   log("======= Moon =======");
-  callHook(this, 'created');
+  callHook(this, 'init');
 
   if(this.$opts.el) {
     this.mount(this.$opts.el);
