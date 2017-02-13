@@ -158,6 +158,9 @@
       var attrs = args.shift() || {};
       var meta = args.shift();
       var children = normalizeChildren(args);
+      if (components[tag] && components[tag].$opts.functional) {
+        return components[tag].render();
+      }
       return createElement(tag, children.join(""), attrs, children, meta);
     };
     
@@ -195,7 +198,7 @@
       } else {
         el = document.createElement(vnode.type);
         for (var i = 0; i < vnode.children.length; i++) {
-          el.appendChild(createNodeFromVNode(vnode.children[i], instance, true));
+          el.appendChild(createNodeFromVNode(vnode.children[i], instance));
         }
         addEventListeners(el, vnode, instance);
       }
@@ -970,7 +973,7 @@
      */
     Moon.prototype.init = function () {
       log("======= Moon =======");
-      callHook(this, 'created');
+      callHook(this, 'init');
     
       if (this.$opts.el) {
         this.mount(this.$opts.el);
@@ -1050,7 +1053,7 @@
     Moon.component = function (name, opts) {
       var Parent = this;
       opts.name = name;
-      opts.parent = parent;
+      opts.parent = Parent;
     
       function MoonComponent() {
         Moon.call(this, opts);
@@ -1060,7 +1063,7 @@
       MoonComponent.prototype.constructor = MoonComponent;
     
       MoonComponent.prototype.init = function () {
-        callHook(this, 'created');
+        callHook(this, 'init');
         this.$destroyed = false;
         this.$props = this.$opts.props || [];
     
@@ -1070,6 +1073,12 @@
           this.$render = Moon.compile(this.$template);
         }
       };
+    
+      if (opts.functional) {
+        var functionalComponent = new MoonComponent();
+        components[name] = functionalComponent;
+        return functionalComponent;
+      }
     
       components[name] = MoonComponent;
       return MoonComponent;

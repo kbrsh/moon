@@ -129,6 +129,9 @@ var h = function() {
   var attrs = args.shift() || {};
   var meta = args.shift();
   var children = normalizeChildren(args);
+  if(components[tag] && components[tag].$opts.functional) {
+    return components[tag].render();
+  }
   return createElement(tag, children.join(""), attrs, children, meta);
 };
 
