@@ -93,5 +93,8 @@ Moon.component = function(name, opts) {
   }
 
   components[name] = MoonComponent;
+  if(opts.functional) {
+    return new MoonComponent();
+  }
   return MoonComponent;
 }
