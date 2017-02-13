@@ -214,7 +214,7 @@ var diffProps = function(node, nodeProps, vnodeProps, vnode) {
  * @param {Object} vnode
  * @param {Object} parent
  * @param {Object} instance
- * @return {Object} adjusted node
+ * @return {Object} adjusted node only if it was replaced
  */
 var diff = function(node, vnode, parent, instance) {
   var nodeName;
@@ -223,6 +223,7 @@ var diff = function(node, vnode, parent, instance) {
     nodeName = node.nodeName.toLowerCase();
   }
 
+  // If there is a vnode and it should be rendered, or if there is just no vnode
   if((vnode && vnode.meta.shouldRender) || (!vnode)) {
     if(!node) {
       // No node, add it
@@ -231,8 +232,10 @@ var diff = function(node, vnode, parent, instance) {
       // No VNode, remove the node
       parent.removeChild(node);
     } else if(nodeName !== vnode.type) {
-      // Different types of Nodes, replace the node
-      parent.replaceChild(createNodeFromVNode(vnode, instance), node);
+      // Different types of Nodes, replace the node, and return the newly created one
+      var newNode = createNodeFromVNode(vnode, instance);
+      parent.replaceChild(newNode, node);
+      return newNode;
     } else if(nodeName === "#text" && vnode.type === "#text") {
       // Both are text, set the text
       node.textContent = vnode.val;
@@ -241,10 +244,14 @@ var diff = function(node, vnode, parent, instance) {
       //  If the node and vnode contain a single text node, update it here
       node.firstChild.textContent = vnode.children[0].val;
     } else if(vnode.type) {
-      // Diff properties
+      // No changes, clear to diff children
+
+      // Check if there is a property cache, if not, create one
       var nodeProps = node.__moon__attrs__ || extractAttrs(node);
+      // Diff properties
       diffProps(node, nodeProps, vnode.props, vnode);
 
+      // Add event listeners on initial render
       if(instance.$initialRender) {
         addEventListeners(node, vnode, instance);
       }
