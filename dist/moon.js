@@ -158,8 +158,8 @@
       var attrs = args.shift() || {};
       var meta = args.shift();
       var children = normalizeChildren(args);
-      if (components[tag] && components[tag].$opts.functional) {
-        var functionalComponent = components[tag];
+      if (components[tag] && components[tag].opts.functional) {
+        var functionalComponent = components[tag].CTor();
         for (var i = 0; i < functionalComponent.$props.length; i++) {
           var prop = functionalComponent.$props[i];
           functionalComponent.$data[prop] = attrs[prop];
@@ -1079,13 +1079,11 @@
         }
       };
     
-      if (opts.functional) {
-        var functionalComponent = new MoonComponent();
-        components[name] = functionalComponent;
-        return functionalComponent;
-      }
+      components[name] = {
+        CTor: MoonComponent,
+        opts: opts
+      };
     
-      components[name] = MoonComponent;
       return MoonComponent;
     };
     
