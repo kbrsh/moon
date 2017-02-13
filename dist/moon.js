@@ -158,8 +158,9 @@
       var attrs = args.shift() || {};
       var meta = args.shift();
       var children = normalizeChildren(args);
+      // There is a functional component
       if (components[tag] && components[tag].opts.functional) {
-        var functionalComponent = components[tag].CTor();
+        var functionalComponent = new components[tag].CTor();
         for (var i = 0; i < functionalComponent.$props.length; i++) {
           var prop = functionalComponent.$props[i];
           functionalComponent.$data[prop] = attrs[prop];
