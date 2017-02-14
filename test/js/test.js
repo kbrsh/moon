@@ -444,6 +444,49 @@ describe('Custom Render', function() {
     });
 });
 
+describe('Functional Component', function() {
+    createTestElement("functional", '<functional-component someprop="{{parentMsg}}"></functional-component><slot-functional-component>Default Slot Content</slot-functional-component>');
+    Moon.component('functional-component', {
+      functional: true,
+      props: ['someprop'],
+      render: function(h, ctx) {
+        return h("h1", {class: "functionalComponent"}, null, ctx.data.someprop);
+      }
+    });
+    Moon.component('slot-functional-component', {
+      functional: true,
+      render: function(h, ctx) {
+        return h("h1", {class: "functionalSlotComponent"}, null, ctx.slots.default);
+      }
+    });
+    var functionalApp = new Moon({
+      el: "#functional",
+      data: {
+        parentMsg: "Hello Moon!"
+      }
+    });
+    it('should render HTML', function() {
+      expect(document.getElementsByClassName("functionalComponent")).to.not.be.null;
+    });
+    it('should render with props', function() {
+      expect(document.getElementsByClassName("functionalComponent")[0].innerHTML).to.equal("Hello Moon!");
+    });
+    it('should render when updated', function() {
+      functionalApp.set('parentMsg', 'Changed');
+      Moon.nextTick(function() {
+        expect(document.getElementsByClassName("functionalComponent")[0].innerHTML).to.equal("Changed");
+      });
+    });
+
+    describe("Slots", function() {
+      it('should render the default slot', function() {
+        Moon.nextTick(function() {
+          expect(document.getElementsByClassName("functionalSlotComponent")[0].innerHTML).to.equal("Default Slot Content");
+        });
+      });
+    });
+});
+
 
 // describe('Component', function() {
 //     createTestElement("component", '<my-component componentprop="{{parentMsg}}"></my-component>');
