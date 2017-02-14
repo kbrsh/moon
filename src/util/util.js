@@ -77,6 +77,29 @@ var compileTemplate = function(template, isString, customCode) {
 }
 
 /**
+ * Extracts the Slots From Component Children
+ * @param {Array} children
+ * @return {Object} extracted slots
+ */
+var getSlots = function(children) {
+  var slots = {};
+
+  // No Children Means No Slots
+  if(!children) {
+    return slots;
+  }
+
+  slots.default = [];
+
+  for(var i = 0; i < children.length; i++) {
+    var child = children[i];
+    slots.default.push(child);
+  }
+
+  return slots;
+}
+
+/**
  * Creates a Virtual DOM Node
  * @param {String} type
  * @param {String} val
@@ -104,9 +127,9 @@ var createElement = function(type, val, props, children, meta) {
  * @param {Object} component
  * @return {Object} Virtual DOM Node
  */
-var createComponent = function(type, props, children, meta, component) {
+var createComponent = function(type, props, meta, children, component) {
   if(component.opts.functional) {
-    return createFunctionalComponent(type, props, children, meta, component);
+    return createFunctionalComponent(type, props, meta, children, component);
   }
 }
 
@@ -119,7 +142,7 @@ var createComponent = function(type, props, children, meta, component) {
  * @param {Object} functionalComponent
  * @return {Object} Virtual DOM Node
  */
-var createFunctionalComponent = function(type, props, children, meta, functionalComponent) {
+var createFunctionalComponent = function(type, props, meta, children, functionalComponent) {
   var data = functionalComponent.opts.data || {};
   // Merge data with provided props
   if(functionalComponent.opts.props) {
@@ -129,7 +152,8 @@ var createFunctionalComponent = function(type, props, children, meta, functional
     }
   }
   return functionalComponent.opts.render(h, {
-    data: data
+    data: data,
+    slots: getSlots(children)
   });
 }
 
