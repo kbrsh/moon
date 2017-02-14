@@ -6,26 +6,7 @@
 </head>
 <body>
   <div id="mocha"></div>
-  <div style="display:none">
-    <div id="initialize"></div>
-    <div id="data">{{msg}}</div>
-    <div id="method">{{count}}</div>
-    <div id="destroy">{{msg}}</div>
-    <div id="customDirective"><span m-square="2" id="custom-directive-span"></span></div>
-    <div id="if"><p m-if="{{condition}}" id="if-condition">Condition True</p></div>
-    <div id="show"><p m-show="{{condition}}" id="show-condition">Condition True</p></div>
-    <div id="model"><p id="model-msg">{{msg}}</p><input type="text" m-model="msg" id="model-msg-input"/></div>
-    <div id="on"><p id="on-count">{{count}}</p><button m-on="click:increment" id="on-increment-button">Increment</button></div>
-    <div id="text"><span m-text="{{msg}}" id="text-directive-span"></span></div>
-    <div id="html"><span m-html="{{msg}}" id="html-directive-span"></span></div>
-    <div id="once"><span m-once id="once-directive-span">{{msg}}</span></div>
-    <div id="pre"><span m-pre id="pre-directive-span">{{msg}}</span></div>
-    <div id="mask"><span m-mask id="mask-directive-span"></span></div>
-    <div id="template"></div>
-    <div id="render"></div>
-    <div id="plugin"><span m-empty id="plugin-span">{{msg}}</span></div>
-    <div id="component"><my-component componentprop="{{parentMsg}}"></my-component></div>
-  </div>
+  <div style="display:none" id="moon-els"></div>
 
   <script src="../node_modules/chai/chai.js" type="text/javascript"></script>
   <script src="../node_modules/mocha/mocha.js"></script>

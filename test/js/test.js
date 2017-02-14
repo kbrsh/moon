@@ -2,6 +2,13 @@ var expect = chai.expect;
 Moon.config.silent = true;
 console.log("[Moon] Running Tests...");
 console.log("[Moon] Version: " + Moon.version);
+var createTestElement = function(id, html) {
+  var el = document.createElement("div");
+  el.innerHTML = html;
+  el.id = id;
+  document.getElementById("moon-els").appendChild(el);
+  return el;
+}
 // var MoonPerformance = {
 //   init: function() {
 //     var MoonBuild = Moon.prototype.build;
@@ -73,29 +80,35 @@ console.log("[Moon] Version: " + Moon.version);
 // Moon.use(MoonPerformance);
 
 
-describe('Initializing', function() {
-  it('with new', function() {
-    expect(new Moon({el: "#initialize"}) instanceof Moon).to.equal(true);
-  });
-});
-
 describe('Instance', function() {
-  var destroyApp = new Moon({
-    el: "#destroy",
-    data: {
-      msg: "Hello Moon!"
-    }
+  describe('Initializing', function() {
+    createTestElement("initialize", "");
+    it('with new', function() {
+      expect(new Moon({el: "#initialize"}) instanceof Moon).to.equal(true);
+    });
   });
-  it('when destroyed', function() {
-    destroyApp.destroy();
-    destroyApp.set('msg', 'New Value!');
-    Moon.nextTick(function() {
-      expect(document.getElementById("destroy").innerHTML).to.not.equal("New Value!");
+
+  describe('Destroy', function() {
+    createTestElement("destroy", '{{msg}}');
+    var destroyApp = new Moon({
+      el: "#destroy",
+      data: {
+        msg: "Hello Moon!"
+      }
+    });
+    it('when destroyed', function() {
+      destroyApp.destroy();
+      destroyApp.set('msg', 'New Value!');
+      Moon.nextTick(function() {
+        expect(document.getElementById("destroy").innerHTML).to.not.equal("New Value!");
+      });
     });
   });
 });
 
+
 describe('Data', function() {
+  createTestElement("data", '{{msg}}');
   var dataApp = new Moon({
     el: "#data",
     data: {
@@ -117,6 +130,7 @@ describe('Data', function() {
 });
 
 describe('Methods', function() {
+  createTestElement("method", '{{count}}');
   var methodApp = new Moon({
     el: "#method",
     data: {
@@ -141,6 +155,7 @@ describe('Methods', function() {
 });
 
 describe('Custom Directive', function() {
+  createTestElement("customDirective", '<span m-square="2" id="custom-directive-span"></span>');
   Moon.directive("square", function(el, val, vdom) {
     var num = parseInt(val);
     el.textContent = val*val;
@@ -159,6 +174,7 @@ describe('Custom Directive', function() {
 });
 
 describe('If Directive', function() {
+  createTestElement("if", '<p m-if="{{condition}}" id="if-condition">Condition True</p>');
   var ifApp = new Moon({
     el: "#if",
     data: {
@@ -180,6 +196,7 @@ describe('If Directive', function() {
 });
 
 describe('Show Directive', function() {
+  createTestElement("show", '<p m-show="{{condition}}" id="show-condition">Condition True</p>');
   var showApp = new Moon({
     el: "#show",
     data: {
@@ -201,6 +218,7 @@ describe('Show Directive', function() {
 });
 
 describe('Model Directive', function() {
+  createTestElement("model", '<p id="model-msg">{{msg}}</p><input type="text" m-model="msg" id="model-msg-input"/>');
   var modelApp = new Moon({
     el: "#model",
     data: {
@@ -216,6 +234,7 @@ describe('Model Directive', function() {
 });
 
 describe('On Directive', function() {
+  createTestElement("on", '<p id="on-count">{{count}}</p><button m-on="click:increment" id="on-increment-button">Increment</button>');
   var evt;
   var onApp = new Moon({
     el: "#on",
@@ -247,7 +266,32 @@ describe('On Directive', function() {
   });
 });
 
+describe('For Directive', function() {
+  createTestElement("for", "<ul id='forList'><li m-for='item in items'>{{item}}</li></ul>");
+  var forApp = new Moon({
+    el: "#for",
+    data: {
+      items: [1, 2, 3, 4, 5]
+    }
+  });
+  it('should render a list', function() {
+    expect(document.getElementById('forList').childNodes.length).to.equal(5);
+  });
+  it('should update a list', function() {
+    var items = forApp.get("items");
+    items.push(6);
+    forApp.set("items", items);
+    Moon.nextTick(function() {
+      expect(document.getElementById('forList').childNodes.length).to.equal(6);
+    });
+  });
+  it('should not be present at runtime', function() {
+    expect(document.getElementById('forList').childNodes[0].getAttribute("m-for")).to.be.null;
+  });
+});
+
 describe('Text Directive', function() {
+  createTestElement("text", '<span m-text="{{msg}}" id="text-directive-span"></span>');
   var textApp = new Moon({
     el: "#text",
     data: {
@@ -263,6 +307,7 @@ describe('Text Directive', function() {
 });
 
 describe('HTML Directive', function() {
+  createTestElement("html", '<span m-html="{{msg}}" id="html-directive-span"></span>');
   var htmlApp = new Moon({
     el: "#html",
     data: {
@@ -278,6 +323,7 @@ describe('HTML Directive', function() {
 });
 
 describe('Once Directive', function() {
+  createTestElement("once", '<span m-once id="once-directive-span">{{msg}}</span>');
   var onceApp = new Moon({
     el: "#once",
     data: {
@@ -299,6 +345,7 @@ describe('Once Directive', function() {
 });
 
 describe('Pre Directive', function() {
+  createTestElement("pre", '<span m-pre id="pre-directive-span">{{msg}}</span>');
   var preApp = new Moon({
     el: "#pre",
     data: {
@@ -320,6 +367,7 @@ describe('Pre Directive', function() {
 });
 
 describe('Mask Directive', function() {
+  createTestElement("mask", '<span m-mask id="mask-directive-span">{{msg}}</span>');
   var maskApp = new Moon({
     el: "#mask"
   });
@@ -329,6 +377,7 @@ describe('Mask Directive', function() {
 });
 
 describe('Plugin', function() {
+  createTestElement("plugin", '<span m-empty id="plugin-span">{{msg}}</span>');
   var emptyPlugin = {
     init: function(Moon) {
       Moon.directive('empty', function(el, val, vdom) {
@@ -352,6 +401,7 @@ describe('Plugin', function() {
 });
 
 describe('Template', function() {
+    createTestElement("template", '');
     var templateApp = new Moon({
       el: "#template",
       template: "<div id='template'>{{msg}}</div>",
@@ -371,6 +421,7 @@ describe('Template', function() {
 });
 
 describe('Custom Render', function() {
+    createTestElement("render", '');
     var renderApp = new Moon({
       el: "#render",
       render: function(h) {
@@ -393,6 +444,7 @@ describe('Custom Render', function() {
 
 
 // describe('Component', function() {
+//     createTestElement("component", '<my-component componentprop="{{parentMsg}}"></my-component>');
 //     Moon.component('my-component', {
 //       props: ['componentprop', 'otherprop'],
 //       template: "<div>{{componentprop}}</div>"
