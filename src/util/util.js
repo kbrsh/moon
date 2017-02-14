@@ -93,7 +93,16 @@ var getSlots = function(children) {
 
   for(var i = 0; i < children.length; i++) {
     var child = children[i];
-    slots.default.push(child);
+    if(child.props.slot) {
+      if(!slots[child.props.slot]) {
+        slots[child.props.slot] = [child];
+      } else {
+        slots[child.props.slot].push(child);
+      }
+      delete child.props.slot;
+    } else {
+      slots.default.push(child);
+    }
   }
 
   return slots;
