@@ -445,7 +445,7 @@ describe('Custom Render', function() {
 });
 
 describe('Functional Component', function() {
-    createTestElement("functional", '<functional-component someprop="{{parentMsg}}"></functional-component><slot-functional-component>Default Slot Content</slot-functional-component>');
+    createTestElement("functional", '<functional-component someprop="{{parentMsg}}"></functional-component><slot-functional-component>Default Slot Content<span slot="named">Named Slot Content</span></slot-functional-component>');
     Moon.component('functional-component', {
       functional: true,
       props: ['someprop'],
@@ -456,7 +456,7 @@ describe('Functional Component', function() {
     Moon.component('slot-functional-component', {
       functional: true,
       render: function(h, ctx) {
-        return h("h1", {class: "functionalSlotComponent"}, null, ctx.slots.default);
+        return h("div", {class: "functionalSlotComponent"}, null, h("h1", {}, null, ctx.slots.default), h("h1", {}, null, ctx.slots.named));
       }
     });
     var functionalApp = new Moon({
@@ -481,7 +481,12 @@ describe('Functional Component', function() {
     describe("Slots", function() {
       it('should render the default slot', function() {
         Moon.nextTick(function() {
-          expect(document.getElementsByClassName("functionalSlotComponent")[0].innerHTML).to.equal("Default Slot Content");
+          expect(document.getElementsByClassName("functionalSlotComponent")[0].childNodes[0].childNodes[0].innerHTML).to.equal("Default Slot Content");
+        });
+      });
+      it('should render a named slot', function() {
+        Moon.nextTick(function() {
+          expect(document.getElementsByClassName("functionalSlotComponent")[0].childNodes[0].childNodes[1].innerHTML).to.equal("Named Slot Content");
         });
       });
     });
