@@ -125,6 +125,44 @@
     };
     
     /**
+     * Creates a Component
+     * @param {String} type
+     * @param {Object} props
+     * @param {Object} meta
+     * @param {Array} children
+     * @param {Object} component
+     * @return {Object} Virtual DOM Node
+     */
+    var createComponent = function (type, props, children, meta, component) {
+      if (component.opts.functional) {
+        return createFunctionalComponent(type, props, children, meta, component);
+      }
+    };
+    
+    /**
+     * Creates a Functional Component
+     * @param {String} type
+     * @param {Object} props
+     * @param {Object} meta
+     * @param {Array} children
+     * @param {Object} functionalComponent
+     * @return {Object} Virtual DOM Node
+     */
+    var createFunctionalComponent = function (type, props, children, meta, functionalComponent) {
+      var data = functionalComponent.opts.data || {};
+      // Merge data with provided props
+      if (functionalComponent.opts.props) {
+        for (var i = 0; i < functionalComponent.opts.props.length; i++) {
+          var prop = functionalComponent.opts.props[i];
+          data[prop] = props[prop];
+        }
+      }
+      return functionalComponent.opts.render(h, {
+        data: data
+      });
+    };
+    
+    /**
      * Normalizes Children
      * @param {*} children
      * @return {Object} Normalized Child
@@ -158,14 +196,9 @@
       var attrs = args.shift() || {};
       var meta = args.shift();
       var children = normalizeChildren(args);
-      // There is a functional component
-      if (components[tag] && components[tag].opts.functional) {
-        var functionalComponent = new components[tag].CTor();
-        for (var i = 0; i < functionalComponent.$props.length; i++) {
-          var prop = functionalComponent.$props[i];
-          functionalComponent.$data[prop] = attrs[prop];
-        }
-        return functionalComponent.render();
+      // It's a Component
+      if (components[tag]) {
+        return createComponent(tag, attrs, meta, children, components[tag]);
       }
       return createElement(tag, children.join(""), attrs, children, meta);
     };
