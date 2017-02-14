@@ -154,225 +154,227 @@ describe('Methods', function() {
   });
 });
 
-describe('Custom Directive', function() {
-  createTestElement("customDirective", '<span m-square="2" id="custom-directive-span"></span>');
-  Moon.directive("square", function(el, val, vdom) {
-    var num = parseInt(val);
-    el.textContent = val*val;
-    for(var i = 0; i < vdom.children.length; i++) {
-      vdom.children[i].val = val*val;
-    }
-  });
-  var customDirectiveApp = new Moon({
-    el: "#customDirective"
-  });
-  it('should execute', function() {
-    Moon.nextTick(function() {
-      expect(document.getElementById("custom-directive-span").innerHTML).to.equal("4");
-    });
-  });
-});
-
-describe('If Directive', function() {
-  createTestElement("if", '<p m-if="{{condition}}" id="if-condition">Condition True</p>');
-  var ifApp = new Moon({
-    el: "#if",
-    data: {
-      condition: true
-    }
-  });
-  it('should exist when true', function() {
-    expect(document.getElementById('if-condition').innerHTML).to.equal('Condition True');
-  });
-  it('should not exist when false', function() {
-    ifApp.set('condition', false);
-    Moon.nextTick(function() {
-      expect(document.getElementById('if-condition')).to.be.null;
-    });
-  });
-  it('should not be present at runtime', function() {
-    expect(document.getElementById('if-condition').getAttribute("m-if")).to.be.null;
-  });
-});
-
-describe('Show Directive', function() {
-  createTestElement("show", '<p m-show="{{condition}}" id="show-condition">Condition True</p>');
-  var showApp = new Moon({
-    el: "#show",
-    data: {
-      condition: true
-    }
-  });
-  it('should display when true', function() {
-    expect(document.getElementById('show-condition').style.display).to.equal('block');
-  });
-  it('should not display when false', function() {
-    showApp.set('condition', false);
-    Moon.nextTick(function() {
-      expect(document.getElementById('show-condition').style.display).to.equal('none');
-    });
-  });
-  it('should not be present at runtime', function() {
-    expect(document.getElementById('show-condition').getAttribute("m-show")).to.be.null;
-  });
-});
-
-describe('Model Directive', function() {
-  createTestElement("model", '<p id="model-msg">{{msg}}</p><input type="text" m-model="msg" id="model-msg-input"/>');
-  var modelApp = new Moon({
-    el: "#model",
-    data: {
-      msg: "Hello Moon!"
-    }
-  });
-  it('should update value when initialized', function() {
-    expect(document.getElementById('model-msg').innerHTML).to.equal('Hello Moon!');
-  });
-  it('should not be present at runtime', function() {
-    expect(document.getElementById('model-msg-input').getAttribute("m-model")).to.be.null;
-  });
-});
-
-describe('On Directive', function() {
-  createTestElement("on", '<p id="on-count">{{count}}</p><button m-on="click:increment" id="on-increment-button">Increment</button>');
-  var evt;
-  var onApp = new Moon({
-    el: "#on",
-    data: {
-      count: 0
-    },
-    methods: {
-      increment: function(e) {
-        onApp.set('count', onApp.get('count') + 1);
-        evt = e;
+describe("Directive", function() {
+  describe('Custom Directive', function() {
+    createTestElement("customDirective", '<span m-square="2" id="custom-directive-span"></span>');
+    Moon.directive("square", function(el, val, vdom) {
+      var num = parseInt(val);
+      el.textContent = val*val;
+      for(var i = 0; i < vdom.children.length; i++) {
+        vdom.children[i].val = val*val;
       }
-    }
-  });
-  it('should call a method', function() {
-    document.getElementById("on-increment-button").click();
-    expect(onApp.get('count')).to.equal(1);
-  });
-  it('should update DOM', function() {
-    document.getElementById("on-increment-button").click();
-    Moon.nextTick(function() {
-      expect(document.getElementById("on-count").innerHTML).to.equal('2');
+    });
+    var customDirectiveApp = new Moon({
+      el: "#customDirective"
+    });
+    it('should execute', function() {
+      Moon.nextTick(function() {
+        expect(document.getElementById("custom-directive-span").innerHTML).to.equal("4");
+      });
     });
   });
-  it('should pass an event object', function() {
-    expect(evt.target.tagName).to.equal('BUTTON');
-  });
-  it('should not be present at runtime', function() {
-    expect(document.getElementById('on-increment-button').getAttribute("m-on")).to.be.null;
-  });
-});
 
-describe('For Directive', function() {
-  createTestElement("for", "<ul id='forList'><li m-for='item in items'>{{item}}</li></ul>");
-  var forApp = new Moon({
-    el: "#for",
-    data: {
-      items: [1, 2, 3, 4, 5]
-    }
-  });
-  it('should render a list', function() {
-    expect(document.getElementById('forList').childNodes.length).to.equal(5);
-  });
-  it('should update a list', function() {
-    var items = forApp.get("items");
-    items.push(6);
-    forApp.set("items", items);
-    Moon.nextTick(function() {
-      expect(document.getElementById('forList').childNodes.length).to.equal(6);
+  describe('If Directive', function() {
+    createTestElement("if", '<p m-if="{{condition}}" id="if-condition">Condition True</p>');
+    var ifApp = new Moon({
+      el: "#if",
+      data: {
+        condition: true
+      }
+    });
+    it('should exist when true', function() {
+      expect(document.getElementById('if-condition').innerHTML).to.equal('Condition True');
+    });
+    it('should not exist when false', function() {
+      ifApp.set('condition', false);
+      Moon.nextTick(function() {
+        expect(document.getElementById('if-condition')).to.be.null;
+      });
+    });
+    it('should not be present at runtime', function() {
+      expect(document.getElementById('if-condition').getAttribute("m-if")).to.be.null;
     });
   });
-  it('should not be present at runtime', function() {
-    expect(document.getElementById('forList').childNodes[0].getAttribute("m-for")).to.be.null;
-  });
-});
 
-describe('Text Directive', function() {
-  createTestElement("text", '<span m-text="{{msg}}" id="text-directive-span"></span>');
-  var textApp = new Moon({
-    el: "#text",
-    data: {
-      msg: "Hello Moon!"
-    }
+  describe('Show Directive', function() {
+    createTestElement("show", '<p m-show="{{condition}}" id="show-condition">Condition True</p>');
+    var showApp = new Moon({
+      el: "#show",
+      data: {
+        condition: true
+      }
+    });
+    it('should display when true', function() {
+      expect(document.getElementById('show-condition').style.display).to.equal('block');
+    });
+    it('should not display when false', function() {
+      showApp.set('condition', false);
+      Moon.nextTick(function() {
+        expect(document.getElementById('show-condition').style.display).to.equal('none');
+      });
+    });
+    it('should not be present at runtime', function() {
+      expect(document.getElementById('show-condition').getAttribute("m-show")).to.be.null;
+    });
   });
-  it('should fill DOM with a value', function() {
-    expect(document.getElementById("text-directive-span").innerHTML).to.equal("Hello Moon!");
-  });
-  it('should not be present at runtime', function() {
-    expect(document.getElementById('text-directive-span').getAttribute("m-text")).to.be.null;
-  });
-});
 
-describe('HTML Directive', function() {
-  createTestElement("html", '<span m-html="{{msg}}" id="html-directive-span"></span>');
-  var htmlApp = new Moon({
-    el: "#html",
-    data: {
-      msg: "<strong>Hello Moon!</strong>"
-    }
+  describe('Model Directive', function() {
+    createTestElement("model", '<p id="model-msg">{{msg}}</p><input type="text" m-model="msg" id="model-msg-input"/>');
+    var modelApp = new Moon({
+      el: "#model",
+      data: {
+        msg: "Hello Moon!"
+      }
+    });
+    it('should update value when initialized', function() {
+      expect(document.getElementById('model-msg').innerHTML).to.equal('Hello Moon!');
+    });
+    it('should not be present at runtime', function() {
+      expect(document.getElementById('model-msg-input').getAttribute("m-model")).to.be.null;
+    });
   });
-  it('should fill DOM with a value', function() {
-    expect(document.getElementById("html-directive-span").innerHTML).to.equal("<strong>Hello Moon!</strong>");
-  });
-  it('should not be present at runtime', function() {
-    expect(document.getElementById('html-directive-span').getAttribute("m-html")).to.be.null;
-  });
-});
 
-describe('Once Directive', function() {
-  createTestElement("once", '<span m-once id="once-directive-span">{{msg}}</span>');
-  var onceApp = new Moon({
-    el: "#once",
-    data: {
-      msg: "Hello Moon!"
-    }
+  describe('On Directive', function() {
+    createTestElement("on", '<p id="on-count">{{count}}</p><button m-on="click:increment" id="on-increment-button">Increment</button>');
+    var evt;
+    var onApp = new Moon({
+      el: "#on",
+      data: {
+        count: 0
+      },
+      methods: {
+        increment: function(e) {
+          onApp.set('count', onApp.get('count') + 1);
+          evt = e;
+        }
+      }
+    });
+    it('should call a method', function() {
+      document.getElementById("on-increment-button").click();
+      expect(onApp.get('count')).to.equal(1);
+    });
+    it('should update DOM', function() {
+      document.getElementById("on-increment-button").click();
+      Moon.nextTick(function() {
+        expect(document.getElementById("on-count").innerHTML).to.equal('2');
+      });
+    });
+    it('should pass an event object', function() {
+      expect(evt.target.tagName).to.equal('BUTTON');
+    });
+    it('should not be present at runtime', function() {
+      expect(document.getElementById('on-increment-button').getAttribute("m-on")).to.be.null;
+    });
   });
-  it('should fill DOM with a value', function() {
-    expect(document.getElementById("once-directive-span").innerHTML).to.equal("Hello Moon!");
+
+  describe('For Directive', function() {
+    createTestElement("for", "<ul id='forList'><li m-for='item in items'>{{item}}</li></ul>");
+    var forApp = new Moon({
+      el: "#for",
+      data: {
+        items: [1, 2, 3, 4, 5]
+      }
+    });
+    it('should render a list', function() {
+      expect(document.getElementById('forList').childNodes.length).to.equal(5);
+    });
+    it('should update a list', function() {
+      var items = forApp.get("items");
+      items.push(6);
+      forApp.set("items", items);
+      Moon.nextTick(function() {
+        expect(document.getElementById('forList').childNodes.length).to.equal(6);
+      });
+    });
+    it('should not be present at runtime', function() {
+      expect(document.getElementById('forList').childNodes[0].getAttribute("m-for")).to.be.null;
+    });
   });
-  it('should not update element once value is updated', function() {
-    onceApp.set('msg', "Changed");
-    Moon.nextTick(function() {
+
+  describe('Text Directive', function() {
+    createTestElement("text", '<span m-text="{{msg}}" id="text-directive-span"></span>');
+    var textApp = new Moon({
+      el: "#text",
+      data: {
+        msg: "Hello Moon!"
+      }
+    });
+    it('should fill DOM with a value', function() {
+      expect(document.getElementById("text-directive-span").innerHTML).to.equal("Hello Moon!");
+    });
+    it('should not be present at runtime', function() {
+      expect(document.getElementById('text-directive-span').getAttribute("m-text")).to.be.null;
+    });
+  });
+
+  describe('HTML Directive', function() {
+    createTestElement("html", '<span m-html="{{msg}}" id="html-directive-span"></span>');
+    var htmlApp = new Moon({
+      el: "#html",
+      data: {
+        msg: "<strong>Hello Moon!</strong>"
+      }
+    });
+    it('should fill DOM with a value', function() {
+      expect(document.getElementById("html-directive-span").innerHTML).to.equal("<strong>Hello Moon!</strong>");
+    });
+    it('should not be present at runtime', function() {
+      expect(document.getElementById('html-directive-span').getAttribute("m-html")).to.be.null;
+    });
+  });
+
+  describe('Once Directive', function() {
+    createTestElement("once", '<span m-once id="once-directive-span">{{msg}}</span>');
+    var onceApp = new Moon({
+      el: "#once",
+      data: {
+        msg: "Hello Moon!"
+      }
+    });
+    it('should fill DOM with a value', function() {
       expect(document.getElementById("once-directive-span").innerHTML).to.equal("Hello Moon!");
     });
-  });
-  it('should not be present at runtime', function() {
-    expect(document.getElementById('once-directive-span').getAttribute("m-once")).to.be.null;
-  });
-});
-
-describe('Pre Directive', function() {
-  createTestElement("pre", '<span m-pre id="pre-directive-span">{{msg}}</span>');
-  var preApp = new Moon({
-    el: "#pre",
-    data: {
-      msg: "Hello Moon!"
-    }
-  });
-  it('should not fill DOM with a value', function() {
-    expect(document.getElementById("pre-directive-span").innerHTML).to.equal("{{msg}}");
-  });
-  it('should not update element once value is updated', function() {
-    preApp.set('msg', "Changed");
-    Moon.nextTick(function() {
-      expect(document.getElementById("pre-directive-span").innerHTML).to.equal("{{msg}}");
+    it('should not update element once value is updated', function() {
+      onceApp.set('msg', "Changed");
+      Moon.nextTick(function() {
+        expect(document.getElementById("once-directive-span").innerHTML).to.equal("Hello Moon!");
+      });
+    });
+    it('should not be present at runtime', function() {
+      expect(document.getElementById('once-directive-span').getAttribute("m-once")).to.be.null;
     });
   });
-  it('should not be present at runtime', function() {
-    expect(document.getElementById('pre-directive-span').getAttribute("m-pre")).to.be.null;
-  });
-});
 
-describe('Mask Directive', function() {
-  createTestElement("mask", '<span m-mask id="mask-directive-span">{{msg}}</span>');
-  var maskApp = new Moon({
-    el: "#mask"
+  describe('Pre Directive', function() {
+    createTestElement("pre", '<span m-pre id="pre-directive-span">{{msg}}</span>');
+    var preApp = new Moon({
+      el: "#pre",
+      data: {
+        msg: "Hello Moon!"
+      }
+    });
+    it('should not fill DOM with a value', function() {
+      expect(document.getElementById("pre-directive-span").innerHTML).to.equal("{{msg}}");
+    });
+    it('should not update element once value is updated', function() {
+      preApp.set('msg', "Changed");
+      Moon.nextTick(function() {
+        expect(document.getElementById("pre-directive-span").innerHTML).to.equal("{{msg}}");
+      });
+    });
+    it('should not be present at runtime', function() {
+      expect(document.getElementById('pre-directive-span').getAttribute("m-pre")).to.be.null;
+    });
   });
-  it('should not be present at runtime', function() {
-    expect(document.getElementById('mask-directive-span').getAttribute("m-mask")).to.be.null;
+
+  describe('Mask Directive', function() {
+    createTestElement("mask", '<span m-mask id="mask-directive-span">{{msg}}</span>');
+    var maskApp = new Moon({
+      el: "#mask"
+    });
+    it('should not be present at runtime', function() {
+      expect(document.getElementById('mask-directive-span').getAttribute("m-mask")).to.be.null;
+    });
   });
 });
 
