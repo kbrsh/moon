@@ -481,12 +481,12 @@ describe('Functional Component', function() {
     describe("Slots", function() {
       it('should render the default slot', function() {
         Moon.nextTick(function() {
-          expect(document.getElementsByClassName("functionalSlotComponent")[0].childNodes[0].childNodes[0].innerHTML).to.equal("Default Slot Content");
+          expect(document.getElementsByClassName("functionalSlotComponent")[0].childNodes[0].innerHTML).to.equal("Default Slot Content");
         });
       });
       it('should render a named slot', function() {
         Moon.nextTick(function() {
-          expect(document.getElementsByClassName("functionalSlotComponent")[0].childNodes[0].childNodes[1].innerHTML).to.equal("Named Slot Content");
+          expect(document.getElementsByClassName("functionalSlotComponent")[0].childNodes[1].innerHTML).to.equal("<span>Named Slot Content</span>");
         });
       });
     });
