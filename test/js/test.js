@@ -245,8 +245,11 @@ describe("Directive", function() {
   });
 
   describe('On Directive', function() {
-    createTestElement("on", '<p id="on-count">{{count}}</p><button m-on="click:increment" id="on-increment-button">Increment</button><a id="on-modifier-link" href="https://kabir.ml" m-on="click.prevent:modifier">Link</a>');
-    var evt, modifier_active;
+    createTestElement("on", '<p id="on-count">{{count}}</p><button m-on="click:increment" id="on-increment-button">Increment</button><a id="on-modifier-link" href="https://kabir.ml" m-on="click.prevent:modifier">Link</a><button id="on-keycode-link" m-on="click.m:keycode"></button>');
+    var evt, modifier_active, keycode;
+    Moon.config.keyCodes({
+      m: 77
+    });
     var onApp = new Moon({
       el: "#on",
       data: {
@@ -259,6 +262,9 @@ describe("Directive", function() {
         },
         modifier: function(e) {
           modifier_active = true;
+        },
+        keycode: function() {
+          keycode = true;
         }
       }
     });
@@ -278,6 +284,13 @@ describe("Directive", function() {
     it('should use modifiers', function() {
       document.getElementById("on-modifier-link").click();
       expect(modifier_active).to.be.true;
+    });
+    it('should use custom keycodes', function() {
+      var e = document.createEvent('HTMLEvents');
+      e.initEvent("click", false, true);
+      e.keyCode = 77;
+      document.getElementById("on-keycode-link").dispatchEvent(e);
+      expect(keycode).to.be.true;
     });
     it('should not be present at runtime', function() {
       expect(document.getElementById('on-increment-button').getAttribute("m-on")).to.be.null;
