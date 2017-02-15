@@ -245,8 +245,8 @@ describe("Directive", function() {
   });
 
   describe('On Directive', function() {
-    createTestElement("on", '<p id="on-count">{{count}}</p><button m-on="click:increment" id="on-increment-button">Increment</button>');
-    var evt;
+    createTestElement("on", '<p id="on-count">{{count}}</p><button m-on="click:increment" id="on-increment-button">Increment</button><a id="on-modifier-link" href="https://kabir.ml" m-on="click:modifier">Link</a>');
+    var evt, modifier_active;
     var onApp = new Moon({
       el: "#on",
       data: {
@@ -256,6 +256,9 @@ describe("Directive", function() {
         increment: function(e) {
           onApp.set('count', onApp.get('count') + 1);
           evt = e;
+        },
+        modifier: function(e) {
+          modifier_active = true;
         }
       }
     });
@@ -271,6 +274,10 @@ describe("Directive", function() {
     });
     it('should pass an event object', function() {
       expect(evt.target.tagName).to.equal('BUTTON');
+    });
+    it('should use modifiers', function() {
+      document.getElementById("on-modifier-link").click();
+      expect(modifier_active).to.be.true;
     });
     it('should not be present at runtime', function() {
       expect(document.getElementById('on-increment-button').getAttribute("m-on")).to.be.null;

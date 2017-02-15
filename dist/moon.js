@@ -586,7 +586,8 @@
     
       while (end < len) {
         var char = input.charAt(end);
-        if (char === ">" || char === "/") {
+        var nextChar = input.charAt(end + 1);
+        if (char === ">" || char === "/" && nextChar === ">") {
           break;
         }
         rawAttrs += char;
