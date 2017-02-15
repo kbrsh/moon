@@ -417,7 +417,7 @@
     var noop = function () {};
     
     /* ======= Compiler ======= */
-    var lex = function (input, opts) {
+    var lex = function (input) {
       var state = {
         input: input,
         current: 0,
@@ -429,7 +429,6 @@
     
     var lexState = function (state) {
       var input = state.input;
-      var len = input.length;
       while (state.current < len) {
         // Check if it is text
         if (input.charAt(state.current) !== "<") {
@@ -505,7 +504,6 @@
     
       // Lex Starting of Tag
       var isClosingStart = input.charAt(state.current + 1) === "/";
-      var startChar = input.charAt(state.current);
       state.tokens.push({
         type: "tagStart",
         close: isClosingStart

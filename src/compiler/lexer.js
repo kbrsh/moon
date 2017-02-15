@@ -10,7 +10,6 @@ var lex = function(input) {
 
 var lexState = function(state) {
   var input = state.input;
-  var len = input.length;
   while(state.current < len) {
     // Check if it is text
     if(input.charAt(state.current) !== "<") {
@@ -86,7 +85,6 @@ var lexTag = function(state) {
 
   // Lex Starting of Tag
   var isClosingStart = input.charAt(state.current + 1) === "/";
-  var startChar = input.charAt(state.current);
   state.tokens.push({
     type: "tagStart",
     close: isClosingStart
