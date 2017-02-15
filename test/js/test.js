@@ -492,6 +492,42 @@ describe('Functional Component', function() {
     });
 });
 
+describe("Events", function() {
+  var bus = new Moon();
+  var evt1 = false, evt1_2 = false, globalEvt = false;
+  describe("Handler", function() {
+    it("should create an event listener", function() {
+      bus.on('evt1', function() {
+        evt1 = true;
+      });
+      expect(bus.$events.evt1[0]).to.be.a("function");
+    });
+    it("should create multiple event listeners", function() {
+      bus.on('evt1', function() {
+        evt1_2 = true;
+      });
+      expect(bus.$events.evt1[1]).to.be.a("function");
+    });
+    it("should create a global event listener", function() {
+      bus.on('*', function() {
+        globalEvt = true;
+      });
+      expect(bus.$events["*"][0]).to.be.a("function");
+    });
+  });
+
+  describe("Emit", function() {
+    it("should invoke all handlers", function() {
+      bus.emit('evt1');
+      expect(evt1).to.be.true;
+      expect(evt1_2).to.be.true;
+    });
+    it("should call the global handler", function() {
+      expect(globalEvt).to.be.true;
+    });
+  });
+});
+
 
 // describe('Component', function() {
 //     createTestElement("component", '<my-component componentprop="{{parentMsg}}"></my-component>');
