@@ -106,6 +106,16 @@ describe('Instance', function() {
   });
 });
 
+describe("Compiler", function() {
+  it("should not compile comments", function() {
+    var el = createTestElement("compilerComment", '<!-- comment -->');
+    var compilerCommentApp = new Moon({
+      el: "#compilerComment"
+    });
+    expect(el.innerHTML).to.equal("");
+  });
+});
+
 
 describe('Data', function() {
   createTestElement("data", '{{msg}}');
