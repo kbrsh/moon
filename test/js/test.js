@@ -245,7 +245,7 @@ describe("Directive", function() {
   });
 
   describe('On Directive', function() {
-    createTestElement("on", '<p id="on-count">{{count}}</p><button m-on="click:increment" id="on-increment-button">Increment</button><a id="on-modifier-link" href="https://kabir.ml" m-on="click:modifier">Link</a>');
+    createTestElement("on", '<p id="on-count">{{count}}</p><button m-on="click:increment" id="on-increment-button">Increment</button><a id="on-modifier-link" href="https://kabir.ml" m-on="click.prevent:modifier">Link</a>');
     var evt, modifier_active;
     var onApp = new Moon({
       el: "#on",
