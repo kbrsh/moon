@@ -1,0 +1,4 @@
+untracked=`git status -s | grep '^??' | wc -l | awk '{print $1}'`
+echo $untracked
+[ "$untracked" != "0" ] && exit 1
+exit 0
