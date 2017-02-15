@@ -1,4 +1,0 @@
-commit=`git rev-parse --short HEAD`
-echo $commit
-[ "$commit" == "" ] && exit 1
-exit 0

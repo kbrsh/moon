@@ -1,4 +1,0 @@
-branch=`git rev-parse --abbrev-ref HEAD`
-echo $branch
-[ "$branch" != "master" ] && [ "$branch" != "gh-pages" ] && exit 1
-exit 0
