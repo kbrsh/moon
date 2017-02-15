@@ -450,6 +450,7 @@
     
     var lexText = function (state) {
       var input = state.input;
+      var len = input.length;
       var endOfText = input.indexOf("<", state.current);
       // Only Text
       if (endOfText === -1) {
@@ -684,15 +685,14 @@
         if (token) {
           // Find Closing Tag, and push children recursively
           while (token.type !== "tagStart" || token.type === "tagStart" && !token.close) {
-            // Push a child to the current node
+            // Push a parsed child to the current node
             var parsedChildState = walk(state);
             if (parsedChildState) {
               node.children.push(parsedChildState);
             }
             increment(0);
-    
             if (!token) {
-              state.current = startContentIndex - 1;
+              // No token means that there is nothing left to parse in this element
               break;
             }
           }
