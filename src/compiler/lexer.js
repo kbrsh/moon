@@ -1,4 +1,4 @@
-var lex = function(input, opts) {
+var lex = function(input) {
   var state = {
     input: input,
     current: 0,
