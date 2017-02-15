@@ -1,0 +1,25 @@
+{
+  "env": {
+    "phantom": true,
+    "browser": true
+  },
+  "rules": {
+    "brace-style": [1, { "allowSingleLine": true }],
+    "camelcase": 0,
+    "comma-spacing": 0,
+    "curly": 1,
+    "eol-last": 0,
+    "key-spacing": 0,
+    "no-comma-dangle": 0,
+    "no-multi-spaces": 0,
+    "no-multi-str": 0,
+    "no-shadow": 1,
+    "no-trailing-spaces": 1,
+    "no-underscore-dangle": 0,
+    "no-unused-expressions": 0,
+    "quotes": [1, "single"],
+    "semi": 0,
+    "space-infix-ops": 1,
+    "strict": 0
+  }
+}

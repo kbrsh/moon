@@ -1,0 +1,4 @@
+stashes=`git stash list | wc -l | awk '{print $1}'`
+echo $stashes
+[ "$stashes" != "0" ] && exit 1
+exit 0
