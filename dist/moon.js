@@ -333,7 +333,7 @@
         } else if (nodeName === "#text" && vnode.type === "#text") {
           // Both are text, set the text
           node.textContent = vnode.val;
-        } else if (vnode.children.length === 0 && !node.firstChild.nextSibling && node.firstChild.nodeName === "#text" && vnode.children[0].type === "#text") {
+        } else if (vnode.children.length === 1 && !node.firstChild.nextSibling && node.firstChild.nodeName === "#text" && vnode.children[0].type === "#text") {
           // Optimization:
           //  If the node and vnode contain a single text node, update it here
           node.firstChild.textContent = vnode.children[0].val;
