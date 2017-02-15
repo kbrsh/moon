@@ -30,6 +30,10 @@ button {
   margin-left: 0;
 }
 
+.head {
+  font-family: "Qanelas-Bold";
+}
+
 .subhead {
   text-transform: uppercase;
   font-family: "Qanelas-Bold";
@@ -65,28 +69,19 @@ button {
 }
 
 #logo {
-  height: 150px;
+  height: 140px;
 }
 
 @media screen and (max-width: 600px) {
   #hero h1 {
+    font-size: 4rem;
+  }
+  #hero h3 {
     font-size: 3rem;
   }
   #logo {
     height: 100px;
   }
-}
-
-#nav {
-  position: absolute;
-  width: 80%;
-}
-
-#wordMark {
-  width: 80%;
-  font-family: "Qanelas-Bold";
-  margin-left: auto;
-  margin-left: auto;
 }
 
 /* Features */
