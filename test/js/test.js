@@ -114,6 +114,14 @@ describe("Compiler", function() {
     });
     expect(el.innerHTML).to.equal("");
   });
+  it("should compile self closing elements", function() {
+    var el = createTestElement("compilerSelfClosing", '<self-closing/>');
+    var compilerCommentApp = new Moon({
+      el: "#compilerSelfClosing",
+      template: "<div><self-closing/></div>"
+    });
+    expect(compilerCommentApp.$dom.children[0].type).to.equal("self-closing");
+  });
 });
 
 
