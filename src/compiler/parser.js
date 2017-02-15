@@ -72,6 +72,8 @@ var walk = function(state) {
 
         if(!token) {
           state.current = startContentIndex - 1;
+          node.children = [];
+          node.props = {};
           break;
         }
       }

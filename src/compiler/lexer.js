@@ -31,6 +31,7 @@ var lexState = function(state) {
 
 var lexText = function(state) {
   var input = state.input;
+  var len = input.length;
   var endOfText = input.indexOf("<", state.current);
   // Only Text
   if(endOfText === -1) {
