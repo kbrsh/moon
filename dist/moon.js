@@ -333,10 +333,6 @@
         } else if (nodeName === "#text" && vnode.type === "#text") {
           // Both are text, set the text
           node.textContent = vnode.val;
-        } else if (vnode.children.length === 1 && !node.firstChild.nextSibling && node.firstChild.nodeName === "#text" && vnode.children[0].type === "#text") {
-          // Optimization:
-          //  If the node and vnode contain a single text node, update it here
-          node.firstChild.textContent = vnode.children[0].val;
         } else if (vnode.type) {
           // No changes, clear to diff children
     
@@ -352,13 +348,19 @@
     
           // Diff children
           var currentChildNode = node.firstChild;
-          for (var i = 0; i < vnode.children.length || currentChildNode; i++) {
-            var replacedNode = diff(currentChildNode, vnode.children[i], node, instance);
-            if (replacedNode) {
-              // Node was replaced, update reference to it
-              currentChildNode = replacedNode;
+          if (vnode.children.length === 1 && currentChildNode && !currentChildNode.nextSibling && currentChildNode.nodeName === "#text" && vnode.children[0].type === "#text") {
+            // Optimization:
+            //  If the node and vnode contain a single text node, update it here
+            node.firstChild.textContent = vnode.children[0].val;
+          } else {
+            for (var i = 0; i < vnode.children.length || currentChildNode; i++) {
+              var replacedNode = diff(currentChildNode, vnode.children[i], node, instance);
+              if (replacedNode) {
+                // Node was replaced, update reference to it
+                currentChildNode = replacedNode;
+              }
+              currentChildNode = currentChildNode ? currentChildNode.nextSibling : null;
             }
-            currentChildNode = currentChildNode ? currentChildNode.nextSibling : null;
           }
         }
       } else if (vnode && !vnode.meta.shouldRender && vnode.props[Moon.config.prefix + "pre"]) {
