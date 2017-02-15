@@ -533,6 +533,11 @@ describe("Events", function() {
       bus.off('evt1', handler1);
       expect(bus.$events.evt1.length).to.equal(1);
     });
+    it("should be able to remove all handlers", function() {
+      bus.removeEvents();
+      var allEvents = bus.$events.evt1.concat(bus.$events["*"])
+      expect(allEvents.length).to.equal(0);
+    });
   });
 });
 
