@@ -1,4 +1,0 @@
-ahead=`git rev-list HEAD --not --remotes | wc -l | awk '{print $1}'`
-echo $ahead
-[ "$ahead" != "0" ] && exit 1
-exit 0
