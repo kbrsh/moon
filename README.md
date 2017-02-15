@@ -1,5 +1,5 @@
 
-<p align="center"><a href="https://kingpixil.github.io/moon" target="_blank"><img width="150"src="https://raw.githubusercontent.com/KingPixil/moon/gh-pages/img/logo.png"></a></p>
+<p align="center"><a href="https://kingpixil.github.io/moon" target="_blank"><img width="100"src="https://raw.githubusercontent.com/KingPixil/moon/gh-pages/img/logo.png"></a></p>
 
 <h1 align="center">Moon</h1>
 
