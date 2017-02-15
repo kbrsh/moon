@@ -58,16 +58,14 @@ var escapeString = function(str) {
  * @param {Boolean} isString
  * @return {String} compiled template
  */
-var compileTemplate = function(template, isString, customCode) {
+var compileTemplate = function(template, isString) {
   var TEMPLATE_RE = /{{([A-Za-z0-9_]+)([A-Za-z0-9_.()\[\]]+)?}}/gi;
   var compiled = template;
   template.replace(TEMPLATE_RE, function(match, key, modifiers) {
     if(!modifiers) {
       modifiers = '';
     }
-    if(customCode) {
-      compiled = customCode(compiled, match, key, modifiers);
-    } else if(isString) {
+    if(isString) {
       compiled = compiled.replace(match, `" + instance.get("${key}")${modifiers} + "`);
     } else {
       compiled = compiled.replace(match, `instance.get("${key}")${modifiers}`);
