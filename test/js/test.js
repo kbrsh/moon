@@ -580,28 +580,32 @@ describe("Events", function() {
 });
 
 
-// describe('Component', function() {
-//     createTestElement("component", '<my-component componentprop="{{parentMsg}}"></my-component>');
-//     Moon.component('my-component', {
-//       props: ['componentprop', 'otherprop'],
-//       template: "<div>{{componentprop}}</div>"
-//     })
-//     var componentApp = new Moon({
-//       el: "#component",
-//       data: {
-//         parentMsg: "Hello Moon!"
-//       }
-//     });
-//     it('should render HTML', function() {
-//       expect(document.getElementById("component")).to.not.be.null;
-//     });
-//     it('should render with props', function() {
-//       expect(document.getElementById("component").innerHTML).to.equal("<div>Hello Moon!</div>");
-//     });
-//     it('should render when updated', function() {
-//       componentApp.set('parentMsg', 'Changed');
-//       Moon.nextTick(function() {
-//         expect(document.getElementById("component").innerHTML).to.equal("<div>Changed</div>");
-//       });
-//     });
-// });
+describe('Component', function() {
+    createTestElement("component", '<my-component componentprop="{{parentMsg}}"></my-component>');
+    var componentConstructor = Moon.component('my-component', {
+      props: ['componentprop', 'otherprop'],
+      template: "<div>{{componentprop}}</div>"
+    });
+
+    it("should create a constructor", function() {
+      expect(new componentConstructor()).to.be.an.instanceof(Moon);
+    });
+    // var componentApp = new Moon({
+    //   el: "#component",
+    //   data: {
+    //     parentMsg: "Hello Moon!"
+    //   }
+    // });
+    // it('should render HTML', function() {
+    //   expect(document.getElementById("component")).to.not.be.null;
+    // });
+    // it('should render with props', function() {
+    //   expect(document.getElementById("component").innerHTML).to.equal("<div>Hello Moon!</div>");
+    // });
+    // it('should render when updated', function() {
+    //   componentApp.set('parentMsg', 'Changed');
+    //   Moon.nextTick(function() {
+    //     expect(document.getElementById("component").innerHTML).to.equal("<div>Changed</div>");
+    //   });
+    // });
+});
