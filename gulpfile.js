@@ -80,8 +80,7 @@ gulp.task('test', ['instrument'], function () {
 // Saucelabs
 gulp.task('saucelabs', function() {
   return saucelabs({
-    username: "KingPixil",
-    key: "a3594d36-e04e-4265-8bd6-3c86bac76ddc",
+    build: process.env.TRAVIS_JOB_ID,
     urls: ['http://localhost:3000/test/test.html'],
     testname: 'Moon',
     framework: 'mocha',
