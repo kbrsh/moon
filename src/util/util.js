@@ -87,7 +87,8 @@ var getSlots = function(children) {
     return slots;
   }
 
-  slots.default = [];
+  var defaultSlotName = "default";
+  slots[defaultSlotName] = [];
 
   for(var i = 0; i < children.length; i++) {
     var child = children[i];
@@ -99,7 +100,7 @@ var getSlots = function(children) {
       }
       delete child.props.slot;
     } else {
-      slots.default.push(child);
+      slots[defaultSlotName].push(child);
     }
   }
 
