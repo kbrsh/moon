@@ -114,7 +114,7 @@ gulp.task('saucelabs', function() {
       {
         browserName: 'internet explorer',
         version: '9',
-        platform: 'windows 8'
+        platform: 'windows 10'
       },
       {
         browserName: 'internet explorer',
