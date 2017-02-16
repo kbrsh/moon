@@ -1064,7 +1064,7 @@
      * Configuration of Moon
      */
     Moon.config = {
-      silent: false,
+      silent: typeof console !== 'undefined',
       prefix: "m-",
       keyCodes: function (keyCodes) {
         for (var keyCode in keyCodes) {
