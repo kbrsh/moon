@@ -20,6 +20,10 @@ Moon is a simple front end javascript library heavily inspired by [Vue](https://
 
 See [the website.](https://kingpixil.github.io/moon)
 
+### Browser Support
+
+[![Sauce Test Status](https://saucelabs.com/browser-matrix/YOUR_SAUCE_USERNAME.svg)](https://saucelabs.com/u/YOUR_SAUCE_USERNAME)
+
 ### License
 
 Licensed under the [MIT License](http://kingpixil.github.io/license) by [Kabir Shah](https://kabir.ml)
