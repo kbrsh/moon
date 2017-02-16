@@ -59,6 +59,8 @@ gulp.task('instrument', function () {
 
 // Run Tests
 gulp.task('test', ['instrument'], function () {
+    console.log("[Moon] Running Tests...");
+    console.log("[Moon] Version: " + require("./dist/moon.min.js").version);
     return gulp.src('test/test.html', {read:false})
       .pipe(mochaPhantomJS({
         phantomjs: {
