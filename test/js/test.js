@@ -1,3 +1,17 @@
+// Tests
+if(!chai) {
+  var chai = require("chai");
+}
+if(!Moon) {
+  var Moon = require("../../dist/moon.js");
+}
+if(document.getElementById("moon-els")) {
+  var moon_els = document.getElementById("moon-els");
+} else {
+  var moon_els = document.createElement("div");
+  moon_els.id = "moon-els";
+  document.body.appendChild(moon_els);
+}
 var expect = chai.expect;
 Moon.config.silent = true;
 console.log("[Moon] Running Tests...");
@@ -6,7 +20,7 @@ var createTestElement = function(id, html) {
   var el = document.createElement("div");
   el.innerHTML = html;
   el.id = id;
-  document.getElementById("moon-els").appendChild(el);
+  moon_els.appendChild(el);
   return el;
 }
 // var MoonPerformance = {
