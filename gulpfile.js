@@ -12,6 +12,8 @@ var include = require("gulp-include");
 var concat = require("gulp-concat");
 var header = require("gulp-header");
 var size = require("gulp-size");
+var connect = require("gulp-connect");
+var saucelabs = require("gulp-saucelabs");
 var comment = '\/*\r\n* Moon v' + pkg.version + '\r\n* Copyright 2016-2017, Kabir Shah\r\n* https:\/\/github.com\/KingPixil\/moon\/\r\n* Free to use under the MIT license.\r\n* https:\/\/kingpixil.github.io\/license\r\n*\/\r\n';
 
 // Build Moon
@@ -53,8 +55,37 @@ gulp.task('instrument', function () {
 		.pipe(gulp.dest('coverage/'))
 });
 
+
+gulp.task('run-server', function () {
+	connect.server({ port: 3000, root: './' });
+});
+
+gulp.task('stop-server', function () {
+	connect.serverClose();
+});
+
+gulp.task('saucelabs', ['run-server'], function () {
+  return saucelabs({
+    urls: ['http://localhost:3000/test/test.html'],
+    testname: 'Moon',
+    framework: 'mocha',
+    browsers: [
+      {
+        browserName: "MicrosoftEdge",
+        platform: "Windows 10",
+        version: "latest"
+      }
+    ],
+    onTestSuiteComplete: (status) => {
+      if(status) {
+        console.log('[Moon] Browser Support Tests Passed');
+      }
+    }
+  });
+});
+
 // Run Tests
-gulp.task('test', ['instrument'], function () {
+gulp.task('basic-test', ['instrument'], function () {
     return gulp.src('test/test.html', {read:false})
       .pipe(mochaPhantomJS({
         phantomjs: {
@@ -65,9 +96,16 @@ gulp.task('test', ['instrument'], function () {
         reporter: 'spec'
       }))
       .on('finish', function() {
+        console.log('[Moon] Tests Passed\n');
+        console.log('[Moon] Generating Coverage Report...');
         gulp.src('./coverage/coverage.json')
           .pipe(istanbulReport())
+        console.log("[Moon] Generated Coverage Report");
       });
+});
+
+gulp.task('test', ['basic-test', 'saucelabs'], function() {
+  gulp.start("stop-server");
 });
 
 
