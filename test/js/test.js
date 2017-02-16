@@ -522,7 +522,7 @@ describe('Functional Component', function() {
     Moon.component('slot-functional-component', {
       functional: true,
       render: function(h, ctx) {
-        return h("div", {class: "functionalSlotComponent"}, null, h("h1", {}, null, ctx.slots.default), h("h1", {}, null, ctx.slots.named));
+        return h("div", {class: "functionalSlotComponent"}, null, h("h1", {}, null, ctx.slots["default"]), h("h1", {}, null, ctx.slots.named));
       }
     });
     var functionalApp = new Moon({
