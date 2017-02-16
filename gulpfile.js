@@ -102,11 +102,6 @@ gulp.task('saucelabs', function() {
         platform: 'windows 7'
       },
       {
-        browserName: 'safari',
-        version: 'latest',
-        platform: 'OS X 10.10'
-      },
-      {
         browserName: 'internet explorer',
         version: '10'
       },
