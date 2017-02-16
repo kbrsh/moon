@@ -13,9 +13,6 @@ var concat = require("gulp-concat");
 var header = require("gulp-header");
 var size = require("gulp-size");
 
-var saucelabs = require('gulp-saucelabs');
-var connect = require('gulp-connect');
-
 var comment = '\/*\r\n* Moon v' + pkg.version + '\r\n* Copyright 2016-2017, Kabir Shah\r\n* https:\/\/github.com\/KingPixil\/moon\/\r\n* Free to use under the MIT license.\r\n* https:\/\/kingpixil.github.io\/license\r\n*\/\r\n';
 
 // Build Moon
@@ -76,30 +73,6 @@ gulp.task('test', ['instrument'], function () {
         console.log("[Moon] Generated Coverage Report");
       });
 });
-
-// Saucelabs
-gulp.task('saucelabs', function() {
-  return saucelabs({
-    urls: ['http://localhost:3000/test/test.html'],
-    testname: 'Moon',
-    framework: 'mocha',
-    browsers: [{
-      browserName: "MicrosoftEdge",
-      platform: "Windows 10",
-      version: "latest"
-    }]
-  });
-});
-
-gulp.task('saucelabs:connect', function() {
-    connect.server({ port: 3000, root: './' });
-});
-
-gulp.task('saucelabs:disconnect', () => {
-    connect.serverClose();
-});
-
-gulp.task('test-saucelabs', ['saucelabs:connect', 'saucelabs'], () => gulp.start('saucelabs:disconnect'));
 
 // Default task
 gulp.task('default', ['build', 'minify']);
