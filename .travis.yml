@@ -1,5 +1,5 @@
 language: node_js
-script: gulp test
+script: sh ./build/travis.sh
 node_js:
   - "node"
 after_success:
