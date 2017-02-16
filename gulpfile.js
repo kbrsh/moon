@@ -59,7 +59,8 @@ gulp.task('test', ['instrument'], function () {
       .pipe(mochaPhantomJS({
         phantomjs: {
           hooks: 'mocha-phantomjs-istanbul',
-          coverageFile: './coverage/coverage.json'
+          coverageFile: './coverage/coverage.json',
+          useColors: true
         },
         reporter: 'spec'
       }))
