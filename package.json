@@ -5,7 +5,8 @@
   "main": "dist/moon.min.js",
   "scripts": {
     "build": "gulp",
-    "test": "gulp test && node test/test.js"
+    "test": "gulp test && node test/test.js",
+    "test-saucelabs": "gulp test-saucelabs"
   },
   "repository": {
     "type": "git",
