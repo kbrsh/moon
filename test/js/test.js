@@ -234,11 +234,11 @@ describe("Directive", function() {
     it('should not exist when false', function() {
       ifApp.set('condition', false);
       Moon.nextTick(function() {
-        expect(document.getElementById('if-condition')).to.be.null;
+        expect(document.getElementById('if-condition')).to.be['null'];
       });
     });
     it('should not be present at runtime', function() {
-      expect(document.getElementById('if-condition').getAttribute("m-if")).to.be.null;
+      expect(document.getElementById('if-condition').getAttribute("m-if")).to.be['null'];
     });
   });
 
@@ -260,7 +260,7 @@ describe("Directive", function() {
       });
     });
     it('should not be present at runtime', function() {
-      expect(document.getElementById('show-condition').getAttribute("m-show")).to.be.null;
+      expect(document.getElementById('show-condition').getAttribute("m-show")).to.be['null'];
     });
   });
 
@@ -276,7 +276,7 @@ describe("Directive", function() {
       expect(document.getElementById('model-msg').innerHTML).to.equal('Hello Moon!');
     });
     it('should not be present at runtime', function() {
-      expect(document.getElementById('model-msg-input').getAttribute("m-model")).to.be.null;
+      expect(document.getElementById('model-msg-input').getAttribute("m-model")).to.be['null'];
     });
   });
 
@@ -329,7 +329,7 @@ describe("Directive", function() {
       expect(keycode).to.be.true;
     });
     it('should not be present at runtime', function() {
-      expect(document.getElementById('on-increment-button').getAttribute("m-on")).to.be.null;
+      expect(document.getElementById('on-increment-button').getAttribute("m-on")).to.be['null'];
     });
   });
 
@@ -353,7 +353,7 @@ describe("Directive", function() {
       });
     });
     it('should not be present at runtime', function() {
-      expect(document.getElementById('forList').childNodes[0].getAttribute("m-for")).to.be.null;
+      expect(document.getElementById('forList').childNodes[0].getAttribute("m-for")).to.be['null'];
     });
   });
 
@@ -369,7 +369,7 @@ describe("Directive", function() {
       expect(document.getElementById("text-directive-span").innerHTML).to.equal("Hello Moon!");
     });
     it('should not be present at runtime', function() {
-      expect(document.getElementById('text-directive-span').getAttribute("m-text")).to.be.null;
+      expect(document.getElementById('text-directive-span').getAttribute("m-text")).to.be['null'];
     });
   });
 
@@ -385,7 +385,7 @@ describe("Directive", function() {
       expect(document.getElementById("html-directive-span").innerHTML).to.equal("<strong>Hello Moon!</strong>");
     });
     it('should not be present at runtime', function() {
-      expect(document.getElementById('html-directive-span').getAttribute("m-html")).to.be.null;
+      expect(document.getElementById('html-directive-span').getAttribute("m-html")).to.be['null'];
     });
   });
 
@@ -407,7 +407,7 @@ describe("Directive", function() {
       });
     });
     it('should not be present at runtime', function() {
-      expect(document.getElementById('once-directive-span').getAttribute("m-once")).to.be.null;
+      expect(document.getElementById('once-directive-span').getAttribute("m-once")).to.be['null'];
     });
   });
 
@@ -429,7 +429,7 @@ describe("Directive", function() {
       });
     });
     it('should not be present at runtime', function() {
-      expect(document.getElementById('pre-directive-span').getAttribute("m-pre")).to.be.null;
+      expect(document.getElementById('pre-directive-span').getAttribute("m-pre")).to.be['null'];
     });
   });
 
@@ -439,7 +439,7 @@ describe("Directive", function() {
       el: "#mask"
     });
     it('should not be present at runtime', function() {
-      expect(document.getElementById('mask-directive-span').getAttribute("m-mask")).to.be.null;
+      expect(document.getElementById('mask-directive-span').getAttribute("m-mask")).to.be['null'];
     });
   });
 });
