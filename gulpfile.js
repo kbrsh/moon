@@ -62,7 +62,7 @@ gulp.task('test', ['instrument'], function () {
           coverageFile: './coverage/coverage.json',
           useColors: true
         },
-        reporter: 'spec'
+        reporter: 'dot'
       }))
       .on('finish', function() {
         gulp.src('./coverage/coverage.json')
