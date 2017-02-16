@@ -245,11 +245,7 @@
       for (var type in eventListeners) {
         for (var i = 0; i < eventListeners[type].length; i++) {
           var method = eventListeners[type][i];
-          if (instance.$events[type]) {
-            instance.on(type, method);
-          } else {
-            node.addEventListener(type, method);
-          }
+          node.addEventListener(type, method);
         }
       }
     };
