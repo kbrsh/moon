@@ -122,6 +122,14 @@ describe("Compiler", function() {
     });
     expect(compilerCommentApp.$dom.children[0].type).to.equal("self-closing");
   });
+  it("should only text", function() {
+    var el = createTestElement("compilerOnlyText", '');
+    var compilerCommentApp = new Moon({
+      el: "#compilerOnlyText",
+      template: "<div>text</div>"
+    });
+    expect(el.innerHTML).to.equal("text");
+  });
 });
 
 
