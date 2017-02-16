@@ -319,14 +319,14 @@ describe("Directive", function() {
     });
     it('should use modifiers', function() {
       document.getElementById("on-modifier-link").click();
-      expect(modifier_active).to.be.true;
+      expect(modifier_active).to.be['true'];
     });
     it('should use custom keycodes', function() {
       var e = document.createEvent('HTMLEvents');
       e.initEvent("click", false, true);
       e.keyCode = 77;
       document.getElementById("on-keycode-link").dispatchEvent(e);
-      expect(keycode).to.be.true;
+      expect(keycode).to.be['true'];
     });
     it('should not be present at runtime', function() {
       expect(document.getElementById('on-increment-button').getAttribute("m-on")).to.be['null'];
@@ -616,11 +616,11 @@ describe("Events", function() {
   describe("Emit", function() {
     it("should invoke all handlers", function() {
       bus.emit('evt1');
-      expect(evt1).to.be.true;
-      expect(evt1_2).to.be.true;
+      expect(evt1).to.be['true'];
+      expect(evt1_2).to.be['true'];
     });
     it("should call the global handler", function() {
-      expect(globalEvt).to.be.true;
+      expect(globalEvt).to.be['true'];
     });
   });
 

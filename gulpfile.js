@@ -90,12 +90,12 @@ gulp.task('saucelabs', function() {
     browsers: [
       {
         browserName: 'chrome',
-        version: '55',
+        version: '46',
         platform: 'windows 7'
       },
       {
         browserName: 'chrome',
-        version: '46',
+        version: '55',
         platform: 'windows 7'
       },
       {
