@@ -81,6 +81,7 @@ gulp.task('test', ['instrument'], function () {
 gulp.task('saucelabs', function() {
   return saucelabs({
     build: process.env.TRAVIS_JOB_ID,
+    statusCheckAttempts: 500,
     urls: ['http://localhost:3000/test/test.html'],
     testname: 'Moon',
     framework: 'mocha',
