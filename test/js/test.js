@@ -521,7 +521,7 @@ describe('Functional Component', function() {
         return h("h1", functionalComponentDivProps, null, ctx.data.someprop);
       }
     });
-    var functionalComponentSlotDivProps = {};
+    var functionalComponentDivSlotProps = {};
     functionalComponentDivSlotProps["class"] = "functionalSlotComponent";
     Moon.component('slot-functional-component', {
       functional: true,
