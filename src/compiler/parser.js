@@ -10,7 +10,7 @@ var parse = function(tokens) {
   }
 
   while(state.current < tokens.length) {
-    var child = walk(state, root);
+    var child = walk(state);
     if(child) {
       root.children.push(child);
     }
@@ -142,7 +142,7 @@ var createParseNode = function(type, props, children) {
   }
 }
 
-var walk = function(state, parentNode) {
+var walk = function(state) {
   var token = state.tokens[state.current];
   var previousToken = state.tokens[state.current - 1];
   var secondToken = state.tokens[state.current + 1];
@@ -182,7 +182,7 @@ var walk = function(state, parentNode) {
       // Find Closing Tag, and push children recursively
       while((token.type !== "tagStart") || (token.type === "tagStart" && !(token.close))) {
         // Push a parsed child to the current node
-        var parsedChildState = walk(state, parentNode);
+        var parsedChildState = walk(state);
         if(parsedChildState) {
           node.children.push(parsedChildState);
         }
