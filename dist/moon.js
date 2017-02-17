@@ -1,5 +1,5 @@
 /*
-* Moon v0.4.2
+* Moon v0.4.3
 * Copyright 2016-2017, Kabir Shah
 * https://github.com/KingPixil/moon/
 * Free to use under the MIT license.
@@ -1077,7 +1077,7 @@
     /**
      * Version of Moon
      */
-    Moon.version = '0.4.2';
+    Moon.version = '0.4.3';
     
     /**
      * Moon Utilities
