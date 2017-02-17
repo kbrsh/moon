@@ -82,6 +82,24 @@
     };
     
     /**
+     * Resolves an Object Keypath and Sets it
+     * @param {Object} obj
+     * @param {String} keypath
+     * @param {String} val
+     * @return {Object} resolved object
+     */
+    var resolveKeyPath = function (obj, keypath, val) {
+      var i;
+      var path = keypath.split(".");
+      for (i = 0; i < path.length - 1; i++) {
+        var propName = path[i];
+        obj = obj[propName];
+      }
+      obj[path[i]] = val;
+      return obj;
+    };
+    
+    /**
      * Compiles a Template
      * @param {String} template
      * @param {Boolean} isString
@@ -1010,7 +1028,7 @@
      */
     Moon.prototype.set = function (key, val) {
       var self = this;
-      this.$data[key] = val;
+      resolveKeyPath(this.$data, key, val);
       if (!this.$queued && !this.$destroyed) {
         this.$queued = true;
         setTimeout(function () {
