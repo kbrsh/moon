@@ -45,6 +45,9 @@ gulp.task('minify', ['build'], function() {
     .pipe(uglify())
     .pipe(header(comment))
     .pipe(size())
+    .pipe(size({
+      gzip: true
+    }))
     .pipe(concat('moon.min.js'))
     .pipe(gulp.dest('./dist/'));
 });
