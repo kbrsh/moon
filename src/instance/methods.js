@@ -16,7 +16,7 @@ Moon.prototype.get = function(key) {
  */
 Moon.prototype.set = function(key, val) {
   var self = this;
-  this.$data[key] = val;
+  resolveKeyPath(this.$data, key, val);
   if(!this.$queued && !this.$destroyed) {
     this.$queued = true;
     setTimeout(function() {
