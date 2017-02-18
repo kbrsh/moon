@@ -453,9 +453,6 @@ describe("Directive", function() {
         expect(document.getElementById("pre-directive-span").innerHTML).to.equal("{{msg}}");
       });
     });
-    it('should not be present at runtime', function() {
-      expect(document.getElementById('pre-directive-span').getAttribute("m-pre")).to.be['null'];
-    });
   });
 
   describe('Mask Directive', function() {

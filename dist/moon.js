@@ -748,20 +748,33 @@
         var startContentIndex = state.current;
         // Make sure it has content and is closed
         if (token) {
-          if (!HTML_ELEMENTS[node.type]) {
-            return node;
-          }
           // Find Closing Tag, and push children recursively
           while (token.type !== "tagStart" || token.type === "tagStart" && !token.close) {
             // Push a parsed child to the current node
             var parsedChildState = walk(state);
+            var lastKnown;
             if (parsedChildState) {
+              lastKnown = {
+                node: parsedChildState,
+                index: node.children.length
+              };
               node.children.push(parsedChildState);
             }
             increment(0);
             if (!token) {
               // No token means that there is nothing left to parse in this element
               // This usually means that the tag was unclosed
+              if (lastKnown && !HTML_ELEMENTS[lastKnown.node.type]) {
+                // The last known node is not a known closing element
+                // This means that it is a self closing element, so
+                // close it, and add collected children after
+                var left = lastKnown.node.children;
+                node.children[lastKnown.index].children = [];
+                node.children = node.children.concat(left);
+              }
+              // It is supposed to be closed,
+              // but was left unclosed, so attempt to fix by
+              // pushing all known children into the element
               break;
             }
           }
