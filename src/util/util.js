@@ -387,6 +387,21 @@ var merge = function(parent, child) {
 }
 
 /**
+ * Converts an Array into a Map Function
+ * @param {Array} arr
+ * @return {Function} function to check if item is in the map
+ */
+var mapArray = function(arr) {
+  var map = {};
+  for(var i = 0; i < arr.length; i++) {
+    map[arr[i]] = true;
+  }
+  return function(item) {
+    return map[item];
+  }
+}
+
+/**
  * Calls a Hook
  * @param {Object} instance
  * @param {String} name
