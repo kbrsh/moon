@@ -472,9 +472,7 @@ describe('Plugin', function() {
     init: function(Moon) {
       Moon.directive('empty', function(el, val, vdom) {
         el.innerHTML = "";
-        for(var i = 0; i < vdom.children.length; i++) {
-          vdom.children[i].meta.shouldRender = false;
-        }
+        vdom.children[0].val = "";
       });
     }
   }
