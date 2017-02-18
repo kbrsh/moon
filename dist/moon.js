@@ -116,7 +116,6 @@
       for (var rawAttrs = node.attributes, i = rawAttrs.length; i--;) {
         attrs[rawAttrs[i].name] = rawAttrs[i].value;
       }
-      node.__moon__attrs__ = attrs;
       return attrs;
     };
     
