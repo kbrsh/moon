@@ -1,5 +1,5 @@
 /*
-* Moon v0.4.3
+* Moon v0.4.4
 * Copyright 2016-2017, Kabir Shah
 * https://github.com/KingPixil/moon/
 * Free to use under the MIT license.
@@ -415,21 +415,6 @@
     };
     
     /**
-     * Converts an Array into a Map Function
-     * @param {Array} arr
-     * @return {Function} function to check if item is in the map
-     */
-    var mapArray = function (arr) {
-      var map = {};
-      for (var i = 0; i < arr.length; i++) {
-        map[arr[i]] = true;
-      }
-      return function (item) {
-        return map[item];
-      };
-    };
-    
-    /**
      * Calls a Hook
      * @param {Object} instance
      * @param {String} name
@@ -671,7 +656,7 @@
       return root;
     };
     
-    var HTML_ELEMENTS = mapArray(["html", "body", "head", "style", "title", "address", "article", "aside", "footer", "header", "h1", "h2", "h3", "h4", "h5", "h6", "hgroup", "nav", "section", "div", "dd", "dl", "dt", "figcaption", "figure", "li", "main", "ol", "p", "pre", "ul", "a", "b", "abbr", "bdi", "bdo", "cite", "code", "data", "dfn", "em", "i", "kbd", "mark", "q", "rp", "rt", "rtc", "ruby", "s", "samp", "small", "span", "strong", "sub", "sup", "time", "u", "var", "audio", "map", "video", "object", "canvas", "script", "noscript", "del", "ins", "caption", "colgroup", "table", "thead", "tbody", "td", "th", "tr", "button", "datalist", "fieldset", "form", "label", "legend", "meter", "optgroup", "option", "output", "progress", "select", "textarea", "details", "dialog", "menu", "menuitem", "summary", "content", "element", "shadow", "template"]);
+    var HTML_ELEMENTS = { "html": true, "body": true, "head": true, "style": true, "title": true, "address": true, "article": true, "aside": true, "footer": true, "header": true, "h1": true, "h2": true, "h3": true, "h4": true, "h5": true, "h6": true, "hgroup": true, "nav": true, "section": true, "div": true, "dd": true, "dl": true, "dt": true, "figcaption": true, "figure": true, "li": true, "main": true, "ol": true, "p": true, "pre": true, "ul": true, "a": true, "b": true, "abbr": true, "bdi": true, "bdo": true, "cite": true, "code": true, "data": true, "dfn": true, "em": true, "i": true, "kbd": true, "mark": true, "q": true, "rp": true, "rt": true, "rtc": true, "ruby": true, "s": true, "samp": true, "small": true, "span": true, "strong": true, "sub": true, "sup": true, "time": true, "u": true, "var": true, "audio": true, "map": true, "video": true, "object": true, "canvas": true, "script": true, "noscript": true, "del": true, "ins": true, "caption": true, "colgroup": true, "table": true, "thead": true, "tbody": true, "td": true, "th": true, "tr": true, "button": true, "datalist": true, "fieldset": true, "form": true, "label": true, "legend": true, "meter": true, "optgroup": true, "option": true, "output": true, "progress": true, "select": true, "textarea": true, "details": true, "dialog": true, "menu": true, "menuitem": true, "summary": true, "content": true, "element": true, "shadow": true, "template": true };
     
     var createParseNode = function (type, props, children) {
       return {
@@ -715,7 +700,7 @@
         var startContentIndex = state.current;
         // Make sure it has content and is closed
         if (token) {
-          if (!HTML_ELEMENTS(node.type)) {
+          if (!HTML_ELEMENTS[node.type]) {
             return node;
           }
           // Find Closing Tag, and push children recursively
@@ -1116,7 +1101,7 @@
     /**
      * Version of Moon
      */
-    Moon.version = '0.4.3';
+    Moon.version = '0.4.4';
     
     /**
      * Moon Utilities
