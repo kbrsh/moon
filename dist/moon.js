@@ -54,16 +54,16 @@
         },
         set: function (newVal) {
           val = newVal;
-          instance.$watcher.notify();
+          instance.$observer.notify();
         }
       });
     };
     
-    function Watcher(instance) {
+    function Observer(instance) {
       this.instance = instance;
     }
     
-    Watcher.prototype.notify = function () {
+    Observer.prototype.notify = function () {
       queueBuild(this.instance);
     };
     
@@ -947,7 +947,7 @@
       this.$methods = this.$opts.methods || {};
       this.$events = {};
       this.$dom = {};
-      this.$watcher = new Watcher(this);
+      this.$observer = new Observer(this);
       this.$destroyed = false;
       this.$initialRender = true;
       this.$queued = false;

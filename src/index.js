@@ -16,7 +16,7 @@ var id = 0;
 
 /* ======= Observer ======= */
 //=require observer/reactive.js
-//=require observer/watcher.js
+//=require observer/observer.js
 
 //=require util/util.js
 
@@ -41,7 +41,7 @@ function Moon(opts) {
     this.$methods = this.$opts.methods || {};
     this.$events = {};
     this.$dom = {};
-    this.$watcher = new Watcher(this);
+    this.$observer = new Observer(this);
     this.$destroyed = false;
     this.$initialRender = true;
     this.$queued = false;
