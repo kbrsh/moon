@@ -14,6 +14,10 @@ var eventModifiersCode = {
 };
 var id = 0;
 
+/* ======= Observer ======= */
+//=require observer/reactive.js
+//=require observer/watcher.js
+
 //=require util/util.js
 
 /* ======= Compiler ======= */
@@ -31,11 +35,13 @@ function Moon(opts) {
     this.$name = this.$opts.name || "root";
     this.$parent = this.$opts.parent || null;
     this.$data = this.$opts.data || {};
+    reactiveObject(this, this.$data);
     this.$render = this.$opts.render || noop;
     this.$hooks = this.$opts.hooks || {};
     this.$methods = this.$opts.methods || {};
     this.$events = {};
     this.$dom = {};
+    this.$watcher = new Watcher(instance);
     this.$destroyed = false;
     this.$initialRender = true;
     this.$queued = false;

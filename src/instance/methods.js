@@ -15,16 +15,8 @@ Moon.prototype.get = function(key) {
  * @param {String} val
  */
 Moon.prototype.set = function(key, val) {
-  var self = this;
   resolveKeyPath(this.$data, key, val);
-  if(!this.$queued && !this.$destroyed) {
-    this.$queued = true;
-    setTimeout(function() {
-      self.build();
-      callHook(self, 'updated');
-      self.$queued = false;
-    }, 0);
-  }
+  queueBuild(this);
 }
 
 /**
