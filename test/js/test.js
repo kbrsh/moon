@@ -170,8 +170,14 @@ describe('Data', function() {
       expect(document.getElementById("data").innerHTML).to.equal("New Value");
     });
   });
+  it('when setting via setter', function() {
+    dataApp.$data.msg = 'Second Value';
+    Moon.nextTick(function() {
+      expect(document.getElementById("data").innerHTML).to.equal("Second Value");
+    });
+  });
   it('when getting', function() {
-    expect(dataApp.get('msg')).to.equal("New Value");
+    expect(dataApp.get('msg')).to.equal("Second Value");
   });
 });
 
