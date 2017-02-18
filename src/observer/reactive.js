@@ -24,7 +24,7 @@ var reactiveProp = function(instance, obj, key, val) {
     },
     set: function(newVal) {
       val = newVal;
-      instance.$watcher.notify();
+      instance.$observer.notify();
     }
   });
 }
