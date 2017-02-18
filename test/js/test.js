@@ -155,10 +155,32 @@ describe("Compiler", function() {
 
 describe('Data', function() {
   createTestElement("data", '{{msg}}');
+  createTestElement("data2", '{{msg.obj.nested}}');
+  createTestElement("data3", '{{msg.obj.nested}}');
   var dataApp = new Moon({
     el: "#data",
     data: {
       msg: "Hello Moon!"
+    }
+  });
+  var dataApp2 = new Moon({
+    el: "#data2",
+    data: {
+      msg: {
+        obj: {
+          nested: "Nested Object"
+        }
+      }
+    }
+  });
+  var dataApp3 = new Moon({
+    el: "#data3",
+    data: {
+      msg: {
+        obj: {
+
+        }
+      }
     }
   });
   it('when initializing', function() {
@@ -174,6 +196,18 @@ describe('Data', function() {
     dataApp.$data.msg = 'Second Value';
     Moon.nextTick(function() {
       expect(document.getElementById("data").innerHTML).to.equal("Second Value");
+    });
+  });
+  it('when setting nested object via setter', function() {
+    dataApp2.$data.msg.obj.nested = 'Nested Object';
+    Moon.nextTick(function() {
+      expect(document.getElementById("data2").innerHTML).to.equal("Nested Object");
+    });
+  });
+  it('when setting new data property', function() {
+    dataApp3.set("msg.obj.nested", "New Nested")
+    Moon.nextTick(function() {
+      expect(document.getElementById("data2").innerHTML).to.equal("New Nested");
     });
   });
   it('when getting', function() {
