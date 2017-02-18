@@ -18,6 +18,10 @@ var reactiveObject = function(instance, obj) {
  * @param {Any} val
  */
 var reactiveProp = function(instance, obj, key, val) {
+  // Prop is object, make this reactive
+  if(val !== null && typeof val === 'object') {
+    reactiveObject(instance, val);
+  }
   Object.defineProperty(obj, key, {
     get: function() {
       return val;
