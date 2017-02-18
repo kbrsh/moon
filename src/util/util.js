@@ -275,7 +275,7 @@ var createNodeFromVNode = function(vnode, instance) {
     }
     addEventListeners(el, vnode, instance);
   }
-  diffProps(el, {}, vnode.props, vnode);
+  diffProps(el, {}, vnode, vnode.props);
   return el;
 }
 
@@ -283,10 +283,10 @@ var createNodeFromVNode = function(vnode, instance) {
  * Diffs Props of Node and a VNode, and apply Changes
  * @param {Object} node
  * @param {Object} nodeProps
- * @param {Object} vnodeProps
  * @param {Object} vnode
+ * @param {Object} vnodeProps
  */
-var diffProps = function(node, nodeProps, vnodeProps, vnode) {
+var diffProps = function(node, nodeProps, vnode, vnodeProps) {
   // Get object of all properties being compared
   var allProps = merge(nodeProps, vnodeProps);
 
@@ -320,55 +320,43 @@ var diff = function(node, vnode, parent, instance) {
     nodeName = node.nodeName.toLowerCase();
   }
 
-  // If there is a vnode and it should be rendered, or if there is just no vnode
-  if((vnode && vnode.meta.shouldRender) || (!vnode)) {
-    if(!node) {
-      // No node, add it
-      parent.appendChild(createNodeFromVNode(vnode, instance));
-    } else if(!vnode) {
-      // No VNode, remove the node
-      parent.removeChild(node);
-    } else if(nodeName !== vnode.type) {
-      // Different types of Nodes, replace the node, and return the newly created one
-      var newNode = createNodeFromVNode(vnode, instance);
-      parent.replaceChild(newNode, node);
-      return newNode;
-    } else if(nodeName === "#text" && vnode.type === "#text") {
-      // Both are text, set the text
-      node.textContent = vnode.val;
-    } else if(vnode.type) {
-      // No changes, clear to diff children
+  if(!node && vnode && vnode.meta.shouldRender) {
+    // No Node, create a node
+    var newNode = createNodeFromVNode(vnode, instance);
+    parent.appendChild(newNode);
+    return newNode;
+  } else if(!vnode) {
+    // No vnode, remove the node
+    parent.removeChild(node);
+    return null;
+  } else if(nodeName !== vnode.type) {
+    // Different types, replace it
+    var newNode = createNodeFromVNode(vnode, instance);
+    parent.replaceChild(newNode, node);
+    return newNode;
+  } else if(vnode.type === "#text" && nodeName === "#text") {
+    // Both are textnodes, update the node
+    node.textContent = vnode.val;
+    return node;
+  } else if(vnode && vnode.meta.shouldRender) {
+    // Children May have Changed
 
-      // Check if there is a property cache, if not, create one
-      var nodeProps = node.__moon__attrs__ || extractAttrs(node);
-      // Diff properties
-      diffProps(node, nodeProps, vnode.props, vnode);
+    // Diff props
+    var nodeProps = extractAttrs(node);
+    diffProps(node, nodeProps, vnode, vnode.props);
 
-      // Add event listeners on initial render
-      if(instance.$initialRender) {
-        addEventListeners(node, vnode, instance);
-      }
-
-      // Diff children
-      var currentChildNode = node.firstChild;
-      if(vnode.children.length === 1 && currentChildNode && !currentChildNode.nextSibling && currentChildNode.nodeName === "#text" && vnode.children[0].type === "#text") {
-        // Optimization:
-        //  If the node and vnode contain a single text node, update it here
-        node.firstChild.textContent = vnode.children[0].val;
-      } else {
-        for(var i = 0; i < vnode.children.length || currentChildNode; i++) {
-          var replacedNode = diff(currentChildNode, vnode.children[i], node, instance);
-          if(replacedNode) {
-            // Node was replaced, update reference to it
-            currentChildNode = replacedNode;
-          }
-          currentChildNode = (currentChildNode ? currentChildNode.nextSibling : null);
-        }
-      }
+    // Add initial event listeners (done once)
+    if(instance.$initialRender) {
+      addEventListeners(node, vnode, instance);
     }
-  } else if(vnode && !vnode.meta.shouldRender && vnode.props[Moon.config.prefix + "pre"]) {
-    // Not Rendering as a result of the "Pre" Directive, remove it
-    node.removeAttribute(Moon.config.prefix + "pre");
+
+    // Diff Children
+    var currentChildNode = node.firstChild;
+    for(var i = 0; i < vnode.children.length || currentChildNode; i++) {
+      var next = currentChildNode ? currentChildNode.nextSibling : null;
+      var newNode = diff(currentChildNode, vnode.children[i], node, instance);
+      currentChildNode = next;
+    }
   }
 }
 

@@ -93,13 +93,6 @@ directives[Moon.config.prefix + "text"] = function(el, val, vnode) {
   vnode.children[0].val = val;
 }
 
-directives[Moon.config.prefix + "html"] = function(el, val, vnode) {
-  el.innerHTML = val;
-  for(var i = 0; i < vnode.children.length; i++) {
-    vnode.children[i].meta.shouldRender = false;
-  }
-}
-
 directives[Moon.config.prefix + "mask"] = function(el, val, vnode) {
 
 }
