@@ -15,7 +15,7 @@ Moon.prototype.get = function(key) {
  * @param {String} val
  */
 Moon.prototype.set = function(key, val) {
-  resolveKeyPath(this.$data, key, val);
+  resolveKeyPath(this, this.$data, key, val);
 }
 
 /**

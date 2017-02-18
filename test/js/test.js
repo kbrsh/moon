@@ -184,13 +184,15 @@ describe('Data', function() {
       }
     }
   });
+  window.dataApp3 = dataApp3
   it('when initializing', function() {
     expect(document.getElementById("data").innerHTML).to.equal("Hello Moon!");
   });
-  it('when setting', function() {
+  it('when setting', function(done) {
     dataApp.set('msg', 'New Value');
     Moon.nextTick(function() {
       expect(document.getElementById("data").innerHTML).to.equal("New Value");
+      done();
     });
   });
   it('when setting via setter', function() {
@@ -206,9 +208,9 @@ describe('Data', function() {
     });
   });
   it('when setting new data property', function() {
-    dataApp3.set("msg.obj.nested", "New Nested")
+    dataApp3.set("msg.obj.nested", "New Nested");
     Moon.nextTick(function() {
-      expect(document.getElementById("data2").innerHTML).to.equal("New Nested");
+      expect(document.getElementById("data3").innerHTML).to.equal("New Nested");
     });
   });
   it('when getting', function() {
