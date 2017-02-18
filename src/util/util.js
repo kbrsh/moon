@@ -69,20 +69,26 @@ var escapeString = function(str) {
 }
 
 /**
- * Resolves an Object Keypath and Sets it
+ * Resolves an Object Keypath and Sets it, Ensuring New Properties are Reactive
+ * @param {Object} instance
  * @param {Object} obj
  * @param {String} keypath
  * @param {String} val
  * @return {Object} resolved object
  */
-var resolveKeyPath = function(obj, keypath, val) {
+var resolveKeyPath = function(instance, obj, keypath, val) {
   var i;
   var path = keypath.split(".");
   for(i = 0; i < path.length - 1; i++) {
     var propName = path[i];
     obj = obj[propName];
   }
-  obj[path[i]] = val;
+  if(!obj[path[i]]) {
+    reactiveProp(instance, obj, path[i], val);
+    instance.build();
+  } else {
+    obj[path[i]] = val;
+  }
   return obj;
 }
 
