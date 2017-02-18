@@ -947,7 +947,7 @@
       this.$methods = this.$opts.methods || {};
       this.$events = {};
       this.$dom = {};
-      this.$watcher = new Watcher(instance);
+      this.$watcher = new Watcher(this);
       this.$destroyed = false;
       this.$initialRender = true;
       this.$queued = false;
