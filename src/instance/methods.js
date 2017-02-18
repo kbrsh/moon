@@ -16,7 +16,6 @@ Moon.prototype.get = function(key) {
  */
 Moon.prototype.set = function(key, val) {
   resolveKeyPath(this.$data, key, val);
-  queueBuild(this);
 }
 
 /**
