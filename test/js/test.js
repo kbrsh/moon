@@ -135,6 +135,7 @@ describe("Compiler", function() {
     expect(compilerCommentApp.$dom.children[0].type).to.equal("self-closing");
   });
   it("should compile only text", function() {
+    Moon.compile("text");
     var el = createTestElement("compilerOnlyText", '');
     var compilerCommentApp = new Moon({
       el: "#compilerOnlyText",
