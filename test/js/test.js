@@ -194,6 +194,13 @@ describe('Data', function() {
       done();
     });
   });
+  it('when setting new property', function(done) {
+    dataApp3.set('msg.obj.nested', 'Nested Value');
+    Moon.nextTick(function() {
+      expect(document.getElementById("data3").innerHTML).to.equal("Nested Value");
+      done();
+    });
+  });
   // it('when setting via setter', function() {
   //   dataApp.$data.msg = 'Second Value';
   //   Moon.nextTick(function() {
@@ -213,7 +220,7 @@ describe('Data', function() {
   //   });
   // });
   it('when getting', function() {
-    expect(dataApp.get('msg')).to.equal("Second Value");
+    expect(dataApp.get('msg')).to.equal("New Value");
   });
 });
 
@@ -459,7 +466,10 @@ describe("Directive", function() {
   describe('Mask Directive', function() {
     createTestElement("mask", '<span m-mask id="mask-directive-span">{{msg}}</span>');
     var maskApp = new Moon({
-      el: "#mask"
+      el: "#mask",
+      data: {
+        msg: "Hello Moon!"
+      }
     });
     it('should not be present at runtime', function() {
       expect(document.getElementById('mask-directive-span').getAttribute("m-mask")).to.be['null'];
