@@ -305,12 +305,13 @@
       // Setup Children
       var children = [];
       var childrenLen = arguments.length - 3;
-      while (childrenLen-- > 0) {
-        var normalized = normalizeChild(arguments[childrenLen + 3]);
+      for (var i = 0; i < childrenLen; i++) {
+        var normalized = normalizeChild(arguments[i + 3]);
         if (Array.isArray(normalized)) {
-          children.splice.apply(children, [childrenLen, 0].concat(normalized));
+          children.splice.apply(children, [i, 0].concat(normalized));
+          i++;
         } else {
-          children[childrenLen] = normalized;
+          children[i] = normalized;
         }
       }
       // It's a Component
