@@ -311,8 +311,13 @@
         el = document.createTextNode(vnode.val);
       } else {
         el = document.createElement(vnode.type);
-        for (var i = 0; i < vnode.children.length; i++) {
-          el.appendChild(createNodeFromVNode(vnode.children[i], instance));
+        // Optimization: VNode only has one child that is text, and create it here
+        if (vnode.children.length === 1 && vnode.children[0].type === "#text") {
+          el.textContent = vnode.children[0].val;
+        } else {
+          for (var i = 0; i < vnode.children.length; i++) {
+            el.appendChild(createNodeFromVNode(vnode.children[i], instance));
+          }
         }
         addEventListeners(el, vnode, instance);
       }
