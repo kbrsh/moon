@@ -789,10 +789,10 @@
             } else {
               vnode.specialDirectivesAfter.push(prop);
             }
-            if (specialDirectives[prop].beforeGenerate) {
-              specialDirectives[prop].beforeGenerate(props[prop], vnode);
-              delete props[prop];
-            }
+          }
+          if (specialDirectives[prop].beforeGenerate) {
+            specialDirectives[prop].beforeGenerate(props[prop], vnode);
+            delete props[prop];
           }
         }
         if (props[prop]) {
