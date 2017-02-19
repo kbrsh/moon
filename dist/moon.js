@@ -789,11 +789,13 @@
           // Special directive found that generates code after initial generation, push it to its known special directives to run afterGenerate later
           if (specialDirectives[prop].afterGenerate) {
             if (!vnode.specialDirectivesAfter) {
-              vnode.specialDirectivesAfter = [prop];
+              vnode.specialDirectivesAfter = {};
+              vnode.specialDirectivesAfter[prop] = props[prop];
             } else {
-              vnode.specialDirectivesAfter.push(prop);
+              vnode.specialDirectivesAfter[prop] = props[prop];
             }
           }
+          // Invoke any special directives that need to change values before code generation
           if (specialDirectives[prop].beforeGenerate) {
             specialDirectives[prop].beforeGenerate(props[prop], vnode);
             delete props[prop];
@@ -805,11 +807,13 @@
           return "{}";
         }
     
+        // It's a normal prop, generate code normally
         if (props[prop]) {
           generatedObject += '"' + prop + '": ' + compileTemplate(JSON.stringify(props[prop]), true) + ', ';
         }
       }
     
+      // Remove ending comma and space, close the generated object
       generatedObject = generatedObject.slice(0, -2) + "}";
     
       return generatedObject;
@@ -904,9 +908,10 @@
         }
         var compiledCode = createCall(el, childrenCode);
         if (el.specialDirectivesAfter) {
-          for (var i = 0; i < el.specialDirectivesAfter.length; i++) {
-            var specialDirective = el.specialDirectivesAfter[i];
-            compiledCode = specialDirectives[specialDirective].afterGenerate(el.props[specialDirective], compiledCode, el);
+          // There are special directives that need to change the value after code generation, so
+          // run them now
+          for (var specialDirectiveAfter in el.specialDirectivesAfter) {
+            compiledCode = specialDirectives[specialDirectiveAfter].afterGenerate(el.specialDirectivesAfter[specialDirectiveAfter], compiledCode, el);
           }
         }
         code += compiledCode;
