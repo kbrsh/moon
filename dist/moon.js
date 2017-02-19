@@ -393,6 +393,10 @@
     
         // Diff Children
         var currentChildNode = node.firstChild;
+        if (vnode.children.length === 1 && vnode.children[0].type === "#text" && currentChildNode && !currentChildNode.nextSibling && currentChildNode.nodeName === "#text") {
+          currentChildNode.textContent = vnode.children[0].val;
+          return;
+        }
         for (var i = 0; i < vnode.children.length || currentChildNode; i++) {
           var next = currentChildNode ? currentChildNode.nextSibling : null;
           var newNode = diff(currentChildNode, vnode.children[i], node, instance);
