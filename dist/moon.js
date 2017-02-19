@@ -796,6 +796,11 @@
           }
         }
     
+        // If the only props were special directives, there might be no props, return an empty object
+        if (Object.keys(props).length === 0) {
+          return "{}";
+        }
+    
         if (props[prop]) {
           generatedObject += '"' + prop + '": ' + compileTemplate(JSON.stringify(props[prop]), true) + ', ';
         }
@@ -1241,7 +1246,7 @@
         var parts = value.split(" in ");
         var aliases = parts[0].split(",");
     
-        var iteratable = 'instance.get("' + parts[1] + '")';
+        var iteratable = compileTemplate(parts[1], false);
     
         var params = aliases.join(",");
     

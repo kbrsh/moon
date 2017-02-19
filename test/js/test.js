@@ -383,7 +383,7 @@ describe("Directive", function() {
   });
 
   describe('For Directive', function() {
-    createTestElement("for", "<ul id='forList'><li m-for='item in items'>{{item}}</li></ul>");
+    createTestElement("for", "<ul id='forList'><li m-for='item in {{items}}'>{{item}}</li></ul>");
     var forApp = new Moon({
       el: "#for",
       data: {
