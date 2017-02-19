@@ -16,6 +16,7 @@ Moon.prototype.get = function(key) {
  */
 Moon.prototype.set = function(key, val) {
   resolveKeyPath(this, this.$data, key, val);
+  this.$observer.notify();
 }
 
 /**
