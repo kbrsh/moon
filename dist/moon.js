@@ -107,7 +107,7 @@
     };
     
     /**
-     * Resolves an Object Keypath and Sets it, Ensuring New Properties are Reactive
+     * Resolves an Object Keypath and Sets it
      * @param {Object} instance
      * @param {Object} obj
      * @param {String} keypath
@@ -121,12 +121,7 @@
         var propName = path[i];
         obj = obj[propName];
       }
-      if (!obj[path[i]]) {
-        reactiveProp(instance, obj, path[i], val);
-        instance.build();
-      } else {
-        obj[path[i]] = val;
-      }
+      obj[path[i]] = val;
       return obj;
     };
     
