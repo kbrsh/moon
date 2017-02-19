@@ -280,22 +280,17 @@
     
     /**
      * Normalizes Children
-     * @param {*} children
+     * @param {String|Object} child
      * @return {Object} Normalized Child
      */
-    var normalizeChildren = function (children) {
-      var normalizedChildren = [];
-      for (var i = 0; i < children.length; i++) {
-        var child = children[i];
-        if (Array.isArray(child)) {
-          normalizedChildren = normalizedChildren.concat(normalizeChildren(child));
-        } else if (typeof child === "string" || child === null) {
-          normalizedChildren.push(createElement("#text", child || "", {}, [], defaultMetadata()));
-        } else {
-          normalizedChildren.push(child);
-        }
+    var normalizeChild = function (child) {
+      if (Array.isArray(child)) {
+        return child.map(normalizeChild);
+      } else if (typeof child === "string" || child === null) {
+        return createElement("#text", child || "", {}, [], defaultMetadata());
+      } else {
+        return child;
       }
-      return normalizedChildren;
     };
     
     /**
@@ -303,20 +298,27 @@
      * @param {String} tag
      * @param {Object} attrs
      * @param {Object} meta
-     * @param {Array} children
+     * @param {...Object|String} children
      * @return {String} Object usable in Virtual DOM (VNode)
      */
-    var h = function () {
-      var args = Array.prototype.slice.call(arguments);
-      var tag = args.shift();
-      var attrs = args.shift() || {};
-      var meta = args.shift();
-      var children = normalizeChildren(args);
+    var h = function (tag, attrs, meta) {
+      // Setup Children
+      var children = [];
+      var childrenLen = arguments.length - 3;
+      while (childrenLen-- > 0) {
+        var normalized = normalizeChild(arguments[childrenLen + 3]);
+        if (Array.isArray(normalized)) {
+          children = children.concat(normalized);
+        } else {
+          children.push(normalized);
+        }
+      }
       // It's a Component
       if (components[tag]) {
         return createComponent(tag, attrs, meta, children, components[tag]);
       }
-      return createElement(tag, children.join(""), attrs, children, meta);
+    
+      return createElement(tag, "", attrs, children, meta);
     };
     
     /**
