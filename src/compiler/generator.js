@@ -26,24 +26,17 @@ var generateProps = function(vnode) {
 			// Invoke any special directives that need to change values before code generation
 			if(specialDirectives[prop].beforeGenerate) {
 				specialDirectives[prop].beforeGenerate(props[prop], vnode);
-				delete props[prop];
 			}
-		}
 
-		// If the only props were special directives, there might be no props, return an empty object
-		if(Object.keys(props).length === 0) {
-			return "{}";
-		}
-
-		// It's a normal prop, generate code normally
-		if(props[prop]) {
+			// Remove special directive
+			delete props[prop];
+		} else {
 			generatedObject += `"${prop}": ${compileTemplate(JSON.stringify(props[prop]), true)}, `;
 		}
 	}
 
 	// Remove ending comma and space, close the generated object
-	generatedObject = generatedObject.slice(0, -2) + "}";
-
+	generatedObject = generatedObject.length > 1 ? generatedObject.slice(0, -2) + "}" : generatedObject + "}";
   return generatedObject;
 }
 
