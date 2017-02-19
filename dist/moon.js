@@ -81,6 +81,7 @@
       for (var rawAttrs = node.attributes, i = rawAttrs.length; i--;) {
         attrs[rawAttrs[i].name] = rawAttrs[i].value;
       }
+      node.__moon__props__ = attrs;
       return attrs;
     };
     
@@ -321,6 +322,7 @@
         }
         addEventListeners(el, vnode, instance);
       }
+      el.__moon__props__ = extend({}, vnode.props);
       diffProps(el, {}, vnode, vnode.props);
       return el;
     };
@@ -344,9 +346,11 @@
             directives[propName](node, allProps[propName], vnode);
           }
           node.removeAttribute(propName);
+          delete node.__moon__props__[propName];
         } else if (!nodeProps[propName] || nodeProps[propName] !== vnodeProps[propName]) {
           // It has changed or is not in the node in the first place
           node.setAttribute(propName, vnodeProps[propName]);
+          node.__moon__props__[propName] = vnodeProps[propName];
         }
       }
     };
@@ -388,7 +392,7 @@
         // Children May have Changed
     
         // Diff props
-        var nodeProps = extractAttrs(node);
+        var nodeProps = node.__moon__props__ || extractAttrs(node);
         diffProps(node, nodeProps, vnode, vnode.props);
     
         // Add initial event listeners (done once)
