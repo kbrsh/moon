@@ -235,9 +235,9 @@ var h = function(tag, attrs, meta) {
   while(childrenLen-- > 0) {
     var normalized = normalizeChild(arguments[childrenLen + 3]);
     if(Array.isArray(normalized)) {
-      children = children.concat(normalized);
+      children.splice.apply(children, [childrenLen, 0].concat(normalized));
     } else {
-      children.push(normalized);
+      children[childrenLen] = normalized;
     }
   }
   // It's a Component
