@@ -782,11 +782,22 @@
     
       for (var prop in props) {
         if (specialDirectives[prop]) {
-          if (specialDirectives[prop].beforeGenerate) {
-            specialDirectives[prop].beforeGenerate(props[prop], vnode);
+          // Special directive found that generates code after initial generation, push it to its known special directives to run afterGenerate later
+          if (specialDirectives[prop].afterGenerate) {
+            if (!vnode.specialDirectivesAfter) {
+              vnode.specialDirectivesAfter = [prop];
+            } else {
+              vnode.specialDirectivesAfter.push(prop);
+            }
+            if (specialDirectives[prop].beforeGenerate) {
+              specialDirectives[prop].beforeGenerate(props[prop], vnode);
+              delete props[prop];
+            }
           }
         }
-        generatedObject += '"' + prop + '": ' + compileTemplate(JSON.stringify(props[prop]), true) + ', ';
+        if (props[prop]) {
+          generatedObject += '"' + prop + '": ' + compileTemplate(JSON.stringify(props[prop]), true) + ', ';
+        }
       }
     
       generatedObject = generatedObject.slice(0, -2) + "}";
@@ -882,11 +893,10 @@
           el.meta = defaultMetadata();
         }
         var compiledCode = createCall(el, childrenCode);
-        for (var prop in el.props) {
-          if (specialDirectives[prop]) {
-            if (specialDirectives[prop].afterGenerate) {
-              compiledCode = specialDirectives[prop].afterGenerate(el.props[prop], compiledCode, el);
-            }
+        if (el.specialDirectivesAfter) {
+          for (var i = 0; i < el.specialDirectivesAfter.length; i++) {
+            var specialDirective = el.specialDirectivesAfter[i];
+            compiledCode = specialDirectives[specialDirective].afterGenerate(el.props[specialDirective], compiledCode, el);
           }
         }
         code += compiledCode;
