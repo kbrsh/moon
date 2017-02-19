@@ -28,41 +28,6 @@
     var id = 0;
     
     /* ======= Observer ======= */
-    /**
-     * Makes an Object Reactive
-     * @param {Object} instance
-     * @param {Object} obj
-     */
-    var reactiveObject = function (instance, obj) {
-      for (var key in obj) {
-        reactiveProp(instance, obj, key, obj[key]);
-      }
-      return obj;
-    };
-    
-    /**
-     * Makes an Object Property Reactive
-     * @param {Object} instance
-     * @param {Object} obj
-     * @param {String} key
-     * @param {Any} val
-     */
-    var reactiveProp = function (instance, obj, key, val) {
-      // Prop is object, make this reactive
-      if (val !== null && typeof val === 'object') {
-        reactiveObject(instance, val);
-      }
-      Object.defineProperty(obj, key, {
-        get: function () {
-          return val;
-        },
-        set: function (newVal) {
-          val = newVal;
-          instance.$observer.notify();
-        }
-      });
-    };
-    
     function Observer(instance) {
       this.instance = instance;
     }
@@ -954,7 +919,6 @@
       this.$name = this.$opts.name || "root";
       this.$parent = this.$opts.parent || null;
       this.$data = this.$opts.data || {};
-      reactiveObject(this, this.$data);
       this.$render = this.$opts.render || noop;
       this.$hooks = this.$opts.hooks || {};
       this.$methods = this.$opts.methods || {};
@@ -987,6 +951,7 @@
      */
     Moon.prototype.set = function (key, val) {
       resolveKeyPath(this, this.$data, key, val);
+      this.$observer.notify();
     };
     
     /**
