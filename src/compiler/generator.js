@@ -27,6 +27,12 @@ var generateProps = function(vnode) {
 				delete props[prop];
 			}
 		}
+
+		// If the only props were special directives, there might be no props, return an empty object
+		if(Object.keys(props).length === 0) {
+			return "{}";
+		}
+
 		if(props[prop]) {
 			generatedObject += `"${prop}": ${compileTemplate(JSON.stringify(props[prop]), true)}, `;
 		}

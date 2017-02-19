@@ -795,6 +795,7 @@
             delete props[prop];
           }
         }
+    
         if (props[prop]) {
           generatedObject += '"' + prop + '": ' + compileTemplate(JSON.stringify(props[prop]), true) + ', ';
         }
