@@ -67,6 +67,15 @@ specialDirectives[Moon.config.prefix + "model"] = {
   }
 };
 
+specialDirectives[Moon.config.prefix + "literal"] = {
+  duringPropGenerate: function(value, vnode) {
+    var parts = value.split(":");
+    var prop = parts[0];
+    var literal = parts[1];
+    return `"${prop}": ${compileTemplate(literal, false)}, `;
+  }
+};
+
 specialDirectives[Moon.config.prefix + "once"] = {
   beforeGenerate: function(value, vnode) {
     vnode.meta.shouldRender = "instance.$initialRender";

@@ -28,6 +28,11 @@ var generateProps = function(vnode) {
 				specialDirectives[prop].beforeGenerate(props[prop], vnode);
 			}
 
+			// Invoke any special directives that need to change values of props during code generation
+			if(specialDirectives[prop].duringPropGenerate) {
+				generatedObject += specialDirectives[prop].duringPropGenerate(props[prop], vnode);
+			}
+
 			// Remove special directive
 			delete props[prop];
 		} else {
