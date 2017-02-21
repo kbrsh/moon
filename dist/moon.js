@@ -63,11 +63,11 @@
     var queueBuild = function (instance) {
       if (!instance.$queued && !instance.$destroyed) {
         instance.$queued = true;
-        setTimeout(function () {
+        Promise.resolve().then(function () {
           instance.build();
           callHook(instance, 'updated');
           instance.$queued = false;
-        }, 0);
+        });
       }
     };
     
@@ -1186,7 +1186,7 @@
      * @param {Function} task
      */
     Moon.nextTick = function (task) {
-      setTimeout(task, 0);
+      Promise.resolve().then(task);
     };
     
     /**
