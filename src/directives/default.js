@@ -70,8 +70,8 @@ specialDirectives[Moon.config.prefix + "model"] = {
 specialDirectives[Moon.config.prefix + "literal"] = {
   duringPropGenerate: function(value, vnode) {
     var parts = value.split(":");
-    var prop = parts[0];
-    var literal = parts[1];
+    var prop = parts.shift();
+    var literal = parts.join(":");
     return `"${prop}": ${compileTemplate(literal, false)}, `;
   }
 };
