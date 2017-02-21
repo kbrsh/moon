@@ -63,11 +63,11 @@
     var queueBuild = function (instance) {
       if (!instance.$queued && !instance.$destroyed) {
         instance.$queued = true;
-        Promise.resolve().then(function () {
+        setTimeout(function () {
           instance.build();
           callHook(instance, 'updated');
           instance.$queued = false;
-        });
+        }, 0);
       }
     };
     
@@ -800,6 +800,11 @@
             specialDirectives[prop].beforeGenerate(props[prop], vnode);
           }
     
+          // Invoke any special directives that need to change values of props during code generation
+          if (specialDirectives[prop].duringPropGenerate) {
+            generatedObject += specialDirectives[prop].duringPropGenerate(props[prop], vnode);
+          }
+    
           // Remove special directive
           delete props[prop];
         } else {
@@ -1186,7 +1191,7 @@
      * @param {Function} task
      */
     Moon.nextTick = function (task) {
-      Promise.resolve().then(task);
+      setTimeout(task, 0);
     };
     
     /**
@@ -1301,6 +1306,15 @@
         } else {
           vnode.meta.eventListeners["input"].push(code);
         }
+      }
+    };
+    
+    specialDirectives[Moon.config.prefix + "literal"] = {
+      duringPropGenerate: function (value, vnode) {
+        var parts = value.split(":");
+        var prop = parts[0];
+        var literal = parts[1];
+        return '"' + prop + '": ' + compileTemplate(literal, false) + ', ';
       }
     };
     
