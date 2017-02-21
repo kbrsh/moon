@@ -406,6 +406,22 @@ describe("Directive", function() {
     });
   });
 
+  describe('Literal Directive', function() {
+    createTestElement("literal", '<span m-literal="class: {{num}}+1" id="literal-directive-span"></span>');
+    var literalApp = new Moon({
+      el: "#literal",
+      data: {
+        num: 1
+      }
+    });
+    it('should treat the value as a literal expression', function() {
+      expect(document.getElementById("literal-directive-span").getAttribute("class")).to.equal("2");
+    });
+    it('should not be present at runtime', function() {
+      expect(document.getElementById('literal-directive-span').getAttribute("m-literal")).to.be['null'];
+    });
+  });
+
   describe('Text Directive', function() {
     createTestElement("text", '<span m-text="{{msg}}" id="text-directive-span"></span>');
     var textApp = new Moon({
