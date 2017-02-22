@@ -1,7 +1,7 @@
 var items = [];
 
 var add = function(num) {
-  for(var i = 0; i < num; i++) {
+  for(var i = items.length ? items.length - 1 : 0, num = items.length - 1 + num; i < num; i++) {
     items.push("item - " + i);
   }
 }
