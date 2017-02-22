@@ -309,6 +309,7 @@
       var el;
     
       if (vnode.type === "#text") {
+        // Create textnode
         el = document.createTextNode(vnode.val);
       } else {
         el = document.createElement(vnode.type);
@@ -316,14 +317,20 @@
         if (vnode.children.length === 1 && vnode.children[0].type === "#text") {
           el.textContent = vnode.children[0].val;
         } else {
+          // Add all children
           for (var i = 0; i < vnode.children.length; i++) {
             el.appendChild(createNodeFromVNode(vnode.children[i], instance));
           }
         }
+        // Add all event listeners
         addEventListeners(el, vnode, instance);
       }
+      // Setup Props (With Cache)
       el.__moon__props__ = extend({}, vnode.props);
       diffProps(el, {}, vnode, vnode.props);
+    
+      // Setup Cached NodeName
+      el.__moon__nodeName__ = vnode.type;
       return el;
     };
     
@@ -367,7 +374,7 @@
       var nodeName;
     
       if (node) {
-        nodeName = node.nodeName.toLowerCase();
+        nodeName = node.__moon__nodeName__ || node.nodeName.toLowerCase();
       }
     
       if (!node && vnode && vnode.meta.shouldRender) {
@@ -384,11 +391,11 @@
         var newNode = createNodeFromVNode(vnode, instance);
         parent.replaceChild(newNode, node);
         return newNode;
-      } else if (vnode.type === "#text" && nodeName === "#text") {
+      } else if (vnode.type === "#text" && nodeName === "#text" && vnode.val !== node.textContent) {
         // Both are textnodes, update the node
         node.textContent = vnode.val;
         return node;
-      } else if (vnode && vnode.meta.shouldRender) {
+      } else if (vnode && vnode.type !== "#text" && vnode.meta.shouldRender) {
         // Children May have Changed
     
         // Diff props
@@ -406,13 +413,19 @@
         //  If the vnode contains just one text vnode, create it here
         if (vnode.children.length === 1 && vnode.children[0].type === "#text" && currentChildNode && !currentChildNode.nextSibling && currentChildNode.nodeName === "#text") {
           currentChildNode.textContent = vnode.children[0].val;
-          return;
+        } else {
+          // Iterate through all children
+          for (var i = 0; i < vnode.children.length || currentChildNode; i++) {
+            var next = currentChildNode ? currentChildNode.nextSibling : null;
+            diff(currentChildNode, vnode.children[i], node, instance);
+            currentChildNode = next;
+          }
         }
-        for (var i = 0; i < vnode.children.length || currentChildNode; i++) {
-          var next = currentChildNode ? currentChildNode.nextSibling : null;
-          var newNode = diff(currentChildNode, vnode.children[i], node, instance);
-          currentChildNode = next;
-        }
+    
+        return node;
+      } else {
+        // Nothing Changed
+        return node;
       }
     };
     
