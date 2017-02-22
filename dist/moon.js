@@ -240,21 +240,6 @@
     };
     
     /**
-     * Normalizes Children
-     * @param {String|Object} child
-     * @return {Object} Normalized Child
-     */
-    var normalizeChild = function (child) {
-      if (Array.isArray(child)) {
-        return child.map(normalizeChild);
-      } else if (typeof child === "string" || child === null) {
-        return createElement("#text", child || "", {}, [], defaultMetadata());
-      } else {
-        return child;
-      }
-    };
-    
-    /**
      * Compiles Arguments to a VNode
      * @param {String} tag
      * @param {Object} attrs
@@ -267,12 +252,13 @@
       var children = [];
       var childrenLen = arguments.length - 3;
       for (var i = 0; i < childrenLen; i++) {
-        var normalized = normalizeChild(arguments[i + 3]);
-        if (Array.isArray(normalized)) {
-          children.splice.apply(children, [i, 0].concat(normalized));
-          i++;
+        var child = arguments[i + 3];
+        if (Array.isArray(child)) {
+          children = children.concat(child);
+        } else if (typeof child === "string" || child === null) {
+          children.push(createElement("#text", child || "", {}, [], defaultMetadata()));
         } else {
-          children[i] = normalized;
+          children.push(child);
         }
       }
       // It's a Component
