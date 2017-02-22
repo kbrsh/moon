@@ -109,11 +109,13 @@ var generateArray = function(arr) {
  * @param {Array} children
  * @return {String} "h" call
  */
-var createCall = function(vnode, children) {
+var createCall = function(vnode) {
 	var call = `h("${vnode.type}", `;
 	call += generateProps(vnode) + ", ";
-	call += generateMeta(vnode.meta) + ", ";
-	call += children.length ? generateArray(children) : "\"\"";
+	call += generateMeta(vnode.meta);
+	// Generate code for children recursively here (in case modified by special directives)
+	vnode.children = vnode.children.map(generateEl);
+	call += vnode.children.length ? ", " + generateArray(vnode.children) : "";
 	call += ")";
 
   return call;
@@ -129,11 +131,10 @@ var generateEl = function(el) {
 		code += `"${compileTemplate(escapeString(el), true)}"`;
 	} else {
 		// Recursively generate code for children
-		var childrenCode = el.children.map(generateEl);
 		if(!el.meta) {
 			el.meta = defaultMetadata();
 		}
-		var compiledCode = createCall(el, childrenCode);
+		var compiledCode = createCall(el);
 		if(el.specialDirectivesAfter) {
 			// There are special directives that need to change the value after code generation, so
 			// run them now
