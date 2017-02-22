@@ -302,7 +302,7 @@ var diffProps = function(node, nodeProps, vnode, vnodeProps) {
 
   for(var propName in allProps) {
     // If not in VNode or is a Directive, remove it
-    if(!vnodeProps[propName] || directives[propName] || specialDirectives[propName]) {
+    if(!vnodeProps[propName] || directives[propName]) {
       // If it is a directive, run the directive
       if(directives[propName]) {
         directives[propName](node, allProps[propName], vnode);
