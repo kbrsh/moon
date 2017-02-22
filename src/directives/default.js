@@ -97,9 +97,10 @@ directives[Moon.config.prefix + "show"] = function(el, val, vnode) {
   }
 }
 
-directives[Moon.config.prefix + "text"] = function(el, val, vnode) {
-  el.textContent = val;
-  vnode.children[0].val = val;
+specialDirectives[Moon.config.prefix + "text"] = {
+  beforeGenerate: function(value, vnode) {
+    vnode.children = [value];
+  }
 }
 
 directives[Moon.config.prefix + "mask"] = function(el, val, vnode) {
