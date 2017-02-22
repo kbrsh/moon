@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="description" content="dbmon | Moon" />
+    <title>Loop | Moon</title>
+    <link href="./styles.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.rawgit.com/KingPixil/wing/v1.0.0-beta/dist/wing.min.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body class="container text-center">
+    <h1>Loop</h1>
+    <p>Check the console</p>
+    <div id="app">
+      <button m-on="click:add">Add 1000</button>
+      <button m-on="click:addLot">Add 10000</button>
+      <button m-on="click:reverse">Reverse</button>
+      <button m-on="click:swap">Swap</button>
+      <button m-on="click:remove">Remove</button>
+      <button m-on="click:clear">Clear</button>
+      <ul>
+        <li m-for="item in {{items}}">{{item}}</li>
+      </ul>
+    </div>
+    <script src="../../dist/moon.js"></script>
+    <script src="./scripts.js"></script>
+  </body>
+</html>
