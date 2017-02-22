@@ -402,6 +402,8 @@
     
         // Diff Children
         var currentChildNode = node.firstChild;
+        // Optimization:
+        //  If the vnode contains just one text vnode, create it here
         if (vnode.children.length === 1 && vnode.children[0].type === "#text" && currentChildNode && !currentChildNode.nextSibling && currentChildNode.nodeName === "#text") {
           currentChildNode.textContent = vnode.children[0].val;
           return;
