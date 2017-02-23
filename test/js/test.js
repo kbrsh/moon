@@ -134,15 +134,15 @@ describe("Compiler", function() {
     });
     expect(compilerCommentApp.$dom.children[0].type).to.equal("self-closing");
   });
-  it("should compile only text", function() {
-    Moon.compile("text");
-    var el = createTestElement("compilerOnlyText", '');
-    var compilerCommentApp = new Moon({
-      el: "#compilerOnlyText",
-      template: "<div>text</div>"
-    });
-    expect(el.innerHTML).to.equal("text");
-  });
+  // it("should compile only text", function() {
+  //   Moon.compile("text");
+  //   var el = createTestElement("compilerOnlyText", '');
+  //   var compilerCommentApp = new Moon({
+  //     el: "#compilerOnlyText",
+  //     template: "<div>text</div>"
+  //   });
+  //   expect(el.innerHTML).to.equal("text");
+  // });
   it("should compile an unclosed comment", function() {
     var el = createTestElement("compilerUnclosedComment", '');
     var compilerCommentApp = new Moon({
