@@ -103,7 +103,8 @@
     var escapeString = function (str) {
       var NEWLINE_RE = /\n/g;
       var DOUBLE_QUOTE_RE = /"/g;
-      return str.replace(NEWLINE_RE, "\\n").replace(DOUBLE_QUOTE_RE, "\\\"");
+      var BACKSLASH_RE = /\\/g;
+      return str.replace(NEWLINE_RE, "\\n").replace(DOUBLE_QUOTE_RE, "\\\"").replace(BACKSLASH_RE, "\\\\");
     };
     
     /**
