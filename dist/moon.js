@@ -103,7 +103,7 @@
     var escapeString = function (str) {
       var NEWLINE_RE = /\n/g;
       var DOUBLE_QUOTE_RE = /"/g;
-      var BACKSLASH_RE = /\\/g;
+      var BACKSLASH_RE = /\\[^n]/g;
       return str.replace(NEWLINE_RE, "\\n").replace(DOUBLE_QUOTE_RE, "\\\"").replace(BACKSLASH_RE, "\\\\");
     };
     
@@ -786,6 +786,7 @@
       var generatedObject = "{";
     
       for (var prop in props) {
+        if (directives[prop]) vnode.hasDirective = true;
         if (specialDirectives[prop]) {
           // Special directive found that generates code after initial generation, push it to its known special directives to run afterGenerate later
           if (specialDirectives[prop].afterGenerate) {
@@ -805,6 +806,9 @@
           if (specialDirectives[prop].duringPropGenerate) {
             generatedObject += specialDirectives[prop].duringPropGenerate(props[prop], vnode);
           }
+    
+          // Keep a flag to know to always render this
+          vnode.hasDirective = true;
     
           // Remove special directive
           delete props[prop];
@@ -885,16 +889,20 @@
     var createCall = function (vnode) {
       var call = 'h("' + vnode.type + '", ';
       call += generateProps(vnode) + ", ";
-      call += generateMeta(vnode.meta);
       // Generate code for children recursively here (in case modified by special directives)
-      vnode.children = vnode.children.map(generateEl);
-      call += vnode.children.length ? ", " + generateArray(vnode.children) : "";
-      call += ")";
+      var children = vnode.children.map(generateEl);
+      // Detected static vnode, tell diffing engine to skip it
+      if (vnode.children.length === 1 && children.length === 1 && typeof vnode.children[0] === "string" && "\"" + vnode.children[0] + "\"" === children[0] && !vnode.hasDirective) {
+        vnode.meta.shouldRender = false;
+      }
     
+      call += generateMeta(vnode.meta);
+      call += children.length ? ", " + generateArray(children) : "";
+      call += ")";
+      console.log(children);
       return call;
     };
     
-    // End util
     var generateEl = function (el) {
       var code = "";
     
