@@ -54,7 +54,6 @@ var extractAttrs = function(node) {
 var defaultMetadata = function() {
   return {
     shouldRender: true,
-    component: false,
     eventListeners: {}
   }
 }
@@ -325,7 +324,7 @@ var diff = function(node, vnode, parent, instance) {
     nodeName = node.__moon__nodeName__ || node.nodeName.toLowerCase();
   }
 
-  if(!node && vnode && vnode.meta.shouldRender) {
+  if(!node && vnode) {
     // No Node, create a node
     var newNode = createNodeFromVNode(vnode, instance);
     parent.appendChild(newNode);
@@ -339,7 +338,7 @@ var diff = function(node, vnode, parent, instance) {
     var newNode = createNodeFromVNode(vnode, instance);
     parent.replaceChild(newNode, node);
     return newNode;
-  } else if(vnode.type === "#text" && nodeName === "#text" && vnode.val !== node.textContent) {
+  } else if(vnode.meta.shouldRender && vnode.type === "#text" && nodeName === "#text" && vnode.val !== node.textContent) {
     // Both are textnodes, update the node
     node.textContent = vnode.val;
     return node;
