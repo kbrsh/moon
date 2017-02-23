@@ -899,7 +899,6 @@
       call += generateMeta(vnode.meta);
       call += children.length ? ", " + generateArray(children) : "";
       call += ")";
-      console.log(children);
       return call;
     };
     
