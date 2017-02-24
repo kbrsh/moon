@@ -1,4 +1,4 @@
-<div style="text-align: center">
+<div align="center">
   <a href="https://kingpixil.github.io/moon" target="_blank"><img width="100"src="https://raw.githubusercontent.com/KingPixil/moon/gh-pages/img/logo.png"></a>
   <h1>Moon</h1>
   <p>A minimal, blazing fast UI library.</p>
@@ -8,7 +8,7 @@
     <a href="https://kingpixil.github.io/license"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
   </p>
   <p>
-    [![Sauce Test Status](https://saucelabs.com/browser-matrix/KingPixil.svg)](https://saucelabs.com/u/KingPixil)
+    <a href="https://saucelabs.com/u/KingPixil"><img src="https://saucelabs.com/browser-matrix/KingPixil.svg" alt="Sauce Test Status"></a>
   </p>
 </div>
 
