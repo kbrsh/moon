@@ -13,7 +13,9 @@ var generateProps = function(vnode) {
 	var generatedObject = "{";
 
 	for(var prop in props) {
-		if(directives[prop]) vnode.hasDirective = true;
+		if(directives[prop]) {
+			vnode.dynamic = true;
+		}
 		if(specialDirectives[prop]) {
 			// Special directive found that generates code after initial generation, push it to its known special directives to run afterGenerate later
 			if(specialDirectives[prop].afterGenerate) {
@@ -34,13 +36,18 @@ var generateProps = function(vnode) {
 				generatedObject += specialDirectives[prop].duringPropGenerate(props[prop], vnode);
 			}
 
-			// Keep a flag to know to always render this
-			vnode.hasDirective = true;
+			// Keep a flag to know to always rerender this
+			vnode.dynamic = true;
 
 			// Remove special directive
 			delete props[prop];
 		} else {
-			generatedObject += `"${prop}": ${compileTemplate(JSON.stringify(props[prop]), true)}, `;
+			var normalizedProp = JSON.stringify(props[prop]);
+			var compiledProp = compileTemplate(normalizedProp, true);
+			if(normalizedProp !== compiledProp) {
+				vnode.dynamic = true;
+			}
+			generatedObject += `"${prop}": ${compileTemplate(compiledProp, true)}, `;
 		}
 	}
 
@@ -119,7 +126,7 @@ var createCall = function(vnode) {
 	// Generate code for children recursively here (in case modified by special directives)
 	var children = vnode.children.map(generateEl);
 	// Detected static vnode, tell diffing engine to skip it
-	if(vnode.children.length === 1 && children.length === 1 && typeof vnode.children[0] === "string" && "\"" + vnode.children[0] + "\"" === children[0] && !vnode.hasDirective) {
+	if(vnode.children.length === 1 && children.length === 1 && typeof vnode.children[0] === "string" && "\"" + vnode.children[0] + "\"" === children[0] && !vnode.dynamic) {
 		vnode.meta.shouldRender = false;
 	}
 
