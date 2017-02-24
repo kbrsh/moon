@@ -900,7 +900,7 @@
       var children = vnode.children.map(generateEl);
       // Detected static vnode, tell diffing engine to skip it
       if (vnode.children.length === 1 && children.length === 1 && typeof vnode.children[0] === "string" && "\"" + vnode.children[0] + "\"" === children[0] && !vnode.dynamic) {
-        vnode.meta.shouldRender = false;
+        vnode.meta.shouldRender = "instance.$initialRender";
       }
     
       call += generateMeta(vnode.meta);
