@@ -695,6 +695,16 @@ describe("Events", function() {
   });
 });
 
+describe("Optimization", function() {
+  it("should not rerender static nodes", function() {
+    createTestElement("staticOptimization", "<h1>Static</h1>");
+    var staticOptimizationApp = new Moon({
+      el: "#staticOptimization"
+    });
+    expect(staticOptimizationApp.render().children[0].meta.shouldRender).to.equal(false);
+  });
+});
+
 describe("Utilities", function() {
   it("should extend an object", function() {
     expect(Moon.util.extend({a: true, b: true}, {a: true, b: false, c: true})).to.deep.equal({a: true, b: false, c: true});
