@@ -410,32 +410,31 @@
       } else if (vnode && vnode.type !== "#text" && vnode.meta.shouldRender) {
     
         if (vnode.meta.component) {
-          // Detected a component
-          //  If not mounted, create a new instance and mount it
-          //  If it is mounted already:
-          //    Update its data with new props
-          //    If it has children, generate slots
-          //    If Moon detects any changes (in props or slots) then rebuild the component
-          //  Then just skip diffing the children
           if (!node.__moon__) {
+            // Not mounted, create a new instance and mount it here
             createComponentFromVNode(node, vnode, vnode.meta.component);
           } else {
+            // Mounted already, need to update
             var componentInstance = node.__moon__;
             var componentChanged = false;
+            // Merge any properties that changed
             for (var prop in vnode.props) {
               if (componentInstance.$data[prop] !== vnode.props[prop]) {
                 componentInstance.$data[prop] = vnode.props[prop];
                 componentChanged = true;
               }
             }
+            // If it has children, resolve any new slots
             if (vnode.children) {
               componentInstance.$slots = getSlots(vnode.children);
               componentChanged = true;
             }
+            // If any changes were detected, build the component
             if (componentChanged) {
               componentInstance.build();
             }
           }
+          // Skip diffing any children
           return node;
         }
     
