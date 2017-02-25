@@ -287,6 +287,7 @@ var createComponentFromVNode = function(node, vnode, component) {
     var prop = componentInstance.$props[i];
     componentInstance.$data[prop] = vnode.props[prop];
   }
+  componentInstance.$slots = getSlots(vnode.children);
   componentInstance.$el = node;
   componentInstance.build();
   callHook(componentInstance, 'mounted');
@@ -359,20 +360,27 @@ var diff = function(node, vnode, parent, instance) {
     if(vnode.meta.component) {
       // Detected a component
       //  If not mounted, create a new instance and mount it
-      //  If it is mounted, update its data with new props, and build if needed
-      //  Then just skip diffing children
+      //  If it is mounted already:
+      //    Update its data with new props
+      //    If it has children, generate slots
+      //    If Moon detects any changes (in props or slots) then rebuild the component
+      //  Then just skip diffing the children
       if(!node.__moon__) {
         createComponentFromVNode(node, vnode, vnode.meta.component)
       } else {
         var componentInstance = node.__moon__;
-        var propChanged = false;
+        var componentChanged = false;
         for(var prop in vnode.props) {
           if(componentInstance.$data[prop] !== vnode.props[prop]) {
             componentInstance.$data[prop] = vnode.props[prop];
-            propChanged = true;
+            componentChanged = true;
           }
         }
-        if(propChanged) {
+        if(vnode.children) {
+          componentInstance.$slots = getSlots(vnode.children);
+          componentChanged = true;
+        }
+        if(componentChanged) {
           componentInstance.build();
         }
       }

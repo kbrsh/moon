@@ -147,7 +147,7 @@ var generateEl = function(el) {
 		if(!el.meta) {
 			el.meta = defaultMetadata();
 		}
-		var compiledCode = createCall(el);
+		var compiledCode = el.type === "slot" ? `instance.$slots['${el.props.name || "default"}']` : createCall(el);
 		if(el.specialDirectivesAfter) {
 			// There are special directives that need to change the value after code generation, so
 			// run them now

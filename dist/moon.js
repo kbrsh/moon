@@ -325,6 +325,7 @@
         var prop = componentInstance.$props[i];
         componentInstance.$data[prop] = vnode.props[prop];
       }
+      componentInstance.$slots = getSlots(vnode.children);
       componentInstance.$el = node;
       componentInstance.build();
       callHook(componentInstance, 'mounted');
@@ -397,20 +398,27 @@
         if (vnode.meta.component) {
           // Detected a component
           //  If not mounted, create a new instance and mount it
-          //  If it is mounted, update its data with new props, and build if needed
-          //  Then just skip diffing children
+          //  If it is mounted already:
+          //    Update its data with new props
+          //    If it has children, generate slots
+          //    If Moon detects any changes (in props or slots) then rebuild the component
+          //  Then just skip diffing the children
           if (!node.__moon__) {
             createComponentFromVNode(node, vnode, vnode.meta.component);
           } else {
             var componentInstance = node.__moon__;
-            var propChanged = false;
+            var componentChanged = false;
             for (var prop in vnode.props) {
               if (componentInstance.$data[prop] !== vnode.props[prop]) {
                 componentInstance.$data[prop] = vnode.props[prop];
-                propChanged = true;
+                componentChanged = true;
               }
             }
-            if (propChanged) {
+            if (vnode.children) {
+              componentInstance.$slots = getSlots(vnode.children);
+              componentChanged = true;
+            }
+            if (componentChanged) {
               componentInstance.build();
             }
           }
@@ -955,7 +963,7 @@
         if (!el.meta) {
           el.meta = defaultMetadata();
         }
-        var compiledCode = createCall(el);
+        var compiledCode = el.type === "slot" ? 'instance.$slots[\'' + (el.props.name || "default") + '\']' : createCall(el);
         if (el.specialDirectivesAfter) {
           // There are special directives that need to change the value after code generation, so
           // run them now
