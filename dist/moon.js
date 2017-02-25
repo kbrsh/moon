@@ -398,7 +398,7 @@
           node.__moon__.destroy();
         }
         return null;
-      } else if (nodeName !== vnode.type && !vnode.meta.component) {
+      } else if (nodeName !== vnode.type) {
         // Different types, replace it
         var newNode = createNodeFromVNode(vnode, instance);
         parent.replaceChild(newNode, node);
