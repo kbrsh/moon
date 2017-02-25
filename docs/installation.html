@@ -31,9 +31,15 @@
     <div class="container-small">
       <h1 class="post-title">Installation</h1>
       <div class="post-content">
-        <h3 id="cdn">CDN</h3>
+        <h4 id="cdn">CDN</h4>
 <p>Installing Moon is as easy as including a script tag to a CDN. The preferred CDN is <a href="https://unpkg.com">unpkg</a>:</p>
 <pre><code class="lang-html">&lt;script src=&quot;https://unpkg.com/moonjs@0.4.6&quot;&gt;&lt;/script&gt;
+</code></pre>
+<h3 id="npm">NPM</h3>
+<p>Moon is supported in RequireJS environments, but to actually update/patch elements, it requires the DOM.</p>
+<pre><code class="lang-bash">$ npm install moonjs
+</code></pre>
+<pre><code class="lang-js">var Moon = require(&quot;moonjs&quot;);
 </code></pre>
 
       </div>
