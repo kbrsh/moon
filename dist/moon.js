@@ -201,21 +201,6 @@
     };
     
     /**
-     * Creates a Component
-     * @param {String} type
-     * @param {Object} props
-     * @param {Object} meta
-     * @param {Array} children
-     * @param {Object} component
-     * @return {Object} Virtual DOM Node
-     */
-    var createComponent = function (type, props, meta, children, component) {
-      if (component.opts.functional) {
-        return createFunctionalComponent(type, props, meta, children, component);
-      }
-    };
-    
-    /**
      * Creates a Functional Component
      * @param {String} type
      * @param {Object} props
@@ -262,8 +247,8 @@
         }
       }
       // It's a Component
-      if (components[tag]) {
-        return createComponent(tag, attrs, meta, children, components[tag]);
+      if (components[tag] && components[tag].opts.functional) {
+        return createFunctionalComponent(tag, attrs, meta, children, components[tag]);
       }
     
       return createElement(tag, "", attrs, children, meta);
