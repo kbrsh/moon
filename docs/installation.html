@@ -35,11 +35,18 @@
 <p>Installing Moon is as easy as including a script tag to a CDN. The preferred CDN is <a href="https://unpkg.com">unpkg</a>:</p>
 <pre><code class="lang-html">&lt;script src=&quot;https://unpkg.com/moonjs@0.4.6&quot;&gt;&lt;/script&gt;
 </code></pre>
-<h3 id="npm">NPM</h3>
+<h4 id="npm">NPM</h4>
 <p>Moon is supported in RequireJS environments, but to actually update/patch elements, it requires the DOM.</p>
 <pre><code class="lang-bash">$ npm install moonjs
 </code></pre>
 <pre><code class="lang-js">var Moon = require(&quot;moonjs&quot;);
+</code></pre>
+<h4 id="development-build">Development Build</h4>
+<p>To edit the source files and build Moon from scratch, clone the repo, and edit any files in the <code>src</code> directory.</p>
+<pre><code class="lang-bash">$ npm run build
+</code></pre>
+<p>This will output the built files in the <code>dist/</code> directory. To run unit tests, run:</p>
+<pre><code class="lang-bash">$ npm run test
 </code></pre>
 
       </div>
