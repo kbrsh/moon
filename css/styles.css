@@ -169,6 +169,74 @@ code {
   margin: 1rem;
 }
 
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  padding: 40px 0;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 300px;
+  border-right: 1px solid #d9d9d9;
+  transition: all 0.2s ease;
+}
+
+.sidebar-nav {
+  padding: 2rem 4rem;
+}
+
+.sidebar-head {
+  font-family: "Qanelas-Bold", sans-serif;
+  text-align: center;
+  margin-top: 0;
+}
+
+.sidebar-nav a {
+  color: #7f8082;
+  font-family: "Qanelas-Light", sans-serif;
+  text-decoration: none;
+  font-size: 2rem;
+}
+
+#sidebar-toggle {
+  position: fixed;
+  width: 21px;
+  height: 20px;
+  z-index: 2;
+  bottom: 1rem;
+  left: 1rem;
+  cursor: pointer;
+}
+
+body.close .sidebar {
+  transform: translateX(-300px);
+}
+
+body.close .post {
+  left: 0px;
+}
+
+#sidebar-toggle span {
+  height: 2px;
+  width: 100%;
+  background-color: #1adba5;
+  position: absolute;
+}
+
+#sidebar-toggle-2 {
+  top: 7px;
+}
+#sidebar-toggle-3 {
+  top: 14px;
+}
+
+.post {
+  left: 300px;
+  position: absolute;
+  right: 0;
+  transition: all 0.2s ease;
+}
+
 /* === Footer === */
 footer {
 	position: absolute;
