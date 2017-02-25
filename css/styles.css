@@ -234,6 +234,7 @@ body.close .post {
   left: 300px;
   position: absolute;
   right: 0;
+  padding-bottom: 5rem;
   transition: all 0.2s ease;
 }
 
