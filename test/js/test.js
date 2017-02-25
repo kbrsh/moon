@@ -618,9 +618,21 @@ describe('Functional Component', function() {
 
 describe('Component', function() {
     createTestElement("component", '<my-component componentprop="{{parentMsg}}"></my-component>');
+    createTestElement("slotComponent", '<slot-component>{{parentMsg}}</slot-component>');
     var componentConstructor = Moon.component('my-component', {
       props: ['componentprop', 'otherprop'],
       template: "<div>{{componentprop}}</div>"
+    });
+
+    Moon.component('slot-component', {
+      template: "<div><slot></slot></div>"
+    })
+
+    var slotComponentApp = new Moon({
+      el: "#slotComponent",
+      data: {
+        parentMsg: "Hello Moon!"
+      }
     });
 
     it("should create a constructor", function() {
@@ -642,6 +654,15 @@ describe('Component', function() {
       componentApp.set('parentMsg', 'Changed');
       Moon.nextTick(function() {
         expect(document.getElementById("component").innerHTML).to.equal("<div>Changed</div>");
+      });
+    });
+    it('should render slots', function() {
+      expect(document.getElementById("slotComponent").innerHTML).to.equal("<div>Hello Moon!</div>");
+    });
+    it('should render slots when updated', function() {
+      slotComponentApp.set('parentMsg', 'Changed');
+      Moon.nextTick(function() {
+        expect(document.getElementById("slotComponent").innerHTML).to.equal("<div>Changed</div>");
       });
     });
 });
