@@ -1065,6 +1065,7 @@
      */
     Moon.prototype.destroy = function () {
       this.removeEvents();
+      this.$el = null;
       this.$destroyed = true;
       callHook(this, 'destroyed');
     };
