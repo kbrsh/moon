@@ -209,8 +209,14 @@ var h = function(tag, attrs, meta) {
     }
   }
   // It's a Component
-  if(components[tag] && components[tag].opts.functional) {
-    return createFunctionalComponent(tag, attrs, meta, children, components[tag]);
+  if(components[tag]) {
+    // Functional component
+    if(components[tag].opts.functional) {
+      return createFunctionalComponent(tag, attrs, meta, children, components[tag]);
+    } else {
+      // Provide the instance to diff engine
+      meta.component = components[tag];
+    }
   }
 
   return createElement(tag, "", attrs, children, meta);
@@ -268,6 +274,20 @@ var createNodeFromVNode = function(vnode, instance) {
 }
 
 /**
+ * Mounts a Component To The DOM
+ * @param {Object} node
+ * @param {Object} component
+ * @return {Object} DOM Node
+ */
+var createComponentFromVNode = function(node, component) {
+  var componentInstance = new component.CTor();
+  componentInstance.$el = node;
+  componentInstance.build();
+  callHook(componentInstance, 'mounted');
+  return componentInstance.$el;
+}
+
+/**
  * Diffs Props of Node and a VNode, and apply Changes
  * @param {Object} node
  * @param {Object} nodeProps
@@ -319,7 +339,7 @@ var diff = function(node, vnode, parent, instance) {
     // No vnode, remove the node
     parent.removeChild(node);
     return null;
-  } else if(nodeName !== vnode.type) {
+  } else if(nodeName !== vnode.type && !vnode.meta.component) {
     // Different types, replace it
     var newNode = createNodeFromVNode(vnode, instance);
     parent.replaceChild(newNode, node);
@@ -329,6 +349,17 @@ var diff = function(node, vnode, parent, instance) {
     node.textContent = vnode.val;
     return node;
   } else if(vnode && vnode.type !== "#text" && vnode.meta.shouldRender) {
+
+    if(vnode.meta.component) {
+      // Detected a component
+      //  If not mounted, create a new instance and mount it
+      //  Then just skip diffing children
+      if(!node.__moon__) {
+        createComponentFromVNode(node, vnode.meta.component)
+      }
+      return node;
+    }
+
     // Children May have Changed
 
     // Diff props
