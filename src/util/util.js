@@ -355,11 +355,19 @@ var diff = function(node, vnode, parent, instance) {
   } else if(!vnode) {
     // No vnode, remove the node
     parent.removeChild(node);
+    if(node.__moon__) {
+      // Component was unmounted, destroy it here
+      node.__moon__.destroy();
+    }
     return null;
   } else if(nodeName !== vnode.type && !vnode.meta.component) {
     // Different types, replace it
     var newNode = createNodeFromVNode(vnode, instance);
     parent.replaceChild(newNode, node);
+    if(node.__moon__) {
+      // Component was unmounted, destroy it here
+      node.__moon__.destroy();
+    }
     if(vnode.meta.component) {
       // Detected parent component, build it here (parent node is available)
       createComponentFromVNode(newNode, vnode, vnode.meta.component);
