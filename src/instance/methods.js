@@ -24,6 +24,7 @@ Moon.prototype.set = function(key, val) {
  */
 Moon.prototype.destroy = function() {
   this.removeEvents();
+  this.$el = null;
   this.$destroyed = true;
   callHook(this, 'destroyed');
 }
