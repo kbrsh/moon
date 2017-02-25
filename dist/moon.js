@@ -397,9 +397,22 @@
         if (vnode.meta.component) {
           // Detected a component
           //  If not mounted, create a new instance and mount it
+          //  If it is mounted, update its data with new props, and build if needed
           //  Then just skip diffing children
           if (!node.__moon__) {
             createComponentFromVNode(node, vnode, vnode.meta.component);
+          } else {
+            var componentInstance = node.__moon__;
+            var propChanged = false;
+            for (var prop in vnode.props) {
+              if (componentInstance.$data[prop] !== vnode.props[prop]) {
+                componentInstance.$data[prop] = vnode.props[prop];
+                propChanged = true;
+              }
+            }
+            if (propChanged) {
+              componentInstance.build();
+            }
           }
           return node;
         }
