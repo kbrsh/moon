@@ -619,6 +619,7 @@ describe('Functional Component', function() {
 describe('Component', function() {
     createTestElement("component", '<my-component componentprop="{{parentMsg}}"></my-component>');
     createTestElement("slotComponent", '<slot-component>{{parentMsg}}</slot-component>');
+    createTestElement("namedSlotComponent", '<named-slot-component><h1 slot="named-slot">{{parentMsg}}</h1></named-slot-component>');
     var componentConstructor = Moon.component('my-component', {
       props: ['componentprop', 'otherprop'],
       template: "<div>{{componentprop}}</div>"
@@ -628,8 +629,19 @@ describe('Component', function() {
       template: "<div><slot></slot></div>"
     })
 
+    Moon.component('named-slot-component', {
+      template: "<div><slot name='named-slot'></slot></div>"
+    })
+
     var slotComponentApp = new Moon({
       el: "#slotComponent",
+      data: {
+        parentMsg: "Hello Moon!"
+      }
+    });
+
+    var namedSlotComponentApp = new Moon({
+      el: "#namedSlotComponent",
       data: {
         parentMsg: "Hello Moon!"
       }
@@ -663,6 +675,15 @@ describe('Component', function() {
       slotComponentApp.set('parentMsg', 'Changed');
       Moon.nextTick(function() {
         expect(document.getElementById("slotComponent").innerHTML).to.equal("<div>Changed</div>");
+      });
+    });
+    it('should render named slots', function() {
+      expect(document.getElementById("namedSlotComponent").innerHTML).to.equal("<div><h1>Hello Moon!</h1></div>");
+    });
+    it('should render named slots when updated', function() {
+      namedSlotComponentApp.set('parentMsg', 'Changed');
+      Moon.nextTick(function() {
+        expect(document.getElementById("namedSlotComponent").innerHTML).to.equal("<div><h1>Changed</h1></div>");
       });
     });
 });
