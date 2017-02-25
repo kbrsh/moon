@@ -152,7 +152,12 @@ Moon.prototype.render = function() {
  * @param {Object} vnode
  */
 Moon.prototype.patch = function(node, vnode, parent) {
-  diff(node, vnode, parent, this);
+  var newRootEl = diff(node, vnode, parent, this);
+  if(node !== newRootEl) {
+    // Root Node Changed, Apply Change in Instance
+    this.$el = newRootEl;
+    this.$el.__moon__ = this;
+  }
   this.$initialRender = false;
 }
 
