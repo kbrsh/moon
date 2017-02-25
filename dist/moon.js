@@ -296,7 +296,13 @@
         } else {
           // Add all children
           for (var i = 0; i < vnode.children.length; i++) {
-            el.appendChild(createNodeFromVNode(vnode.children[i], instance));
+            var childVNode = vnode.children[i];
+            var childNode = createNodeFromVNode(vnode.children[i], instance);
+            el.appendChild(childNode);
+            // Component detected, mount it here
+            if (childVNode.meta.component) {
+              createComponentFromVNode(childNode, childVNode, childVNode.meta.component);
+            }
           }
         }
         // Add all event listeners
@@ -330,6 +336,29 @@
       componentInstance.build();
       callHook(componentInstance, 'mounted');
       return componentInstance.$el;
+    };
+    
+    /**
+     * Updates a Mounted Component
+     * @param {Object} node
+     * @param {Object} vnode
+     */
+    var updateComponent = function (node, vnode) {
+      var componentInstance = node.__moon__;
+      var componentChanged = false;
+      for (var prop in vnode.props) {
+        if (componentInstance.$data[prop] !== vnode.props[prop]) {
+          componentInstance.$data[prop] = vnode.props[prop];
+          componentChanged = true;
+        }
+      }
+      if (vnode.children) {
+        componentInstance.$slots = getSlots(vnode.children);
+        componentChanged = true;
+      }
+      if (componentChanged) {
+        componentInstance.build();
+      }
     };
     
     /**
@@ -406,21 +435,7 @@
           if (!node.__moon__) {
             createComponentFromVNode(node, vnode, vnode.meta.component);
           } else {
-            var componentInstance = node.__moon__;
-            var componentChanged = false;
-            for (var prop in vnode.props) {
-              if (componentInstance.$data[prop] !== vnode.props[prop]) {
-                componentInstance.$data[prop] = vnode.props[prop];
-                componentChanged = true;
-              }
-            }
-            if (vnode.children) {
-              componentInstance.$slots = getSlots(vnode.children);
-              componentChanged = true;
-            }
-            if (componentChanged) {
-              componentInstance.build();
-            }
+            updateComponent(node, vnode);
           }
           return node;
         }
