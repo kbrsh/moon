@@ -32,7 +32,6 @@ function Moon(opts) {
     this.$id = id++;
 
     this.$name = this.$opts.name || "root";
-    this.$parent = this.$opts.parent || null;
     this.$data = this.$opts.data || {};
     this.$render = this.$opts.render || noop;
     this.$hooks = this.$opts.hooks || {};

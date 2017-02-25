@@ -71,7 +71,6 @@ Moon.directive = function(name, action) {
 Moon.component = function(name, opts) {
   var Parent = this;
   opts.name = name;
-  opts.parent = Parent;
 
   function MoonComponent() {
     Moon.call(this, opts);
