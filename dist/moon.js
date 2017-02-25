@@ -314,11 +314,17 @@
     /**
      * Mounts a Component To The DOM
      * @param {Object} node
+     * @param {Object} vnode
      * @param {Object} component
      * @return {Object} DOM Node
      */
-    var createComponentFromVNode = function (node, component) {
+    var createComponentFromVNode = function (node, vnode, component) {
       var componentInstance = new component.CTor();
+      // Merge data with provided props
+      for (var i = 0; i < componentInstance.$props.length; i++) {
+        var prop = componentInstance.$props[i];
+        componentInstance.$data[prop] = vnode.props[prop];
+      }
       componentInstance.$el = node;
       componentInstance.build();
       callHook(componentInstance, 'mounted');
@@ -393,7 +399,7 @@
           //  If not mounted, create a new instance and mount it
           //  Then just skip diffing children
           if (!node.__moon__) {
-            createComponentFromVNode(node, vnode.meta.component);
+            createComponentFromVNode(node, vnode, vnode.meta.component);
           }
           return node;
         }
