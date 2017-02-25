@@ -54,6 +54,7 @@
       <h5 class="subhead">EXAMPLE</h5>
       <div class="row">
         <div class="col-6">
+          {{=<% %>=}}
           <pre><code lang="HTML"><span class="tag">&lt;div id=<span class="string">'app'</span>&gt;</span>
   <span class="tag">&lt;h1&gt;</span>{{msg}}<span class="tag">&lt;/h1&gt;</span>
   <span class="tag">&lt;input type=<span class="string">'text'</span> m-model=<span class="string">'msg'</span>/&gt;</span>
@@ -64,11 +65,14 @@
     msg: <span class="string">'Hello Moon!'</span>
   }
 });</code></pre>
+<%={{ }}=%>
         </div>
 
         <div class="col-6">
           <div id='app'>
+            {{=<% %>=}}
             <h1>{{msg}}</h1>
+            <%={{ }}=%>
             <input type='text' m-model='msg'/>
           </div>
         </div>
