@@ -301,29 +301,6 @@ var createComponentFromVNode = function(node, vnode, component) {
 }
 
 /**
- * Updates a Mounted Component
- * @param {Object} node
- * @param {Object} vnode
- */
-var updateComponent = function(node, vnode) {
-  var componentInstance = node.__moon__;
-  var componentChanged = false;
-  for(var prop in vnode.props) {
-    if(componentInstance.$data[prop] !== vnode.props[prop]) {
-      componentInstance.$data[prop] = vnode.props[prop];
-      componentChanged = true;
-    }
-  }
-  if(vnode.children) {
-    componentInstance.$slots = getSlots(vnode.children);
-    componentChanged = true;
-  }
-  if(componentChanged) {
-    componentInstance.build();
-  }
-}
-
-/**
  * Diffs Props of Node and a VNode, and apply Changes
  * @param {Object} node
  * @param {Object} nodeProps
@@ -397,7 +374,21 @@ var diff = function(node, vnode, parent, instance) {
       if(!node.__moon__) {
         createComponentFromVNode(node, vnode, vnode.meta.component)
       } else {
-        updateComponent(node, vnode);
+        var componentInstance = node.__moon__;
+        var componentChanged = false;
+        for(var prop in vnode.props) {
+          if(componentInstance.$data[prop] !== vnode.props[prop]) {
+            componentInstance.$data[prop] = vnode.props[prop];
+            componentChanged = true;
+          }
+        }
+        if(vnode.children) {
+          componentInstance.$slots = getSlots(vnode.children);
+          componentChanged = true;
+        }
+        if(componentChanged) {
+          componentInstance.build();
+        }
       }
       return node;
     }
