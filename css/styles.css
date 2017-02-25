@@ -118,10 +118,12 @@ button {
 /* Code Styles */
 pre code {
   background: #E7E7E7;
-  font-family: "Inconsolata";
+  font-family: "Inconsolata", monospace;
   position: relative;
   border: none;
   font-size: 1.5rem;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
 }
 pre code::after {
   content: attr(lang);
