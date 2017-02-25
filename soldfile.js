@@ -1,0 +1,7 @@
+var Sold = require("sold")
+Sold(__dirname)
+  .template("template")
+  .source("src")
+  .postSource("guide")
+  .destination("")
+  .build()

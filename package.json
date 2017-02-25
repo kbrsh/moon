@@ -1,0 +1,24 @@
+{
+  "name": "moon-website",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Moon's Website",
+  "main": "soldfile.js",
+  "dependencies": {},
+  "devDependencies": {
+    "sold": "^0.1.9"
+  },
+  "scripts": {
+    "build": "sold"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KingPixil/moon.git"
+  },
+  "author": "Kabir Shah",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/KingPixil/moon/issues"
+  },
+  "homepage": "https://github.com/KingPixil/moon#readme"
+}
