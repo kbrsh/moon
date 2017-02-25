@@ -347,6 +347,10 @@ var diff = function(node, vnode, parent, instance) {
     // No Node, create a node
     var newNode = createNodeFromVNode(vnode, instance);
     parent.appendChild(newNode);
+    if(vnode.meta.component) {
+      // Detected parent component, build it here (parent node is available)
+      createComponentFromVNode(newNode, vnode, vnode.meta.component);
+    }
     return newNode;
   } else if(!vnode) {
     // No vnode, remove the node
