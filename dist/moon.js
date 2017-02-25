@@ -398,6 +398,10 @@
         // Different types, replace it
         var newNode = createNodeFromVNode(vnode, instance);
         parent.replaceChild(newNode, node);
+        if (vnode.meta.component) {
+          // Detected parent component, build it here (parent node is available)
+          createComponentFromVNode(newNode, vnode, vnode.meta.component);
+        }
         return newNode;
       } else if (vnode.meta.shouldRender && vnode.type === "#text" && nodeName === "#text" && vnode.val !== node.textContent) {
         // Both are textnodes, update the node
