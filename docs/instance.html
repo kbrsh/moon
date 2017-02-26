@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Installation. Kabir Shah's blog.">
+  <meta name="description" content="Instance. Kabir Shah's blog.">
   <meta name="author" content="Kabir Shah">
 
   <title>Moon</title>
@@ -24,32 +24,22 @@
   <aside class="sidebar">
     <h3 class="sidebar-head">Moon</h3>
     <div class="sidebar-nav">
-      <a href="./installation.html" class="sidebar-link-active">Installation</a>
+      <a href="./installation.html">Installation</a>
       <a href="./overview.html">Overview</a>
       <a href="./getting-started.html">Getting Started</a>
-      <a href="./instance.html">Instance</a>
+      <a href="./instance.html" class="sidebar-link-active">Instance</a>
     </div>
   </aside>
   <div class="post">
     <div class="container-small">
-      <h1 class="post-title">Installation</h1>
+      <h1 class="post-title">Instance</h1>
       <div class="post-content">
-        <h4 id="cdn">CDN</h4>
-<p>Installing Moon is as easy as including a script tag to a CDN. The preferred CDN is <a href="https://unpkg.com">unpkg</a>:</p>
-<pre><code class="lang-html">&lt;script src=&quot;https://unpkg.com/moonjs@0.5.0&quot;&gt;&lt;/script&gt;
-</code></pre>
-<h4 id="npm">NPM</h4>
-<p>Moon is supported in RequireJS environments, but to actually update/patch elements, it requires the DOM.</p>
-<pre><code class="lang-bash">$ npm install moonjs
-</code></pre>
-<pre><code class="lang-js">var Moon = require(&quot;moonjs&quot;);
-</code></pre>
-<h4 id="development-build">Development Build</h4>
-<p>To edit the source files and build Moon from scratch, clone the repo, and edit any files in the <code>src</code> directory.</p>
-<pre><code class="lang-bash">$ npm run build
-</code></pre>
-<p>This will output the built files in the <code>dist/</code> directory. To run unit tests, run:</p>
-<pre><code class="lang-bash">$ npm run test
+        <p>The root Moon instance is the core of your application, this is where any top level data should be defined, and it should be mounted on the root element that contains all of your components, directives, and templates.</p>
+<h4 id="initializing">Initializing</h4>
+<p>A new Moon instance should always be made using the <em>new</em> keyword, and should contain an object containing all of the options. An instance does not require any options, but if you provide an <code>el</code> option, it will be mounted to this element.</p>
+<pre><code class="lang-js">new Moon({
+  // options
+});
 </code></pre>
 
       </div>
