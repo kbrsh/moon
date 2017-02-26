@@ -180,6 +180,7 @@ code {
 /* Sidebar */
 .sidebar {
   position: fixed;
+  z-index: 1;
   padding: 40px 0;
   top: 0;
   bottom: 0;
@@ -245,6 +246,7 @@ body.close .post {
 
 .post {
   left: 300px;
+  z-index: 0;
   position: absolute;
   right: 0;
   padding-bottom: 5rem;
@@ -259,11 +261,12 @@ body.close .post {
     left: 0;
   }
   body.close .sidebar {
+    background: #f5f5f5;
     transform: translateX(0px);
   }
 
   body.close .post {
-    left: 300px;
+    /*left: 300px;*/
   }
 }
 
