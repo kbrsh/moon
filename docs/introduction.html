@@ -12,7 +12,7 @@
   <link rel="stylesheet" type="text/css" href="../fonts/fonts.css" />
   <link rel="stylesheet" type="text/css" href="../css/lib/wing.min.css" />
   <link rel="stylesheet" type="text/css" href="../css/styles.css" />
-
+  <script type="text/javascript" src="../dist/moon.min.js"></script>
 </head>
 
 <body>
@@ -56,10 +56,113 @@
 <h4 id="getting-started">Getting Started</h4>
 <p>This introduction guide will get you started building basic applications with Moon in no time, to get started, create an HTML file and put this into it:</p>
 <pre><code class="lang-html">&lt;body&gt;
-  &lt;div id=&quot;app&quot;&gt;&lt;/div&gt;
   &lt;script src=&quot;https://unpkg.com/moonjs@0.4.6&quot;&gt;&lt;/script&gt;
+  &lt;script&gt;
+    // Our Code Goes Here
+  &lt;/script&gt;
 &lt;/body&gt;
 </code></pre>
+<p>Now just follow along!</p>
+<h4 id="initialization">Initialization</h4>
+<p>First, let&#39;s create a new <strong>Moon Instance</strong>, this is where all our options for Moon go, and where we initialize it.</p>
+<pre><code class="lang-js">var app1 = new Moon({
+  el: &quot;#app1&quot;,
+  data: {
+    msg: &quot;Hello Moon!&quot;
+  }
+});
+</code></pre>
+<p>The <code>el</code> option is recognized by Moon, and Moon mounts itself onto this element.</p>
+<p>The <code>data</code> option is also recognized by Moon, this is an object where we can store all of our data, this data can be updated at any time, and Moon makes the necessary changes to the DOM in real-time!</p>
+<p>Let&#39;s show the user this message, by adding this to the HTML:</p>
+<pre><code class="lang-html">&lt;div id=&quot;app1&quot;&gt;
+  &lt;p&gt;{{msg}}&lt;/p&gt;
+&lt;/div&gt;
+</code></pre>
+<p>Notice the <code>{{mustache}}</code> syntax? This is used to interpolate properties in the <code>data</code> your provide. Moon analyzes these and will update this element every time you change the <code>msg</code> property.</p>
+<p>We should now have something that looks like this:</p>
+<div id="app1" class="example">
+  <p>{{msg}}</p>
+</div>
+
+<script>
+  var app1 = new Moon({
+    el: "#app1",
+    data: {
+      msg: "Hello Moon!"
+    }
+  });
+</script>
+
+<h4 id="changing-data">Changing Data</h4>
+<p>Moon can update the DOM as a result of you changing the data. To change data, you use an <strong>instance method</strong> called <code>set</code>. You can know do something like:</p>
+<pre><code class="lang-html">&lt;div id=&quot;app2&quot;&gt;
+  &lt;p&gt;{{msg}}&lt;/p&gt;
+&lt;/div&gt;
+</code></pre>
+<pre><code class="lang-js">var app2 = new Moon({
+  el: &quot;#app2&quot;,
+  data: {
+    msg: &quot;Hello Moon!&quot;
+  }
+});
+
+app2.set(&#39;msg&#39;, &quot;Changed Message!&quot;);
+</code></pre>
+<div id="app2" class="example">
+  <p>{{msg}}</p>
+</div>
+
+<script>
+  var app2 = new Moon({
+    el: "#app2",
+    data: {
+      msg: "Hello Moon!"
+    }
+  });
+  app2.set('msg', "Changed Message!");
+</script>
+
+<p>Go ahead, try entering <code>app2.set(&#39;msg&#39;, &#39;New Message!&#39;)</code> in the console!</p>
+<h4 id="methods">Methods</h4>
+<p>Methods allow you to reuse code throughout your Moon applications. You can put them in the <code>methods</code> option when initializing the Moon instance. To call these methods, we use the <code>callMethod</code> function, this takes the method to call as the first parameter, and any arguments as an array in the second parameter.</p>
+<p>You have to use the <code>callMethod</code> function every time you call a method, or else <code>this</code> won&#39;t be available as a reference to the instance.</p>
+<pre><code class="lang-html">&lt;div id=&quot;app3&quot;&gt;
+  &lt;p&gt;{{msg}}&lt;/p&gt;
+&lt;/div&gt;
+</code></pre>
+<pre><code class="lang-js">var app3 = new Moon({
+  el: &quot;#app3&quot;,
+  data: {
+    msg: &quot;Hello Moon!&quot;
+  },
+  methods: {
+    changeMessage: function(msg) {
+      this.set(&#39;msg&#39;, msg);
+    }
+  }
+});
+
+app3.callMethod(&#39;changeMessage&#39;, [&#39;New Message!&#39;]);
+</code></pre>
+<div id="app3" class="example">
+  <p>{{msg}}</p>
+</div>
+
+<script>
+var app3 = new Moon({
+  el: "#app3",
+  data: {
+    msg: "Hello Moon!"
+  },
+  methods: {
+    changeMessage: function(msg) {
+      this.set('msg', msg);
+    }
+  }
+});
+app3.callMethod('changeMessage', ['New Message!']);
+</script>
 
       </div>
     </div>
