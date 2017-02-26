@@ -241,7 +241,9 @@ var app5 = new Moon({
   methods: {
     increment: function() {
       // Increment the count by one
-      this.set(&#39;count&#39;, this.get(&#39;count&#39;)++);
+      var count = this.get(&#39;count&#39;);
+      count++;
+      this.set(&#39;count&#39;, count);
     }
   }
 });
