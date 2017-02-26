@@ -144,7 +144,7 @@ describe("Compiler", function() {
     expect(el.innerHTML).to.equal("text");
   });
   it("should compile an unclosed comment", function() {
-    if(!console) {
+    if(typeof console === 'undefined') {
       console = {}
     }
     if(console) {
