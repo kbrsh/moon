@@ -11,7 +11,7 @@ var compile = function(val, lang) {
 
   var STR_RE = /["'](.*?)["']/g;
   var SPECIAL_RE = /\b(new|var|if|do|function|while|switch|for|foreach|in|continue|break)(?=[^\w])/g;
-  var GLOBAL_VARIABLE_RE = /\b(document|window|Array|String|Object|Number|\$)(?=[^\w])/g;
+  var GLOBAL_VARIABLE_RE = /\b(document|window|Array|String|Object|this|Number|\$)(?=[^\w])/g;
   var METHODS_RE = /\b(indexOf|match|replace|toString|length)(?=[^\w])/g;
   var MULTILINE_COMMENT_RE  = /(\/\*.*\*\/)/g;
   var COMMENT_RE = /(\/\/.*)/g;
@@ -19,7 +19,7 @@ var compile = function(val, lang) {
   var TAG_RE = /(&lt;(.|\n)*?&gt;)/g;
 
   compiled.replace(STR_RE, function(match, value) {
-    compiled = compiled.replace(match, "<span class=\"string\">\"" + value + "\"</span>");
+    compiled = compiled.replace(new RegExp(match, "g"), "<span class=\"string\">\"" + value + "\"</span>");
   });
 
   if(lang === "html") {
@@ -28,23 +28,23 @@ var compile = function(val, lang) {
     });
   } else {
     compiled.replace(SPECIAL_RE, function(match, value) {
-      compiled = compiled.replace(match, "<span class=\"special\">" + value + "</span>");
+      compiled = compiled.replace(new RegExp(match, "g"), "<span class=\"special\">" + value + "</span>");
     });
 
     compiled.replace(GLOBAL_VARIABLE_RE, function(match, value) {
-      compiled = compiled.replace(match, "<span class=\"global\">" + value + "</span>");
+      compiled = compiled.replace(new RegExp(match, "g"), "<span class=\"global\">" + value + "</span>");
     });
 
     compiled.replace(METHODS_RE, function(match, value) {
-      compiled = compiled.replace(match, "<span class=\"method\">" + value + "</span>");
+      compiled = compiled.replace(new RegExp(match, "g"), "<span class=\"method\">" + value + "</span>");
     });
 
     compiled.replace(COMMENT_RE, function(match, value) {
-      compiled = compiled.replace(match, "<span class=\"comment\">" + value + "</span>");
+      compiled = compiled.replace(new RegExp(match, "g"), "<span class=\"comment\">" + value + "</span>");
     });
 
     compiled.replace(MULTILINE_COMMENT_RE, function(match, value) {
-      compiled = compiled.replace(match, "<span class=\"comment\">" + value + "</span>");
+      compiled = compiled.replace(new RegExp(match, "g"), "<span class=\"comment\">" + value + "</span>");
     });
   }
 
