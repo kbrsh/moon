@@ -56,3 +56,37 @@ var app = new Moon({
 app.callMethod("increment");
 // count => 1
 ```
+
+#### Lifecycle
+
+Like React and Vue, Moon calls certain lifecycle hooks throughout the life of your instance/component.
+
+These can be defined in the `hooks` option, for example:
+
+```js
+new Moon({
+  hooks: {
+    init: function() {
+      // called when first creating
+    },
+    mounted: function() {
+      // called when element is mounted and the first build has been run
+    },
+    updated: function() {
+      // called every time data is updated
+    },
+    destroyed: function() {
+      // called when it is destroyed, the component might be removed
+      // from the DOM
+    }
+  }
+});
+```
+
+Just like how you can mount an instance manually, you can also use:
+
+```js
+app.destroy();
+```
+
+This will destroy the instance (no changes will be made when data is updated)
