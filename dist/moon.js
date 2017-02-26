@@ -751,7 +751,7 @@
       return root;
     };
     
-    var HTML_ELEMENTS = { "html": true, "body": true, "head": true, "style": true, "title": true, "address": true, "article": true, "aside": true, "footer": true, "header": true, "h1": true, "h2": true, "h3": true, "h4": true, "h5": true, "h6": true, "hgroup": true, "nav": true, "section": true, "div": true, "dd": true, "dl": true, "dt": true, "figcaption": true, "figure": true, "li": true, "main": true, "ol": true, "p": true, "pre": true, "ul": true, "a": true, "b": true, "abbr": true, "bdi": true, "bdo": true, "cite": true, "code": true, "data": true, "dfn": true, "em": true, "i": true, "kbd": true, "mark": true, "q": true, "rp": true, "rt": true, "rtc": true, "ruby": true, "s": true, "samp": true, "small": true, "span": true, "strong": true, "sub": true, "sup": true, "time": true, "u": true, "var": true, "audio": true, "map": true, "video": true, "object": true, "canvas": true, "script": true, "noscript": true, "del": true, "ins": true, "caption": true, "colgroup": true, "table": true, "thead": true, "tbody": true, "td": true, "th": true, "tr": true, "button": true, "datalist": true, "fieldset": true, "form": true, "label": true, "legend": true, "meter": true, "optgroup": true, "option": true, "output": true, "progress": true, "select": true, "textarea": true, "details": true, "dialog": true, "menu": true, "menuitem": true, "summary": true, "content": true, "element": true, "shadow": true, "template": true };
+    var HTML_ELEMENTS = ["area", "base", "br", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"];
     
     var createParseNode = function (type, props, children) {
       return {
@@ -792,6 +792,12 @@
         var tagType = secondToken.value;
         // Exit Start Tag
         increment(4);
+    
+        // If it's self closing, return it here
+        if (HTML_ELEMENTS.indexOf(node.type) !== -1) {
+          return node;
+        }
+    
         var startContentIndex = state.current;
         // Make sure it has content and is closed
         if (token) {
@@ -801,27 +807,12 @@
             var parsedChildState = walk(state);
             var lastKnown;
             if (parsedChildState) {
-              lastKnown = {
-                node: parsedChildState,
-                index: node.children.length
-              };
               node.children.push(parsedChildState);
             }
             increment(0);
             if (!token) {
-              // No token means that there is nothing left to parse in this element
-              // This usually means that the tag was unclosed
-              if (lastKnown && !HTML_ELEMENTS[lastKnown.node.type]) {
-                // The last known node is not a known closing element
-                // This means that it is a self closing element, so
-                // close it, and add collected children after
-                var left = lastKnown.node.children;
-                node.children[lastKnown.index].children = [];
-                node.children = node.children.concat(left);
-              }
-              // It is supposed to be closed,
-              // but was left unclosed, so attempt to fix by
-              // pushing all known children into the element
+              // No token means a tag was left unclosed
+              error('The element "' + node.type + '" was left unclosed.');
               break;
             }
           }
