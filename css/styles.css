@@ -204,6 +204,10 @@ code {
   display: block;
 }
 
+.sidebar-nav a.sidebar-link-active {
+  color: #44aecd;
+}
+
 #sidebar-toggle {
   position: fixed;
   width: 21px;
