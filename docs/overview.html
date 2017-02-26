@@ -98,7 +98,7 @@ app.set(&#39;count&#39;, 3);
 <p>If you created an app with a <code>count</code> property in the data, and ran this code, Moon would only update once. Why? Moon pushes this build to a queue, and if it is not building already, then it will run a build. If not, it will wait until all the data in the current block is set, then build.</p>
 <p>If you&#39;d like to see the DOM after an update is queued, you can use <code>Moon.nextTick</code> like:</p>
 <pre><code class="lang-js">Moon.nextTick(function() {
-  // do something with the DOM
+  // manipulate the DOM
 });
 </code></pre>
 <h4 id="directives">Directives</h4>

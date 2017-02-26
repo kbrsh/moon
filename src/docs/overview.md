@@ -91,7 +91,7 @@ If you'd like to see the DOM after an update is queued, you can use `Moon.nextTi
 
 ```js
 Moon.nextTick(function() {
-  // do something with the DOM
+  // manipulate the DOM
 });
 ```
 

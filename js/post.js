@@ -11,7 +11,7 @@ var compile = function(val, lang) {
 
   var STR_RE = /["'](.*?)["']/g;
   var SPECIAL_RE = /\b(new|var|if|do|function|while|switch|for|foreach|in|continue|break)(?=[^\w])/g;
-  var GLOBAL_VARIABLE_RE = /\b(document|window|Array|String|Object|this|Number|\$)(?=[^\w])/g;
+  var GLOBAL_VARIABLE_RE = /\b(document|window|Array|String|true|false|Object|this|Number|\$)(?=[^\w])/g;
   var METHODS_RE = /\b(indexOf|match|replace|toString|length)(?=[^\w])/g;
   var MULTILINE_COMMENT_RE  = /(\/\*.*\*\/)/g;
   var COMMENT_RE = /(\/\/.*)/g;
