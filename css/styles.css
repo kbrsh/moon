@@ -260,6 +260,12 @@ body.close .post {
   }
 }
 
+/* Examples */
+.example {
+  background: #E7E7E7;
+  padding: 1rem 3rem;
+}
+
 /* === Footer === */
 footer {
 	position: absolute;
