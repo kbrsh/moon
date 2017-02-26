@@ -5,7 +5,7 @@
   "description": "Moon's Website",
   "main": "soldfile.js",
   "dependencies": {
-    "sold": "^0.1.10"
+    "sold": "^0.1.13"
   },
   "devDependencies": {
     "sold": "^0.1.10"
