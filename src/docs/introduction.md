@@ -246,3 +246,56 @@ var app5 = new Moon({
 </script>
 
 Go ahead, try entering `app5.set('list', ['New Item', 'Another Item'])` in the console!
+
+#### Event Listeners
+
+Great! We've been able to conditionally render elements, and render lists, but what if we need to get data from the user? For this, and adding other events, we use the `m-on` directive.
+
+The syntax for this directive is like: `event:method`. If you need custom parameters, you can use `event:method('custom parameter')`.
+
+```html
+<div id="app6">
+  <p>{{count}}</p>
+  <button m-on="click:increment">Increment</button>
+</div>
+```
+
+```js
+var app6 = new Moon({
+  el: "#app6",
+  data: {
+    count: 0
+  },
+  methods: {
+    increment: function() {
+      // Increment the count by one
+      this.set('count', this.get('count')++);
+    }
+  }
+});
+```
+
+<div id="app6" class="example">
+  <p>{{count}}</p>
+  <button m-on="click:increment">Increment</button>
+</div>
+
+<script>
+var app6 = new Moon({
+  el: "#app6",
+  data: {
+    count: 0
+  },
+  methods: {
+    increment: function() {
+      // Increment the count by one
+      var count = this.get('count');
+      count++;
+      this.set('count', count);
+    }
+  }
+});
+
+</script>
+
+Go ahead, try clicking the button to increment the count in real-time!
