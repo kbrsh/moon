@@ -125,3 +125,27 @@ Now, if you detected the user has signed out, the `m-if` directive will handle t
 Type `app1.set('signedIn', false)` in the console, and watch the DOM being updated!
 
 Directives always have a prefix of `m-`, and this prefix can be set in `Moon.config.prefix`.
+
+#### Components
+
+Components are super useful, allowing you to reuse certain elements of your app. Moon has a component system like React/Vue, allowing you to compose entire applications with components.
+
+Each component is a mini Moon instance, that the diff engine treats differently.
+
+Like React, Moon also offers stateless functional components with just a render function. These provide a performance boost when diffing.
+
+Regular components are optimized by default, you have to do no work. It's like the `shouldComponentUpdate()` hook in React is already implemented for you by Moon's smart rendering engine.
+
+If you have multiple components, but only update one, only that component will be updated.
+
+Moon's components also have a **slot** system, allowing you to render the HTML that was inside the component being rendered.
+
+Here is how an app that uses components might look like:
+
+```html
+<App>
+  <Header>Some Content</Header>
+  <Content>Body Content</Content>
+  <List items="{{items}}"/>
+</App>
+```
