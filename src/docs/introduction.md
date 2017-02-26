@@ -206,3 +206,43 @@ var app4 = new Moon({
 You can also use `m-show`, and this will toggle the `display` property of the element.
 
 Go ahead, try entering `app4.set('condition', false)` in the console!
+
+#### Loops
+
+Another directive (`m-for`) allows you to iterate through arrays and display them! If you change any elements of the array, the DOM will be updated to match.
+
+```html
+<div id="app5">
+  <ul>
+    <li m-for="item in {{list}}">{{item}}</li>
+  </ul>
+</div>
+```
+
+The `item` will now be available to us as an **alias** for each item in the list.
+
+```js
+var app5 = new Moon({
+  el: "#app5",
+  data: {
+    list: ['Item - 1', 'Item - 2', 'Item - 3', 'Item - 4']
+  }
+});
+```
+
+<div id="app5" class="example">
+  <ul>
+    <li m-for="item in {{list}}">{{item}}</li>
+  </ul>
+</div>
+
+<script>
+var app5 = new Moon({
+  el: "#app5",
+  data: {
+    list: ['Item - 1', 'Item - 2', 'Item - 3', 'Item - 4']
+  }
+});
+</script>
+
+Go ahead, try entering `app5.set('list', ['New Item', 'Another Item'])` in the console!
