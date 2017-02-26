@@ -1,5 +1,5 @@
 ---
-title: Introduction
+title: Guide
 order: 2
 ---
 
