@@ -169,7 +169,11 @@ var app3 = new Moon({
 app3.callMethod('changeMessage', ['New Message!']);
 </script>
 
-Go ahead, try entering `app3.callMethod('changeMessage', ['Calling a Method!']);` in the console!
+Go ahead, try entering:
+```js
+app3.callMethod('changeMessage', ['Calling a Method!']);
+```
+ in the console!
 
 #### Conditional Rendering
 
