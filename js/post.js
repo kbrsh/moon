@@ -6,7 +6,7 @@ sidebarToggle.addEventListener("click", function() {
 
 var code = document.getElementsByTagName("code");
 
-var compile = function(val) {
+var compile = function(val, lang) {
   var compiled = val;
 
   var STR_RE = /["'](.*?)["']/g;
@@ -22,29 +22,31 @@ var compile = function(val) {
     compiled = compiled.replace(match, "<span class=\"string\">\"" + value + "\"</span>");
   });
 
-  compiled.replace(SPECIAL_RE, function(match, value) {
-    compiled = compiled.replace(match, "<span class=\"special\">" + value + "</span>");
-  });
+  if(lang === "html") {
+    compiled.replace(TAG_RE, function(match, value) {
+      compiled = compiled.replace(new RegExp(match, "g"), "<span class=\"tag\">" + value + "</span>");
+    });
+  } else {
+    compiled.replace(SPECIAL_RE, function(match, value) {
+      compiled = compiled.replace(match, "<span class=\"special\">" + value + "</span>");
+    });
 
-  compiled.replace(GLOBAL_VARIABLE_RE, function(match, value) {
-    compiled = compiled.replace(match, "<span class=\"global\">" + value + "</span>");
-  });
+    compiled.replace(GLOBAL_VARIABLE_RE, function(match, value) {
+      compiled = compiled.replace(match, "<span class=\"global\">" + value + "</span>");
+    });
 
-  compiled.replace(METHODS_RE, function(match, value) {
-    compiled = compiled.replace(match, "<span class=\"method\">" + value + "</span>");
-  });
+    compiled.replace(METHODS_RE, function(match, value) {
+      compiled = compiled.replace(match, "<span class=\"method\">" + value + "</span>");
+    });
 
-  compiled.replace(COMMENT_RE, function(match, value) {
-    compiled = compiled.replace(match, "<span class=\"comment\">" + value + "</span>");
-  });
+    compiled.replace(COMMENT_RE, function(match, value) {
+      compiled = compiled.replace(match, "<span class=\"comment\">" + value + "</span>");
+    });
 
-  compiled.replace(MULTILINE_COMMENT_RE, function(match, value) {
-    compiled = compiled.replace(match, "<span class=\"comment\">" + value + "</span>");
-  });
-
-  compiled.replace(TAG_RE, function(match, value) {
-    compiled = compiled.replace(new RegExp(match, "g"), "<span class=\"tag\">" + value + "</span>");
-  });
+    compiled.replace(MULTILINE_COMMENT_RE, function(match, value) {
+      compiled = compiled.replace(match, "<span class=\"comment\">" + value + "</span>");
+    });
+  }
 
 
   return compiled;
@@ -56,11 +58,12 @@ for(var i = 0; i < code.length; i++) {
   for(var j = 0; j < attrs.length; j++) {
     var type = attrs[j].name;
     var val = attrs[j].value;
+    var lang;
     if(type === "class" && val.substr(0, 5) === "lang-") {
-      var lang = val.slice(5);
+      lang = val.slice(5);
       el.setAttribute('lang', lang);
       el.classList.remove(val);
     }
-    el.innerHTML = compile(el.innerHTML);
+    el.innerHTML = compile(el.innerHTML, lang);
   }
 }
