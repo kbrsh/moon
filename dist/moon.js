@@ -1360,10 +1360,11 @@
         var rawModifiers = splitVal[0].split(".");
         var eventToCall = rawModifiers[0];
         var methodToCall = splitVal[1];
-        var params = "(event)";
-        var rawParams = methodToCall.split("(")[1];
-        if (rawParams) {
-          params = "";
+        var params = "event";
+        var rawParams = methodToCall.split("(");
+        if (rawParams.length > 1) {
+          methodToCall = rawParams.shift();
+          params = rawParams.join("(").slice(0, -1);
         }
         var modifiers = "";
     
@@ -1373,7 +1374,7 @@
           modifiers += eventModifiersCode[rawModifiers[i]];
         }
     
-        var code = 'function(event) {' + modifiers + 'instance.$methods.' + methodToCall + params + '}';
+        var code = 'function(event) {' + modifiers + 'instance.callMethod("' + methodToCall + '", [' + params + '])}';
         if (!vnode.meta.eventListeners[eventToCall]) {
           vnode.meta.eventListeners[eventToCall] = [code];
         } else {
