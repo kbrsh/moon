@@ -87,6 +87,14 @@ app.set('count', 3);
 
 If you created an app with a `count` property in the data, and ran this code, Moon would only update once. Why? Moon pushes this build to a queue, and if it is not building already, then it will run a build. If not, it will wait until all the data in the current block is set, then build.
 
+If you'd like to see the DOM after an update is queued, you can use `Moon.nextTick` like:
+
+```js
+Moon.nextTick(function() {
+  // do something with the DOM
+});
+```
+
 #### Directives
 
 Angular provided a lot of helpful directives that could perform a variety of tasks. Moon has directives built in as well, and can be used to conditionally render items, to render lists, to attach event listeners, to skip updating, and more!
