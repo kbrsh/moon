@@ -165,6 +165,34 @@ app3.callMethod('changeMessage', ['New Message!']);
 </script>
 
 <p>Go ahead, try entering <code>app3.callMethod(&#39;changeMessage&#39;, [&#39;Calling a Method!&#39;]);</code> in the console!</p>
+<h4 id="conditional-rendering">Conditional Rendering</h4>
+<p>Let&#39;s get started with our first <em>directive!</em> Directives are ways of adding special behavior to elements. Right now, we are going to use <code>m-if</code>. This lets us put in any data, including <code>{{mustache}}</code> templates into the directive as an attribute. If it is truthy, it will be rendered, if it is falsy, it won&#39;t be rendered (the element won&#39;t exist).</p>
+<pre><code class="lang-html">&lt;div id=&quot;app4&quot;&gt;
+  &lt;p m-if=&quot;{{condition}}&quot;&gt;The Condition is True!&lt;/p&gt;
+&lt;/div&gt;
+</code></pre>
+<pre><code class="lang-js">var app4 = new Moon({
+  el: &quot;#app4&quot;,
+  data: {
+    condition: true
+  }
+});
+</code></pre>
+<div id="app4" class="example">
+  <p m-if="{{condition}}">The Condition is True!</p>
+</div>
+
+<script>
+var app4 = new Moon({
+  el: "#app4",
+  data: {
+    condition: true
+  }
+});
+</script>
+
+<p>You can also use <code>m-show</code>, and this will toggle the <code>display</code> property of the element.</p>
+<p>Go ahead, try entering <code>app4.set(&#39;condition&#39;, false)</code> in the console!</p>
 
       </div>
     </div>
