@@ -5,7 +5,7 @@ order: 2
 
 #### What is Moon?
 
-Moon is a minimal, blazing fast library for building user interfaces. It's super lightweight, and includes advanced optimizations to ensure fast render times. It's easy to learn, whether you come from Vue, Angular, React, Ractive, Mithril, or Vanilla.
+Moon is a minimal, blazing fast library for building user interfaces. It combines the positive aspects of popular libraries into one small package. It's super lightweight, and includes advanced optimizations to ensure fast render times. The API is small and intuitive, while still remaining powerful.
 
 For example, here is the minified + gzipped size for popular libraries compared to Moon (less is better):
 
