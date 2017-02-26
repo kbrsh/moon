@@ -186,14 +186,14 @@ code {
   transition: all 0.2s ease;
 }
 
-.sidebar-nav {
-  padding: 2rem 4rem;
-}
-
 .sidebar-head {
   font-family: "Qanelas-Bold", sans-serif;
   text-align: center;
   margin-top: 0;
+}
+
+.sidebar-nav {
+  padding: 2rem 4rem;
 }
 
 .sidebar-nav a {
@@ -201,6 +201,7 @@ code {
   font-family: "Qanelas-Light", sans-serif;
   text-decoration: none;
   font-size: 2rem;
+  display: block;
 }
 
 #sidebar-toggle {
