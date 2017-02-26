@@ -150,8 +150,11 @@ code {
 .string {
   color: #02C1A7;
 }
-.user-special {
-  color: #e29818;
+.comment {
+  color: #989898;
+}
+.global {
+  color: #db9114;
 }
 
 /* Example Styles */
