@@ -4,9 +4,11 @@
   "private": true,
   "description": "Moon's Website",
   "main": "soldfile.js",
-  "dependencies": {},
+  "dependencies": {
+    "sold": "^0.1.10"
+  },
   "devDependencies": {
-    "sold": "^0.1.9"
+    "sold": "^0.1.10"
   },
   "scripts": {
     "build": "sold"
