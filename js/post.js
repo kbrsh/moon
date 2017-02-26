@@ -10,7 +10,7 @@ var compile = function(val, lang) {
   var compiled = val;
 
   var STR_RE = /["'](.*?)["']/g;
-  var SPECIAL_RE = /\b(new|var|if|do|function|while|switch|for|foreach|in|continue|break)(?=[^\w])/g;
+  var SPECIAL_RE = /\b(new|var|if|do|function|while|switch|for|foreach|in|continue|break|return)(?=[^\w])/g;
   var GLOBAL_VARIABLE_RE = /\b(document|window|Array|String|true|false|Object|this|Number|\$)(?=[^\w])/g;
   var METHODS_RE = /\b(indexOf|match|replace|toString|length)(?=[^\w])/g;
   var MULTILINE_COMMENT_RE  = /(\/\*.*\*\/)/g;
