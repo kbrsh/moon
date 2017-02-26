@@ -301,3 +301,103 @@ var app6 = new Moon({
 </script>
 
 Go ahead, try clicking the button to increment the count in real-time!
+
+#### Components
+
+Like React/Vue/Angular/Mithril, Moon provides a component system. There are two main types of components, we'll be talking about normal components.
+
+##### Registering
+
+To register a component, use the global `component` method, with the component name as the first argument, and all options as the second argument. A component can take (most) arguments a regular instance can take.
+
+```js
+Moon.component("name", {
+  // options
+});
+```
+
+Once this component is registered, you can use it in your HTML like:
+
+```html
+<component-name></component-name>
+```
+
+For example:
+
+```html
+<div id="app7">
+  <my-component></my-component>
+</div>
+```
+
+```js
+Moon.component('my-component', {
+  template: "<p>This is a Component!</p>"
+});
+
+var app7 = new Moon({
+  el: "#app7"
+});
+```
+
+This will render:
+
+<div id="app7" class="example">
+  <my-component></my-component>
+</div>
+
+<script>
+Moon.component('my-component', {
+  template: "<p>This is a Component!</p>"
+});
+
+var app7 = new Moon({
+  el: "#app7"
+});
+</script>
+
+Components can be nested within each other, and each have their own scope. Updating one component's data **will not** update any other components other than itself.
+
+##### Props
+
+Components do not have access to data from their parent. To pass data down from the parent, you can use `props`. Define them in your component options, and you will have access to them via `{{mustache}}` templates. You can pass them by putting them as attributes.
+
+```html
+<div id="app8">
+  <my-component content="{{parentMsg}}"></my-component>
+</div>
+```
+
+```js
+Moon.component('my-component', {
+  props: ['content'],
+  template: "<p>Data from Parent: {{content}}</p>"
+});
+
+var app8 = new Moon({
+  el: "#app8",
+  data: {
+    parentMsg: "Parent Data"
+  }
+});
+```
+
+<div id="app8" class="example">
+  <my-component content="{{parentMsg}}"></my-component>
+</div>
+
+<script>
+Moon.component('my-component', {
+  props: ['content'],
+  template: "<p>Data from Parent: {{content}}</p>"
+});
+
+var app8 = new Moon({
+  el: "#app8",
+  data: {
+    parentMsg: "Parent Data"
+  }
+});
+</script>
+
+Go ahead, try entering `app8.set('parentMsg', 'New Parent Data')` and watch the component being updated!
