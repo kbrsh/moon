@@ -1,0 +1,127 @@
+---
+title: Overview
+order: 2
+---
+
+#### What is Moon?
+
+Moon is a minimal, blazing fast library for building user interfaces. It's super lightweight, and includes advanced optimizations to ensure fast render times. It's easy to learn, whether you come from Vue, Angular, React, Ractive, Mithril, or Vanilla.
+
+For example, here is the minified + gzipped size for popular libraries compared to Moon (less is better):
+
+- Moon - 4.9kb
+- Mithril - 8kb
+- Vue - 25.86kb
+- React + React DOM - 43kb
+- Angular 2 - 111kb
+
+Update performance (more is better):
+
+- Moon - 102 repaints/sec
+- Mithril - 95 repaints/sec
+- Angular 2 - 62 repaints/sec
+- Vue - 50 repaints/sec
+- React - 49 repaints/sec
+- Angular - 47 repaints/sec
+
+As you can see, Moon is blazing fast compared to other popular libraries.
+
+Moon can also support IE9+ without any polyfils.
+
+#### Another library?
+
+Yes, there have been a **lot** of front end libraries released, and many people prefer different aspects about each of these libraries. For example, React provides the ability to use JSX and uses a virtual DOM, Angular provides easy to use directives, and Ember provides a nice templating engine built in.
+
+Moon aims to combine all of the good features of these libraries into a single, lightweight package, while providing improved performance.
+
+#### Reactive Data
+
+With Moon, all of your data is kept in sync with the DOM, while in React or JQuery, this was a tedious task that had to be done manually.
+
+Moon, on the other hand, has a lightweight templating engine built in, it lets you interpolate data with a simple `{{mustache}}` template. You can uses these templates anywhere in your app, including attributes!
+
+Take a look at this example:
+
+```html
+<div id="app1">
+  <p style="color: {{color}}">Change my Color!</p>
+</div>
+```
+
+```js
+var app1 = new Moon({
+  el: "#app1",
+  data: {
+    color: "blue"
+  }
+});
+```
+
+<div id="app1" class="example">
+  <p style="color: {{color}}">Change my Color!</p>
+</div>
+
+<script>
+var app1 = new Moon({
+  el: "#app1",
+  data: {
+    color: "blue"
+  }
+});
+</script>
+
+As you can see, the paragraph renders with a blue color!
+Go ahead, try changing it in the console with `app1.set('color', 'green')`
+
+Internally, each instance has an **observer**. Every time you `.set` a property, the observer is notified of a change, and it will queue a build.
+
+#### Async Queue
+
+You'll notice how the observer _queues_ a build. This is to optimize performance by building as less as possible. For example:
+
+```js
+app.set('count', 1);
+app.set('count', 2);
+app.set('count', 3);
+```
+
+If you created an app with a `count` property in the data, and ran this code, Moon would only update once. Why? Moon pushes this build to a queue, and if it is not building already, then it will run a build. If not, it will wait until all the data in the current block is set, then build.
+
+#### Directives
+
+Angular provided a lot of helpful directives that could perform a variety of tasks. Moon has directives built in as well, and can be used to conditionally render items, to render lists, to attach event listeners, to skip updating, and more!
+
+Let's look at a practical example: What if you need to display a "Profile" link if a user is signed in? How would you update if the user signed out?
+
+```html
+<div id="app2">
+  <p m-if="{{signedIn}}">Profile</p>
+</div>
+```
+
+```js
+var app2 = new Moon({
+  el: "#app2",
+  data: {
+    signedIn: true
+  }
+});
+```
+<div id="app2" class="example">
+  <p m-if="{{signedIn}}">Profile</p>
+</div>
+
+<script>
+var app2 = new Moon({
+  el: "#app2",
+  data: {
+    signedIn: true
+  }
+});
+</script>
+
+Now, if you detected the user has signed out, the `m-if` directive will handle this, try it yourself!
+
+Type `app1.set('signedIn', false)` in the console, and watch the DOM being updated!
+
+Directives always have a prefix of `m-`, and this prefix can be set in `Moon.config.prefix`.
