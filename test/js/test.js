@@ -144,7 +144,9 @@ describe("Compiler", function() {
     expect(el.innerHTML).to.equal("text");
   });
   it("should compile an unclosed comment", function() {
-    console.error = Moon.util.noop;
+    if(!console || console.error) console = {
+      error: Moon.util.noop
+    }
     var el = createTestElement("compilerUnclosedComment", '');
     var compilerCommentApp = new Moon({
       el: "#compilerUnclosedComment",
