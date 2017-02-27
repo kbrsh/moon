@@ -74,6 +74,7 @@ button {
 }
 
 #nav a {
+  font-family: "Inconsolata", monospace;
   color: #a8a8a8;
   text-decoration: none;
   transition: all 0.2s ease;
