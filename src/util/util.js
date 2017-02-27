@@ -66,7 +66,7 @@ var escapeString = function(str) {
 	var NEWLINE_RE = /\n/g;
 	var DOUBLE_QUOTE_RE = /"/g;
   var BACKSLASH_RE = /\\[^n]/g;
-  return str.replace(NEWLINE_RE, "\\n").replace(DOUBLE_QUOTE_RE, "\\\"").replace(BACKSLASH_RE, "\\\\");
+  return str.replace(NEWLINE_RE, "\\n").replace(BACKSLASH_RE, "\\\\").replace(DOUBLE_QUOTE_RE, "\\\"");
 }
 
 /**
