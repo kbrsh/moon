@@ -256,6 +256,7 @@ body.close .post {
 @media (max-width:550px) {
   .sidebar {
     transform: translateX(-300px);
+    box-shadow: 2px 3px 40px #a8a8a8;
   }
   .post {
     left: 0;
