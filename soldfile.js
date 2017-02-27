@@ -1,5 +1,8 @@
 var Sold = require("sold")
 Sold(__dirname)
+  .data({
+    version: require("moonjs").version
+  })
   .configHandlebars(function(Handlebars) {
     Handlebars.registerHelper('link', function(title, postFile, actualFile) {
       if (postFile == actualFile) {
