@@ -9,7 +9,7 @@ This introduction guide will get you started building basic applications with Mo
 
 ```html
 <body>
-  <script src="https://unpkg.com/moonjs@0.5.0"></script>
+  <script src="https://unpkg.com/moonjs"></script>
   <script>
     // Our Code Goes Here
   </script>
