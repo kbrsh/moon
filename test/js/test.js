@@ -135,13 +135,19 @@ describe("Compiler", function() {
     expect(compilerCommentApp.$dom.children[0].type).to.equal("self-closing");
   });
   it("should compile only text", function() {
-    Moon.compile("text");
     var el = createTestElement("compilerOnlyText", '');
     var compilerCommentApp = new Moon({
       el: "#compilerOnlyText",
       template: "<div>text</div>"
     });
     expect(el.innerHTML).to.equal("text");
+  });
+  it("should double quotes in text", function() {
+    var el = createTestElement("compilerDoubleQuote", '"Hello Moon!"');
+    var compilerCommentApp = new Moon({
+      el: "#compilerDoubleQuote"
+    });
+    expect(el.innerHTML).to.equal('"Hello Moon!"');
   });
   it("should compile an unclosed comment", function() {
     if(typeof console === 'undefined') {
