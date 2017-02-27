@@ -56,12 +56,32 @@ button {
 }
 
 #hero .container {
-  width: 500px;
+  max-width: 500px;
+}
+
+#hero .inner {
+  margin-top: 85px;
   text-align: center;
 }
 
-#hero .container h3 {
+#hero .inner h3 {
   margin-bottom: 5rem;
+}
+
+#nav {
+  margin-top: 5rem;
+  text-align: center;
+}
+
+#nav a {
+  color: #a8a8a8;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  margin: 1rem;
+}
+
+#nav a:hover {
+  color: #999696;
 }
 
 .cta {
