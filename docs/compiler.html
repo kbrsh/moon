@@ -53,18 +53,29 @@
 <p>You can also play around with the compiler below:</p>
 <div id="compiler" class="example">
   <textarea m-on="input:compile"></textarea>
-  <pre><code>{{compiled}}</code></pre>
+  <pre><code m-literal="style:'color: ' + ({{err}} ? 'red' : '')">{{compiled}}</code></pre>
 </div>
 
 <script>
 new Moon({
   el: "#compiler",
   data: {
-    compiled: function() {}
+    compiled: function() {},
+    err: false,
   },
   methods: {
     compile: function(event) {
-      this.set('compiled', Moon.compile(event.target.value));
+      var app = this;
+      app.set('err', false);
+      console.error = function(msg) {
+        app.set('compiled', msg)
+        app.set('err', 'true');
+      }
+      var val = Moon.compile(event.target.value);
+      if(!this.get('err')) {
+        this.set('compiled', val);
+        this.set('err', false);
+      }
     }
   }
 });
