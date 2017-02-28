@@ -154,6 +154,8 @@ app3.callMethod('changeMessage', ['Calling a Method!']);
 
 Let's get started with our first _directive!_ Directives are ways of adding special behavior to elements. Right now, we are going to use `m-if`. This lets us put in any data, including `{{mustache}}` templates into the directive as an attribute. If it is truthy, it will be rendered, if it is falsy, it won't be rendered (the element won't exist).
 
+You can put any valid javascript expression for the value, such as `true === false`, but remember to always use templates for data.
+
 ```html
 <div id="app4">
   <p m-if="{{condition}}">The Condition is True!</p>

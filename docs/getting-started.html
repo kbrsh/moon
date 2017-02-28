@@ -152,6 +152,7 @@ app3.callMethod('changeMessage', ['New Message!']);
 <p> in the console!</p>
 <h4 id="conditional-rendering">Conditional Rendering</h4>
 <p>Let&#39;s get started with our first <em>directive!</em> Directives are ways of adding special behavior to elements. Right now, we are going to use <code>m-if</code>. This lets us put in any data, including <code>{{mustache}}</code> templates into the directive as an attribute. If it is truthy, it will be rendered, if it is falsy, it won&#39;t be rendered (the element won&#39;t exist).</p>
+<p>You can put any valid javascript expression for the value, such as <code>true === false</code>, but remember to always use templates for data.</p>
 <pre><code class="lang-html">&lt;div id=&quot;app4&quot;&gt;
   &lt;p m-if=&quot;{{condition}}&quot;&gt;The Condition is True!&lt;/p&gt;
 &lt;/div&gt;
