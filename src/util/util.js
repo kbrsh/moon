@@ -65,8 +65,8 @@ var defaultMetadata = function() {
 var escapeString = function(str) {
 	var NEWLINE_RE = /\n/g;
 	var DOUBLE_QUOTE_RE = /"/g;
-  var BACKSLASH_RE = /\\[^n]/g;
-  return str.replace(NEWLINE_RE, "\\n").replace(BACKSLASH_RE, "\\\\").replace(DOUBLE_QUOTE_RE, "\\\"");
+  var BACKSLASH_RE = /\\/g;
+  return str.replace(BACKSLASH_RE, "\\\\").replace(DOUBLE_QUOTE_RE, "\\\"").replace(NEWLINE_RE, "\\n");
 }
 
 /**
