@@ -559,7 +559,7 @@ describe('Custom Render', function() {
     var renderApp = new Moon({
       el: "#render",
       render: function(h) {
-        return h('div', {id: "render"}, null, this.get('msg'))
+        return h('div', {attrs: {id: "render"}}, null, this.get('msg'))
       },
       data: {
         msg: "Hello Moon!"
@@ -578,8 +578,8 @@ describe('Custom Render', function() {
 
 describe('Functional Component', function() {
     createTestElement("functional", '<functional-component someprop="{{parentMsg}}"></functional-component><slot-functional-component>Default Slot Content<span slot="named">Named Slot Content</span></slot-functional-component>');
-    var functionalComponentDivProps = {};
-    functionalComponentDivProps["class"] = "functionalComponent";
+    var functionalComponentDivProps = {attrs: {}};
+    functionalComponentDivProps.attrs["class"] = "functionalComponent";
     Moon.component('functional-component', {
       functional: true,
       props: ['someprop'],
@@ -587,8 +587,8 @@ describe('Functional Component', function() {
         return h("h1", functionalComponentDivProps, null, ctx.data.someprop);
       }
     });
-    var functionalComponentDivSlotProps = {};
-    functionalComponentDivSlotProps["class"] = "functionalSlotComponent";
+    var functionalComponentDivSlotProps = {attrs: {}};
+    functionalComponentDivSlotProps.attrs["class"] = "functionalSlotComponent";
     Moon.component('slot-functional-component', {
       functional: true,
       render: function(h, ctx) {

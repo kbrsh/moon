@@ -128,13 +128,14 @@ var getSlots = function(children) {
 
   for(var i = 0; i < children.length; i++) {
     var child = children[i];
-    if(child.props.slot) {
-      if(!slots[child.props.slot]) {
-        slots[child.props.slot] = [child];
+    var childProps = child.props.attrs;
+    if(childProps.slot) {
+      if(!slots[childProps.slot]) {
+        slots[childProps.slot] = [child];
       } else {
-        slots[child.props.slot].push(child);
+        slots[childProps.slot].push(child);
       }
-      delete child.props.slot;
+      delete childProps.slot;
     } else {
       slots[defaultSlotName].push(child);
     }
@@ -177,7 +178,7 @@ var createFunctionalComponent = function(type, props, meta, children, functional
   if(functionalComponent.opts.props) {
     for(var i = 0; i < functionalComponent.opts.props.length; i++) {
       var prop = functionalComponent.opts.props[i];
-      data[prop] = props[prop];
+      data[prop] = props.attrs[prop];
     }
   }
   return functionalComponent.opts.render(h, {
@@ -203,7 +204,7 @@ var h = function(tag, attrs, meta) {
     if(Array.isArray(child)) {
       children = children.concat(child);
     } else if(typeof child === "string" || child === null) {
-      children.push(createElement("#text", child || "", {}, [], defaultMetadata()));
+      children.push(createElement("#text", child || "", {attrs: {}}, [], defaultMetadata()));
     } else {
       children.push(child);
     }
@@ -218,6 +219,17 @@ var h = function(tag, attrs, meta) {
       meta.component = components[tag];
     }
   }
+
+  // In the end, we have a VNode structure like:
+  // {
+  //  type: 'h1', <= nodename
+  //  props: {
+  //    attrs: {id: 'someId'}, <= regular attributes
+  //    dom: {textContent: 'some text content'} <= only for DOM properties added by directives
+  //  },
+  //  meta: {}, <= metadata used internally
+  //  children: [], <= any child nodes or text
+  // }
 
   return createElement(tag, "", attrs, children, meta);
 };
@@ -271,8 +283,8 @@ var createNodeFromVNode = function(vnode, instance) {
     addEventListeners(el, vnode, instance);
   }
   // Setup Props (With Cache)
-  el.__moon__props__ = extend({}, vnode.props);
-  diffProps(el, {}, vnode, vnode.props);
+  el.__moon__props__ = extend({}, vnode.props.attrs);
+  diffProps(el, {}, vnode, vnode.props.attrs);
 
   // Setup Cached NodeName
   el.__moon__nodeName__ = vnode.type;
@@ -291,7 +303,7 @@ var createComponentFromVNode = function(node, vnode, component) {
   // Merge data with provided props
   for(var i = 0; i < componentInstance.$props.length; i++) {
     var prop = componentInstance.$props[i];
-    componentInstance.$data[prop] = vnode.props[prop];
+    componentInstance.$data[prop] = vnode.props.attrs[prop];
   }
   componentInstance.$slots = getSlots(vnode.children);
   componentInstance.$el = node;
@@ -388,9 +400,9 @@ var diff = function(node, vnode, parent, instance) {
         var componentInstance = node.__moon__;
         var componentChanged = false;
         // Merge any properties that changed
-        for(var prop in vnode.props) {
-          if(componentInstance.$data[prop] !== vnode.props[prop]) {
-            componentInstance.$data[prop] = vnode.props[prop];
+        for(var prop in vnode.props.attrs) {
+          if(componentInstance.$data[prop] !== vnode.props.attrs[prop]) {
+            componentInstance.$data[prop] = vnode.props.attrs[prop];
             componentChanged = true;
           }
         }
@@ -412,7 +424,7 @@ var diff = function(node, vnode, parent, instance) {
 
     // Diff props
     var nodeProps = node.__moon__props__ || extractAttrs(node);
-    diffProps(node, nodeProps, vnode, vnode.props);
+    diffProps(node, nodeProps, vnode, vnode.props.attrs);
 
     // Add initial event listeners (done once)
     if(instance.$initialRender) {

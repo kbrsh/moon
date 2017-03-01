@@ -4,55 +4,65 @@
  * @return {String} generated code
  */
 var generateProps = function(vnode) {
-	var props = vnode.props;
+	var attrs = vnode.props.attrs;
+	var dom = vnode.props.dom;
 
-	if(Object.keys(props).length === 0) {
-		return "{}";
+	if(Object.keys(attrs).length === 0) {
+		return "{attrs: {}}";
 	}
 
-	var generatedObject = "{";
+	var generatedObject = "{attrs: {";
 
-	for(var prop in props) {
-		if(directives[prop]) {
+	for(var attr in attrs) {
+		if(directives[attr]) {
 			vnode.dynamic = true;
 		}
-		if(specialDirectives[prop]) {
+		if(specialDirectives[attr]) {
 			// Special directive found that generates code after initial generation, push it to its known special directives to run afterGenerate later
-			if(specialDirectives[prop].afterGenerate) {
+			if(specialDirectives[attr].afterGenerate) {
 				if(!vnode.specialDirectivesAfter) {
 					vnode.specialDirectivesAfter = {};
-					vnode.specialDirectivesAfter[prop] = props[prop];
+					vnode.specialDirectivesAfter[attr] = attrs[attr];
 				} else {
-					vnode.specialDirectivesAfter[prop] = props[prop];
+					vnode.specialDirectivesAfter[attr] = attrs[attr];
 				}
 			}
 			// Invoke any special directives that need to change values before code generation
-			if(specialDirectives[prop].beforeGenerate) {
-				specialDirectives[prop].beforeGenerate(props[prop], vnode);
+			if(specialDirectives[attr].beforeGenerate) {
+				specialDirectives[attr].beforeGenerate(attrs[attr], vnode);
 			}
 
 			// Invoke any special directives that need to change values of props during code generation
-			if(specialDirectives[prop].duringPropGenerate) {
-				generatedObject += specialDirectives[prop].duringPropGenerate(props[prop], vnode);
+			if(specialDirectives[attr].duringPropGenerate) {
+				generatedObject += specialDirectives[attr].duringPropGenerate(attrs[attr], vnode);
 			}
 
 			// Keep a flag to know to always rerender this
 			vnode.dynamic = true;
 
 			// Remove special directive
-			delete props[prop];
+			delete attrs[attr];
 		} else {
-			var normalizedProp = JSON.stringify(props[prop]);
+			var normalizedProp = JSON.stringify(attrs[attr]);
 			var compiledProp = compileTemplate(normalizedProp, true);
 			if(normalizedProp !== compiledProp) {
 				vnode.dynamic = true;
 			}
-			generatedObject += `"${prop}": ${compileTemplate(compiledProp, true)}, `;
+			generatedObject += `"${attr}": ${compiledProp}, `;
+		}
+	}
+
+	if(dom) {
+		vnode.dynamic = true;
+		generatedObject = generatedObject.length > 1 ? generatedObject.slice(0, -2) + "}" : generatedObject + "}";
+		generatedObject += ", dom: {";
+		for(var domProp in dom) {
+			generatedObject += `"${domProp}": ${JSON.stringify(dom[domProp])}, `;
 		}
 	}
 
 	// Remove ending comma and space, close the generated object
-	generatedObject = generatedObject.length > 1 ? generatedObject.slice(0, -2) + "}" : generatedObject + "}";
+	generatedObject = generatedObject.length > 9 ? generatedObject.slice(0, -2) + "}}" : generatedObject + "}}";
   return generatedObject;
 }
 
@@ -147,7 +157,10 @@ var generateEl = function(el) {
 		if(!el.meta) {
 			el.meta = defaultMetadata();
 		}
-		var compiledCode = el.type === "slot" ? `instance.$slots['${el.props.name || "default"}']` : createCall(el);
+		el.props = {
+			attrs: el.props
+		}
+		var compiledCode = el.type === "slot" ? `instance.$slots['${el.props.attrs.name || "default"}']` : createCall(el);
 		if(el.specialDirectivesAfter) {
 			// There are special directives that need to change the value after code generation, so
 			// run them now
