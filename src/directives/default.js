@@ -65,6 +65,14 @@ specialDirectives[Moon.config.prefix + "model"] = {
     } else {
       vnode.meta.eventListeners["input"].push(code);
     }
+    var getQuery = compileTemplate(`{{${value}}}`, false);
+    if(!vnode.props.dom) {
+      vnode.props.dom = {
+        value: getQuery
+      }
+    } else {
+      vnode.props.dom.value = getQuery;
+    }
   }
 };
 

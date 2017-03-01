@@ -59,7 +59,7 @@ var generateProps = function(vnode) {
 		vnode.dynamic = true;
 		generatedObject += ", dom: {";
 		for(var domProp in dom) {
-			generatedObject += `"${domProp}": ${JSON.stringify(dom[domProp])}, `;
+			generatedObject += `"${domProp}": ${dom[domProp]}, `;
 		}
 		generatedObject = generatedObject.slice(0, -2) + "}";
 	}

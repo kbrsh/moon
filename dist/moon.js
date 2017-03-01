@@ -908,7 +908,7 @@
         vnode.dynamic = true;
         generatedObject += ", dom: {";
         for (var domProp in dom) {
-          generatedObject += '"' + domProp + '": ' + JSON.stringify(dom[domProp]) + ', ';
+          generatedObject += '"' + domProp + '": ' + dom[domProp] + ', ';
         }
         generatedObject = generatedObject.slice(0, -2) + "}";
       }
@@ -1418,6 +1418,14 @@
           vnode.meta.eventListeners["input"] = [code];
         } else {
           vnode.meta.eventListeners["input"].push(code);
+        }
+        var getQuery = compileTemplate('{{' + value + '}}', false);
+        if (!vnode.props.dom) {
+          vnode.props.dom = {
+            value: getQuery
+          };
+        } else {
+          vnode.props.dom.value = getQuery;
         }
       }
     };
