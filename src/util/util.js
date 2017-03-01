@@ -342,7 +342,9 @@ var diffProps = function(node, nodeProps, vnode, vnodeProps) {
   if(vnode.props.dom) {
     for(var domProp in vnode.props.dom) {
       var domPropValue = vnode.props.dom[domProp];
-      node[domProp] = vnode.props.dom[domProp];
+      if(node[domProp] !== vnode.props.dom[domProp]) {
+        node[domProp] = vnode.props.dom[domProp];
+      }
     }
   }
 }
