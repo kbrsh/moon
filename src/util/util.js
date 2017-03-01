@@ -338,6 +338,13 @@ var diffProps = function(node, nodeProps, vnode, vnodeProps) {
       node.__moon__props__[propName] = vnodeProps[propName];
     }
   }
+
+  if(vnode.props.dom) {
+    for(var domProp in vnode.props.dom) {
+      var domPropValue = vnode.props.dom[domProp];
+      node[domProp] = vnode.props.dom[domProp];
+    }
+  }
 }
 
 /**
