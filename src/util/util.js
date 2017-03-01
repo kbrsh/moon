@@ -79,6 +79,9 @@ var escapeString = function(str) {
  */
 var resolveKeyPath = function(instance, obj, keypath, val) {
   var i;
+  keypath.replace(/\[(\w+)\]/g, function(match, index) {
+    keypath = keypath.replace(match, `.${index}`);
+  });
   var path = keypath.split(".");
   for(i = 0; i < path.length - 1; i++) {
     var propName = path[i];
