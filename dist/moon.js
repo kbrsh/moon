@@ -1418,8 +1418,6 @@
       beforeGenerate: function (value, vnode) {
         // Compile a string value for the keypath
         var compiledStringValue = compileTemplate(value, true);
-        // Generate event listener code
-        var code = 'function(event) {instance.set("' + compiledStringValue + '", event.target.value)}';
         // Setup default event types and dom property to change
         var eventType = "input";
         var valueProp = "value";
@@ -1429,6 +1427,9 @@
           eventType = "change";
           valueProp = "checked";
         }
+    
+        // Generate event listener code
+        var code = 'function(event) {instance.set("' + compiledStringValue + '", event.target.' + valueProp + ')}';
     
         // Push the listener to it's event listeners
         if (!vnode.meta.eventListeners[eventType]) {
