@@ -1413,13 +1413,14 @@
     
     specialDirectives[Moon.config.prefix + "model"] = {
       beforeGenerate: function (value, vnode) {
-        var code = 'function(event) {instance.set("' + value + '", event.target.value)}';
+        var compiledStringValue = compileTemplate(value, true);
+        var code = 'function(event) {instance.set("' + compiledStringValue + '", event.target.value)}';
         if (!vnode.meta.eventListeners["input"]) {
           vnode.meta.eventListeners["input"] = [code];
         } else {
           vnode.meta.eventListeners["input"].push(code);
         }
-        var getQuery = compileTemplate('{{' + value + '}}', false);
+        var getQuery = compileTemplate('{{' + compileTemplate(value, false) + '}}', false);
         if (!vnode.props.dom) {
           vnode.props.dom = {
             value: getQuery
