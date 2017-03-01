@@ -89,18 +89,18 @@ specialDirectives[Moon.config.prefix + "pre"] = {
   }
 }
 
+specialDirectives[Moon.config.prefix + "text"] = {
+  beforeGenerate: function(value, vnode) {
+    vnode.children = [value];
+  }
+}
+
 directives[Moon.config.prefix + "show"] = function(el, val, vnode) {
   var evaluated = new Function("return " + val);
   if(!evaluated()) {
     el.style.display = 'none';
   } else {
     el.style.display = 'block';
-  }
-}
-
-specialDirectives[Moon.config.prefix + "text"] = {
-  beforeGenerate: function(value, vnode) {
-    vnode.children = [value];
   }
 }
 

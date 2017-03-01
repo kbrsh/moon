@@ -5,64 +5,67 @@
  */
 var generateProps = function(vnode) {
 	var attrs = vnode.props.attrs;
-	var dom = vnode.props.dom;
-
-	if(Object.keys(attrs).length === 0) {
-		return "{attrs: {}}";
-	}
-
 	var generatedObject = "{attrs: {";
 
-	for(var attr in attrs) {
-		if(directives[attr]) {
-			vnode.dynamic = true;
-		}
-		if(specialDirectives[attr]) {
-			// Special directive found that generates code after initial generation, push it to its known special directives to run afterGenerate later
-			if(specialDirectives[attr].afterGenerate) {
-				if(!vnode.specialDirectivesAfter) {
-					vnode.specialDirectivesAfter = {};
-					vnode.specialDirectivesAfter[attr] = attrs[attr];
-				} else {
-					vnode.specialDirectivesAfter[attr] = attrs[attr];
-				}
-			}
-			// Invoke any special directives that need to change values before code generation
-			if(specialDirectives[attr].beforeGenerate) {
-				specialDirectives[attr].beforeGenerate(attrs[attr], vnode);
-			}
-
-			// Invoke any special directives that need to change values of props during code generation
-			if(specialDirectives[attr].duringPropGenerate) {
-				generatedObject += specialDirectives[attr].duringPropGenerate(attrs[attr], vnode);
-			}
-
-			// Keep a flag to know to always rerender this
-			vnode.dynamic = true;
-
-			// Remove special directive
-			delete attrs[attr];
-		} else {
-			var normalizedProp = JSON.stringify(attrs[attr]);
-			var compiledProp = compileTemplate(normalizedProp, true);
-			if(normalizedProp !== compiledProp) {
+	if(attrs) {
+		for(var attr in attrs) {
+			if(directives[attr]) {
 				vnode.dynamic = true;
 			}
-			generatedObject += `"${attr}": ${compiledProp}, `;
+			if(specialDirectives[attr]) {
+				// Special directive found that generates code after initial generation, push it to its known special directives to run afterGenerate later
+				if(specialDirectives[attr].afterGenerate) {
+					if(!vnode.specialDirectivesAfter) {
+						vnode.specialDirectivesAfter = {};
+						vnode.specialDirectivesAfter[attr] = attrs[attr];
+					} else {
+						vnode.specialDirectivesAfter[attr] = attrs[attr];
+					}
+				}
+				// Invoke any special directives that need to change values before code generation
+				if(specialDirectives[attr].beforeGenerate) {
+					specialDirectives[attr].beforeGenerate(attrs[attr], vnode);
+				}
+
+				// Invoke any special directives that need to change values of props during code generation
+				if(specialDirectives[attr].duringPropGenerate) {
+					generatedObject += specialDirectives[attr].duringPropGenerate(attrs[attr], vnode);
+				}
+
+				// Keep a flag to know to always rerender this
+				vnode.dynamic = true;
+
+				// Remove special directive
+				delete attrs[attr];
+			} else {
+				var normalizedProp = JSON.stringify(attrs[attr]);
+				var compiledProp = compileTemplate(normalizedProp, true);
+				if(normalizedProp !== compiledProp) {
+					vnode.dynamic = true;
+				}
+				generatedObject += `"${attr}": ${compiledProp}, `;
+			}
+		}
+
+		if(Object.keys(attrs).length) {
+			generatedObject = generatedObject.slice(0, -2) + "}";
+		} else {
+			generatedObject += "}";
 		}
 	}
 
+	var dom = vnode.props.dom;
 	if(dom) {
 		vnode.dynamic = true;
-		generatedObject = generatedObject.length > 1 ? generatedObject.slice(0, -2) + "}" : generatedObject + "}";
 		generatedObject += ", dom: {";
 		for(var domProp in dom) {
 			generatedObject += `"${domProp}": ${JSON.stringify(dom[domProp])}, `;
 		}
+		generatedObject = generatedObject.slice(0, -2) + "}";
 	}
 
-	// Remove ending comma and space, close the generated object
-	generatedObject = generatedObject.length > 9 ? generatedObject.slice(0, -2) + "}}" : generatedObject + "}}";
+	// Close the generated object
+	generatedObject += "}";
   return generatedObject;
 }
 
