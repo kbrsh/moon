@@ -15,6 +15,7 @@ var eventModifiersCode = {
 var id = 0;
 
 /* ======= Observer ======= */
+//=require observer/computed.js
 //=require observer/observer.js
 
 //=require util/util.js
@@ -42,6 +43,11 @@ function Moon(opts) {
     this.$destroyed = false;
     this.$initialRender = true;
     this.$queued = false;
+
+    // Setup Computed Properties
+    if(this.$opts.computed) {
+      initComputed(this, this.$opts.computed);
+    }
 
     /* ======= Initialize 🎉 ======= */
     this.init();

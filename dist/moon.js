@@ -28,6 +28,21 @@
     var id = 0;
     
     /* ======= Observer ======= */
+    /**
+     * Makes Computed Properties for an Instance
+     * @param {Object} instance
+     * @param {Object} computed
+     */
+    var initComputed = function (instance, computed) {
+      for (var prop in computed) {
+        Object.defineProperty(instance.$data, prop, {
+          get: function () {
+            return computed[prop].get();
+          }
+        });
+      }
+    };
+    
     function Observer(instance) {
       this.instance = instance;
     }
@@ -1065,6 +1080,11 @@
       this.$destroyed = false;
       this.$initialRender = true;
       this.$queued = false;
+    
+      // Setup Computed Properties
+      if (this.$opts.computed) {
+        initComputed(this, this.$opts.computed);
+      }
     
       /* ======= Initialize 🎉 ======= */
       this.init();
