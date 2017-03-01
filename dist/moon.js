@@ -72,8 +72,6 @@
     /**
      * Adds DOM Updates to Queue
      * @param {Object} instance
-     * @param {String} key
-     * @param {Any} val
      */
     var queueBuild = function (instance) {
       if (!instance.$queued && !instance.$destroyed) {
