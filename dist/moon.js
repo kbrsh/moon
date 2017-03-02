@@ -406,10 +406,10 @@
       if (vnode.props.dom) {
         for (var domProp in vnode.props.dom) {
           var domPropValue = vnode.props.dom[domProp];
+          if(domProp === 'innerHTML') {
+            shouldRenderChildren = false
+          };
           if (node[domProp] !== vnode.props.dom[domProp]) {
-            if(domProp === 'innerHTML') {
-              shouldRenderChildren = false
-            };
             node[domProp] = vnode.props.dom[domProp];
           }
         }
