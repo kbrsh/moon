@@ -8,7 +8,7 @@
     "sold": "^0.1.13"
   },
   "devDependencies": {
-    "moonjs": "^0.5.1",
+    "moonjs": "latest",
     "sold": "^0.1.10"
   },
   "scripts": {
