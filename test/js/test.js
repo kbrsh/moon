@@ -282,7 +282,7 @@ describe('Computed', function() {
   it('should update when the message updates', function() {
     computedApp.set('msg', 'New');
     Moon.nextTick(function() {
-      expect(computedAppEl.childNode[1].textContent).to.equal('weN');
+      expect(computedAppEl.childNodes[1].textContent).to.equal('weN');
     });
   });
 });
