@@ -111,6 +111,15 @@ specialDirectives[Moon.config.prefix + "pre"] = {
   }
 }
 
+specialDirectives[Moon.config.prefix + "html"] = {
+  beforeGenerate: function(value, vnode) {
+    if(!vnode.props.dom) {
+      vnode.props.dom = {};
+    }
+    vnode.props.dom.innerHTML = `"${compileTemplate(value, true)}"`;
+  }
+}
+
 specialDirectives[Moon.config.prefix + "text"] = {
   beforeGenerate: function(value, vnode) {
     vnode.children = [value];

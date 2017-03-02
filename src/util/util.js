@@ -441,6 +441,11 @@ var diff = function(node, vnode, parent, instance) {
       addEventListeners(node, vnode, instance);
     }
 
+    // Check if innerHTML was changed, don't diff children if so
+    if(vnode.props.dom && vnode.props.dom.innerHTML) {
+      return node;
+    }
+
     // Diff Children
     var currentChildNode = node.firstChild;
     // Optimization:
