@@ -261,6 +261,32 @@ describe('Methods', function() {
   });
 });
 
+describe('Computed', function() {
+  var computedAppEl = createTestElement("computed", '<p>{{msg}}</p><p>{{reversed}}</p>');
+  var computedApp = new Moon({
+    el: "#computed",
+    data: {
+      msg: "Message"
+    },
+    computed: {
+      reversed: {
+        get: function() {
+          return this.get('msg').split("").reverse().join("");
+        }
+      }
+    }
+  });
+  it('should compute at initial render', function() {
+    expect(computedAppEl.childNodes[1].textContent).to.equal("egasseM");
+  });
+  it('should update when the message updates', function() {
+    computedApp.set('msg', 'New');
+    Moon.nextTick(function() {
+      expect(computedAppEl.childNode[1].textContent).to.equal('weN');
+    });
+  });
+});
+
 describe("Directive", function() {
   describe('Custom Directive', function() {
     createTestElement("customDirective", '<span m-square="2" id="custom-directive-span"></span>');
