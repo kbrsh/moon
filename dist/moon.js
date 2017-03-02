@@ -34,7 +34,7 @@
      * @param {Object} computed
      */
     var initComputed = function (instance, computed) {
-      for (var prop in computed) {
+      var setComputedProperty = function (prop) {
         var properties = {
           get: function () {
             return computed[prop].get.call(instance);
@@ -46,6 +46,9 @@
           };
         }
         Object.defineProperty(instance.$data, prop, properties);
+      };
+      for (var propName in computed) {
+        setComputedProperty(propName);
       }
     };
     
