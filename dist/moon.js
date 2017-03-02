@@ -1,5 +1,5 @@
 /*
-* Moon v0.6.0
+* Moon v0.6.1
 * Copyright 2016-2017, Kabir Shah
 * https://github.com/KingPixil/moon/
 * Free to use under the MIT license.
@@ -385,7 +385,6 @@
     var diffProps = function (node, nodeProps, vnode, vnodeProps) {
       // Get object of all properties being compared
       var allProps = merge(nodeProps, vnodeProps);
-      var shouldRenderChildren = true;
 
       for (var propName in allProps) {
         // If not in VNode or is a Directive, remove it
@@ -406,15 +405,11 @@
       if (vnode.props.dom) {
         for (var domProp in vnode.props.dom) {
           var domPropValue = vnode.props.dom[domProp];
-          if(domProp === 'innerHTML') {
-            shouldRenderChildren = false
-          };
           if (node[domProp] !== vnode.props.dom[domProp]) {
             node[domProp] = vnode.props.dom[domProp];
           }
         }
       }
-      return shouldRenderChildren;
     };
 
     /**
@@ -501,26 +496,31 @@
 
         // Diff props
         var nodeProps = node.__moon__props__ || extractAttrs(node);
-        var should = diffProps(node, nodeProps, vnode, vnode.props.attrs);
+        diffProps(node, nodeProps, vnode, vnode.props.attrs);
+
         // Add initial event listeners (done once)
         if (instance.$initialRender) {
           addEventListeners(node, vnode, instance);
         }
-        if(should) {
-          // Diff Children
-          var currentChildNode = node.firstChild;
-          // Optimization:
-          //  If the vnode contains just one text vnode, create it here
-          if (vnode.children.length === 1 && vnode.children[0].type === "#text" && currentChildNode && !currentChildNode.nextSibling && currentChildNode.nodeName === "#text" && vnode.children[0].val !== currentChildNode.textContent) {
-            currentChildNode.textContent = vnode.children[0].val;
-          } else {
-            // Iterate through all children
-            for (var i = 0; i < vnode.children.length || currentChildNode; i++) {
-              var next = currentChildNode ? currentChildNode.nextSibling : null;
-              diff(currentChildNode, vnode.children[i], node, instance);
-              currentChildNode = next;
-            }
+
+        // Check if innerHTML was changed, don't diff children if so
+        if (vnode.props.dom && vnode.props.dom.innerHTML) {
+          return node;
         }
+
+        // Diff Children
+        var currentChildNode = node.firstChild;
+        // Optimization:
+        //  If the vnode contains just one text vnode, create it here
+        if (vnode.children.length === 1 && vnode.children[0].type === "#text" && currentChildNode && !currentChildNode.nextSibling && currentChildNode.nodeName === "#text" && vnode.children[0].val !== currentChildNode.textContent) {
+          currentChildNode.textContent = vnode.children[0].val;
+        } else {
+          // Iterate through all children
+          for (var i = 0; i < vnode.children.length || currentChildNode; i++) {
+            var next = currentChildNode ? currentChildNode.nextSibling : null;
+            diff(currentChildNode, vnode.children[i], node, instance);
+            currentChildNode = next;
+          }
         }
 
         return node;
@@ -1060,6 +1060,7 @@
       var root = ast.children[0];
       // Begin Code
       var code = "var instance = this; return " + generateEl(root);
+
       try {
         return new Function("h", code);
       } catch (e) {
@@ -1303,7 +1304,7 @@
     /**
      * Version of Moon
      */
-    Moon.version = '0.6.0';
+    Moon.version = '0.6.1';
 
     /**
      * Moon Utilities
@@ -1499,16 +1500,18 @@
       }
     };
 
-    specialDirectives[Moon.config.prefix + "text"] = {
+    specialDirectives[Moon.config.prefix + "html"] = {
       beforeGenerate: function (value, vnode) {
-        vnode.children = [value];
+        if (!vnode.props.dom) {
+          vnode.props.dom = {};
+        }
+        vnode.props.dom.innerHTML = '"' + compileTemplate(value, true) + '"';
       }
     };
 
-    specialDirectives[Moon.config.prefix + "html"] = {
+    specialDirectives[Moon.config.prefix + "text"] = {
       beforeGenerate: function (value, vnode) {
-        if(!vnode.props.dom) vnode.props.dom = {};
-        vnode.props.dom.innerHTML = '"' + compileTemplate(value, true) + '"';
+        vnode.children = [value];
       }
     };
 
