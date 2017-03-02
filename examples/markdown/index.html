@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Moon | Markdown</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div id="app" m-mask>
+      <textarea m-on="input:update"># Hello Moon</textarea>
+      <div m-html="{{html}}"></div>
+    </div>
+    <script src="../../dist/moon.js"></script>
+    <script src="https://unpkg.com/marked@0.3.6/marked.min.js"></script>
+    <script src="scripts.js"></script>
+  </body>
+</html>
