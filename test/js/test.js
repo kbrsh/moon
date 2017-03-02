@@ -467,6 +467,22 @@ describe("Directive", function() {
     });
   });
 
+  describe('HTML Directive', function() {
+    createTestElement("html", '<span m-html="{{html}}" id="html-directive-span"></span>');
+    var htmlApp = new Moon({
+      el: "#html",
+      data: {
+        html: "<strong>Hello Moon!</strong>"
+      }
+    });
+    it('should fill DOM with a value', function() {
+      expect(document.getElementById("html-directive-span").innerHTML).to.equal("<strong>Hello Moon!</strong>");
+    });
+    it('should not be present at runtime', function() {
+      expect(document.getElementById('html-directive-span').getAttribute("m-html")).to.be['null'];
+    });
+  });
+
   describe('Text Directive', function() {
     createTestElement("text", '<span m-text="{{msg}}" id="text-directive-span"></span>');
     var textApp = new Moon({

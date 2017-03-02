@@ -503,6 +503,11 @@
           addEventListeners(node, vnode, instance);
         }
     
+        // Check if innerHTML was changed, don't diff children if so
+        if (vnode.props.dom && vnode.props.dom.innerHTML) {
+          return node;
+        }
+    
         // Diff Children
         var currentChildNode = node.firstChild;
         // Optimization:
@@ -1492,6 +1497,15 @@
     specialDirectives[Moon.config.prefix + "pre"] = {
       beforeGenerate: function (value, vnode) {
         vnode.meta.shouldRender = false;
+      }
+    };
+    
+    specialDirectives[Moon.config.prefix + "html"] = {
+      beforeGenerate: function (value, vnode) {
+        if (!vnode.props.dom) {
+          vnode.props.dom = {};
+        }
+        vnode.props.dom.innerHTML = '"' + compileTemplate(value, true) + '"';
       }
     };
     
