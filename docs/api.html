@@ -134,6 +134,21 @@
 </code></pre>
 <p>Can be used to create custom directives for Moon, the example above, a directive called <code>m-custom</code> will be created. This can be used anywhere, and will be automatically extracted from the DOM during runtime.</p>
 <p>You will be provided with the element the directive is in, and the value of the directive.</p>
+<h5 id="-component-"><strong>component</strong></h5>
+<ul>
+<li>Arguments:<ul>
+<li><code>{String} name</code></li>
+<li><code>{Object} opts</code></li>
+</ul>
+</li>
+<li>Return: <code>{Function} component</code></li>
+</ul>
+<p>Usage:</p>
+<pre><code class="lang-js">Moon.component(&#39;my-component&#39;, {
+  template: &quot;&lt;h1&gt;Custom Component&lt;/h1&gt;&quot;
+});
+</code></pre>
+<p>Used to create custom components, usable in HTML like <code>&lt;my-component&gt;&lt;/my-component&gt;</code>. Can take all options a Moon instance takes (except <code>el</code>)</p>
 
       </div>
     </div>
