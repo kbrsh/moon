@@ -13,8 +13,12 @@ Sold(__dirname)
       }
     });
   })
-  .template("template")
+  .template("docs-template")
   .source("src")
   .postSource("docs")
   .destination("")
   .build()
+  .template("api-template")
+  .postSource('api')
+  .destination("")
+  .build();
