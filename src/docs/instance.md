@@ -1,6 +1,5 @@
 ---
 title: Instance
-order: 4
 ---
 
 The root Moon instance is the core of your application, this is where any top level data should be defined, and it should be mounted on the root element that contains all of your components, directives, and templates.

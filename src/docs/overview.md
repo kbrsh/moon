@@ -1,6 +1,5 @@
 ---
 title: Overview
-order: 2
 ---
 
 #### What is Moon?
