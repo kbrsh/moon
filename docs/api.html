@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="{{post-title}}. Kabir Shah's blog.">
+  <meta name="description" content="API. Kabir Shah's blog.">
   <meta name="author" content="Kabir Shah">
 
   <title>Moon</title>
@@ -24,20 +24,32 @@
   <aside class="sidebar">
     <h3 class="sidebar-head">Moon</h3>
     <div class="sidebar-nav">
-      {{link 'Installation' post-file 'installation.html'}}
-      {{link 'Overview' post-file 'overview.html'}}
-      {{link 'Getting Started' post-file 'getting-started.html'}}
-      {{link 'Instance' post-file 'instance.html'}}
-      {{link 'Compiler' post-file 'compiler.html'}}
-      {{link 'Examples' post-file 'examples.html'}}
-      {{link 'API' post-file 'api.html'}}
+      <a href="./installation.html">Installation</a>
+      <a href="./overview.html">Overview</a>
+      <a href="./getting-started.html">Getting Started</a>
+      <a href="./instance.html">Instance</a>
+      <a href="./compiler.html">Compiler</a>
+      <a href="./examples.html">Examples</a>
+      <a href="./api.html" class="sidebar-link-active">API</a>
     </div>
   </aside>
   <div class="post">
     <div class="container-small">
-      <h1 class="post-title">{{post-title}}</h1>
+      <h1 class="post-title">API</h1>
       <div class="post-content">
-        {{{post-content}}}
+        <p>This is a complete guide to Moon&#39;s API, including all instance methods and global methods.</p>
+<h4 id="configuration">Configuration</h4>
+<p>Moon comes with a global <code>Moon.config</code> object that can be used to set any custom settings provided.</p>
+<h5 id="-silent-"><strong>silent</strong></h5>
+<ul>
+<li>Type: <code>boolean</code></li>
+<li>Default: <code>false</code></li>
+</ul>
+<p>Usage:</p>
+<pre><code class="lang-js">Moon.config.silent = true;
+</code></pre>
+<p>Can toggle all logs (excluding errors)</p>
+
       </div>
     </div>
   </div>

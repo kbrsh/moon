@@ -1,6 +1,5 @@
 ---
 title: Getting Started
-order: 3
 ---
 
 #### Getting Started

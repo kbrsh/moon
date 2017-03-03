@@ -1,6 +1,5 @@
 ---
 title: Compiler
-order: 5
 ---
 
 Moon has a custom HTML compiler built in to generate render functions. This means that before Moon can mount, the template must go through Moon's HTML compiler to be turned into plain javascript.
