@@ -74,6 +74,66 @@
 <pre><code class="lang-html">&lt;input m-on=&quot;keyup.m:someMethod&quot;/&gt;
 </code></pre>
 <p>It will only fire when the <code>m</code> key is being clicked.</p>
+<h5 id="-version-"><strong>version</strong></h5>
+<ul>
+<li>Type: <code>String</code></li>
+</ul>
+<p>Usage:</p>
+<pre><code class="lang-js">Moon.version;
+</code></pre>
+<p>Returns the current version of Moon in string format.</p>
+<h4 id="global">Global</h4>
+<p>Moon comes global methods available via <code>Moon.foo</code> that don&#39;t come with every instance.</p>
+<h5 id="-use-"><strong>use</strong></h5>
+<ul>
+<li>Arguments:<ul>
+<li><code>{Object} plugin</code></li>
+</ul>
+</li>
+</ul>
+<p>Usage:</p>
+<pre><code class="lang-js">Moon.use(myPlugin);
+</code></pre>
+<p>Can initialize and begin using a Moon plugin.</p>
+<h5 id="-compile-"><strong>compile</strong></h5>
+<ul>
+<li>Arguments:<ul>
+<li><code>{String} html</code></li>
+</ul>
+</li>
+</ul>
+<p>Usage:</p>
+<pre><code class="lang-js">Moon.compile(&quot;&lt;h1&gt;{{msg}}&lt;/h1&gt;&quot;);
+</code></pre>
+<p>Can be used to precompile Moon templates to render functions (to be used internally)</p>
+<h5 id="-nexttick-"><strong>nextTick</strong></h5>
+<ul>
+<li>Arguments:<ul>
+<li><code>{Function} task</code></li>
+</ul>
+</li>
+</ul>
+<p>Usage:</p>
+<pre><code class="lang-js">Moon.nextTick(function() {
+  // some task
+});
+</code></pre>
+<p>Can be used to do tasks after Moon has finished updating the DOM. Since Moon&#39;s DOM updates are done asynchronously, the DOM will not be changed right after setting a property, instead, it will be queued.</p>
+<h5 id="-directive-"><strong>directive</strong></h5>
+<ul>
+<li>Arguments:<ul>
+<li><code>{String} name</code></li>
+<li><code>{Function} action</code></li>
+</ul>
+</li>
+</ul>
+<p>Usage:</p>
+<pre><code class="lang-js">Moon.directive(&#39;custom&#39;, function(el, val) {
+  // some task with the element
+});
+</code></pre>
+<p>Can be used to create custom directives for Moon, the example above, a directive called <code>m-custom</code> will be created. This can be used anywhere, and will be automatically extracted from the DOM during runtime.</p>
+<p>You will be provided with the element the directive is in, and the value of the directive.</p>
 
       </div>
     </div>
