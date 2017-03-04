@@ -9,7 +9,7 @@ var code = document.getElementsByTagName("code");
 var compile = function(val, lang) {
   var compiled = val;
 
-  var STR_RE = /["'](.*?)["']/g;
+  var STR_RE = /(["'])(.*?)\1/g;
   var SPECIAL_RE = /\b(new|var|if|do|function|while|switch|for|foreach|in|continue|break|return)(?=[^\w])/g;
   var GLOBAL_VARIABLE_RE = /\b(document|window|Array|String|true|false|Object|this|Boolean|Function|Number|\$)/g;
   var METHODS_RE = /\b(indexOf|match|replace|toString|length)(?=[^\w])/g;
@@ -18,8 +18,10 @@ var compile = function(val, lang) {
 
   var TAG_RE = /(&lt;(.|\n)*?&gt;)/g;
 
-  compiled.replace(STR_RE, function(match, value) {
-    compiled = compiled.replace(new RegExp(match, "g"), "<span class=\"string\">\"" + value + "\"</span>");
+  compiled.replace(STR_RE, function(match, quote, value) {
+    match = match.replace(/\(/g, "\\\(");
+    match = match.replace(/\)/g, "\\\)");
+    compiled = compiled.replace(new RegExp(match, "g"), "<span class=\"string\">" + quote + value + quote + "</span>");
   });
 
   if(lang === "html") {
