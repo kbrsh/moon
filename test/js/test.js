@@ -452,15 +452,33 @@ describe("Directive", function() {
   });
 
   describe('Literal Directive', function() {
-    createTestElement("literal", '<span m-literal="class: {{num}}+1" id="literal-directive-span"></span>');
+    createTestElement("literal", '<span m-literal="class:({{num}}+1).toString()" id="literal-directive-span"></span>');
+    createTestElement("literalClass", '<span m-literal="class:[\'1\', \'2\', \'3\']" id="literal-class-directive-span"></span>');
+    createTestElement("literalConditionalClass", '<span m-literal="class:{trueVal: {{trueVal}}, falseVal: {{falseVal}}}" id="literal-conditional-class-directive-span"></span>');
     var literalApp = new Moon({
       el: "#literal",
       data: {
         num: 1
       }
     });
+    var literalClassApp = new Moon({
+      el: "#literalClass"
+    });
+    var literalConditionalClassApp = new Moon({
+      el: "#literalConditionalClass",
+      data: {
+        trueVal: true,
+        falseVal: false
+      }
+    });
     it('should treat the value as a literal expression', function() {
       expect(document.getElementById("literal-directive-span").getAttribute("class")).to.equal("2");
+    });
+    it('should be able to handle an array of classes', function() {
+      expect(document.getElementById("literal-class-directive-span").getAttribute("class")).to.equal("1 2 3");
+    });
+    it('should be able to handle an object of conditional classes', function() {
+      expect(document.getElementById("literal-conditional-class-directive-span").getAttribute("class")).to.equal("trueVal");
     });
     it('should not be present at runtime', function() {
       expect(document.getElementById('literal-directive-span').getAttribute("m-literal")).to.be['null'];

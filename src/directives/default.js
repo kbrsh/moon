@@ -95,6 +95,14 @@ specialDirectives[Moon.config.prefix + "literal"] = {
     var parts = value.split(":");
     var prop = parts.shift();
     var literal = parts.join(":");
+
+    // make sure object is treated correctly during code generation
+    vnode.props.attrs[prop] = true;
+
+    if(prop === "class") {
+      // Classes need to be rendered differently
+      return `"class": instance.renderClass(${compileTemplate(literal, false)}), `;
+    }
     return `"${prop}": ${compileTemplate(literal, false)}, `;
   }
 };

@@ -112,6 +112,31 @@ Moon.prototype.renderLoop = function(arr, item) {
 }
 
 /**
+ * Renders a Class in Array/Object Form
+ * @param {Array|Object|String} classNames
+ * @return {String} renderedClassNames
+ */
+Moon.prototype.renderClass = function(classNames) {
+  if(typeof classNames === "string") {
+    return classNames;
+  }
+  var renderedClassNames = "";
+  if(Array.isArray(classNames)) {
+    for(var i = 0; i < classNames.length; i++) {
+      renderedClassNames += `${this.renderClass(classNames[i])} `;
+    }
+  } else if(typeof classNames === "object") {
+    for(var className in classNames) {
+      if(classNames[className]) {
+        renderedClassNames += `${className} `;
+      }
+    }
+  }
+  renderedClassNames = renderedClassNames.slice(0, -1);
+  return renderedClassNames;
+}
+
+/**
  * Mounts Moon Element
  * @param {Object} el
  */
