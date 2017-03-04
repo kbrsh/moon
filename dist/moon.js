@@ -814,8 +814,6 @@
       });
     };
     
-    console.log(lex("<div i"));
-    
     var parse = function (tokens) {
       var root = {
         type: "ROOT",
