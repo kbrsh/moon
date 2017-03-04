@@ -129,6 +129,15 @@
 <pre><code class="lang-html">&lt;h1 m-pre&gt;{{msg}}&lt;/h1&gt;
 </code></pre>
 <p>Used to not render an element&#39;s mustache templates.</p>
+<h5 id="-mask-"><strong>mask</strong></h5>
+<p>Usage:</p>
+<pre><code class="lang-html">&lt;h1 m-mask&gt;{{msg}}&lt;/h1&gt;
+</code></pre>
+<p>Does nothing at all, but since it will be removed at runtime, it can be used to mask elements while Moon renders them for the first time. For example, you can do:</p>
+<pre><code class="lang-css">[m-mask] {
+  display: none;
+}
+</code></pre>
 
       </div>
     </div>
