@@ -1,5 +1,5 @@
 /*
-* Moon v0.6.1
+* Moon v0.6.2
 * Copyright 2016-2017, Kabir Shah
 * https://github.com/KingPixil/moon/
 * Free to use under the MIT license.
@@ -769,7 +769,7 @@
         // Begin obtaining the attribute name
         var attrName = "";
         var noValue = false;
-        while (char !== "=") {
+        while (char !== "=" && end < len) {
           // Ensure attribute has a value
           if (char !== " " && char !== ">" || char === "/" && nextChar !== ">") {
             attrName += char;
@@ -798,7 +798,7 @@
           attrValue += char;
         }
     
-        while (char !== quoteType && char !== ">" || char === "/" && nextChar !== ">") {
+        while ((char !== quoteType && char !== ">" || char === "/" && nextChar !== ">") && end < len) {
           attrValue += char;
           incrementChar();
         }
@@ -813,6 +813,8 @@
         value: attrs
       });
     };
+    
+    console.log(lex("<div i"));
     
     var parse = function (tokens) {
       var root = {
@@ -1362,7 +1364,7 @@
     /**
      * Version of Moon
      */
-    Moon.version = '0.6.1';
+    Moon.version = '0.6.2';
     
     /**
      * Moon Utilities
