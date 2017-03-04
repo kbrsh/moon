@@ -1216,6 +1216,31 @@
     };
     
     /**
+     * Renders a Class in Array/Object Form
+     * @param {Array|Object|String} classNames
+     * @return {String} renderedClassNames
+     */
+    Moon.prototype.renderClass = function (classNames) {
+      if (typeof classNames === "string") {
+        return classNames;
+      }
+      var renderedClassNames = "";
+      if (Array.isArray(classNames)) {
+        for (var i = 0; i < classNames.length; i++) {
+          renderedClassNames += this.renderClass(classNames[i]) + ' ';
+        }
+      } else if (typeof classNames === "object") {
+        for (var className in classNames) {
+          if (classNames[className]) {
+            renderedClassNames += className + ' ';
+          }
+        }
+      }
+      renderedClassNames = renderedClassNames.slice(0, -1);
+      return renderedClassNames;
+    };
+    
+    /**
      * Mounts Moon Element
      * @param {Object} el
      */
@@ -1484,6 +1509,14 @@
         var parts = value.split(":");
         var prop = parts.shift();
         var literal = parts.join(":");
+    
+        // make sure object is treated correctly during code generation
+        vnode.props.attrs[prop] = true;
+    
+        if (prop === "class") {
+          // Classes need to be rendered differently
+          return '"class": instance.renderClass(' + compileTemplate(literal, false) + '), ';
+        }
         return '"' + prop + '": ' + compileTemplate(literal, false) + ', ';
       }
     };
