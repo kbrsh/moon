@@ -122,3 +122,12 @@ Usage:
 ```
 
 Used to update an element only once.
+
+##### **pre**
+
+Usage:
+```html
+<h1 m-pre>{{msg}}</h1>
+```
+
+Used to not render an element's mustache templates.
