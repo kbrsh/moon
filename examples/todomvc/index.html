@@ -23,7 +23,7 @@
       <section class="main" m-if="{{todos.length}}">
         <input class="toggle-all" type="checkbox" m-model="done">
         <ul class="todo-list">
-          <li m-for="todo,index in {{filtered}}" m-literal="class:(({{todo}} === {{editedTodo}}) ? {{todo.completed}} ? 'todo editing completed' : 'todo editing' : {{todo.completed}} ? 'todo completed' : 'todo')">
+          <li m-for="todo,index in {{filtered}}" m-literal="class:{todo: true, editing: {{todo}} === {{editedTodo}}, completed: {{todo.completed}}}">
             <div class="view">
               <input class="toggle" type="checkbox" m-model="filtered[{{index}}].completed">
               <label m-on="dblclick:editTodo({{todo}})">{{todo.content}}</label>
