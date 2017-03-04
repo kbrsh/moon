@@ -131,3 +131,18 @@ Usage:
 ```
 
 Used to not render an element's mustache templates.
+
+##### **mask**
+
+Usage:
+```html
+<h1 m-mask>{{msg}}</h1>
+```
+
+Does nothing at all, but since it will be removed at runtime, it can be used to mask elements while Moon renders them for the first time. For example, you can do:
+
+```css
+[m-mask] {
+  display: none;
+}
+```
