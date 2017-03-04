@@ -189,7 +189,7 @@ var lexAttributes = function(state) {
     // Begin obtaining the attribute name
     var attrName = "";
     var noValue = false;
-    while(char !== "=") {
+    while(char !== "=" && end < len) {
       // Ensure attribute has a value
       if((char !== " ") && (char !== ">") || (char === "/" && nextChar !== ">")) {
         attrName += char;
@@ -218,7 +218,7 @@ var lexAttributes = function(state) {
       attrValue += char;
     }
 
-    while((char !== quoteType) && (char !== ">") || (char === "/" && nextChar !== ">")) {
+    while(((char !== quoteType) && (char !== ">") || (char === "/" && nextChar !== ">")) && (end < len)) {
       attrValue += char;
       incrementChar();
     }
@@ -233,3 +233,5 @@ var lexAttributes = function(state) {
     value: attrs
   });
 }
+
+console.log(lex("<div i"))
