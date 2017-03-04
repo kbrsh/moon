@@ -161,38 +161,71 @@ var lexAttributes = function(state) {
   var end = state.current;
 
   var attrs = {};
-  var rawAttrs = "";
 
   // Captures attributes
   var ATTRIBUTE_RE = /([^=\s]*)(=?)("[^"]*"|[^\s"]*)/gi
 
+  var char = input.charAt(end);
+  var nextChar = input.charAt(end + 1);
+
+  var incrementChar = function() {
+    end++;
+    char = input.charAt(end);
+    nextChar = input.charAt(end + 1);
+  }
+
   while(end < len) {
-    var char = input.charAt(end);
-    var nextChar = input.charAt(end + 1);
+    // Reached the end of the tag
     if((char === ">") || (char === "/" && nextChar === ">")) {
       break;
     }
-    rawAttrs += char;
-    end++;
+
+    // Reached end of an attribute
+    if(char === " ") {
+      incrementChar();
+      continue;
+    }
+
+    // Begin obtaining the attribute name
+    var attrName = "";
+    var noValue = false;
+    while(char !== "=") {
+      // Ensure attribute has a value
+      if((char !== " ") && (char !== ">") || (char === "/" && nextChar !== ">")) {
+        attrName += char;
+      } else {
+        // Attribute had no value, skip it
+        noValue = true;
+        break;
+      }
+      incrementChar();
+    }
+
+    if(noValue) {
+      attrs[attrName] = "";
+      continue;
+    }
+
+    var attrValue = "";
+    var quoteType = " ";
+
+    // Exit equal sign and setup quote type
+    incrementChar();
+    if(char === "'" || char === "\"") {
+      quoteType = char;
+      incrementChar();
+    } else {
+      attrValue += char;
+    }
+
+    while((char !== quoteType) && (char !== ">") || (char === "/" && nextChar !== ">")) {
+      attrValue += char;
+      incrementChar();
+    }
+
+    attrs[attrName] = attrValue;
+    incrementChar();
   }
-
-  rawAttrs.replace(ATTRIBUTE_RE, function(match, key, equal, value) {
-    var firstChar = value[0];
-    var lastChar = value[value.length - 1];
-    // Quotes were included in the value
-    if((firstChar === "'" && lastChar === "'") || (firstChar === "\"" && lastChar === "\"")) {
-      value = value.slice(1, -1);
-    }
-
-    // If there is no value provided
-    if(!value) {
-      value = key
-    }
-    // Set attribute value
-    if(key && value) {
-      attrs[key] = value;
-    }
-  });
 
   state.current = end;
   state.tokens.push({
