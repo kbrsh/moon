@@ -129,7 +129,7 @@ var app2 = new Moon({
 
 Now, if you detected the user has signed out, the `m-if` directive will handle this, try it yourself!
 
-Type `app1.set('signedIn', false)` in the console, and watch the DOM being updated!
+Type `app2.set('signedIn', false)` in the console, and watch the DOM being updated!
 
 Directives always have a prefix of `m-`, and this prefix can be set in `Moon.config.prefix`.
 
