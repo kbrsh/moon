@@ -7,6 +7,14 @@
   <a href="https://kingpixil.github.io/license"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
 </p>
 
+### Summary
+
+- :confetti_ball: Small file size (5kb minified + gzip)
+- :zap: Blazing fast performance
+- :rocket: Intuitive, easy-to-learn API
+- :gem: Powerful directives
+- :hammer: Compose with Components
+
 ### What is it?
 
 Moon is a simple front end javascript library heavily inspired by [Vue](https://vuejs.org). The library is fast, flexible, and easy to learn.
@@ -18,14 +26,6 @@ There have been a lot of libraries released. Moon has been being developed since
 Moon differs from the existing solutions by providing a faster, yet compact library with a simple but powerful API. It uses a virtual DOM system similar to React, but includes advanced optimizations crafted specifically for Moon, similar to the Glimmer engine by the Ember team. In a variety of benchmarks, Moon has proven itself to be the fastest UI library out there.
 
 Still, you do **not have to** use Moon if you are happy with your current solution, or if you have already started. If you are creating something new or would like to use it for the performance gains and intuitive API, feel free to use Moon.
-
-### Summary
-
-- :confetti_ball: Small file size (5kb minified + gzip)
-- :zap: Blazing fast performance
-- :rocket: Intuitive, easy-to-learn API
-- :gem: Powerful directives
-- :hammer: Compose with Components
 
 ### Usage
 
