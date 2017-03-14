@@ -568,7 +568,7 @@
     var callHook = function (instance, name) {
       var hook = instance.$hooks[name];
       if (hook) {
-        hook();
+        hook.call(instance);
       }
     };
     
