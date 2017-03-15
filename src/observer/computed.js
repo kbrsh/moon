@@ -5,9 +5,17 @@
  */
 var initComputed = function(instance, computed) {
   var setComputedProperty = function(prop) {
+    // Add to Observer Cache
+    instance.$observer.cache[prop] = {
+      dirty: true,
+      getter: computed[prop].get,
+      cache: null
+    };
+
+    // Create Getters/Setters
     var properties = {
       get: function() {
-        return computed[prop].get.call(instance);
+        return instance.$observer.getComputed(prop)
       }
     };
     if(computed[prop].set) {
@@ -15,8 +23,12 @@ var initComputed = function(instance, computed) {
         return computed[prop].set.call(instance, val);
       }
     }
+
+    // Add Getters/Setters
     Object.defineProperty(instance.$data, prop, properties);
   }
+
+  // Set All Computed Properties
   for(var propName in computed) {
     setComputedProperty(propName);
   }

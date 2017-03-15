@@ -35,9 +35,17 @@
      */
     var initComputed = function (instance, computed) {
       var setComputedProperty = function (prop) {
+        // Add to Observer Cache
+        instance.$observer.cache[prop] = {
+          dirty: true,
+          getter: computed[prop].get,
+          cache: null
+        };
+    
+        // Create Getters/Setters
         var properties = {
           get: function () {
-            return computed[prop].get.call(instance);
+            return instance.$observer.getComputed(prop);
           }
         };
         if (computed[prop].set) {
@@ -45,8 +53,12 @@
             return computed[prop].set.call(instance, val);
           };
         }
+    
+        // Add Getters/Setters
         Object.defineProperty(instance.$data, prop, properties);
       };
+    
+      // Set All Computed Properties
       for (var propName in computed) {
         setComputedProperty(propName);
       }
@@ -54,7 +66,25 @@
     
     function Observer(instance) {
       this.instance = instance;
+      this.cache = {};
     }
+    
+    Observer.prototype.getComputed = function (prop) {
+      // Check if Changed ("dirty")
+      if (this.cache[prop].dirty) {
+        // Invoke Getter
+        var output = this.cache[prop].getter.call(this.instance);
+    
+        // Cache Output
+        this.cache[prop].cache = output;
+    
+        // Return Output
+        return output;
+      } else {
+        // Clean, return Cached Value
+        return this.cache[prop].cache;
+      }
+    };
     
     Observer.prototype.notify = function () {
       queueBuild(this.instance);
