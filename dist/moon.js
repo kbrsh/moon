@@ -188,7 +188,7 @@
      * @return {String} compiled template
      */
     var compileTemplate = function (template, isString) {
-      var TEMPLATE_RE = /{{([A-Za-z0-9_]+)([A-Za-z0-9_.()'"+\-*/\s\[\]]+)?}}/gi;
+      var TEMPLATE_RE = /{{([A-Za-z0-9_$@]+)([A-Za-z0-9_.()'"+\-*/\s\[\]]+)?}}/gi;
       var compiled = template;
       template.replace(TEMPLATE_RE, function (match, key, modifiers) {
         if (!modifiers) {
