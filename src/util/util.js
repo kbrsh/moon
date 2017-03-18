@@ -365,6 +365,8 @@ var diff = function(node, vnode, parent, instance) {
     nodeName = node.__moon__nodeName__ || node.nodeName.toLowerCase();
   }
 
+  var isSVG = node instanceof SVGElement || vnode.meta.isSVG;
+
   if(!node && vnode) {
     // No Node, create a node
     var newNode = createNodeFromVNode(vnode, instance);

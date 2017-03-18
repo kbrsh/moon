@@ -457,6 +457,8 @@
         nodeName = node.__moon__nodeName__ || node.nodeName.toLowerCase();
       }
     
+      var isSVG = node instanceof SVGElement || vnode.meta.isSVG;
+    
       if (!node && vnode) {
         // No Node, create a node
         var newNode = createNodeFromVNode(vnode, instance);
@@ -866,6 +868,7 @@
     };
     
     var HTML_ELEMENTS = ["area", "base", "br", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"];
+    var SVG_ELEMENTS = ["svg", "animate", "circle", "clippath", "cursor", "defs", "desc", "ellipse", "filter", "font-face", "foreignObject", "g", "glyph", "image", "line", "marker", "mask", "missing-glyph", "path", "pattern", "polygon", "polyline", "rect", "switch", "symbol", "text", "textpath", "tspan", "use", "view"];
     
     var createParseNode = function (type, props, children) {
       return {
@@ -906,6 +909,11 @@
         var tagType = secondToken.value;
         // Exit Start Tag
         increment(4);
+    
+        // If it is an svg element, let code generator know
+        if (SVG_ELEMENTS.indexOf(node.type) !== -1) {
+          node.isSVG = true;
+        }
     
         // If it's self closing, return it here
         if (HTML_ELEMENTS.indexOf(node.type) !== -1) {
@@ -1101,6 +1109,9 @@
         // Recursively generate code for children
         if (!el.meta) {
           el.meta = defaultMetadata();
+          if (el.isSVG) {
+            el.meta.isSVG = true;
+          }
         }
         el.props = {
           attrs: el.props

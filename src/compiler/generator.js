@@ -159,6 +159,9 @@ var generateEl = function(el) {
 		// Recursively generate code for children
 		if(!el.meta) {
 			el.meta = defaultMetadata();
+			if(el.isSVG) {
+				el.meta.isSVG = true;
+			}
 		}
 		el.props = {
 			attrs: el.props
