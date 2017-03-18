@@ -264,7 +264,7 @@ var createNodeFromVNode = function(vnode, instance) {
     // Create textnode
     el = document.createTextNode(vnode.val);
   } else {
-    el = document.createElement(vnode.type);
+    el = vnode.meta.isSVG ? document.createElementNS('http://www.w3.org/2000/svg', vnode.type) : document.createElement(vnode.type);
     // Optimization: VNode only has one child that is text, and create it here
     if(vnode.children.length === 1 && vnode.children[0].type === "#text") {
       el.textContent = vnode.children[0].val;
@@ -324,6 +324,9 @@ var diffProps = function(node, nodeProps, vnode, vnodeProps) {
   // Get object of all properties being compared
   var allProps = merge(nodeProps, vnodeProps);
 
+  // If node is svg, update with SVG namespace
+  var isSVG = node instanceof SVGElement;
+
   for(var propName in allProps) {
     // If not in VNode or is a Directive, remove it
     if(!vnodeProps[propName] || directives[propName]) {
@@ -331,11 +334,11 @@ var diffProps = function(node, nodeProps, vnode, vnodeProps) {
       if(directives[propName]) {
         directives[propName](node, allProps[propName], vnode);
       }
-      node.removeAttribute(propName);
+      isSVG ? node.removeAttributeNS(null, propName) : node.removeAttribute(propName);
       delete node.__moon__props__[propName];
     } else if(!nodeProps[propName] || nodeProps[propName] !== vnodeProps[propName]) {
       // It has changed or is not in the node in the first place
-      node.setAttribute(propName, vnodeProps[propName]);
+      isSVG ? node.setAttributeNS(null, propName, vnodeProps[propName]) : node.setAttribute(propName, vnodeProps[propName]);
       node.__moon__props__[propName] = vnodeProps[propName];
     }
   }
@@ -364,8 +367,6 @@ var diff = function(node, vnode, parent, instance) {
   if(node) {
     nodeName = node.__moon__nodeName__ || node.nodeName.toLowerCase();
   }
-
-  var isSVG = node instanceof SVGElement || vnode.meta.isSVG;
 
   if(!node && vnode) {
     // No Node, create a node
