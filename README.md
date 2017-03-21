@@ -9,7 +9,7 @@
 
 ### Summary
 
-- :confetti_ball: Small file size (5kb minified + gzip)
+- :tada: Small file size (5kb minified + gzip)
 - :zap: Blazing fast performance
 - :rocket: Intuitive, easy-to-learn API
 - :gem: Powerful directives
