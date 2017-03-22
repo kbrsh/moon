@@ -375,7 +375,7 @@ describe("Directive", function() {
   });
 
   describe('On Directive', function() {
-    createTestElement("on", '<p id="on-count">{{count}}</p><button m-on="click:increment" id="on-increment-button">Increment</button><a id="on-modifier-link" href="https://kabir.ml" m-on="click.prevent:modifier">Link</a><button id="on-keycode-link" m-on="click.m:keycode"></button>');
+    createTestElement("on", '<p id="on-count">{{count}}</p><button m-on:click="increment" id="on-increment-button">Increment</button><a id="on-modifier-link" href="https://kabir.ml" m-on:click.prevent="modifier">Link</a><button id="on-keycode-link" m-on:click.m="keycode"></button>');
     var evt, modifier_active, keycode;
     Moon.config.keyCodes({
       m: 77
