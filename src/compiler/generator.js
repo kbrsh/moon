@@ -165,7 +165,8 @@ var generateEl = function(el) {
 		el.props = {
 			attrs: el.props
 		}
-		var compiledCode = el.type === "slot" ? `instance.$slots['${el.props.attrs.name || "default"}']` : createCall(el);
+		var slotNameAttr = el.props.attrs.name;
+		var compiledCode = el.type === "slot" ? `instance.$slots['${(slotNameAttr && slotNameAttr.value) || ("default")}']` : createCall(el);
 		if(el.specialDirectivesAfter) {
 			// There are special directives that need to change the value after code generation, so
 			// run them now
