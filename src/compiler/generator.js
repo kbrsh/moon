@@ -20,14 +20,15 @@ var generateProps = function(vnode) {
 					}
 					vnode.specialDirectivesAfter[attr] = attrs[attr];
 				}
+
 				// Invoke any special directives that need to change values before code generation
 				if(specialDirectives[attr].beforeGenerate) {
-					specialDirectives[attr].beforeGenerate(attrs[attr], vnode);
+					specialDirectives[attr].beforeGenerate(attrs[attr].value, attrs[attr].meta, vnode);
 				}
 
 				// Invoke any special directives that need to change values of props during code generation
 				if(specialDirectives[attr].duringPropGenerate) {
-					generatedObject += specialDirectives[attr].duringPropGenerate(attrs[attr], vnode);
+					generatedObject += specialDirectives[attr].duringPropGenerate(attrs[attr].value, attrs[attr].meta, vnode);
 				}
 
 				// Keep a flag to know to always rerender this
@@ -36,7 +37,7 @@ var generateProps = function(vnode) {
 				// Remove special directive
 				delete attrs[attr];
 			} else {
-				var normalizedProp = JSON.stringify(attrs[attr]);
+				var normalizedProp = JSON.stringify(attrs[attr].value);
 				var compiledProp = compileTemplate(normalizedProp, true);
 				if(normalizedProp !== compiledProp) {
 					vnode.dynamic = true;
@@ -169,7 +170,7 @@ var generateEl = function(el) {
 			// There are special directives that need to change the value after code generation, so
 			// run them now
 			for(var specialDirectiveAfter in el.specialDirectivesAfter) {
-				compiledCode = specialDirectives[specialDirectiveAfter].afterGenerate(el.specialDirectivesAfter[specialDirectiveAfter], compiledCode, el);
+				compiledCode = specialDirectives[specialDirectiveAfter].afterGenerate(el.specialDirectivesAfter[specialDirectiveAfter].value, el.specialDirectivesAfter[specialDirectiveAfter].meta, compiledCode, el);
 			}
 		}
 		code += compiledCode;
