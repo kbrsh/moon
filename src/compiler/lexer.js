@@ -162,9 +162,6 @@ var lexAttributes = function(state) {
 
   var attrs = {};
 
-  // Captures attributes
-  var ATTRIBUTE_RE = /([^=\s]*)(=?)("[^"]*"|[^\s"]*)/gi
-
   var char = input.charAt(end);
   var nextChar = input.charAt(end + 1);
 
