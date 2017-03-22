@@ -1,13 +1,13 @@
 /* ======= Default Directives ======= */
 
 specialDirectives[Moon.config.prefix + "if"] = {
-  afterGenerate: function(value, code, vnode) {
+  afterGenerate: function(value, meta, code, vnode) {
     return `(${compileTemplate(value, false)}) ? ${code} : ''`;
   }
 }
 
 specialDirectives[Moon.config.prefix + "for"] = {
-  afterGenerate: function(value, code, vnode) {
+  afterGenerate: function(value, meta, code, vnode) {
     var parts = value.split(" in ");
     var aliases = parts[0].split(",");
 
@@ -26,16 +26,15 @@ specialDirectives[Moon.config.prefix + "for"] = {
 }
 
 specialDirectives[Moon.config.prefix + "on"] = {
-  beforeGenerate: function(value, vnode) {
-    value = compileTemplate(value, false);
+  beforeGenerate: function(value, meta, vnode) {
 
-    var splitVal = value.split(":");
     // Extract modifiers and the event
-    var rawModifiers = splitVal[0].split(".");
+    var rawModifiers = meta.arg.split(".");
     var eventToCall = rawModifiers[0];
-    var methodToCall = splitVal[1];
     var params = "event";
+    var methodToCall = compileTemplate(value, false);
     var rawParams = methodToCall.split("(");
+    
     if(rawParams.length > 1) {
       methodToCall = rawParams.shift();
       params = rawParams.join("(").slice(0, -1);
@@ -58,7 +57,7 @@ specialDirectives[Moon.config.prefix + "on"] = {
 }
 
 specialDirectives[Moon.config.prefix + "model"] = {
-  beforeGenerate: function(value, vnode) {
+  beforeGenerate: function(value, meta, vnode) {
     // Compile a string value for the keypath
     var compiledStringValue = compileTemplate(value, true);
     // Setup default event types and dom property to change
@@ -91,7 +90,7 @@ specialDirectives[Moon.config.prefix + "model"] = {
 };
 
 specialDirectives[Moon.config.prefix + "literal"] = {
-  duringPropGenerate: function(value, vnode) {
+  duringPropGenerate: function(value, meta, vnode) {
     var parts = value.split(":");
     var prop = parts.shift();
     var literal = parts.join(":");
@@ -108,19 +107,19 @@ specialDirectives[Moon.config.prefix + "literal"] = {
 };
 
 specialDirectives[Moon.config.prefix + "once"] = {
-  beforeGenerate: function(value, vnode) {
+  beforeGenerate: function(value, meta, vnode) {
     vnode.meta.shouldRender = "instance.$initialRender";
   }
 };
 
 specialDirectives[Moon.config.prefix + "pre"] = {
-  beforeGenerate: function(value, vnode) {
+  beforeGenerate: function(value, meta, vnode) {
     vnode.meta.shouldRender = false;
   }
 }
 
 specialDirectives[Moon.config.prefix + "html"] = {
-  beforeGenerate: function(value, vnode) {
+  beforeGenerate: function(value, meta, vnode) {
     if(!vnode.props.dom) {
       vnode.props.dom = {};
     }
@@ -129,7 +128,7 @@ specialDirectives[Moon.config.prefix + "html"] = {
 }
 
 specialDirectives[Moon.config.prefix + "text"] = {
-  beforeGenerate: function(value, vnode) {
+  beforeGenerate: function(value, meta, vnode) {
     vnode.children = [value];
   }
 }

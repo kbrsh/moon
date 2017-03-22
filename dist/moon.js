@@ -816,7 +816,10 @@
           continue;
         }
     
-        var attrValue = "";
+        var attrValue = {
+          meta: {},
+          value: ""
+        };
         var quoteType = " ";
     
         // Exit equal sign and setup quote type
@@ -825,12 +828,18 @@
           quoteType = char;
           incrementChar();
         } else {
-          attrValue += char;
+          attrValue.value += char;
         }
     
         while ((char !== quoteType && char !== ">" || char === "/" && nextChar !== ">") && end < len) {
-          attrValue += char;
+          attrValue.value += char;
           incrementChar();
+        }
+    
+        if (attrName.indexOf(":") !== -1) {
+          var attrNames = attrName.split(":");
+          attrName = attrNames[0];
+          attrValue.meta.arg = attrNames[1];
         }
     
         attrs[attrName] = attrValue;
@@ -968,14 +977,15 @@
               }
               vnode.specialDirectivesAfter[attr] = attrs[attr];
             }
+    
             // Invoke any special directives that need to change values before code generation
             if (specialDirectives[attr].beforeGenerate) {
-              specialDirectives[attr].beforeGenerate(attrs[attr], vnode);
+              specialDirectives[attr].beforeGenerate(attrs[attr].value, attrs[attr].meta, vnode);
             }
     
             // Invoke any special directives that need to change values of props during code generation
             if (specialDirectives[attr].duringPropGenerate) {
-              generatedObject += specialDirectives[attr].duringPropGenerate(attrs[attr], vnode);
+              generatedObject += specialDirectives[attr].duringPropGenerate(attrs[attr].value, attrs[attr].meta, vnode);
             }
     
             // Keep a flag to know to always rerender this
@@ -984,7 +994,7 @@
             // Remove special directive
             delete attrs[attr];
           } else {
-            var normalizedProp = JSON.stringify(attrs[attr]);
+            var normalizedProp = JSON.stringify(attrs[attr].value);
             var compiledProp = compileTemplate(normalizedProp, true);
             if (normalizedProp !== compiledProp) {
               vnode.dynamic = true;
@@ -1117,7 +1127,7 @@
           // There are special directives that need to change the value after code generation, so
           // run them now
           for (var specialDirectiveAfter in el.specialDirectivesAfter) {
-            compiledCode = specialDirectives[specialDirectiveAfter].afterGenerate(el.specialDirectivesAfter[specialDirectiveAfter], compiledCode, el);
+            compiledCode = specialDirectives[specialDirectiveAfter].afterGenerate(el.specialDirectivesAfter[specialDirectiveAfter].value, el.specialDirectivesAfter[specialDirectiveAfter].meta, compiledCode, el);
           }
         }
         code += compiledCode;
@@ -1485,13 +1495,13 @@
     /* ======= Default Directives ======= */
     
     specialDirectives[Moon.config.prefix + "if"] = {
-      afterGenerate: function (value, code, vnode) {
+      afterGenerate: function (value, meta, code, vnode) {
         return '(' + compileTemplate(value, false) + ') ? ' + code + ' : \'\'';
       }
     };
     
     specialDirectives[Moon.config.prefix + "for"] = {
-      afterGenerate: function (value, code, vnode) {
+      afterGenerate: function (value, meta, code, vnode) {
         var parts = value.split(" in ");
         var aliases = parts[0].split(",");
     
@@ -1510,16 +1520,15 @@
     };
     
     specialDirectives[Moon.config.prefix + "on"] = {
-      beforeGenerate: function (value, vnode) {
-        value = compileTemplate(value, false);
+      beforeGenerate: function (value, meta, vnode) {
     
-        var splitVal = value.split(":");
         // Extract modifiers and the event
-        var rawModifiers = splitVal[0].split(".");
+        var rawModifiers = meta.arg.split(".");
         var eventToCall = rawModifiers[0];
-        var methodToCall = splitVal[1];
         var params = "event";
+        var methodToCall = compileTemplate(value, false);
         var rawParams = methodToCall.split("(");
+    
         if (rawParams.length > 1) {
           methodToCall = rawParams.shift();
           params = rawParams.join("(").slice(0, -1);
@@ -1542,7 +1551,7 @@
     };
     
     specialDirectives[Moon.config.prefix + "model"] = {
-      beforeGenerate: function (value, vnode) {
+      beforeGenerate: function (value, meta, vnode) {
         // Compile a string value for the keypath
         var compiledStringValue = compileTemplate(value, true);
         // Setup default event types and dom property to change
@@ -1575,7 +1584,7 @@
     };
     
     specialDirectives[Moon.config.prefix + "literal"] = {
-      duringPropGenerate: function (value, vnode) {
+      duringPropGenerate: function (value, meta, vnode) {
         var parts = value.split(":");
         var prop = parts.shift();
         var literal = parts.join(":");
@@ -1592,19 +1601,19 @@
     };
     
     specialDirectives[Moon.config.prefix + "once"] = {
-      beforeGenerate: function (value, vnode) {
+      beforeGenerate: function (value, meta, vnode) {
         vnode.meta.shouldRender = "instance.$initialRender";
       }
     };
     
     specialDirectives[Moon.config.prefix + "pre"] = {
-      beforeGenerate: function (value, vnode) {
+      beforeGenerate: function (value, meta, vnode) {
         vnode.meta.shouldRender = false;
       }
     };
     
     specialDirectives[Moon.config.prefix + "html"] = {
-      beforeGenerate: function (value, vnode) {
+      beforeGenerate: function (value, meta, vnode) {
         if (!vnode.props.dom) {
           vnode.props.dom = {};
         }
@@ -1613,7 +1622,7 @@
     };
     
     specialDirectives[Moon.config.prefix + "text"] = {
-      beforeGenerate: function (value, vnode) {
+      beforeGenerate: function (value, meta, vnode) {
         vnode.children = [value];
       }
     };

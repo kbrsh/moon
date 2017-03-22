@@ -203,7 +203,10 @@ var lexAttributes = function(state) {
       continue;
     }
 
-    var attrValue = "";
+    var attrValue = {
+      meta: {},
+      value: ""
+    };
     var quoteType = " ";
 
     // Exit equal sign and setup quote type
@@ -212,12 +215,18 @@ var lexAttributes = function(state) {
       quoteType = char;
       incrementChar();
     } else {
-      attrValue += char;
+      attrValue.value += char;
     }
 
     while(((char !== quoteType) && (char !== ">") || (char === "/" && nextChar !== ">")) && (end < len)) {
-      attrValue += char;
+      attrValue.value += char;
       incrementChar();
+    }
+
+    if(attrName.indexOf(":") !== -1) {
+      var attrNames = attrName.split(":");
+      attrName = attrNames[0];
+      attrValue.meta.arg = attrNames[1];
     }
 
     attrs[attrName] = attrValue;
