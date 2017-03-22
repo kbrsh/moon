@@ -34,7 +34,7 @@ specialDirectives[Moon.config.prefix + "on"] = {
     var params = "event";
     var methodToCall = compileTemplate(value, false);
     var rawParams = methodToCall.split("(");
-    
+
     if(rawParams.length > 1) {
       methodToCall = rawParams.shift();
       params = rawParams.join("(").slice(0, -1);
@@ -91,18 +91,15 @@ specialDirectives[Moon.config.prefix + "model"] = {
 
 specialDirectives[Moon.config.prefix + "literal"] = {
   duringPropGenerate: function(value, meta, vnode) {
-    var parts = value.split(":");
-    var prop = parts.shift();
-    var literal = parts.join(":");
-
+    var prop = meta.arg;
     // make sure object is treated correctly during code generation
     vnode.props.attrs[prop] = true;
 
     if(prop === "class") {
       // Classes need to be rendered differently
-      return `"class": instance.renderClass(${compileTemplate(literal, false)}), `;
+      return `"class": instance.renderClass(${compileTemplate(value, false)}), `;
     }
-    return `"${prop}": ${compileTemplate(literal, false)}, `;
+    return `"${prop}": ${compileTemplate(value, false)}, `;
   }
 };
 

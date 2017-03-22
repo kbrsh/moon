@@ -452,9 +452,9 @@ describe("Directive", function() {
   });
 
   describe('Literal Directive', function() {
-    createTestElement("literal", '<span m-literal="class:({{num}}+1).toString()" id="literal-directive-span"></span>');
-    createTestElement("literalClass", '<span m-literal="class:[\'1\', \'2\', \'3\']" id="literal-class-directive-span"></span>');
-    createTestElement("literalConditionalClass", '<span m-literal="class:{trueVal: {{trueVal}}, falseVal: {{falseVal}}}" id="literal-conditional-class-directive-span"></span>');
+    createTestElement("literal", '<span m-literal:class="({{num}}+1).toString()" id="literal-directive-span"></span>');
+    createTestElement("literalClass", '<span m-literal:class="[\'1\', \'2\', \'3\']" id="literal-class-directive-span"></span>');
+    createTestElement("literalConditionalClass", '<span m-literal:class="{trueVal: {{trueVal}}, falseVal: {{falseVal}}}" id="literal-conditional-class-directive-span"></span>');
     var literalApp = new Moon({
       el: "#literal",
       data: {
