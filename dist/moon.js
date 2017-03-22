@@ -965,10 +965,8 @@
             if (specialDirectives[attr].afterGenerate) {
               if (!vnode.specialDirectivesAfter) {
                 vnode.specialDirectivesAfter = {};
-                vnode.specialDirectivesAfter[attr] = attrs[attr];
-              } else {
-                vnode.specialDirectivesAfter[attr] = attrs[attr];
               }
+              vnode.specialDirectivesAfter[attr] = attrs[attr];
             }
             // Invoke any special directives that need to change values before code generation
             if (specialDirectives[attr].beforeGenerate) {
