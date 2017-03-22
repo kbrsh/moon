@@ -1586,18 +1586,15 @@
     
     specialDirectives[Moon.config.prefix + "literal"] = {
       duringPropGenerate: function (value, meta, vnode) {
-        var parts = value.split(":");
-        var prop = parts.shift();
-        var literal = parts.join(":");
-    
+        var prop = meta.arg;
         // make sure object is treated correctly during code generation
         vnode.props.attrs[prop] = true;
     
         if (prop === "class") {
           // Classes need to be rendered differently
-          return '"class": instance.renderClass(' + compileTemplate(literal, false) + '), ';
+          return '"class": instance.renderClass(' + compileTemplate(value, false) + '), ';
         }
-        return '"' + prop + '": ' + compileTemplate(literal, false) + ', ';
+        return '"' + prop + '": ' + compileTemplate(value, false) + ', ';
       }
     };
     
