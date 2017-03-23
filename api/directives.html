@@ -82,6 +82,7 @@
 <h5 id="-on-"><strong>on</strong></h5>
 <ul>
 <li>Expects: <code>String</code></li>
+<li>Arguments: <code>{String} event</code></li>
 <li>Modifiers:<ul>
 <li><code>stop</code>: Will call <code>event.stopPropagation()</code></li>
 <li><code>prevent</code>: Will call <code>event.preventDefault()</code></li>
@@ -93,9 +94,9 @@
 </li>
 </ul>
 <p>Usage:</p>
-<pre><code class="lang-html">&lt;button m-on=&quot;click:someMethod&quot;&gt;&lt;/button&gt;
-&lt;button m-on=&quot;click:someMethod(&#39;foo&#39;, &#39;bar&#39;)&quot;&gt;&lt;/button&gt;
-&lt;button m-on=&quot;click.shift:someMethod(&#39;foo&#39;, &#39;bar&#39;)&quot;&gt;&lt;/button&gt;
+<pre><code class="lang-html">&lt;button m-on:click=&quot;someMethod&quot;&gt;&lt;/button&gt;
+&lt;button m-on:click=&quot;someMethod(&#39;foo&#39;, &#39;bar&#39;)&quot;&gt;&lt;/button&gt;
+&lt;button m-on:click.shift=&quot;someMethod(&#39;foo&#39;, &#39;bar&#39;)&quot;&gt;&lt;/button&gt;
 </code></pre>
 <p>Can be used to attach an event listener to an element correctly, and firing a method when invoked.</p>
 <h5 id="-model-"><strong>model</strong></h5>
@@ -109,13 +110,14 @@
 <h5 id="-literal-"><strong>literal</strong></h5>
 <ul>
 <li>Expects: <code>Expression</code></li>
+<li>Arguments: <code>{String} attr</code></li>
 </ul>
 <p>Usage:</p>
-<pre><code class="lang-html">&lt;h1 m-literal=&quot;id: 1 + 1&quot;&gt;&lt;/h1&gt;
+<pre><code class="lang-html">&lt;h1 m-literal:id=&quot;1 + 1&quot;&gt;&lt;/h1&gt;
 </code></pre>
 <p>Syntax for setting <code>class</code> can be an array, object, or string.</p>
-<pre><code class="lang-html">&lt;h1 m-literal=&quot;class: [&#39;className&#39;, &#39;otherClass&#39;]&quot;&gt;&lt;/h1&gt;
-&lt;h1 m-literal=&quot;class: {className: {{otherCondition}}, otherClass: false}&quot;&gt;&lt;/h1&gt;
+<pre><code class="lang-html">&lt;h1 m-literal:class=&quot;[&#39;className&#39;, &#39;otherClass&#39;]&quot;&gt;&lt;/h1&gt;
+&lt;h1 m-literal:class=&quot;{className: {{otherCondition}}, otherClass: false}&quot;&gt;&lt;/h1&gt;
 </code></pre>
 <p>Note how the object syntax needs a special case, if this is true, then the class will be applied.</p>
 <p>Can be used to treat the value of a property as a literal Javascript expression.</p>

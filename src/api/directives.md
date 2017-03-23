@@ -66,6 +66,7 @@ Can be used to render an array, the alias (the part before `in`) can be used in 
 ##### **on**
 
 - Expects: `String`
+- Arguments: `{String} event`
 - Modifiers:
   - `stop`: Will call `event.stopPropagation()`
   - `prevent`: Will call `event.preventDefault()`
@@ -76,9 +77,9 @@ Can be used to render an array, the alias (the part before `in`) can be used in 
 
 Usage:
 ```html
-<button m-on="click:someMethod"></button>
-<button m-on="click:someMethod('foo', 'bar')"></button>
-<button m-on="click.shift:someMethod('foo', 'bar')"></button>
+<button m-on:click="someMethod"></button>
+<button m-on:click="someMethod('foo', 'bar')"></button>
+<button m-on:click.shift="someMethod('foo', 'bar')"></button>
 ```
 
 Can be used to attach an event listener to an element correctly, and firing a method when invoked.
@@ -97,17 +98,18 @@ Can be used for two way databinding, the value of any input with this directive 
 ##### **literal**
 
 - Expects: `Expression`
+- Arguments: `{String} attr`
 
 Usage:
 ```html
-<h1 m-literal="id: 1 + 1"></h1>
+<h1 m-literal:id="1 + 1"></h1>
 ```
 
 Syntax for setting `class` can be an array, object, or string.
 
 ```html
-<h1 m-literal="class: ['className', 'otherClass']"></h1>
-<h1 m-literal="class: {className: {{otherCondition}}, otherClass: false}"></h1>
+<h1 m-literal:class="['className', 'otherClass']"></h1>
+<h1 m-literal:class="{className: {{otherCondition}}, otherClass: false}"></h1>
 ```
 
 Note how the object syntax needs a special case, if this is true, then the class will be applied.
