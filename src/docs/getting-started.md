@@ -231,12 +231,12 @@ Go ahead, try entering `app5.set('list', ['New Item', 'Another Item'])` in the c
 
 Great! We've been able to conditionally render elements, and render lists, but what if we need to get data from the user? For this, and adding other events, we use the `m-on` directive.
 
-The syntax for this directive is like: `event:method`. If you need custom parameters, you can use `event:method('custom parameter')`.
+The syntax for this directive is like: `event:method`. The event is passed as an argument, like `m-on:click`. If you need custom parameters, you can use `event:method('custom parameter')`.
 
 ```html
 <div id="app6">
   <p>{{count}}</p>
-  <button m-on="click:increment">Increment</button>
+  <button m-on:click="increment">Increment</button>
 </div>
 ```
 
@@ -259,7 +259,7 @@ var app6 = new Moon({
 
 <div id="app6" class="example">
   <p>{{count}}</p>
-  <button m-on="click:increment">Increment</button>
+  <button m-on:click="increment">Increment</button>
 </div>
 
 <script>

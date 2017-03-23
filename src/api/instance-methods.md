@@ -64,18 +64,6 @@ instance.destroy();
 
 Used to manually destroy (unmount) an instance. Updated data won't be queued anymore, unless mounted again.
 
-##### **mount**
-
-- Arguments:
-  - `{String} selector`
-
-Usage:
-```js
-instance.mount("#app");
-```
-
-Used to manually mount an instance to an element, compiling a template or using a render function, and running the initial build.
-
 ##### **build**
 
 Usage:
