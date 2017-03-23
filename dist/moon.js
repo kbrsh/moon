@@ -545,8 +545,10 @@
         var currentChildNode = node.firstChild;
         // Optimization:
         //  If the vnode contains just one text vnode, create it here
-        if (vnode.children.length === 1 && vnode.children[0].type === "#text" && currentChildNode && !currentChildNode.nextSibling && currentChildNode.nodeName === "#text" && vnode.children[0].val !== currentChildNode.textContent) {
-          currentChildNode.textContent = vnode.children[0].val;
+        if (vnode.children.length === 1 && vnode.children[0].type === "#text" && currentChildNode && !currentChildNode.nextSibling && currentChildNode.nodeName === "#text") {
+          if (vnode.children[0].val !== currentChildNode.textContent) {
+            currentChildNode.textContent = vnode.children[0].val;
+          }
         } else {
           // Iterate through all children
           for (var i = 0; i < vnode.children.length || currentChildNode; i++) {
