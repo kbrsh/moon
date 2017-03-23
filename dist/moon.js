@@ -1538,7 +1538,7 @@
         var valueProp = "value";
     
         // If input type is checkbox, listen on 'change' and change the 'checked' dom property
-        if (vnode.props.attrs.type === "checkbox") {
+        if (vnode.props.attrs.type && vnode.props.attrs.type.value === "checkbox") {
           eventType = "change";
           valueProp = "checked";
         }
@@ -1566,7 +1566,10 @@
       duringPropGenerate: function (value, meta, vnode) {
         var prop = meta.arg;
         // make sure object is treated correctly during code generation
-        vnode.props.attrs[prop] = true;
+        vnode.props.attrs[prop] = {
+          value: true,
+          meta: {}
+        };
     
         if (prop === "class") {
           // Classes need to be rendered differently
