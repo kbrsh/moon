@@ -5,17 +5,10 @@
  */
 var initComputed = function(instance, computed) {
   var setComputedProperty = function(prop) {
-    // Add to Observer Cache
-    instance.$observer.cache[prop] = {
-      dirty: true,
-      getter: computed[prop].get,
-      cache: null
-    };
-
     // Create Getters/Setters
     var properties = {
       get: function() {
-        return instance.$observer.getComputed(prop)
+        return computed[prop].get.call(instance)
       }
     };
     if(computed[prop].set) {
