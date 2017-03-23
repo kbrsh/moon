@@ -1,5 +1,5 @@
 /*
-* Moon v0.6.2
+* Moon v0.7.0
 * Copyright 2016-2017, Kabir Shah
 * https://github.com/KingPixil/moon/
 * Free to use under the MIT license.
@@ -35,9 +35,17 @@
      */
     var initComputed = function (instance, computed) {
       var setComputedProperty = function (prop) {
+        // Add to Observer Cache
+        instance.$observer.cache[prop] = {
+          dirty: true,
+          getter: computed[prop].get,
+          cache: null
+        };
+
+        // Create Getters/Setters
         var properties = {
           get: function () {
-            return computed[prop].get.call(instance);
+            return instance.$observer.getComputed(prop);
           }
         };
         if (computed[prop].set) {
@@ -45,8 +53,12 @@
             return computed[prop].set.call(instance, val);
           };
         }
+
+        // Add Getters/Setters
         Object.defineProperty(instance.$data, prop, properties);
       };
+
+      // Set All Computed Properties
       for (var propName in computed) {
         setComputedProperty(propName);
       }
@@ -54,7 +66,25 @@
 
     function Observer(instance) {
       this.instance = instance;
+      this.cache = {};
     }
+
+    Observer.prototype.getComputed = function (prop) {
+      // Check if Changed ("dirty")
+      if (this.cache[prop].dirty) {
+        // Invoke Getter
+        var output = this.cache[prop].getter.call(this.instance);
+
+        // Cache Output
+        this.cache[prop].cache = output;
+
+        // Return Output
+        return output;
+      } else {
+        // Clean, return Cached Value
+        return this.cache[prop].cache;
+      }
+    };
 
     Observer.prototype.notify = function () {
       queueBuild(this.instance);
@@ -158,7 +188,7 @@
      * @return {String} compiled template
      */
     var compileTemplate = function (template, isString) {
-      var TEMPLATE_RE = /{{([A-Za-z0-9_]+)([A-Za-z0-9_.()'"+\-*/\s\[\]]+)?}}/gi;
+      var TEMPLATE_RE = /{{([A-Za-z0-9_$@]+)([A-Za-z0-9_.()'"+\-*/\s\[\]]+)?}}/gi;
       var compiled = template;
       template.replace(TEMPLATE_RE, function (match, key, modifiers) {
         if (!modifiers) {
@@ -326,7 +356,7 @@
         // Create textnode
         el = document.createTextNode(vnode.val);
       } else {
-        el = document.createElement(vnode.type);
+        el = vnode.meta.isSVG ? document.createElementNS('http://www.w3.org/2000/svg', vnode.type) : document.createElement(vnode.type);
         // Optimization: VNode only has one child that is text, and create it here
         if (vnode.children.length === 1 && vnode.children[0].type === "#text") {
           el.textContent = vnode.children[0].val;
@@ -386,18 +416,21 @@
       // Get object of all properties being compared
       var allProps = merge(nodeProps, vnodeProps);
 
+      // If node is svg, update with SVG namespace
+      var isSVG = node instanceof SVGElement;
+
       for (var propName in allProps) {
         // If not in VNode or is a Directive, remove it
-        if (!vnodeProps[propName] || directives[propName]) {
+        if (!vnodeProps.hasOwnProperty(propName) || directives[propName]) {
           // If it is a directive, run the directive
           if (directives[propName]) {
             directives[propName](node, allProps[propName], vnode);
           }
-          node.removeAttribute(propName);
+          isSVG ? node.removeAttributeNS(null, propName) : node.removeAttribute(propName);
           delete node.__moon__props__[propName];
         } else if (!nodeProps[propName] || nodeProps[propName] !== vnodeProps[propName]) {
           // It has changed or is not in the node in the first place
-          node.setAttribute(propName, vnodeProps[propName]);
+          isSVG ? node.setAttributeNS(null, propName, vnodeProps[propName]) : node.setAttribute(propName, vnodeProps[propName]);
           node.__moon__props__[propName] = vnodeProps[propName];
         }
       }
@@ -503,7 +536,7 @@
           addEventListeners(node, vnode, instance);
         }
 
-        // Check if innerHTML was changed, don't diff children if so
+        // Check if innerHTML was changed, don't diff children
         if (vnode.props.dom && vnode.props.dom.innerHTML) {
           return node;
         }
@@ -512,8 +545,10 @@
         var currentChildNode = node.firstChild;
         // Optimization:
         //  If the vnode contains just one text vnode, create it here
-        if (vnode.children.length === 1 && vnode.children[0].type === "#text" && currentChildNode && !currentChildNode.nextSibling && currentChildNode.nodeName === "#text" && vnode.children[0].val !== currentChildNode.textContent) {
-          currentChildNode.textContent = vnode.children[0].val;
+        if (vnode.children.length === 1 && vnode.children[0].type === "#text" && currentChildNode && !currentChildNode.nextSibling && currentChildNode.nodeName === "#text") {
+          if (vnode.children[0].val !== currentChildNode.textContent) {
+            currentChildNode.textContent = vnode.children[0].val;
+          }
         } else {
           // Iterate through all children
           for (var i = 0; i < vnode.children.length || currentChildNode; i++) {
@@ -568,7 +603,7 @@
     var callHook = function (instance, name) {
       var hook = instance.$hooks[name];
       if (hook) {
-        hook();
+        hook.call(instance);
       }
     };
 
@@ -742,9 +777,6 @@
 
       var attrs = {};
 
-      // Captures attributes
-      var ATTRIBUTE_RE = /([^=\s]*)(=?)("[^"]*"|[^\s"]*)/gi;
-
       var char = input.charAt(end);
       var nextChar = input.charAt(end + 1);
 
@@ -786,7 +818,10 @@
           continue;
         }
 
-        var attrValue = "";
+        var attrValue = {
+          meta: {},
+          value: ""
+        };
         var quoteType = " ";
 
         // Exit equal sign and setup quote type
@@ -795,12 +830,18 @@
           quoteType = char;
           incrementChar();
         } else {
-          attrValue += char;
+          attrValue.value += char;
         }
 
         while ((char !== quoteType && char !== ">" || char === "/" && nextChar !== ">") && end < len) {
-          attrValue += char;
+          attrValue.value += char;
           incrementChar();
+        }
+
+        if (attrName.indexOf(":") !== -1) {
+          var attrNames = attrName.split(":");
+          attrName = attrNames[0];
+          attrValue.meta.arg = attrNames[1];
         }
 
         attrs[attrName] = attrValue;
@@ -836,6 +877,7 @@
     };
 
     var HTML_ELEMENTS = ["area", "base", "br", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"];
+    var SVG_ELEMENTS = ["svg", "animate", "circle", "clippath", "cursor", "defs", "desc", "ellipse", "filter", "font-face", "foreignObject", "g", "glyph", "image", "line", "marker", "mask", "missing-glyph", "path", "pattern", "polygon", "polyline", "rect", "switch", "symbol", "text", "textpath", "tspan", "use", "view"];
 
     var createParseNode = function (type, props, children) {
       return {
@@ -876,6 +918,11 @@
         var tagType = secondToken.value;
         // Exit Start Tag
         increment(4);
+
+        // If it is an svg element, let code generator know
+        if (SVG_ELEMENTS.indexOf(node.type) !== -1) {
+          node.isSVG = true;
+        }
 
         // If it's self closing, return it here
         if (HTML_ELEMENTS.indexOf(node.type) !== -1) {
@@ -929,19 +976,18 @@
             if (specialDirectives[attr].afterGenerate) {
               if (!vnode.specialDirectivesAfter) {
                 vnode.specialDirectivesAfter = {};
-                vnode.specialDirectivesAfter[attr] = attrs[attr];
-              } else {
-                vnode.specialDirectivesAfter[attr] = attrs[attr];
               }
+              vnode.specialDirectivesAfter[attr] = attrs[attr];
             }
+
             // Invoke any special directives that need to change values before code generation
             if (specialDirectives[attr].beforeGenerate) {
-              specialDirectives[attr].beforeGenerate(attrs[attr], vnode);
+              specialDirectives[attr].beforeGenerate(attrs[attr].value, attrs[attr].meta, vnode);
             }
 
             // Invoke any special directives that need to change values of props during code generation
             if (specialDirectives[attr].duringPropGenerate) {
-              generatedObject += specialDirectives[attr].duringPropGenerate(attrs[attr], vnode);
+              generatedObject += specialDirectives[attr].duringPropGenerate(attrs[attr].value, attrs[attr].meta, vnode);
             }
 
             // Keep a flag to know to always rerender this
@@ -950,7 +996,7 @@
             // Remove special directive
             delete attrs[attr];
           } else {
-            var normalizedProp = JSON.stringify(attrs[attr]);
+            var normalizedProp = JSON.stringify(attrs[attr].value);
             var compiledProp = compileTemplate(normalizedProp, true);
             if (normalizedProp !== compiledProp) {
               vnode.dynamic = true;
@@ -1071,16 +1117,20 @@
         // Recursively generate code for children
         if (!el.meta) {
           el.meta = defaultMetadata();
+          if (el.isSVG) {
+            el.meta.isSVG = true;
+          }
         }
         el.props = {
           attrs: el.props
         };
-        var compiledCode = el.type === "slot" ? 'instance.$slots[\'' + (el.props.attrs.name || "default") + '\']' : createCall(el);
+        var slotNameAttr = el.props.attrs.name;
+        var compiledCode = el.type === "slot" ? 'instance.$slots[\'' + (slotNameAttr && slotNameAttr.value || "default") + '\']' : createCall(el);
         if (el.specialDirectivesAfter) {
           // There are special directives that need to change the value after code generation, so
           // run them now
           for (var specialDirectiveAfter in el.specialDirectivesAfter) {
-            compiledCode = specialDirectives[specialDirectiveAfter].afterGenerate(el.specialDirectivesAfter[specialDirectiveAfter], compiledCode, el);
+            compiledCode = specialDirectives[specialDirectiveAfter].afterGenerate(el.specialDirectivesAfter[specialDirectiveAfter].value, el.specialDirectivesAfter[specialDirectiveAfter].meta, compiledCode, el);
           }
         }
         code += compiledCode;
@@ -1362,7 +1412,7 @@
     /**
      * Version of Moon
      */
-    Moon.version = '0.6.2';
+    Moon.version = '0.7.0';
 
     /**
      * Moon Utilities
@@ -1448,13 +1498,13 @@
     /* ======= Default Directives ======= */
 
     specialDirectives[Moon.config.prefix + "if"] = {
-      afterGenerate: function (value, code, vnode) {
+      afterGenerate: function (value, meta, code, vnode) {
         return '(' + compileTemplate(value, false) + ') ? ' + code + ' : \'\'';
       }
     };
 
     specialDirectives[Moon.config.prefix + "for"] = {
-      afterGenerate: function (value, code, vnode) {
+      afterGenerate: function (value, meta, code, vnode) {
         var parts = value.split(" in ");
         var aliases = parts[0].split(",");
 
@@ -1473,16 +1523,15 @@
     };
 
     specialDirectives[Moon.config.prefix + "on"] = {
-      beforeGenerate: function (value, vnode) {
-        value = compileTemplate(value, false);
+      beforeGenerate: function (value, meta, vnode) {
 
-        var splitVal = value.split(":");
         // Extract modifiers and the event
-        var rawModifiers = splitVal[0].split(".");
+        var rawModifiers = meta.arg.split(".");
         var eventToCall = rawModifiers[0];
-        var methodToCall = splitVal[1];
         var params = "event";
+        var methodToCall = compileTemplate(value, false);
         var rawParams = methodToCall.split("(");
+
         if (rawParams.length > 1) {
           methodToCall = rawParams.shift();
           params = rawParams.join("(").slice(0, -1);
@@ -1505,7 +1554,7 @@
     };
 
     specialDirectives[Moon.config.prefix + "model"] = {
-      beforeGenerate: function (value, vnode) {
+      beforeGenerate: function (value, meta, vnode) {
         // Compile a string value for the keypath
         var compiledStringValue = compileTemplate(value, true);
         // Setup default event types and dom property to change
@@ -1538,36 +1587,33 @@
     };
 
     specialDirectives[Moon.config.prefix + "literal"] = {
-      duringPropGenerate: function (value, vnode) {
-        var parts = value.split(":");
-        var prop = parts.shift();
-        var literal = parts.join(":");
-
+      duringPropGenerate: function (value, meta, vnode) {
+        var prop = meta.arg;
         // make sure object is treated correctly during code generation
         vnode.props.attrs[prop] = true;
 
         if (prop === "class") {
           // Classes need to be rendered differently
-          return '"class": instance.renderClass(' + compileTemplate(literal, false) + '), ';
+          return '"class": instance.renderClass(' + compileTemplate(value, false) + '), ';
         }
-        return '"' + prop + '": ' + compileTemplate(literal, false) + ', ';
+        return '"' + prop + '": ' + compileTemplate(value, false) + ', ';
       }
     };
 
     specialDirectives[Moon.config.prefix + "once"] = {
-      beforeGenerate: function (value, vnode) {
+      beforeGenerate: function (value, meta, vnode) {
         vnode.meta.shouldRender = "instance.$initialRender";
       }
     };
 
     specialDirectives[Moon.config.prefix + "pre"] = {
-      beforeGenerate: function (value, vnode) {
+      beforeGenerate: function (value, meta, vnode) {
         vnode.meta.shouldRender = false;
       }
     };
 
     specialDirectives[Moon.config.prefix + "html"] = {
-      beforeGenerate: function (value, vnode) {
+      beforeGenerate: function (value, meta, vnode) {
         if (!vnode.props.dom) {
           vnode.props.dom = {};
         }
@@ -1576,7 +1622,7 @@
     };
 
     specialDirectives[Moon.config.prefix + "text"] = {
-      beforeGenerate: function (value, vnode) {
+      beforeGenerate: function (value, meta, vnode) {
         vnode.children = [value];
       }
     };
