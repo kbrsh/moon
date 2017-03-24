@@ -6,6 +6,9 @@
  * @return {String} Value of key in data
  */
 Moon.prototype.get = function(key) {
+  if(this.$observer.dep.target) {
+    this.$observer.dep.map[this.$observer.dep.target].push(key);
+  }
   return this.$data[key];
 }
 
@@ -16,7 +19,7 @@ Moon.prototype.get = function(key) {
  */
 Moon.prototype.set = function(key, val) {
   resolveKeyPath(this, this.$data, key, val);
-  this.$observer.notify();
+  this.$observer.notify(key);
 }
 
 /**
