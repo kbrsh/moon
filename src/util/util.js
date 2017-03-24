@@ -25,6 +25,7 @@ var queueBuild = function(instance) {
     instance.$queued = true;
     setTimeout(function() {
       instance.build();
+      instance.$observer.dep.changed = {};
       callHook(instance, 'updated');
       instance.$queued = false;
     }, 0);
