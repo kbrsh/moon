@@ -35,44 +35,27 @@
      */
     var initComputed = function (instance, computed) {
       var setComputedProperty = function (prop) {
-        // Create dependency map
-        instance.$observer.dep.map[prop] = [];
+        // Flush Cache if Dependencies Change
+        instance.$observer.observe(prop);
     
         // Create Getters/Setters
         var properties = {
           get: function () {
             // Property Cache
             var cache = null;
-            // Any Dependencies of Computed Property
-            var deps = instance.$observer.dep.map[prop];
-            // If the computed property has changed
-            var changed = true;
     
-            // Iterate through dependencies, and see if any have been changed
-            for (var i = 0; i < deps.length; i++) {
-              changed = instance.$observer.dep.changed[deps[i]];
-              if (changed) {
-                break;
-              }
-            }
-    
-            if (changed) {
-              // Dependencies changed, recalculate dependencies, cache the output, and return it
-    
-              // Setup current target, to capture dependencies
+            // If no cache, create it
+            if (!instance.$observer.cache[prop]) {
+              // Capture Dependencies
               instance.$observer.dep.target = prop;
-              // Clear dependency map to start fresh
-              instance.$observer.dep.map[prop] = [];
-              // Let dependents know this has changed
-              instance.$observer.dep.changed[prop] = true;
-              // Evaluate getter
+              // Invoke getter
               cache = computed[prop].get.call(instance);
-              // Populate cache
-              instance.$observer.cache[prop] = cache;
-              // Stop capturing dependencies
+              // Stop Capturing Dependencies
               instance.$observer.dep.target = null;
+              // Store value in cache
+              instance.$observer.cache[prop] = cache;
             } else {
-              // Dependencies didn't change, return cached value
+              // Cache found, use it
               cache = instance.$observer.cache[prop];
             }
     
@@ -99,16 +82,32 @@
     function Observer(instance) {
       this.instance = instance;
       this.cache = {};
+      this.signals = {};
       this.dep = {
         target: null,
-        map: {},
-        changed: {}
+        map: {}
       };
     }
     
+    Observer.prototype.observe = function (key) {
+      var self = this;
+      this.signals[key] = function () {
+        self.cache[key] = null;
+      };
+    };
+    
     Observer.prototype.notify = function (key) {
-      this.dep.changed[key] = true;
-      queueBuild(this.instance);
+      if (this.dep.map[key]) {
+        for (var i = 0; i < this.dep.map[key].length; i++) {
+          this.notify(this.dep.map[key][i]);
+        }
+      }
+    
+      if (!this.signals[key]) {
+        return;
+      }
+    
+      this.signals[key]();
     };
     
     /* ======= Global Utilities ======= */
@@ -138,7 +137,6 @@
         instance.$queued = true;
         setTimeout(function () {
           instance.build();
-          instance.$observer.dep.changed = {};
           callHook(instance, 'updated');
           instance.$queued = false;
         }, 0);
@@ -1216,7 +1214,10 @@
      */
     Moon.prototype.get = function (key) {
       if (this.$observer.dep.target) {
-        this.$observer.dep.map[this.$observer.dep.target].push(key);
+        if (!this.$observer.dep.map[key]) {
+          this.$observer.dep.map[key] = [];
+        }
+        this.$observer.dep.map[key].push(this.$observer.dep.target);
       }
       return this.$data[key];
     };
@@ -1229,6 +1230,7 @@
     Moon.prototype.set = function (key, val) {
       var base = resolveKeyPath(this, this.$data, key, val);
       this.$observer.notify(base);
+      queueBuild(this);
     };
     
     /**
