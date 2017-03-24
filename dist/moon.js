@@ -35,42 +35,12 @@
      */
     var initComputed = function (instance, computed) {
       var setComputedProperty = function (prop) {
-        // Create dependency map
-        instance.$observer.dep.map[prop] = [];
-
         // Create Getters/Setters
         var properties = {
           get: function () {
-            // Property Cache
-            var cache = null;
-            // Any Dependencies of Computed Property
-            var deps = instance.$observer.dep.map[prop];
-            // If the computed property has changed
-            var changed = true;
-
-            // Iterate through dependencies, and see if any have been changed
-            for (var i = 0; i < deps.length; i++) {
-              changed = instance.$observer.dep.changed[deps[i]];
-              if (changed) {
-                break;
-              }
-            }
-
-            if (changed) {
-              // Dependencies changed, recalculate dependencies, cache the output, and return it
-              instance.$observer.dep.target = prop;
-              cache = computed[prop].get.call(instance);
-              instance.$observer.cache[prop] = cache;
-              instance.$observer.dep.target = null;
-            } else {
-              // Dependencies didn't change, return cached value
-              cache = instance.$observer.cache[prop];
-            }
-
-            return cache;
+            return computed[prop].get.call(instance);
           }
         };
-
         if (computed[prop].set) {
           properties.set = function (val) {
             return computed[prop].set.call(instance, val);
@@ -90,15 +60,9 @@
     function Observer(instance) {
       this.instance = instance;
       this.cache = {};
-      this.dep = {
-        target: null,
-        map: {},
-        changed: {}
-      };
     }
 
-    Observer.prototype.notify = function (key) {
-      this.dep.changed[key] = true;
+    Observer.prototype.notify = function () {
       queueBuild(this.instance);
     };
 
@@ -129,7 +93,6 @@
         instance.$queued = true;
         setTimeout(function () {
           instance.build();
-          instance.$observer.dep.changed = {};
           callHook(instance, 'updated');
           instance.$queued = false;
         }, 0);
@@ -1206,9 +1169,6 @@
      * @return {String} Value of key in data
      */
     Moon.prototype.get = function (key) {
-      if (this.$observer.dep.target) {
-        this.$observer.dep.map[this.$observer.dep.target].push(key);
-      }
       return this.$data[key];
     };
 
@@ -1219,7 +1179,7 @@
      */
     Moon.prototype.set = function (key, val) {
       resolveKeyPath(this, this.$data, key, val);
-      this.$observer.notify(key);
+      this.$observer.notify();
     };
 
     /**
