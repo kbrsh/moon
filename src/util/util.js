@@ -87,7 +87,7 @@ var resolveKeyPath = function(instance, obj, keypath, val) {
     obj = obj[propName];
   }
   obj[path[i]] = val;
-  return obj;
+  return path[0];
 }
 
 /**

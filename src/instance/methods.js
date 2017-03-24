@@ -18,8 +18,8 @@ Moon.prototype.get = function(key) {
  * @param {String} val
  */
 Moon.prototype.set = function(key, val) {
-  resolveKeyPath(this, this.$data, key, val);
-  this.$observer.notify(key);
+  var base = resolveKeyPath(this, this.$data, key, val);
+  this.$observer.notify(base);
 }
 
 /**

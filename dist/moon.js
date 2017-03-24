@@ -60,7 +60,6 @@
               // Dependencies changed, recalculate dependencies, cache the output, and return it
               instance.$observer.dep.target = prop;
               instance.$observer.dep.map[prop] = [];
-              instance.$observer.dep.changed[prop] = true;
               cache = computed[prop].get.call(instance);
               instance.$observer.cache[prop] = cache;
               instance.$observer.dep.target = null;
@@ -193,7 +192,7 @@
         obj = obj[propName];
       }
       obj[path[i]] = val;
-      return obj;
+      return path[0];
     };
     
     /**
@@ -1220,8 +1219,8 @@
      * @param {String} val
      */
     Moon.prototype.set = function (key, val) {
-      resolveKeyPath(this, this.$data, key, val);
-      this.$observer.notify(key);
+      var base = resolveKeyPath(this, this.$data, key, val);
+      this.$observer.notify(base);
     };
     
     /**
