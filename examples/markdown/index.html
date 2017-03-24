@@ -7,7 +7,7 @@
   </head>
   <body>
     <div id="app" m-mask>
-      <textarea m-on="input:update"># Hello Moon</textarea>
+      <textarea m-on:input="update"># Hello Moon</textarea>
       <div m-html="{{html}}"></div>
     </div>
     <script src="../../dist/moon.js"></script>
