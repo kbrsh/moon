@@ -29,6 +29,7 @@ var initComputed = function(instance, computed) {
         if(changed) {
           // Dependencies changed, recalculate dependencies, cache the output, and return it
           instance.$observer.dep.target = prop;
+          instance.$observer.dep.map[prop] = [];
           cache = computed[prop].get.call(instance);
           instance.$observer.cache[prop] = cache;
           instance.$observer.dep.target = null;
