@@ -5,44 +5,27 @@
  */
 var initComputed = function(instance, computed) {
   var setComputedProperty = function(prop) {
-    // Create dependency map
-    instance.$observer.dep.map[prop] = [];
+    // Flush Cache if Dependencies Change
+    instance.$observer.observe(prop);
 
     // Create Getters/Setters
     var properties = {
       get: function() {
         // Property Cache
         var cache = null;
-        // Any Dependencies of Computed Property
-        var deps = instance.$observer.dep.map[prop];
-        // If the computed property has changed
-        var changed = true;
 
-        // Iterate through dependencies, and see if any have been changed
-        for(var i = 0; i < deps.length; i++) {
-          changed = instance.$observer.dep.changed[deps[i]];
-          if(changed) {
-            break;
-          }
-        }
-
-        if(changed) {
-          // Dependencies changed, recalculate dependencies, cache the output, and return it
-
-          // Setup current target, to capture dependencies
+        // If no cache, create it
+        if(!instance.$observer.cache[prop]) {
+          // Capture Dependencies
           instance.$observer.dep.target = prop;
-          // Clear dependency map to start fresh
-          instance.$observer.dep.map[prop] = [];
-          // Let dependents know this has changed
-          instance.$observer.dep.changed[prop] = true;
-          // Evaluate getter
+          // Invoke getter
           cache = computed[prop].get.call(instance);
-          // Populate cache
-          instance.$observer.cache[prop] = cache;
-          // Stop capturing dependencies
+          // Stop Capturing Dependencies
           instance.$observer.dep.target = null;
+          // Store value in cache
+          instance.$observer.cache[prop] = cache;
         } else {
-          // Dependencies didn't change, return cached value
+          // Cache found, use it
           cache = instance.$observer.cache[prop];
         }
 

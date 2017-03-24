@@ -7,7 +7,10 @@
  */
 Moon.prototype.get = function(key) {
   if(this.$observer.dep.target) {
-    this.$observer.dep.map[this.$observer.dep.target].push(key);
+    if(!this.$observer.dep.map[key]) {
+      this.$observer.dep.map[key] = [];
+    }
+    this.$observer.dep.map[key].push(this.$observer.dep.target);
   }
   return this.$data[key];
 }
@@ -20,6 +23,7 @@ Moon.prototype.get = function(key) {
 Moon.prototype.set = function(key, val) {
   var base = resolveKeyPath(this, this.$data, key, val);
   this.$observer.notify(base);
+  queueBuild(this);
 }
 
 /**
