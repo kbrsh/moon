@@ -1430,7 +1430,7 @@
      * Configuration of Moon
      */
     Moon.config = {
-      silent: typeof console === 'undefined',
+      silent: "development" === "production" || typeof console === 'undefined',
       prefix: "m-",
       keyCodes: function (keyCodes) {
         for (var keyCode in keyCodes) {
