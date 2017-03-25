@@ -35,6 +35,7 @@ gulp.task('build', ['transpile'], function () {
     .pipe(concat('moon.js'))
     .pipe(header(comment + '\n'))
     .pipe(replace('__VERSION__', pkg.version))
+    .pipe(replace('__ENV__', "development"))
     .pipe(size())
     .pipe(gulp.dest('./dist/'));
 });
@@ -42,6 +43,7 @@ gulp.task('build', ['transpile'], function () {
 // Build minified (compressed) version of Moon
 gulp.task('minify', ['build'], function() {
   return gulp.src(['./dist/moon.js'])
+    .pipe(replace('"development"', '"production"'))
     .pipe(uglify())
     .pipe(header(comment))
     .pipe(size())
