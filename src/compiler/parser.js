@@ -83,11 +83,14 @@ const walk = function(state) {
           node.children.push(parsedChildState);
         }
         increment(0);
-        if("__ENV__" !== "production" && !token) {
+        if(!token) {
           // No token means a tag was left unclosed
-          error(`The element "${node.type}" was left unclosed.`);
+          if("__ENV__" !== "production") {
+            error(`The element "${node.type}" was left unclosed.`);
+          }
           break;
         }
+
       }
       increment();
     }
