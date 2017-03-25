@@ -46,7 +46,8 @@ var app = new Moon({
   el: ".todoapp",
   data: {
     newTodo: '',
-    editedTodo: false,
+    editedTodo: '',
+    cachedEdit: '',
     filter: 'all',
     todos: storage.fetch()
   },
@@ -69,6 +70,7 @@ var app = new Moon({
     },
     editTodo: function(todo) {
       // Setup the `edited todo`
+      this.set('cachedEdit', todo.content);
       this.set('editedTodo', todo);
     },
     updateTodo: function(index) {
@@ -78,8 +80,12 @@ var app = new Moon({
       this.set('editedTodo', '');
       this.set('todos', todos);
     },
-    discardEdit: function() {
+    discardEdit: function(index) {
+      // Discard the edited todo
+      var todos = this.get('todos');
+      todos[index].content = this.get('cachedEdit');
       this.set('editedTodo', '');
+      this.set('todos', todos);
     },
     removeCompleted: function() {
       // Remove all completed todos

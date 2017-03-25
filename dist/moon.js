@@ -35,12 +35,34 @@
      */
     var initComputed = function (instance, computed) {
       var setComputedProperty = function (prop) {
+        // Flush Cache if Dependencies Change
+        instance.$observer.observe(prop);
+
         // Create Getters/Setters
         var properties = {
           get: function () {
-            return computed[prop].get.call(instance);
+            // Property Cache
+            var cache = null;
+
+            // If no cache, create it
+            if (!instance.$observer.cache[prop]) {
+              // Capture Dependencies
+              instance.$observer.dep.target = prop;
+              // Invoke getter
+              cache = computed[prop].get.call(instance);
+              // Stop Capturing Dependencies
+              instance.$observer.dep.target = null;
+              // Store value in cache
+              instance.$observer.cache[prop] = cache;
+            } else {
+              // Cache found, use it
+              cache = instance.$observer.cache[prop];
+            }
+
+            return cache;
           }
         };
+
         if (computed[prop].set) {
           properties.set = function (val) {
             return computed[prop].set.call(instance, val);
@@ -60,10 +82,32 @@
     function Observer(instance) {
       this.instance = instance;
       this.cache = {};
+      this.signals = {};
+      this.dep = {
+        target: null,
+        map: {}
+      };
     }
 
-    Observer.prototype.notify = function () {
-      queueBuild(this.instance);
+    Observer.prototype.observe = function (key) {
+      var self = this;
+      this.signals[key] = function () {
+        self.cache[key] = null;
+      };
+    };
+
+    Observer.prototype.notify = function (key) {
+      if (this.dep.map[key]) {
+        for (var i = 0; i < this.dep.map[key].length; i++) {
+          this.notify(this.dep.map[key][i]);
+        }
+      }
+
+      if (!this.signals[key]) {
+        return;
+      }
+
+      this.signals[key]();
     };
 
     /* ======= Global Utilities ======= */
@@ -154,7 +198,7 @@
         obj = obj[propName];
       }
       obj[path[i]] = val;
-      return obj;
+      return path[0];
     };
 
     /**
@@ -789,15 +833,17 @@
           incrementChar();
         }
 
+        var attrValue = {
+          name: attrName,
+          value: "",
+          meta: {}
+        };
+
         if (noValue) {
-          attrs[attrName] = "";
+          attrs[attrName] = attrValue;
           continue;
         }
 
-        var attrValue = {
-          meta: {},
-          value: ""
-        };
         var quoteType = " ";
 
         // Exit equal sign and setup quote type
@@ -816,7 +862,7 @@
 
         if (attrName.indexOf(":") !== -1) {
           var attrNames = attrName.split(":");
-          attrName = attrNames[0];
+          attrValue.name = attrNames[0];
           attrValue.meta.arg = attrNames[1];
         }
 
@@ -944,12 +990,16 @@
 
       if (attrs) {
         for (var attr in attrs) {
-          if (directives[attr]) {
+          // Get attr by it's actual name (in case it had any arguments)
+          var attrName = attrs[attr].name;
+
+          // If it is a directive, mark it as dynamic
+          if (directives[attrName]) {
             vnode.dynamic = true;
           }
-          if (specialDirectives[attr]) {
+          if (specialDirectives[attrName]) {
             // Special directive found that generates code after initial generation, push it to its known special directives to run afterGenerate later
-            if (specialDirectives[attr].afterGenerate) {
+            if (specialDirectives[attrName].afterGenerate) {
               if (!vnode.specialDirectivesAfter) {
                 vnode.specialDirectivesAfter = {};
               }
@@ -957,13 +1007,13 @@
             }
 
             // Invoke any special directives that need to change values before code generation
-            if (specialDirectives[attr].beforeGenerate) {
-              specialDirectives[attr].beforeGenerate(attrs[attr].value, attrs[attr].meta, vnode);
+            if (specialDirectives[attrName].beforeGenerate) {
+              specialDirectives[attrName].beforeGenerate(attrs[attr].value, attrs[attr].meta, vnode);
             }
 
             // Invoke any special directives that need to change values of props during code generation
-            if (specialDirectives[attr].duringPropGenerate) {
-              generatedObject += specialDirectives[attr].duringPropGenerate(attrs[attr].value, attrs[attr].meta, vnode);
+            if (specialDirectives[attrName].duringPropGenerate) {
+              generatedObject += specialDirectives[attrName].duringPropGenerate(attrs[attr].value, attrs[attr].meta, vnode);
             }
 
             // Keep a flag to know to always rerender this
@@ -1106,7 +1156,7 @@
           // There are special directives that need to change the value after code generation, so
           // run them now
           for (var specialDirectiveAfter in el.specialDirectivesAfter) {
-            compiledCode = specialDirectives[specialDirectiveAfter].afterGenerate(el.specialDirectivesAfter[specialDirectiveAfter].value, el.specialDirectivesAfter[specialDirectiveAfter].meta, compiledCode, el);
+            compiledCode = specialDirectives[el.specialDirectivesAfter[specialDirectiveAfter].name].afterGenerate(el.specialDirectivesAfter[specialDirectiveAfter].value, el.specialDirectivesAfter[specialDirectiveAfter].meta, compiledCode, el);
           }
         }
         code += compiledCode;
@@ -1169,6 +1219,12 @@
      * @return {String} Value of key in data
      */
     Moon.prototype.get = function (key) {
+      if (this.$observer.dep.target) {
+        if (!this.$observer.dep.map[key]) {
+          this.$observer.dep.map[key] = [];
+        }
+        this.$observer.dep.map[key].push(this.$observer.dep.target);
+      }
       return this.$data[key];
     };
 
@@ -1178,8 +1234,9 @@
      * @param {String} val
      */
     Moon.prototype.set = function (key, val) {
-      resolveKeyPath(this, this.$data, key, val);
-      this.$observer.notify();
+      var base = resolveKeyPath(this, this.$data, key, val);
+      this.$observer.notify(base);
+      queueBuild(this);
     };
 
     /**
@@ -1479,6 +1536,12 @@
       }
     };
 
+    specialDirectives[Moon.config.prefix + "show"] = {
+      duringPropGenerate: function (value, meta, vnode) {
+        return '"m-show": ' + compileTemplate(value, false) + ', ';
+      }
+    };
+
     specialDirectives[Moon.config.prefix + "for"] = {
       afterGenerate: function (value, meta, code, vnode) {
         var parts = value.split(" in ");
@@ -1607,12 +1670,7 @@
     };
 
     directives[Moon.config.prefix + "show"] = function (el, val, vnode) {
-      var evaluated = new Function("return " + val);
-      if (!evaluated()) {
-        el.style.display = 'none';
-      } else {
-        el.style.display = 'block';
-      }
+      el.style.display = val ? '' : 'none';
     };
 
     directives[Moon.config.prefix + "mask"] = function (el, val, vnode) {};

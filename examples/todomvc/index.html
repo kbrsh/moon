@@ -29,7 +29,7 @@
               <label m-on:dblclick="editTodo({{todo}})">{{todo.content}}</label>
               <button class="destroy" m-on:click="removeTodo({{index}})"></button>
             </div>
-            <input class="edit" type="text" m-model="todos[{{index}}].content" m-on:keyup.enter="updateTodo({{index}})" m-on:blur="updateTodo({{index}})" m-literal:m-focus="{{todo}} === {{editedTodo}}"/>
+            <input class="edit" type="text" m-model="todos[{{index}}].content" m-on:keyup.enter="updateTodo({{index}})" m-on:keyup.esc="discardEdit({{index}})" m-literal:m-focus="{{todo}} === {{editedTodo}}"/>
           </li>
         </ul>
       </section>
