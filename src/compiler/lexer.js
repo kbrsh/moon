@@ -199,8 +199,9 @@ var lexAttributes = function(state) {
     }
 
     var attrValue = {
-      meta: {},
-      value: ""
+      name: attrName,
+      value: "",
+      meta: {}
     };
 
     if(noValue) {
@@ -226,7 +227,7 @@ var lexAttributes = function(state) {
 
     if(attrName.indexOf(":") !== -1) {
       var attrNames = attrName.split(":");
-      attrName = attrNames[0];
+      attrValue.meta.name = attrNames[0];
       attrValue.meta.arg = attrNames[1];
     }
 
