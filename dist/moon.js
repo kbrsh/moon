@@ -962,7 +962,7 @@
               node.children.push(parsedChildState);
             }
             increment(0);
-            if (!token) {
+            if ("development" !== "production" && !token) {
               // No token means a tag was left unclosed
               error('The element "' + node.type + '" was left unclosed.');
               break;
@@ -1361,7 +1361,7 @@
       this.$el = document.querySelector(el);
       this.$destroyed = false;
     
-      if (!this.$el) {
+      if ("development" !== "production" && !this.$el) {
         error("Element " + this.$opts.el + " not found");
       }
     
