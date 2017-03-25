@@ -1307,14 +1307,12 @@
     
       if (this.$events["*"]) {
         for (var i = 0; i < this.$events["*"].length; i++) {
-          var globalHandler = this.$events["*"][i];
-          globalHandler(meta);
+          this.$events["*"][i](meta);
         }
       }
     
-      for (var i = 0; i < this.$events[eventName].length; i++) {
-        var handler = this.$events[eventName][i];
-        handler(meta);
+      for (var _i = 0; _i < this.$events[eventName].length; _i++) {
+        this.$events[eventName][_i](meta);
       }
     };
     

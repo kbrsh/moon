@@ -9,7 +9,7 @@ function Observer(instance) {
 }
 
 Observer.prototype.observe = function(key) {
-  var self = this;
+  let self = this;
   this.signals[key] = function() {
     self.cache[key] = null;
   }
@@ -17,7 +17,7 @@ Observer.prototype.observe = function(key) {
 
 Observer.prototype.notify = function(key) {
   if(this.dep.map[key]) {
-    for(var i = 0; i < this.dep.map[key].length; i++) {
+    for(let i = 0; i < this.dep.map[key].length; i++) {
       this.notify(this.dep.map[key][i]);
     }
   }
@@ -25,6 +25,6 @@ Observer.prototype.notify = function(key) {
   if(!this.signals[key]) {
     return;
   }
-  
+
   this.signals[key]();
 }

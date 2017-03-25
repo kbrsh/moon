@@ -21,7 +21,7 @@ Moon.prototype.get = function(key) {
  * @param {String} val
  */
 Moon.prototype.set = function(key, val) {
-  var base = resolveKeyPath(this, this.$data, key, val);
+  const base = resolveKeyPath(this, this.$data, key, val);
   this.$observer.notify(base);
   queueBuild(this);
 }
@@ -66,7 +66,7 @@ Moon.prototype.on = function(eventName, action) {
  * @param {Function} action
  */
 Moon.prototype.off = function(eventName, action) {
-  var index = this.$events[eventName].indexOf(action);
+  const index = this.$events[eventName].indexOf(action);
   if(index !== -1) {
     this.$events[eventName].splice(index, 1);
   }
@@ -78,7 +78,7 @@ Moon.prototype.off = function(eventName, action) {
  * @param {Function} action
  */
 Moon.prototype.removeEvents = function() {
-  for(var evt in this.$events) {
+  for(let evt in this.$events) {
     this.$events[evt] = [];
   }
 }
@@ -93,15 +93,13 @@ Moon.prototype.emit = function(eventName, meta) {
   meta.type = eventName;
 
   if(this.$events["*"]) {
-    for(var i = 0; i < this.$events["*"].length; i++) {
-      var globalHandler = this.$events["*"][i];
-      globalHandler(meta);
+    for(let i = 0; i < this.$events["*"].length; i++) {
+      this.$events["*"][i](meta);
     }
   }
 
-  for(var i = 0; i < this.$events[eventName].length; i++) {
-    var handler = this.$events[eventName][i];
-    handler(meta);
+  for(let i = 0; i < this.$events[eventName].length; i++) {
+    this.$events[eventName][i](meta);
   }
 }
 
@@ -111,8 +109,8 @@ Moon.prototype.emit = function(eventName, meta) {
  * @param {Function} item
  */
 Moon.prototype.renderLoop = function(arr, item) {
-  var items = [];
-  for(var i = 0; i < arr.length; i++) {
+  let items = [];
+  for(let i = 0; i < arr.length; i++) {
     items.push(item(arr[i], i));
   }
   return items;
@@ -127,13 +125,13 @@ Moon.prototype.renderClass = function(classNames) {
   if(typeof classNames === "string") {
     return classNames;
   }
-  var renderedClassNames = "";
+  let renderedClassNames = "";
   if(Array.isArray(classNames)) {
-    for(var i = 0; i < classNames.length; i++) {
+    for(let i = 0; i < classNames.length; i++) {
       renderedClassNames += `${this.renderClass(classNames[i])} `;
     }
   } else if(typeof classNames === "object") {
-    for(var className in classNames) {
+    for(let className in classNames) {
       if(classNames[className]) {
         renderedClassNames += `${className} `;
       }
@@ -185,7 +183,7 @@ Moon.prototype.render = function() {
  * @param {Object} vnode
  */
 Moon.prototype.patch = function(node, vnode, parent) {
-  var newRootEl = diff(node, vnode, parent, this);
+  const newRootEl = diff(node, vnode, parent, this);
   if(node !== newRootEl) {
     // Root Node Changed, Apply Change in Instance
     this.$el = newRootEl;

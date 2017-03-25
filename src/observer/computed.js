@@ -3,16 +3,16 @@
  * @param {Object} instance
  * @param {Object} computed
  */
-var initComputed = function(instance, computed) {
-  var setComputedProperty = function(prop) {
+const initComputed = function(instance, computed) {
+  let setComputedProperty = function(prop) {
     // Flush Cache if Dependencies Change
     instance.$observer.observe(prop);
 
     // Create Getters/Setters
-    var properties = {
+    let properties = {
       get: function() {
         // Property Cache
-        var cache = null;
+        let cache = null;
 
         // If no cache, create it
         if(!instance.$observer.cache[prop]) {
@@ -44,7 +44,7 @@ var initComputed = function(instance, computed) {
   }
 
   // Set All Computed Properties
-  for(var propName in computed) {
+  for(let propName in computed) {
     setComputedProperty(propName);
   }
 }
