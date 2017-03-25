@@ -227,7 +227,7 @@ var lexAttributes = function(state) {
 
     if(attrName.indexOf(":") !== -1) {
       var attrNames = attrName.split(":");
-      attrValue.meta.name = attrNames[0];
+      attrValue.name = attrNames[0];
       attrValue.meta.arg = attrNames[1];
     }
 

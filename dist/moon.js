@@ -862,7 +862,7 @@
     
         if (attrName.indexOf(":") !== -1) {
           var attrNames = attrName.split(":");
-          attrValue.meta.name = attrNames[0];
+          attrValue.name = attrNames[0];
           attrValue.meta.arg = attrNames[1];
         }
     
@@ -1156,7 +1156,7 @@
           // There are special directives that need to change the value after code generation, so
           // run them now
           for (var specialDirectiveAfter in el.specialDirectivesAfter) {
-            compiledCode = specialDirectives[specialDirectiveAfter.name].afterGenerate(el.specialDirectivesAfter[specialDirectiveAfter].value, el.specialDirectivesAfter[specialDirectiveAfter].meta, compiledCode, el);
+            compiledCode = specialDirectives[el.specialDirectivesAfter[specialDirectiveAfter].name].afterGenerate(el.specialDirectivesAfter[specialDirectiveAfter].value, el.specialDirectivesAfter[specialDirectiveAfter].meta, compiledCode, el);
           }
         }
         code += compiledCode;
