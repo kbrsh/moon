@@ -1,16 +1,16 @@
-var parse = function(tokens) {
-  var root = {
+const parse = function(tokens) {
+  let root = {
     type: "ROOT",
     children: []
   }
 
-  var state = {
+  let state = {
     current: 0,
     tokens: tokens
   }
 
   while(state.current < tokens.length) {
-    var child = walk(state);
+    const child = walk(state);
     if(child) {
       root.children.push(child);
     }
@@ -19,10 +19,10 @@ var parse = function(tokens) {
   return root;
 }
 
-var HTML_ELEMENTS = ["area","base","br","command","embed","hr","img","input","keygen","link","meta","param","source","track","wbr"];
-var SVG_ELEMENTS = ["svg","animate","circle","clippath","cursor","defs","desc","ellipse","filter","font-face","foreignObject","g","glyph","image","line","marker","mask","missing-glyph","path","pattern","polygon","polyline","rect","switch","symbol","text","textpath","tspan","use","view"];
+const HTML_ELEMENTS = ["area","base","br","command","embed","hr","img","input","keygen","link","meta","param","source","track","wbr"];
+const SVG_ELEMENTS = ["svg","animate","circle","clippath","cursor","defs","desc","ellipse","filter","font-face","foreignObject","g","glyph","image","line","marker","mask","missing-glyph","path","pattern","polygon","polyline","rect","switch","symbol","text","textpath","tspan","use","view"];
 
-var createParseNode = function(type, props, children) {
+const createParseNode = function(type, props, children) {
   return {
     type: type,
     props: props,
@@ -30,14 +30,14 @@ var createParseNode = function(type, props, children) {
   }
 }
 
-var walk = function(state) {
-  var token = state.tokens[state.current];
-  var previousToken = state.tokens[state.current - 1];
-  var secondToken = state.tokens[state.current + 1];
-  var thirdToken = state.tokens[state.current + 2];
-  var fourthToken = state.tokens[state.current + 3];
+const walk = function(state) {
+  let token = state.tokens[state.current];
+  let previousToken = state.tokens[state.current - 1];
+  let secondToken = state.tokens[state.current + 1];
+  let thirdToken = state.tokens[state.current + 2];
+  let fourthToken = state.tokens[state.current + 3];
 
-  var increment = function(num) {
+  const increment = function(num) {
     state.current += num === undefined ? 1 : num;
     token = state.tokens[state.current];
     previousToken = state.tokens[state.current - 1];
@@ -57,8 +57,8 @@ var walk = function(state) {
 
   // Start of new Tag
   if(token.type === "tagStart" && !token.close && !fourthToken.close) {
-    var node = createParseNode(secondToken.value, thirdToken.value, []);
-    var tagType = secondToken.value;
+    let node = createParseNode(secondToken.value, thirdToken.value, []);
+    const tagType = secondToken.value;
     // Exit Start Tag
     increment(4);
 
@@ -72,14 +72,13 @@ var walk = function(state) {
       return node;
     }
 
-    var startContentIndex = state.current;
+    const startContentIndex = state.current;
     // Make sure it has content and is closed
     if(token) {
       // Find Closing Tag, and push children recursively
       while((token.type !== "tagStart") || (token.type === "tagStart" && !(token.close))) {
         // Push a parsed child to the current node
         var parsedChildState = walk(state);
-        var lastKnown;
         if(parsedChildState) {
           node.children.push(parsedChildState);
         }

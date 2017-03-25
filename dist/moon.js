@@ -958,7 +958,6 @@
           while (token.type !== "tagStart" || token.type === "tagStart" && !token.close) {
             // Push a parsed child to the current node
             var parsedChildState = walk(state);
-            var lastKnown;
             if (parsedChildState) {
               node.children.push(parsedChildState);
             }

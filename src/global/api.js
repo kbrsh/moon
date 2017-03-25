@@ -69,7 +69,7 @@ Moon.directive = function(name, action) {
  * @param {Function} action
  */
 Moon.component = function(name, opts) {
-  var Parent = this;
+  let Parent = this;
   opts.name = name;
 
   function MoonComponent() {

@@ -1,5 +1,5 @@
-var lex = function(input) {
-  var state = {
+const lex = function(input) {
+  let state = {
     input: input,
     current: 0,
     tokens: []
@@ -8,9 +8,9 @@ var lex = function(input) {
   return state.tokens;
 }
 
-var lexState = function(state) {
-  var input = state.input;
-  var len = input.length;
+const lexState = function(state) {
+  const input = state.input;
+  const len = input.length;
   while(state.current < len) {
     // Check if it is text
     if(input.charAt(state.current) !== "<") {
@@ -29,10 +29,10 @@ var lexState = function(state) {
   }
 }
 
-var lexText = function(state) {
-  var input = state.input;
-  var len = input.length;
-  var endOfText = input.indexOf("<", state.current);
+const lexText = function(state) {
+  const input = state.input;
+  const len = input.length;
+  const endOfText = input.indexOf("<", state.current);
   // Only Text
   if(endOfText === -1) {
     state.tokens.push({
@@ -56,11 +56,11 @@ var lexText = function(state) {
   state.current = endOfText;
 }
 
-var lexComment = function(state) {
-  var input = state.input;
-  var len = input.length;
+const lexComment = function(state) {
+  const input = state.input;
+  const len = input.length;
   state.current += 4;
-  var endOfComment = input.indexOf("-->", state.current);
+  const endOfComment = input.indexOf("-->", state.current);
 
   // Only an unclosed comment
   if(endOfComment === -1) {
@@ -80,12 +80,12 @@ var lexComment = function(state) {
   state.current = endOfComment + 3;
 }
 
-var lexTag = function(state) {
-  var input = state.input;
-  var len = input.length;
+const lexTag = function(state) {
+  const input = state.input;
+  const len = input.length;
 
   // Lex Starting of Tag
-  var isClosingStart = input.charAt(state.current + 1) === "/";
+  const isClosingStart = input.charAt(state.current + 1) === "/";
   state.tokens.push({
     type: "tagStart",
     close: isClosingStart
@@ -93,11 +93,11 @@ var lexTag = function(state) {
   state.current += isClosingStart ? 2 : 1;
 
   // Lex type and attributes
-  var tagType = lexTagType(state);
+  const tagType = lexTagType(state);
   lexAttributes(state);
 
   // Lex ending tag
-  var isClosingEnd = input.charAt(state.current) === "/";
+  const isClosingEnd = input.charAt(state.current) === "/";
   state.tokens.push({
     type: "tagEnd",
     close: false
@@ -123,10 +123,10 @@ var lexTag = function(state) {
   }
 }
 
-var lexTagType = function(state) {
-  var input = state.input;
-  var len = input.length;
-  var start = state.current;
+const lexTagType = function(state) {
+  const input = state.input;
+  const len = input.length;
+  let start = state.current;
   while(start < len) {
     var char = input.charAt(start);
     if((char === "/") || (char === ">") || (char === " ")) {
@@ -136,7 +136,7 @@ var lexTagType = function(state) {
     }
   }
 
-  var end = start;
+  let end = start;
   while(end < len) {
     var char = input.charAt(end);
     if((char === "/") || (char === ">") || (char === " ")) {
@@ -146,7 +146,7 @@ var lexTagType = function(state) {
     }
   }
 
-  var tagType = input.slice(start, end);
+  const tagType = input.slice(start, end);
   state.tokens.push({
     type: "tag",
     value: tagType
@@ -155,17 +155,17 @@ var lexTagType = function(state) {
   return tagType;
 }
 
-var lexAttributes = function(state) {
-  var input = state.input;
-  var len = input.length;
-  var end = state.current;
+const lexAttributes = function(state) {
+  const input = state.input;
+  const len = input.length;
+  let end = state.current;
 
-  var attrs = {};
+  let attrs = {};
 
-  var char = input.charAt(end);
-  var nextChar = input.charAt(end + 1);
+  let char = input.charAt(end);
+  let nextChar = input.charAt(end + 1);
 
-  var incrementChar = function() {
+  const incrementChar = function() {
     end++;
     char = input.charAt(end);
     nextChar = input.charAt(end + 1);
@@ -184,8 +184,8 @@ var lexAttributes = function(state) {
     }
 
     // Begin obtaining the attribute name
-    var attrName = "";
-    var noValue = false;
+    let attrName = "";
+    let noValue = false;
     while(char !== "=" && end < len) {
       // Ensure attribute has a value
       if((char !== " ") && (char !== ">") || (char === "/" && nextChar !== ">")) {
@@ -198,7 +198,7 @@ var lexAttributes = function(state) {
       incrementChar();
     }
 
-    var attrValue = {
+    let attrValue = {
       name: attrName,
       value: "",
       meta: {}
@@ -209,7 +209,7 @@ var lexAttributes = function(state) {
       continue;
     }
 
-    var quoteType = " ";
+    let quoteType = " ";
 
     // Exit equal sign and setup quote type
     incrementChar();
@@ -226,7 +226,7 @@ var lexAttributes = function(state) {
     }
 
     if(attrName.indexOf(":") !== -1) {
-      var attrNames = attrName.split(":");
+      const attrNames = attrName.split(":");
       attrValue.name = attrNames[0];
       attrValue.meta.arg = attrNames[1];
     }
