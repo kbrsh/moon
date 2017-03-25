@@ -1,10 +1,10 @@
 "use strict";
 
 /* ======= Global Variables ======= */
-var directives = {};
-var specialDirectives = {};
-var components = {};
-var eventModifiersCode = {
+let directives = {};
+let specialDirectives = {};
+let components = {};
+let eventModifiersCode = {
   stop: 'event.stopPropagation();',
   prevent: 'event.preventDefault();',
   ctrl: 'if(!event.ctrlKey) {return;};',
@@ -12,7 +12,7 @@ var eventModifiersCode = {
   alt: 'if(!event.altKey) {return;};',
   enter: 'if(event.keyCode !== 13) {return;};'
 };
-var id = 0;
+let id = 0;
 
 /* ======= Observer ======= */
 //=require observer/computed.js

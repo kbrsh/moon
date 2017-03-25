@@ -4,7 +4,7 @@
  * Logs a Message
  * @param {String} msg
  */
-var log = function(msg) {
+const log = function(msg) {
   if(!Moon.config.silent) console.log(msg);
 }
 
@@ -12,7 +12,7 @@ var log = function(msg) {
  * Throws an Error
  * @param {String} msg
  */
-var error = function(msg) {
+const error = function(msg) {
   if(!Moon.config.silent) console.error("[Moon] ERR: " + msg);
 }
 
@@ -20,7 +20,7 @@ var error = function(msg) {
  * Adds DOM Updates to Queue
  * @param {Object} instance
  */
-var queueBuild = function(instance) {
+const queueBuild = function(instance) {
   if(!instance.$queued && !instance.$destroyed) {
     instance.$queued = true;
     setTimeout(function() {
@@ -36,7 +36,7 @@ var queueBuild = function(instance) {
  * @param {Node} node
  * @return {Object} Key-Value pairs of Attributes
  */
-var extractAttrs = function(node) {
+const extractAttrs = function(node) {
   var attrs = {};
   for(var rawAttrs = node.attributes, i = rawAttrs.length; i--;) {
     attrs[rawAttrs[i].name] = rawAttrs[i].value;
@@ -49,7 +49,7 @@ var extractAttrs = function(node) {
  * Gives Default Metadata for a VNode
  * @return {Object} metadata
  */
-var defaultMetadata = function() {
+const defaultMetadata = function() {
   return {
     shouldRender: true,
     eventListeners: {}
@@ -60,7 +60,7 @@ var defaultMetadata = function() {
  * Escapes a String
  * @param {String} str
  */
-var escapeString = function(str) {
+const escapeString = function(str) {
 	var NEWLINE_RE = /\n/g;
 	var DOUBLE_QUOTE_RE = /"/g;
   var BACKSLASH_RE = /\\/g;
@@ -75,7 +75,7 @@ var escapeString = function(str) {
  * @param {String} val
  * @return {Object} resolved object
  */
-var resolveKeyPath = function(instance, obj, keypath, val) {
+const resolveKeyPath = function(instance, obj, keypath, val) {
   var i;
   keypath.replace(/\[(\w+)\]/g, function(match, index) {
     keypath = keypath.replace(match, `.${index}`);
@@ -95,7 +95,7 @@ var resolveKeyPath = function(instance, obj, keypath, val) {
  * @param {Boolean} isString
  * @return {String} compiled template
  */
-var compileTemplate = function(template, isString) {
+const compileTemplate = function(template, isString) {
   var TEMPLATE_RE = /{{([A-Za-z0-9_$@]+)([A-Za-z0-9_.()'"+\-*/\s\[\]]+)?}}/gi;
   var compiled = template;
   template.replace(TEMPLATE_RE, function(match, key, modifiers) {
@@ -116,7 +116,7 @@ var compileTemplate = function(template, isString) {
  * @param {Array} children
  * @return {Object} extracted slots
  */
-var getSlots = function(children) {
+const getSlots = function(children) {
   var slots = {};
 
   // No Children Means No Slots
@@ -154,7 +154,7 @@ var getSlots = function(children) {
  * @param {Object} meta
  * @return {Object} Virtual DOM Node
  */
-var createElement = function(type, val, props, children, meta) {
+const createElement = function(type, val, props, children, meta) {
   return {
     type: type,
     val: val,
@@ -173,7 +173,7 @@ var createElement = function(type, val, props, children, meta) {
  * @param {Object} functionalComponent
  * @return {Object} Virtual DOM Node
  */
-var createFunctionalComponent = function(type, props, meta, children, functionalComponent) {
+const createFunctionalComponent = function(type, props, meta, children, functionalComponent) {
   var data = functionalComponent.opts.data || {};
   // Merge data with provided props
   if(functionalComponent.opts.props) {
@@ -196,7 +196,7 @@ var createFunctionalComponent = function(type, props, meta, children, functional
  * @param {...Object|String} children
  * @return {String} Object usable in Virtual DOM (VNode)
  */
-var h = function(tag, attrs, meta) {
+const h = function(tag, attrs, meta) {
   // Setup Children
   var children = []
   var childrenLen = arguments.length - 3;
@@ -241,7 +241,7 @@ var h = function(tag, attrs, meta) {
  * @param {Object} vnode
  * @param {Object} instance
  */
-var addEventListeners = function(node, vnode, instance) {
+const addEventListeners = function(node, vnode, instance) {
   var eventListeners = vnode.meta.eventListeners;
   for(var type in eventListeners) {
     for(var i = 0; i < eventListeners[type].length; i++) {
@@ -257,7 +257,7 @@ var addEventListeners = function(node, vnode, instance) {
  * @param {Object} instance
  * @return {Object} DOM Node
  */
-var createNodeFromVNode = function(vnode, instance) {
+const createNodeFromVNode = function(vnode, instance) {
   var el;
 
   if(vnode.type === "#text") {
@@ -299,7 +299,7 @@ var createNodeFromVNode = function(vnode, instance) {
  * @param {Object} component
  * @return {Object} DOM Node
  */
-var createComponentFromVNode = function(node, vnode, component) {
+const createComponentFromVNode = function(node, vnode, component) {
   var componentInstance = new component.CTor();
   // Merge data with provided props
   for(var i = 0; i < componentInstance.$props.length; i++) {
@@ -320,7 +320,7 @@ var createComponentFromVNode = function(node, vnode, component) {
  * @param {Object} vnode
  * @param {Object} vnodeProps
  */
-var diffProps = function(node, nodeProps, vnode, vnodeProps) {
+const diffProps = function(node, nodeProps, vnode, vnodeProps) {
   // Get object of all properties being compared
   var allProps = merge(nodeProps, vnodeProps);
 
@@ -361,7 +361,7 @@ var diffProps = function(node, nodeProps, vnode, vnodeProps) {
  * @param {Object} instance
  * @return {Object} adjusted node only if it was replaced
  */
-var diff = function(node, vnode, parent, instance) {
+const diff = function(node, vnode, parent, instance) {
   var nodeName;
 
   if(node) {
@@ -480,7 +480,7 @@ var diff = function(node, vnode, parent, instance) {
  * @param {Object} child
  * @return {Object} Extended Parent
  */
-var extend = function(parent, child) {
+const extend = function(parent, child) {
   for (var key in child) {
     parent[key] = child[key];
   }
@@ -493,7 +493,7 @@ var extend = function(parent, child) {
  * @param {Object} child
  * @return {Object} Merged Object
  */
-var merge = function(parent, child) {
+const merge = function(parent, child) {
   var merged = {};
   for(var key in parent) {
     merged[key] = parent[key];
@@ -509,7 +509,7 @@ var merge = function(parent, child) {
  * @param {Object} instance
  * @param {String} name
  */
-var callHook = function(instance, name) {
+const callHook = function(instance, name) {
   var hook = instance.$hooks[name];
   if(hook) {
     hook.call(instance);
@@ -519,6 +519,6 @@ var callHook = function(instance, name) {
 /**
  * Does No Operation
  */
-var noop = function() {
+const noop = function() {
 
 }
