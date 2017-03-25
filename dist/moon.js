@@ -125,7 +125,7 @@
      * @param {String} msg
      */
     var error = function (msg) {
-      console.error("[Moon] ERR: " + msg);
+      if (!Moon.config.silent) console.error("[Moon] ERR: " + msg);
     };
     
     /**
