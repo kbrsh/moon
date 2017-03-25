@@ -345,7 +345,7 @@ describe("Directive", function() {
       }
     });
     it('should display when true', function() {
-      expect(document.getElementById('show-condition').style.display).to.equal('block');
+      expect(document.getElementById('show-condition').style.display).to.equal('');
     });
     it('should not display when false', function() {
       showApp.set('condition', false);

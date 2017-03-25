@@ -6,6 +6,12 @@ specialDirectives[Moon.config.prefix + "if"] = {
   }
 }
 
+specialDirectives[Moon.config.prefix + "show"] = {
+  duringPropGenerate: function(value, meta, vnode) {
+    return `"m-show": ${compileTemplate(value, false)}, `;
+  }
+}
+
 specialDirectives[Moon.config.prefix + "for"] = {
   afterGenerate: function(value, meta, code, vnode) {
     var parts = value.split(" in ");
@@ -134,12 +140,7 @@ specialDirectives[Moon.config.prefix + "text"] = {
 }
 
 directives[Moon.config.prefix + "show"] = function(el, val, vnode) {
-  var evaluated = new Function("return " + val);
-  if(!evaluated()) {
-    el.style.display = 'none';
-  } else {
-    el.style.display = 'block';
-  }
+  el.style.display = (val ? '' : 'none');
 }
 
 directives[Moon.config.prefix + "mask"] = function(el, val, vnode) {
