@@ -833,15 +833,16 @@
           incrementChar();
         }
     
-        if (noValue) {
-          attrs[attrName] = "";
-          continue;
-        }
-    
         var attrValue = {
           meta: {},
           value: ""
         };
+    
+        if (noValue) {
+          attrs[attrName] = attrValue;
+          continue;
+        }
+    
         var quoteType = " ";
     
         // Exit equal sign and setup quote type
