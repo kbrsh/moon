@@ -24,7 +24,7 @@ Usage:
 <h1 m-html="{{html}}"></h1>
 ```
 
-Can be used to dynamically set the `innerHTML` of an element.
+Can be used to dynamically set the `innerHTML` of an element. Note that this will not be compiled (you cannot use directives or templates)
 
 ##### **if**
 
