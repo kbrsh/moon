@@ -14,12 +14,12 @@ specialDirectives[Moon.config.prefix + "show"] = {
 
 specialDirectives[Moon.config.prefix + "for"] = {
   afterGenerate: function(value, meta, code, vnode) {
-    var parts = value.split(" in ");
-    var aliases = parts[0].split(",");
+    const parts = value.split(" in ");
+    const aliases = parts[0].split(",");
 
-    var iteratable = compileTemplate(parts[1], false);
+    const iteratable = compileTemplate(parts[1], false);
 
-    var params = aliases.join(",");
+    const params = aliases.join(",");
 
     code.replace(/instance\.get\("([^"]+)"\)/g, function(match, alias) {
       if(aliases.indexOf(alias) !== -1) {
@@ -35,11 +35,11 @@ specialDirectives[Moon.config.prefix + "on"] = {
   beforeGenerate: function(value, meta, vnode) {
 
     // Extract modifiers and the event
-    var rawModifiers = meta.arg.split(".");
-    var eventToCall = rawModifiers[0];
-    var params = "event";
-    var methodToCall = compileTemplate(value, false);
-    var rawParams = methodToCall.split("(");
+    let rawModifiers = meta.arg.split(".");
+    const eventToCall = rawModifiers[0];
+    let params = "event";
+    let methodToCall = compileTemplate(value, false);
+    const rawParams = methodToCall.split("(");
 
     if(rawParams.length > 1) {
       methodToCall = rawParams.shift();
@@ -65,10 +65,10 @@ specialDirectives[Moon.config.prefix + "on"] = {
 specialDirectives[Moon.config.prefix + "model"] = {
   beforeGenerate: function(value, meta, vnode) {
     // Compile a string value for the keypath
-    var compiledStringValue = compileTemplate(value, true);
+    const compiledStringValue = compileTemplate(value, true);
     // Setup default event types and dom property to change
-    var eventType = "input";
-    var valueProp = "value";
+    let eventType = "input";
+    let valueProp = "value";
 
     // If input type is checkbox, listen on 'change' and change the 'checked' dom property
     if(vnode.props.attrs.type && vnode.props.attrs.type.value === "checkbox") {
@@ -77,7 +77,7 @@ specialDirectives[Moon.config.prefix + "model"] = {
     }
 
     // Generate event listener code
-    var code = `function(event) {instance.set("${compiledStringValue}", event.target.${valueProp})}`;
+    const code = `function(event) {instance.set("${compiledStringValue}", event.target.${valueProp})}`;
 
     // Push the listener to it's event listeners
     if(!vnode.meta.eventListeners[eventType]) {
@@ -87,7 +87,7 @@ specialDirectives[Moon.config.prefix + "model"] = {
     }
 
     // Setup a query used to get the value, and set the corresponding dom property
-    var getQuery = compileTemplate(`{{${compileTemplate(value, false)}}}`, false);
+    const getQuery = compileTemplate(`{{${compileTemplate(value, false)}}}`, false);
     if(!vnode.props.dom) {
       vnode.props.dom = {};
     }
@@ -97,7 +97,7 @@ specialDirectives[Moon.config.prefix + "model"] = {
 
 specialDirectives[Moon.config.prefix + "literal"] = {
   duringPropGenerate: function(value, meta, vnode) {
-    var prop = meta.arg;
+    const prop = meta.arg;
     // make sure object is treated correctly during code generation
     vnode.props.attrs[prop] = {
       value: true,
