@@ -62,10 +62,10 @@ var app = new Moon({
       this.set('todos', todos);
       this.set("newTodo", "");
     },
-    removeTodo: function(i) {
+    removeTodo: function(todo) {
       // Remove a todo at a certain index
       var todos = this.get('todos');
-      todos.splice(i, 1);
+      todos.splice(todos.indexOf(todo), 1);
       this.set('todos', todos);
     },
     editTodo: function(todo) {
@@ -73,17 +73,17 @@ var app = new Moon({
       this.set('cachedEdit', todo.content);
       this.set('editedTodo', todo);
     },
-    updateTodo: function(index) {
+    updateTodo: function(todo) {
       // Update a certain todo by index
       var todos = this.get('todos');
-      todos[index] = this.get('editedTodo');
+      todos[todos.indexOf(todo)] = this.get('editedTodo');
       this.set('editedTodo', '');
       this.set('todos', todos);
     },
-    discardEdit: function(index) {
+    discardEdit: function(todo) {
       // Discard the edited todo
       var todos = this.get('todos');
-      todos[index].content = this.get('cachedEdit');
+      todos[todos.indexOf(todo)].content = this.get('cachedEdit');
       this.set('editedTodo', '');
       this.set('todos', todos);
     },
