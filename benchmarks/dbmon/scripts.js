@@ -3,12 +3,12 @@ var app = new Moon({
   data: {
     databases: []
   }
-})
+});
 
-function loadSamples() {
-  app.set('databases', Object.freeze(ENV.generateData().toArray()));
+function run() {
+  app.set('databases', ENV.generateData().toArray());
   Monitoring.renderRate.ping();
-  setTimeout(loadSamples, ENV.timeout);
+  setTimeout(run, ENV.timeout);
 }
 
-loadSamples()
+run();
