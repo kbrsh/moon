@@ -834,8 +834,9 @@
         }
     
         var attrValue = {
-          meta: {},
-          value: ""
+          name: attrName,
+          value: "",
+          meta: {}
         };
     
         if (noValue) {
@@ -861,7 +862,7 @@
     
         if (attrName.indexOf(":") !== -1) {
           var attrNames = attrName.split(":");
-          attrName = attrNames[0];
+          attrValue.meta.name = attrNames[0];
           attrValue.meta.arg = attrNames[1];
         }
     
@@ -989,12 +990,16 @@
     
       if (attrs) {
         for (var attr in attrs) {
-          if (directives[attr]) {
+          // Get attr by it's actual name (in case it had any arguments)
+          var attrName = attrs[attr].name;
+    
+          // If it is a directive, mark it as dynamic
+          if (directives[attrName]) {
             vnode.dynamic = true;
           }
-          if (specialDirectives[attr]) {
+          if (specialDirectives[attrName]) {
             // Special directive found that generates code after initial generation, push it to its known special directives to run afterGenerate later
-            if (specialDirectives[attr].afterGenerate) {
+            if (specialDirectives[attrName].afterGenerate) {
               if (!vnode.specialDirectivesAfter) {
                 vnode.specialDirectivesAfter = {};
               }
@@ -1002,13 +1007,13 @@
             }
     
             // Invoke any special directives that need to change values before code generation
-            if (specialDirectives[attr].beforeGenerate) {
-              specialDirectives[attr].beforeGenerate(attrs[attr].value, attrs[attr].meta, vnode);
+            if (specialDirectives[attrName].beforeGenerate) {
+              specialDirectives[attrName].beforeGenerate(attrs[attr].value, attrs[attr].meta, vnode);
             }
     
             // Invoke any special directives that need to change values of props during code generation
-            if (specialDirectives[attr].duringPropGenerate) {
-              generatedObject += specialDirectives[attr].duringPropGenerate(attrs[attr].value, attrs[attr].meta, vnode);
+            if (specialDirectives[attrName].duringPropGenerate) {
+              generatedObject += specialDirectives[attrName].duringPropGenerate(attrs[attr].value, attrs[attr].meta, vnode);
             }
     
             // Keep a flag to know to always rerender this
@@ -1151,7 +1156,7 @@
           // There are special directives that need to change the value after code generation, so
           // run them now
           for (var specialDirectiveAfter in el.specialDirectivesAfter) {
-            compiledCode = specialDirectives[specialDirectiveAfter].afterGenerate(el.specialDirectivesAfter[specialDirectiveAfter].value, el.specialDirectivesAfter[specialDirectiveAfter].meta, compiledCode, el);
+            compiledCode = specialDirectives[specialDirectiveAfter.name].afterGenerate(el.specialDirectivesAfter[specialDirectiveAfter].value, el.specialDirectivesAfter[specialDirectiveAfter].meta, compiledCode, el);
           }
         }
         code += compiledCode;
