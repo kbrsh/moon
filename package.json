@@ -39,7 +39,7 @@
     "gulp-replace": "^0.5.4",
     "gulp-saucelabs": "^0.1.4",
     "gulp-size": "^2.1.0",
-    "gulp-uglifyjs": "^0.6.2",
+    "gulp-uglify": "^2.1.2",
     "istanbul": "^0.4.5",
     "mocha": "^3.2.0",
     "mocha-phantomjs-istanbul": "0.0.2",

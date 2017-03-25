@@ -2,7 +2,7 @@
 
 var gulp = require('gulp');
 var pkg = require('./package.json');
-var uglify = require("gulp-uglifyjs");
+var uglify = require("gulp-uglify");
 var istanbul = require("gulp-istanbul");
 var babel = require('gulp-babel');
 var replace = require('gulp-replace');
