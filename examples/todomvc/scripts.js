@@ -29,6 +29,11 @@ var filters = {
   }
 }
 
+// Register Custom `esc` Keycode Modifier
+Moon.config.keyCodes({
+  esc: 27
+});
+
 // A custom directive used to focus an element
 Moon.directive("focus", function(el, val, vdom) {
   if(val) {
@@ -70,8 +75,11 @@ var app = new Moon({
       // Update a certain todo by index
       var todos = this.get('todos');
       todos[index] = this.get('editedTodo');
-      this.set('editedTodo', false);
+      this.set('editedTodo', '');
       this.set('todos', todos);
+    },
+    discardEdit: function() {
+      this.set('editedTodo', '');
     },
     removeCompleted: function() {
       // Remove all completed todos
