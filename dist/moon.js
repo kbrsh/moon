@@ -153,7 +153,6 @@
       for (var rawAttrs = node.attributes, i = rawAttrs.length; i--;) {
         attrs[rawAttrs[i].name] = rawAttrs[i].value;
       }
-      node.__moon__props__ = attrs;
       return attrs;
     };
     
@@ -400,7 +399,7 @@
       // Setup Props
       diffProps(el, {}, vnode, vnode.props.attrs);
     
-      // Setup Cache
+      // Setup Cache (Hydrate)
       el.__moon__vnode__ = vnode;
     
       return el;
@@ -481,10 +480,16 @@
     var diff = function (node, vnode, parent, instance) {
       var nodeName = null;
       var oldVNode = null;
+      var hydrating = false;
     
       if (node && vnode) {
         oldVNode = node.__moon__vnode__;
-        nodeName = oldVNode && oldVNode.type || node.nodeName.toLowerCase();
+        hydrating = !oldVNode;
+        if (hydrating) {
+          nodeName = node.nodeName.toLowerCase();
+        } else {
+          nodeName = oldVNode.type;
+        }
       }
     
       if (!node) {
@@ -517,14 +522,31 @@
         }
         if (vnode.meta.component) {
           // Detected parent component, build it here (parent node is available)
-          createComponentFromVNode(newNode, vnode, vnode.meta.component);
+          createComponentFromVNode(newNode, vnode, vnode.meta.component, hydrating);
         }
         return newNode;
-      } else if (vnode.meta.shouldRender && vnode.type === "#text" && node.nodeType === "#text" && vnode.val !== (oldVNode && oldVNode.val || node.textContent)) {
-        // Both are textnodes, update the node
-        node.textContent = vnode.val;
+      } else if (vnode.meta.shouldRender && vnode.type === "#text") {
+        if (node && nodeName === "#text") {
+          // Both are textnodes, update the node
+          if (hydrating) {
+            if (node.textContent !== vnode.val) {
+              node.textContent = vnode.val;
+            }
+          } else {
+            if (vnode.val !== oldVNode.val) {
+              node.textContent = vnode.val;
+            }
+          }
+    
+          // Update Cache (Hydrate)
+          node.__moon__vnode__ = vnode;
+        } else {
+          // Node isn't text, replace with one
+          parent.replaceChild(createNodeFromVNode(vnode, instance), node);
+        }
+    
         return node;
-      } else if (vnode && vnode.type !== "#text" && vnode.meta.shouldRender) {
+      } else if (vnode.meta.shouldRender) {
     
         if (vnode.meta.component) {
           if (!node.__moon__) {
@@ -535,7 +557,8 @@
             var componentInstance = node.__moon__;
             var componentChanged = false;
             // Merge any properties that changed
-            for (var prop in vnode.props.attrs) {
+            for (var i = 0; i < componentInstance.$props.length; i++) {
+              var prop = componentInstance.$props[i];
               if (componentInstance.$data[prop] !== vnode.props.attrs[prop]) {
                 componentInstance.$data[prop] = vnode.props.attrs[prop];
                 componentChanged = true;
@@ -550,10 +573,10 @@
             if (componentChanged) {
               componentInstance.build();
             }
-          }
     
-          // Cache VNode
-          node.__moon__vnode__ = vnode;
+            // Cache VNode (Hydrate)
+            node.__moon__vnode__ = vnode;
+          }
     
           // Skip diffing any children
           return node;
@@ -562,7 +585,7 @@
         // Children May have Changed
     
         // Diff props
-        var nodeProps = node.__moon__vnode__ && node.__moon__vnode__.props.attrs || extractAttrs(node);
+        var nodeProps = hydrating ? extractAttrs(node) : oldVNode.props.attrs;
         diffProps(node, nodeProps, vnode, vnode.props.attrs);
     
         // Add initial event listeners (done once)
@@ -572,7 +595,7 @@
     
         // Check if innerHTML was changed, don't diff children
         if (vnode.props.dom && vnode.props.dom.innerHTML) {
-          // Cache VNode
+          // Cache VNode (Hydrate)
           node.__moon__vnode__ = vnode;
     
           // Exit
@@ -581,20 +604,22 @@
     
         // Diff Children
         var currentChildNode = node.firstChild;
-        var currentChildVNode = currentChildNode && currentChildNode.__moon__vnode__;
+    
         // Optimization:
-        //  If the vnode contains just one text vnode, create it here
-        if (vnode.children.length === 1 && vnode.children[0].type === "#text" && currentChildNode && !currentChildNode.nextSibling && currentChildNode.nodeName === "#text") {
-          var currentChildNodeTextContent = currentChildVNode ? currentChildVNode.val : currentChildNode.textContent;
-          if (vnode.children[0].val !== currentChildNodeTextContent) {
+        //  If the vnode contains just one text vnode, create/update it here
+        if (!hydrating && currentChildNode && vnode.children.length === 1 && vnode.children[0].type === "#text" && oldVNode.children.length === 1 && oldVNode.children[0].type === "#text") {
+          if (vnode.children[0].val !== oldVNode.children[0].val) {
+            // Set Content
             currentChildNode.textContent = vnode.children[0].val;
+    
+            // Cache VNode (Hydrate)
             currentChildNode.__moon__vnode__ = vnode.children[0];
           }
         } else {
           // Iterate through all children
-          for (var i = 0; i < vnode.children.length || currentChildNode; i++) {
+          for (var _i = 0; _i < vnode.children.length || currentChildNode; _i++) {
             var next = currentChildNode && currentChildNode.nextSibling;
-            diff(currentChildNode, vnode.children[i], node, instance);
+            diff(currentChildNode, vnode.children[_i], node, instance);
             currentChildNode = next;
           }
         }
@@ -1337,8 +1362,8 @@
         }
       }
     
-      for (var _i = 0; _i < this.$events[eventName].length; _i++) {
-        this.$events[eventName][_i](meta);
+      for (var _i2 = 0; _i2 < this.$events[eventName].length; _i2++) {
+        this.$events[eventName][_i2](meta);
       }
     };
     
