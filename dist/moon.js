@@ -188,7 +188,7 @@
      * @return {Object} resolved object
      */
     var resolveKeyPath = function (instance, obj, keypath, val) {
-      var i;
+      var i = null;
       keypath.replace(/\[(\w+)\]/g, function (match, index) {
         keypath = keypath.replace(match, '.' + index);
       });
@@ -370,7 +370,7 @@
      * @return {Object} DOM Node
      */
     var createNodeFromVNode = function (vnode, instance) {
-      var el;
+      var el = null;
     
       if (vnode.type === "#text") {
         // Create textnode
@@ -458,8 +458,8 @@
       if (vnode.props.dom) {
         for (var domProp in vnode.props.dom) {
           var domPropValue = vnode.props.dom[domProp];
-          if (node[domProp] !== vnode.props.dom[domProp]) {
-            node[domProp] = vnode.props.dom[domProp];
+          if (node[domProp] !== domPropValue) {
+            node[domProp] = domPropValue;
           }
         }
       }
@@ -474,7 +474,7 @@
      * @return {Object} adjusted node only if it was replaced
      */
     var diff = function (node, vnode, parent, instance) {
-      var nodeName;
+      var nodeName = null;
     
       if (node) {
         nodeName = node.__moon__nodeName__ || node.nodeName.toLowerCase();
