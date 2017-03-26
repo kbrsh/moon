@@ -285,12 +285,12 @@ const createNodeFromVNode = function(vnode, instance) {
     // Add all event listeners
     addEventListeners(el, vnode, instance);
   }
-  // Setup Props (With Cache)
-  el.__moon__props__ = extend({}, vnode.props.attrs);
+  // Setup Props
   diffProps(el, {}, vnode, vnode.props.attrs);
 
-  // Setup Cached NodeName
-  el.__moon__nodeName__ = vnode.type;
+  // Setup Cache
+  el.__moon__vnode__ = vnode;
+
   return el;
 }
 
@@ -331,7 +331,6 @@ const diffProps = function(node, nodeProps, vnode, vnodeProps) {
     for(let vnodePropName in vnodeProps) {
       if(!nodeProps.hasOwnProperty(vnodePropName) || nodeProps[vnodePropName] !== vnodeProps[vnodePropName]) {
         isSVG ? node.setAttributeNS(null, vnodePropName, vnodeProps[vnodePropName]) : node.setAttribute(vnodePropName, vnodeProps[vnodePropName]);
-        node.__moon__props__[vnodePropName] = vnodeProps[vnodePropName];
       }
     }
   }
@@ -344,7 +343,6 @@ const diffProps = function(node, nodeProps, vnode, vnodeProps) {
           directives[nodePropName](node, vnodeProps[nodePropName], vnode);
         }
         isSVG ? node.removeAttributeNS(null, nodePropName) : node.removeAttribute(nodePropName);
-        delete node.__moon__props__[nodePropName];
       }
     }
   }
@@ -370,9 +368,11 @@ const diffProps = function(node, nodeProps, vnode, vnodeProps) {
  */
 const diff = function(node, vnode, parent, instance) {
   let nodeName = null;
+  let oldVNode = null;
 
   if(node && vnode) {
-    nodeName = node.__moon__nodeName__ || node.nodeName.toLowerCase();
+    oldVNode = node.__moon__vnode__;
+    nodeName = (oldVNode && oldVNode.type) || node.nodeName.toLowerCase();
   }
 
   if(!node) {
@@ -387,10 +387,13 @@ const diff = function(node, vnode, parent, instance) {
   } else if(!vnode) {
     // No vnode, remove the node
     parent.removeChild(node);
+    
+    // Check for Component
     if(node.__moon__) {
       // Component was unmounted, destroy it here
       node.__moon__.destroy();
     }
+
     return null;
   } else if(nodeName !== vnode.type) {
     // Different types, replace it
@@ -405,7 +408,7 @@ const diff = function(node, vnode, parent, instance) {
       createComponentFromVNode(newNode, vnode, vnode.meta.component);
     }
     return newNode;
-  } else if(vnode.meta.shouldRender && vnode.type === "#text" && nodeName === "#text" && vnode.val !== node.textContent) {
+  } else if(vnode.meta.shouldRender && vnode.type === "#text" && node.nodeType === "#text" && vnode.val !== ((oldVNode && oldVNode.val) || node.textContent)) {
     // Both are textnodes, update the node
     node.textContent = vnode.val;
     return node;
@@ -436,6 +439,10 @@ const diff = function(node, vnode, parent, instance) {
           componentInstance.build();
         }
       }
+
+      // Cache VNode
+      node.__moon__vnode__ = vnode;
+
       // Skip diffing any children
       return node;
     }
@@ -443,7 +450,7 @@ const diff = function(node, vnode, parent, instance) {
     // Children May have Changed
 
     // Diff props
-    var nodeProps = node.__moon__props__ || extractAttrs(node);
+    var nodeProps = (node.__moon__vnode__ && node.__moon__vnode__.props.attrs) || extractAttrs(node);
     diffProps(node, nodeProps, vnode, vnode.props.attrs);
 
     // Add initial event listeners (done once)
@@ -453,26 +460,37 @@ const diff = function(node, vnode, parent, instance) {
 
     // Check if innerHTML was changed, don't diff children
     if(vnode.props.dom && vnode.props.dom.innerHTML) {
+      // Cache VNode
+      node.__moon__vnode__ = vnode;
+
+      // Exit
       return node;
     }
 
     // Diff Children
     let currentChildNode = node.firstChild;
+    let currentChildVNode = (currentChildNode && currentChildNode.__moon__vnode__);
     // Optimization:
     //  If the vnode contains just one text vnode, create it here
     if(vnode.children.length === 1 && vnode.children[0].type === "#text" && currentChildNode && !currentChildNode.nextSibling && currentChildNode.nodeName === "#text") {
-      if(vnode.children[0].val !== currentChildNode.textContent) {
+      let currentChildNodeTextContent = currentChildVNode ? currentChildVNode.val : currentChildNode.textContent;
+      if(vnode.children[0].val !== currentChildNodeTextContent) {
         currentChildNode.textContent = vnode.children[0].val;
+        currentChildNode.__moon__vnode__ = vnode.children[0];
       }
     } else {
       // Iterate through all children
       for(let i = 0; i < vnode.children.length || currentChildNode; i++) {
-        var next = currentChildNode ? currentChildNode.nextSibling : null;
+        var next = currentChildNode && currentChildNode.nextSibling;
         diff(currentChildNode, vnode.children[i], node, instance);
         currentChildNode = next;
       }
     }
 
+    // Cache VNode
+    node.__moon__vnode__ = vnode;
+
+    // Exit
     return node;
   } else {
     // Nothing Changed
