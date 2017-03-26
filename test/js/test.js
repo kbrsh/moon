@@ -619,7 +619,7 @@ describe('Custom Render', function() {
     var renderApp = new Moon({
       el: "#render",
       render: function(h) {
-        return h('div', {attrs: {id: "render"}}, null, this.get('msg'))
+        return h('div', {attrs: {id: "render"}}, null, [this.get('msg')])
       },
       data: {
         msg: "Hello Moon!"
@@ -644,7 +644,7 @@ describe('Functional Component', function() {
       functional: true,
       props: ['someprop'],
       render: function(h, ctx) {
-        return h("h1", functionalComponentDivProps, null, ctx.data.someprop);
+        return h("h1", functionalComponentDivProps, null, [ctx.data.someprop]);
       }
     });
     var functionalComponentDivSlotProps = {attrs: {}};
@@ -652,7 +652,7 @@ describe('Functional Component', function() {
     Moon.component('slot-functional-component', {
       functional: true,
       render: function(h, ctx) {
-        return h("div", functionalComponentDivSlotProps, null, h("h1", {}, null, ctx.slots["default"]), h("h1", {}, null, ctx.slots.named));
+        return h("div", functionalComponentDivSlotProps, null, [h("h1", {}, null, [ctx.slots["default"]]), h("h1", {}, null, [ctx.slots.named])]);
       }
     });
     var functionalApp = new Moon({
