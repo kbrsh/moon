@@ -487,7 +487,7 @@
         nodeName = node.__moon__nodeName__ || node.nodeName.toLowerCase();
       }
     
-      if (!node && vnode) {
+      if (!node) {
         // No Node, create a node
         var newNode = createNodeFromVNode(vnode, instance);
         parent.appendChild(newNode);
