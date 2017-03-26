@@ -193,23 +193,25 @@ const createFunctionalComponent = function(type, props, meta, children, function
  * @param {String} tag
  * @param {Object} attrs
  * @param {Object} meta
- * @param {...Object|String} children
+ * @param {Object|String} children
  * @return {String} Object usable in Virtual DOM (VNode)
  */
-const h = function(tag, attrs, meta) {
+const h = function(tag, attrs, meta, nestedChildren) {
   // Setup Children
   let children = [];
-  const childrenLen = arguments.length - 3;
-  for(var i = 0; i < childrenLen; i++) {
-    let child = arguments[i + 3];
-    if(Array.isArray(child)) {
-      children = children.concat(child);
-    } else if(typeof child === "string" || child === null) {
-      children.push(createElement("#text", child || "", {attrs: {}}, [], defaultMetadata()));
-    } else {
-      children.push(child);
+  if(nestedChildren) {
+    for(var i = 0; i < nestedChildren.length; i++) {
+      let child = nestedChildren[i];
+      if(Array.isArray(child)) {
+        children = children.concat(child);
+      } else if(typeof child === "string" || child === null) {
+        children.push(createElement("#text", child || "", {attrs: {}}, [], defaultMetadata()));
+      } else {
+        children.push(child);
+      }
     }
   }
+  
   // It's a Component
   if(components[tag]) {
     // Functional component
