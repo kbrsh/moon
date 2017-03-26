@@ -147,7 +147,7 @@ const createCall = function(vnode) {
 	}
 
 	call += generateMeta(vnode.meta);
-	call += children.length ? ", " + generateArray(children) : "";
+	call += children.length ? ", [" + generateArray(children) + "]" : "";
 	call += ")";
   return call;
 }
