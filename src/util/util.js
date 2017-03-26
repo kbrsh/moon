@@ -37,7 +37,7 @@ const queueBuild = function(instance) {
  * @return {Object} Key-Value pairs of Attributes
  */
 const extractAttrs = function(node) {
-  var attrs = {};
+  let attrs = {};
   for(var rawAttrs = node.attributes, i = rawAttrs.length; i--;) {
     attrs[rawAttrs[i].name] = rawAttrs[i].value;
   }
@@ -61,9 +61,9 @@ const defaultMetadata = function() {
  * @param {String} str
  */
 const escapeString = function(str) {
-	var NEWLINE_RE = /\n/g;
-	var DOUBLE_QUOTE_RE = /"/g;
-  var BACKSLASH_RE = /\\/g;
+	const NEWLINE_RE = /\n/g;
+	const DOUBLE_QUOTE_RE = /"/g;
+  const BACKSLASH_RE = /\\/g;
   return str.replace(BACKSLASH_RE, "\\\\").replace(DOUBLE_QUOTE_RE, "\\\"").replace(NEWLINE_RE, "\\n");
 }
 
@@ -76,13 +76,13 @@ const escapeString = function(str) {
  * @return {Object} resolved object
  */
 const resolveKeyPath = function(instance, obj, keypath, val) {
-  var i;
+  let i = null;
   keypath.replace(/\[(\w+)\]/g, function(match, index) {
     keypath = keypath.replace(match, `.${index}`);
   });
   var path = keypath.split(".");
   for(i = 0; i < path.length - 1; i++) {
-    var propName = path[i];
+    const propName = path[i];
     obj = obj[propName];
   }
   obj[path[i]] = val;
@@ -96,8 +96,8 @@ const resolveKeyPath = function(instance, obj, keypath, val) {
  * @return {String} compiled template
  */
 const compileTemplate = function(template, isString) {
-  var TEMPLATE_RE = /{{([A-Za-z0-9_$@]+)([A-Za-z0-9_.()'"+\-*/\s\[\]]+)?}}/gi;
-  var compiled = template;
+  const TEMPLATE_RE = /{{([A-Za-z0-9_$@]+)([A-Za-z0-9_.()'"+\-*/\s\[\]]+)?}}/gi;
+  let compiled = template;
   template.replace(TEMPLATE_RE, function(match, key, modifiers) {
     if(!modifiers) {
       modifiers = '';
@@ -117,17 +117,17 @@ const compileTemplate = function(template, isString) {
  * @return {Object} extracted slots
  */
 const getSlots = function(children) {
-  var slots = {};
+  let slots = {};
 
   // No Children Means No Slots
   if(!children) {
     return slots;
   }
 
-  var defaultSlotName = "default";
+  let defaultSlotName = "default";
   slots[defaultSlotName] = [];
 
-  for(var i = 0; i < children.length; i++) {
+  for(let i = 0; i < children.length; i++) {
     var child = children[i];
     var childProps = child.props.attrs;
     if(childProps.slot) {
@@ -174,7 +174,7 @@ const createElement = function(type, val, props, children, meta) {
  * @return {Object} Virtual DOM Node
  */
 const createFunctionalComponent = function(type, props, meta, children, functionalComponent) {
-  var data = functionalComponent.opts.data || {};
+  let data = functionalComponent.opts.data || {};
   // Merge data with provided props
   if(functionalComponent.opts.props) {
     for(var i = 0; i < functionalComponent.opts.props.length; i++) {
@@ -198,10 +198,10 @@ const createFunctionalComponent = function(type, props, meta, children, function
  */
 const h = function(tag, attrs, meta) {
   // Setup Children
-  var children = []
-  var childrenLen = arguments.length - 3;
+  let children = [];
+  const childrenLen = arguments.length - 3;
   for(var i = 0; i < childrenLen; i++) {
-    var child = arguments[i + 3];
+    let child = arguments[i + 3];
     if(Array.isArray(child)) {
       children = children.concat(child);
     } else if(typeof child === "string" || child === null) {
@@ -242,10 +242,10 @@ const h = function(tag, attrs, meta) {
  * @param {Object} instance
  */
 const addEventListeners = function(node, vnode, instance) {
-  var eventListeners = vnode.meta.eventListeners;
-  for(var type in eventListeners) {
-    for(var i = 0; i < eventListeners[type].length; i++) {
-      var method = eventListeners[type][i];
+  const eventListeners = vnode.meta.eventListeners;
+  for(let type in eventListeners) {
+    for(let i = 0; i < eventListeners[type].length; i++) {
+      const method = eventListeners[type][i];
       node.addEventListener(type, method);
     }
   }
@@ -258,7 +258,7 @@ const addEventListeners = function(node, vnode, instance) {
  * @return {Object} DOM Node
  */
 const createNodeFromVNode = function(vnode, instance) {
-  var el;
+  let el = null;
 
   if(vnode.type === "#text") {
     // Create textnode
@@ -271,8 +271,8 @@ const createNodeFromVNode = function(vnode, instance) {
     } else {
       // Add all children
       for(var i = 0; i < vnode.children.length; i++) {
-        var childVNode = vnode.children[i];
-        var childNode = createNodeFromVNode(vnode.children[i], instance);
+        let childVNode = vnode.children[i];
+        let childNode = createNodeFromVNode(vnode.children[i], instance);
         el.appendChild(childNode);
         // Component detected, mount it here
         if(childVNode.meta.component) {
@@ -300,9 +300,9 @@ const createNodeFromVNode = function(vnode, instance) {
  * @return {Object} DOM Node
  */
 const createComponentFromVNode = function(node, vnode, component) {
-  var componentInstance = new component.CTor();
+  let componentInstance = new component.CTor();
   // Merge data with provided props
-  for(var i = 0; i < componentInstance.$props.length; i++) {
+  for(let i = 0; i < componentInstance.$props.length; i++) {
     var prop = componentInstance.$props[i];
     componentInstance.$data[prop] = vnode.props.attrs[prop];
   }
@@ -322,12 +322,12 @@ const createComponentFromVNode = function(node, vnode, component) {
  */
 const diffProps = function(node, nodeProps, vnode, vnodeProps) {
   // Get object of all properties being compared
-  var allProps = merge(nodeProps, vnodeProps);
+  const allProps = merge(nodeProps, vnodeProps);
 
   // If node is svg, update with SVG namespace
-  var isSVG = node instanceof SVGElement;
+  const isSVG = node instanceof SVGElement;
 
-  for(var propName in allProps) {
+  for(let propName in allProps) {
     // If not in VNode or is a Directive, remove it
     if(!vnodeProps.hasOwnProperty(propName) || directives[propName]) {
       // If it is a directive, run the directive
@@ -344,10 +344,10 @@ const diffProps = function(node, nodeProps, vnode, vnodeProps) {
   }
 
   if(vnode.props.dom) {
-    for(var domProp in vnode.props.dom) {
-      var domPropValue = vnode.props.dom[domProp];
-      if(node[domProp] !== vnode.props.dom[domProp]) {
-        node[domProp] = vnode.props.dom[domProp];
+    for(let domProp in vnode.props.dom) {
+      const domPropValue = vnode.props.dom[domProp];
+      if(node[domProp] !== domPropValue) {
+        node[domProp] = domPropValue;
       }
     }
   }
@@ -362,7 +362,7 @@ const diffProps = function(node, nodeProps, vnode, vnodeProps) {
  * @return {Object} adjusted node only if it was replaced
  */
 const diff = function(node, vnode, parent, instance) {
-  var nodeName;
+  let nodeName = null;
 
   if(node) {
     nodeName = node.__moon__nodeName__ || node.nodeName.toLowerCase();
@@ -410,8 +410,8 @@ const diff = function(node, vnode, parent, instance) {
         createComponentFromVNode(node, vnode, vnode.meta.component)
       } else {
         // Mounted already, need to update
-        var componentInstance = node.__moon__;
-        var componentChanged = false;
+        let componentInstance = node.__moon__;
+        let componentChanged = false;
         // Merge any properties that changed
         for(var prop in vnode.props.attrs) {
           if(componentInstance.$data[prop] !== vnode.props.attrs[prop]) {
@@ -450,7 +450,7 @@ const diff = function(node, vnode, parent, instance) {
     }
 
     // Diff Children
-    var currentChildNode = node.firstChild;
+    let currentChildNode = node.firstChild;
     // Optimization:
     //  If the vnode contains just one text vnode, create it here
     if(vnode.children.length === 1 && vnode.children[0].type === "#text" && currentChildNode && !currentChildNode.nextSibling && currentChildNode.nodeName === "#text") {
@@ -459,7 +459,7 @@ const diff = function(node, vnode, parent, instance) {
       }
     } else {
       // Iterate through all children
-      for(var i = 0; i < vnode.children.length || currentChildNode; i++) {
+      for(let i = 0; i < vnode.children.length || currentChildNode; i++) {
         var next = currentChildNode ? currentChildNode.nextSibling : null;
         diff(currentChildNode, vnode.children[i], node, instance);
         currentChildNode = next;
@@ -481,7 +481,7 @@ const diff = function(node, vnode, parent, instance) {
  * @return {Object} Extended Parent
  */
 const extend = function(parent, child) {
-  for (var key in child) {
+  for(let key in child) {
     parent[key] = child[key];
   }
   return parent;
@@ -494,7 +494,7 @@ const extend = function(parent, child) {
  * @return {Object} Merged Object
  */
 const merge = function(parent, child) {
-  var merged = {};
+  let merged = {};
   for(var key in parent) {
     merged[key] = parent[key];
   }
@@ -510,7 +510,7 @@ const merge = function(parent, child) {
  * @param {String} name
  */
 const callHook = function(instance, name) {
-  var hook = instance.$hooks[name];
+  const hook = instance.$hooks[name];
   if(hook) {
     hook.call(instance);
   }
