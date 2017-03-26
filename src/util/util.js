@@ -321,28 +321,33 @@ const createComponentFromVNode = function(node, vnode, component) {
  * @param {Object} vnodeProps
  */
 const diffProps = function(node, nodeProps, vnode, vnodeProps) {
-  // Get object of all properties being compared
-  const allProps = merge(nodeProps, vnodeProps);
-
   // If node is svg, update with SVG namespace
   const isSVG = node instanceof SVGElement;
 
-  for(let propName in allProps) {
-    // If not in VNode or is a Directive, remove it
-    if(!vnodeProps.hasOwnProperty(propName) || directives[propName]) {
-      // If it is a directive, run the directive
-      if(directives[propName]) {
-        directives[propName](node, allProps[propName], vnode);
+  // Diff VNode Props with Node Props
+  if(vnodeProps) {
+    for(let vnodePropName in vnodeProps) {
+      if(!nodeProps.hasOwnProperty(vnodePropName) || nodeProps[vnodePropName] !== vnodeProps[vnodePropName]) {
+        isSVG ? node.setAttributeNS(null, vnodePropName, vnodeProps[vnodePropName]) : node.setAttribute(vnodePropName, vnodeProps[vnodePropName]);
+        node.__moon__props__[vnodePropName] = vnodeProps[vnodePropName];
       }
-      isSVG ? node.removeAttributeNS(null, propName) : node.removeAttribute(propName);
-      delete node.__moon__props__[propName];
-    } else if(!nodeProps[propName] || nodeProps[propName] !== vnodeProps[propName]) {
-      // It has changed or is not in the node in the first place
-      isSVG ? node.setAttributeNS(null, propName, vnodeProps[propName]) : node.setAttribute(propName, vnodeProps[propName]);
-      node.__moon__props__[propName] = vnodeProps[propName];
     }
   }
 
+  // Diff Node Props with VNode Props
+  if(nodeProps) {
+    for(let nodePropName in nodeProps) {
+      if(!vnodeProps.hasOwnProperty(nodePropName) || directives[nodePropName]) {
+        if(directives[nodePropName]) {
+          directives[nodePropName](node, vnodeProps[nodePropName], vnode);
+        }
+        isSVG ? node.removeAttributeNS(null, nodePropName) : node.removeAttribute(nodePropName);
+        delete node.__moon__props__[nodePropName];
+      }
+    }
+  }
+
+  // Add/Update any DOM Props
   if(vnode.props.dom) {
     for(let domProp in vnode.props.dom) {
       const domPropValue = vnode.props.dom[domProp];
@@ -364,7 +369,7 @@ const diffProps = function(node, nodeProps, vnode, vnodeProps) {
 const diff = function(node, vnode, parent, instance) {
   let nodeName = null;
 
-  if(node) {
+  if(node && vnode) {
     nodeName = node.__moon__nodeName__ || node.nodeName.toLowerCase();
   }
 
