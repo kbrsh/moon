@@ -15,7 +15,7 @@ function run() {
   Moon.nextTick(function() {
     perfMonitor.endProfile("render")
   });
-  requestAnimationFrame(run);
+  setTimeout(run, ENV.timeout);
 }
 
 run();
