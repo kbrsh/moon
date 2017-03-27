@@ -31,7 +31,6 @@
     <div id="app"><table class="latest-data table table-striped"><tr m-for="db in {{databases}}"><td class=dbname>{{db.dbname}}<td class=query-count><span m-literal:class={{db.lastSample.countClassName}}>{{db.lastSample.nbQueries}}</span><td m-for="q in {{db.lastSample.topFiveQueries}}"m-literal:class="'Query ' + {{q.elapsedClassName}}">{{q.formatElapsed}}<div class="left popover"><div class=popover-content>{{q.query}}</div><div class=arrow></div></div></table></div>
 
     <script src="./ENV.js"></script>
-    <script src="./lib/memory-stats.js"></script>
     <script src="./lib/monitor.js"></script>
     <script src="../../dist/moon.min.js"></script>
     <script src="./scripts.js"></script>
