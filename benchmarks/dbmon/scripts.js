@@ -5,10 +5,17 @@ var app = new Moon({
   }
 });
 
+perfMonitor.startFPSMonitor()
+perfMonitor.startMemMonitor()
+perfMonitor.initProfiler("render")
+
 function run() {
   app.set('databases', ENV.generateData().toArray());
-  Monitoring.renderRate.ping();
-  setTimeout(run, ENV.timeout);
+  perfMonitor.startProfile("render")
+  Moon.nextTick(function() {
+    perfMonitor.endProfile("render")
+  });
+  requestAnimationFrame(run);
 }
 
 run();
