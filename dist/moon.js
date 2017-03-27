@@ -427,27 +427,6 @@
     };
     
     /**
-     * Diffs Event Listeners
-     * @param {Object} node
-     * @param {Object} vnode
-     * @param {Object} oldVNode
-     */
-    var diffEventListeners = function (node, vnode, oldVNode) {
-      var events = vnode.meta.eventListeners;
-      var oldEvents = oldVNode.meta.eventListeners;
-      for (var type in events) {
-        for (var i = 0; i < events[type].length; i++) {
-          var listener = events[type][i];
-          var oldListener = oldEvents[type][i];
-          if (listener !== oldListener) {
-            node.removeEventListener(type, oldListener);
-            node.addEventListener(type, listener);
-          }
-        }
-      }
-    };
-    
-    /**
      * Diffs Props of Node and a VNode, and apply Changes
      * @param {Object} node
      * @param {Object} nodeProps
@@ -612,9 +591,6 @@
         // Add initial event listeners (done once)
         if (instance.$initialRender) {
           addEventListeners(node, vnode, instance);
-        } else if (!hydrating) {
-          // Update event listeners
-          diffEventListeners(node, vnode, oldVNode);
         }
     
         // Check if innerHTML was changed, don't diff children
