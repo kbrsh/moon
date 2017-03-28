@@ -621,7 +621,7 @@
           while (vchild || currentChildNode) {
             diff(currentChildNode, vchild, node, instance);
             vchild = vnode.children[++i];
-            currentChildNode = currentChildNode && currentChildNode.nextSibling;
+            currentChildNode = currentChildNode ? currentChildNode.nextSibling : null;
           }
         }
     
