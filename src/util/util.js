@@ -418,11 +418,11 @@ const diff = function(node, vnode, parent, instance) {
       // Both are textnodes, update the node
       if(hydrating) {
         if(node.textContent !== vnode.val) {
-          node.textContent = vnode.val;
+          node.nodeValue = vnode.val;
         }
       } else {
         if(vnode.val !== oldVNode.val) {
-          node.textContent = vnode.val;
+          node.nodeValue = vnode.val;
         }
       }
 
@@ -491,24 +491,25 @@ const diff = function(node, vnode, parent, instance) {
     }
 
     // Diff Children
-    let currentChildNode = node.firstChild;
-
-    // Optimization:
-    //  If the vnode contains just one text vnode, create/update it here
-    if(!hydrating && currentChildNode && vnode.children.length === 1 && vnode.children[0].type === "#text" && oldVNode.children.length === 1 && oldVNode.children[0].type === "#text") {
+    if(!hydrating && vnode.children.length === 1 && vnode.children[0].type === "#text" && oldVNode.children.length === 1 && oldVNode.children[0].type === "#text") {
+      // Optimization:
+      //  If the vnode contains just one text vnode, create/update it here
       if(vnode.children[0].val !== oldVNode.children[0].val) {
         // Set Content
-        currentChildNode.textContent = vnode.children[0].val;
+        node.textContent = vnode.children[0].val;
 
-        // Cache VNode (Hydrate)
-        currentChildNode.__moon__vnode__ = vnode.children[0];
+        // Cache VNodes (Hydrate)
+        node.firstChild.__moon__vnode__ = vnode.children[0];
       }
     } else {
-      // Iterate through all children
-      for(let i = 0; i < vnode.children.length || currentChildNode; i++) {
-        var next = currentChildNode && currentChildNode.nextSibling;
-        diff(currentChildNode, vnode.children[i], node, instance);
-        currentChildNode = next;
+      // Just Iterate through All Children
+      let i = 0;
+      let currentChildNode = node.firstChild;
+      let vchild = vnode.children[i];
+      while(vchild || currentChildNode) {
+        diff(currentChildNode, vchild, node, instance);
+        vchild = vnode.children[++i];
+        currentChildNode = currentChildNode && currentChildNode.nextSibling;
       }
     }
 
