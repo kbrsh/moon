@@ -292,17 +292,7 @@ describe("Directive", function() {
     createTestElement("customDirective", '<span m-square="2" id="custom-directive-span"></span>');
     Moon.directive("square", function(el, val, vdom) {
       var num = parseInt(val);
-      vdom.children.push({
-  	     type: "#text",
-         meta: {
-    	      shouldRender: true,
-            component: false,
-            eventListeners: []
-          },
-          val: String(num*num),
-          props: {},
-          children: []
-        });
+      vdom.props.dom = {innerHTML: String(num*num)};
     });
     var customDirectiveApp = new Moon({
       el: "#customDirective"
