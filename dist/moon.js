@@ -144,19 +144,6 @@
     };
     
     /**
-     * Converts attributes into key-value pairs
-     * @param {Node} node
-     * @return {Object} Key-Value pairs of Attributes
-     */
-    var extractAttrs = function (node) {
-      var attrs = {};
-      for (var rawAttrs = node.attributes, i = rawAttrs.length; i--;) {
-        attrs[rawAttrs[i].name] = rawAttrs[i].value;
-      }
-      return attrs;
-    };
-    
-    /**
      * Gives Default Metadata for a VNode
      * @return {Object} metadata
      */
@@ -254,6 +241,66 @@
       }
     
       return slots;
+    };
+    
+    /**
+     * Extends an Object with another Object's properties
+     * @param {Object} parent
+     * @param {Object} child
+     * @return {Object} Extended Parent
+     */
+    var extend = function (parent, child) {
+      for (var key in child) {
+        parent[key] = child[key];
+      }
+      return parent;
+    };
+    
+    /**
+     * Merges Two Objects Together
+     * @param {Object} parent
+     * @param {Object} child
+     * @return {Object} Merged Object
+     */
+    var merge = function (parent, child) {
+      var merged = {};
+      for (var key in parent) {
+        merged[key] = parent[key];
+      }
+      for (var key in child) {
+        merged[key] = child[key];
+      }
+      return merged;
+    };
+    
+    /**
+     * Calls a Hook
+     * @param {Object} instance
+     * @param {String} name
+     */
+    var callHook = function (instance, name) {
+      var hook = instance.$hooks[name];
+      if (hook) {
+        hook.call(instance);
+      }
+    };
+    
+    /**
+     * Does No Operation
+     */
+    var noop = function () {};
+    
+    /**
+     * Converts attributes into key-value pairs
+     * @param {Node} node
+     * @return {Object} Key-Value pairs of Attributes
+     */
+    var extractAttrs = function (node) {
+      var attrs = {};
+      for (var rawAttrs = node.attributes, i = rawAttrs.length; i--;) {
+        attrs[rawAttrs[i].name] = rawAttrs[i].value;
+      }
+      return attrs;
     };
     
     /**
@@ -399,8 +446,13 @@
       // Setup Props
       diffProps(el, {}, vnode, vnode.props.attrs);
     
-      // Setup Cache (Hydrate)
-      el.__moon__vnode__ = vnode;
+      // Hydrate
+      vnode.meta.el = el;
+    
+      // Check for Component
+      if (vnode.meta.component) {
+        createComponentFromVNode(el, vnode, vnode.meta.component);
+      }
     
       return el;
     };
@@ -423,7 +475,44 @@
       componentInstance.$el = node;
       componentInstance.build();
       callHook(componentInstance, 'mounted');
+    
+      // Rehydrate
+      vnode.meta.el = componentInstance.$el;
+    
       return componentInstance.$el;
+    };
+    
+    /**
+     * Removes a Child, Ensuring Components are Unmounted
+     * @param {Object} node
+     * @param {Object} parent
+     */
+    var removeChild = function (node, parent) {
+      // Check for Component
+      if (node.__moon__) {
+        // Component was unmounted, destroy it here
+        node.__moon__.destroy();
+      }
+    
+      // No vnode, remove the node
+      parent.removeChild(node);
+    };
+    
+    /**
+     * Replaces a Child, Ensuring Components are Unmounted/Mounted
+     * @param {Object} oldNode
+     * @param {Object} newNode
+     * @param {Object} parent
+     */
+    var replaceChild = function (oldNode, newNode, parent) {
+      // Check for Component
+      if (oldNode.__moon__) {
+        // Component was unmounted, destroy it here
+        oldNode.__moon__.destroy();
+      }
+    
+      // Replace It
+      parent.replaceChild(newNode, oldNode);
     };
     
     /**
@@ -470,218 +559,221 @@
     };
     
     /**
-     * Diffs Node and a VNode, and applies Changes
+     * Diffs a Component
+     * @param {Object} node
+     * @param {Object} vnode
+     * @return {Object} adjusted node only if it was replaced
+     */
+    var diffComponent = function (node, vnode) {
+      if (!node.__moon__) {
+        // Not mounted, create a new instance and mount it here
+        createComponentFromVNode(node, vnode, vnode.meta.component);
+      } else {
+        // Mounted already, need to update
+        var componentInstance = node.__moon__;
+        var componentChanged = false;
+        // Merge any properties that changed
+        for (var i = 0; i < componentInstance.$props.length; i++) {
+          var prop = componentInstance.$props[i];
+          if (componentInstance.$data[prop] !== vnode.props.attrs[prop]) {
+            componentInstance.$data[prop] = vnode.props.attrs[prop];
+            componentChanged = true;
+          }
+        }
+        // If it has children, resolve any new slots
+        if (vnode.children) {
+          componentInstance.$slots = getSlots(vnode.children);
+          componentChanged = true;
+        }
+        // If any changes were detected, build the component
+        if (componentChanged) {
+          componentInstance.build();
+        }
+      }
+    };
+    
+    /**
+     * Hydrates Node and a VNode
      * @param {Object} node
      * @param {Object} vnode
      * @param {Object} parent
      * @param {Object} instance
      * @return {Object} adjusted node only if it was replaced
      */
-    var diff = function (node, vnode, parent, instance) {
-      var nodeName = null;
-      var oldVNode = null;
-      var hydrating = false;
-    
-      if (node && vnode) {
-        oldVNode = node.__moon__vnode__;
-        hydrating = !oldVNode;
-        if (hydrating) {
-          nodeName = node.nodeName.toLowerCase();
-        } else {
-          nodeName = oldVNode.type;
-        }
-      }
+    var hydrate = function (node, vnode, parent, instance) {
+      var nodeName = node ? node.nodeName.toLowerCase() : null;
     
       if (!node) {
-        // No Node, create a node
+        // No node, create one
         var newNode = createNodeFromVNode(vnode, instance);
         parent.appendChild(newNode);
-        if (vnode.meta.component) {
-          // Detected parent component, build it here (parent node is available)
-          createComponentFromVNode(newNode, vnode, vnode.meta.component);
-        }
+    
         return newNode;
       } else if (!vnode) {
-        // No vnode, remove the node
-        parent.removeChild(node);
-    
-        // Check for Component
-        if (node.__moon__) {
-          // Component was unmounted, destroy it here
-          node.__moon__.destroy();
-        }
+        removeChild(node, parent);
     
         return null;
       } else if (nodeName !== vnode.type) {
-        // Different types, replace it
         var newNode = createNodeFromVNode(vnode, instance);
-        parent.replaceChild(newNode, node);
-        if (node.__moon__) {
-          // Component was unmounted, destroy it here
-          node.__moon__.destroy();
-        }
-        if (vnode.meta.component) {
-          // Detected parent component, build it here (parent node is available)
-          createComponentFromVNode(newNode, vnode, vnode.meta.component, hydrating);
-        }
+        replaceChild(node, newNode, parent);
         return newNode;
       } else if (vnode.meta.shouldRender && vnode.type === "#text") {
         if (node && nodeName === "#text") {
           // Both are textnodes, update the node
-          if (hydrating) {
-            if (node.textContent !== vnode.val) {
-              node.nodeValue = vnode.val;
-            }
-          } else {
-            if (vnode.val !== oldVNode.val) {
-              node.nodeValue = vnode.val;
-            }
+          if (node.nodeValue !== vnode.val) {
+            node.nodeValue = vnode.val;
           }
     
-          // Update Cache (Hydrate)
-          node.__moon__vnode__ = vnode;
+          // Hydrate
+          vnode.meta.el = node;
         } else {
           // Node isn't text, replace with one
-          parent.replaceChild(createNodeFromVNode(vnode, instance), node);
+          replaceChild(node, createNodeFromVNode(vnode, instance), parent);
         }
     
         return node;
       } else if (vnode.meta.shouldRender) {
+        // Hydrate
+        vnode.meta.el = node;
     
+        // Check for Component
         if (vnode.meta.component) {
-          if (!node.__moon__) {
-            // Not mounted, create a new instance and mount it here
-            createComponentFromVNode(node, vnode, vnode.meta.component);
-          } else {
-            // Mounted already, need to update
-            var componentInstance = node.__moon__;
-            var componentChanged = false;
-            // Merge any properties that changed
-            for (var i = 0; i < componentInstance.$props.length; i++) {
-              var prop = componentInstance.$props[i];
-              if (componentInstance.$data[prop] !== vnode.props.attrs[prop]) {
-                componentInstance.$data[prop] = vnode.props.attrs[prop];
-                componentChanged = true;
-              }
-            }
-            // If it has children, resolve any new slots
-            if (vnode.children) {
-              componentInstance.$slots = getSlots(vnode.children);
-              componentChanged = true;
-            }
-            // If any changes were detected, build the component
-            if (componentChanged) {
-              componentInstance.build();
-            }
-    
-            // Cache VNode (Hydrate)
-            node.__moon__vnode__ = vnode;
-          }
+          // Diff the Component
+          diffComponent(node, vnode);
     
           // Skip diffing any children
           return node;
         }
     
-        // Children May have Changed
-    
         // Diff props
-        var nodeProps = hydrating ? extractAttrs(node) : oldVNode.props.attrs;
-        diffProps(node, nodeProps, vnode, vnode.props.attrs);
+        diffProps(node, extractAttrs(node), vnode, vnode.props.attrs);
     
-        // Add initial event listeners (done once)
-        if (instance.$initialRender) {
-          addEventListeners(node, vnode, instance);
-        }
+        // Add event listeners
+        addEventListeners(node, vnode, instance);
     
-        // Check if innerHTML was changed, don't diff children
+        // Check if innerHTML was changed, and don't diff children if so
         if (vnode.props.dom && vnode.props.dom.innerHTML) {
-          // Cache VNode (Hydrate)
-          node.__moon__vnode__ = vnode;
-    
-          // Exit
           return node;
         }
     
+        // Hydrate Children
+        var i = 0;
+        var currentChildNode = node.firstChild;
+        var vchild = vnode.children[i];
+        while (vchild || currentChildNode) {
+          hydrate(currentChildNode, vchild, node, instance);
+          vchild = vnode.children[++i];
+          currentChildNode = currentChildNode ? currentChildNode.nextSibling : null;
+        }
+    
+        return node;
+      } else {
+        // Nothing Changed, Hydrate and Exit
+        vnode.meta.el = node;
+        return node;
+      }
+    };
+    
+    /**
+     * Diffs Node and a VNode, and applies Changes
+     * @param {Object} node
+     * @param {Object} vnode
+     * @param {Object} parent
+     * @param {Object} instance
+     * @return {Object} adjusted node
+     */
+    var diff = function (oldVNode, vnode, parent, instance) {
+      if (!oldVNode) {
+        // No Node, create a node
+        var newNode = createNodeFromVNode(vnode, instance);
+        parent.appendChild(newNode);
+    
+        return newNode;
+      } else if (!vnode) {
+        // No New VNode, remove Node
+        removeChild(oldVNode.meta.el, parent);
+    
+        return null;
+      } else if (oldVNode.type !== vnode.type) {
+        // Different types, replace it
+        var newNode = createNodeFromVNode(vnode, instance);
+        replaceChild(oldVNode.meta.el, newNode, parent);
+    
+        return newNode;
+      } else if (vnode.meta.shouldRender && vnode.type === "#text") {
+        if (oldVNode.type === "#text") {
+          // Both are textnodes, update the node
+          if (vnode.val !== oldVNode.val) {
+            oldVNode.meta.el.nodeValue = vnode.val;
+          }
+    
+          // Rehydrate
+          vnode.meta.el = node;
+        } else {
+          // Node isn't text, replace with one
+          parent.replaceChild(createNodeFromVNode(vnode, instance), oldVNode.meta.el);
+        }
+    
+        return vnode.meta.el;
+      } else if (vnode.meta.shouldRender) {
+        // Check for Component
+        var _node = oldVNode.meta.el;
+    
+        if (vnode.meta.component) {
+          // Diff Component
+          diffComponent(_node, vnode);
+    
+          // Skip diffing any children
+          return _node;
+        }
+    
+        // Diff props
+        diffProps(_node, oldVNode.props.attrs, vnode, vnode.props.attrs);
+    
+        // Check if innerHTML was changed, don't diff children
+        if (vnode.props.dom && vnode.props.dom.innerHTML) {
+          // Rehydrate
+          vnode.meta.el = _node;
+    
+          // Skip Children
+          return _node;
+        }
+    
         // Diff Children
-        if (!hydrating && vnode.children.length === 1 && vnode.children[0].type === "#text" && oldVNode.children.length === 1 && oldVNode.children[0].type === "#text") {
+        var newLength = vnode.children.length;
+        var oldLength = oldVNode.children.length;
+        var newText = null;
+        var oldText = null;
+    
+        if (newLength === 1 && (newText = vnode.children[0]).type === "#text" && oldLength === 1 && (oldText = oldVNode.children[0]).type === "#text") {
           // Optimization:
           //  If the vnode contains just one text vnode, create/update it here
-          if (vnode.children[0].val !== oldVNode.children[0].val) {
+          if (newText.val !== oldText.val) {
             // Set Content
-            node.textContent = vnode.children[0].val;
+            _node.textContent = newText.val;
     
-            // Cache VNodes (Hydrate)
-            node.firstChild.__moon__vnode__ = vnode.children[0];
+            // Rehydrate
+            newText.meta.el = _node.firstChild;
           }
         } else {
           // Just Iterate through All Children
-          var i = 0;
-          var currentChildNode = node.firstChild;
-          var vchild = vnode.children[i];
-          while (vchild || currentChildNode) {
-            diff(currentChildNode, vchild, node, instance);
-            vchild = vnode.children[++i];
-            currentChildNode = currentChildNode ? currentChildNode.nextSibling : null;
+          var totalLen = newLength > oldLength ? newLength : oldLength;
+          for (var i = 0; i < totalLen; i++) {
+            diff(oldVNode.children[i], vnode.children[i], _node, instance);
           }
         }
     
-        // Cache VNode
-        node.__moon__vnode__ = vnode;
+        // Rehydrate
+        vnode.meta.el = _node;
     
         // Exit
-        return node;
+        return _node;
       } else {
-        // Nothing Changed
-        return node;
+        // Nothing Changed, Rehydrate and Exit
+        vnode.meta.el = oldVNode.meta.el;
+        return vnode.meta.el;
       }
     };
-    
-    /**
-     * Extends an Object with another Object's properties
-     * @param {Object} parent
-     * @param {Object} child
-     * @return {Object} Extended Parent
-     */
-    var extend = function (parent, child) {
-      for (var key in child) {
-        parent[key] = child[key];
-      }
-      return parent;
-    };
-    
-    /**
-     * Merges Two Objects Together
-     * @param {Object} parent
-     * @param {Object} child
-     * @return {Object} Merged Object
-     */
-    var merge = function (parent, child) {
-      var merged = {};
-      for (var key in parent) {
-        merged[key] = parent[key];
-      }
-      for (var key in child) {
-        merged[key] = child[key];
-      }
-      return merged;
-    };
-    
-    /**
-     * Calls a Hook
-     * @param {Object} instance
-     * @param {String} name
-     */
-    var callHook = function (instance, name) {
-      var hook = instance.$hooks[name];
-      if (hook) {
-        hook.call(instance);
-      }
-    };
-    
-    /**
-     * Does No Operation
-     */
-    var noop = function () {};
     
     /* ======= Compiler ======= */
     var lex = function (input) {
@@ -987,19 +1079,19 @@
     
       // Start of new Tag
       if (token.type === "tagStart" && !token.close && !fourthToken.close) {
-        var node = createParseNode(secondToken.value, thirdToken.value, []);
+        var _node2 = createParseNode(secondToken.value, thirdToken.value, []);
         var tagType = secondToken.value;
         // Exit Start Tag
         increment(4);
     
         // If it is an svg element, let code generator know
-        if (SVG_ELEMENTS.indexOf(node.type) !== -1) {
-          node.isSVG = true;
+        if (SVG_ELEMENTS.indexOf(_node2.type) !== -1) {
+          _node2.isSVG = true;
         }
     
         // If it's self closing, return it here
-        if (HTML_ELEMENTS.indexOf(node.type) !== -1) {
-          return node;
+        if (HTML_ELEMENTS.indexOf(_node2.type) !== -1) {
+          return _node2;
         }
     
         var startContentIndex = state.current;
@@ -1010,13 +1102,13 @@
             // Push a parsed child to the current node
             var parsedChildState = walk(state);
             if (parsedChildState) {
-              node.children.push(parsedChildState);
+              _node2.children.push(parsedChildState);
             }
             increment(0);
             if (!token) {
               // No token means a tag was left unclosed
               if ("development" !== "production") {
-                error('The element "' + node.type + '" was left unclosed.');
+                error('The element "' + _node2.type + '" was left unclosed.');
               }
               break;
             }
@@ -1024,7 +1116,7 @@
           increment();
         }
     
-        return node;
+        return _node2;
       }
     
       increment();
@@ -1444,16 +1536,28 @@
     
     /**
      * Diff then Patches Nodes With Data
-     * @param {Object} node
+     * @param {Object} old
      * @param {Object} vnode
+     * @param {Object} parent
      */
-    Moon.prototype.patch = function (node, vnode, parent) {
-      var newRootEl = diff(node, vnode, parent, this);
+    Moon.prototype.patch = function (old, vnode, parent) {
+      var newRootEl = null;
+      var node = null;
+    
+      if (old.meta && old.meta.el) {
+        node = old.meta.el;
+        newRootEl = diff(old, vnode, parent, this);
+      } else if (old instanceof Node) {
+        node = old;
+        newRootEl = hydrate(old, vnode, parent, this);
+      }
+    
       if (node !== newRootEl) {
         // Root Node Changed, Apply Change in Instance
         this.$el = newRootEl;
         this.$el.__moon__ = this;
       }
+    
       this.$initialRender = false;
     };
     
@@ -1461,8 +1565,9 @@
      * Render and Patches the DOM With Data
      */
     Moon.prototype.build = function () {
-      this.$dom = this.render();
-      this.patch(this.$el, this.$dom, this.$el.parentNode);
+      var dom = this.render();
+      this.patch(this.$dom.meta ? this.$dom : this.$el, dom, this.$el.parentNode);
+      this.$dom = dom;
     };
     
     /**

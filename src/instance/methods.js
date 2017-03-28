@@ -179,16 +179,28 @@ Moon.prototype.render = function() {
 
 /**
  * Diff then Patches Nodes With Data
- * @param {Object} node
+ * @param {Object} old
  * @param {Object} vnode
+ * @param {Object} parent
  */
-Moon.prototype.patch = function(node, vnode, parent) {
-  const newRootEl = diff(node, vnode, parent, this);
+Moon.prototype.patch = function(old, vnode, parent) {
+  let newRootEl = null;
+  let node = null;
+
+  if(old.meta && old.meta.el) {
+    node = old.meta.el;
+    newRootEl = diff(old, vnode, parent, this);
+  } else if(old instanceof Node) {
+    node = old;
+    newRootEl = hydrate(old, vnode, parent, this);
+  }
+
   if(node !== newRootEl) {
     // Root Node Changed, Apply Change in Instance
     this.$el = newRootEl;
     this.$el.__moon__ = this;
   }
+
   this.$initialRender = false;
 }
 
@@ -196,8 +208,9 @@ Moon.prototype.patch = function(node, vnode, parent) {
  * Render and Patches the DOM With Data
  */
 Moon.prototype.build = function() {
-  this.$dom = this.render();
-  this.patch(this.$el, this.$dom, this.$el.parentNode);
+  const dom = this.render();
+  this.patch(this.$dom.meta ? this.$dom : this.$el, dom, this.$el.parentNode);
+  this.$dom = dom;
 }
 
 /**
