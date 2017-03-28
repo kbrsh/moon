@@ -109,9 +109,9 @@ Moon.prototype.emit = function(eventName, meta) {
  * @param {Function} item
  */
 Moon.prototype.renderLoop = function(arr, item) {
-  let items = [];
+  let items = new Array(arr.length);
   for(let i = 0; i < arr.length; i++) {
-    items.push(item(arr[i], i));
+    items[i] = item(arr[i], i);
   }
   return items;
 }
