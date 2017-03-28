@@ -708,7 +708,7 @@
           }
     
           // Rehydrate
-          vnode.meta.el = node;
+          vnode.meta.el = oldVNode.meta.el;
         } else {
           // Node isn't text, replace with one
           parent.replaceChild(createNodeFromVNode(vnode, instance), oldVNode.meta.el);
@@ -717,26 +717,26 @@
         return vnode.meta.el;
       } else if (vnode.meta.shouldRender) {
         // Check for Component
-        var _node = oldVNode.meta.el;
+        var node = oldVNode.meta.el;
     
         if (vnode.meta.component) {
           // Diff Component
-          diffComponent(_node, vnode);
+          diffComponent(node, vnode);
     
           // Skip diffing any children
-          return _node;
+          return node;
         }
     
         // Diff props
-        diffProps(_node, oldVNode.props.attrs, vnode, vnode.props.attrs);
+        diffProps(node, oldVNode.props.attrs, vnode, vnode.props.attrs);
     
         // Check if innerHTML was changed, don't diff children
         if (vnode.props.dom && vnode.props.dom.innerHTML) {
           // Rehydrate
-          vnode.meta.el = _node;
+          vnode.meta.el = node;
     
           // Skip Children
-          return _node;
+          return node;
         }
     
         // Diff Children
@@ -750,24 +750,24 @@
           //  If the vnode contains just one text vnode, create/update it here
           if (newText.val !== oldText.val) {
             // Set Content
-            _node.textContent = newText.val;
+            node.textContent = newText.val;
     
             // Rehydrate
-            newText.meta.el = _node.firstChild;
+            newText.meta.el = node.firstChild;
           }
         } else {
           // Just Iterate through All Children
           var totalLen = newLength > oldLength ? newLength : oldLength;
           for (var i = 0; i < totalLen; i++) {
-            diff(oldVNode.children[i], vnode.children[i], _node, instance);
+            diff(oldVNode.children[i], vnode.children[i], node, instance);
           }
         }
     
         // Rehydrate
-        vnode.meta.el = _node;
+        vnode.meta.el = node;
     
         // Exit
-        return _node;
+        return node;
       } else {
         // Nothing Changed, Rehydrate and Exit
         vnode.meta.el = oldVNode.meta.el;
@@ -1079,19 +1079,19 @@
     
       // Start of new Tag
       if (token.type === "tagStart" && !token.close && !fourthToken.close) {
-        var _node2 = createParseNode(secondToken.value, thirdToken.value, []);
+        var node = createParseNode(secondToken.value, thirdToken.value, []);
         var tagType = secondToken.value;
         // Exit Start Tag
         increment(4);
     
         // If it is an svg element, let code generator know
-        if (SVG_ELEMENTS.indexOf(_node2.type) !== -1) {
-          _node2.isSVG = true;
+        if (SVG_ELEMENTS.indexOf(node.type) !== -1) {
+          node.isSVG = true;
         }
     
         // If it's self closing, return it here
-        if (HTML_ELEMENTS.indexOf(_node2.type) !== -1) {
-          return _node2;
+        if (HTML_ELEMENTS.indexOf(node.type) !== -1) {
+          return node;
         }
     
         var startContentIndex = state.current;
@@ -1102,13 +1102,13 @@
             // Push a parsed child to the current node
             var parsedChildState = walk(state);
             if (parsedChildState) {
-              _node2.children.push(parsedChildState);
+              node.children.push(parsedChildState);
             }
             increment(0);
             if (!token) {
               // No token means a tag was left unclosed
               if ("development" !== "production") {
-                error('The element "' + _node2.type + '" was left unclosed.');
+                error('The element "' + node.type + '" was left unclosed.');
               }
               break;
             }
@@ -1116,7 +1116,7 @@
           increment();
         }
     
-        return _node2;
+        return node;
       }
     
       increment();

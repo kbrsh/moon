@@ -403,7 +403,7 @@ const diff = function(oldVNode, vnode, parent, instance) {
       }
 
       // Rehydrate
-      vnode.meta.el = node;
+      vnode.meta.el = oldVNode.meta.el;
     } else {
       // Node isn't text, replace with one
       parent.replaceChild(createNodeFromVNode(vnode, instance), oldVNode.meta.el);
