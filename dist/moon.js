@@ -1374,9 +1374,9 @@
      * @param {Function} item
      */
     Moon.prototype.renderLoop = function (arr, item) {
-      var items = [];
+      var items = new Array(arr.length);
       for (var i = 0; i < arr.length; i++) {
-        items.push(item(arr[i], i));
+        items[i] = item(arr[i], i);
       }
       return items;
     };
