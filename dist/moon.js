@@ -615,12 +615,12 @@
           }
         } else {
           // Just Iterate through All Children
-          var _i = 0;
+          var i = 0;
           var currentChildNode = node.firstChild;
-          var vchild = vnode.children[_i];
+          var vchild = vnode.children[i];
           while (vchild || currentChildNode) {
             diff(currentChildNode, vchild, node, instance);
-            vchild = vnode.children[++_i];
+            vchild = vnode.children[++i];
             currentChildNode = currentChildNode && currentChildNode.nextSibling;
           }
         }
@@ -1363,8 +1363,8 @@
         }
       }
     
-      for (var _i2 = 0; _i2 < this.$events[eventName].length; _i2++) {
-        this.$events[eventName][_i2](meta);
+      for (var _i = 0; _i < this.$events[eventName].length; _i++) {
+        this.$events[eventName][_i](meta);
       }
     };
     

@@ -503,7 +503,7 @@ const diff = function(node, vnode, parent, instance) {
       }
     } else {
       // Just Iterate through All Children
-      let i = 0;
+      var i = 0;
       let currentChildNode = node.firstChild;
       let vchild = vnode.children[i];
       while(vchild || currentChildNode) {
