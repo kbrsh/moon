@@ -238,7 +238,7 @@ const diffProps = function(node, nodeProps, vnode, vnodeProps) {
     for(let nodePropName in nodeProps) {
       var vnodePropValue = vnodeProps[nodePropName];
       var nodePropValue = nodeProps[nodePropName];
-      
+
       if(vnodePropValue == null || directives[nodePropName]) {
         if(directives[nodePropName]) {
           directives[nodePropName](node, vnodePropValue, vnode);
@@ -384,6 +384,11 @@ const hydrate = function(node, vnode, parent, instance) {
  * @return {Object} adjusted node
  */
 const diff = function(oldVNode, vnode, parent, instance) {
+  if(oldVNode === vnode) {
+    vnode.meta.el = oldVNode.meta.el;
+    return vnode.meta.el;
+  }
+
   if(!oldVNode) {
     // No Node, create a node
     var newNode = createNodeFromVNode(vnode, instance);
