@@ -689,6 +689,11 @@
      * @return {Object} adjusted node
      */
     var diff = function (oldVNode, vnode, parent, instance) {
+      if (oldVNode === vnode) {
+        vnode.meta.el = oldVNode.meta.el;
+        return vnode.meta.el;
+      }
+    
       if (!oldVNode) {
         // No Node, create a node
         var newNode = createNodeFromVNode(vnode, instance);
@@ -1616,7 +1621,8 @@
       error: error,
       log: log,
       merge: merge,
-      extend: extend
+      extend: extend,
+      h: h
     };
     
     /**

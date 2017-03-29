@@ -26,7 +26,8 @@ Moon.util = {
   error: error,
   log: log,
   merge: merge,
-  extend: extend
+  extend: extend,
+  h: h
 }
 
 /**
@@ -70,7 +71,7 @@ Moon.directive = function(name, action) {
  */
 Moon.component = function(name, opts) {
   let Parent = this;
-  
+
   if(opts.name) {
     name = opts.name;
   } else {
