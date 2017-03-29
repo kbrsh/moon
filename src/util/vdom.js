@@ -224,8 +224,11 @@ const diffProps = function(node, nodeProps, vnode, vnodeProps) {
   // Diff VNode Props with Node Props
   if(vnodeProps) {
     for(let vnodePropName in vnodeProps) {
-      if(!nodeProps.hasOwnProperty(vnodePropName) || nodeProps[vnodePropName] !== vnodeProps[vnodePropName]) {
-        isSVG ? node.setAttributeNS(null, vnodePropName, vnodeProps[vnodePropName]) : node.setAttribute(vnodePropName, vnodeProps[vnodePropName]);
+      var vnodePropValue = vnodeProps[vnodePropName];
+      var nodePropValue = nodeProps[vnodePropName];
+
+      if(nodePropValue == null || vnodePropValue !== nodePropValue) {
+        isSVG ? node.setAttributeNS(null, vnodePropName, vnodePropValue) : node.setAttribute(vnodePropName, vnodePropValue);
       }
     }
   }
@@ -233,9 +236,12 @@ const diffProps = function(node, nodeProps, vnode, vnodeProps) {
   // Diff Node Props with VNode Props
   if(nodeProps) {
     for(let nodePropName in nodeProps) {
-      if(!vnodeProps.hasOwnProperty(nodePropName) || directives[nodePropName]) {
+      var vnodePropValue = vnodeProps[nodePropName];
+      var nodePropValue = nodeProps[nodePropName];
+      
+      if(vnodePropValue == null || directives[nodePropName]) {
         if(directives[nodePropName]) {
-          directives[nodePropName](node, vnodeProps[nodePropName], vnode);
+          directives[nodePropName](node, vnodePropValue, vnode);
         }
         isSVG ? node.removeAttributeNS(null, nodePropName) : node.removeAttribute(nodePropName);
       }
