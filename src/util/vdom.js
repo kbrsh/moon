@@ -408,7 +408,7 @@ const diff = function(oldVNode, vnode, parent, instance) {
     return newNode;
   } else if(vnode.meta.shouldRender && vnode.type === "#text") {
     let node = oldVNode.meta.el;
-    
+
     if(oldVNode.type === "#text") {
       // Both are textnodes, update the node
       if(vnode.val !== oldVNode.val) {
@@ -424,9 +424,12 @@ const diff = function(oldVNode, vnode, parent, instance) {
 
     return vnode.meta.el;
   } else if(vnode.meta.shouldRender) {
-    // Check for Component
     let node = oldVNode.meta.el;
 
+    // Rehydrate
+    vnode.meta.el = node;
+
+    // Check for Component
     if(vnode.meta.component) {
       // Diff Component
       diffComponent(node, vnode);
@@ -440,9 +443,6 @@ const diff = function(oldVNode, vnode, parent, instance) {
 
     // Check if innerHTML was changed, don't diff children
     if(vnode.props.dom && vnode.props.dom.innerHTML) {
-      // Rehydrate
-      vnode.meta.el = node;
-
       // Skip Children
       return node;
     }
@@ -481,10 +481,6 @@ const diff = function(oldVNode, vnode, parent, instance) {
       }
     }
 
-    // Rehydrate
-    vnode.meta.el = node;
-
-    // Exit
     return node;
   } else {
     // Nothing Changed, Rehydrate and Exit

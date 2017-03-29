@@ -729,9 +729,12 @@
     
         return vnode.meta.el;
       } else if (vnode.meta.shouldRender) {
-        // Check for Component
         var _node = oldVNode.meta.el;
     
+        // Rehydrate
+        vnode.meta.el = _node;
+    
+        // Check for Component
         if (vnode.meta.component) {
           // Diff Component
           diffComponent(_node, vnode);
@@ -745,9 +748,6 @@
     
         // Check if innerHTML was changed, don't diff children
         if (vnode.props.dom && vnode.props.dom.innerHTML) {
-          // Rehydrate
-          vnode.meta.el = _node;
-    
           // Skip Children
           return _node;
         }
@@ -786,10 +786,6 @@
           }
         }
     
-        // Rehydrate
-        vnode.meta.el = _node;
-    
-        // Exit
         return _node;
       } else {
         // Nothing Changed, Rehydrate and Exit
