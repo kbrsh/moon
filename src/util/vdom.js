@@ -474,8 +474,7 @@ const diff = function(oldVNode, vnode, parent, instance) {
         }
       } else {
         // Traverse and Diff Children
-        let totalLen = newLength > oldLength ? newLength : oldLength;
-        for(var i = 0; i < totalLen; i++) {
+        for(var i = 0; i < newLength || i < oldLength; i++) {
           diff(oldVNode.children[i], vnode.children[i], node, instance);
         }
       }
