@@ -462,10 +462,20 @@ const diff = function(oldVNode, vnode, parent, instance) {
         newText.meta.el = node.firstChild;
       }
     } else {
-      // Just Iterate through All Children
-      let totalLen = newLength > oldLength ? newLength : oldLength;
-      for(var i = 0; i < totalLen; i++) {
-        diff(oldVNode.children[i], vnode.children[i], node, instance);
+      if(newLength === 0) {
+        // No Children, Remove all Children if not Already Removed
+        if(oldLength !== 0) {
+          let firstChild = null;
+          while((firstChild = node.firstChild)) {
+            removeChild(firstChild, node);
+          }
+        }
+      } else {
+        // Traverse and Diff Children
+        let totalLen = newLength > oldLength ? newLength : oldLength;
+        for(var i = 0; i < totalLen; i++) {
+          diff(oldVNode.children[i], vnode.children[i], node, instance);
+        }
       }
     }
 
