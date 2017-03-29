@@ -407,17 +407,19 @@ const diff = function(oldVNode, vnode, parent, instance) {
 
     return newNode;
   } else if(vnode.meta.shouldRender && vnode.type === "#text") {
+    let node = oldVNode.meta.el;
+    
     if(oldVNode.type === "#text") {
       // Both are textnodes, update the node
       if(vnode.val !== oldVNode.val) {
-        oldVNode.meta.el.nodeValue = vnode.val;
+        node.nodeValue = vnode.val;
       }
 
       // Rehydrate
-      vnode.meta.el = oldVNode.meta.el;
+      vnode.meta.el = node;
     } else {
       // Node isn't text, replace with one
-      parent.replaceChild(createNodeFromVNode(vnode, instance), oldVNode.meta.el);
+      replaceChild(node, createNodeFromVNode(vnode, instance), parent);
     }
 
     return vnode.meta.el;

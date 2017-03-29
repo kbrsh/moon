@@ -712,42 +712,44 @@
     
         return newNode;
       } else if (vnode.meta.shouldRender && vnode.type === "#text") {
+        var node = oldVNode.meta.el;
+    
         if (oldVNode.type === "#text") {
           // Both are textnodes, update the node
           if (vnode.val !== oldVNode.val) {
-            oldVNode.meta.el.nodeValue = vnode.val;
+            node.nodeValue = vnode.val;
           }
     
           // Rehydrate
-          vnode.meta.el = oldVNode.meta.el;
+          vnode.meta.el = node;
         } else {
           // Node isn't text, replace with one
-          parent.replaceChild(createNodeFromVNode(vnode, instance), oldVNode.meta.el);
+          replaceChild(node, createNodeFromVNode(vnode, instance), parent);
         }
     
         return vnode.meta.el;
       } else if (vnode.meta.shouldRender) {
         // Check for Component
-        var node = oldVNode.meta.el;
+        var _node = oldVNode.meta.el;
     
         if (vnode.meta.component) {
           // Diff Component
-          diffComponent(node, vnode);
+          diffComponent(_node, vnode);
     
           // Skip diffing any children
-          return node;
+          return _node;
         }
     
         // Diff props
-        diffProps(node, oldVNode.props.attrs, vnode, vnode.props.attrs);
+        diffProps(_node, oldVNode.props.attrs, vnode, vnode.props.attrs);
     
         // Check if innerHTML was changed, don't diff children
         if (vnode.props.dom && vnode.props.dom.innerHTML) {
           // Rehydrate
-          vnode.meta.el = node;
+          vnode.meta.el = _node;
     
           // Skip Children
-          return node;
+          return _node;
         }
     
         // Diff Children
@@ -761,34 +763,34 @@
           //  If the vnode contains just one text vnode, create/update it here
           if (newText.val !== oldText.val) {
             // Set Content
-            node.textContent = newText.val;
+            _node.textContent = newText.val;
     
             // Rehydrate
-            newText.meta.el = node.firstChild;
+            newText.meta.el = _node.firstChild;
           }
         } else {
           if (newLength === 0) {
             // No Children, Remove all Children if not Already Removed
             if (oldLength !== 0) {
               var firstChild = null;
-              while (firstChild = node.firstChild) {
-                removeChild(firstChild, node);
+              while (firstChild = _node.firstChild) {
+                removeChild(firstChild, _node);
               }
             }
           } else {
             // Traverse and Diff Children
             var totalLen = newLength > oldLength ? newLength : oldLength;
             for (var i = 0; i < totalLen; i++) {
-              diff(oldVNode.children[i], vnode.children[i], node, instance);
+              diff(oldVNode.children[i], vnode.children[i], _node, instance);
             }
           }
         }
     
         // Rehydrate
-        vnode.meta.el = node;
+        vnode.meta.el = _node;
     
         // Exit
-        return node;
+        return _node;
       } else {
         // Nothing Changed, Rehydrate and Exit
         vnode.meta.el = oldVNode.meta.el;
