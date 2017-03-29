@@ -1660,7 +1660,12 @@
      */
     Moon.component = function (name, opts) {
       var Parent = this;
-      opts.name = name;
+    
+      if (opts.name) {
+        name = opts.name;
+      } else {
+        opts.name = name;
+      }
     
       function MoonComponent() {
         Moon.call(this, opts);
