@@ -428,6 +428,7 @@
         // Optimization: VNode only has one child that is text, and create it here
         if (vnode.children.length === 1 && vnode.children[0].type === "#text") {
           el.textContent = vnode.children[0].val;
+          vnode.children[0].meta.el = el.firstChild;
         } else {
           // Add all children
           for (var i = 0; i < vnode.children.length; i++) {
