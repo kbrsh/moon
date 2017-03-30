@@ -324,14 +324,12 @@
     
     /**
      * Creates a Functional Component
-     * @param {String} type
      * @param {Object} props
-     * @param {Object} meta
      * @param {Array} children
      * @param {Object} functionalComponent
      * @return {Object} Virtual DOM Node
      */
-    var createFunctionalComponent = function (type, props, meta, children, functionalComponent) {
+    var createFunctionalComponent = function (props, children, functionalComponent) {
       var data = functionalComponent.opts.data || {};
       // Merge data with provided props
       if (functionalComponent.opts.props) {
@@ -374,7 +372,7 @@
       if (components[tag]) {
         // Functional component
         if (components[tag].opts.functional) {
-          return createFunctionalComponent(tag, attrs, meta, children, components[tag]);
+          return createFunctionalComponent(attrs, children, components[tag]);
         } else {
           // Provide the instance to diff engine
           meta.component = components[tag];
