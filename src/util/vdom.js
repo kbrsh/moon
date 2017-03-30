@@ -411,7 +411,7 @@ const diff = function(oldVNode, vnode, parent, instance) {
     if(oldVNode.type === "#text") {
       // Both are textnodes, update the node
       if(vnode.val !== oldVNode.val) {
-        node.nodeValue = vnode.val;
+        node.textContent = vnode.val;
       }
 
       // Rehydrate
