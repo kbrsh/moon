@@ -19,14 +19,12 @@ const createElement = function(type, val, props, children, meta) {
 
 /**
  * Creates a Functional Component
- * @param {String} type
  * @param {Object} props
- * @param {Object} meta
  * @param {Array} children
  * @param {Object} functionalComponent
  * @return {Object} Virtual DOM Node
  */
-const createFunctionalComponent = function(type, props, meta, children, functionalComponent) {
+const createFunctionalComponent = function(props, children, functionalComponent) {
   let data = functionalComponent.opts.data || {};
   // Merge data with provided props
   if(functionalComponent.opts.props) {
@@ -69,7 +67,7 @@ const h = function(tag, attrs, meta, nestedChildren) {
   if(components[tag]) {
     // Functional component
     if(components[tag].opts.functional) {
-      return createFunctionalComponent(tag, attrs, meta, children, components[tag]);
+      return createFunctionalComponent(attrs, children, components[tag]);
     } else {
       // Provide the instance to diff engine
       meta.component = components[tag];
