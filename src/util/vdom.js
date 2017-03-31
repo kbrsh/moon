@@ -384,7 +384,6 @@ const hydrate = function(node, vnode, parent, instance) {
  */
 const diff = function(oldVNode, vnode, parent, instance) {
   if(oldVNode === vnode) {
-    vnode.meta.el = oldVNode.meta.el;
     return vnode.meta.el;
   }
 
