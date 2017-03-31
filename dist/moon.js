@@ -689,10 +689,9 @@
      */
     var diff = function (oldVNode, vnode, parent, instance) {
       if (oldVNode === vnode) {
+        // Both have the same reference, exit early
         return vnode.meta.el;
-      }
-    
-      if (!oldVNode) {
+      } else if (!oldVNode) {
         // No Node, create a node
         var newNode = createNodeFromVNode(vnode, instance);
         parent.appendChild(newNode);
