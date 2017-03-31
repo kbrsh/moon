@@ -188,7 +188,7 @@ const removeChild = function(node, parent) {
     node.__moon__.destroy();
   }
 
-  // No vnode, remove the node
+  // Remove the node
   parent.removeChild(node);
 }
 
