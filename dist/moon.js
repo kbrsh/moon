@@ -778,7 +778,8 @@
             }
           } else {
             // Traverse and Diff Children
-            for (var i = 0; i < newLength || i < oldLength; i++) {
+            var totalLen = newLength > oldLength ? newLength : oldLength;
+            for (var i = 0; i < totalLen; i++) {
               diff(oldVNode.children[i], vnode.children[i], _node, instance);
             }
           }
