@@ -66,12 +66,23 @@ const createNodeFromVNode = function(vnode, instance) {
   // Hydrate
   vnode.meta.el = el;
 
+  return el;
+}
+
+/**
+ * Appends a Child, Ensuring Components are Mounted
+ * @param {Object} node
+ * @param {Object} vnode
+ * @param {Object} parent
+ */
+const appendChild = function(node, vnode, parent) {
+  // Remove the node
+  parent.appendChild(node);
+
   // Check for Component
   if(vnode.meta.component) {
-    createComponentFromVNode(el, vnode, vnode.meta.component);
+    createComponentFromVNode(node, vnode, vnode.meta.component);
   }
-
-  return el;
 }
 
 /**
@@ -94,9 +105,10 @@ const removeChild = function(node, parent) {
  * Replaces a Child, Ensuring Components are Unmounted/Mounted
  * @param {Object} oldNode
  * @param {Object} newNode
+ * @param {Object} vnode
  * @param {Object} parent
  */
-const replaceChild = function(oldNode, newNode, parent) {
+const replaceChild = function(oldNode, newNode, vnode, parent) {
   // Check for Component
   if(oldNode.__moon__) {
     // Component was unmounted, destroy it here
@@ -105,4 +117,9 @@ const replaceChild = function(oldNode, newNode, parent) {
 
   // Replace It
   parent.replaceChild(newNode, oldNode);
+
+  // Check for Component
+  if(vnode.meta.component) {
+    createComponentFromVNode(newNode, vnode, vnode.meta.component);
+  }
 }

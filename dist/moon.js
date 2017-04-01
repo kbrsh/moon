@@ -358,12 +358,23 @@
       // Hydrate
       vnode.meta.el = el;
     
+      return el;
+    };
+    
+    /**
+     * Appends a Child, Ensuring Components are Mounted
+     * @param {Object} node
+     * @param {Object} vnode
+     * @param {Object} parent
+     */
+    var appendChild = function (node, vnode, parent) {
+      // Remove the node
+      parent.appendChild(node);
+    
       // Check for Component
       if (vnode.meta.component) {
-        createComponentFromVNode(el, vnode, vnode.meta.component);
+        createComponentFromVNode(node, vnode, vnode.meta.component);
       }
-    
-      return el;
     };
     
     /**
@@ -386,9 +397,10 @@
      * Replaces a Child, Ensuring Components are Unmounted/Mounted
      * @param {Object} oldNode
      * @param {Object} newNode
+     * @param {Object} vnode
      * @param {Object} parent
      */
-    var replaceChild = function (oldNode, newNode, parent) {
+    var replaceChild = function (oldNode, newNode, vnode, parent) {
       // Check for Component
       if (oldNode.__moon__) {
         // Component was unmounted, destroy it here
@@ -397,6 +409,11 @@
     
       // Replace It
       parent.replaceChild(newNode, oldNode);
+    
+      // Check for Component
+      if (vnode.meta.component) {
+        createComponentFromVNode(newNode, vnode, vnode.meta.component);
+      }
     };
     
     /**
@@ -625,7 +642,7 @@
       if (!node) {
         // No node, create one
         var newNode = createNodeFromVNode(vnode, instance);
-        parent.appendChild(newNode);
+        appendChild(newNode, vnode, parent);
     
         return newNode;
       } else if (!vnode) {
@@ -634,20 +651,20 @@
         return null;
       } else if (nodeName !== vnode.type) {
         var newNode = createNodeFromVNode(vnode, instance);
-        replaceChild(node, newNode, parent);
+        replaceChild(node, newNode, vnode, parent);
         return newNode;
       } else if (vnode.meta.shouldRender && vnode.type === "#text") {
         if (node && nodeName === "#text") {
           // Both are textnodes, update the node
-          if (node.nodeValue !== vnode.val) {
-            node.nodeValue = vnode.val;
+          if (node.textContent !== vnode.val) {
+            node.textContent = vnode.val;
           }
     
           // Hydrate
           vnode.meta.el = node;
         } else {
           // Node isn't text, replace with one
-          replaceChild(node, createNodeFromVNode(vnode, instance), parent);
+          replaceChild(node, createNodeFromVNode(vnode, instance), vnode, parent);
         }
     
         return node;
@@ -707,7 +724,7 @@
         return PATCH.SKIP;
       } else if (!oldVNode) {
         // No Node, append a node
-        parent.appendChild(createNodeFromVNode(vnode, instance));
+        appendChild(createNodeFromVNode(vnode, instance), vnode, parent);
     
         return PATCH.APPEND;
       } else if (!vnode) {
@@ -717,7 +734,7 @@
         return PATCH.REMOVE;
       } else if (oldVNode.type !== vnode.type) {
         // Different types, replace it
-        replaceChild(oldVNode.meta.el, createNodeFromVNode(vnode, instance), parent);
+        replaceChild(oldVNode.meta.el, createNodeFromVNode(vnode, instance), vnode, parent);
     
         return PATCH.REPLACE;
       } else if (vnode.meta.shouldRender && vnode.type === "#text") {
@@ -732,7 +749,7 @@
           return PATCH.TEXT;
         } else {
           // Node isn't text, replace with one
-          replaceChild(node, createNodeFromVNode(vnode, instance), parent);
+          replaceChild(node, createNodeFromVNode(vnode, instance), vnode, parent);
           return PATCH.REPLACE;
         }
       } else if (vnode.meta.shouldRender) {
