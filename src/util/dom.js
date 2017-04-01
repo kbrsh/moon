@@ -88,17 +88,29 @@ const appendChild = function(node, vnode, parent) {
 /**
  * Removes a Child, Ensuring Components are Unmounted
  * @param {Object} node
+ * @param {Object} oldVNode
  * @param {Object} parent
  */
-const removeChild = function(node, parent) {
+const removeChild = function(node, oldVNode, parent) {
   // Check for Component
   if(node.__moon__) {
     // Component was unmounted, destroy it here
     node.__moon__.destroy();
   }
 
-  // Remove the node
-  parent.removeChild(node);
+  if(oldVNode && oldVNode.meta.transition) {
+    // Remove the Node after Exit Transition
+    const exitTransitionClassName = `${oldVNode.meta.transition}-transition-exit`;
+    const exitTransitionEvent = function() {
+      node.removeEventListener(transitionEndEvent, exitTransitionEvent);
+      parent.removeChild(node);
+    }
+    node.addEventListener(transitionEndEvent, exitTransitionEvent);
+    node.classList.add(exitTransitionClassName);
+  } else {
+    // Remove the Node
+    parent.removeChild(node);
+  }
 }
 
 /**

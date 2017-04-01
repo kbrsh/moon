@@ -228,7 +228,7 @@ const hydrate = function(node, vnode, parent, instance) {
 
     return newNode;
   } else if(!vnode) {
-    removeChild(node, parent);
+    removeChild(node, null, parent);
 
     return null;
   } else if(nodeName !== vnode.type) {
@@ -298,7 +298,7 @@ const hydrate = function(node, vnode, parent, instance) {
  * @param {Object} vnode
  * @param {Object} parent
  * @param {Object} instance
- * @return {Object} adjusted node
+ * @return {Number} patch type
  */
 const diff = function(oldVNode, vnode, parent, instance) {
   if(oldVNode === vnode) {
@@ -311,7 +311,7 @@ const diff = function(oldVNode, vnode, parent, instance) {
     return PATCH.APPEND;
   } else if(!vnode) {
     // No New VNode, remove Node
-    removeChild(oldVNode.meta.el, parent);
+    removeChild(oldVNode.meta.el, oldVNode, parent);
 
     return PATCH.REMOVE;
   } else if(oldVNode.type !== vnode.type) {
@@ -365,8 +365,9 @@ const diff = function(oldVNode, vnode, parent, instance) {
       // No Children, Remove all Children if not Already Removed
       if(oldLength !== 0) {
         let firstChild = null;
+        var i = 0;
         while((firstChild = node.firstChild)) {
-          removeChild(firstChild, node);
+          removeChild(firstChild, oldVNode.children[i++], node);
         }
       }
     } else {
