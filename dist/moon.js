@@ -807,10 +807,11 @@
         if (newLength === 0) {
           // No Children, Remove all Children if not Already Removed
           if (oldLength !== 0) {
-            var firstChild = null;
+            var firstChild = _node.firstChild;
             var i = 0;
-            while (firstChild = _node.firstChild) {
+            while (firstChild) {
               removeChild(firstChild, oldVNode.children[i++], _node);
+              firstChild = firstChild.nextSibling;
             }
           }
         } else {
