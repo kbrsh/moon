@@ -1178,6 +1178,15 @@
       var generatedObject = "{attrs: {";
     
       if (attrs) {
+        // Invoke any special directives that need to change values before code generation
+        for (var beforeAttr in attrs) {
+          var beforeAttrName = attrs[beforeAttr].name;
+          if (specialDirectives[beforeAttrName] && specialDirectives[beforeAttrName].beforeGenerate) {
+            specialDirectives[beforeAttrName].beforeGenerate(attrs[beforeAttr].value, attrs[beforeAttr].meta, vnode);
+          }
+        }
+    
+        // Generate all other attributes
         for (var attr in attrs) {
           // Get attr by it's actual name (in case it had any arguments)
           var attrName = attrs[attr].name;
@@ -1193,11 +1202,6 @@
                 vnode.specialDirectivesAfter = {};
               }
               vnode.specialDirectivesAfter[attr] = attrs[attr];
-            }
-    
-            // Invoke any special directives that need to change values before code generation
-            if (specialDirectives[attrName].beforeGenerate) {
-              specialDirectives[attrName].beforeGenerate(attrs[attr].value, attrs[attr].meta, vnode);
             }
     
             // Invoke any special directives that need to change values of props during code generation
