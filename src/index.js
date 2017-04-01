@@ -19,6 +19,7 @@ let id = 0;
 //=require observer/observer.js
 
 //=require util/util.js
+//=require util/browser.js
 //=require util/dom.js
 //=require util/vdom.js
 

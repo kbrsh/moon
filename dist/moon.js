@@ -291,6 +291,20 @@
     var noop = function () {};
     
     /**
+     * Browser Mode
+     */
+    var browserMode = typeof window !== 'undefined';
+    
+    /**
+     * Transition End Event Name
+     */
+    var transitionEndEvent = "transitionend";
+    
+    if (browserMode && !window.ontransitionend && window.onwebkittransitionend) {
+      transitionEndEvent = "webkitTransitionEnd";
+    }
+    
+    /**
      * Converts attributes into key-value pairs
      * @param {Node} node
      * @return {Object} Key-Value pairs of Attributes
@@ -380,17 +394,29 @@
     /**
      * Removes a Child, Ensuring Components are Unmounted
      * @param {Object} node
+     * @param {Object} oldVNode
      * @param {Object} parent
      */
-    var removeChild = function (node, parent) {
+    var removeChild = function (node, oldVNode, parent) {
       // Check for Component
       if (node.__moon__) {
         // Component was unmounted, destroy it here
         node.__moon__.destroy();
       }
     
-      // Remove the node
-      parent.removeChild(node);
+      if (oldVNode && oldVNode.meta.transition) {
+        // Remove the Node after Exit Transition
+        var exitTransitionClassName = oldVNode.meta.transition + '-transition-exit';
+        var exitTransitionEvent = function () {
+          node.removeEventListener(transitionEndEvent, exitTransitionEvent);
+          parent.removeChild(node);
+        };
+        node.addEventListener(transitionEndEvent, exitTransitionEvent);
+        node.classList.add(exitTransitionClassName);
+      } else {
+        // Remove the Node
+        parent.removeChild(node);
+      }
     };
     
     /**
@@ -646,7 +672,7 @@
     
         return newNode;
       } else if (!vnode) {
-        removeChild(node, parent);
+        removeChild(node, null, parent);
     
         return null;
       } else if (nodeName !== vnode.type) {
@@ -716,7 +742,7 @@
      * @param {Object} vnode
      * @param {Object} parent
      * @param {Object} instance
-     * @return {Object} adjusted node
+     * @return {Number} patch type
      */
     var diff = function (oldVNode, vnode, parent, instance) {
       if (oldVNode === vnode) {
@@ -729,7 +755,7 @@
         return PATCH.APPEND;
       } else if (!vnode) {
         // No New VNode, remove Node
-        removeChild(oldVNode.meta.el, parent);
+        removeChild(oldVNode.meta.el, oldVNode, parent);
     
         return PATCH.REMOVE;
       } else if (oldVNode.type !== vnode.type) {
@@ -782,8 +808,9 @@
           // No Children, Remove all Children if not Already Removed
           if (oldLength !== 0) {
             var firstChild = null;
+            var i = 0;
             while (firstChild = _node.firstChild) {
-              removeChild(firstChild, _node);
+              removeChild(firstChild, oldVNode.children[i++], _node);
             }
           }
         } else {
