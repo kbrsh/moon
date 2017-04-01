@@ -184,21 +184,31 @@ Moon.prototype.render = function() {
  * @param {Object} parent
  */
 Moon.prototype.patch = function(old, vnode, parent) {
-  let newRootEl = null;
-  let node = null;
-
   if(old.meta && old.meta.el) {
-    node = old.meta.el;
-    newRootEl = diff(old, vnode, parent, this);
-  } else if(old instanceof Node) {
-    node = old;
-    newRootEl = hydrate(old, vnode, parent, this);
-  }
 
-  if(node !== newRootEl) {
-    // Root Node Changed, Apply Change in Instance
-    this.$el = newRootEl;
-    this.$el.__moon__ = this;
+    if(vnode.type !== old.type) {
+      // Root Element Changed During Diff
+      // Replace Root Element
+      replaceChild(old.meta.el, createNodeFromVNode(vnode, this), parent);
+
+      // Update Bound Instance
+      this.$el = vnode.meta.el;
+      this.$el.__moon__ = this;
+    } else {
+      // Diff
+      diff(old, vnode, parent, this);
+    }
+
+  } else if(old instanceof Node) {
+    // Hydrate
+    let newNode = hydrate(old, vnode, parent, this);
+
+    if(newNode !== old) {
+      // Root Element Changed During Hydration
+      this.$el = vnode.meta.el;
+      this.$el.__moon__ = this;
+    }
+
   }
 
   this.$initialRender = false;
@@ -209,8 +219,16 @@ Moon.prototype.patch = function(old, vnode, parent) {
  */
 Moon.prototype.build = function() {
   const dom = this.render();
-  this.patch(this.$dom.meta ? this.$dom : this.$el, dom, this.$el.parentNode);
-  this.$dom = dom;
+  let old = null;
+
+  if(this.$dom.meta) {
+    old = this.$dom;
+  } else {
+    old = this.$el;
+    this.$dom = dom;
+  }
+
+  this.patch(old, dom, this.$el.parentNode);
 }
 
 /**
