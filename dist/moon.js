@@ -797,13 +797,14 @@
     
             switch (action) {
               case PATCH.APPEND:
-                oldVNode.children.push(vnode.children[i]);
+                oldVNode.children.push(child);
                 break;
               case PATCH.REMOVE:
-                oldVNode.children.pop();
+                oldVNode.children.splice(i, 1);
+                i++;
                 break;
               case PATCH.REPLACE:
-                oldChild = child;
+                oldVNode.children[i] = vnode.children[i];
                 break;
               case PATCH.TEXT:
                 oldChild.val = child.val;
