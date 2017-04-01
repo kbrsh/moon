@@ -69,7 +69,7 @@ const h = function(tag, attrs, meta, nestedChildren) {
         children = children.concat(child);
       } else if(typeof child === "string") {
         children.push(createElement("#text", child || "", {attrs: {}}, [], defaultMetadata()));
-      } else {
+      } else if(child !== null) {
         children.push(child);
       }
     }
@@ -380,11 +380,11 @@ const diff = function(oldVNode, vnode, parent, instance) {
 
         switch (action) {
           case PATCH.APPEND:
-            oldVNode.children.push(child);
+            oldVNode.children[oldLength++] = child;
             break;
           case PATCH.REMOVE:
             oldVNode.children.splice(i, 1);
-            i++;
+            oldLength--;
             break;
           case PATCH.REPLACE:
             oldVNode.children[i] = vnode.children[i];
