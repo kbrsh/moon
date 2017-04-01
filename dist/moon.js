@@ -1895,6 +1895,21 @@
       }
     };
     
+    specialDirectives[Moon.config.prefix + "transition"] = {
+      beforeGenerate: function (value, meta, vnode) {
+        // Add Transition Class (Always Present)
+        var transitionClass = value + '-transition';
+        if (vnode.props.attrs.class) {
+          vnode.props.attrs.class.value += transitionClass;
+        } else {
+          vnode.props.attrs.class = { name: "class", value: transitionClass, meta: {} };
+        }
+    
+        // Add metadata used for removing/adding elements
+        vnode.meta.transition = '"' + value + '"';
+      }
+    };
+    
     directives[Moon.config.prefix + "show"] = function (el, val, vnode) {
       el.style.display = val ? '' : 'none';
     };
