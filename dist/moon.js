@@ -1414,10 +1414,12 @@
      */
     Moon.prototype.get = function (key) {
       if (this.$observer.dep.target) {
+        var target = this.$observer.dep.target;
         if (!this.$observer.dep.map[key]) {
-          this.$observer.dep.map[key] = [];
+          this.$observer.dep.map[key] = [target];
+        } else if (this.$observer.dep.map[key].indexOf(target) === -1) {
+          this.$observer.dep.map[key].push(target);
         }
-        this.$observer.dep.map[key].push(this.$observer.dep.target);
       }
       return this.$data[key];
     };
