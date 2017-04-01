@@ -485,7 +485,7 @@
           var child = nestedChildren[i];
           if (Array.isArray(child)) {
             children = children.concat(child);
-          } else if (typeof child === "string" || child === null) {
+          } else if (typeof child === "string") {
             children.push(createElement("#text", child || "", { attrs: {} }, [], defaultMetadata()));
           } else {
             children.push(child);
@@ -1758,7 +1758,7 @@
     
     specialDirectives[Moon.config.prefix + "if"] = {
       afterGenerate: function (value, meta, code, vnode) {
-        return '(' + compileTemplate(value, false) + ') ? ' + code + ' : \'\'';
+        return '(' + compileTemplate(value, false) + ') ? ' + code + ' : null';
       }
     };
     

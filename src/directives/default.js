@@ -2,7 +2,7 @@
 
 specialDirectives[Moon.config.prefix + "if"] = {
   afterGenerate: function(value, meta, code, vnode) {
-    return `(${compileTemplate(value, false)}) ? ${code} : ''`;
+    return `(${compileTemplate(value, false)}) ? ${code} : null`;
   }
 }
 

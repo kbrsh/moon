@@ -67,7 +67,7 @@ const h = function(tag, attrs, meta, nestedChildren) {
       let child = nestedChildren[i];
       if(Array.isArray(child)) {
         children = children.concat(child);
-      } else if(typeof child === "string" || child === null) {
+      } else if(typeof child === "string") {
         children.push(createElement("#text", child || "", {attrs: {}}, [], defaultMetadata()));
       } else {
         children.push(child);
