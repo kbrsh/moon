@@ -364,10 +364,11 @@ const diff = function(oldVNode, vnode, parent, instance) {
     if(newLength === 0) {
       // No Children, Remove all Children if not Already Removed
       if(oldLength !== 0) {
-        let firstChild = null;
+        let firstChild = node.firstChild;
         var i = 0;
-        while((firstChild = node.firstChild)) {
+        while(firstChild) {
           removeChild(firstChild, oldVNode.children[i++], node);
+          firstChild = firstChild.nextSibling;
         }
       }
     } else {
