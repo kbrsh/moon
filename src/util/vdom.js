@@ -224,7 +224,7 @@ const hydrate = function(node, vnode, parent, instance) {
   if(!node) {
     // No node, create one
     var newNode = createNodeFromVNode(vnode, instance);
-    parent.appendChild(newNode);
+    appendChild(newNode, vnode, parent);
 
     return newNode;
   } else if(!vnode) {
@@ -233,20 +233,20 @@ const hydrate = function(node, vnode, parent, instance) {
     return null;
   } else if(nodeName !== vnode.type) {
     var newNode = createNodeFromVNode(vnode, instance);
-    replaceChild(node, newNode, parent);
+    replaceChild(node, newNode, vnode, parent);
     return newNode;
   } else if(vnode.meta.shouldRender && vnode.type === "#text") {
     if(node && nodeName === "#text") {
       // Both are textnodes, update the node
-      if(node.nodeValue !== vnode.val) {
-        node.nodeValue = vnode.val;
+      if(node.textContent !== vnode.val) {
+        node.textContent = vnode.val;
       }
 
       // Hydrate
       vnode.meta.el = node;
     } else {
       // Node isn't text, replace with one
-      replaceChild(node, createNodeFromVNode(vnode, instance), parent);
+      replaceChild(node, createNodeFromVNode(vnode, instance), vnode, parent);
     }
 
     return node;
@@ -306,7 +306,7 @@ const diff = function(oldVNode, vnode, parent, instance) {
     return PATCH.SKIP;
   } else if(!oldVNode) {
     // No Node, append a node
-    parent.appendChild(createNodeFromVNode(vnode, instance));
+    appendChild(createNodeFromVNode(vnode, instance), vnode, parent);
 
     return PATCH.APPEND;
   } else if(!vnode) {
@@ -316,7 +316,7 @@ const diff = function(oldVNode, vnode, parent, instance) {
     return PATCH.REMOVE;
   } else if(oldVNode.type !== vnode.type) {
     // Different types, replace it
-    replaceChild(oldVNode.meta.el, createNodeFromVNode(vnode, instance), parent);
+    replaceChild(oldVNode.meta.el, createNodeFromVNode(vnode, instance), vnode, parent);
 
     return PATCH.REPLACE;
   } else if(vnode.meta.shouldRender && vnode.type === "#text") {
@@ -331,7 +331,7 @@ const diff = function(oldVNode, vnode, parent, instance) {
       return PATCH.TEXT;
     } else {
       // Node isn't text, replace with one
-      replaceChild(node, createNodeFromVNode(vnode, instance), parent);
+      replaceChild(node, createNodeFromVNode(vnode, instance), vnode, parent);
       return PATCH.REPLACE;
     }
 
