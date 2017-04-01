@@ -291,20 +291,6 @@
     var noop = function () {};
     
     /**
-     * Browser Mode
-     */
-    var browserMode = typeof window !== 'undefined';
-    
-    /**
-     * Transition End Event Name
-     */
-    var transitionEndEvent = "transitionend";
-    
-    if (browserMode && !window.ontransitionend && window.onwebkittransitionend) {
-      transitionEndEvent = "webkitTransitionEnd";
-    }
-    
-    /**
      * Converts attributes into key-value pairs
      * @param {Node} node
      * @return {Object} Key-Value pairs of Attributes
@@ -394,29 +380,17 @@
     /**
      * Removes a Child, Ensuring Components are Unmounted
      * @param {Object} node
-     * @param {Object} oldVNode
      * @param {Object} parent
      */
-    var removeChild = function (node, oldVNode, parent) {
+    var removeChild = function (node, parent) {
       // Check for Component
       if (node.__moon__) {
         // Component was unmounted, destroy it here
         node.__moon__.destroy();
       }
     
-      if (oldVNode && oldVNode.meta.transition) {
-        // Remove the Node after Exit Transition
-        var exitTransitionClassName = oldVNode.meta.transition + '-transition-exit';
-        var exitTransitionEvent = function () {
-          node.removeEventListener(transitionEndEvent, exitTransitionEvent);
-          parent.removeChild(node);
-        };
-        node.addEventListener(transitionEndEvent, exitTransitionEvent);
-        node.classList.add(exitTransitionClassName);
-      } else {
-        // Remove the Node
-        parent.removeChild(node);
-      }
+      // Remove the Node
+      parent.removeChild(node);
     };
     
     /**
@@ -672,7 +646,7 @@
     
         return newNode;
       } else if (!vnode) {
-        removeChild(node, null, parent);
+        removeChild(node, parent);
     
         return null;
       } else if (nodeName !== vnode.type) {
@@ -755,7 +729,7 @@
         return PATCH.APPEND;
       } else if (!vnode) {
         // No New VNode, remove Node
-        removeChild(oldVNode.meta.el, oldVNode, parent);
+        removeChild(oldVNode.meta.el, parent);
     
         return PATCH.REMOVE;
       } else if (oldVNode.type !== vnode.type) {
@@ -807,11 +781,9 @@
         if (newLength === 0) {
           // No Children, Remove all Children if not Already Removed
           if (oldLength !== 0) {
-            var firstChild = _node.firstChild;
-            var i = 0;
-            while (firstChild) {
-              removeChild(firstChild, oldVNode.children[i++], _node);
-              firstChild = firstChild.nextSibling;
+            var firstChild = null;
+            while (firstChild = _node.firstChild) {
+              removeChild(firstChild, _node);
             }
           }
         } else {
@@ -1921,21 +1893,6 @@
     specialDirectives[Moon.config.prefix + "text"] = {
       beforeGenerate: function (value, meta, vnode) {
         vnode.children = [value];
-      }
-    };
-    
-    specialDirectives[Moon.config.prefix + "transition"] = {
-      beforeGenerate: function (value, meta, vnode) {
-        // Add Transition Class (Always Present)
-        var transitionClass = value + '-transition';
-        if (vnode.props.attrs.class) {
-          vnode.props.attrs.class.value += transitionClass;
-        } else {
-          vnode.props.attrs.class = { name: "class", value: transitionClass, meta: {} };
-        }
-    
-        // Add metadata used for removing/adding elements
-        vnode.meta.transition = '"' + value + '"';
       }
     };
     
