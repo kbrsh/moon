@@ -19,6 +19,12 @@
 
 Moon is a simple front end javascript library heavily inspired by [Vue](https://vuejs.org). The library is fast, flexible, and easy to learn.
 
+### Extras
+
+* ✨ [moon-cli](https://github.com/KingPixil/moon-cli) - scaffold a feature rich Moon project
+* 🚩 [moon-router](https://github.com/KingPixil/moon-router) - fast router plugin for components
+* 🌎 [moon-ssr](https://github.com/KingPixil/moon-ssr) - universal server-side rendering
+
 ### Another library?
 
 There have been a lot of libraries released. Moon has been being developed since late 2015. Most libraries are bloated, with a large API and file size, leading to application's becoming slower, and less mobile friendly.
