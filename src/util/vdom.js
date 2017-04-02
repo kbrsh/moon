@@ -378,6 +378,7 @@ const diff = function(oldVNode, vnode, parent, instance) {
 
         const action = diff(oldChild, child, node, instance);
 
+        // Update Children to Match Action
         switch (action) {
           case PATCH.APPEND:
             oldVNode.children[oldLength++] = child;
