@@ -23,6 +23,7 @@ let id = 0;
 //=require util/vdom.js
 
 /* ======= Compiler ======= */
+//=require compiler/template.js
 //=require compiler/lexer.js
 //=require compiler/parser.js
 //=require compiler/generator.js

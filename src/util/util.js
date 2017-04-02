@@ -76,28 +76,6 @@ const resolveKeyPath = function(instance, obj, keypath, val) {
 }
 
 /**
- * Compiles a Template
- * @param {String} template
- * @param {Boolean} isString
- * @return {String} compiled template
- */
-const compileTemplate = function(template, isString) {
-  const TEMPLATE_RE = /{{([A-Za-z0-9_$@]+)([A-Za-z0-9_.()'"+\-*/\s\[\]]+)?}}/gi;
-  let compiled = template;
-  template.replace(TEMPLATE_RE, function(match, key, modifiers) {
-    if(!modifiers) {
-      modifiers = '';
-    }
-    if(isString) {
-      compiled = compiled.replace(match, `" + instance.get("${key}")${modifiers} + "`);
-    } else {
-      compiled = compiled.replace(match, `instance.get("${key}")${modifiers}`);
-    }
-  });
-  return compiled;
-}
-
-/**
  * Extracts the Slots From Component Children
  * @param {Array} children
  * @return {Object} extracted slots
