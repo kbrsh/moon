@@ -668,7 +668,7 @@
         }
     
         return node;
-      } else if (vnode.meta.shouldRender) {
+      } else {
         // Hydrate
         vnode.meta.el = node;
     
@@ -702,10 +702,6 @@
           currentChildNode = currentChildNode ? currentChildNode.nextSibling : null;
         }
     
-        return node;
-      } else {
-        // Nothing Changed, Hydrate and Exit
-        vnode.meta.el = node;
         return node;
       }
     };
@@ -1309,17 +1305,21 @@
     /**
      * Creates an "h" Call for a VNode
      * @param {Object} vnode
-     * @param {Array} children
+     * @param {Object} parentVNode
      * @return {String} "h" call
      */
-    var createCall = function (vnode) {
+    var createCall = function (vnode, parentVNode) {
       var call = 'h("' + vnode.type + '", ';
       call += generateProps(vnode) + ", ";
       // Generate code for children recursively here (in case modified by special directives)
-      var children = vnode.children.map(generateEl);
-      // Detected static vnode, tell diffing engine to skip it
-      if (vnode.children.length === 1 && children.length === 1 && typeof vnode.children[0] === "string" && "\"" + vnode.children[0] + "\"" === children[0] && !vnode.dynamic) {
-        vnode.meta.shouldRender = "instance.$initialRender";
+      var children = vnode.children.map(function (item) {
+        return generateEl(item, vnode);
+      });
+    
+      if (!vnode.dynamic) {
+        vnode.meta.shouldRender = false;
+      } else if (parentVNode) {
+        parentVNode.dynamic = true;
       }
     
       call += generateMeta(vnode.meta);
@@ -1328,28 +1328,42 @@
       return call;
     };
     
-    var generateEl = function (el) {
+    var generateEl = function (el, parentEl) {
       var code = "";
     
       if (typeof el === "string") {
         // Escape newlines and double quotes, and compile the string
-        code += '"' + compileTemplate(escapeString(el), true) + '"';
+        var escapedString = escapeString(el);
+        var compiledText = compileTemplate(escapedString, true);
+        if (parentEl && escapedString !== compiledText) {
+          parentEl.dynamic = true;
+        }
+    
+        code += '"' + compiledText + '"';
       } else {
         // Recursively generate code for children
+    
+        // Generate Metadata if not Already
         if (!el.meta) {
           el.meta = defaultMetadata();
-          if (el.isSVG) {
-            el.meta.isSVG = true;
-          }
         }
+    
+        // Detect SVG Element
+        if (el.isSVG) {
+          el.meta.isSVG = true;
+        }
+    
+        // Setup Nested Attributes within Properties
         el.props = {
           attrs: el.props
         };
+    
+        // Create a Call for the Element, or Register a Slot
         var slotNameAttr = el.props.attrs.name;
-        var compiledCode = el.type === "slot" ? 'instance.$slots[\'' + (slotNameAttr && slotNameAttr.value || "default") + '\']' : createCall(el);
+        var compiledCode = el.type === "slot" ? 'instance.$slots[\'' + (slotNameAttr && slotNameAttr.value || "default") + '\']' : createCall(el, parentEl);
+    
+        // Check for Special Directives that change the code after generation and run them
         if (el.specialDirectivesAfter) {
-          // There are special directives that need to change the value after code generation, so
-          // run them now
           for (var specialDirectiveAfter in el.specialDirectivesAfter) {
             compiledCode = specialDirectives[el.specialDirectivesAfter[specialDirectiveAfter].name].afterGenerate(el.specialDirectivesAfter[specialDirectiveAfter].value, el.specialDirectivesAfter[specialDirectiveAfter].meta, compiledCode, el);
           }
