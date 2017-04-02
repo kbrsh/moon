@@ -136,7 +136,7 @@ const diffProps = function(node, nodeProps, vnode) {
   const vnodeProps = vnode.props.attrs;
 
   // If node is svg, update with SVG namespace
-  const isSVG = node instanceof SVGElement;
+  const isSVG = typeof node.ownerSVGElement !== 'undefined';
 
   // Diff VNode Props with Node Props
   if(vnodeProps) {
