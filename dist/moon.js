@@ -799,7 +799,7 @@
     /* ======= Compiler ======= */
     var openRE = /\{\{/;
     var closeRE = /\}\}/;
-    var modifierRE = /\[|\./;
+    var modifierRE = /\[|\.|\(/;
     
     var compileTemplate = function (template, isString) {
       var state = {
