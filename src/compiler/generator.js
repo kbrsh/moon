@@ -220,8 +220,16 @@ const generateEl = function(el, parentEl) {
 		}
 
 		// Create a Call for the Element, or Register a Slot
-		var slotNameAttr = el.props.attrs.name;
-		var compiledCode = el.type === "slot" ? `instance.$slots['${(slotNameAttr && slotNameAttr.value) || ("default")}']` : createCall(el, parentEl, isPre);
+		const slotNameAttr = el.props.attrs.name;
+		let compiledCode = "";
+		if(el.type === "slot") {
+			if(parentEl) {
+				parentEl.dynamic = true;
+			}
+			compiledCode = `instance.$slots['${(slotNameAttr && slotNameAttr.value) || ("default")}']`;
+		} else {
+			compiledCode = createCall(el, parentEl, isPre);
+		}
 
 		// Check for Special Directives that change the code after generation and run them
 		if(el.specialDirectivesAfter) {
