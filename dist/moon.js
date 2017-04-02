@@ -554,7 +554,7 @@
       var vnodeProps = vnode.props.attrs;
     
       // If node is svg, update with SVG namespace
-      var isSVG = typeof node.ownerSVGElement !== 'undefined';
+      var isSVG = vnode.meta.isSVG;
     
       // Diff VNode Props with Node Props
       if (vnodeProps) {
