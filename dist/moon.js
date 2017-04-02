@@ -1190,10 +1190,12 @@
           var attrName = attrs[attr].name;
     
           // If it is a directive, mark it as dynamic
-          if (directives[attrName]) {
+          if (!vnode.pre && directives[attrName]) {
             vnode.dynamic = true;
           }
-          if (specialDirectives[attrName]) {
+    
+          // Compile Special Directives
+          if (!vnode.pre && specialDirectives[attrName]) {
             // Special directive found that generates code after initial generation, push it to its known special directives to run afterGenerate later
             if (specialDirectives[attrName].afterGenerate) {
               if (!vnode.specialDirectivesAfter) {
@@ -1214,11 +1216,15 @@
             delete attrs[attr];
           } else {
             var normalizedProp = JSON.stringify(attrs[attr].value);
-            var compiledProp = compileTemplate(normalizedProp, true);
-            if (normalizedProp !== compiledProp) {
-              vnode.dynamic = true;
+            if (vnode.pre) {
+              generatedObject += '"' + attr + '": ' + normalizedProp + ', ';
+            } else {
+              var compiledProp = compileTemplate(normalizedProp, true);
+              if (normalizedProp !== compiledProp) {
+                vnode.dynamic = true;
+              }
+              generatedObject += '"' + attr + '": ' + compiledProp + ', ';
             }
-            generatedObject += '"' + attr + '": ' + compiledProp + ', ';
           }
         }
     
@@ -1229,6 +1235,7 @@
         }
       }
     
+      // Check for DOM Properties
       var dom = vnode.props.dom;
       if (dom) {
         vnode.dynamic = true;
@@ -1306,40 +1313,62 @@
      * Creates an "h" Call for a VNode
      * @param {Object} vnode
      * @param {Object} parentVNode
+     * @param {Boolean} isPre
      * @return {String} "h" call
      */
-    var createCall = function (vnode, parentVNode) {
+    var createCall = function (vnode, parentVNode, isPre) {
+      // Skip Compiling if "pre" Flag is Present
+      if (isPre) {
+        vnode.pre = true;
+      }
+    
+      // Generate Code for Type
       var call = 'h("' + vnode.type + '", ';
+    
+      // Generate Code for Props
       call += generateProps(vnode) + ", ";
+    
       // Generate code for children recursively here (in case modified by special directives)
       var children = vnode.children.map(function (item) {
         return generateEl(item, vnode);
       });
     
+      // If the "dynamic" flag is present, ensure node won't be updated
       if (!vnode.dynamic) {
         vnode.meta.shouldRender = false;
       } else if (parentVNode) {
         parentVNode.dynamic = true;
       }
     
+      // Generate Code for Metadata
       call += generateMeta(vnode.meta);
+    
+      // Generate Code for Children
       call += children.length ? ", [" + generateArray(children) + "]" : "";
+    
+      // Close Call
       call += ")";
       return call;
     };
     
     var generateEl = function (el, parentEl) {
+      var isPre = parentEl && parentEl.pre;
       var code = "";
     
       if (typeof el === "string") {
         // Escape newlines and double quotes, and compile the string
         var escapedString = escapeString(el);
-        var compiledText = compileTemplate(escapedString, true);
-        if (parentEl && escapedString !== compiledText) {
-          parentEl.dynamic = true;
-        }
     
-        code += '"' + compiledText + '"';
+        if (isPre) {
+          code += '"' + escapedString + '"';
+        } else {
+          var compiledText = compileTemplate(escapedString, true);
+          if (parentEl && escapedString !== compiledText) {
+            parentEl.dynamic = true;
+          }
+    
+          code += '"' + compiledText + '"';
+        }
       } else {
         // Recursively generate code for children
     
@@ -1360,7 +1389,7 @@
     
         // Create a Call for the Element, or Register a Slot
         var slotNameAttr = el.props.attrs.name;
-        var compiledCode = el.type === "slot" ? 'instance.$slots[\'' + (slotNameAttr && slotNameAttr.value || "default") + '\']' : createCall(el, parentEl);
+        var compiledCode = el.type === "slot" ? 'instance.$slots[\'' + (slotNameAttr && slotNameAttr.value || "default") + '\']' : createCall(el, parentEl, isPre);
     
         // Check for Special Directives that change the code after generation and run them
         if (el.specialDirectivesAfter) {
@@ -1894,7 +1923,8 @@
     
     specialDirectives[Moon.config.prefix + "pre"] = {
       beforeGenerate: function (value, meta, vnode) {
-        vnode.meta.shouldRender = false;
+        // Setup "pre" Flag on VNode to Let Code Generator Skip Compilation
+        vnode.pre = true;
       }
     };
     
