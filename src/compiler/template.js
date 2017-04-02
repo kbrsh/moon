@@ -1,6 +1,6 @@
 const openRE = /\{\{/;
 const closeRE = /\}\}/;
-const modifierRE = /\[|\./;
+const modifierRE = /\[|\.|\(/;
 
 const compileTemplate = function(template, isString) {
   let state = {
