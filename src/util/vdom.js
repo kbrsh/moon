@@ -250,7 +250,7 @@ const hydrate = function(node, vnode, parent, instance) {
     }
 
     return node;
-  } else if(vnode.meta.shouldRender) {
+  } else {
     // Hydrate
     vnode.meta.el = node;
 
@@ -284,10 +284,6 @@ const hydrate = function(node, vnode, parent, instance) {
       currentChildNode = currentChildNode ? currentChildNode.nextSibling : null;
     }
 
-    return node;
-  } else {
-    // Nothing Changed, Hydrate and Exit
-    vnode.meta.el = node;
     return node;
   }
 }
