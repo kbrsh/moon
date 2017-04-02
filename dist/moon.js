@@ -188,28 +188,6 @@
     };
     
     /**
-     * Compiles a Template
-     * @param {String} template
-     * @param {Boolean} isString
-     * @return {String} compiled template
-     */
-    var compileTemplate = function (template, isString) {
-      var TEMPLATE_RE = /{{([A-Za-z0-9_$@]+)([A-Za-z0-9_.()'"+\-*/\s\[\]]+)?}}/gi;
-      var compiled = template;
-      template.replace(TEMPLATE_RE, function (match, key, modifiers) {
-        if (!modifiers) {
-          modifiers = '';
-        }
-        if (isString) {
-          compiled = compiled.replace(match, '" + instance.get("' + key + '")' + modifiers + ' + "');
-        } else {
-          compiled = compiled.replace(match, 'instance.get("' + key + '")' + modifiers);
-        }
-      });
-      return compiled;
-    };
-    
-    /**
      * Extracts the Slots From Component Children
      * @param {Array} children
      * @return {Object} extracted slots
@@ -819,6 +797,79 @@
     };
     
     /* ======= Compiler ======= */
+    var openRE = /\{\{/;
+    var closeRE = /\}\}/;
+    var modifierRE = /\[|\./;
+    
+    var compileTemplate = function (template, isString) {
+      var state = {
+        current: 0,
+        template: template,
+        output: ""
+      };
+    
+      compileTemplateState(state, isString);
+    
+      return state.output;
+    };
+    
+    var compileTemplateState = function (state, isString) {
+      var template = state.template;
+      var length = template.length;
+      while (state.current < length) {
+        var value = scanTemplateStateUntil(state, openRE);
+    
+        if (value) {
+          state.output += value;
+        }
+    
+        state.current += 2;
+    
+        var name = scanTemplateStateUntil(state, closeRE);
+    
+        if (name) {
+          var modifiers = "";
+          var modifierIndex = null;
+          if ((modifierIndex = name.search(modifierRE)) !== -1) {
+            modifiers = name.substring(modifierIndex);
+            name = name.substring(0, modifierIndex);
+          }
+    
+          if (isString) {
+            state.output += '" + instance.get("' + name + '")' + modifiers + ' + "';
+          } else {
+            state.output += 'instance.get("' + name + '")' + modifiers;
+          }
+        }
+    
+        state.current += 2;
+      }
+    };
+    
+    var scanTemplateStateUntil = function (state, re) {
+      var template = state.template;
+      var tail = template.substring(state.current);
+      var length = tail.length;
+      var idx = tail.search(re);
+    
+      var match = "";
+    
+      switch (idx) {
+        case -1:
+          match = tail;
+          break;
+        case 0:
+          match = '';
+          break;
+        default:
+          match = tail.substring(0, idx);
+      }
+    
+      state.current += match.length;
+    
+      return match;
+    };
+    
     var lex = function (input) {
       var state = {
         input: input,
