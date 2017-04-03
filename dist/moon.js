@@ -145,12 +145,11 @@
     
     /**
      * Gives Default Metadata for a VNode
-     * @return {Boolean} shouldRender
      * @return {Object} metadata
      */
-    var defaultMetadata = function (shouldRender) {
+    var defaultMetadata = function () {
       return {
-        shouldRender: shouldRender,
+        shouldRender: false,
         eventListeners: {}
       };
     };
@@ -412,11 +411,11 @@
      * @param {String} type
      * @param {String} val
      * @param {Object} props
-     * @param {Array} children
      * @param {Object} meta
+     * @param {Array} children
      * @return {Object} Virtual DOM Node
      */
-    var createElement = function (type, val, props, children, meta) {
+    var createElement = function (type, val, props, meta, children) {
       return {
         type: type,
         val: val,
@@ -456,20 +455,13 @@
      * @param {Object|String} children
      * @return {Object} Object usable in Virtual DOM (VNode)
      */
-    var h = function (tag, attrs, meta, nestedChildren) {
-      // Setup Children
-      var children = [];
-      if (nestedChildren) {
-        for (var i = 0; i < nestedChildren.length; i++) {
-          var child = nestedChildren[i];
-          if (Array.isArray(child)) {
-            children = children.concat(child);
-          } else if (typeof child === "string") {
-            children.push(createElement("#text", child || "", { attrs: {} }, [], defaultMetadata(true)));
-          } else if (child !== null) {
-            children.push(child);
-          }
-        }
+    var h = function (tag, attrs, meta, children) {
+      // Text Node
+      if (tag === "#text") {
+        // Tag => #text
+        // Attrs => meta
+        // Meta => val
+        return createElement("#text", meta, { attrs: {} }, attrs, []);
       }
     
       // It's a Component
@@ -494,7 +486,7 @@
       //  children: [], <= any child nodes or text
       // }
     
-      return createElement(tag, "", attrs, children, meta);
+      return createElement(tag, "", attrs, meta, children);
     };
     
     /**
@@ -1400,7 +1392,7 @@
       call += generateMeta(vnode.meta);
     
       // Generate Code for Children
-      call += children.length ? ", [" + generateArray(children) + "]" : "";
+      call += children.length ? ", [" + generateArray(children) + "]" : ", []";
     
       // Close Call
       call += ")";
@@ -1414,18 +1406,22 @@
         // Escape newlines and double quotes, and compile the string
         var escapedString = escapeString(el);
         var compiledText = compileTemplate(escapedString, true);
+        var textMeta = defaultMetadata();
     
-        if (parentEl && escapedString !== compiledText) {
-          parentEl.meta.shouldRender = true;
+        if (escapedString !== compiledText) {
+          if (parentEl) {
+            parentEl.meta.shouldRender = true;
+          }
+          textMeta.shouldRender = true;
         }
     
-        code += '"' + compiledText + '"';
+        code += 'h("#text", ' + generateMeta(textMeta) + ', "' + compiledText + '")';
       } else {
         // Recursively generate code for children
     
         // Generate Metadata if not Already
         if (!el.meta) {
-          el.meta = defaultMetadata(false);
+          el.meta = defaultMetadata();
         }
     
         // Detect SVG Element
