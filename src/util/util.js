@@ -37,7 +37,7 @@ const queueBuild = function(instance) {
  */
 const defaultMetadata = function() {
   return {
-    shouldRender: true,
+    shouldRender: false,
     eventListeners: {}
   }
 }
