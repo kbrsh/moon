@@ -453,7 +453,7 @@
      * @param {Object} attrs
      * @param {Object} meta
      * @param {Object|String} children
-     * @return {String} Object usable in Virtual DOM (VNode)
+     * @return {Object} Object usable in Virtual DOM (VNode)
      */
     var h = function (tag, attrs, meta, nestedChildren) {
       // Setup Children
