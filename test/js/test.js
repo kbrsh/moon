@@ -568,7 +568,7 @@ describe('Custom Render', function() {
     var renderApp = new Moon({
       el: "#render",
       render: function(h) {
-        return h('div', {attrs: {id: "render"}}, {shouldRender: true, eventListeners: {}}, [this.get('msg')])
+        return h('div', {attrs: {id: "render"}}, {shouldRender: true, eventListeners: {}}, [h("#text", {shouldRender: true, eventListeners: {}}, this.get('msg'))])
       },
       data: {
         msg: "Hello Moon!"
@@ -593,7 +593,7 @@ describe('Functional Component', function() {
       functional: true,
       props: ['someprop'],
       render: function(h, ctx) {
-        return h("h1", functionalComponentDivProps, {shouldRender: true, eventListeners: {}}, [ctx.data.someprop]);
+        return h("h1", functionalComponentDivProps, {shouldRender: true, eventListeners: {}}, [h("#text", {shouldRender: true, eventListeners: {}}, ctx.data.someprop)]);
       }
     });
     var functionalComponentDivSlotProps = {attrs: {}};
@@ -601,7 +601,7 @@ describe('Functional Component', function() {
     Moon.component('slot-functional-component', {
       functional: true,
       render: function(h, ctx) {
-        return h("div", functionalComponentDivSlotProps, {shouldRender: true, eventListeners: {}}, [h("h1", {}, {shouldRender: true, eventListeners: {}}, [ctx.slots["default"]]), h("h1", {}, {shouldRender: true, eventListeners: {}}, [ctx.slots.named])]);
+        return h("div", functionalComponentDivSlotProps, {shouldRender: true, eventListeners: {}}, [h("h1", {}, {shouldRender: true, eventListeners: {}}, [ctx.slots['default']]), h("h1", {}, {shouldRender: true, eventListeners: {}}, [ctx.slots.named])]);
       }
     });
     var functionalApp = new Moon({
