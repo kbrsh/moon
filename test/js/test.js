@@ -601,7 +601,7 @@ describe('Functional Component', function() {
     Moon.component('slot-functional-component', {
       functional: true,
       render: function(h, ctx) {
-        return h("div", functionalComponentDivSlotProps, {shouldRender: true, eventListeners: {}}, [h("h1", {}, {shouldRender: true, eventListeners: {}}, [ctx.slots['default']]), h("h1", {}, {shouldRender: true, eventListeners: {}}, [ctx.slots.named])]);
+        return h("div", functionalComponentDivSlotProps, {shouldRender: true, eventListeners: {}}, [h("h1", {}, {shouldRender: true, eventListeners: {}}, ctx.slots['default']), h("h1", {}, {shouldRender: true, eventListeners: {}}, ctx.slots.named)]);
       }
     });
     var functionalApp = new Moon({

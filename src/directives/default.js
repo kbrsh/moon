@@ -13,17 +13,27 @@ specialDirectives[Moon.config.prefix + "show"] = {
 }
 
 specialDirectives[Moon.config.prefix + "for"] = {
+  beforeGenerate: function(value, meta, vnode, parentVNode) {
+    // Setup Deep Flag to Flatten Array
+    parentVNode.deep = true;
+  },
   afterGenerate: function(value, meta, code, vnode) {
+    // Get Parts
     const parts = value.split(" in ");
+    // Aliases
     const aliases = parts[0].split(",");
-
+    // The Iteratable
     const iteratable = compileTemplate(parts[1], false);
 
+    // Get any parameters
     const params = aliases.join(",");
+
+    // Change any references to the parameters in children
     code.replace(new RegExp(`instance\\.get\\("(${aliases.join("|")})"\\)`, 'g'), function(match, alias) {
       code = code.replace(new RegExp(`instance.get\\("${alias}"\\)`, "g"), alias);
     });
 
+    // Use the renderLoop runtime helper
     return `instance.renderLoop(${iteratable}, function(${params}) { return ${code}; })`;
   }
 }
