@@ -109,12 +109,6 @@ specialDirectives[Moon.config.prefix + "literal"] = {
   }
 };
 
-specialDirectives[Moon.config.prefix + "once"] = {
-  beforeGenerate: function(value, meta, vnode) {
-    vnode.meta.shouldRender = "instance.$initialRender";
-  }
-};
-
 specialDirectives[Moon.config.prefix + "html"] = {
   beforeGenerate: function(value, meta, vnode) {
     if(!vnode.props.dom) {
