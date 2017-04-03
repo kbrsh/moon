@@ -631,7 +631,7 @@
         var newNode = createNodeFromVNode(vnode, instance);
         replaceChild(node, newNode, vnode, parent);
         return newNode;
-      } else if (vnode.meta.shouldRender && vnode.type === "#text") {
+      } else if (vnode.type === "#text") {
         if (node && nodeName === "#text") {
           // Both are textnodes, update the node
           if (node.textContent !== vnode.val) {
@@ -711,7 +711,7 @@
         replaceChild(oldVNode.meta.el, createNodeFromVNode(vnode, instance), vnode, parent);
     
         return PATCH.REPLACE;
-      } else if (vnode.meta.shouldRender && vnode.type === "#text") {
+      } else if (vnode.type === "#text") {
         var node = oldVNode.meta.el;
     
         if (oldVNode.type === "#text") {
