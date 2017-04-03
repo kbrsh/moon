@@ -455,24 +455,13 @@
      * @param {Object|String} children
      * @return {Object} Object usable in Virtual DOM (VNode)
      */
-    var h = function (tag, attrs, meta, nestedChildren) {
+    var h = function (tag, attrs, meta, children) {
       // Text Node
       if (tag === "#text") {
         // Tag => #text
         // Attrs => meta
         // Meta => val
         return createElement("#text", meta, { attrs: {} }, attrs, []);
-      }
-    
-      // Setup Children
-      var children = [];
-      for (var i = 0; i < nestedChildren.length; i++) {
-        var child = nestedChildren[i];
-        if (Array.isArray(child)) {
-          children = children.concat(child);
-        } else {
-          children.push(child);
-        }
       }
     
       // It's a Component
@@ -1240,9 +1229,10 @@
     /**
      * Generates Code for Props
      * @param {Object} vnode
+     * @param {Object} parentVNode
      * @return {String} generated code
      */
-    var generateProps = function (vnode) {
+    var generateProps = function (vnode, parentVNode) {
       var attrs = vnode.props.attrs;
       var generatedObject = "{attrs: {";
     
@@ -1251,7 +1241,7 @@
         for (var beforeAttr in attrs) {
           var beforeAttrName = attrs[beforeAttr].name;
           if (specialDirectives[beforeAttrName] && specialDirectives[beforeAttrName].beforeGenerate) {
-            specialDirectives[beforeAttrName].beforeGenerate(attrs[beforeAttr].value, attrs[beforeAttr].meta, vnode);
+            specialDirectives[beforeAttrName].beforeGenerate(attrs[beforeAttr].value, attrs[beforeAttr].meta, vnode, parentVNode);
           }
         }
     
@@ -1387,7 +1377,7 @@
       var call = 'h("' + vnode.type + '", ';
     
       // Generate Code for Props
-      call += generateProps(vnode) + ", ";
+      call += generateProps(vnode, parentVNode) + ", ";
     
       // Generate code for children recursively here (in case modified by special directives)
       var children = vnode.children.map(function (item) {
@@ -1403,7 +1393,15 @@
       call += generateMeta(vnode.meta);
     
       // Generate Code for Children
-      call += children.length ? ", [" + generateArray(children) + "]" : ", []";
+      if (children.length) {
+        if (vnode.deep) {
+          call += ', [].concat.apply([], [' + generateArray(children) + '])';
+        } else {
+          call += ', [' + generateArray(children) + ']';
+        }
+      } else {
+        call += ", []";
+      }
     
       // Close Call
       call += ")";
@@ -1451,6 +1449,7 @@
         if (el.type === "slot") {
           if (parentEl) {
             parentEl.meta.shouldRender = true;
+            parentEl.deep = true;
           }
           compiledCode = 'instance.$slots[\'' + (slotNameAttr && slotNameAttr.value || "default") + '\']';
         } else {
@@ -1883,17 +1882,27 @@
     };
     
     specialDirectives[Moon.config.prefix + "for"] = {
+      beforeGenerate: function (value, meta, vnode, parentVNode) {
+        // Setup Deep Flag to Flatten Array
+        parentVNode.deep = true;
+      },
       afterGenerate: function (value, meta, code, vnode) {
+        // Get Parts
         var parts = value.split(" in ");
+        // Aliases
         var aliases = parts[0].split(",");
-    
+        // The Iteratable
         var iteratable = compileTemplate(parts[1], false);
     
+        // Get any parameters
         var params = aliases.join(",");
+    
+        // Change any references to the parameters in children
         code.replace(new RegExp('instance\\.get\\("(' + aliases.join("|") + ')"\\)', 'g'), function (match, alias) {
           code = code.replace(new RegExp('instance.get\\("' + alias + '"\\)', "g"), alias);
         });
     
+        // Use the renderLoop runtime helper
         return 'instance.renderLoop(' + iteratable + ', function(' + params + ') { return ' + code + '; })';
       }
     };

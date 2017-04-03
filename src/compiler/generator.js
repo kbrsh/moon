@@ -1,9 +1,10 @@
 /**
  * Generates Code for Props
  * @param {Object} vnode
+ * @param {Object} parentVNode
  * @return {String} generated code
  */
-const generateProps = function(vnode) {
+const generateProps = function(vnode, parentVNode) {
 	let attrs = vnode.props.attrs;
 	let generatedObject = "{attrs: {";
 
@@ -12,7 +13,7 @@ const generateProps = function(vnode) {
 		for(let beforeAttr in attrs) {
 			const beforeAttrName = attrs[beforeAttr].name;
 			if(specialDirectives[beforeAttrName] && specialDirectives[beforeAttrName].beforeGenerate) {
-				specialDirectives[beforeAttrName].beforeGenerate(attrs[beforeAttr].value, attrs[beforeAttr].meta, vnode);
+				specialDirectives[beforeAttrName].beforeGenerate(attrs[beforeAttr].value, attrs[beforeAttr].meta, vnode, parentVNode);
 			}
 		}
 
@@ -148,7 +149,7 @@ const createCall = function(vnode, parentVNode) {
 	let call = `h("${vnode.type}", `;
 
 	// Generate Code for Props
-	call += generateProps(vnode) + ", ";
+	call += generateProps(vnode, parentVNode) + ", ";
 
 	// Generate code for children recursively here (in case modified by special directives)
 	const children = vnode.children.map(function(item) {
@@ -164,7 +165,15 @@ const createCall = function(vnode, parentVNode) {
 	call += generateMeta(vnode.meta);
 
 	// Generate Code for Children
-	call += children.length ? ", [" + generateArray(children) + "]" : ", []";
+	if(children.length) {
+		if(vnode.deep) {
+			call += `, [].concat.apply([], [${generateArray(children)}])`
+		} else {
+			call += `, [${generateArray(children)}]`;
+		}
+	} else {
+		call += ", []";
+	}
 
 	// Close Call
 	call += ")";
@@ -212,6 +221,7 @@ const generateEl = function(el, parentEl) {
 		if(el.type === "slot") {
 			if(parentEl) {
 				parentEl.meta.shouldRender = true;
+				parentEl.deep = true;
 			}
 			compiledCode = `instance.$slots['${(slotNameAttr && slotNameAttr.value) || ("default")}']`;
 		} else {
