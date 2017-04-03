@@ -1258,7 +1258,7 @@
     
           // If it is a directive, mark it as dynamic
           if (!vnode.pre && directives[attrName]) {
-            vnode.dynamic = true;
+            vnode.meta.shouldRender = true;
           }
     
           // Compile Special Directives
@@ -1277,7 +1277,7 @@
             }
     
             // Keep a flag to know to always rerender this
-            vnode.dynamic = true;
+            vnode.meta.shouldRender = true;
     
             // Remove special directive
             delete attrs[attr];
@@ -1288,7 +1288,7 @@
             } else {
               var compiledProp = compileTemplate(normalizedProp, true);
               if (normalizedProp !== compiledProp) {
-                vnode.dynamic = true;
+                vnode.meta.shouldRender = true;
               }
               generatedObject += '"' + attr + '": ' + compiledProp + ', ';
             }
@@ -1400,11 +1400,9 @@
         return generateEl(item, vnode);
       });
     
-      // If the "dynamic" flag is present, ensure node won't be updated
-      if (!vnode.dynamic) {
-        vnode.meta.shouldRender = false;
-      } else if (parentVNode) {
-        parentVNode.dynamic = true;
+      // If the "shouldRender" flag is not present, ensure node won't be updated
+      if (vnode.meta.shouldRender && parentVNode) {
+        parentVNode.meta.shouldRender = true;
       }
     
       // Generate Code for Metadata
@@ -1431,7 +1429,7 @@
         } else {
           var compiledText = compileTemplate(escapedString, true);
           if (parentEl && escapedString !== compiledText) {
-            parentEl.dynamic = true;
+            parentEl.meta.shouldRender = true;
           }
     
           code += '"' + compiledText + '"';
@@ -1442,6 +1440,7 @@
         // Generate Metadata if not Already
         if (!el.meta) {
           el.meta = defaultMetadata();
+          el.meta.shouldRender = false;
         }
     
         // Detect SVG Element
@@ -1459,7 +1458,7 @@
         var compiledCode = "";
         if (el.type === "slot") {
           if (parentEl) {
-            parentEl.dynamic = true;
+            parentEl.meta.shouldRender = true;
           }
           compiledCode = 'instance.$slots[\'' + (slotNameAttr && slotNameAttr.value || "default") + '\']';
         } else {
