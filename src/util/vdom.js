@@ -57,7 +57,7 @@ const createFunctionalComponent = function(props, children, functionalComponent)
  * @param {Object} attrs
  * @param {Object} meta
  * @param {Object|String} children
- * @return {String} Object usable in Virtual DOM (VNode)
+ * @return {Object} Object usable in Virtual DOM (VNode)
  */
 const h = function(tag, attrs, meta, nestedChildren) {
   // Setup Children
