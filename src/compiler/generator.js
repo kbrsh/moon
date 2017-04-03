@@ -189,7 +189,7 @@ const generateEl = function(el, parentEl) {
 
 		// Generate Metadata if not Already
 		if(!el.meta) {
-			el.meta = defaultMetadata();
+			el.meta = defaultMetadata(false);
 		}
 
 		// Detect SVG Element

@@ -507,28 +507,6 @@ describe("Directive", function() {
     });
   });
 
-  describe('Once Directive', function() {
-    createTestElement("once", '<span m-once id="once-directive-span">{{msg}}</span>');
-    var onceApp = new Moon({
-      el: "#once",
-      data: {
-        msg: "Hello Moon!"
-      }
-    });
-    it('should fill DOM with a value', function() {
-      expect(document.getElementById("once-directive-span").innerHTML).to.equal("Hello Moon!");
-    });
-    it('should not update element once value is updated', function() {
-      onceApp.set('msg', "Changed");
-      Moon.nextTick(function() {
-        expect(document.getElementById("once-directive-span").innerHTML).to.equal("Hello Moon!");
-      });
-    });
-    it('should not be present at runtime', function() {
-      expect(document.getElementById('once-directive-span').getAttribute("m-once")).to.be['null'];
-    });
-  });
-
   describe('Mask Directive', function() {
     createTestElement("mask", '<span m-mask id="mask-directive-span">{{msg}}</span>');
     var maskApp = new Moon({
@@ -590,7 +568,7 @@ describe('Custom Render', function() {
     var renderApp = new Moon({
       el: "#render",
       render: function(h) {
-        return h('div', {attrs: {id: "render"}}, null, [this.get('msg')])
+        return h('div', {attrs: {id: "render"}}, {shouldRender: true, eventListeners: {}}, [this.get('msg')])
       },
       data: {
         msg: "Hello Moon!"
@@ -615,7 +593,7 @@ describe('Functional Component', function() {
       functional: true,
       props: ['someprop'],
       render: function(h, ctx) {
-        return h("h1", functionalComponentDivProps, null, [ctx.data.someprop]);
+        return h("h1", functionalComponentDivProps, {shouldRender: true, eventListeners: {}}, [ctx.data.someprop]);
       }
     });
     var functionalComponentDivSlotProps = {attrs: {}};
@@ -623,7 +601,7 @@ describe('Functional Component', function() {
     Moon.component('slot-functional-component', {
       functional: true,
       render: function(h, ctx) {
-        return h("div", functionalComponentDivSlotProps, null, [h("h1", {}, null, [ctx.slots["default"]]), h("h1", {}, null, [ctx.slots.named])]);
+        return h("div", functionalComponentDivSlotProps, {shouldRender: true, eventListeners: {}}, [h("h1", {}, {shouldRender: true, eventListeners: {}}, [ctx.slots["default"]]), h("h1", {}, {shouldRender: true, eventListeners: {}}, [ctx.slots.named])]);
       }
     });
     var functionalApp = new Moon({

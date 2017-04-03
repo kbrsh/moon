@@ -68,7 +68,7 @@ const h = function(tag, attrs, meta, nestedChildren) {
       if(Array.isArray(child)) {
         children = children.concat(child);
       } else if(typeof child === "string") {
-        children.push(createElement("#text", child || "", {attrs: {}}, [], defaultMetadata()));
+        children.push(createElement("#text", child || "", {attrs: {}}, [], defaultMetadata(true)));
       } else if(child !== null) {
         children.push(child);
       }
@@ -315,7 +315,7 @@ const diff = function(oldVNode, vnode, parent, instance) {
     replaceChild(oldVNode.meta.el, createNodeFromVNode(vnode, instance), vnode, parent);
 
     return PATCH.REPLACE;
-  } else if(vnode.type === "#text") {
+  } else if(vnode.meta.shouldRender && vnode.type === "#text") {
     let node = oldVNode.meta.el;
 
     if(oldVNode.type === "#text") {

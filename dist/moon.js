@@ -145,11 +145,12 @@
     
     /**
      * Gives Default Metadata for a VNode
+     * @return {Boolean} shouldRender
      * @return {Object} metadata
      */
-    var defaultMetadata = function () {
+    var defaultMetadata = function (shouldRender) {
       return {
-        shouldRender: false,
+        shouldRender: shouldRender,
         eventListeners: {}
       };
     };
@@ -464,7 +465,7 @@
           if (Array.isArray(child)) {
             children = children.concat(child);
           } else if (typeof child === "string") {
-            children.push(createElement("#text", child || "", { attrs: {} }, [], defaultMetadata()));
+            children.push(createElement("#text", child || "", { attrs: {} }, [], defaultMetadata(true)));
           } else if (child !== null) {
             children.push(child);
           }
@@ -711,7 +712,7 @@
         replaceChild(oldVNode.meta.el, createNodeFromVNode(vnode, instance), vnode, parent);
     
         return PATCH.REPLACE;
-      } else if (vnode.type === "#text") {
+      } else if (vnode.meta.shouldRender && vnode.type === "#text") {
         var node = oldVNode.meta.el;
     
         if (oldVNode.type === "#text") {
@@ -1424,7 +1425,7 @@
     
         // Generate Metadata if not Already
         if (!el.meta) {
-          el.meta = defaultMetadata();
+          el.meta = defaultMetadata(false);
         }
     
         // Detect SVG Element
@@ -1967,12 +1968,6 @@
           return '"class": instance.renderClass(' + compileTemplate(value, false) + '), ';
         }
         return '"' + prop + '": ' + compileTemplate(value, false) + ', ';
-      }
-    };
-    
-    specialDirectives[Moon.config.prefix + "once"] = {
-      beforeGenerate: function (value, meta, vnode) {
-        vnode.meta.shouldRender = "instance.$initialRender";
       }
     };
     
