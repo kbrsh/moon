@@ -118,13 +118,6 @@ specialDirectives[Moon.config.prefix + "once"] = {
   }
 };
 
-specialDirectives[Moon.config.prefix + "pre"] = {
-  beforeGenerate: function(value, meta, vnode) {
-    // Setup "pre" Flag on VNode to Let Code Generator Skip Compilation
-    vnode.pre = true;
-  }
-}
-
 specialDirectives[Moon.config.prefix + "html"] = {
   beforeGenerate: function(value, meta, vnode) {
     if(!vnode.props.dom) {

@@ -149,7 +149,7 @@
      */
     var defaultMetadata = function () {
       return {
-        shouldRender: true,
+        shouldRender: false,
         eventListeners: {}
       };
     };
@@ -1257,12 +1257,12 @@
           var attrName = attrs[attr].name;
     
           // If it is a directive, mark it as dynamic
-          if (!vnode.pre && directives[attrName]) {
+          if (directives[attrName]) {
             vnode.meta.shouldRender = true;
           }
     
           // Compile Special Directives
-          if (!vnode.pre && specialDirectives[attrName]) {
+          if (specialDirectives[attrName]) {
             // Special directive found that generates code after initial generation, push it to its known special directives to run afterGenerate later
             if (specialDirectives[attrName].afterGenerate) {
               if (!vnode.specialDirectivesAfter) {
@@ -1283,15 +1283,11 @@
             delete attrs[attr];
           } else {
             var normalizedProp = JSON.stringify(attrs[attr].value);
-            if (vnode.pre) {
-              generatedObject += '"' + attr + '": ' + normalizedProp + ', ';
-            } else {
-              var compiledProp = compileTemplate(normalizedProp, true);
-              if (normalizedProp !== compiledProp) {
-                vnode.meta.shouldRender = true;
-              }
-              generatedObject += '"' + attr + '": ' + compiledProp + ', ';
+            var compiledProp = compileTemplate(normalizedProp, true);
+            if (normalizedProp !== compiledProp) {
+              vnode.meta.shouldRender = true;
             }
+            generatedObject += '"' + attr + '": ' + compiledProp + ', ';
           }
         }
     
@@ -1380,15 +1376,9 @@
      * Creates an "h" Call for a VNode
      * @param {Object} vnode
      * @param {Object} parentVNode
-     * @param {Boolean} isPre
      * @return {String} "h" call
      */
-    var createCall = function (vnode, parentVNode, isPre) {
-      // Skip Compiling if "pre" Flag is Present
-      if (isPre) {
-        vnode.pre = true;
-      }
-    
+    var createCall = function (vnode, parentVNode) {
       // Generate Code for Type
       var call = 'h("' + vnode.type + '", ';
     
@@ -1417,30 +1407,24 @@
     };
     
     var generateEl = function (el, parentEl) {
-      var isPre = parentEl && parentEl.pre;
       var code = "";
     
       if (typeof el === "string") {
         // Escape newlines and double quotes, and compile the string
         var escapedString = escapeString(el);
+        var compiledText = compileTemplate(escapedString, true);
     
-        if (isPre) {
-          code += '"' + escapedString + '"';
-        } else {
-          var compiledText = compileTemplate(escapedString, true);
-          if (parentEl && escapedString !== compiledText) {
-            parentEl.meta.shouldRender = true;
-          }
-    
-          code += '"' + compiledText + '"';
+        if (parentEl && escapedString !== compiledText) {
+          parentEl.meta.shouldRender = true;
         }
+    
+        code += '"' + compiledText + '"';
       } else {
         // Recursively generate code for children
     
         // Generate Metadata if not Already
         if (!el.meta) {
           el.meta = defaultMetadata();
-          el.meta.shouldRender = false;
         }
     
         // Detect SVG Element
@@ -1462,7 +1446,7 @@
           }
           compiledCode = 'instance.$slots[\'' + (slotNameAttr && slotNameAttr.value || "default") + '\']';
         } else {
-          compiledCode = createCall(el, parentEl, isPre);
+          compiledCode = createCall(el, parentEl);
         }
     
         // Check for Special Directives that change the code after generation and run them
@@ -1992,13 +1976,6 @@
     specialDirectives[Moon.config.prefix + "once"] = {
       beforeGenerate: function (value, meta, vnode) {
         vnode.meta.shouldRender = "instance.$initialRender";
-      }
-    };
-    
-    specialDirectives[Moon.config.prefix + "pre"] = {
-      beforeGenerate: function (value, meta, vnode) {
-        // Setup "pre" Flag on VNode to Let Code Generator Skip Compilation
-        vnode.pre = true;
       }
     };
     

@@ -529,25 +529,6 @@ describe("Directive", function() {
     });
   });
 
-  describe('Pre Directive', function() {
-    createTestElement("pre", '<span m-pre id="pre-directive-span">{{msg}}</span>');
-    var preApp = new Moon({
-      el: "#pre",
-      data: {
-        msg: "Hello Moon!"
-      }
-    });
-    it('should not fill DOM with a value', function() {
-      expect(document.getElementById("pre-directive-span").innerHTML).to.equal("{{msg}}");
-    });
-    it('should not update element once value is updated', function() {
-      preApp.set('msg', "Changed");
-      Moon.nextTick(function() {
-        expect(document.getElementById("pre-directive-span").innerHTML).to.equal("{{msg}}");
-      });
-    });
-  });
-
   describe('Mask Directive', function() {
     createTestElement("mask", '<span m-mask id="mask-directive-span">{{msg}}</span>');
     var maskApp = new Moon({
