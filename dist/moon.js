@@ -455,13 +455,24 @@
      * @param {Object|String} children
      * @return {Object} Object usable in Virtual DOM (VNode)
      */
-    var h = function (tag, attrs, meta, children) {
+    var h = function (tag, attrs, meta, nestedChildren) {
       // Text Node
       if (tag === "#text") {
         // Tag => #text
         // Attrs => meta
         // Meta => val
         return createElement("#text", meta, { attrs: {} }, attrs, []);
+      }
+    
+      // Setup Children
+      var children = [];
+      for (var i = 0; i < nestedChildren.length; i++) {
+        var child = nestedChildren[i];
+        if (Array.isArray(child)) {
+          children = children.concat(child);
+        } else {
+          children.push(child);
+        }
       }
     
       // It's a Component
@@ -1448,8 +1459,9 @@
     
         // Check for Special Directives that change the code after generation and run them
         if (el.specialDirectivesAfter) {
-          for (var specialDirectiveAfter in el.specialDirectivesAfter) {
-            compiledCode = specialDirectives[el.specialDirectivesAfter[specialDirectiveAfter].name].afterGenerate(el.specialDirectivesAfter[specialDirectiveAfter].value, el.specialDirectivesAfter[specialDirectiveAfter].meta, compiledCode, el);
+          for (var specialDirectiveAfterInfo in el.specialDirectivesAfter) {
+            var specialDirectiveAfter = el.specialDirectivesAfter[specialDirectiveAfterInfo];
+            compiledCode = specialDirectives[specialDirectiveAfter.name].afterGenerate(specialDirectiveAfter.value, specialDirectiveAfter.meta, compiledCode, el);
           }
         }
         code += compiledCode;
@@ -1878,7 +1890,7 @@
         var iteratable = compileTemplate(parts[1], false);
     
         var params = aliases.join(",");
-        code.replace(new RegExp('instance.get("(' + aliases.join("|") + ')")', 'g'), function (match, alias) {
+        code.replace(new RegExp('instance\\.get\\("(' + aliases.join("|") + ')"\\)', 'g'), function (match, alias) {
           code = code.replace(new RegExp('instance.get\\("' + alias + '"\\)', "g"), alias);
         });
     

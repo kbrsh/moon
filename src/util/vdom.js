@@ -59,13 +59,24 @@ const createFunctionalComponent = function(props, children, functionalComponent)
  * @param {Object|String} children
  * @return {Object} Object usable in Virtual DOM (VNode)
  */
-const h = function(tag, attrs, meta, children) {
+const h = function(tag, attrs, meta, nestedChildren) {
   // Text Node
   if(tag === "#text") {
     // Tag => #text
     // Attrs => meta
     // Meta => val
     return createElement("#text", meta, {attrs:{}}, attrs, []);
+  }
+
+  // Setup Children
+  let children = [];
+  for(var i = 0; i < nestedChildren.length; i++) {
+    const child = nestedChildren[i];
+    if(Array.isArray(child)) {
+      children = children.concat(child);
+    } else {
+      children.push(child);
+    }
   }
 
   // It's a Component

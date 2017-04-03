@@ -20,7 +20,7 @@ specialDirectives[Moon.config.prefix + "for"] = {
     const iteratable = compileTemplate(parts[1], false);
 
     const params = aliases.join(",");
-    code.replace(new RegExp(`instance\.get\("(${aliases.join("|")})"\)`, 'g'), function(match, alias) {
+    code.replace(new RegExp(`instance\\.get\\("(${aliases.join("|")})"\\)`, 'g'), function(match, alias) {
       code = code.replace(new RegExp(`instance.get\\("${alias}"\\)`, "g"), alias);
     });
 

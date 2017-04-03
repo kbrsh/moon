@@ -220,8 +220,9 @@ const generateEl = function(el, parentEl) {
 
 		// Check for Special Directives that change the code after generation and run them
 		if(el.specialDirectivesAfter) {
-			for(let specialDirectiveAfter in el.specialDirectivesAfter) {
-				compiledCode = specialDirectives[el.specialDirectivesAfter[specialDirectiveAfter].name].afterGenerate(el.specialDirectivesAfter[specialDirectiveAfter].value, el.specialDirectivesAfter[specialDirectiveAfter].meta, compiledCode, el);
+			for(let specialDirectiveAfterInfo in el.specialDirectivesAfter) {
+				const specialDirectiveAfter = el.specialDirectivesAfter[specialDirectiveAfterInfo];
+				compiledCode = specialDirectives[specialDirectiveAfter.name].afterGenerate(specialDirectiveAfter.value, specialDirectiveAfter.meta, compiledCode, el);
 			}
 		}
 		code += compiledCode;
