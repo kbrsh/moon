@@ -18,15 +18,31 @@ const compileTemplateState = function(state, isString) {
   const template = state.template;
   const length = template.length;
   while(state.current < length) {
+    // Match Text Between Templates
     const value = scanTemplateStateUntil(state, openRE);
 
     if(value) {
       state.output += value;
     }
 
+    // If we've reached the end, there are no more templates
+    if(state.current === length) {
+      break;
+    }
+
+    // Exit The Opening Tag
     state.current += 2;
 
+    // Get the name of the opening tag
     let name = scanTemplateStateUntil(state, closeRE);
+
+    // If we've reached the end, the tag was unclosed
+    if(state.current === length) {
+      if("__ENV__" !== "production") {
+        error(`Expected closing delimiter "}}" after "${name}"`);
+      }
+      break;
+    }
 
     if(name) {
       let modifiers = "";
