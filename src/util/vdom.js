@@ -15,11 +15,11 @@ const PATCH = {
  * @param {String} type
  * @param {String} val
  * @param {Object} props
- * @param {Array} children
  * @param {Object} meta
+ * @param {Array} children
  * @return {Object} Virtual DOM Node
  */
-const createElement = function(type, val, props, children, meta) {
+const createElement = function(type, val, props, meta, children) {
   return {
     type: type,
     val: val,
@@ -59,20 +59,13 @@ const createFunctionalComponent = function(props, children, functionalComponent)
  * @param {Object|String} children
  * @return {Object} Object usable in Virtual DOM (VNode)
  */
-const h = function(tag, attrs, meta, nestedChildren) {
-  // Setup Children
-  let children = [];
-  if(nestedChildren) {
-    for(var i = 0; i < nestedChildren.length; i++) {
-      let child = nestedChildren[i];
-      if(Array.isArray(child)) {
-        children = children.concat(child);
-      } else if(typeof child === "string") {
-        children.push(createElement("#text", child || "", {attrs: {}}, [], defaultMetadata(true)));
-      } else if(child !== null) {
-        children.push(child);
-      }
-    }
+const h = function(tag, attrs, meta, children) {
+  // Text Node
+  if(tag === "#text") {
+    // Tag => #text
+    // Attrs => meta
+    // Meta => val
+    return createElement("#text", meta, {attrs:{}}, attrs, []);
   }
 
   // It's a Component
@@ -97,7 +90,7 @@ const h = function(tag, attrs, meta, nestedChildren) {
   //  children: [], <= any child nodes or text
   // }
 
-  return createElement(tag, "", attrs, children, meta);
+  return createElement(tag, "", attrs, meta, children);
 };
 
 /**

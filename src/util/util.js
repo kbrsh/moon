@@ -33,12 +33,11 @@ const queueBuild = function(instance) {
 
 /**
  * Gives Default Metadata for a VNode
- * @return {Boolean} shouldRender
  * @return {Object} metadata
  */
-const defaultMetadata = function(shouldRender) {
+const defaultMetadata = function() {
   return {
-    shouldRender: shouldRender,
+    shouldRender: false,
     eventListeners: {}
   }
 }

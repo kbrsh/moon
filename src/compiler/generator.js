@@ -164,7 +164,7 @@ const createCall = function(vnode, parentVNode) {
 	call += generateMeta(vnode.meta);
 
 	// Generate Code for Children
-	call += children.length ? ", [" + generateArray(children) + "]" : "";
+	call += children.length ? ", [" + generateArray(children) + "]" : ", []";
 
 	// Close Call
 	call += ")";
@@ -178,18 +178,22 @@ const generateEl = function(el, parentEl) {
 		// Escape newlines and double quotes, and compile the string
 		const escapedString = escapeString(el);
 		const compiledText = compileTemplate(escapedString, true);
+		let textMeta = defaultMetadata();
 
-		if(parentEl && escapedString !== compiledText) {
-			parentEl.meta.shouldRender = true;
+		if(escapedString !== compiledText) {
+			if(parentEl) {
+				parentEl.meta.shouldRender = true;
+			}
+			textMeta.shouldRender = true;
 		}
 
-		code += `"${compiledText}"`;
+		code += `h("#text", ${generateMeta(textMeta)}, "${compiledText}")`;
 	} else {
 		// Recursively generate code for children
 
 		// Generate Metadata if not Already
 		if(!el.meta) {
-			el.meta = defaultMetadata(false);
+			el.meta = defaultMetadata();
 		}
 
 		// Detect SVG Element
