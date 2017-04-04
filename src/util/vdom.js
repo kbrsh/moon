@@ -137,7 +137,9 @@ const diffProps = function(node, nodeProps, vnode) {
       var vnodePropValue = vnodeProps[vnodePropName];
       var nodePropValue = nodeProps[vnodePropName];
 
-      if(nodePropValue == null || vnodePropValue !== nodePropValue) {
+      if(directives[vnodePropName]) {
+        directives[vnodePropName](node, vnodePropValue, vnode);
+      } else if(nodePropValue == null || vnodePropValue !== nodePropValue) {
         isSVG ? node.setAttributeNS(null, vnodePropName, vnodePropValue) : node.setAttribute(vnodePropName, vnodePropValue);
       }
     }
@@ -150,9 +152,6 @@ const diffProps = function(node, nodeProps, vnode) {
       var nodePropValue = nodeProps[nodePropName];
 
       if(vnodePropValue == null || directives[nodePropName]) {
-        if(directives[nodePropName]) {
-          directives[nodePropName](node, vnodePropValue, vnode);
-        }
         isSVG ? node.removeAttributeNS(null, nodePropName) : node.removeAttribute(nodePropName);
       }
     }
