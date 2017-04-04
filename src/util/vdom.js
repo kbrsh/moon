@@ -213,13 +213,13 @@ const diffComponent = function(node, vnode) {
 const hydrate = function(node, vnode, parent, instance) {
   let nodeName = node ? node.nodeName.toLowerCase() : null;
 
-  if(!node) {
+  if(node === null) {
     // No node, create one
     var newNode = createNodeFromVNode(vnode, instance);
     appendChild(newNode, vnode, parent);
 
     return newNode;
-  } else if(!vnode) {
+  } else if(vnode === undefined) {
     removeChild(node, parent);
 
     return null;
@@ -228,7 +228,7 @@ const hydrate = function(node, vnode, parent, instance) {
     replaceChild(node, newNode, vnode, parent);
     return newNode;
   } else if(vnode.type === "#text") {
-    if(node && nodeName === "#text") {
+    if(node !== null && nodeName === "#text") {
       // Both are textnodes, update the node
       if(node.textContent !== vnode.val) {
         node.textContent = vnode.val;
@@ -247,7 +247,7 @@ const hydrate = function(node, vnode, parent, instance) {
     vnode.meta.el = node;
 
     // Check for Component
-    if(vnode.meta.component) {
+    if(vnode.meta.component !== undefined) {
       // Diff the Component
       diffComponent(node, vnode);
 
@@ -262,7 +262,7 @@ const hydrate = function(node, vnode, parent, instance) {
     addEventListeners(node, vnode, instance);
 
     // Check if innerHTML was changed, and don't diff children if so
-    if(vnode.props.dom && vnode.props.dom.innerHTML) {
+    if(vnode.props.dom !== undefined && vnode.props.dom.innerHTML !== undefined) {
       return node;
     }
 
@@ -270,7 +270,7 @@ const hydrate = function(node, vnode, parent, instance) {
     var i = 0;
     let currentChildNode = node.firstChild;
     let vchild = vnode.children[i];
-    while(vchild || currentChildNode) {
+    while(vchild !== undefined || currentChildNode !== null) {
       hydrate(currentChildNode, vchild, node, instance);
       vchild = vnode.children[++i];
       currentChildNode = currentChildNode ? currentChildNode.nextSibling : null;
