@@ -475,7 +475,7 @@
     var createFunctionalComponent = function (props, children, functionalComponent) {
       var data = functionalComponent.opts.data || {};
       // Merge data with provided props
-      if (functionalComponent.opts.props) {
+      if (isDefined(functionalComponent.opts.props)) {
         for (var i = 0; i < functionalComponent.opts.props.length; i++) {
           var prop = functionalComponent.opts.props[i];
           data[prop] = props.attrs[prop];
@@ -505,9 +505,9 @@
       }
     
       // It's a Component
-      if (components[tag]) {
+      if (isDefined(components[tag])) {
         // Functional component
-        if (components[tag].opts.functional) {
+        if (components[tag].opts.functional === true) {
           return createFunctionalComponent(attrs, children, components[tag]);
         } else {
           // Provide the instance to diff engine
@@ -568,33 +568,29 @@
       var isSVG = vnode.meta.isSVG;
     
       // Diff VNode Props with Node Props
-      if (vnodeProps) {
-        for (var vnodePropName in vnodeProps) {
-          var vnodePropValue = vnodeProps[vnodePropName];
-          var nodePropValue = nodeProps[vnodePropName];
+      for (var vnodePropName in vnodeProps) {
+        var vnodePropValue = vnodeProps[vnodePropName];
+        var nodePropValue = nodeProps[vnodePropName];
     
-          if (directives[vnodePropName]) {
-            directives[vnodePropName](node, vnodePropValue, vnode);
-          } else if (nodePropValue == null || vnodePropValue !== nodePropValue) {
-            isSVG ? node.setAttributeNS(null, vnodePropName, vnodePropValue) : node.setAttribute(vnodePropName, vnodePropValue);
-          }
+        if (isDefined(directives[vnodePropName])) {
+          directives[vnodePropName](node, vnodePropValue, vnode);
+        } else if (isNullOrUndefined(nodePropValue) || vnodePropValue !== nodePropValue) {
+          isSVG === true ? node.setAttributeNS(null, vnodePropName, vnodePropValue) : node.setAttribute(vnodePropName, vnodePropValue);
         }
       }
     
       // Diff Node Props with VNode Props
-      if (nodeProps) {
-        for (var nodePropName in nodeProps) {
-          var vnodePropValue = vnodeProps[nodePropName];
-          var nodePropValue = nodeProps[nodePropName];
+      for (var nodePropName in nodeProps) {
+        var vnodePropValue = vnodeProps[nodePropName];
+        var nodePropValue = nodeProps[nodePropName];
     
-          if (vnodePropValue == null || directives[nodePropName]) {
-            isSVG ? node.removeAttributeNS(null, nodePropName) : node.removeAttribute(nodePropName);
-          }
+        if (isNullOrUndefined(vnodePropValue) || isDefined(directives[nodePropName])) {
+          isSVG === true ? node.removeAttributeNS(null, nodePropName) : node.removeAttribute(nodePropName);
         }
       }
     
       // Add/Update any DOM Props
-      if (vnode.props.dom) {
+      if (isDefined(vnode.props.dom)) {
         for (var domProp in vnode.props.dom) {
           var domPropValue = vnode.props.dom[domProp];
           if (node[domProp] !== domPropValue) {
@@ -611,7 +607,7 @@
      * @return {Object} adjusted node only if it was replaced
      */
     var diffComponent = function (node, vnode) {
-      if (!node.__moon__) {
+      if (isUndefined(node.__moon__)) {
         // Not mounted, create a new instance and mount it here
         createComponentFromVNode(node, vnode, vnode.meta.component);
       } else {
@@ -627,12 +623,12 @@
           }
         }
         // If it has children, resolve any new slots
-        if (vnode.children) {
+        if (vnode.children.length !== 0) {
           componentInstance.$slots = getSlots(vnode.children);
           componentChanged = true;
         }
         // If any changes were detected, build the component
-        if (componentChanged) {
+        if (componentChanged === true) {
           componentInstance.build();
         }
       }
