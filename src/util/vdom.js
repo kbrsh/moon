@@ -213,13 +213,13 @@ const diffComponent = function(node, vnode) {
 const hydrate = function(node, vnode, parent, instance) {
   let nodeName = node ? node.nodeName.toLowerCase() : null;
 
-  if(node === null) {
+  if(isNull(node)) {
     // No node, create one
     var newNode = createNodeFromVNode(vnode, instance);
     appendChild(newNode, vnode, parent);
 
     return newNode;
-  } else if(vnode === undefined) {
+  } else if(isUndefined(vnode)) {
     removeChild(node, parent);
 
     return null;
@@ -228,7 +228,7 @@ const hydrate = function(node, vnode, parent, instance) {
     replaceChild(node, newNode, vnode, parent);
     return newNode;
   } else if(vnode.type === "#text") {
-    if(node !== null && nodeName === "#text") {
+    if(isNotNull(node) && nodeName === "#text") {
       // Both are textnodes, update the node
       if(node.textContent !== vnode.val) {
         node.textContent = vnode.val;
@@ -247,7 +247,7 @@ const hydrate = function(node, vnode, parent, instance) {
     vnode.meta.el = node;
 
     // Check for Component
-    if(vnode.meta.component !== undefined) {
+    if(isDefined(vnode.meta.component)) {
       // Diff the Component
       diffComponent(node, vnode);
 
@@ -262,7 +262,7 @@ const hydrate = function(node, vnode, parent, instance) {
     addEventListeners(node, vnode, instance);
 
     // Check if innerHTML was changed, and don't diff children if so
-    if(vnode.props.dom !== undefined && vnode.props.dom.innerHTML !== undefined) {
+    if(isDefined(vnode.props.dom) && isDefined(vnode.props.dom.innerHTML)) {
       return node;
     }
 
@@ -270,7 +270,7 @@ const hydrate = function(node, vnode, parent, instance) {
     var i = 0;
     let currentChildNode = node.firstChild;
     let vchild = vnode.children[i];
-    while(vchild !== undefined || currentChildNode !== null) {
+    while(isDefined(vchild) || isNotNull(currentChildNode)) {
       hydrate(currentChildNode, vchild, node, instance);
       vchild = vnode.children[++i];
       currentChildNode = currentChildNode ? currentChildNode.nextSibling : null;
@@ -292,12 +292,12 @@ const diff = function(oldVNode, vnode, parent, instance) {
   if(oldVNode === vnode) {
     // Both have the same reference, exit early
     return PATCH.SKIP;
-  } else if(!oldVNode) {
+  } else if(isNullOrUndefined(oldVNode)) {
     // No Node, append a node
     appendChild(createNodeFromVNode(vnode, instance), vnode, parent);
 
     return PATCH.APPEND;
-  } else if(!vnode) {
+  } else if(isNullOrUndefined(vnode)) {
     // No New VNode, remove Node
     removeChild(oldVNode.meta.el, parent);
 
@@ -307,7 +307,7 @@ const diff = function(oldVNode, vnode, parent, instance) {
     replaceChild(oldVNode.meta.el, createNodeFromVNode(vnode, instance), vnode, parent);
 
     return PATCH.REPLACE;
-  } else if(vnode.meta.shouldRender && vnode.type === "#text") {
+  } else if(vnode.meta.shouldRender === true && vnode.type === "#text") {
     let node = oldVNode.meta.el;
 
     if(oldVNode.type === "#text") {
@@ -323,11 +323,11 @@ const diff = function(oldVNode, vnode, parent, instance) {
       return PATCH.REPLACE;
     }
 
-  } else if(vnode.meta.shouldRender) {
+  } else if(vnode.meta.shouldRender === true) {
     let node = oldVNode.meta.el;
 
     // Check for Component
-    if(vnode.meta.component) {
+    if(isDefined(vnode.meta.component)) {
       // Diff Component
       diffComponent(node, vnode);
 
@@ -340,7 +340,7 @@ const diff = function(oldVNode, vnode, parent, instance) {
     oldVNode.props.attrs = vnode.props.attrs;
 
     // Check if innerHTML was changed, don't diff children
-    if(vnode.props.dom && vnode.props.dom.innerHTML) {
+    if(isDefined(vnode.props.dom) && isDefined(vnode.props.dom.innerHTML)) {
       // Skip Children
       return PATCH.SKIP;
     }
@@ -353,7 +353,7 @@ const diff = function(oldVNode, vnode, parent, instance) {
       // No Children, Remove all Children if not Already Removed
       if(oldLength !== 0) {
         let firstChild = null;
-        while((firstChild = node.firstChild)) {
+        while(isNotNull((firstChild = node.firstChild))) {
           removeChild(firstChild, node);
         }
       }
