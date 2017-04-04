@@ -1132,16 +1132,13 @@
     var walk = function (state) {
       var token = state.tokens[state.current];
       var previousToken = state.tokens[state.current - 1];
-      var secondToken = state.tokens[state.current + 1];
-      var thirdToken = state.tokens[state.current + 2];
-      var fourthToken = state.tokens[state.current + 3];
+      var nextToken = state.tokens[state.current + 1];
     
       var increment = function (num) {
         state.current += num === undefined ? 1 : num;
         token = state.tokens[state.current];
         previousToken = state.tokens[state.current - 1];
-        secondToken = state.tokens[state.current + 1];
-        thirdToken = state.tokens[state.current + 2];
+        nextToken = state.tokens[state.current + 1];
       };
     
       if (token.type === "text") {
@@ -1155,28 +1152,24 @@
       }
     
       // Start of new Tag
-      if (token.type === "tagStart" && !token.close && !fourthToken.close) {
-        var node = createParseNode(secondToken.value, thirdToken.value, []);
-        var tagType = secondToken.value;
-        // Exit Start Tag
-        increment(4);
+      if (token.type === "tag") {
+        var tagType = token.value;
+        var node = createParseNode(tagType, token.attributes, []);
+    
+        increment();
     
         // If it is an svg element, let code generator know
-        if (SVG_ELEMENTS.indexOf(node.type) !== -1) {
+        if (SVG_ELEMENTS.indexOf(tagType) !== -1) {
           node.isSVG = true;
         }
     
         // If it's self closing, return it here
-        if (HTML_ELEMENTS.indexOf(node.type) !== -1) {
+        if (HTML_ELEMENTS.indexOf(tagType) !== -1) {
           return node;
         }
     
-        var startContentIndex = state.current;
-        // Make sure it has content and is closed
         if (token) {
-          // Find Closing Tag, and push children recursively
-          while (token.type !== "tagStart" || token.type === "tagStart" && !token.close) {
-            // Push a parsed child to the current node
+          while (token.type !== "tag" || token.type === "tag" && (!token.close || token.value !== tagType)) {
             var parsedChildState = walk(state);
             if (parsedChildState) {
               node.children.push(parsedChildState);
@@ -1190,6 +1183,7 @@
               break;
             }
           }
+    
           increment();
         }
     
