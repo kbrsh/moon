@@ -1344,6 +1344,11 @@
       // Generate Code for Type
       var call = 'h("' + vnode.type + '", ';
     
+      // If component, ensure it will render
+      if (components[vnode.type]) {
+        vnode.meta.shouldRender = true;
+      }
+    
       // Generate Code for Props
       call += generateProps(vnode, parentVNode) + ", ";
     
@@ -1352,7 +1357,7 @@
         return generateEl(item, vnode);
       });
     
-      // If the "shouldRender" flag is not present, ensure node won't be updated
+      // If the "shouldRender" flag is not present, ensure node will be updated
       if (vnode.meta.shouldRender && parentVNode) {
         parentVNode.meta.shouldRender = true;
       }
