@@ -966,112 +966,83 @@
     
       // Lex Starting of Tag
       var isClosingStart = input.charAt(state.current + 1) === "/";
-      state.tokens.push({
-        type: "tagStart",
-        close: isClosingStart
-      });
       state.current += isClosingStart ? 2 : 1;
     
       // Lex type and attributes
-      var tagType = lexTagType(state);
-      lexAttributes(state);
+      var tagToken = lexTagType(state);
+      lexAttributes(tagToken, state);
     
       // Lex ending tag
       var isClosingEnd = input.charAt(state.current) === "/";
-      state.tokens.push({
-        type: "tagEnd",
-        close: false
-      });
       state.current += isClosingEnd ? 2 : 1;
-      if (isClosingEnd) {
-        state.tokens.push({
-          type: "tagStart",
-          close: true
-        });
-        state.tokens.push({
-          type: "tag",
-          value: tagType
-        });
-        state.tokens.push({
-          type: "attribute",
-          value: {}
-        });
-        state.tokens.push({
-          type: "tagEnd",
-          close: false
-        });
+    
+      // Check if Closing
+      if (isClosingStart || isClosingEnd) {
+        tagToken.close = true;
       }
     };
     
     var lexTagType = function (state) {
       var input = state.input;
       var len = input.length;
-      var start = state.current;
-      while (start < len) {
-        var char = input.charAt(start);
-        if (char === "/" || char === ">" || char === " ") {
-          start++;
-        } else {
-          break;
-        }
-      }
-    
-      var end = start;
-      while (end < len) {
-        var char = input.charAt(end);
+      var current = state.current;
+      var tagType = "";
+      while (current < len) {
+        var char = input.charAt(current);
         if (char === "/" || char === ">" || char === " ") {
           break;
         } else {
-          end++;
+          tagType += char;
         }
+        current++;
       }
     
-      var tagType = input.slice(start, end);
-      state.tokens.push({
+      var tagToken = {
         type: "tag",
         value: tagType
-      });
-      state.current = end;
-      return tagType;
-    };
-    
-    var lexAttributes = function (state) {
-      var input = state.input;
-      var len = input.length;
-      var end = state.current;
-    
-      var attrs = {};
-    
-      var char = input.charAt(end);
-      var nextChar = input.charAt(end + 1);
-    
-      var incrementChar = function () {
-        end++;
-        char = input.charAt(end);
-        nextChar = input.charAt(end + 1);
       };
     
-      while (end < len) {
-        // Reached the end of the tag
+      state.tokens.push(tagToken);
+    
+      state.current = current;
+      return tagToken;
+    };
+    
+    var lexAttributes = function (tagToken, state) {
+      var input = state.input;
+      var len = input.length;
+      var current = state.current;
+      var char = input.charAt(current);
+      var nextChar = input.charAt(current + 1);
+    
+      var incrementChar = function () {
+        current++;
+        char = input.charAt(current);
+        nextChar = input.charAt(current + 1);
+      };
+    
+      var attributes = {};
+    
+      while (current < len) {
+        // If it is the end of a tag, exit
         if (char === ">" || char === "/" && nextChar === ">") {
           break;
         }
     
-        // Reached end of an attribute
+        // If there is a space, the attribute ended
         if (char === " ") {
           incrementChar();
           continue;
         }
     
-        // Begin obtaining the attribute name
+        // Get the name of the attribute
         var attrName = "";
         var noValue = false;
-        while (char !== "=" && end < len) {
-          // Ensure attribute has a value
-          if (char !== " " && char !== ">" || char === "/" && nextChar !== ">") {
+    
+        while (current < len && char !== "=") {
+          if (char !== " " && char !== ">" && char !== "/" && nextChar !== ">") {
             attrName += char;
           } else {
-            // Attribute had no value, skip it
             noValue = true;
             break;
           }
@@ -1085,41 +1056,45 @@
         };
     
         if (noValue) {
-          attrs[attrName] = attrValue;
+          attributes[attrName] = attrValue;
           continue;
         }
     
-        var quoteType = " ";
-    
-        // Exit equal sign and setup quote type
+        // Exit Equal Sign
         incrementChar();
+    
+        // Get the type of quote used
+        var quoteType = " ";
         if (char === "'" || char === "\"") {
           quoteType = char;
-          incrementChar();
-        } else {
-          attrValue.value += char;
-        }
     
-        while ((char !== quoteType && char !== ">" || char === "/" && nextChar !== ">") && end < len) {
-          attrValue.value += char;
+          // Exit the quote
           incrementChar();
         }
     
-        if (attrName.indexOf(":") !== -1) {
-          var attrNames = attrName.split(":");
-          attrValue.name = attrNames[0];
-          attrValue.meta.arg = attrNames[1];
+        // Find the end of it
+        while (current < len && char !== quoteType) {
+          attrValue.value += char;
+          incrementChar();
         }
     
-        attrs[attrName] = attrValue;
+        // Exit the end of it
         incrementChar();
+    
+        // Check for an Argument
+        var argIndex = attrName.indexOf(":");
+        if (argIndex !== -1) {
+          var splitAttrName = attrName.split(":");
+          attrValue.name = splitAttrName[0];
+          attrValue.meta.arg = splitAttrName[1];
+        }
+    
+        // Setup the Value
+        attributes[attrName] = attrValue;
       }
     
-      state.current = end;
-      state.tokens.push({
-        type: "attribute",
-        value: attrs
-      });
+      state.current = current;
+      tagToken.attributes = attributes;
     };
     
     var parse = function (tokens) {
