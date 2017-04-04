@@ -152,46 +152,6 @@ const callHook = function(instance, name) {
 }
 
 /**
- * Checks if Something is not null
- * @param {Any} item
- */
-const isNotNull = function(item) {
-  return item !== null;
-}
-
-/**
- * Checks if Something is not undefined
- * @param {Any} item
- */
-const isDefined = function(item) {
-  return item !== undefined;
-}
-
-/**
- * Checks if Something is null
- * @param {Any} item
- */
-const isNull = function(item) {
-  return item === null;
-}
-
-/**
- * Checks if Something is undefined
- * @param {Any} item
- */
-const isUndefined = function(item) {
-  return item === undefined;
-}
-
-/**
- * Checks if Something is null OR undefined
- * @param {Any} item
- */
-const isNullOrUndefined = function(item) {
-  return item == null;
-}
-
-/**
  * Does No Operation
  */
 const noop = function() {

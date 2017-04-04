@@ -27,11 +27,6 @@ Moon.util = {
   log: log,
   merge: merge,
   extend: extend,
-  isDefined: isDefined,
-  isNotNull: isNotNull,
-  isNull: isNull,
-  isUndefined: isUndefined,
-  isNullOrUndefined: isNullOrUndefined,
   h: h
 }
 

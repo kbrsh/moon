@@ -264,46 +264,6 @@
     };
     
     /**
-     * Checks if Something is not null
-     * @param {Any} item
-     */
-    var isNotNull = function (item) {
-      return item !== null;
-    };
-    
-    /**
-     * Checks if Something is not undefined
-     * @param {Any} item
-     */
-    var isDefined = function (item) {
-      return item !== undefined;
-    };
-    
-    /**
-     * Checks if Something is null
-     * @param {Any} item
-     */
-    var isNull = function (item) {
-      return item === null;
-    };
-    
-    /**
-     * Checks if Something is undefined
-     * @param {Any} item
-     */
-    var isUndefined = function (item) {
-      return item === undefined;
-    };
-    
-    /**
-     * Checks if Something is null OR undefined
-     * @param {Any} item
-     */
-    var isNullOrUndefined = function (item) {
-      return item == null;
-    };
-    
-    /**
      * Does No Operation
      */
     var noop = function () {};
@@ -475,7 +435,7 @@
     var createFunctionalComponent = function (props, children, functionalComponent) {
       var data = functionalComponent.opts.data || {};
       // Merge data with provided props
-      if (isDefined(functionalComponent.opts.props)) {
+      if (functionalComponent.opts.props !== undefined) {
         for (var i = 0; i < functionalComponent.opts.props.length; i++) {
           var prop = functionalComponent.opts.props[i];
           data[prop] = props.attrs[prop];
@@ -505,7 +465,7 @@
       }
     
       // It's a Component
-      if (isDefined(components[tag])) {
+      if (components[tag] !== undefined) {
         // Functional component
         if (components[tag].opts.functional === true) {
           return createFunctionalComponent(attrs, children, components[tag]);
@@ -564,18 +524,15 @@
       // Get VNode Attributes
       var vnodeProps = vnode.props.attrs;
     
-      // If node is svg, update with SVG namespace
-      var isSVG = vnode.meta.isSVG;
-    
       // Diff VNode Props with Node Props
       for (var vnodePropName in vnodeProps) {
         var vnodePropValue = vnodeProps[vnodePropName];
         var nodePropValue = nodeProps[vnodePropName];
     
-        if (isDefined(directives[vnodePropName])) {
+        if (directives[vnodePropName] !== undefined) {
           directives[vnodePropName](node, vnodePropValue, vnode);
-        } else if (isNullOrUndefined(nodePropValue) || vnodePropValue !== nodePropValue) {
-          isSVG === true ? node.setAttributeNS(null, vnodePropName, vnodePropValue) : node.setAttribute(vnodePropName, vnodePropValue);
+        } else if (nodePropValue == null || vnodePropValue !== nodePropValue) {
+          node.setAttribute(vnodePropName, vnodePropValue);
         }
       }
     
@@ -584,13 +541,13 @@
         var vnodePropValue = vnodeProps[nodePropName];
         var nodePropValue = nodeProps[nodePropName];
     
-        if (isNullOrUndefined(vnodePropValue) || isDefined(directives[nodePropName])) {
-          isSVG === true ? node.removeAttributeNS(null, nodePropName) : node.removeAttribute(nodePropName);
+        if (vnodePropValue == null || directives[nodePropName] !== undefined) {
+          node.removeAttribute(nodePropName);
         }
       }
     
       // Add/Update any DOM Props
-      if (isDefined(vnode.props.dom)) {
+      if (vnode.props.dom !== undefined) {
         for (var domProp in vnode.props.dom) {
           var domPropValue = vnode.props.dom[domProp];
           if (node[domProp] !== domPropValue) {
@@ -607,7 +564,7 @@
      * @return {Object} adjusted node only if it was replaced
      */
     var diffComponent = function (node, vnode) {
-      if (isUndefined(node.__moon__)) {
+      if (node.__moon__ === undefined) {
         // Not mounted, create a new instance and mount it here
         createComponentFromVNode(node, vnode, vnode.meta.component);
       } else {
@@ -645,13 +602,13 @@
     var hydrate = function (node, vnode, parent, instance) {
       var nodeName = node ? node.nodeName.toLowerCase() : null;
     
-      if (isNull(node)) {
+      if (node === null) {
         // No node, create one
         var newNode = createNodeFromVNode(vnode, instance);
         appendChild(newNode, vnode, parent);
     
         return newNode;
-      } else if (isUndefined(vnode)) {
+      } else if (vnode === undefined) {
         removeChild(node, parent);
     
         return null;
@@ -660,7 +617,7 @@
         replaceChild(node, newNode, vnode, parent);
         return newNode;
       } else if (vnode.type === "#text") {
-        if (isNotNull(node) && nodeName === "#text") {
+        if (nodeName === "#text") {
           // Both are textnodes, update the node
           if (node.textContent !== vnode.val) {
             node.textContent = vnode.val;
@@ -679,7 +636,7 @@
         vnode.meta.el = node;
     
         // Check for Component
-        if (isDefined(vnode.meta.component)) {
+        if (vnode.meta.component !== undefined) {
           // Diff the Component
           diffComponent(node, vnode);
     
@@ -694,7 +651,7 @@
         addEventListeners(node, vnode, instance);
     
         // Check if innerHTML was changed, and don't diff children if so
-        if (isDefined(vnode.props.dom) && isDefined(vnode.props.dom.innerHTML)) {
+        if (vnode.props.dom !== undefined && vnode.props.dom.innerHTML !== undefined) {
           return node;
         }
     
@@ -702,7 +659,7 @@
         var i = 0;
         var currentChildNode = node.firstChild;
         var vchild = vnode.children[i];
-        while (isDefined(vchild) || isNotNull(currentChildNode)) {
+        while (vchild !== undefined || currentChildNode !== null) {
           hydrate(currentChildNode, vchild, node, instance);
           vchild = vnode.children[++i];
           currentChildNode = currentChildNode ? currentChildNode.nextSibling : null;
@@ -724,12 +681,12 @@
       if (oldVNode === vnode) {
         // Both have the same reference, exit early
         return PATCH.SKIP;
-      } else if (isNullOrUndefined(oldVNode)) {
+      } else if (oldVNode == null) {
         // No Node, append a node
         appendChild(createNodeFromVNode(vnode, instance), vnode, parent);
     
         return PATCH.APPEND;
-      } else if (isNullOrUndefined(vnode)) {
+      } else if (vnode == null) {
         // No New VNode, remove Node
         removeChild(oldVNode.meta.el, parent);
     
@@ -758,7 +715,7 @@
         var _node = oldVNode.meta.el;
     
         // Check for Component
-        if (isDefined(vnode.meta.component)) {
+        if (vnode.meta.component !== undefined) {
           // Diff Component
           diffComponent(_node, vnode);
     
@@ -771,7 +728,7 @@
         oldVNode.props.attrs = vnode.props.attrs;
     
         // Check if innerHTML was changed, don't diff children
-        if (isDefined(vnode.props.dom) && isDefined(vnode.props.dom.innerHTML)) {
+        if (vnode.props.dom !== undefined && vnode.props.dom.innerHTML !== undefined) {
           // Skip Children
           return PATCH.SKIP;
         }
@@ -784,7 +741,7 @@
           // No Children, Remove all Children if not Already Removed
           if (oldLength !== 0) {
             var firstChild = null;
-            while (isNotNull(firstChild = _node.firstChild)) {
+            while ((firstChild = _node.firstChild) !== null) {
               removeChild(firstChild, _node);
             }
           }
@@ -1798,11 +1755,6 @@
       log: log,
       merge: merge,
       extend: extend,
-      isDefined: isDefined,
-      isNotNull: isNotNull,
-      isNull: isNull,
-      isUndefined: isUndefined,
-      isNullOrUndefined: isNullOrUndefined,
       h: h
     };
     
