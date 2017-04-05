@@ -11,6 +11,11 @@ const PATCH = {
 }
 
 /**
+ * Text VNode/Node Type
+ */
+const TEXT_TYPE = "#text";
+
+/**
  * Creates a Virtual DOM Node
  * @param {String} type
  * @param {String} val
@@ -61,11 +66,11 @@ const createFunctionalComponent = function(props, children, functionalComponent)
  */
 const h = function(tag, attrs, meta, children) {
   // Text Node
-  if(tag === "#text") {
+  if(tag === TEXT_TYPE) {
     // Tag => #text
     // Attrs => meta
     // Meta => val
-    return createElement("#text", meta, {attrs:{}}, attrs, []);
+    return createElement(TEXT_TYPE, meta, {attrs:{}}, attrs, []);
   }
 
   // It's a Component
@@ -220,8 +225,8 @@ const hydrate = function(node, vnode, parent, instance) {
     var newNode = createNodeFromVNode(vnode, instance);
     replaceChild(node, newNode, vnode, parent);
     return newNode;
-  } else if(vnode.type === "#text") {
-    if(nodeName === "#text") {
+  } else if(vnode.type === TEXT_TYPE) {
+    if(nodeName === TEXT_TYPE) {
       // Both are textnodes, update the node
       if(node.textContent !== vnode.val) {
         node.textContent = vnode.val;
@@ -300,10 +305,10 @@ const diff = function(oldVNode, vnode, parent, instance) {
     replaceChild(oldVNode.meta.el, createNodeFromVNode(vnode, instance), vnode, parent);
 
     return PATCH.REPLACE;
-  } else if(vnode.meta.shouldRender === true && vnode.type === "#text") {
+  } else if(vnode.meta.shouldRender === true && vnode.type === TEXT_TYPE) {
     let node = oldVNode.meta.el;
 
-    if(oldVNode.type === "#text") {
+    if(oldVNode.type === TEXT_TYPE) {
       // Both are textnodes, update the node
       if(vnode.val !== oldVNode.val) {
         node.textContent = vnode.val;
