@@ -1202,6 +1202,9 @@
       var attrs = vnode.props.attrs;
       var generatedObject = "{attrs: {";
     
+      // Array of all directives (to be generated later)
+      var allDirectives = [];
+    
       if (attrs) {
         // Invoke any special directives that need to change values before code generation
         for (var beforeAttr in attrs) {
@@ -1218,11 +1221,10 @@
     
           // If it is a directive, mark it as dynamic
           if (directives[attrName]) {
+            allDirectives.push(attrs[attr]);
             vnode.meta.shouldRender = true;
-          }
-    
-          // Compile Special Directives
-          if (specialDirectives[attrName]) {
+          } else if (specialDirectives[attrName]) {
+            // Generate Special Directives
             // Special directive found that generates code after initial generation, push it to its known special directives to run afterGenerate later
             if (specialDirectives[attrName].afterGenerate) {
               if (!vnode.specialDirectivesAfter) {
@@ -1261,10 +1263,20 @@
       // Check for DOM Properties
       var dom = vnode.props.dom;
       if (dom) {
-        vnode.dynamic = true;
+        vnode.meta.shouldRender = true;
         generatedObject += ", dom: {";
         for (var domProp in dom) {
           generatedObject += '"' + domProp + '": ' + dom[domProp] + ', ';
+        }
+        generatedObject = generatedObject.slice(0, -2) + "}";
+      }
+    
+      // Check for Directives
+      if (allDirectives.length !== 0) {
+        generatedObject += ", directives: {";
+        for (var i = 0; i < allDirectives.length; i++) {
+          var directiveInfo = allDirectives[i];
+          generatedObject += '"' + directiveInfo.name + '": ' + JSON.stringify(directiveInfo.value) + ', ';
         }
         generatedObject = generatedObject.slice(0, -2) + "}";
       }
