@@ -744,11 +744,11 @@ describe("Events", function() {
 
 describe("Optimization", function() {
   it("should not rerender static nodes", function() {
-    createTestElement("staticOptimization", "<h1>Static</h1>");
+    createTestElement("staticOptimization", "<h1><h2><h3><h4><h5><h6>Static</h6></h5></h4></h3></h2></h1>");
     var staticOptimizationApp = new Moon({
       el: "#staticOptimization"
     });
-    expect(staticOptimizationApp.render().children[0].meta.shouldRender).to.equal(false);
+    expect(staticOptimizationApp.render().meta.shouldRender).to.equal(false);
   });
 });
 
