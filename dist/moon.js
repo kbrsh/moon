@@ -541,10 +541,7 @@
     
       // Diff Node Props with VNode Props
       for (var nodePropName in nodeProps) {
-        var vnodePropValue = vnodeProps[nodePropName];
-        var nodePropValue = nodeProps[nodePropName];
-    
-        if (vnodePropValue == null) {
+        if (vnodeProps[nodePropName] == null) {
           node.removeAttribute(nodePropName);
         }
       }
