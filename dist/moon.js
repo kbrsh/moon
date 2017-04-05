@@ -1205,7 +1205,7 @@
       var generatedObject = "{attrs: {";
     
       // Array of all directives (to be generated later)
-      var allDirectives = [];
+      vnode.props.directives = [];
     
       if (attrs) {
         // Invoke any special directives that need to change values before code generation
@@ -1222,10 +1222,7 @@
           var attrName = attrs[attr].name;
     
           // If it is a directive, mark it as dynamic
-          if (directives[attrName]) {
-            allDirectives.push(attrs[attr]);
-            vnode.meta.shouldRender = true;
-          } else if (specialDirectives[attrName]) {
+          if (specialDirectives[attrName]) {
             // Generate Special Directives
             // Special directive found that generates code after initial generation, push it to its known special directives to run afterGenerate later
             if (specialDirectives[attrName].afterGenerate) {
@@ -1245,6 +1242,9 @@
     
             // Remove special directive
             delete attrs[attr];
+          } else if (directives[attrName]) {
+            vnode.props.directives.push(attrs[attr]);
+            vnode.meta.shouldRender = true;
           } else {
             var normalizedProp = JSON.stringify(attrs[attr].value);
             var compiledProp = compileTemplate(normalizedProp, true);
@@ -1274,12 +1274,16 @@
       }
     
       // Check for Directives
+      var allDirectives = vnode.props.directives;
       if (allDirectives.length !== 0) {
         generatedObject += ", directives: {";
+    
         for (var i = 0; i < allDirectives.length; i++) {
           var directiveInfo = allDirectives[i];
-          generatedObject += '"' + directiveInfo.name + '": ' + JSON.stringify(directiveInfo.value) + ', ';
+          var normalizedValue = directiveInfo.literal ? directiveInfo.value : JSON.stringify(directiveInfo.value);
+          generatedObject += '"' + directiveInfo.name + '": ' + normalizedValue + ', ';
         }
+    
         generatedObject = generatedObject.slice(0, -2) + "}";
       }
     
@@ -1861,8 +1865,18 @@
     };
     
     specialDirectives[Moon.config.prefix + "show"] = {
-      duringPropGenerate: function (value, meta, vnode) {
-        return '"m-show": ' + compileTemplate(value, false) + ', ';
+      beforeGenerate: function (value, meta, vnode, parentVNode) {
+        var runTimeShowDirective = {
+          name: Moon.config.prefix + "show",
+          value: compileTemplate(value, false),
+          literal: true
+        };
+    
+        if (!vnode.props.directives) {
+          vnode.props.directives = [runTimeShowDirective];
+        } else {
+          vnode.props.directives.push(runTimeShowDirective);
+        }
       }
     };
     

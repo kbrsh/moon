@@ -7,8 +7,18 @@ specialDirectives[Moon.config.prefix + "if"] = {
 }
 
 specialDirectives[Moon.config.prefix + "show"] = {
-  duringPropGenerate: function(value, meta, vnode) {
-    return `"m-show": ${compileTemplate(value, false)}, `;
+  beforeGenerate: function(value, meta, vnode, parentVNode) {
+    const runTimeShowDirective = {
+      name: Moon.config.prefix + "show",
+      value: compileTemplate(value, false),
+      literal: true
+    }
+
+    if(!vnode.props.directives) {
+      vnode.props.directives = [runTimeShowDirective];
+    } else {
+      vnode.props.directives.push(runTimeShowDirective);
+    }
   }
 }
 
