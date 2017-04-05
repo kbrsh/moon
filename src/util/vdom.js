@@ -145,10 +145,7 @@ const diffProps = function(node, nodeProps, vnode) {
 
   // Diff Node Props with VNode Props
   for(let nodePropName in nodeProps) {
-    var vnodePropValue = vnodeProps[nodePropName];
-    var nodePropValue = nodeProps[nodePropName];
-
-    if(vnodePropValue == null) {
+    if(vnodeProps[nodePropName] == null) {
       node.removeAttribute(nodePropName);
     }
   }
