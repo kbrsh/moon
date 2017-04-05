@@ -138,12 +138,6 @@ specialDirectives[Moon.config.prefix + "html"] = {
   }
 }
 
-specialDirectives[Moon.config.prefix + "text"] = {
-  beforeGenerate: function(value, meta, vnode) {
-    vnode.children = [value];
-  }
-}
-
 directives[Moon.config.prefix + "show"] = function(el, val, vnode) {
   el.style.display = (val ? '' : 'none');
 }

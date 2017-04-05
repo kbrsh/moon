@@ -491,22 +491,6 @@ describe("Directive", function() {
     });
   });
 
-  describe('Text Directive', function() {
-    createTestElement("text", '<span m-text="{{msg}}" id="text-directive-span"></span>');
-    var textApp = new Moon({
-      el: "#text",
-      data: {
-        msg: "Hello Moon!"
-      }
-    });
-    it('should fill DOM with a value', function() {
-      expect(document.getElementById("text-directive-span").innerHTML).to.equal("Hello Moon!");
-    });
-    it('should not be present at runtime', function() {
-      expect(document.getElementById('text-directive-span').getAttribute("m-text")).to.be['null'];
-    });
-  });
-
   describe('Mask Directive', function() {
     createTestElement("mask", '<span m-mask id="mask-directive-span">{{msg}}</span>');
     var maskApp = new Moon({
