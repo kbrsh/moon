@@ -534,9 +534,7 @@
         var vnodePropValue = vnodeProps[vnodePropName];
         var nodePropValue = nodeProps[vnodePropName];
     
-        if (directives[vnodePropName] !== undefined) {
-          directives[vnodePropName](node, vnodePropValue, vnode);
-        } else if (nodePropValue == null || vnodePropValue !== nodePropValue) {
+        if (nodePropValue == null || vnodePropValue !== nodePropValue) {
           node.setAttribute(vnodePropName, vnodePropValue);
         }
       }
@@ -546,8 +544,15 @@
         var vnodePropValue = vnodeProps[nodePropName];
         var nodePropValue = nodeProps[nodePropName];
     
-        if (vnodePropValue == null || directives[nodePropName] !== undefined) {
+        if (vnodePropValue == null) {
           node.removeAttribute(nodePropName);
+        }
+      }
+    
+      // Execute any directives
+      if (vnode.props.directives !== undefined) {
+        for (var directive in vnode.props.directives) {
+          directives[directive](node, vnode.props.directives[directive], vnode);
         }
       }
     
