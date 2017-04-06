@@ -21,8 +21,7 @@ var comment = `/**
  * Copyright 2016-2017 Kabir Shah
  * Released under the MIT License
  * http://moonjs.ga
- */
-`;
+ */\r\n`;
 
 // Build Moon
 gulp.task('transpile', function () {
