@@ -1,11 +1,9 @@
-/*
-* Moon v0.8.0
-* Copyright 2016-2017, Kabir Shah
-* https://github.com/KingPixil/moon/
-* Free to use under the MIT license.
-* https://kingpixil.github.io/license
-*/
-
+/**
+ * Moon v0.8.0
+ * Copyright 2016-2017 Kabir Shah
+ * Released under the MIT License
+ * http://moonjs.ga
+ */
 (function(root, factory) {
   /* ======= Global Moon ======= */
   (typeof module === "object" && module.exports) ? module.exports = factory() : root.Moon = factory();
