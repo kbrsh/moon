@@ -16,7 +16,12 @@ var size = require("gulp-size");
 var saucelabs = require('gulp-saucelabs');
 var connect = require('gulp-connect');
 
-var comment = '\/*\r\n* Moon v' + pkg.version + '\r\n* Copyright 2016-2017, Kabir Shah\r\n* https:\/\/github.com\/KingPixil\/moon\/\r\n* Free to use under the MIT license.\r\n* https:\/\/kingpixil.github.io\/license\r\n*\/\r\n';
+var comment = `/**
+ * Moon v${pkg.version}
+ * Copyright 2016-2017 Kabir Shah
+ * Released under the MIT License
+ * http://moonjs.ga
+ */`;
 
 // Build Moon
 gulp.task('transpile', function () {
