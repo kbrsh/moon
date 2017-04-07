@@ -288,10 +288,7 @@ const hydrate = function(node, vnode, parent, instance) {
  * @return {Number} patch type
  */
 const diff = function(oldVNode, vnode, parent, instance) {
-  if(oldVNode === vnode) {
-    // Both have the same reference, exit early
-    return PATCH.SKIP;
-  } else if(oldVNode == null) {
+  if(oldVNode == null) {
     // No Node, append a node
     appendChild(createNodeFromVNode(vnode, instance), vnode, parent);
 
@@ -301,6 +298,9 @@ const diff = function(oldVNode, vnode, parent, instance) {
     removeChild(oldVNode.meta.el, parent);
 
     return PATCH.REMOVE;
+  } else if(oldVNode === vnode) {
+    // Both have the same reference, skip
+    return PATCH.SKIP;
   } else if(oldVNode.type !== vnode.type) {
     // Different types, replace it
     replaceChild(oldVNode.meta.el, createNodeFromVNode(vnode, instance), vnode, parent);
