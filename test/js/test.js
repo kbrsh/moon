@@ -747,7 +747,14 @@ describe("Optimization", function() {
     var staticOptimizationApp = new Moon({
       el: "#staticOptimization"
     });
-    expect(staticOptimizationApp.render().meta.shouldRender).to.equal(false);
+    var tree = staticOptimizationApp.render();
+    expect(tree.meta.shouldRender).to.equal(false);
+    expect(tree.children[0].meta.shouldRender).to.equal(false);
+    expect(tree.children[1].meta.shouldRender).to.equal(false);
+    expect(tree.children[2].meta.shouldRender).to.equal(false);
+    expect(tree.children[3].meta.shouldRender).to.equal(false);
+    expect(tree.children[4].meta.shouldRender).to.equal(false);
+    expect(tree.children[5].meta.shouldRender).to.equal(false);
   });
 });
 
