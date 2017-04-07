@@ -754,8 +754,8 @@
           // Traverse and Diff Children
           var totalLen = newLength > oldLength ? newLength : oldLength;
           for (var i = 0; i < totalLen; i++) {
-            var oldChild = oldVNode.children[i];
-            var child = vnode.children[i];
+            var oldChild = i < oldLength ? oldVNode.children[i] : null;
+            var child = i < newLength ? vnode.children[i] : null;
     
             var action = diff(oldChild, child, _node, instance);
     
