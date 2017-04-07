@@ -288,12 +288,12 @@ const hydrate = function(node, vnode, parent, instance) {
  * @return {Number} patch type
  */
 const diff = function(oldVNode, vnode, parent, instance) {
-  if(oldVNode == null) {
+  if(oldVNode === null) {
     // No Node, append a node
     appendChild(createNodeFromVNode(vnode, instance), vnode, parent);
 
     return PATCH.APPEND;
-  } else if(vnode == null) {
+  } else if(vnode === null) {
     // No New VNode, remove Node
     removeChild(oldVNode.meta.el, parent);
 
