@@ -1208,9 +1208,12 @@
       if (attrs) {
         // Invoke any special directives that need to change values before code generation
         for (var beforeAttr in attrs) {
-          var beforeAttrName = attrs[beforeAttr].name;
-          if (specialDirectives[beforeAttrName] && specialDirectives[beforeAttrName].beforeGenerate) {
-            specialDirectives[beforeAttrName].beforeGenerate(attrs[beforeAttr].value, attrs[beforeAttr].meta, vnode, parentVNode);
+          var beforeAttrInfo = attrs[beforeAttr];
+          var beforeAttrName = beforeAttrInfo.name;
+          var beforeSpecialDirective = null;
+    
+          if ((beforeSpecialDirective = specialDirectives[beforeAttrName]) !== undefined && beforeSpecialDirective.beforeGenerate) {
+            beforeSpecialDirective.beforeGenerate(beforeAttrInfo.value, beforeAttrInfo.meta, vnode, parentVNode);
           }
         }
     
