@@ -38,15 +38,15 @@ const generateProps = function(vnode, parentVNode) {
 			if((specialDirective = specialDirectives[attrName]) !== undefined) {
 				// Generate Special Directives
 				// Special directive found that generates code after initial generation, push it to its known special directives to run afterGenerate later
-				if(specialDirective.afterGenerate) {
-					if(!vnode.specialDirectivesAfter) {
+				if(specialDirective.afterGenerate !== undefined) {
+					if(vnode.specialDirectivesAfter === undefined) {
 						vnode.specialDirectivesAfter = {};
 					}
 					vnode.specialDirectivesAfter[attr] = attrInfo;
 				}
 
 				// Invoke any special directives that need to change values of props during code generation
-				if(specialDirective.duringPropGenerate) {
+				if(specialDirective.duringPropGenerate !== undefined) {
 					generatedObject += specialDirective.duringPropGenerate(attrInfo.value, attrInfo.meta, vnode);
 				}
 
