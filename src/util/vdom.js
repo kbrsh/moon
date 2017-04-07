@@ -360,8 +360,8 @@ const diff = function(oldVNode, vnode, parent, instance) {
       // Traverse and Diff Children
       let totalLen = newLength > oldLength ? newLength : oldLength;
       for(var i = 0; i < totalLen; i++) {
-        let oldChild = oldVNode.children[i];
-        let child = vnode.children[i];
+        let oldChild = i < oldLength ? oldVNode.children[i] : null;
+        let child = i < newLength ? vnode.children[i] : null;
 
         const action = diff(oldChild, child, node, instance);
 
