@@ -52,13 +52,14 @@ Moon.prototype.callMethod = function(method, args) {
 /**
  * Attaches an Event Listener
  * @param {String} eventName
- * @param {Function} action
+ * @param {Function} handler
  */
-Moon.prototype.on = function(eventName, action) {
-  if(this.$events[eventName]) {
-    this.$events[eventName].push(action);
+Moon.prototype.on = function(eventName, handler) {
+  let handlers = this.$events[eventName];
+  if(handlers !== undefined) {
+    handlers.push(handler);
   } else {
-    this.$events[eventName] = [action];
+    this.$events[eventName] = [handler];
   }
 }
 
