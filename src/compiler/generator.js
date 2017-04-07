@@ -164,11 +164,6 @@ const createCall = function(vnode, parentVNode) {
 	// Generate Code for Type
 	let call = `h("${vnode.type}", `;
 
-	// If component, ensure it will render
-	if(components[vnode.type]) {
-		vnode.meta.shouldRender = true;
-	}
-
 	// Generate Code for Props
 	call += generateProps(vnode, parentVNode) + ", ";
 
