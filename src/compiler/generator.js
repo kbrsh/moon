@@ -22,23 +22,29 @@ const generateProps = function(vnode, parentVNode) {
 
 		// Generate all other attributes
 		for(let attr in attrs) {
+			// Attribute Info
+			const attrInfo = attrs[attr];
+
 			// Get attr by it's actual name (in case it had any arguments)
-			const attrName = attrs[attr].name;
+			const attrName = attrInfo.name;
+
+			// Late bind for special directive
+			let specialDirective = null;
 
 			// If it is a directive, mark it as dynamic
-			if(specialDirectives[attrName]) {
+			if((specialDirective = specialDirectives[attrName]) !== undefined) {
 				// Generate Special Directives
 				// Special directive found that generates code after initial generation, push it to its known special directives to run afterGenerate later
-				if(specialDirectives[attrName].afterGenerate) {
+				if(specialDirective.afterGenerate) {
 					if(!vnode.specialDirectivesAfter) {
 						vnode.specialDirectivesAfter = {};
 					}
-					vnode.specialDirectivesAfter[attr] = attrs[attr];
+					vnode.specialDirectivesAfter[attr] = attrInfo;
 				}
 
 				// Invoke any special directives that need to change values of props during code generation
-				if(specialDirectives[attrName].duringPropGenerate) {
-					generatedObject += specialDirectives[attrName].duringPropGenerate(attrs[attr].value, attrs[attr].meta, vnode);
+				if(specialDirective.duringPropGenerate) {
+					generatedObject += specialDirective.duringPropGenerate(attrInfo.value, attrInfo.meta, vnode);
 				}
 
 				// Keep a flag to know to always rerender this
@@ -47,10 +53,10 @@ const generateProps = function(vnode, parentVNode) {
 				// Remove special directive
 				delete attrs[attr];
 			} else if(directives[attrName]) {
-				vnode.props.directives.push(attrs[attr]);
+				vnode.props.directives.push(attrInfo);
 				vnode.meta.shouldRender = true;
 			} else {
-				const normalizedProp = JSON.stringify(attrs[attr].value);
+				const normalizedProp = JSON.stringify(attrInfo.value);
 				const compiledProp = compileTemplate(normalizedProp, true);
 				if(normalizedProp !== compiledProp) {
 					vnode.meta.shouldRender = true;
@@ -59,7 +65,8 @@ const generateProps = function(vnode, parentVNode) {
 			}
 		}
 
-		if(Object.keys(attrs).length) {
+		// Close object
+		if(Object.keys(attrs).length !== 0) {
 			generatedObject = generatedObject.slice(0, -2) + "}";
 		} else {
 			generatedObject += "}";
@@ -68,12 +75,17 @@ const generateProps = function(vnode, parentVNode) {
 
 	// Check for DOM Properties
 	const dom = vnode.props.dom;
-	if(dom) {
+	if(dom !== undefined) {
 		vnode.meta.shouldRender = true;
+		// Add dom property
 		generatedObject += ", dom: {";
+
+		// Generate all properties
 		for(var domProp in dom) {
 			generatedObject += `"${domProp}": ${dom[domProp]}, `;
 		}
+
+		// Close object
 		generatedObject = generatedObject.slice(0, -2) + "}";
 	}
 
@@ -84,14 +96,16 @@ const generateProps = function(vnode, parentVNode) {
 
 		for(var i = 0; i < allDirectives.length; i++) {
 			let directiveInfo = allDirectives[i];
+			// If literal, then add value as a literal expression, or escape it
 			const normalizedValue = directiveInfo.literal ? directiveInfo.value : JSON.stringify(directiveInfo.value);
 			generatedObject += `"${directiveInfo.name}": ${normalizedValue}, `;
 		}
 
+		// Close object
 		generatedObject = generatedObject.slice(0, -2) + "}";
 	}
 
-	// Close the generated object
+	// Close the final generated object
 	generatedObject += "}";
   return generatedObject;
 }
@@ -102,15 +116,20 @@ const generateProps = function(vnode, parentVNode) {
  * @return {String} generated code
  */
 const generateEventListeners = function(listeners) {
+	// If no listeners, return empty object
 	if(Object.keys(listeners).length === 0) {
 		return "{}";
 	}
+
+	// Begin object
 	let generatedObject = "{";
 
+	// Generate an array for all listeners
 	for(let type in listeners) {
 		generatedObject += `"${type}": [${generateArray(listeners[type])}], `;
 	}
 
+	// Close object
 	generatedObject = generatedObject.slice(0, -2) + "}";
 
   return generatedObject;
@@ -122,8 +141,10 @@ const generateEventListeners = function(listeners) {
  * @return {String} generated code
  */
 const generateMeta = function(meta) {
+	// Begin generated object
 	let generatedObject = "{";
 
+	// Generate all metadata
 	for(let key in meta) {
 		if(key === 'eventListeners') {
 			generatedObject += `"${key}": ${generateEventListeners(meta[key])}, `;
@@ -132,6 +153,7 @@ const generateMeta = function(meta) {
 		}
 	}
 
+	// Close object
 	generatedObject = generatedObject.slice(0, -2) + "}";
 
   return generatedObject;
@@ -143,12 +165,15 @@ const generateMeta = function(meta) {
  * @return {String} generated array
  */
 const generateArray = function(arr) {
+	// Begin array
 	let generatedArray = "";
 
+	// Generate all items (literal expressions)
 	for(let i = 0; i < arr.length; i++) {
 		generatedArray += `${arr[i]}, `;
 	}
 
+	// Close array
 	generatedArray = generatedArray.slice(0, -2);
 
   return generatedArray;
@@ -168,12 +193,12 @@ const createCall = function(vnode, parentVNode) {
 	call += generateProps(vnode, parentVNode) + ", ";
 
 	// Generate code for children recursively here (in case modified by special directives)
-	const children = vnode.children.map(function(item) {
-		return generateEl(item, vnode);
+	const children = vnode.children.map(function(vchild) {
+		return generateEl(vchild, vnode);
 	});
 
 	// If the "shouldRender" flag is not present, ensure node will be updated
-	if(vnode.meta.shouldRender && parentVNode) {
+	if(vnode.meta.shouldRender === true && parentVNode !== undefined) {
 		parentVNode.meta.shouldRender = true;
 	}
 
@@ -181,13 +206,16 @@ const createCall = function(vnode, parentVNode) {
 	call += generateMeta(vnode.meta);
 
 	// Generate Code for Children
-	if(children.length) {
-		if(vnode.deep) {
+	if(children.length !== 0) {
+		if(vnode.deep === true) {
+			// If deep, flatten it in the code
 			call += `, [].concat.apply([], [${generateArray(children)}])`
 		} else {
+			// Not deep, generate a shallow array
 			call += `, [${generateArray(children)}]`;
 		}
 	} else {
+		// No children, empty array
 		call += ", []";
 	}
 
@@ -196,19 +224,17 @@ const createCall = function(vnode, parentVNode) {
   return call;
 }
 
-const generateEl = function(el, parentEl) {
+const generateEl = function(vnode, parentVNode) {
 	let code = "";
 
-	if(typeof el === "string") {
+	if(typeof vnode === "string") {
 		// Escape newlines and double quotes, and compile the string
-		const escapedString = escapeString(el);
+		const escapedString = escapeString(vnode);
 		const compiledText = compileTemplate(escapedString, true);
 		let textMeta = defaultMetadata();
 
 		if(escapedString !== compiledText) {
-			if(parentEl) {
-				parentEl.meta.shouldRender = true;
-			}
+			parentVNode.meta.shouldRender = true;
 			textMeta.shouldRender = true;
 		}
 
@@ -217,38 +243,38 @@ const generateEl = function(el, parentEl) {
 		// Recursively generate code for children
 
 		// Generate Metadata if not Already
-		if(!el.meta) {
-			el.meta = defaultMetadata();
+		if(!vnode.meta) {
+			vnode.meta = defaultMetadata();
 		}
 
 		// Detect SVG Element
-		if(el.isSVG) {
-			el.meta.isSVG = true;
+		if(vnode.isSVG) {
+			vnode.meta.isSVG = true;
 		}
 
 		// Setup Nested Attributes within Properties
-		el.props = {
-			attrs: el.props
+		vnode.props = {
+			attrs: vnode.props
 		}
 
 		// Create a Call for the Element, or Register a Slot
-		const slotNameAttr = el.props.attrs.name;
 		let compiledCode = "";
-		if(el.type === "slot") {
-			if(parentEl) {
-				parentEl.meta.shouldRender = true;
-				parentEl.deep = true;
-			}
+
+		if(vnode.type === "slot") {
+			parentVNode.meta.shouldRender = true;
+			parentVNode.deep = true;
+
+			const slotNameAttr = vnode.props.attrs.name;
 			compiledCode = `instance.$slots['${(slotNameAttr && slotNameAttr.value) || ("default")}']`;
 		} else {
-			compiledCode = createCall(el, parentEl);
+			compiledCode = createCall(vnode, parentVNode);
 		}
 
 		// Check for Special Directives that change the code after generation and run them
-		if(el.specialDirectivesAfter) {
-			for(let specialDirectiveAfterInfo in el.specialDirectivesAfter) {
-				const specialDirectiveAfter = el.specialDirectivesAfter[specialDirectiveAfterInfo];
-				compiledCode = specialDirectives[specialDirectiveAfter.name].afterGenerate(specialDirectiveAfter.value, specialDirectiveAfter.meta, compiledCode, el);
+		if(vnode.specialDirectivesAfter !== undefined) {
+			for(let specialDirectiveAfterInfo in vnode.specialDirectivesAfter) {
+				const specialDirectiveAfter = vnode.specialDirectivesAfter[specialDirectiveAfterInfo];
+				compiledCode = specialDirectives[specialDirectiveAfter.name].afterGenerate(specialDirectiveAfter.value, specialDirectiveAfter.meta, compiledCode, vnode);
 			}
 		}
 		code += compiledCode;
