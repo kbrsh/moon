@@ -460,37 +460,36 @@
      * @return {Object} Object usable in Virtual DOM (VNode)
      */
     var h = function (tag, attrs, meta, children) {
-      // Text Node
+      var component = null;
+    
       if (tag === TEXT_TYPE) {
+        // Text Node
         // Tag => #text
         // Attrs => meta
         // Meta => val
         return createElement(TEXT_TYPE, meta, { attrs: {} }, attrs, []);
-      }
-    
-      // It's a Component
-      if (components[tag] !== undefined) {
-        // Functional component
-        if (components[tag].opts.functional === true) {
+      } else if ((component = components[tag]) !== undefined) {
+        // Resolve Component
+        if (component.opts.functional === true) {
           return createFunctionalComponent(attrs, children, components[tag]);
         } else {
-          // Provide the instance to diff engine
-          meta.component = components[tag];
+          meta.component = component;
         }
       }
+    
+      return createElement(tag, "", attrs, meta, children);
     
       // In the end, we have a VNode structure like:
       // {
       //  type: 'h1', <= nodename
       //  props: {
       //    attrs: {id: 'someId'}, <= regular attributes
-      //    dom: {textContent: 'some text content'} <= only for DOM properties added by directives
+      //    dom: {textContent: 'some text content'} <= only for DOM properties added by directives,
+      //    directives: {'m-mask': ''} <= any directives
       //  },
       //  meta: {}, <= metadata used internally
-      //  children: [], <= any child nodes or text
+      //  children: [], <= any child nodes
       // }
-    
-      return createElement(tag, "", attrs, meta, children);
     };
     
     /**
