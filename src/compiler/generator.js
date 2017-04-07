@@ -14,9 +14,12 @@ const generateProps = function(vnode, parentVNode) {
 	if(attrs) {
 		// Invoke any special directives that need to change values before code generation
 		for(let beforeAttr in attrs) {
-			const beforeAttrName = attrs[beforeAttr].name;
-			if(specialDirectives[beforeAttrName] && specialDirectives[beforeAttrName].beforeGenerate) {
-				specialDirectives[beforeAttrName].beforeGenerate(attrs[beforeAttr].value, attrs[beforeAttr].meta, vnode, parentVNode);
+			const beforeAttrInfo = attrs[beforeAttr];
+			const beforeAttrName = beforeAttrInfo.name;
+			let beforeSpecialDirective = null;
+
+			if((beforeSpecialDirective = specialDirectives[beforeAttrName]) !== undefined && beforeSpecialDirective.beforeGenerate) {
+				beforeSpecialDirective.beforeGenerate(beforeAttrInfo.value, beforeAttrInfo.meta, vnode, parentVNode);
 			}
 		}
 
