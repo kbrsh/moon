@@ -32,7 +32,7 @@ Moon.prototype.set = function(key, val) {
  * Destroys Moon Instance
  */
 Moon.prototype.destroy = function() {
-  this.removeEvents();
+  this.off();
   this.$el = null;
   this.$destroyed = true;
   callHook(this, 'destroyed');
@@ -66,43 +66,42 @@ Moon.prototype.on = function(eventName, handler) {
 /**
  * Removes an Event Listener
  * @param {String} eventName
- * @param {Function} action
+ * @param {Function} handler
  */
-Moon.prototype.off = function(eventName, action) {
-  const index = this.$events[eventName].indexOf(action);
-  if(index !== -1) {
-    this.$events[eventName].splice(index, 1);
-  }
-}
-
-/**
- * Removes All Event Listeners
- * @param {String} eventName
- * @param {Function} action
- */
-Moon.prototype.removeEvents = function() {
-  for(let evt in this.$events) {
-    this.$events[evt] = [];
+Moon.prototype.off = function(eventName, handler) {
+  if(eventName === undefined) {
+    this.$events = {};
+  } else if(handler === undefined) {
+    this.$events[eventName] = [];
+  } else {
+    let handlers = this.$events[eventName];
+    const index = handlers.indexOf(handler);
+    if(index !== -1) {
+      handlers.splice(index, 1);
+    }
   }
 }
 
 /**
  * Emits an Event
  * @param {String} eventName
- * @param {Object} meta
+ * @param {Object} customMeta
  */
-Moon.prototype.emit = function(eventName, meta) {
-  meta = meta || {};
+Moon.prototype.emit = function(eventName, customMeta) {
+  var meta = customMeta || {};
   meta.type = eventName;
 
-  if(this.$events["*"]) {
-    for(let i = 0; i < this.$events["*"].length; i++) {
-      this.$events["*"][i](meta);
-    }
+  var handlers = this.$events[eventName];
+  var globalHandlers = this.$events["*"];
+
+  for(var i = 0; i < handlers.length; i++) {
+    handlers[i](meta);
   }
 
-  for(let i = 0; i < this.$events[eventName].length; i++) {
-    this.$events[eventName][i](meta);
+  if(globalHandlers !== undefined) {
+    for(var i = 0; i < globalHandlers.length; i++) {
+      globalHandlers[i](meta);
+    }
   }
 }
 
