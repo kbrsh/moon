@@ -196,7 +196,7 @@ const diffComponent = function(node, vnode) {
       componentInstance.$slots = getSlots(vnode.children);
       componentChanged = true;
     }
-    
+
     // If any changes were detected, build the component
     if(componentChanged === true) {
       componentInstance.build();
@@ -358,6 +358,7 @@ const diff = function(oldVNode, vnode, parent, instance) {
         while((firstChild = node.firstChild) !== null) {
           removeChild(firstChild, node);
         }
+        oldVNode.children = [];
       }
     } else {
       // Traverse and Diff Children
