@@ -1591,9 +1591,16 @@
      * Destroys Moon Instance
      */
     Moon.prototype.destroy = function () {
+      // Remove event listeners
       this.off();
+    
+      // Remove reference to element
       this.$el = null;
+    
+      // Setup destroyed state
       this.$destroyed = true;
+    
+      // Call destroyed hook
       callHook(this, 'destroyed');
     };
     
@@ -1602,7 +1609,10 @@
      * @param {String} method
      */
     Moon.prototype.callMethod = function (method, args) {
+      // Get arguments
       args = args || [];
+    
+      // Call method in context of instance
       this.$methods[method].apply(this, args);
     };
     
@@ -1614,11 +1624,15 @@
      * @param {Function} handler
      */
     Moon.prototype.on = function (eventName, handler) {
+      // Get list of handlers
       var handlers = this.$events[eventName];
-      if (handlers !== undefined) {
-        handlers.push(handler);
-      } else {
+    
+      if (handlers === undefined) {
+        // If no handlers, create them
         this.$events[eventName] = [handler];
+      } else {
+        // If there are already handlers, add it to the list of them
+        handlers.push(handler);
       }
     };
     
@@ -1629,15 +1643,20 @@
      */
     Moon.prototype.off = function (eventName, handler) {
       if (eventName === undefined) {
+        // No event name provided, remove all events
         this.$events = {};
       } else if (handler === undefined) {
+        // No handler provided, remove all handlers for the event name
         this.$events[eventName] = [];
       } else {
+        // Get handlers from event name
         var handlers = this.$events[eventName];
+    
+        // Get index of the handler to remove
         var index = handlers.indexOf(handler);
-        if (index !== -1) {
-          handlers.splice(index, 1);
-        }
+    
+        // Remove the handler
+        handlers.splice(index, 1);
       }
     };
     

@@ -25,7 +25,7 @@ Moon.prototype.get = function(key) {
 Moon.prototype.set = function(key, val) {
   // Get base of keypath
   const base = resolveKeyPath(this, this.$data, key, val);
-  
+
   // Notify observer of change
   this.$observer.notify(base);
 
@@ -37,9 +37,16 @@ Moon.prototype.set = function(key, val) {
  * Destroys Moon Instance
  */
 Moon.prototype.destroy = function() {
+  // Remove event listeners
   this.off();
+
+  // Remove reference to element
   this.$el = null;
+
+  // Setup destroyed state
   this.$destroyed = true;
+
+  // Call destroyed hook
   callHook(this, 'destroyed');
 }
 
@@ -48,7 +55,10 @@ Moon.prototype.destroy = function() {
  * @param {String} method
  */
 Moon.prototype.callMethod = function(method, args) {
+  // Get arguments
   args = args || [];
+
+  // Call method in context of instance
   this.$methods[method].apply(this, args);
 }
 
@@ -60,11 +70,15 @@ Moon.prototype.callMethod = function(method, args) {
  * @param {Function} handler
  */
 Moon.prototype.on = function(eventName, handler) {
+  // Get list of handlers
   let handlers = this.$events[eventName];
-  if(handlers !== undefined) {
-    handlers.push(handler);
-  } else {
+
+  if(handlers === undefined) {
+    // If no handlers, create them
     this.$events[eventName] = [handler];
+  } else {
+    // If there are already handlers, add it to the list of them
+    handlers.push(handler);
   }
 }
 
@@ -75,15 +89,20 @@ Moon.prototype.on = function(eventName, handler) {
  */
 Moon.prototype.off = function(eventName, handler) {
   if(eventName === undefined) {
+    // No event name provided, remove all events
     this.$events = {};
   } else if(handler === undefined) {
+    // No handler provided, remove all handlers for the event name
     this.$events[eventName] = [];
   } else {
+    // Get handlers from event name
     let handlers = this.$events[eventName];
+
+    // Get index of the handler to remove
     const index = handlers.indexOf(handler);
-    if(index !== -1) {
-      handlers.splice(index, 1);
-    }
+
+    // Remove the handler
+    handlers.splice(index, 1);
   }
 }
 
