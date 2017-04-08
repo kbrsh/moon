@@ -21,7 +21,7 @@ const error = function(msg) {
  * @param {Object} instance
  */
 const queueBuild = function(instance) {
-  if(!instance.$queued && !instance.$destroyed) {
+  if(instance.$queued === false && instance.$destroyed === false) {
     instance.$queued = true;
     setTimeout(function() {
       instance.build();

@@ -132,7 +132,7 @@
      * @param {Object} instance
      */
     var queueBuild = function (instance) {
-      if (!instance.$queued && !instance.$destroyed) {
+      if (instance.$queued === false && instance.$destroyed === false) {
         instance.$queued = true;
         setTimeout(function () {
           instance.build();
