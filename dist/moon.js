@@ -756,6 +756,7 @@
             while ((firstChild = _node.firstChild) !== null) {
               removeChild(firstChild, _node);
             }
+            oldVNode.children = [];
           }
         } else {
           // Traverse and Diff Children
