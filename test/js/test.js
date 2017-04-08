@@ -748,13 +748,13 @@ describe("Optimization", function() {
       el: "#staticOptimization"
     });
     var tree = staticOptimizationApp.render();
-    expect(tree.meta.shouldRender).to.equal(false);
-    expect(tree.children[0].meta.shouldRender).to.equal(false);
-    expect(tree.children[1].meta.shouldRender).to.equal(false);
-    expect(tree.children[2].meta.shouldRender).to.equal(false);
-    expect(tree.children[3].meta.shouldRender).to.equal(false);
-    expect(tree.children[4].meta.shouldRender).to.equal(false);
-    expect(tree.children[5].meta.shouldRender).to.equal(false);
+    var assertShouldRender = function(vnode) {
+      expect(vnode.meta.shouldRender).to.equal(false);
+      for(var i = 0; i < vnode.children.length; i++) {
+        assertShouldRender(vnode.children[i]);
+      }
+    }
+    assertShouldRender(tree);
   });
 });
 
