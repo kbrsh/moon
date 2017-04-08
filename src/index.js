@@ -61,7 +61,7 @@ function Moon(opts) {
     this.$observer = new Observer(this);
 
     // Destroyed State
-    this.$destroyed = false;
+    this.$destroyed = true;
 
     // State of Queue
     this.$queued = false;
