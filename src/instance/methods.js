@@ -212,8 +212,6 @@ Moon.prototype.patch = function(old, vnode, parent) {
     }
 
   }
-
-  this.$initialRender = false;
 }
 
 /**
