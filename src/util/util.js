@@ -83,22 +83,26 @@ const resolveKeyPath = function(instance, obj, keypath, val) {
 const getSlots = function(children) {
   let slots = {};
 
-  // No Children Means No Slots
-  if(!children) {
-    return slots;
-  }
-
+  // Setup default slots
   let defaultSlotName = "default";
   slots[defaultSlotName] = [];
 
+  // No Children Means No Slots
+  if(children.length === 0) {
+    return slots;
+  }
+
+  // Get rest of the slots
   for(let i = 0; i < children.length; i++) {
-    var child = children[i];
-    var childProps = child.props.attrs;
-    if(childProps.slot) {
-      if(!slots[childProps.slot]) {
-        slots[childProps.slot] = [child];
+    const child = children[i];
+    const childProps = child.props.attrs;
+    let slotName = "";
+
+    if((slotName = childProps.slot) !== undefined) {
+      if(slots[slotName] === undefined) {
+        slots[slotName] = [child];
       } else {
-        slots[childProps.slot].push(child);
+        slots[slotName].push(child);
       }
       delete childProps.slot;
     } else {
@@ -146,7 +150,7 @@ const merge = function(parent, child) {
  */
 const callHook = function(instance, name) {
   const hook = instance.$hooks[name];
-  if(hook) {
+  if(hook !== undefined) {
     hook.call(instance);
   }
 }

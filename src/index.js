@@ -33,18 +33,40 @@ function Moon(opts) {
     /* ======= Initial Values ======= */
     this.$opts = opts || {};
 
+    // Unique ID for Instance
     this.$id = id++;
 
+    // Readable name (component name or "root")
     this.$name = this.$opts.name || "root";
+
+    // Custom Data
     this.$data = this.$opts.data || {};
+
+    // Render function
     this.$render = this.$opts.render || noop;
+
+    // Hooks
     this.$hooks = this.$opts.hooks || {};
+
+    // Custom Methods
     this.$methods = this.$opts.methods || {};
+
+    // Pool of Events
     this.$events = {};
+
+    // Virtual DOM
     this.$dom = {};
+
+    // Observer
     this.$observer = new Observer(this);
+
+    // Destroyed State
     this.$destroyed = false;
+
+    // State of Initial Render
     this.$initialRender = true;
+
+    // State of Queue
     this.$queued = false;
 
     // Setup Computed Properties

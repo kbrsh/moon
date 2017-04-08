@@ -194,22 +194,26 @@
     var getSlots = function (children) {
       var slots = {};
     
-      // No Children Means No Slots
-      if (!children) {
-        return slots;
-      }
-    
+      // Setup default slots
       var defaultSlotName = "default";
       slots[defaultSlotName] = [];
     
+      // No Children Means No Slots
+      if (children.length === 0) {
+        return slots;
+      }
+    
+      // Get rest of the slots
       for (var i = 0; i < children.length; i++) {
         var child = children[i];
         var childProps = child.props.attrs;
-        if (childProps.slot) {
-          if (!slots[childProps.slot]) {
-            slots[childProps.slot] = [child];
+        var slotName = "";
+    
+        if ((slotName = childProps.slot) !== undefined) {
+          if (slots[slotName] === undefined) {
+            slots[slotName] = [child];
           } else {
-            slots[childProps.slot].push(child);
+            slots[slotName].push(child);
           }
           delete childProps.slot;
         } else {
@@ -257,7 +261,7 @@
      */
     var callHook = function (instance, name) {
       var hook = instance.$hooks[name];
-      if (hook) {
+      if (hook !== undefined) {
         hook.call(instance);
       }
     };
@@ -576,6 +580,7 @@
         // Mounted already, need to update
         var componentInstance = node.__moon__;
         var componentChanged = false;
+    
         // Merge any properties that changed
         for (var i = 0; i < componentInstance.$props.length; i++) {
           var prop = componentInstance.$props[i];
@@ -584,11 +589,13 @@
             componentChanged = true;
           }
         }
+    
         // If it has children, resolve any new slots
         if (vnode.children.length !== 0) {
           componentInstance.$slots = getSlots(vnode.children);
           componentChanged = true;
         }
+    
         // If any changes were detected, build the component
         if (componentChanged === true) {
           componentInstance.build();
@@ -1503,18 +1510,40 @@
       /* ======= Initial Values ======= */
       this.$opts = opts || {};
     
+      // Unique ID for Instance
       this.$id = id++;
     
+      // Readable name (component name or "root")
       this.$name = this.$opts.name || "root";
+    
+      // Custom Data
       this.$data = this.$opts.data || {};
+    
+      // Render function
       this.$render = this.$opts.render || noop;
+    
+      // Hooks
       this.$hooks = this.$opts.hooks || {};
+    
+      // Custom Methods
       this.$methods = this.$opts.methods || {};
+    
+      // Pool of Events
       this.$events = {};
+    
+      // Virtual DOM
       this.$dom = {};
+    
+      // Observer
       this.$observer = new Observer(this);
+    
+      // Destroyed State
       this.$destroyed = false;
+    
+      // State of Initial Render
       this.$initialRender = true;
+    
+      // State of Queue
       this.$queued = false;
     
       // Setup Computed Properties
@@ -1714,7 +1743,7 @@
      * @param {Object} parent
      */
     Moon.prototype.patch = function (old, vnode, parent) {
-      if (old.meta && old.meta.el) {
+      if (old.meta !== undefined && old.meta.el !== undefined) {
     
         if (vnode.type !== old.type) {
           // Root Element Changed During Diff
@@ -1749,7 +1778,7 @@
       var dom = this.render();
       var old = null;
     
-      if (this.$dom.meta) {
+      if (this.$dom.meta !== undefined) {
         old = this.$dom;
       } else {
         old = this.$el;
@@ -1766,7 +1795,7 @@
       log("======= Moon =======");
       callHook(this, 'init');
     
-      if (this.$opts.el) {
+      if (this.$opts.el !== undefined) {
         this.mount(this.$opts.el);
       }
     };

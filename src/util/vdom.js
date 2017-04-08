@@ -181,6 +181,7 @@ const diffComponent = function(node, vnode) {
     // Mounted already, need to update
     let componentInstance = node.__moon__;
     let componentChanged = false;
+
     // Merge any properties that changed
     for(var i = 0; i < componentInstance.$props.length; i++) {
       let prop = componentInstance.$props[i];
@@ -189,11 +190,13 @@ const diffComponent = function(node, vnode) {
         componentChanged = true;
       }
     }
+
     // If it has children, resolve any new slots
     if(vnode.children.length !== 0) {
       componentInstance.$slots = getSlots(vnode.children);
       componentChanged = true;
     }
+    
     // If any changes were detected, build the component
     if(componentChanged === true) {
       componentInstance.build();
