@@ -220,6 +220,7 @@ Moon.prototype.mount = function(el) {
  * @return Virtual DOM
  */
 Moon.prototype.render = function() {
+  // Call render function
   return this.$render(h);
 }
 
@@ -231,7 +232,7 @@ Moon.prototype.render = function() {
  */
 Moon.prototype.patch = function(old, vnode, parent) {
   if(old.meta !== undefined && old.meta.el !== undefined) {
-
+    // If it is not a VNode, then diff
     if(vnode.type !== old.type) {
       // Root Element Changed During Diff
       // Replace Root Element
@@ -247,14 +248,13 @@ Moon.prototype.patch = function(old, vnode, parent) {
 
   } else if(old instanceof Node) {
     // Hydrate
-    let newNode = hydrate(old, vnode, parent, this);
+    const newNode = hydrate(old, vnode, parent, this);
 
     if(newNode !== old) {
       // Root Element Changed During Hydration
       this.$el = vnode.meta.el;
       this.$el.__moon__ = this;
     }
-
   }
 }
 
@@ -262,16 +262,22 @@ Moon.prototype.patch = function(old, vnode, parent) {
  * Render and Patches the DOM With Data
  */
 Moon.prototype.build = function() {
+  // Get new virtual DOM
   const dom = this.render();
+
+  // Old item to patch
   let old = null;
 
   if(this.$dom.meta !== undefined) {
+    // If old virtual dom exists, patch against it
     old = this.$dom;
   } else {
+    // No virtual DOM, patch with actual DOM element, and setup virtual DOM
     old = this.$el;
     this.$dom = dom;
   }
 
+  // Patch old and new
   this.patch(old, dom, this.$el.parentNode);
 }
 
