@@ -112,17 +112,21 @@ Moon.prototype.off = function(eventName, handler) {
  * @param {Object} customMeta
  */
 Moon.prototype.emit = function(eventName, customMeta) {
+  // Setup metadata to pass to event
   var meta = customMeta || {};
   meta.type = eventName;
 
+  // Get handlers and global handlers
   var handlers = this.$events[eventName];
   var globalHandlers = this.$events["*"];
 
+  // Call all handlers for the event name
   for(var i = 0; i < handlers.length; i++) {
     handlers[i](meta);
   }
 
   if(globalHandlers !== undefined) {
+    // Call all of the global handlers if present
     for(var i = 0; i < globalHandlers.length; i++) {
       globalHandlers[i](meta);
     }
@@ -135,10 +139,14 @@ Moon.prototype.emit = function(eventName, customMeta) {
  * @param {Function} item
  */
 Moon.prototype.renderLoop = function(arr, item) {
+  // Get the amount of items (vnodes) to be created
   let items = new Array(arr.length);
+
+  // Call the function and get the item for the current index
   for(let i = 0; i < arr.length; i++) {
     items[i] = item(arr[i], i);
   }
+
   return items;
 }
 
@@ -149,20 +157,26 @@ Moon.prototype.renderLoop = function(arr, item) {
  */
 Moon.prototype.renderClass = function(classNames) {
   if(typeof classNames === "string") {
+    // If they are a string, no need for any more processing
     return classNames;
   }
+
   let renderedClassNames = "";
   if(Array.isArray(classNames)) {
+    // It's an array, so go through them all and generate a string
     for(let i = 0; i < classNames.length; i++) {
       renderedClassNames += `${this.renderClass(classNames[i])} `;
     }
   } else if(typeof classNames === "object") {
+    // It's an object, so to through and render them to a string if the corresponding condition is true
     for(let className in classNames) {
       if(classNames[className]) {
         renderedClassNames += `${className} `;
       }
     }
   }
+
+  // Remove trailing space and return
   renderedClassNames = renderedClassNames.slice(0, -1);
   return renderedClassNames;
 }
@@ -172,10 +186,14 @@ Moon.prototype.renderClass = function(classNames) {
  * @param {Object} el
  */
 Moon.prototype.mount = function(el) {
+  // Get element from the DOM
   this.$el = document.querySelector(el);
+
+  // Remove destroyed state
   this.$destroyed = false;
 
-  if("__ENV__" !== "production" && !this.$el) {
+  if("__ENV__" !== "production" && this.$el === null) {
+    // Element not found
     error("Element " + this.$opts.el + " not found");
   }
 
@@ -192,6 +210,8 @@ Moon.prototype.mount = function(el) {
 
   // Run First Build
   this.build();
+
+  // Call mounted hook
   callHook(this, 'mounted');
 }
 
