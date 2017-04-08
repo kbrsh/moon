@@ -186,7 +186,7 @@ Moon.prototype.render = function() {
  * @param {Object} parent
  */
 Moon.prototype.patch = function(old, vnode, parent) {
-  if(old.meta && old.meta.el) {
+  if(old.meta !== undefined && old.meta.el !== undefined) {
 
     if(vnode.type !== old.type) {
       // Root Element Changed During Diff
@@ -223,7 +223,7 @@ Moon.prototype.build = function() {
   const dom = this.render();
   let old = null;
 
-  if(this.$dom.meta) {
+  if(this.$dom.meta !== undefined) {
     old = this.$dom;
   } else {
     old = this.$el;
@@ -240,7 +240,7 @@ Moon.prototype.init = function() {
   log("======= Moon =======");
   callHook(this, 'init');
 
-  if(this.$opts.el) {
+  if(this.$opts.el !== undefined) {
     this.mount(this.$opts.el);
   }
 }
