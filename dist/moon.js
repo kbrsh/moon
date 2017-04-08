@@ -1540,9 +1540,6 @@
       // Destroyed State
       this.$destroyed = false;
     
-      // State of Initial Render
-      this.$initialRender = true;
-    
       // State of Queue
       this.$queued = false;
     
@@ -1767,8 +1764,6 @@
           this.$el.__moon__ = this;
         }
       }
-    
-      this.$initialRender = false;
     };
     
     /**
