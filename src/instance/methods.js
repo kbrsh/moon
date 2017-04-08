@@ -23,8 +23,13 @@ Moon.prototype.get = function(key) {
  * @param {String} val
  */
 Moon.prototype.set = function(key, val) {
+  // Get base of keypath
   const base = resolveKeyPath(this, this.$data, key, val);
+  
+  // Notify observer of change
   this.$observer.notify(base);
+
+  // Queue a build
   queueBuild(this);
 }
 
