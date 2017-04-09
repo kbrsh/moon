@@ -6,7 +6,7 @@
   "main": "soldfile.js",
   "devDependencies": {
     "moonjs": "latest",
-    "sold": "^0.1.14"
+    "sold": "latest"
   },
   "scripts": {
     "build": "sold"
