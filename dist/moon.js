@@ -442,10 +442,13 @@
      */
     var createFunctionalComponent = function (props, children, functionalComponent) {
       var data = functionalComponent.opts.data || {};
+    
       // Merge data with provided props
       if (functionalComponent.opts.props !== undefined) {
-        for (var i = 0; i < functionalComponent.opts.props.length; i++) {
-          var prop = functionalComponent.opts.props[i];
+        var propNames = functionalComponent.opts.props;
+    
+        for (var i = 0; i < propNames.length; i++) {
+          var prop = propNames[i];
           data[prop] = props.attrs[prop];
         }
       }
