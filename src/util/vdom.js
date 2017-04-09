@@ -45,10 +45,9 @@ const createFunctionalComponent = function(props, children, functionalComponent)
   let data = functionalComponent.opts.data || {};
   // Merge data with provided props
   if(functionalComponent.opts.props !== undefined) {
-    for(var i = 0; i < functionalComponent.opts.props.length; i++) {
-      var prop = functionalComponent.opts.props[i];
+    functionalComponent.opts.props.forEach(prop => {
       data[prop] = props.attrs[prop];
-    }
+    });
   }
   return functionalComponent.opts.render(h, {
     data: data,
@@ -107,10 +106,10 @@ const h = function(tag, attrs, meta, children) {
 const createComponentFromVNode = function(node, vnode, component) {
   let componentInstance = new component.CTor();
   // Merge data with provided props
-  for(let i = 0; i < componentInstance.$props.length; i++) {
-    var prop = componentInstance.$props[i];
+  componentInstance.$props.forEach(prop => {
     componentInstance.$data[prop] = vnode.props.attrs[prop];
-  }
+  });
+
   componentInstance.$slots = getSlots(vnode.children);
   componentInstance.$el = node;
   componentInstance.build();
@@ -183,13 +182,12 @@ const diffComponent = function(node, vnode) {
     let componentChanged = false;
 
     // Merge any properties that changed
-    for(var i = 0; i < componentInstance.$props.length; i++) {
-      let prop = componentInstance.$props[i];
+    componentInstance.$props.forEach(prop => {
       if(componentInstance.$data[prop] !== vnode.props.attrs[prop]) {
-        componentInstance.$data[prop] = vnode.props.attrs[prop];
-        componentChanged = true;
+         componentInstance.$data[prop] = vnode.props.attrs[prop];
+         componentChanged = true;
       }
-    }
+    });
 
     // If it has children, resolve any new slots
     if(vnode.children.length !== 0) {
