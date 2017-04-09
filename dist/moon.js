@@ -1124,7 +1124,8 @@
       return root;
     };
     
-    var HTML_ELEMENTS = ["area", "base", "br", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"];
+    var HTML_ELEMENTS = ["html", "body", "head", "style", "title", "address", "article", "aside", "footer", "header", "h1", "h2", "h3", "h4", "h5", "h6", "hgroup", "nav", "section", "div", "dd", "dl", "dt", "figcaption", "figure", "li", "main", "ol", "p", "pre", "ul", "a", "b", "abbr", "bdi", "bdo", "cite", "code", "data", "dfn", "em", "i", "kbd", "mark", "q", "rp", "rt", "rtc", "ruby", "s", "samp", "small", "span", "strong", "sub", "sup", "time", "u", "var", "audio", "map", "video", "object", "canvas", "script", "noscript", "del", "ins", "caption", "colgroup", "table", "thead", "tbody", "td", "th", "tr", "button", "datalist", "fieldset", "form", "label", "legend", "meter", "optgroup", "option", "output", "progress", "select", "textarea", "details", "dialog", "menu", "menuitem", "summary", "content", "element", "shadow", "template"];
+    var VOID_ELEMENTS = ["area", "base", "br", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"];
     var SVG_ELEMENTS = ["svg", "animate", "circle", "clippath", "cursor", "defs", "desc", "ellipse", "filter", "font-face", "foreignObject", "g", "glyph", "image", "line", "marker", "mask", "missing-glyph", "path", "pattern", "polygon", "polyline", "rect", "switch", "symbol", "text", "textpath", "tspan", "use", "view"];
     
     var createParseNode = function (type, props, children) {
@@ -1154,38 +1155,54 @@
     
       if (token.type === "comment") {
         increment();
-        return;
+        return null;
       }
     
       // Start of new Tag
       if (token.type === "tag") {
         var tagType = token.value;
+        var close = token.close;
+    
+        var isSVGElement = SVG_ELEMENTS.indexOf(tagType) !== -1;
+        var isVoidElement = VOID_ELEMENTS.indexOf(tagType) !== -1;
+        var isCustomVoidElement = HTML_ELEMENTS.indexOf(tagType) === -1;
+    
         var node = createParseNode(tagType, token.attributes, []);
     
         increment();
     
         // If it is an svg element, let code generator know
-        if (SVG_ELEMENTS.indexOf(tagType) !== -1) {
+        if (isSVGElement) {
           node.isSVG = true;
         }
     
-        // If it's self closing, return it here
-        if (HTML_ELEMENTS.indexOf(tagType) !== -1) {
+        if (isVoidElement || isCustomVoidElement && close === true) {
+          // Self closing, don't process further
           return node;
-        }
-    
-        if (token) {
-          while (token.type !== "tag" || token.type === "tag" && (!token.close || token.value !== tagType)) {
+        } else if (close === true) {
+          // Unmatched closing tag on non void element
+          return null;
+        } else if (token !== undefined) {
+          // Match all children
+          var current = state.current;
+          while (token.type !== "tag" || token.type === "tag" && (token.close === false || token.value !== tagType)) {
             var parsedChildState = walk(state);
-            if (parsedChildState) {
+            if (parsedChildState !== null) {
               node.children.push(parsedChildState);
             }
             increment(0);
-            if (!token) {
-              // No token means a tag was left unclosed
-              if ("development" !== "production") {
+            if (token === undefined) {
+              // No token means a tag was most likely left unclosed
+    
+              if (isCustomVoidElement) {
+                // Is a void custom element, empty children
+                increment(-(state.current - c + 1));
+                node.children = [];
+              } else if ("development" !== "production") {
+                // Non void element left unclosed
                 error('The element "' + node.type + '" was left unclosed.');
               }
+    
               break;
             }
           }
