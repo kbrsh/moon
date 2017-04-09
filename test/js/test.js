@@ -119,6 +119,16 @@ describe('Instance', function() {
 });
 
 describe("Compiler", function() {
+  it("should compile whitespace in mustaches", function() {
+    var el = createTestElement("compilerMustacheWhitespace", '{{  msg   }}');
+    var app = new Moon({
+      el: "#compilerMustacheWhitespace",
+      data: {
+        msg: "Hello Moon!"
+      }
+    });
+    expect(el.innerHTML).to.equal("Hello Moon!");
+  });
   it("should not compile comments", function() {
     var el = createTestElement("compilerComment", '<!-- comment -->');
     var compilerCommentApp = new Moon({
