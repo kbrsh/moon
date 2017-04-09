@@ -19,7 +19,6 @@ const parse = function(tokens) {
   return root;
 }
 
-const HTML_ELEMENTS = ["html","body","head","style","title","address","article","aside","footer","header","h1","h2","h3","h4","h5","h6","hgroup","nav","section","div","dd","dl","dt","figcaption","figure","li","main","ol","p","pre","ul","a","b","abbr","bdi","bdo","cite","code","data","dfn","em","i","kbd","mark","q","rp","rt","rtc","ruby","s","samp","small","span","strong","sub","sup","time","u","var","audio","map","video","object","canvas","script","noscript","del","ins","caption","colgroup","table","thead","tbody","td","th","tr","button","datalist","fieldset","form","label","legend","meter","optgroup","option","output","progress","select","textarea","details","dialog","menu","menuitem","summary","content","element","shadow","template"];
 const VOID_ELEMENTS = ["area","base","br","command","embed","hr","img","input","keygen","link","meta","param","source","track","wbr"];
 const SVG_ELEMENTS = ["svg","animate","circle","clippath","cursor","defs","desc","ellipse","filter","font-face","foreignObject","g","glyph","image","line","marker","mask","missing-glyph","path","pattern","polygon","polyline","rect","switch","symbol","text","textpath","tspan","use","view"];
 
@@ -56,11 +55,11 @@ const walk = function(state) {
   // Start of new Tag
   if(token.type === "tag") {
     const tagType = token.value;
-    const close = token.close;
+    const closeStart = token.closeStart;
+    const closeEnd = token.closeEnd;
 
     const isSVGElement = SVG_ELEMENTS.indexOf(tagType) !== -1;
     const isVoidElement = VOID_ELEMENTS.indexOf(tagType) !== -1;
-    const isCustomVoidElement = HTML_ELEMENTS.indexOf(tagType) === -1;
 
     let node = createParseNode(tagType, token.attributes, []);
 
@@ -71,16 +70,16 @@ const walk = function(state) {
       node.isSVG = true;
     }
 
-    if((isVoidElement) || (isCustomVoidElement && close === true)) {
+    if(isVoidElement) {
       // Self closing, don't process further
       return node;
-    } else if(close === true) {
+    } else if(closeStart === true) {
       // Unmatched closing tag on non void element
       return null;
     } else if(token !== undefined) {
       // Match all children
       const current = state.current;
-      while((token.type !== "tag") || ((token.type === "tag") && (token.close === false || token.value !== tagType))) {
+      while((token.type !== "tag") || ((token.type === "tag") && ((token.closeStart === false && token.closeEnd === false) || (token.value !== tagType)))) {
         var parsedChildState = walk(state);
         if(parsedChildState !== null) {
           node.children.push(parsedChildState);
@@ -88,16 +87,9 @@ const walk = function(state) {
         increment(0);
         if(token === undefined) {
           // No token means a tag was most likely left unclosed
-
-          if(isCustomVoidElement) {
-            // Is a void custom element, empty children
-            increment(-(state.current - current + 1));
-            node.children = [];
-          } else if("__ENV__" !== "production") {
-            // Non void element left unclosed
+          if("__ENV__" !== "production") {
             error(`The element "${node.type}" was left unclosed.`);
           }
-
           break;
         }
       }

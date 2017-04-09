@@ -134,19 +134,27 @@ describe("Compiler", function() {
     });
     expect(app.$dom.children[0].type).to.equal("self-closing");
   });
-  it("should compile self closing elements without a slash", function() {
+  it("should compile self closing elements without a slash and consume children", function() {
     var el = createTestElement("compilerSelfClosingNoSlash", '');
     var app = new Moon({
       el: "#compilerSelfClosingNoSlash",
-      template: "<div><self-closing></div>"
+      template: "<div><self-closing>hi</div>"
     });
-    expect(app.$dom.children[0].type).to.equal("self-closing");
+    expect(app.$dom.children[0].children[0].val).to.equal("hi");
   });
   it("should ignore just closing elements", function() {
     var el = createTestElement("compilerJustClosing", '');
     var app = new Moon({
       el: "#compilerJustClosing",
       template: "<div></h1></div>"
+    });
+    expect(app.$dom.children[0]).to.equal(undefined);
+  });
+  it("should ignore just closing custom elements", function() {
+    var el = createTestElement("compilerJustClosingCustom", '');
+    var app = new Moon({
+      el: "#compilerJustClosingCustom",
+      template: "<div></custom></div>"
     });
     expect(app.$dom.children[0]).to.equal(undefined);
   });
@@ -166,12 +174,6 @@ describe("Compiler", function() {
     expect(el.innerHTML).to.equal('"Hello Moon!"');
   });
   it("should compile an unclosed comment", function() {
-    if(typeof console === 'undefined') {
-      console = {}
-    }
-    if(console) {
-      console.error = Moon.util.noop;
-    }
     var el = createTestElement("compilerUnclosedComment", '');
     var compilerCommentApp = new Moon({
       el: "#compilerUnclosedComment",
@@ -180,12 +182,6 @@ describe("Compiler", function() {
     expect(el.innerHTML).to.equal("");
   });
   it("should compile an unclosed tag", function() {
-    if(typeof console === 'undefined') {
-      console = {}
-    }
-    if(console) {
-      console.error = Moon.util.noop;
-    }
     var el = createTestElement("compilerUnclosedTag", '');
     var compilerUnclosedTagApp = new Moon({
       el: "#compilerUnclosedTag",

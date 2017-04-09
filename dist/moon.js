@@ -982,9 +982,14 @@
       var isClosingEnd = input.charAt(state.current) === "/";
       state.current += isClosingEnd ? 2 : 1;
     
-      // Check if Closing
-      if (isClosingStart || isClosingEnd) {
-        tagToken.close = true;
+      // Check if Closing Start
+      if (isClosingStart) {
+        tagToken.closeStart = true;
+      }
+    
+      // Check if Closing End
+      if (isClosingEnd) {
+        tagToken.closeEnd = true;
       }
     };
     
@@ -1124,7 +1129,6 @@
       return root;
     };
     
-    var HTML_ELEMENTS = ["html", "body", "head", "style", "title", "address", "article", "aside", "footer", "header", "h1", "h2", "h3", "h4", "h5", "h6", "hgroup", "nav", "section", "div", "dd", "dl", "dt", "figcaption", "figure", "li", "main", "ol", "p", "pre", "ul", "a", "b", "abbr", "bdi", "bdo", "cite", "code", "data", "dfn", "em", "i", "kbd", "mark", "q", "rp", "rt", "rtc", "ruby", "s", "samp", "small", "span", "strong", "sub", "sup", "time", "u", "var", "audio", "map", "video", "object", "canvas", "script", "noscript", "del", "ins", "caption", "colgroup", "table", "thead", "tbody", "td", "th", "tr", "button", "datalist", "fieldset", "form", "label", "legend", "meter", "optgroup", "option", "output", "progress", "select", "textarea", "details", "dialog", "menu", "menuitem", "summary", "content", "element", "shadow", "template"];
     var VOID_ELEMENTS = ["area", "base", "br", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"];
     var SVG_ELEMENTS = ["svg", "animate", "circle", "clippath", "cursor", "defs", "desc", "ellipse", "filter", "font-face", "foreignObject", "g", "glyph", "image", "line", "marker", "mask", "missing-glyph", "path", "pattern", "polygon", "polyline", "rect", "switch", "symbol", "text", "textpath", "tspan", "use", "view"];
     
@@ -1161,11 +1165,11 @@
       // Start of new Tag
       if (token.type === "tag") {
         var tagType = token.value;
-        var close = token.close;
+        var closeStart = token.closeStart;
+        var closeEnd = token.closeEnd;
     
         var isSVGElement = SVG_ELEMENTS.indexOf(tagType) !== -1;
         var isVoidElement = VOID_ELEMENTS.indexOf(tagType) !== -1;
-        var isCustomVoidElement = HTML_ELEMENTS.indexOf(tagType) === -1;
     
         var node = createParseNode(tagType, token.attributes, []);
     
@@ -1176,16 +1180,16 @@
           node.isSVG = true;
         }
     
-        if (isVoidElement || isCustomVoidElement && close === true) {
+        if (isVoidElement) {
           // Self closing, don't process further
           return node;
-        } else if (close === true) {
+        } else if (closeStart === true) {
           // Unmatched closing tag on non void element
           return null;
         } else if (token !== undefined) {
           // Match all children
           var current = state.current;
-          while (token.type !== "tag" || token.type === "tag" && (token.close === false || token.value !== tagType)) {
+          while (token.type !== "tag" || token.type === "tag" && (token.closeStart === false && token.closeEnd === false || token.value !== tagType)) {
             var parsedChildState = walk(state);
             if (parsedChildState !== null) {
               node.children.push(parsedChildState);
@@ -1193,16 +1197,9 @@
             increment(0);
             if (token === undefined) {
               // No token means a tag was most likely left unclosed
-    
-              if (isCustomVoidElement) {
-                // Is a void custom element, empty children
-                increment(-(state.current - current + 1));
-                node.children = [];
-              } else if ("development" !== "production") {
-                // Non void element left unclosed
+              if ("development" !== "production") {
                 error('The element "' + node.type + '" was left unclosed.');
               }
-    
               break;
             }
           }

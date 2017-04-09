@@ -96,9 +96,14 @@ const lexTag = function(state) {
   const isClosingEnd = input.charAt(state.current) === "/";
   state.current += isClosingEnd ? 2 : 1;
 
-  // Check if Closing
-  if(isClosingStart || isClosingEnd) {
-    tagToken.close = true;
+  // Check if Closing Start
+  if(isClosingStart) {
+    tagToken.closeStart = true;
+  }
+
+  // Check if Closing End
+  if(isClosingEnd) {
+    tagToken.closeEnd = true;
   }
 }
 
