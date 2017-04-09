@@ -1,6 +1,7 @@
 const openRE = /\{\{/;
-const closeRE = /\}\}/;
+const closeRE = /\s*\}\}/;
 const modifierRE = /\[|\.|\(/;
+const whitespaceRE = /\s/;
 
 const compileTemplate = function(template, isString) {
   let state = {
@@ -33,6 +34,9 @@ const compileTemplateState = function(state, isString) {
     // Exit The Opening Tag
     state.current += 2;
 
+    // Consume whitespace
+    scanTemplateStateForWhitespace(state);
+
     // Get the name of the opening tag
     let name = scanTemplateStateUntil(state, closeRE);
 
@@ -61,6 +65,9 @@ const compileTemplateState = function(state, isString) {
       }
     }
 
+    // Consume whitespace
+    scanTemplateStateForWhitespace(state);
+
     // Exit mustache
     state.current += 2;
   }
@@ -88,4 +95,12 @@ const scanTemplateStateUntil = function(state, re) {
   state.current += match.length;
 
   return match;
+}
+
+const scanTemplateStateForWhitespace = function(state) {
+  const template = state.template;
+  let char = template[state.current];
+  while(whitespaceRE.test(char)) {
+    char = template[++state.current];
+  }
 }
