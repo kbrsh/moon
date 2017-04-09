@@ -45,6 +45,7 @@ const compileTemplateState = function(state, isString) {
     }
 
     if(name) {
+      // Extract modifiers
       let modifiers = "";
       let modifierIndex = null;
       if((modifierIndex = (name.search(modifierRE))) !== -1) {
@@ -52,6 +53,7 @@ const compileTemplateState = function(state, isString) {
         name = name.substring(0, modifierIndex);
       }
 
+      // Generate code
       if(isString) {
         state.output += `" + instance.get("${name}")${modifiers} + "`;
       } else {
@@ -59,6 +61,7 @@ const compileTemplateState = function(state, isString) {
       }
     }
 
+    // Exit mustache
     state.current += 2;
   }
 }
