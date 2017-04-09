@@ -1196,7 +1196,7 @@
     
               if (isCustomVoidElement) {
                 // Is a void custom element, empty children
-                increment(-(state.current - c + 1));
+                increment(-(state.current - current + 1));
                 node.children = [];
               } else if ("development" !== "production") {
                 // Non void element left unclosed

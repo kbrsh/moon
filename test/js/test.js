@@ -128,11 +128,27 @@ describe("Compiler", function() {
   });
   it("should compile self closing elements", function() {
     var el = createTestElement("compilerSelfClosing", '<self-closing/>');
-    var compilerCommentApp = new Moon({
+    var app = new Moon({
       el: "#compilerSelfClosing",
       template: "<div><self-closing/></div>"
     });
-    expect(compilerCommentApp.$dom.children[0].type).to.equal("self-closing");
+    expect(app.$dom.children[0].type).to.equal("self-closing");
+  });
+  it("should compile self closing elements without a slash", function() {
+    var el = createTestElement("compilerSelfClosingNoSlash", '');
+    var app = new Moon({
+      el: "#compilerSelfClosingNoSlash",
+      template: "<div><self-closing></div>"
+    });
+    expect(app.$dom.children[0].type).to.equal("self-closing");
+  });
+  it("should ignore just closing elements", function() {
+    var el = createTestElement("compilerJustClosing", '');
+    var app = new Moon({
+      el: "#compilerJustClosing",
+      template: "<div></h1></div>"
+    });
+    expect(app.$dom.children[0]).to.equal(undefined);
   });
   it("should compile only text", function() {
     var el = createTestElement("compilerOnlyText", '');
@@ -171,7 +187,6 @@ describe("Compiler", function() {
       console.error = Moon.util.noop;
     }
     var el = createTestElement("compilerUnclosedTag", '');
-    console.log(Moon.compile("<div><h1>Moon</div>"))
     var compilerUnclosedTagApp = new Moon({
       el: "#compilerUnclosedTag",
       template: "<div><h1>Moon</div>"
