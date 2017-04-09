@@ -91,7 +91,7 @@ const walk = function(state) {
 
           if(isCustomVoidElement) {
             // Is a void custom element, empty children
-            increment(-(state.current - c + 1));
+            increment(-(state.current - current + 1));
             node.children = [];
           } else if("__ENV__" !== "production") {
             // Non void element left unclosed
