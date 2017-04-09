@@ -3,22 +3,8 @@ Sold(__dirname)
   .data({
     version: require("moonjs").version
   })
-  .configHandlebars(function(Handlebars) {
-    Handlebars.registerHelper('link', function(title, postFile, actualFile) {
-      if (postFile == actualFile) {
-        return new Handlebars.SafeString(`<a href="./${actualFile}" class="sidebar-link-active">${title}</a>`);
-      }
-      else {
-        return new Handlebars.SafeString(`<a href="./${actualFile}">${title}</a>`);
-      }
-    });
-  })
-  .template("docs-template")
+  .engine("ejs")
+  .template("template")
   .source("src")
-  .postSource("docs")
-  .destination("")
-  .build()
-  .template("api-template")
-  .postSource('api')
-  .destination("")
+  .destination("build")
   .build();

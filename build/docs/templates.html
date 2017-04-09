@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="{{post-title}}. Kabir Shah's blog.">
+  <meta name="author" content="Kabir Shah">
+
+  <title>Moon</title>
+  <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="../fonts/fonts.css" />
+  <link rel="stylesheet" type="text/css" href="../css/lib/wing.min.css" />
+  <link rel="stylesheet" type="text/css" href="../css/styles.css" />
+  <script type="text/javascript" src="../dist/moon.js"></script>
+</head>
+
+<body>
+  <div id="sidebar-toggle">
+    <span id="sidebar-toggle-1"></span>
+    <span id="sidebar-toggle-2"></span>
+    <span id="sidebar-toggle-3"></span>
+  </div>
+  <aside class="sidebar">
+    <h3 class="sidebar-head">Moon</h3>
+    <div class="sidebar-nav">
+      
+      <a href="./installation.html">Installation</a>
+      <a href="./overview.html">Overview</a>
+      <a href="./getting-started.html">Getting Started</a>
+      <a href="./instance.html">Instance</a>
+      <a href="./compiler.html">Compiler</a>
+      <a href="./templates.html">Templates</a>
+      <a href="./examples.html" class="sidebar-link-active">Examples</a>
+      
+    </div>
+  </aside>
+  <div class="post">
+    <div class="container-small">
+      <h1 class="post-title">Templates</h1>
+      <div class="post-content">
+        <p>Moon has a custom templating syntax similar to Mustache. All <strong>attributes</strong> and <strong>text</strong> is compiled for these templates.</p>
+<p>Here is an example:</p>
+<pre><code class="lang-html">&lt;h1 id=&quot;{{id}}&quot;&gt;{{data}}&lt;/h1&gt;
+</code></pre>
+<p>Templates can have a valid Javascript path for accessing properties on an array, object, or both. For example:</p>
+<pre><code class="lang-html">&lt;h1&gt;{{data.foo.bar[5].baz}}&lt;/h1&gt;
+</code></pre>
+<p><strong>Note:</strong> Internally, this will be converted to something like:</p>
+<pre><code class="lang-js">instance.get(&#39;data&#39;).foo.bar[5].baz
+</code></pre>
+<h2 id="html">HTML</h2>
+<p>By default, text data will be escaped, meaning that you cannot have HTML in it. If you do, it will be rendered as plain text. To render HTML, use the <a href="./../api/directives.html#-html-"><code>m-html</code></a> directive.</p>
+<h2 id="directives">Directives</h2>
+<p>Directives are prefixed with <code>m-</code> (or <code>Moon.config.prefix</code>)</p>
+<p>They are shorthands for the compiler, for example, <code>m-if</code> will tell the compiler to conditionally render some element.</p>
+
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript" src="../js/post.js"></script>
+</body>
+
+</html>
