@@ -1212,7 +1212,7 @@
         } else if (token !== undefined) {
           // Match all children
           var current = state.current;
-          while (token.type !== "tag" || token.type === "tag" && (token.closeStart === false && token.closeEnd === false || token.value !== tagType)) {
+          while (token.type !== "tag" || token.type === "tag" && (token.closeStart === undefined && token.closeEnd === undefined || token.value !== tagType)) {
             var parsedChildState = walk(state);
             if (parsedChildState !== null) {
               node.children.push(parsedChildState);
