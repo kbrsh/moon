@@ -801,8 +801,9 @@
     
     /* ======= Compiler ======= */
     var openRE = /\{\{/;
-    var closeRE = /\}\}/;
+    var closeRE = /\s*\}\}/;
     var modifierRE = /\[|\.|\(/;
+    var whitespaceRE = /\s/;
     
     var compileTemplate = function (template, isString) {
       var state = {
@@ -835,6 +836,9 @@
         // Exit The Opening Tag
         state.current += 2;
     
+        // Consume whitespace
+        scanTemplateStateForWhitespace(state);
+    
         // Get the name of the opening tag
         var name = scanTemplateStateUntil(state, closeRE);
     
@@ -863,6 +867,9 @@
           }
         }
     
+        // Consume whitespace
+        scanTemplateStateForWhitespace(state);
+    
         // Exit mustache
         state.current += 2;
       }
@@ -890,6 +897,14 @@
       state.current += match.length;
     
       return match;
+    };
+    
+    var scanTemplateStateForWhitespace = function (state) {
+      var template = state.template;
+      var char = template[state.current];
+      while (whitespaceRE.test(char)) {
+        char = template[++state.current];
+      }
     };
     
     var lex = function (input) {
