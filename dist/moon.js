@@ -847,6 +847,7 @@
         }
     
         if (name) {
+          // Extract modifiers
           var modifiers = "";
           var modifierIndex = null;
           if ((modifierIndex = name.search(modifierRE)) !== -1) {
@@ -854,6 +855,7 @@
             name = name.substring(0, modifierIndex);
           }
     
+          // Generate code
           if (isString) {
             state.output += '" + instance.get("' + name + '")' + modifiers + ' + "';
           } else {
@@ -861,6 +863,7 @@
           }
         }
     
+        // Exit mustache
         state.current += 2;
       }
     };
