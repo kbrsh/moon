@@ -19,11 +19,11 @@ Can toggle all logs (excluding errors)
 ##### **prefix**
 
 - Type: `String`
-- Default: `"m"`
+- Default: `"m-"`
 
 Usage:
 ```js
-Moon.config.prefix = "data-m";
+Moon.config.prefix = "data-m-";
 ```
 
 Can set the prefix used for directives (ie `data-m-if` instead of `m-if`). Just remember, all directives are not present in runtime.
