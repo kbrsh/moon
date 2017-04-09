@@ -163,6 +163,21 @@ describe("Compiler", function() {
     });
     expect(el.innerHTML).to.equal("");
   });
+  it("should compile an unclosed tag", function() {
+    if(typeof console === 'undefined') {
+      console = {}
+    }
+    if(console) {
+      console.error = Moon.util.noop;
+    }
+    var el = createTestElement("compilerUnclosedTag", '');
+    console.log(Moon.compile("<div><h1>Moon</div>"))
+    var compilerUnclosedTagApp = new Moon({
+      el: "#compilerUnclosedTag",
+      template: "<div><h1>Moon</div>"
+    });
+    expect(el.firstChild.textContent).to.equal("Moon");
+  });
 });
 
 
