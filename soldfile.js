@@ -4,7 +4,6 @@ Sold(__dirname)
     version: require("moonjs").version
   })
   .engine("ejs")
-  .template("template")
   .source("src")
-  .destination("build")
+  .destination("")
   .build();
