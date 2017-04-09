@@ -452,6 +452,8 @@
           data[prop] = props.attrs[prop];
         }
       }
+    
+      // Call render function
       return functionalComponent.opts.render(h, {
         data: data,
         slots: getSlots(children)

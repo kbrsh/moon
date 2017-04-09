@@ -43,7 +43,7 @@ const createElement = function(type, val, props, meta, children) {
  */
 const createFunctionalComponent = function(props, children, functionalComponent) {
   let data = functionalComponent.opts.data || {};
-  
+
   // Merge data with provided props
   if(functionalComponent.opts.props !== undefined) {
     const propNames = functionalComponent.opts.props;
@@ -53,6 +53,8 @@ const createFunctionalComponent = function(props, children, functionalComponent)
       data[prop] = props.attrs[prop];
     }
   }
+
+  // Call render function
   return functionalComponent.opts.render(h, {
     data: data,
     slots: getSlots(children)
