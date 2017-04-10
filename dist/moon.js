@@ -541,14 +541,15 @@
         var vnodePropValue = vnodeProps[vnodePropName];
         var nodePropValue = nodeProps[vnodePropName];
     
-        if (nodePropValue == null || vnodePropValue !== nodePropValue) {
-          node.setAttribute(vnodePropName, vnodePropValue);
+        if (vnodePropValue !== false && (nodePropValue == null || vnodePropValue !== nodePropValue)) {
+          node.setAttribute(vnodePropName, vnodePropValue === true ? '' : vnodePropValue);
         }
       }
     
       // Diff Node Props with VNode Props
       for (var nodePropName in nodeProps) {
-        if (vnodeProps[nodePropName] == null) {
+        var _vnodePropValue = vnodeProps[nodePropName];
+        if (_vnodePropValue === undefined || _vnodePropValue === false) {
           node.removeAttribute(nodePropName);
         }
       }

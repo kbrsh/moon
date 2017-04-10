@@ -139,17 +139,18 @@ const diffProps = function(node, nodeProps, vnode) {
 
   // Diff VNode Props with Node Props
   for(let vnodePropName in vnodeProps) {
-    var vnodePropValue = vnodeProps[vnodePropName];
-    var nodePropValue = nodeProps[vnodePropName];
+    const vnodePropValue = vnodeProps[vnodePropName];
+    const nodePropValue = nodeProps[vnodePropName];
 
-    if(nodePropValue == null || vnodePropValue !== nodePropValue) {
-      node.setAttribute(vnodePropName, vnodePropValue);
+    if((vnodePropValue !== false) && (nodePropValue == null || vnodePropValue !== nodePropValue)) {
+      node.setAttribute(vnodePropName, vnodePropValue === true ? '' : vnodePropValue);
     }
   }
 
   // Diff Node Props with VNode Props
   for(let nodePropName in nodeProps) {
-    if(vnodeProps[nodePropName] == null) {
+    const vnodePropValue = vnodeProps[nodePropName];
+    if(vnodePropValue === undefined || vnodePropValue === false) {
       node.removeAttribute(nodePropName);
     }
   }
