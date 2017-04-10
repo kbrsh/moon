@@ -908,6 +908,8 @@
       }
     };
     
+    var tagStartRE = /<[\w/]\s*/;
+    
     var lex = function (input) {
       var state = {
         input: input,
@@ -942,7 +944,8 @@
     var lexText = function (state) {
       var input = state.input;
       var len = input.length;
-      var endOfText = input.indexOf("<", state.current);
+      var endOfText = input.substring(state.current).search(tagStartRE) + state.current;
+    
       // Only Text
       if (endOfText === -1) {
         state.tokens.push({

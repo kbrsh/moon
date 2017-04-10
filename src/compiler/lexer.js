@@ -1,3 +1,5 @@
+const tagStartRE = /<[\w/]\s*/;
+
 const lex = function(input) {
   let state = {
     input: input,
@@ -32,7 +34,8 @@ const lexState = function(state) {
 const lexText = function(state) {
   const input = state.input;
   const len = input.length;
-  const endOfText = input.indexOf("<", state.current);
+  const endOfText = input.substring(state.current).search(tagStartRE) + state.current;
+
   // Only Text
   if(endOfText === -1) {
     state.tokens.push({
