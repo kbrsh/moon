@@ -2,8 +2,6 @@
 title: Getting Started
 ---
 
-#### Getting Started
-
 This introduction guide will get you started building basic applications with Moon in no time, to get started, create an HTML file and put this into it:
 
 ```html

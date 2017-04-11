@@ -1,11 +1,15 @@
 body {
   background: #f5f5f5;
-  color: #6B6B6B;
+  color: #4a4848;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: "Qanelas-Light";
-  color: #6B6B6B;
+  color: #4a4848;
+  font-family: "Muli", -apple-system, BlinkMacSystemFont, Avenir, "Avenir Next", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+}
+
+p {
+  font-weight: 200;
 }
 
 ul {
@@ -31,12 +35,11 @@ button {
 }
 
 .head {
-  font-family: "Qanelas-Bold";
+  font-weight: 700;
 }
 
 .subhead {
-  text-transform: uppercase;
-  font-family: "Qanelas-Bold";
+  font-weight: 600;
   text-align: center;
   font-size: 3.5rem;
 }
@@ -65,6 +68,11 @@ button {
 }
 
 #hero .inner h3 {
+  font-family: -apple-system, BlinkMacSystemFont, Avenir, "Avenir Next", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  font-weight: 200;
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
   margin-bottom: 5rem;
 }
 
@@ -88,9 +96,16 @@ button {
 .cta {
   padding: 1.5rem 5rem;
   font-size: 1.4rem;
-  box-shadow: 0px 4px 40px #a8a8a8;
+  box-shadow: 0px 4px 30px #a8a8a8;
   border-radius: 30px;
+  text-decoration: none;
   background: #00C2FC;
+  color: #f5f5f5;
+  transition: all 0.2s ease;
+}
+
+.cta:hover {
+  box-shadow: 0px 4px 50px #8a8585;
   color: #f5f5f5;
 }
 
