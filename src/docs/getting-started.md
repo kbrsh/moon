@@ -59,7 +59,7 @@ We should now have something that looks like this:
 
 #### Changing Data
 
-Moon can update the DOM as a result of you changing the data. To change data, you use an **instance method** called `set`. You can know do something like:
+Moon can update the DOM as a result of you changing the data. To change data, you use an **instance method** called `set`. You can now do something like:
 
 ```html
 <div id="app2">
