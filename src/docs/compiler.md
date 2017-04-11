@@ -31,8 +31,8 @@ Moon.compile("<p>Some HTML</p>");
 You can also play around with the compiler below:
 
 <div id="compiler" class="example">
-  <textarea m-on="input:compile"></textarea>
-  <pre><code m-literal="style:'color: ' + ({{err}} ? 'red' : '')">{{compiled}}</code></pre>
+  <textarea m-on:input="compile"></textarea>
+  <pre><code m-literal:style="'color: ' + ({{err}} ? 'red' : '')">{{compiled}}</code></pre>
 </div>
 
 <script>
