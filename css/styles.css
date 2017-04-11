@@ -147,7 +147,6 @@ button {
 .docs-subhead {
   font-size: 3.5rem;
   text-transform: uppercase;
-  font-family: "Qanelas-Bold";
 }
 
 .sample {
@@ -227,7 +226,6 @@ code {
 }
 
 .sidebar-head {
-  font-family: "Qanelas-Bold", sans-serif;
   text-align: center;
   margin-top: 0;
 }
@@ -238,7 +236,6 @@ code {
 
 .sidebar-nav a {
   color: #7f8082;
-  font-family: "Qanelas-Light", sans-serif;
   text-decoration: none;
   font-size: 2rem;
   display: block;
@@ -331,11 +328,11 @@ footer {
 }
 
 #footer-madeby {
-  font-family: "Qanelas-Light";
+  font-weight: 200;
 }
 
 #footer-name {
-	font-family: "Qanelas-Bold";
+  font-weight: 700;
 }
 
 #footer-desc {
