@@ -230,6 +230,11 @@ code {
   margin-top: 0;
 }
 
+.sidebar-head a {
+  color: #4a4848;
+  text-decoration: none;
+}
+
 .sidebar-nav {
   padding: 2rem 4rem;
 }
@@ -239,6 +244,7 @@ code {
   text-decoration: none;
   font-size: 2rem;
   display: block;
+  font-weight: 200;
 }
 
 .sidebar-nav a.sidebar-link-active {

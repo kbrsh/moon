@@ -2,7 +2,7 @@
 title: Templates
 ---
 
-Moon has a custom templating syntax similar to Mustache. All **attributes** and **text** is compiled for these templates.
+Moon has a custom templating syntax similar to Mustache. All **attributes** and **text** are compiled for these templates.
 
 Here is an example:
 
@@ -22,11 +22,11 @@ Templates can have a valid Javascript path for accessing properties on an array,
 instance.get('data').foo.bar[5].baz
 ```
 
-## HTML
+### HTML
 
 By default, text data will be escaped, meaning that you cannot have HTML in it. If you do, it will be rendered as plain text. To render HTML, use the [`m-html`](./../api/directives.html#-html-) directive.
 
-## Directives
+### Directives
 
 Directives are prefixed with `m-` (or `Moon.config.prefix`)
 

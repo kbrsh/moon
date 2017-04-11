@@ -21,7 +21,7 @@
     <span id="sidebar-toggle-3"></span>
   </div>
   <aside class="sidebar">
-    <h3 class="sidebar-head">Moon</h3>
+    <h3 class="sidebar-head"><a href="../">Moon</a></h3>
     <div class="sidebar-nav">
       
       <a href="./installation.html">Installation</a>
@@ -38,7 +38,7 @@
     <div class="container-small">
       <h1 class="post-title">Templates</h1>
       <div class="post-content">
-        <p>Moon has a custom templating syntax similar to Mustache. All <strong>attributes</strong> and <strong>text</strong> is compiled for these templates.</p>
+        <p>Moon has a custom templating syntax similar to Mustache. All <strong>attributes</strong> and <strong>text</strong> are compiled for these templates.</p>
 <p>Here is an example:</p>
 <pre><code class="lang-html">&lt;h1 id=&quot;{{id}}&quot;&gt;{{data}}&lt;/h1&gt;
 </code></pre>
@@ -48,9 +48,9 @@
 <p><strong>Note:</strong> Internally, this will be converted to something like:</p>
 <pre><code class="lang-js">instance.get(&#39;data&#39;).foo.bar[5].baz
 </code></pre>
-<h2 id="html">HTML</h2>
+<h3 id="html">HTML</h3>
 <p>By default, text data will be escaped, meaning that you cannot have HTML in it. If you do, it will be rendered as plain text. To render HTML, use the <a href="./../api/directives.html#-html-"><code>m-html</code></a> directive.</p>
-<h2 id="directives">Directives</h2>
+<h3 id="directives">Directives</h3>
 <p>Directives are prefixed with <code>m-</code> (or <code>Moon.config.prefix</code>)</p>
 <p>They are shorthands for the compiler, for example, <code>m-if</code> will tell the compiler to conditionally render some element.</p>
 
