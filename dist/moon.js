@@ -267,6 +267,14 @@
     };
     
     /**
+     * Escapes String Values for a Regular Expression
+     * @param {str} str
+     */
+    var escapeRegex = function (str) {
+      return str.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
+    };
+    
+    /**
      * Does No Operation
      */
     var noop = function () {};
@@ -801,16 +809,26 @@
     };
     
     /* ======= Compiler ======= */
-    var openRE = /\{\{/;
-    var closeRE = /\s*\}\}/;
     var modifierRE = /\[|\.|\(/;
     var whitespaceRE = /\s/;
     
-    var compileTemplate = function (template, isString) {
+    /**
+     * Compiles a Template
+     * @param {String} template
+     * @param {Array} delimiters
+     * @param {Array} escapedDelimiters
+     * @param {Boolean} isString
+     * @return {String} compiled template
+     */
+    var compileTemplate = function (template, delimiters, escapedDelimiters, isString) {
       var state = {
         current: 0,
         template: template,
-        output: ""
+        output: "",
+        openDelimiterLen: delimiters[0].length,
+        closeDelimiterLen: delimiters[1].length,
+        openRE: new RegExp(escapedDelimiters[0]),
+        closeRE: new RegExp('\\s*' + escapedDelimiters[1])
       };
     
       compileTemplateState(state, isString);
@@ -823,7 +841,7 @@
       var length = template.length;
       while (state.current < length) {
         // Match Text Between Templates
-        var value = scanTemplateStateUntil(state, openRE);
+        var value = scanTemplateStateUntil(state, state.openRE);
     
         if (value) {
           state.output += value;
@@ -834,14 +852,14 @@
           break;
         }
     
-        // Exit The Opening Tag
-        state.current += 2;
+        // Exit Opening Delimiter
+        state.current += state.openDelimiterLen;
     
         // Consume whitespace
         scanTemplateStateForWhitespace(state);
     
         // Get the name of the opening tag
-        var name = scanTemplateStateUntil(state, closeRE);
+        var name = scanTemplateStateUntil(state, state.closeRE);
     
         // If we've reached the end, the tag was unclosed
         if (state.current === length) {
@@ -871,8 +889,8 @@
         // Consume whitespace
         scanTemplateStateForWhitespace(state);
     
-        // Exit mustache
-        state.current += 2;
+        // Exit closing delimiter
+        state.current += state.closeDelimiterLen;
       }
     };
     
@@ -1242,6 +1260,16 @@
     };
     
     /**
+     * Delimiters (updated every time generation is called)
+     */
+    var delimiters = null;
+    
+    /**
+     * Escaped Delimiters
+     */
+    var escapedDelimiters = null;
+    
+    /**
      * Generates Code for Props
      * @param {Object} vnode
      * @param {Object} parentVNode
@@ -1303,7 +1331,7 @@
             vnode.meta.shouldRender = true;
           } else {
             var normalizedProp = JSON.stringify(attrInfo.value);
-            var compiledProp = compileTemplate(normalizedProp, true);
+            var compiledProp = compileTemplate(normalizedProp, delimiters, escapedDelimiters, true);
             if (normalizedProp !== compiledProp) {
               vnode.meta.shouldRender = true;
             }
@@ -1476,7 +1504,7 @@
       if (typeof vnode === "string") {
         // Escape newlines and double quotes, and compile the string
         var escapedString = escapeString(vnode);
-        var compiledText = compileTemplate(escapedString, true);
+        var compiledText = compileTemplate(escapedString, delimiters, escapedDelimiters, true);
         var textMeta = defaultMetadata();
     
         if (escapedString !== compiledText) {
@@ -1531,6 +1559,18 @@
     var generate = function (ast) {
       // Get root element
       var root = ast.children[0];
+    
+      // Update delimiters if needed
+      var newDelimeters = null;
+      if ((newDelimeters = Moon.config.delimiters) !== delimiters) {
+        delimiters = newDelimeters;
+    
+        // Escape delimiters
+        escapedDelimiters = new Array(2);
+        escapedDelimiters[0] = escapeRegex(delimiters[0]);
+        escapedDelimiters[1] = escapeRegex(delimiters[1]);
+      }
+    
       // Begin Code
       var code = "var instance = this; return " + generateEl(root);
     
@@ -1896,6 +1936,7 @@
     Moon.config = {
       silent: "development" === "production" || typeof console === 'undefined',
       prefix: "m-",
+      delimiters: ["{{", "}}"],
       keyCodes: function (keyCodes) {
         for (var keyCode in keyCodes) {
           eventModifiersCode[keyCode] = 'if(event.keyCode !== ' + keyCodes[keyCode] + ') {return;};';
@@ -1999,7 +2040,7 @@
     
     specialDirectives[Moon.config.prefix + "if"] = {
       afterGenerate: function (value, meta, code, vnode) {
-        return '(' + compileTemplate(value, false) + ') ? ' + code + ' : null';
+        return '(' + compileTemplate(value, delimiters, escapedDelimiters, false) + ') ? ' + code + ' : null';
       }
     };
     
@@ -2007,7 +2048,7 @@
       beforeGenerate: function (value, meta, vnode, parentVNode) {
         var runTimeShowDirective = {
           name: Moon.config.prefix + "show",
-          value: compileTemplate(value, false),
+          value: compileTemplate(value, delimiters, escapedDelimiters, false),
           literal: true
         };
     
@@ -2026,7 +2067,7 @@
         // Aliases
         var aliases = parts[0].split(",");
         // The Iteratable
-        var iteratable = compileTemplate(parts[1], false);
+        var iteratable = compileTemplate(parts[1], delimiters, escapedDelimiters, false);
     
         // Get any parameters
         var params = aliases.join(",");
@@ -2048,7 +2089,7 @@
         var rawModifiers = meta.arg.split(".");
         var eventToCall = rawModifiers[0];
         var params = "event";
-        var methodToCall = compileTemplate(value, false);
+        var methodToCall = compileTemplate(value, delimiters, escapedDelimiters, false);
         var rawParams = methodToCall.split("(");
     
         if (rawParams.length > 1) {
@@ -2075,7 +2116,7 @@
     specialDirectives[Moon.config.prefix + "model"] = {
       beforeGenerate: function (value, meta, vnode) {
         // Compile a string value for the keypath
-        var compiledStringValue = compileTemplate(value, true);
+        var compiledStringValue = compileTemplate(value, delimiters, escapedDelimiters, true);
         // Setup default event types and dom property to change
         var eventType = "input";
         var valueProp = "value";
@@ -2097,7 +2138,7 @@
         }
     
         // Setup a query used to get the value, and set the corresponding dom property
-        var getQuery = compileTemplate('{{' + compileTemplate(value, false) + '}}', false);
+        var getQuery = compileTemplate('{{' + compileTemplate(value, delimiters, escapedDelimiters, false) + '}}', delimiters, escapedDelimiters, false);
         if (vnode.props.dom === undefined) {
           vnode.props.dom = {};
         }
@@ -2111,9 +2152,9 @@
     
         if (prop === "class") {
           // Classes need to be rendered differently
-          return '"class": instance.renderClass(' + compileTemplate(value, false) + '), ';
+          return '"class": instance.renderClass(' + compileTemplate(value, delimiters, escapedDelimiters, false) + '), ';
         }
-        return '"' + prop + '": ' + compileTemplate(value, false) + ', ';
+        return '"' + prop + '": ' + compileTemplate(value, delimiters, escapedDelimiters, false) + ', ';
       }
     };
     
@@ -2122,7 +2163,7 @@
         if (vnode.props.dom === undefined) {
           vnode.props.dom = {};
         }
-        vnode.props.dom.innerHTML = '"' + compileTemplate(value, true) + '"';
+        vnode.props.dom.innerHTML = '"' + compileTemplate(value, delimiters, escapedDelimiters, true) + '"';
       }
     };
     

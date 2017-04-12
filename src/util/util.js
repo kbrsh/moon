@@ -156,6 +156,14 @@ const callHook = function(instance, name) {
 }
 
 /**
+ * Escapes String Values for a Regular Expression
+ * @param {str} str
+ */
+const escapeRegex = function(str) {
+  return str.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
+}
+
+/**
  * Does No Operation
  */
 const noop = function() {

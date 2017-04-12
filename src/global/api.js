@@ -6,6 +6,7 @@
 Moon.config = {
   silent: ("__ENV__" === "production") || (typeof console === 'undefined'),
   prefix: "m-",
+  delimiters: ["{{", "}}"],
   keyCodes: function(keyCodes) {
     for(var keyCode in keyCodes) {
       eventModifiersCode[keyCode] = `if(event.keyCode !== ${keyCodes[keyCode]}) {return;};`;
