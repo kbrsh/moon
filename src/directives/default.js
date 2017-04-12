@@ -2,7 +2,7 @@
 
 specialDirectives[Moon.config.prefix + "if"] = {
   afterGenerate: function(value, meta, code, vnode) {
-    return `(${compileTemplate(value, false)}) ? ${code} : null`;
+    return `(${compileTemplate(value, delimiters, escapedDelimiters, false)}) ? ${code} : null`;
   }
 }
 
@@ -10,7 +10,7 @@ specialDirectives[Moon.config.prefix + "show"] = {
   beforeGenerate: function(value, meta, vnode, parentVNode) {
     const runTimeShowDirective = {
       name: Moon.config.prefix + "show",
-      value: compileTemplate(value, false),
+      value: compileTemplate(value, delimiters, escapedDelimiters, false),
       literal: true
     }
 
@@ -29,7 +29,7 @@ specialDirectives[Moon.config.prefix + "for"] = {
     // Aliases
     const aliases = parts[0].split(",");
     // The Iteratable
-    const iteratable = compileTemplate(parts[1], false);
+    const iteratable = compileTemplate(parts[1], delimiters, escapedDelimiters, false);
 
     // Get any parameters
     const params = aliases.join(",");
@@ -51,7 +51,7 @@ specialDirectives[Moon.config.prefix + "on"] = {
     let rawModifiers = meta.arg.split(".");
     const eventToCall = rawModifiers[0];
     let params = "event";
-    let methodToCall = compileTemplate(value, false);
+    let methodToCall = compileTemplate(value, delimiters, escapedDelimiters, false);
     const rawParams = methodToCall.split("(");
 
     if(rawParams.length > 1) {
@@ -78,7 +78,7 @@ specialDirectives[Moon.config.prefix + "on"] = {
 specialDirectives[Moon.config.prefix + "model"] = {
   beforeGenerate: function(value, meta, vnode) {
     // Compile a string value for the keypath
-    const compiledStringValue = compileTemplate(value, true);
+    const compiledStringValue = compileTemplate(value, delimiters, escapedDelimiters, true);
     // Setup default event types and dom property to change
     let eventType = "input";
     let valueProp = "value";
@@ -100,7 +100,7 @@ specialDirectives[Moon.config.prefix + "model"] = {
     }
 
     // Setup a query used to get the value, and set the corresponding dom property
-    const getQuery = compileTemplate(`{{${compileTemplate(value, false)}}}`, false);
+    const getQuery = compileTemplate(`{{${compileTemplate(value, delimiters, escapedDelimiters, false)}}}`, delimiters, escapedDelimiters, false);
     if(vnode.props.dom === undefined) {
       vnode.props.dom = {};
     }
@@ -114,9 +114,9 @@ specialDirectives[Moon.config.prefix + "literal"] = {
 
     if(prop === "class") {
       // Classes need to be rendered differently
-      return `"class": instance.renderClass(${compileTemplate(value, false)}), `;
+      return `"class": instance.renderClass(${compileTemplate(value, delimiters, escapedDelimiters, false)}), `;
     }
-    return `"${prop}": ${compileTemplate(value, false)}, `;
+    return `"${prop}": ${compileTemplate(value, delimiters, escapedDelimiters, false)}, `;
   }
 };
 
@@ -125,7 +125,7 @@ specialDirectives[Moon.config.prefix + "html"] = {
     if(vnode.props.dom === undefined) {
       vnode.props.dom = {};
     }
-    vnode.props.dom.innerHTML = `"${compileTemplate(value, true)}"`;
+    vnode.props.dom.innerHTML = `"${compileTemplate(value, delimiters, escapedDelimiters, true)}"`;
   }
 }
 

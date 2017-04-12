@@ -1,4 +1,14 @@
 /**
+ * Delimiters (updated every time generation is called)
+ */
+let delimiters = null;
+
+/**
+ * Escaped Delimiters
+ */
+let escapedDelimiters = null;
+
+/**
  * Generates Code for Props
  * @param {Object} vnode
  * @param {Object} parentVNode
@@ -60,7 +70,7 @@ const generateProps = function(vnode, parentVNode) {
 				vnode.meta.shouldRender = true;
 			} else {
 				const normalizedProp = JSON.stringify(attrInfo.value);
-				const compiledProp = compileTemplate(normalizedProp, true);
+				const compiledProp = compileTemplate(normalizedProp, delimiters, escapedDelimiters, true);
 				if(normalizedProp !== compiledProp) {
 					vnode.meta.shouldRender = true;
 				}
@@ -233,7 +243,7 @@ const generateEl = function(vnode, parentVNode) {
 	if(typeof vnode === "string") {
 		// Escape newlines and double quotes, and compile the string
 		const escapedString = escapeString(vnode);
-		const compiledText = compileTemplate(escapedString, true);
+		const compiledText = compileTemplate(escapedString, delimiters, escapedDelimiters, true);
 		let textMeta = defaultMetadata();
 
 		if(escapedString !== compiledText) {
@@ -288,6 +298,18 @@ const generateEl = function(vnode, parentVNode) {
 const generate = function(ast) {
 	// Get root element
 	const root = ast.children[0];
+
+	// Update delimiters if needed
+	let newDelimeters = null;
+	if((newDelimeters = Moon.config.delimiters) !== delimiters) {
+		delimiters = newDelimeters;
+
+		// Escape delimiters
+		escapedDelimiters = new Array(2);
+		escapedDelimiters[0] = escapeRegex(delimiters[0]);
+		escapedDelimiters[1] = escapeRegex(delimiters[1]);
+	}
+
 	// Begin Code
   const code = "var instance = this; return " + generateEl(root);
 

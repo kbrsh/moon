@@ -1,13 +1,23 @@
-const openRE = /\{\{/;
-const closeRE = /\s*\}\}/;
 const modifierRE = /\[|\.|\(/;
 const whitespaceRE = /\s/;
 
-const compileTemplate = function(template, isString) {
+/**
+ * Compiles a Template
+ * @param {String} template
+ * @param {Array} delimiters
+ * @param {Array} escapedDelimiters
+ * @param {Boolean} isString
+ * @return {String} compiled template
+ */
+const compileTemplate = function(template, delimiters, escapedDelimiters, isString) {
   let state = {
     current: 0,
     template: template,
-    output: ""
+    output: "",
+    openDelimiterLen: delimiters[0].length,
+    closeDelimiterLen: delimiters[1].length,
+    openRE: new RegExp(escapedDelimiters[0]),
+    closeRE: new RegExp(`\\s*${escapedDelimiters[1]}`)
   };
 
   compileTemplateState(state, isString);
@@ -20,7 +30,7 @@ const compileTemplateState = function(state, isString) {
   const length = template.length;
   while(state.current < length) {
     // Match Text Between Templates
-    const value = scanTemplateStateUntil(state, openRE);
+    const value = scanTemplateStateUntil(state, state.openRE);
 
     if(value) {
       state.output += value;
@@ -31,14 +41,14 @@ const compileTemplateState = function(state, isString) {
       break;
     }
 
-    // Exit The Opening Tag
-    state.current += 2;
+    // Exit Opening Delimiter
+    state.current += state.openDelimiterLen;
 
     // Consume whitespace
     scanTemplateStateForWhitespace(state);
 
     // Get the name of the opening tag
-    let name = scanTemplateStateUntil(state, closeRE);
+    let name = scanTemplateStateUntil(state, state.closeRE);
 
     // If we've reached the end, the tag was unclosed
     if(state.current === length) {
@@ -68,8 +78,8 @@ const compileTemplateState = function(state, isString) {
     // Consume whitespace
     scanTemplateStateForWhitespace(state);
 
-    // Exit mustache
-    state.current += 2;
+    // Exit closing delimiter
+    state.current += state.closeDelimiterLen;
   }
 }
 
