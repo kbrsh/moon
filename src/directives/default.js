@@ -100,7 +100,7 @@ specialDirectives[Moon.config.prefix + "model"] = {
     }
 
     // Setup a query used to get the value, and set the corresponding dom property
-    const getQuery = compileTemplate(`{{${compileTemplate(value, delimiters, escapedDelimiters, false)}}}`, delimiters, escapedDelimiters, false);
+    const getQuery = compileTemplate(`${delimiters[0]}${compileTemplate(value, delimiters, escapedDelimiters, false)}${delimiters[1]}`, delimiters, escapedDelimiters, false);
     if(vnode.props.dom === undefined) {
       vnode.props.dom = {};
     }
