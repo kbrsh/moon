@@ -142,15 +142,19 @@ const diffProps = function(node, nodeProps, vnode) {
     const vnodePropValue = vnodeProps[vnodePropName];
     const nodePropValue = nodeProps[vnodePropName];
 
-    if((vnodePropValue !== false) && (nodePropValue == null || vnodePropValue !== nodePropValue)) {
-      node.setAttribute(vnodePropName, vnodePropValue === true ? '' : vnodePropValue);
+    if((vnodePropValue !== undefined || vnodePropValue !== false || vnodePropValue !== null) && ((nodePropValue === undefined || nodePropValue === false || nodePropValue === null) || vnodePropValue !== nodePropValue)) {
+      if(vnodePropName.length === 10 && vnodePropName === "xlink:href") {
+        node.setAttributeNS('http://www.w3.org/1999/xlink', "href", vnodePropValue);
+      } else {
+        node.setAttribute(vnodePropName, vnodePropValue === true ? '' : vnodePropValue);
+      }
     }
   }
 
   // Diff Node Props with VNode Props
   for(let nodePropName in nodeProps) {
     const vnodePropValue = vnodeProps[nodePropName];
-    if(vnodePropValue === undefined || vnodePropValue === false) {
+    if(vnodePropValue === undefined || vnodePropValue === false || vnodePropValue === null) {
       node.removeAttribute(nodePropName);
     }
   }
