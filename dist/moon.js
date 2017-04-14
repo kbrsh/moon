@@ -686,9 +686,10 @@
         var currentChildNode = node.firstChild;
         var vchild = vnode.children[i];
         while (vchild !== undefined || currentChildNode !== null) {
+          var next = currentChildNode ? currentChildNode.nextSibling : null;
           hydrate(currentChildNode, vchild, node, instance);
           vchild = vnode.children[++i];
-          currentChildNode = currentChildNode ? currentChildNode.nextSibling : null;
+          currentChildNode = next;
         }
     
         return node;

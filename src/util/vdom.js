@@ -275,13 +275,14 @@ const hydrate = function(node, vnode, parent, instance) {
     }
 
     // Hydrate Children
-    var i = 0;
+    let i = 0;
     let currentChildNode = node.firstChild;
     let vchild = vnode.children[i];
     while(vchild !== undefined || currentChildNode !== null) {
+      const next = currentChildNode ? currentChildNode.nextSibling : null;
       hydrate(currentChildNode, vchild, node, instance);
       vchild = vnode.children[++i];
-      currentChildNode = currentChildNode ? currentChildNode.nextSibling : null;
+      currentChildNode = next;
     }
 
     return node;
