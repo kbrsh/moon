@@ -741,7 +741,6 @@
      * @return {Number} patch type
      */
     var diff = function (oldVNode, vnode, parent, instance) {
-      console.log(oldVNode, vnode)
       if (oldVNode === null) {
         // No Node, append a node
         appendChild(createNodeFromVNode(vnode, instance), vnode, parent);
