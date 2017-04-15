@@ -1613,7 +1613,7 @@
       this.$hooks = this.$opts.hooks || {};
     
       // Custom Methods
-      this.$methods = this.$opts.methods || {};
+      extend(this.$data, this.$opts.methods || {});
     
       // Pool of Events
       this.$events = {};
@@ -1700,7 +1700,7 @@
       args = args || [];
     
       // Call method in context of instance
-      this.$methods[method].apply(this, args);
+      this.$data[method].apply(this, args);
     };
     
     // Event Emitter, adapted from https://github.com/KingPixil/voke

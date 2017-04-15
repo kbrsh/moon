@@ -49,7 +49,7 @@ function Moon(opts) {
     this.$hooks = this.$opts.hooks || {};
 
     // Custom Methods
-    this.$methods = this.$opts.methods || {};
+    extend(this.$data, this.$opts.methods || {});
 
     // Pool of Events
     this.$events = {};
