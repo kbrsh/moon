@@ -28,6 +28,22 @@
     
     /* ======= Observer ======= */
     /**
+     * Sets Up Methods
+     * @param {Object} instance
+     */
+    var initMethods = function (instance, methods) {
+      var initMethod = function (methodName, method) {
+        instance.$data[methodName] = function () {
+          return method.apply(self, arguments);
+        };
+      };
+    
+      for (var method in methods) {
+        initMethod(method, methods[method]);
+      }
+    };
+    
+    /**
      * Makes Computed Properties for an Instance
      * @param {Object} instance
      * @param {Object} computed
@@ -1616,16 +1632,9 @@
       this.$hooks = this.$opts.hooks || {};
     
       // Custom Methods
-      var methods = this.$opts.methods || {};
-    
-      var createMethod = function (methodName, method) {
-        self.$data[methodName] = function () {
-          return method.apply(self, arguments);
-        };
-      };
-    
-      for (var method in methods) {
-        createMethod(method, methods[method]);
+      var methods = this.$opts.methods;
+      if (methods !== undefined) {
+        initMethods(self, methods);
       }
     
       // Events
@@ -1644,8 +1653,9 @@
       this.$queued = false;
     
       // Setup Computed Properties
-      if (this.$opts.computed) {
-        initComputed(this, this.$opts.computed);
+      var computed = this.$opts.computed;
+      if (computed !== undefined) {
+        initComputed(this, computed);
       }
     
       /* ======= Initialize 🎉 ======= */
