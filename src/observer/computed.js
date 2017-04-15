@@ -35,7 +35,8 @@ const initComputed = function(instance, computed) {
         }
 
         return cache;
-      }
+      },
+      set: noop
     });
 
     // Add Setters

@@ -32,7 +32,7 @@ Moon.prototype.set = function(key, val) {
 
   // Invoke custom setter
   let setter = null;
-  if((setter = observer.setters[key]) !== undefined) {
+  if((setter = observer.setters[base]) !== undefined) {
     setter.call(this, val);
   }
 

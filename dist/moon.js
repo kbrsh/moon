@@ -80,7 +80,8 @@
             }
     
             return cache;
-          }
+          },
+          set: noop
         });
     
         // Add Setters
@@ -1708,7 +1709,7 @@
     
       // Invoke custom setter
       var setter = null;
-      if ((setter = observer.setters[key]) !== undefined) {
+      if ((setter = observer.setters[base]) !== undefined) {
         setter.call(this, val);
       }
     
