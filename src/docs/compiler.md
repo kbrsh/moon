@@ -30,10 +30,7 @@ Moon.compile("<p>Some HTML</p>");
 
 You can also play around with the compiler below:
 
-<div id="compiler" class="example">
-  <textarea m-on:input="compile"></textarea>
-  <pre><code m-literal:style="'color: ' + ({{err}} ? 'red' : '')">{{compiled}}</code></pre>
-</div>
+<div id="compiler" class="example"><textarea m-on:input="compile"></textarea><pre><code data-nohighlight="true" m-literal:style="'color: ' + ({{err}} ? 'red' : '')">{{compiled}}</code></pre></div>
 
 <script>
 new Moon({
@@ -50,10 +47,14 @@ new Moon({
         app.set('compiled', msg)
         app.set('err', 'true');
       }
-      var val = Moon.compile(event.target.value);
-      if(!this.get('err')) {
-        this.set('compiled', val);
-        this.set('err', false);
+      var textareaVal = event.target.value;
+      if(textareaVal) {
+        var val = Moon.compile(textareaVal);
+        if(!this.get('err')) {
+          this.set('compiled', val);
+          this.set('err', false);
+          console.log(this.get('compiled'))
+        }
       }
     }
   }

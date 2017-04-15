@@ -116,7 +116,14 @@
 </li>
 </ul>
 <p>Usage:</p>
-<pre><code class="lang-js">instance.off(&quot;foo&quot;, listener);
+<pre><code class="lang-js">// remove specific listener
+instance.off(&quot;foo&quot;, listener);
+
+// remove all listeners for the &quot;foo&quot; event
+instance.off(&quot;foo&quot;, listener);
+
+// remove all event listeners
+instance.off();
 </code></pre>
 <p>Used to remove an event listener from a certain event.</p>
 <h5 id="-emit-"><strong>emit</strong></h5>

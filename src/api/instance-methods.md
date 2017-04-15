@@ -96,7 +96,14 @@ Used to attach an event listener to a certain event to the instance. You can als
 
 Usage:
 ```js
+// remove specific listener
 instance.off("foo", listener);
+
+// remove all listeners for the "foo" event
+instance.off("foo", listener);
+
+// remove all event listeners
+instance.off();
 ```
 
 Used to remove an event listener from a certain event.

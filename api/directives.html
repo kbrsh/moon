@@ -36,14 +36,6 @@
       <h1 class="post-title">Directives</h1>
       <div class="post-content">
         <p>Moon comes with directives similar to Angular, allowing you to dynamically render elements. A directive is indicated with the <code>m-</code> prefix and the name of the directive.</p>
-<h5 id="-text-"><strong>text</strong></h5>
-<ul>
-<li>Expects: <code>String</code></li>
-</ul>
-<p>Usage:</p>
-<pre><code class="lang-html">&lt;h1 m-text=&quot;{{msg}}&quot;&gt;&lt;/h1&gt;
-</code></pre>
-<p>Can be used to dynamically set the <code>textContent</code> of an element.</p>
 <h5 id="-html-"><strong>html</strong></h5>
 <ul>
 <li>Expects: <code>String</code></li>
@@ -122,16 +114,6 @@
 </code></pre>
 <p>Note how the object syntax needs a special case, if this is true, then the class will be applied.</p>
 <p>Can be used to treat the value of a property as a literal Javascript expression.</p>
-<h5 id="-once-"><strong>once</strong></h5>
-<p>Usage:</p>
-<pre><code class="lang-html">&lt;h1 m-once&gt;{{msg}}&lt;/h1&gt;
-</code></pre>
-<p>Used to update an element only once.</p>
-<h5 id="-pre-"><strong>pre</strong></h5>
-<p>Usage:</p>
-<pre><code class="lang-html">&lt;h1 m-pre&gt;{{msg}}&lt;/h1&gt;
-</code></pre>
-<p>Used to not render an element&#39;s mustache templates.</p>
 <h5 id="-mask-"><strong>mask</strong></h5>
 <p>Usage:</p>
 <pre><code class="lang-html">&lt;h1 m-mask&gt;{{msg}}&lt;/h1&gt;
