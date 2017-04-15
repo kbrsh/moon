@@ -225,7 +225,9 @@ const diffComponent = function(node, vnode) {
 const hydrate = function(node, vnode, parent, instance) {
   let nodeName = node ? node.nodeName.toLowerCase() : null;
 
-  if(node === null) {
+  if(node === null && vnode === null) {
+    return null;
+  } else if(node === null) {
     // No node, create one
     var newNode = createNodeFromVNode(vnode, instance);
     appendChild(newNode, vnode, parent);
@@ -305,7 +307,9 @@ const hydrate = function(node, vnode, parent, instance) {
  * @return {Number} patch type
  */
 const diff = function(oldVNode, vnode, parent, instance) {
-  if(oldVNode === null) {
+  if(oldVNode === null && vnode === null) {
+    return PATCH.SKIP;
+  } else if(oldVNode === null) {
     // No Node, append a node
     appendChild(createNodeFromVNode(vnode, instance), vnode, parent);
 
