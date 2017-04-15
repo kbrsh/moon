@@ -97,7 +97,7 @@
     function Observer(instance) {
       this.instance = instance;
       this.cache = {};
-      this.signals = {};
+      this.clear = {};
       this.dep = {
         target: null,
         map: {}
@@ -106,23 +106,23 @@
     
     Observer.prototype.observe = function (key) {
       var self = this;
-      this.signals[key] = function () {
+      this.clear[key] = function () {
         self.cache[key] = null;
       };
     };
     
     Observer.prototype.notify = function (key) {
-      if (this.dep.map[key]) {
+      var depMap = null;
+      if ((depMap = this.dep.map[key]) !== undefined) {
         for (var i = 0; i < this.dep.map[key].length; i++) {
           this.notify(this.dep.map[key][i]);
         }
       }
     
-      if (!this.signals[key]) {
-        return;
+      var clear = null;
+      if ((clear = this.clear[key]) !== undefined) {
+        clear();
       }
-    
-      this.signals[key]();
     };
     
     /* ======= Global Utilities ======= */
