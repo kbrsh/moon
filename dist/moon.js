@@ -667,7 +667,7 @@
         appendChild(newNode, vnode, parent);
     
         return newNode;
-      } else if (vnode === undefined) {
+      } else if (vnode === null) {
         removeChild(node, parent);
     
         return null;
@@ -715,13 +715,16 @@
         }
     
         // Hydrate Children
+        var vnodeChildrenLength = vnode.children.length;
+    
         var i = 0;
         var currentChildNode = node.firstChild;
-        var vchild = vnode.children[i];
-        while (vchild !== undefined || currentChildNode !== null) {
+        var vchild = vnodeChildrenLength !== 0 ? vnode.children[0] : null;
+    
+        while (vchild !== null || currentChildNode !== null) {
           var next = currentChildNode ? currentChildNode.nextSibling : null;
           hydrate(currentChildNode, vchild, node, instance);
-          vchild = vnode.children[++i];
+          vchild = ++i < vnodeChildrenLength ? vnode.children[i] : null;
           currentChildNode = next;
         }
     

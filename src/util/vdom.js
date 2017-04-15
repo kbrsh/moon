@@ -231,7 +231,7 @@ const hydrate = function(node, vnode, parent, instance) {
     appendChild(newNode, vnode, parent);
 
     return newNode;
-  } else if(vnode === undefined) {
+  } else if(vnode === null) {
     removeChild(node, parent);
 
     return null;
@@ -279,13 +279,16 @@ const hydrate = function(node, vnode, parent, instance) {
     }
 
     // Hydrate Children
+    const vnodeChildrenLength = vnode.children.length;
+
     let i = 0;
     let currentChildNode = node.firstChild;
-    let vchild = vnode.children[i];
-    while(vchild !== undefined || currentChildNode !== null) {
+    let vchild = vnodeChildrenLength !== 0 ? vnode.children[0] : null;
+
+    while(vchild !== null || currentChildNode !== null) {
       const next = currentChildNode ? currentChildNode.nextSibling : null;
       hydrate(currentChildNode, vchild, node, instance);
-      vchild = vnode.children[++i];
+      vchild = ++i < vnodeChildrenLength ? vnode.children[i] : null;
       currentChildNode = next;
     }
 
