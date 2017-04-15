@@ -55,8 +55,8 @@
         // Flush Cache if Dependencies Change
         observer.observe(prop);
     
-        // Create Getters/Setters
-        var properties = {
+        // Add Getters
+        Object.defineProperty(instance.$data, prop, {
           get: function () {
             // Property Cache
             var cache = null;
@@ -81,16 +81,13 @@
     
             return cache;
           }
-        };
+        });
     
-        if (computed[prop].set) {
-          properties.set = function (val) {
-            return computed[prop].set.call(instance, val);
-          };
+        // Add Setters
+        var setter = null;
+        if ((setter = computed[prop].set) !== undefined) {
+          observer.setters[prop] = setter;
         }
-    
-        // Add Getters/Setters
-        Object.defineProperty(instance.$data, prop, properties);
       };
     
       // Set All Computed Properties
@@ -106,10 +103,13 @@
       // Computed Property Cache
       this.cache = {};
     
+      // Computed Property Setters
+      this.setters = {};
+    
       // Set of events to clear cache when dependencies change
       this.clear = {};
     
-      // Computed Property Currently Being Observed for Dependencies
+      // Property Currently Being Observed for Dependencies
       this.target = null;
     
       // Dependency Map
@@ -123,7 +123,7 @@
       };
     };
     
-    Observer.prototype.notify = function (key) {
+    Observer.prototype.notify = function (key, val) {
       var depMap = null;
       if ((depMap = this.map[key]) !== undefined) {
         for (var i = 0; i < depMap.length; i++) {
@@ -133,6 +133,10 @@
     
       var clear = null;
       if ((clear = this.clear[key]) !== undefined) {
+        var setter = null;
+        if ((setter = this.setters[key]) !== undefined) {
+          setter(val);
+        }
         clear();
       }
     };
@@ -1704,7 +1708,7 @@
       var base = resolveKeyPath(this, this.$data, key, val);
     
       // Notify observer of change
-      this.$observer.notify(base);
+      this.$observer.notify(base, val);
     
       // Queue a build
       queueBuild(this);
