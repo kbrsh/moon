@@ -4,17 +4,6 @@ title: Directives
 
 Moon comes with directives similar to Angular, allowing you to dynamically render elements. A directive is indicated with the `m-` prefix and the name of the directive.
 
-##### **text**
-
-- Expects: `String`
-
-Usage:
-```html
-<h1 m-text="{{msg}}"></h1>
-```
-
-Can be used to dynamically set the `textContent` of an element.
-
 ##### **html**
 
 - Expects: `String`
@@ -115,24 +104,6 @@ Syntax for setting `class` can be an array, object, or string.
 Note how the object syntax needs a special case, if this is true, then the class will be applied.
 
 Can be used to treat the value of a property as a literal Javascript expression.
-
-##### **once**
-
-Usage:
-```html
-<h1 m-once>{{msg}}</h1>
-```
-
-Used to update an element only once.
-
-##### **pre**
-
-Usage:
-```html
-<h1 m-pre>{{msg}}</h1>
-```
-
-Used to not render an element's mustache templates.
 
 ##### **mask**
 

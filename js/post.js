@@ -56,6 +56,9 @@ var compile = function(val, lang) {
 
 for(var i = 0; i < code.length; i++) {
   var el = code[i];
+  if(el.getAttribute("data-nohighlight")) {
+    continue;
+  }
   var attrs = Array.prototype.slice.call(el.attributes);
   for(var j = 0; j < attrs.length; j++) {
     var type = attrs[j].name;

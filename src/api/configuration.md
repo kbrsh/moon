@@ -28,7 +28,7 @@ Moon.config.prefix = "data-m-";
 
 Can set the prefix used for directives (ie `data-m-if` instead of `m-if`). Just remember, all directives are not present in runtime.
 
-##### **keycode**
+##### **keycodes**
 
 - Arguments:
   - `{Object} keycodes`
@@ -47,6 +47,18 @@ Can set custom keycodes usable in `m-on` modifiers. For example:
 ```
 
 It will only fire when the `m` key is being clicked.
+
+##### **delimiters**
+
+- Type: `Array`
+- Default: `["{{", "}}"]`
+
+Usage:
+```js
+Moon.config.delimiters = ["${", "}"];
+```
+
+Can change the delimiters used in templates.
 
 ##### **version**
 
