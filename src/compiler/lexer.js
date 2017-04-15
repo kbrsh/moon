@@ -34,7 +34,7 @@ const lexState = function(state) {
 const lexText = function(state) {
   const input = state.input;
   const len = input.length;
-  const endOfText = input.substring(state.current).search(tagStartRE) + state.current;
+  let endOfText = input.substring(state.current).search(tagStartRE);
 
   // Only Text
   if(endOfText === -1) {
@@ -47,11 +47,12 @@ const lexText = function(state) {
   }
 
   // No Text at All
-  if(endOfText === state.current) {
+  if(endOfText === 0) {
     return;
   }
 
   // End of Text Found
+  endOfText += state.current;
   state.tokens.push({
     type: "text",
     value: input.slice(state.current, endOfText)
