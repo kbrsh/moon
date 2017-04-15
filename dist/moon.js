@@ -50,8 +50,10 @@
      */
     var initComputed = function (instance, computed) {
       var setComputedProperty = function (prop) {
+        var observer = instance.$observer;
+    
         // Flush Cache if Dependencies Change
-        instance.$observer.observe(prop);
+        observer.observe(prop);
     
         // Create Getters/Setters
         var properties = {
@@ -60,18 +62,21 @@
             var cache = null;
     
             // If no cache, create it
-            if (!instance.$observer.cache[prop]) {
+            if (observer.cache[prop] === undefined) {
               // Capture Dependencies
-              instance.$observer.dep.target = prop;
+              observer.target = prop;
+    
               // Invoke getter
               cache = computed[prop].get.call(instance);
+    
               // Stop Capturing Dependencies
-              instance.$observer.dep.target = null;
+              observer.target = null;
+    
               // Store value in cache
-              instance.$observer.cache[prop] = cache;
+              observer.cache[prop] = cache;
             } else {
               // Cache found, use it
-              cache = instance.$observer.cache[prop];
+              cache = observer.cache[prop];
             }
     
             return cache;
@@ -95,27 +100,34 @@
     };
     
     function Observer(instance) {
+      // Associated Moon Instance
       this.instance = instance;
+    
+      // Computed Property Cache
       this.cache = {};
+    
+      // Set of events to clear cache when dependencies change
       this.clear = {};
-      this.dep = {
-        target: null,
-        map: {}
-      };
+    
+      // Computed Property Currently Being Observed for Dependencies
+      this.target = null;
+    
+      // Dependency Map
+      this.map = {};
     }
     
     Observer.prototype.observe = function (key) {
       var self = this;
       this.clear[key] = function () {
-        self.cache[key] = null;
+        self.cache[key] = undefined;
       };
     };
     
     Observer.prototype.notify = function (key) {
       var depMap = null;
-      if ((depMap = this.dep.map[key]) !== undefined) {
-        for (var i = 0; i < this.dep.map[key].length; i++) {
-          this.notify(this.dep.map[key][i]);
+      if ((depMap = this.map[key]) !== undefined) {
+        for (var i = 0; i < depMap.length; i++) {
+          this.notify(depMap[i]);
         }
       }
     
@@ -1670,12 +1682,13 @@
      * @return {String} Value of key in data
      */
     Moon.prototype.get = function (key) {
-      if (this.$observer.dep.target) {
-        var target = this.$observer.dep.target;
-        if (!this.$observer.dep.map[key]) {
-          this.$observer.dep.map[key] = [target];
-        } else if (this.$observer.dep.map[key].indexOf(target) === -1) {
-          this.$observer.dep.map[key].push(target);
+      var observer = this.$observer;
+      var target = null;
+      if ((target = observer.target) !== null) {
+        if (observer.map[key] === undefined) {
+          observer.map[key] = [target];
+        } else if (observer.map[key].indexOf(target) === -1) {
+          observer.map[key].push(target);
         }
       }
       return this.$data[key];
