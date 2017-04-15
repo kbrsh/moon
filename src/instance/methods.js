@@ -6,12 +6,13 @@
  * @return {String} Value of key in data
  */
 Moon.prototype.get = function(key) {
-  if(this.$observer.dep.target) {
-    const target = this.$observer.dep.target;
-    if(!this.$observer.dep.map[key]) {
-      this.$observer.dep.map[key] = [target];
-    } else if(this.$observer.dep.map[key].indexOf(target) === -1) {
-      this.$observer.dep.map[key].push(target);
+  const observer = this.$observer;
+  let target = null;
+  if((target = observer.target) !== null) {
+    if(observer.map[key] === undefined) {
+      observer.map[key] = [target];
+    } else if(observer.map[key].indexOf(target) === -1) {
+      observer.map[key].push(target);
     }
   }
   return this.$data[key];
