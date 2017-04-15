@@ -2,7 +2,7 @@
 
 specialDirectives[Moon.config.prefix + "if"] = {
   afterGenerate: function(value, meta, code, vnode) {
-    return `(${compileTemplate(value, delimiters, escapedDelimiters, false)}) ? ${code} : null`;
+    return `(${compileTemplate(value, delimiters, escapedDelimiters, false)}) ? ${code} : h("#text", ${generateMeta(defaultMetadata())}, "")`;
   }
 }
 
