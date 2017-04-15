@@ -34,7 +34,7 @@
     var initMethods = function (instance, methods) {
       var initMethod = function (methodName, method) {
         instance.$data[methodName] = function () {
-          return method.apply(self, arguments);
+          return method.apply(instance, arguments);
         };
       };
     
