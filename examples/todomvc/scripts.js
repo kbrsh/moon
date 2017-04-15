@@ -107,6 +107,9 @@ var app = new Moon({
       get: function() {
         // Returns todos by using the current filter
         return filters[this.get('filter')](this.get('todos'));
+      },
+      set: function() {
+        this.set('todos', this.get('todos'));
       }
     },
     done: {
