@@ -10,8 +10,8 @@ const initComputed = function(instance, computed) {
     // Flush Cache if Dependencies Change
     observer.observe(prop);
 
-    // Create Getters/Setters
-    let properties = {
+    // Add Getters
+    Object.defineProperty(instance.$data, prop, {
       get: function() {
         // Property Cache
         let cache = null;
@@ -36,16 +36,13 @@ const initComputed = function(instance, computed) {
 
         return cache;
       }
-    };
+    });
 
-    if(computed[prop].set) {
-      properties.set = function(val) {
-        return computed[prop].set.call(instance, val);
-      }
+    // Add Setters
+    let setter = null;
+    if((setter = computed[prop].set) !== undefined) {
+      observer.setters[prop] = setter;
     }
-
-    // Add Getters/Setters
-    Object.defineProperty(instance.$data, prop, properties);
   }
 
   // Set All Computed Properties

@@ -28,7 +28,7 @@ Moon.prototype.set = function(key, val) {
   const base = resolveKeyPath(this, this.$data, key, val);
 
   // Notify observer of change
-  this.$observer.notify(base);
+  this.$observer.notify(base, val);
 
   // Queue a build
   queueBuild(this);
