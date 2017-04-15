@@ -1,7 +1,7 @@
 function Observer(instance) {
   this.instance = instance;
   this.cache = {};
-  this.signals = {};
+  this.clear = {};
   this.dep = {
     target: null,
     map: {}
@@ -10,21 +10,21 @@ function Observer(instance) {
 
 Observer.prototype.observe = function(key) {
   let self = this;
-  this.signals[key] = function() {
+  this.clear[key] = function() {
     self.cache[key] = null;
   }
 }
 
 Observer.prototype.notify = function(key) {
-  if(this.dep.map[key]) {
+  let depMap = null;
+  if((depMap = this.dep.map[key]) !== undefined) {
     for(let i = 0; i < this.dep.map[key].length; i++) {
       this.notify(this.dep.map[key][i]);
     }
   }
 
-  if(!this.signals[key]) {
-    return;
+  let clear = null;
+  if((clear = this.clear[key]) !== undefined) {
+    clear();
   }
-
-  this.signals[key]();
 }
