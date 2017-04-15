@@ -2204,8 +2204,16 @@
         if (prop === "class") {
           // Classes need to be rendered differently
           return '"class": instance.renderClass(' + compileTemplate(value, delimiters, escapedDelimiters, false) + '), ';
+        } else if (directives[prop]) {
+          vnode.props.directives.push({
+            name: prop,
+            value: compileTemplate(value, delimiters, escapedDelimiters, false),
+            meta: {}
+          });
+          return "";
+        } else {
+          return '"' + prop + '": ' + compileTemplate(value, delimiters, escapedDelimiters, false) + ', ';
         }
-        return '"' + prop + '": ' + compileTemplate(value, delimiters, escapedDelimiters, false) + ', ';
       }
     };
     
