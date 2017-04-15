@@ -1597,6 +1597,9 @@
       /* ======= Initial Values ======= */
       this.$opts = opts || {};
     
+      // Reference to Instance
+      var self = this;
+    
       // Unique ID for Instance
       this.$id = id++;
     
@@ -1613,9 +1616,19 @@
       this.$hooks = this.$opts.hooks || {};
     
       // Custom Methods
-      extend(this.$data, this.$opts.methods || {});
+      var methods = this.$opts.methods || {};
     
-      // Pool of Events
+      var createMethod = function (methodName, method) {
+        self.$data[methodName] = function () {
+          return method.apply(self, arguments);
+        };
+      };
+    
+      for (var method in methods) {
+        createMethod(method, methods[method]);
+      }
+    
+      // Events
       this.$events = {};
     
       // Virtual DOM

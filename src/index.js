@@ -33,6 +33,9 @@ function Moon(opts) {
     /* ======= Initial Values ======= */
     this.$opts = opts || {};
 
+    // Reference to Instance
+    const self = this;
+
     // Unique ID for Instance
     this.$id = id++;
 
@@ -49,9 +52,19 @@ function Moon(opts) {
     this.$hooks = this.$opts.hooks || {};
 
     // Custom Methods
-    extend(this.$data, this.$opts.methods || {});
+    const methods = this.$opts.methods || {};
 
-    // Pool of Events
+    const createMethod = function(methodName, method) {
+      self.$data[methodName] = function() {
+        return method.apply(self, arguments);
+      }
+    }
+
+    for(const method in methods) {
+      createMethod(method, methods[method]);
+    }
+
+    // Events
     this.$events = {};
 
     // Virtual DOM
