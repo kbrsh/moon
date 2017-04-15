@@ -15,6 +15,7 @@ let eventModifiersCode = {
 let id = 0;
 
 /* ======= Observer ======= */
+//=require observer/methods.js
 //=require observer/computed.js
 //=require observer/observer.js
 
@@ -52,16 +53,9 @@ function Moon(opts) {
     this.$hooks = this.$opts.hooks || {};
 
     // Custom Methods
-    const methods = this.$opts.methods || {};
-
-    const createMethod = function(methodName, method) {
-      self.$data[methodName] = function() {
-        return method.apply(self, arguments);
-      }
-    }
-
-    for(const method in methods) {
-      createMethod(method, methods[method]);
+    const methods = this.$opts.methods;
+    if(methods !== undefined) {
+      initMethods(self, methods);
     }
 
     // Events
@@ -80,8 +74,9 @@ function Moon(opts) {
     this.$queued = false;
 
     // Setup Computed Properties
-    if(this.$opts.computed) {
-      initComputed(this, this.$opts.computed);
+    const computed = this.$opts.computed;
+    if(computed !== undefined) {
+      initComputed(this, computed);
     }
 
     /* ======= Initialize 🎉 ======= */
