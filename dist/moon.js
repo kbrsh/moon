@@ -999,7 +999,7 @@
     var lexText = function (state) {
       var input = state.input;
       var len = input.length;
-      var endOfText = input.substring(state.current).search(tagStartRE) + state.current;
+      var endOfText = input.substring(state.current).search(tagStartRE);
     
       // Only Text
       if (endOfText === -1) {
@@ -1012,11 +1012,12 @@
       }
     
       // No Text at All
-      if (endOfText === state.current) {
+      if (endOfText === 0) {
         return;
       }
     
       // End of Text Found
+      endOfText += state.current;
       state.tokens.push({
         type: "text",
         value: input.slice(state.current, endOfText)
