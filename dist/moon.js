@@ -133,10 +133,6 @@
     
       var clear = null;
       if ((clear = this.clear[key]) !== undefined) {
-        var setter = null;
-        if ((setter = this.setters[key]) !== undefined) {
-          setter(val);
-        }
         clear();
       }
     };
@@ -1704,11 +1700,20 @@
      * @param {String} val
      */
     Moon.prototype.set = function (key, val) {
+      // Get observer
+      var observer = this.$observer;
+    
       // Get base of keypath
       var base = resolveKeyPath(this, this.$data, key, val);
     
+      // Invoke custom setter
+      var setter = null;
+      if ((setter = observer.setters[key]) !== undefined) {
+        setter.call(this, val);
+      }
+    
       // Notify observer of change
-      this.$observer.notify(base, val);
+      observer.notify(base, val);
     
       // Queue a build
       queueBuild(this);

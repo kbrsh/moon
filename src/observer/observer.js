@@ -35,10 +35,6 @@ Observer.prototype.notify = function(key, val) {
 
   let clear = null;
   if((clear = this.clear[key]) !== undefined) {
-    let setter = null;
-    if((setter = this.setters[key]) !== undefined) {
-      setter(val);
-    }
     clear();
   }
 }
