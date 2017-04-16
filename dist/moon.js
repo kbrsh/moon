@@ -846,8 +846,8 @@
     };
     
     /* ======= Compiler ======= */
-    var modifierRE = /\[|\.|\(/;
     var whitespaceRE = /\s/;
+    var expressionRE = /"[^"]*"|'[^']*'|\.\w*[a-zA-Z$_]\w*|(\w*[a-zA-Z$_]\w*)/g;
     
     /**
      * Compiles a Template
@@ -907,20 +907,22 @@
         }
     
         if (name) {
-          // Extract modifiers
-          var modifiers = "";
-          var modifierIndex = null;
-          if ((modifierIndex = name.search(modifierRE)) !== -1) {
-            modifiers = name.substring(modifierIndex);
-            name = name.substring(0, modifierIndex);
+          // Extract Variable References
+          name = name.replace(expressionRE, function (match, reference) {
+            if (reference !== undefined) {
+              return 'instance.get("' + reference + '")';
+            } else {
+              return match;
+            }
+          });
+    
+          // Add quotes if string
+          if (isString) {
+            name = '" + ' + name + ' + "';
           }
     
           // Generate code
-          if (isString) {
-            state.output += '" + instance.get("' + name + '")' + modifiers + ' + "';
-          } else {
-            state.output += 'instance.get("' + name + '")' + modifiers;
-          }
+          state.output += name;
         }
     
         // Consume whitespace
