@@ -69,12 +69,12 @@ const generateProps = function(vnode, parentVNode) {
 				vnode.props.directives.push(attrInfo);
 				vnode.meta.shouldRender = true;
 			} else {
-				const normalizedProp = JSON.stringify(attrInfo.value);
-				const compiledProp = compileTemplate(normalizedProp, delimiters, escapedDelimiters, true);
-				if(normalizedProp !== compiledProp) {
+				const propValue = attrInfo.value;
+				const compiledProp = compileTemplate(propValue, delimiters, escapedDelimiters, true);
+				if(propValue !== compiledProp) {
 					vnode.meta.shouldRender = true;
 				}
-				generatedObject += `"${attr}": ${compiledProp}, `;
+				generatedObject += `"${attr}": "${compiledProp}", `;
 			}
 		}
 
@@ -242,7 +242,7 @@ const generateEl = function(vnode, parentVNode) {
 
 	if(typeof vnode === "string") {
 		// Escape newlines and double quotes, and compile the string
-		const escapedString = escapeString(vnode);
+		const escapedString = vnode;
 		const compiledText = compileTemplate(escapedString, delimiters, escapedDelimiters, true);
 		let textMeta = defaultMetadata();
 

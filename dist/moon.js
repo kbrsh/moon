@@ -881,7 +881,7 @@
         var value = scanTemplateStateUntil(state, state.openRE);
     
         if (value) {
-          state.output += value;
+          state.output += escapeString(value);
         }
     
         // If we've reached the end, there are no more templates
@@ -1370,12 +1370,12 @@
             vnode.props.directives.push(attrInfo);
             vnode.meta.shouldRender = true;
           } else {
-            var normalizedProp = JSON.stringify(attrInfo.value);
-            var compiledProp = compileTemplate(normalizedProp, delimiters, escapedDelimiters, true);
-            if (normalizedProp !== compiledProp) {
+            var propValue = attrInfo.value;
+            var compiledProp = compileTemplate(propValue, delimiters, escapedDelimiters, true);
+            if (propValue !== compiledProp) {
               vnode.meta.shouldRender = true;
             }
-            generatedObject += '"' + attr + '": ' + compiledProp + ', ';
+            generatedObject += '"' + attr + '": "' + compiledProp + '", ';
           }
         }
     
@@ -1543,7 +1543,7 @@
     
       if (typeof vnode === "string") {
         // Escape newlines and double quotes, and compile the string
-        var escapedString = escapeString(vnode);
+        var escapedString = vnode;
         var compiledText = compileTemplate(escapedString, delimiters, escapedDelimiters, true);
         var textMeta = defaultMetadata();
     

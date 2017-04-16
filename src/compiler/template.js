@@ -33,7 +33,7 @@ const compileTemplateState = function(state, isString) {
     const value = scanTemplateStateUntil(state, state.openRE);
 
     if(value) {
-      state.output += value;
+      state.output += escapeString(value);
     }
 
     // If we've reached the end, there are no more templates
