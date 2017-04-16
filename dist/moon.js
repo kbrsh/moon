@@ -1880,7 +1880,7 @@
      */
     Moon.prototype.mount = function (el) {
       // Get element from the DOM
-      this.$el = document.querySelector(el);
+      this.$el = typeof el === 'string' ? document.querySelector(el) : el;
     
       // Remove destroyed state
       this.$destroyed = false;

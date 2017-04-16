@@ -37,6 +37,33 @@ describe('Instance', function() {
     });
   });
 
+  describe('Mount', function() {
+    var mountEl = createTestElement("mountEl", '{{msg}}');
+    createTestElement("mountStr", '{{msg}}');
+    var mountStrApp = new Moon({
+      el: "#mountStr",
+      data: {
+        msg: "Hello Moon!"
+      }
+    });
+    var mountElApp = new Moon({
+      el: mountEl,
+      data: {
+        msg: "Hello Moon!"
+      }
+    });
+    it('when mounted on a selector', function() {
+      Moon.nextTick(function() {
+        expect(document.getElementById("mountStr").innerHTML).to.equal("Hello Moon!");
+      });
+    });
+    it('when mounted on an element', function() {
+      Moon.nextTick(function() {
+        expect(mountEl.innerHTML).to.equal("Hello Moon!");
+      });
+    });
+  });
+
   describe('Destroy', function() {
     createTestElement("destroy", '{{msg}}');
     var destroyApp = new Moon({
