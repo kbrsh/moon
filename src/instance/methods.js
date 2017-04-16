@@ -6,6 +6,7 @@
  * @return {String} Value of key in data
  */
 Moon.prototype.get = function(key) {
+  // Collect dependencies if currently collecting
   const observer = this.$observer;
   let target = null;
   if((target = observer.target) !== null) {
@@ -14,6 +15,11 @@ Moon.prototype.get = function(key) {
     } else if(observer.map[key].indexOf(target) === -1) {
       observer.map[key].push(target);
     }
+  }
+
+  // Return value found
+  if("__ENV__" !== "production" && !(key in this.$data)) {
+    error(`The item "${key}" was not defined but was referenced.`);
   }
   return this.$data[key];
 }
