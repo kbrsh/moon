@@ -908,13 +908,13 @@
     
         if (name) {
           // Extract Variable References
-          name = name.replace(expressionRE, function (match, reference) {
+          name = "(" + name.replace(expressionRE, function (match, reference) {
             if (reference !== undefined) {
               return 'instance.get("' + reference + '")';
             } else {
               return match;
             }
-          });
+          }) + ")";
     
           // Add quotes if string
           if (isString) {
