@@ -847,7 +847,7 @@
     
     /* ======= Compiler ======= */
     var whitespaceRE = /\s/;
-    var expressionRE = /"[^"]*"|'[^']*'|\.\w*[a-zA-Z$_]\w*|(\w*[a-zA-Z$_]\w*)/g;
+    var expressionRE = /"[^"]*"|'[^']*'|\btrue\b|\bfalse\b|\.\w*[a-zA-Z$_]\w*|\w*[a-zA-Z$_]\w*:|(\w*[a-zA-Z$_]\w*)/g;
     
     /**
      * Compiles a Template
