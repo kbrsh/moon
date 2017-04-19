@@ -103,16 +103,10 @@ specialDirectives[Moon.config.prefix + "literal"] = {
     const prop = meta.arg;
 
     if(prop === "class") {
-      // Classes need to be rendered differently
+      // Detected class, use runtime class render helper
       return `"class": instance.renderClass(${compileTemplateExpression(value)}), `;
-    } else if(directives[prop]) {
-      vnode.props.directives.push({
-        name: prop,
-        value: compileTemplate(value, delimiters, escapedDelimiters, false),
-        meta: {}
-      });
-      return "";
     } else {
+      // Default literal attribute
       return `"${prop}": ${compileTemplateExpression(value)}, `;
     }
   }
