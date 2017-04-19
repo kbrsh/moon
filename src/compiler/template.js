@@ -60,13 +60,7 @@ const compileTemplateState = function(state, isString) {
 
     if(name) {
       // Extract Variable References
-      name = "(" + name.replace(expressionRE, function(match, reference) {
-        if(reference !== undefined) {
-          return `instance.get("${reference}")`;
-        } else {
-          return match;
-        }
-      }) + ")";
+      name = compileTemplateExpression(name);
 
       // Add quotes if string
       if(isString) {
@@ -83,6 +77,16 @@ const compileTemplateState = function(state, isString) {
     // Exit closing delimiter
     state.current += state.closeDelimiterLen;
   }
+}
+
+const compileTemplateExpression = function(expr) {
+  return "(" + expr.replace(expressionRE, function(match, reference) {
+    if(reference !== undefined) {
+      return `instance.get("${reference}")`;
+    } else {
+      return match;
+    }
+  }) + ")";
 }
 
 const scanTemplateStateUntil = function(state, re) {
