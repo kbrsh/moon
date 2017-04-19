@@ -1,4 +1,4 @@
-const tagStartRE = /<[\w/]\s*/;
+const tagOrCommentStartRE = /<[\w/]\s*|<!--/;
 
 const lex = function(input) {
   let state = {
@@ -34,7 +34,7 @@ const lexState = function(state) {
 const lexText = function(state) {
   const input = state.input;
   const len = input.length;
-  let endOfText = input.substring(state.current).search(tagStartRE);
+  let endOfText = input.substring(state.current).search(tagOrCommentStartRE);
 
   // Only Text
   if(endOfText === -1) {
