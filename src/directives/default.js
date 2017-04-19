@@ -2,19 +2,7 @@
 
 specialDirectives[Moon.config.prefix + "if"] = {
   afterGenerate: function(value, meta, code, vnode) {
-    return `(${compileTemplate(value, delimiters, escapedDelimiters, false)}) ? ${code} : h("#text", ${generateMeta(defaultMetadata())}, "")`;
-  }
-}
-
-specialDirectives[Moon.config.prefix + "show"] = {
-  beforeGenerate: function(value, meta, vnode, parentVNode) {
-    const runTimeShowDirective = {
-      name: Moon.config.prefix + "show",
-      value: compileTemplate(value, delimiters, escapedDelimiters, false),
-      literal: true
-    }
-
-    vnode.props.directives.push(runTimeShowDirective);
+    return `${compileTemplateExpression(value)} ? ${code} : h("#text", ${generateMeta(defaultMetadata())}, "")`;
   }
 }
 
@@ -29,7 +17,7 @@ specialDirectives[Moon.config.prefix + "for"] = {
     // Aliases
     const aliases = parts[0].split(",");
     // The Iteratable
-    const iteratable = compileTemplate(parts[1], delimiters, escapedDelimiters, false);
+    const iteratable = compileTemplateExpression(parts[1]);
 
     // Get any parameters
     const params = aliases.join(",");
@@ -46,27 +34,29 @@ specialDirectives[Moon.config.prefix + "for"] = {
 
 specialDirectives[Moon.config.prefix + "on"] = {
   beforeGenerate: function(value, meta, vnode) {
+    // Extract Event, Modifiers, and Parameters
+    let methodToCall = value;
 
-    // Extract modifiers and the event
     let rawModifiers = meta.arg.split(".");
-    const eventToCall = rawModifiers[0];
+    const eventToCall = rawModifiers.shift();
+
     let params = "event";
-    let methodToCall = compileTemplate(value, delimiters, escapedDelimiters, false);
     const rawParams = methodToCall.split("(");
 
     if(rawParams.length > 1) {
+      // Custom parameters detected, update method to call, and generated parameter code
       methodToCall = rawParams.shift();
-      params = rawParams.join("(").slice(0, -1);
+      params = compileTemplateExpression(rawParams.join("(").slice(0, -1));
     }
-    var modifiers = "";
 
-    rawModifiers.shift();
-
+    // Generate any modifiers
+    let modifiers = "";
     for(var i = 0; i < rawModifiers.length; i++) {
       modifiers += eventModifiersCode[rawModifiers[i]];
     }
 
-    var code = `function(event) {${modifiers}instance.callMethod("${methodToCall}", [${params}])}`;
+    // Final event listener code
+    const code = `function(event) {${modifiers}instance.callMethod("${methodToCall}", [${params}])}`;
     if(vnode.meta.eventListeners[eventToCall] === undefined) {
       vnode.meta.eventListeners[eventToCall] = [code]
     } else {
@@ -78,7 +68,8 @@ specialDirectives[Moon.config.prefix + "on"] = {
 specialDirectives[Moon.config.prefix + "model"] = {
   beforeGenerate: function(value, meta, vnode) {
     // Compile a string value for the keypath
-    const compiledStringValue = compileTemplate(value, delimiters, escapedDelimiters, true);
+    const compiledStringValue = compileTemplateExpression(value);
+
     // Setup default event types and dom property to change
     let eventType = "input";
     let valueProp = "value";
@@ -90,21 +81,20 @@ specialDirectives[Moon.config.prefix + "model"] = {
     }
 
     // Generate event listener code
-    const code = `function(event) {instance.set("${compiledStringValue}", event.target.${valueProp})}`;
+    const code = `function(event) {instance.set(${compiledStringValue}, event.target.${valueProp})}`;
 
     // Push the listener to it's event listeners
     if(vnode.meta.eventListeners[eventType] === undefined) {
-      vnode.meta.eventListeners[eventType] = [code]
+      vnode.meta.eventListeners[eventType] = [code];
     } else {
       vnode.meta.eventListeners[eventType].push(code);
     }
 
     // Setup a query used to get the value, and set the corresponding dom property
-    const getQuery = compileTemplate(`${delimiters[0]}${compileTemplate(value, delimiters, escapedDelimiters, false)}${delimiters[1]}`, delimiters, escapedDelimiters, false);
     if(vnode.props.dom === undefined) {
       vnode.props.dom = {};
     }
-    vnode.props.dom[valueProp] = getQuery;
+    vnode.props.dom[valueProp] = compiledStringValue;
   }
 };
 
@@ -114,7 +104,7 @@ specialDirectives[Moon.config.prefix + "literal"] = {
 
     if(prop === "class") {
       // Classes need to be rendered differently
-      return `"class": instance.renderClass(${compileTemplate(value, delimiters, escapedDelimiters, false)}), `;
+      return `"class": instance.renderClass(${compileTemplateExpression(value)}), `;
     } else if(directives[prop]) {
       vnode.props.directives.push({
         name: prop,
@@ -123,7 +113,7 @@ specialDirectives[Moon.config.prefix + "literal"] = {
       });
       return "";
     } else {
-      return `"${prop}": ${compileTemplate(value, delimiters, escapedDelimiters, false)}, `;
+      return `"${prop}": ${compileTemplateExpression(value)}, `;
     }
   }
 };
@@ -133,7 +123,7 @@ specialDirectives[Moon.config.prefix + "html"] = {
     if(vnode.props.dom === undefined) {
       vnode.props.dom = {};
     }
-    vnode.props.dom.innerHTML = `"${compileTemplate(value, delimiters, escapedDelimiters, true)}"`;
+    vnode.props.dom.innerHTML = `("" + ${compileTemplateExpression(value)})`;
   }
 }
 
