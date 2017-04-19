@@ -329,11 +329,28 @@
      */
     var addEventListeners = function (node, vnode, instance) {
       var eventListeners = vnode.meta.eventListeners;
+    
+      var addHandler = function (type) {
+        // Create handle function
+        var handle = function (evt) {
+          var handlers = handle.handlers;
+          for (var i = 0; i < handlers.length; i++) {
+            handlers[i](evt);
+          }
+        };
+    
+        // Add handlers to handle
+        handle.handlers = eventListeners[type];
+    
+        // Add handler to vnode
+        eventListeners[type] = handle;
+    
+        // Add event listener
+        node.addEventListener(type, handle);
+      };
+    
       for (var type in eventListeners) {
-        for (var i = 0; i < eventListeners[type].length; i++) {
-          var method = eventListeners[type][i];
-          node.addEventListener(type, method);
-        }
+        addHandler(type);
       }
     };
     
@@ -564,6 +581,26 @@
     };
     
     /**
+     * Diffs Event Listeners of Two VNodes
+     * @param {Object} node
+     * @param {Object} oldVNode
+     * @param {Object} vnode
+     */
+    var diffEventListeners = function (node, oldVNode, vnode) {
+      var oldEventListeners = oldVNode.meta.eventListeners;
+      var eventListeners = vnode.meta.eventListeners;
+    
+      for (var type in eventListeners) {
+        var oldEventListener = oldEventListeners[type];
+        if (oldEventListener === undefined) {
+          node.removeEventListener(type, oldEventListener);
+        } else {
+          oldEventListeners[type].handlers = eventListeners[type];
+        }
+      }
+    };
+    
+    /**
      * Diffs Props of Node and a VNode, and apply Changes
      * @param {Object} node
      * @param {Object} nodeProps
@@ -789,6 +826,9 @@
         // Diff props
         diffProps(_node, oldVNode.props.attrs, vnode);
         oldVNode.props.attrs = vnode.props.attrs;
+    
+        // Diff event listeners
+        diffEventListeners(_node, oldVNode, vnode);
     
         // Check if innerHTML was changed, don't diff children
         if (vnode.props.dom !== undefined && vnode.props.dom.innerHTML !== undefined) {

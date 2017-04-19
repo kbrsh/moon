@@ -19,11 +19,28 @@ const extractAttrs = function(node) {
  */
 const addEventListeners = function(node, vnode, instance) {
   const eventListeners = vnode.meta.eventListeners;
-  for(let type in eventListeners) {
-    for(let i = 0; i < eventListeners[type].length; i++) {
-      const method = eventListeners[type][i];
-      node.addEventListener(type, method);
+
+  const addHandler = function(type) {
+    // Create handle function
+    const handle = function(evt) {
+      const handlers = handle.handlers;
+      for(let i = 0; i < handlers.length; i++) {
+        handlers[i](evt);
+      }
     }
+
+    // Add handlers to handle
+    handle.handlers = eventListeners[type];
+
+    // Add handler to vnode
+    eventListeners[type] = handle;
+
+    // Add event listener
+    node.addEventListener(type, handle);
+  }
+
+  for(let type in eventListeners) {
+    addHandler(type);
   }
 }
 
