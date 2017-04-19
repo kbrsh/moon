@@ -1009,7 +1009,7 @@
       }
     };
     
-    var tagStartRE = /<[\w/]\s*/;
+    var tagOrCommentStartRE = /<[\w/]\s*|<!--/;
     
     var lex = function (input) {
       var state = {
@@ -1045,7 +1045,7 @@
     var lexText = function (state) {
       var input = state.input;
       var len = input.length;
-      var endOfText = input.substring(state.current).search(tagStartRE);
+      var endOfText = input.substring(state.current).search(tagOrCommentStartRE);
     
       // Only Text
       if (endOfText === -1) {
