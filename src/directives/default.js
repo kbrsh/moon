@@ -127,10 +127,10 @@ specialDirectives[Moon.config.prefix + "html"] = {
   }
 }
 
-directives[Moon.config.prefix + "show"] = function(el, val, vnode) {
-  el.style.display = (val ? '' : 'none');
+specialDirectives[Moon.config.prefix + "mask"] = {
+
 }
 
-directives[Moon.config.prefix + "mask"] = function(el, val, vnode) {
-
+directives[Moon.config.prefix + "show"] = function(el, val, vnode) {
+  el.style.display = (val ? '' : 'none');
 }
