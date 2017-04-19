@@ -9,26 +9,27 @@
     <!-- <h2>
       Reference: <a href="http://mathieuancelin.github.io/js-repaint-perfs/">js-repaint-perfs</a>
     </h2> -->
-    <!--
-    <table class="table table-striped latest-data">
-      <tbody>
-        <tr m-for="db in {{databases}}">
-          <td class="dbname">{{db.dbname}}</td>
-          <td class="query-count">
-            <span m-literal:class"{{db.lastSample.countClassName}}">{{db.lastSample.nbQueries}}</span>
-          </td>
-          <td m-for="q in {{db.lastSample.topFiveQueries}}" m-literal:class="'Query ' + {{q.elapsedClassName}}">
-            {{q.formatElapsed}}
-            <div class="popover left">
-              <div class="popover-content">{{q.query}}</div>
-              <div class="arrow"></div>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    -->
-    <div id="app"><table class="latest-data table table-striped"><tr m-for="db in {{databases}}"><td class=dbname>{{db.dbname}}<td class=query-count><span class={{db.lastSample.countClassName}}>{{db.lastSample.nbQueries}}</span><td m-for="q in {{db.lastSample.topFiveQueries}}"m-literal:class="'Query ' + {{q.elapsedClassName}}">{{q.formatElapsed}}<div class="left popover"><div class=popover-content>{{q.query}}</div><div class=arrow></div></div></table></div>
+    <!-- <div id="app">
+      <table class="table table-striped latest-data">
+        <tbody>
+          <tr m-for="db in databases">
+            <td class="dbname">{{db.dbname}}</td>
+            <td class="query-count">
+              <span m-literal:class="db.lastSample.countClassName">{{db.lastSample.nbQueries}}</span>
+            </td>
+            <td m-for="q in db.lastSample.topFiveQueries" m-literal:class="'Query ' + q.elapsedClassName">
+              {{q.formatElapsed}}
+              <div class="popover left">
+                <div class="popover-content">{{q.query}}</div>
+                <div class="arrow"></div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div> -->
+
+    <div id=app><table class="latest-data table table-striped"><tr m-for="db in databases"><td class=dbname>{{db.dbname}}<td class=query-count><span m-literal:class=db.lastSample.countClassName>{{db.lastSample.nbQueries}}</span><td m-for="q in db.lastSample.topFiveQueries"m-literal:class="'Query ' + q.elapsedClassName">{{q.formatElapsed}}<div class="left popover"><div class=popover-content>{{q.query}}</div><div class=arrow></div></div></table></div>
 
     <script src="./ENV.js"></script>
     <script src="./lib/monitor.js"></script>
