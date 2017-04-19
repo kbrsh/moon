@@ -16,7 +16,7 @@ var app = new Moon({
     add: function() {
       add(1000);
       console.time('add 1000');
-      app.set('items', items);
+      this.set('items', items);
       Moon.nextTick(function() {
         console.timeEnd('add 1000');
       });
@@ -24,7 +24,7 @@ var app = new Moon({
     addLot: function() {
       add(10000);
       console.time('add 10000');
-      app.set('items', items);
+      this.set('items', items);
       Moon.nextTick(function() {
         console.timeEnd('add 10000');
       });
@@ -36,7 +36,7 @@ var app = new Moon({
       items[i1] = items[i2];
       items[i2] = tmp;
       console.time('swap');
-      app.set('items', items);
+      this.set('items', items);
       Moon.nextTick(function() {
         console.timeEnd('swap');
       });
@@ -44,7 +44,7 @@ var app = new Moon({
     remove: function() {
       items.splice(Math.floor(Math.random()*items.length), 1);
       console.time('remove');
-      app.set('items', items);
+      this.set('items', items);
       Moon.nextTick(function() {
         console.timeEnd('remove');
       });
@@ -52,7 +52,7 @@ var app = new Moon({
     clear: function() {
       items = [];
       console.time('clear');
-      app.set('items', items);
+      this.set('items', items);
       Moon.nextTick(function() {
         console.timeEnd('clear');
       });
@@ -60,7 +60,7 @@ var app = new Moon({
     reverse: function() {
       items = items.reverse();
       console.time('reverse');
-      app.set('items', items);
+      this.set('items', items);
       Moon.nextTick(function() {
         console.timeEnd('reverse');
       });

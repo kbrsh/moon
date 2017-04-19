@@ -128,6 +128,26 @@ const createComponentFromVNode = function(node, vnode, component) {
 }
 
 /**
+ * Diffs Event Listeners of Two VNodes
+ * @param {Object} node
+ * @param {Object} oldVNode
+ * @param {Object} vnode
+ */
+const diffEventListeners = function(node, oldVNode, vnode) {
+  const oldEventListeners = oldVNode.meta.eventListeners;
+  const eventListeners = vnode.meta.eventListeners;
+
+  for(let type in eventListeners) {
+    const oldEventListener = oldEventListeners[type];
+    if(oldEventListener === undefined) {
+      node.removeEventListener(type, oldEventListener);
+    } else {
+      oldEventListeners[type].handlers = eventListeners[type];
+    }
+  }
+}
+
+/**
  * Diffs Props of Node and a VNode, and apply Changes
  * @param {Object} node
  * @param {Object} nodeProps
@@ -354,6 +374,9 @@ const diff = function(oldVNode, vnode, parent, instance) {
     // Diff props
     diffProps(node, oldVNode.props.attrs, vnode);
     oldVNode.props.attrs = vnode.props.attrs;
+
+    // Diff event listeners
+    diffEventListeners(node, oldVNode, vnode);
 
     // Check if innerHTML was changed, don't diff children
     if(vnode.props.dom !== undefined && vnode.props.dom.innerHTML !== undefined) {
