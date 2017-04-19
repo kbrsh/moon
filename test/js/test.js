@@ -303,8 +303,7 @@ describe("Directive", function() {
   describe('Custom Directive', function() {
     createTestElement("customDirective", '<span m-square="2" id="custom-directive-span"></span>');
     Moon.directive("square", function(el, val, vdom) {
-      var num = parseInt(val);
-      vdom.props.dom = {innerHTML: String(num*num)};
+      vdom.props.dom = {innerHTML: String(val*val)};
     });
     var customDirectiveApp = new Moon({
       el: "#customDirective"
@@ -317,7 +316,7 @@ describe("Directive", function() {
   });
 
   describe('If Directive', function() {
-    createTestElement("if", '<p m-if="{{condition}}" id="if-condition">Condition True</p>');
+    createTestElement("if", '<p m-if="condition" id="if-condition">Condition True</p>');
     var ifApp = new Moon({
       el: "#if",
       data: {
@@ -339,7 +338,7 @@ describe("Directive", function() {
   });
 
   describe('Show Directive', function() {
-    createTestElement("show", '<p m-show="{{condition}}" id="show-condition">Condition True</p>');
+    createTestElement("show", '<p m-show="condition" id="show-condition">Condition True</p>');
     var showApp = new Moon({
       el: "#show",
       data: {
@@ -430,7 +429,7 @@ describe("Directive", function() {
   });
 
   describe('For Directive', function() {
-    createTestElement("for", "<ul id='forList'><li m-for='item in {{items}}'>{{item}}</li></ul>");
+    createTestElement("for", "<ul id='forList'><li m-for='item in items'>{{item}}</li></ul>");
     var forApp = new Moon({
       el: "#for",
       data: {
@@ -454,10 +453,10 @@ describe("Directive", function() {
   });
 
   describe('Literal Directive', function() {
-    createTestElement("literal", '<span m-literal:class="({{num}}+1).toString()" id="literal-directive-span"></span>');
+    createTestElement("literal", '<span m-literal:class="(num+1).toString()" id="literal-directive-span"></span>');
     createTestElement("literalClass", '<span m-literal:class="[\'1\', \'2\', \'3\']" id="literal-class-directive-span"></span>');
-    createTestElement("literalConditionalClass", '<span m-literal:class="{trueVal: {{trueVal}}, falseVal: {{falseVal}}}" id="literal-conditional-class-directive-span"></span>');
-    createTestElement("literalBooleanValue", '<span m-literal:disabled="{{condition}}" id="literal-boolean-value-directive-span"></span>');
+    createTestElement("literalConditionalClass", '<span m-literal:class="{trueVal: trueVal, falseVal: falseVal}" id="literal-conditional-class-directive-span"></span>');
+    createTestElement("literalBooleanValue", '<span m-literal:disabled="condition" id="literal-boolean-value-directive-span"></span>');
     var literalApp = new Moon({
       el: "#literal",
       data: {
@@ -504,7 +503,7 @@ describe("Directive", function() {
   });
 
   describe('HTML Directive', function() {
-    createTestElement("html", '<span m-html="{{html}}" id="html-directive-span"></span>');
+    createTestElement("html", '<span m-html="html" id="html-directive-span"></span>');
     var htmlApp = new Moon({
       el: "#html",
       data: {

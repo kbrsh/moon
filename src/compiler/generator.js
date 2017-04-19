@@ -108,10 +108,15 @@ const generateProps = function(vnode, parentVNode) {
 		generatedObject += ", directives: {";
 
 		for(var i = 0; i < allDirectives.length; i++) {
-			let directiveInfo = allDirectives[i];
-			// If literal, then add value as a literal expression, or escape it
-			const normalizedValue = directiveInfo.literal ? directiveInfo.value : JSON.stringify(directiveInfo.value);
-			generatedObject += `"${directiveInfo.name}": ${normalizedValue}, `;
+			const directiveInfo = allDirectives[i];
+			const directiveValue = directiveInfo.value;
+			let compiledDirectiveValue = "\"\"";
+
+			if(directiveValue.length !== 0) {
+				compiledDirectiveValue = compileTemplateExpression(directiveValue);
+			}
+
+			generatedObject += `"${directiveInfo.name}": ${compiledDirectiveValue}, `;
 		}
 
 		// Close object
