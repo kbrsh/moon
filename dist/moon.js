@@ -2237,10 +2237,10 @@
       }
     };
     
+    specialDirectives[Moon.config.prefix + "mask"] = {};
+    
     directives[Moon.config.prefix + "show"] = function (el, val, vnode) {
       el.style.display = val ? '' : 'none';
     };
-    
-    directives[Moon.config.prefix + "mask"] = function (el, val, vnode) {};
     return Moon;
 }));
