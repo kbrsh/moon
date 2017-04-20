@@ -887,7 +887,8 @@
     
     /* ======= Compiler ======= */
     var whitespaceRE = /\s/;
-    var expressionRE = /"[^"]*"|'[^']*'|\btrue\b|\bfalse\b|\bundefined\b|\bNaN\b|\btypeof\b|\.\w*[a-zA-Z$_]\w*|\w*[a-zA-Z$_]\w*:|(\w*[a-zA-Z$_]\w*)/g;
+    var expressionRE = /"[^"]*"|'[^']*'|\.\w*[a-zA-Z$_]\w*|\w*[a-zA-Z$_]\w*:|(\w*[a-zA-Z$_]\w*)/g;
+    var globals = ['true', 'false', 'undefined', 'NaN', 'typeof'];
     
     /**
      * Compiles a Template
@@ -969,7 +970,7 @@
     
     var compileTemplateExpression = function (expr) {
       return "(" + expr.replace(expressionRE, function (match, reference) {
-        if (reference !== undefined) {
+        if (reference !== undefined && globals.indexOf(reference) === -1) {
           return 'instance.get("' + reference + '")';
         } else {
           return match;
