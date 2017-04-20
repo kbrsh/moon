@@ -1,5 +1,5 @@
 const whitespaceRE = /\s/;
-const expressionRE = /"[^"]*"|'[^']*'|\btrue\b|\bfalse\b|\.\w*[a-zA-Z$_]\w*|\w*[a-zA-Z$_]\w*:|(\w*[a-zA-Z$_]\w*)/g;
+const expressionRE = /"[^"]*"|'[^']*'|\btrue\b|\bfalse\b|\bundefined\b|\bNaN\b|\btypeof\b|\.\w*[a-zA-Z$_]\w*|\w*[a-zA-Z$_]\w*:|(\w*[a-zA-Z$_]\w*)/g;
 
 /**
  * Compiles a Template
