@@ -1,5 +1,6 @@
 const whitespaceRE = /\s/;
-const expressionRE = /"[^"]*"|'[^']*'|\btrue\b|\bfalse\b|\bundefined\b|\bNaN\b|\btypeof\b|\.\w*[a-zA-Z$_]\w*|\w*[a-zA-Z$_]\w*:|(\w*[a-zA-Z$_]\w*)/g;
+const expressionRE = /"[^"]*"|'[^']*'|\.\w*[a-zA-Z$_]\w*|\w*[a-zA-Z$_]\w*:|(\w*[a-zA-Z$_]\w*)/g;
+const globals = ['true', 'false', 'undefined', 'NaN', 'typeof'];
 
 /**
  * Compiles a Template
@@ -81,7 +82,7 @@ const compileTemplateState = function(state, isString) {
 
 const compileTemplateExpression = function(expr) {
   return "(" + expr.replace(expressionRE, function(match, reference) {
-    if(reference !== undefined) {
+    if(reference !== undefined && globals.indexOf(reference) === -1) {
       return `instance.get("${reference}")`;
     } else {
       return match;
