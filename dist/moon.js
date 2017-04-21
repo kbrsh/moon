@@ -2077,9 +2077,10 @@
     /**
      * Runs an external Plugin
      * @param {Object} plugin
+     * @param {Object} opts
      */
-    Moon.use = function (plugin) {
-      plugin.init(Moon);
+    Moon.use = function (plugin, opts) {
+      plugin.init(Moon, opts);
     };
     
     /**
