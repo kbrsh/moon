@@ -25,7 +25,7 @@ Update performance (more is better):
 
 As you can see, Moon is blazing fast compared to other popular libraries.
 
-Moon can also support IE9+ without any polyfils.
+Moon can also support IE9+ without any polyfills.
 
 #### Another library?
 
