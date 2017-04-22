@@ -2188,7 +2188,7 @@
         var methodToCall = value;
     
         var rawModifiers = meta.arg.split(".");
-        var eventToCall = rawModifiers.shift();
+        var eventType = rawModifiers.shift();
     
         var params = "event";
         var rawParams = methodToCall.split("(");
@@ -2207,9 +2207,9 @@
     
         // Final event listener code
         var code = 'function(event) {' + modifiers + 'instance.callMethod("' + methodToCall + '", [' + params + '])}';
-        var eventListeners = vnode.meta.eventListeners[eventToCall];
+        var eventListeners = vnode.meta.eventListeners[eventType];
         if (eventListeners === undefined) {
-          vnode.meta.eventListeners[eventToCall] = [code];
+          vnode.meta.eventListeners[eventType] = [code];
         } else {
           eventListeners.push(code);
         }
@@ -2235,17 +2235,19 @@
         var code = 'function(event) {instance.set(' + compiledStringValue + ', event.target.' + valueProp + ')}';
     
         // Push the listener to it's event listeners
-        if (vnode.meta.eventListeners[eventType] === undefined) {
+        var eventListeners = vnode.meta.eventListeners[eventType];
+        if (eventListeners === undefined) {
           vnode.meta.eventListeners[eventType] = [code];
         } else {
-          vnode.meta.eventListeners[eventType].push(code);
+          eventListeners.push(code);
         }
     
         // Setup a query used to get the value, and set the corresponding dom property
-        if (vnode.props.dom === undefined) {
-          vnode.props.dom = {};
+        var dom = vnode.props.dom;
+        if (dom === undefined) {
+          vnode.props.dom = dom = {};
         }
-        vnode.props.dom[valueProp] = compiledStringValue;
+        dom[valueProp] = compiledStringValue;
       }
     };
     
