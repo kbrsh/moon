@@ -57,7 +57,7 @@ const createNodeFromVNode = function(vnode, instance) {
     // Create textnode
     el = document.createTextNode(vnode.val);
   } else {
-    el = vnode.meta.isSVG ? document.createElementNS('http://www.w3.org/2000/svg', vnode.type) : document.createElement(vnode.type);
+    el = vnode.meta.isSVG ? document.createElementNS("http://www.w3.org/2000/svg", vnode.type) : document.createElement(vnode.type);
     // Optimization: VNode only has one child that is text, and create it here
     if(vnode.children.length === 1 && vnode.children[0].type === "#text") {
       el.textContent = vnode.children[0].val;
@@ -69,7 +69,7 @@ const createNodeFromVNode = function(vnode, instance) {
         let childNode = createNodeFromVNode(vnode.children[i], instance);
         el.appendChild(childNode);
         // Component detected, mount it here
-        if(childVNode.meta.component) {
+        if(childVNode.meta.component !== undefined) {
           createComponentFromVNode(childNode, childVNode, childVNode.meta.component);
         }
       }

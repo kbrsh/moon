@@ -110,12 +110,17 @@ const h = function(tag, attrs, meta, children) {
  * @return {Object} DOM Node
  */
 const createComponentFromVNode = function(node, vnode, component) {
-  let componentInstance = new component.CTor();
+  const componentInstance = new component.CTor();
+  const props = componentInstance.$props;
+  const data = componentInstance.$data;
+  const attrs = vnode.props.attrs;
+
   // Merge data with provided props
-  for(let i = 0; i < componentInstance.$props.length; i++) {
-    var prop = componentInstance.$props[i];
-    componentInstance.$data[prop] = vnode.props.attrs[prop];
+  for(let i = 0; i < props.length; i++) {
+    const prop = props[i];
+    data[prop] = attrs[prop];
   }
+
   componentInstance.$slots = getSlots(vnode.children);
   componentInstance.$el = node;
   componentInstance.build();
@@ -137,7 +142,7 @@ const diffEventListeners = function(node, oldVNode, vnode) {
   const oldEventListeners = oldVNode.meta.eventListeners;
   const eventListeners = vnode.meta.eventListeners;
 
-  for(let type in eventListeners) {
+  for(const type in eventListeners) {
     const oldEventListener = oldEventListeners[type];
     if(oldEventListener === undefined) {
       node.removeEventListener(type, oldEventListener);
@@ -180,9 +185,13 @@ const diffProps = function(node, nodeProps, vnode) {
   }
 
   // Execute any directives
-  if(vnode.props.directives !== undefined) {
-    for(let directive in vnode.props.directives) {
-      directives[directive](node, vnode.props.directives[directive], vnode);
+  let vnodeDirectives = null;
+  if((vnodeDirectives = vnode.props.directives) !== undefined) {
+    for(const directive in vnodeDirectives) {
+      let directiveFn = null;
+      if((directiveFn = directives[directive]) !== undefined) {
+        directiveFn(node, vnodeDirectives[directive], vnode);
+      }
     }
   }
 

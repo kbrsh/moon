@@ -66,7 +66,7 @@ const generateProps = function(vnode, parentVNode) {
 
 			// Remove special directive
 			delete attrs[attr];
-		} else if(directives[attrName] !== undefined) {
+		} else if((attrName[0] + attrName[1]) === "m-") {
 			vnode.props.directives.push(attrInfo);
 			vnode.meta.shouldRender = true;
 		} else {
