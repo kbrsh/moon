@@ -2207,10 +2207,11 @@
     
         // Final event listener code
         var code = 'function(event) {' + modifiers + 'instance.callMethod("' + methodToCall + '", [' + params + '])}';
-        if (vnode.meta.eventListeners[eventToCall] === undefined) {
+        var eventListeners = vnode.meta.eventListeners[eventToCall];
+        if (eventListeners === undefined) {
           vnode.meta.eventListeners[eventToCall] = [code];
         } else {
-          vnode.meta.eventListeners[eventToCall].push(code);
+          eventListeners.push(code);
         }
       }
     };
