@@ -1367,69 +1367,69 @@
       // Array of all directives (to be generated later)
       vnode.props.directives = [];
     
-      if (attrs) {
-        // Invoke any special directives that need to change values before code generation
-        for (var beforeAttr in attrs) {
-          var beforeAttrInfo = attrs[beforeAttr];
-          var beforeAttrName = beforeAttrInfo.name;
-          var beforeSpecialDirective = null;
+      // Invoke any special directives that need to change values before code generation
+      for (var beforeAttr in attrs) {
+        var beforeAttrInfo = attrs[beforeAttr];
+        var beforeSpecialDirective = null;
+        var beforeGenerate = null;
     
-          if ((beforeSpecialDirective = specialDirectives[beforeAttrName]) !== undefined && beforeSpecialDirective.beforeGenerate) {
-            beforeSpecialDirective.beforeGenerate(beforeAttrInfo.value, beforeAttrInfo.meta, vnode, parentVNode);
-          }
+        if ((beforeSpecialDirective = specialDirectives[beforeAttrInfo.name]) !== undefined && (beforeGenerate = beforeSpecialDirective.beforeGenerate) !== undefined) {
+          beforeGenerate(beforeAttrInfo.value, beforeAttrInfo.meta, vnode, parentVNode);
         }
+      }
     
-        // Generate all other attributes
-        for (var attr in attrs) {
-          // Attribute Info
-          var attrInfo = attrs[attr];
+      // Generate all other attributes
+      for (var attr in attrs) {
+        // Attribute Info
+        var attrInfo = attrs[attr];
     
-          // Get attr by it's actual name (in case it had any arguments)
-          var attrName = attrInfo.name;
+        // Get attr by it's actual name (in case it had any arguments)
+        var attrName = attrInfo.name;
     
-          // Late bind for special directive
-          var specialDirective = null;
+        // Late bind for special directive
+        var specialDirective = null;
     
-          // If it is a directive, mark it as dynamic
-          if ((specialDirective = specialDirectives[attrName]) !== undefined) {
-            // Generate Special Directives
-            // Special directive found that generates code after initial generation, push it to its known special directives to run afterGenerate later
-            if (specialDirective.afterGenerate !== undefined) {
-              if (vnode.specialDirectivesAfter === undefined) {
-                vnode.specialDirectivesAfter = {};
-              }
-              vnode.specialDirectivesAfter[attr] = attrInfo;
+        // If it is a directive, mark it as dynamic
+        if ((specialDirective = specialDirectives[attrName]) !== undefined) {
+          // Generate Special Directives
+          // Special directive found that generates code after initial generation, push it to its known special directives to run afterGenerate later
+          var specialDirectivesAfter = vnode.specialDirectivesAfter;
+          if (specialDirective.afterGenerate !== undefined) {
+            if (specialDirectivesAfter === undefined) {
+              vnode.specialDirectivesAfter = specialDirectivesAfter = {};
             }
-    
-            // Invoke any special directives that need to change values of props during code generation
-            if (specialDirective.duringPropGenerate !== undefined) {
-              generatedObject += specialDirective.duringPropGenerate(attrInfo.value, attrInfo.meta, vnode);
-            }
-    
-            // Keep a flag to know to always rerender this
-            vnode.meta.shouldRender = true;
-    
-            // Remove special directive
-            delete attrs[attr];
-          } else if (directives[attrName] !== undefined) {
-            vnode.props.directives.push(attrInfo);
-            vnode.meta.shouldRender = true;
-          } else {
-            var propValue = attrInfo.value;
-            var compiledProp = compileTemplate(propValue, delimiters, escapedDelimiters, true);
-            if (propValue !== compiledProp) {
-              vnode.meta.shouldRender = true;
-            }
-            generatedObject += '"' + attr + '": "' + compiledProp + '", ';
+            specialDirectivesAfter[attr] = attrInfo;
           }
-        }
     
-        // Close object
-        if (Object.keys(attrs).length !== 0) {
-          generatedObject = generatedObject.slice(0, -2) + "}";
+          // Invoke any special directives that need to change values of props during code generation
+          var duringPropGenerate = null;
+          if ((duringPropGenerate = specialDirective.duringPropGenerate) !== undefined) {
+            generatedObject += duringPropGenerate(attrInfo.value, attrInfo.meta, vnode);
+          }
+    
+          // Keep a flag to know to always rerender this
+          vnode.meta.shouldRender = true;
+    
+          // Remove special directive
+          delete attrs[attr];
+        } else if (directives[attrName] !== undefined) {
+          vnode.props.directives.push(attrInfo);
+          vnode.meta.shouldRender = true;
         } else {
-          generatedObject += "}";
+          var propValue = attrInfo.value;
+          var compiledProp = compileTemplate(propValue, delimiters, escapedDelimiters, true);
+          if (propValue !== compiledProp) {
+            vnode.meta.shouldRender = true;
+          }
+          generatedObject += '"' + attr + '": "' + compiledProp + '", ';
         }
+      }
+    
+      // Close object
+      if (Object.keys(attrs).length !== 0) {
+        generatedObject = generatedObject.slice(0, -2) + "}";
+      } else {
+        generatedObject += "}";
       }
     
       // Check for DOM Properties
@@ -1606,13 +1606,11 @@
       } else {
         // Recursively generate code for children
     
-        // Generate Metadata if not Already
-        if (!vnode.meta) {
-          vnode.meta = defaultMetadata();
-        }
+        // Generate Metadata
+        vnode.meta = defaultMetadata();
     
         // Detect SVG Element
-        if (vnode.isSVG) {
+        if (vnode.isSVG === true) {
           vnode.meta.isSVG = true;
         }
     
