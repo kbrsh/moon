@@ -223,10 +223,13 @@ const diffComponent = function(node, vnode) {
     let componentChanged = false;
 
     // Merge any properties that changed
-    for(var i = 0; i < componentInstance.$props.length; i++) {
-      let prop = componentInstance.$props[i];
-      if(componentInstance.$data[prop] !== vnode.props.attrs[prop]) {
-        componentInstance.$data[prop] = vnode.props.attrs[prop];
+    const props = componentInstance.$props;
+    const data = componentInstance.$data;
+    const attrs = vnode.props.attrs;
+    for(var i = 0; i < props.length; i++) {
+      let prop = props[i];
+      if(data[prop] !== attrs[prop]) {
+        data[prop] = attrs[prop];
         componentChanged = true;
       }
     }
