@@ -67,7 +67,7 @@ specialDirectives[Moon.config.prefix + "on"] = {
 specialDirectives[Moon.config.prefix + "model"] = {
   beforeGenerate: function(value, meta, vnode) {
     // Compile a string value for the keypath
-    const compiledStringValue = compileTemplateExpression(value);
+    const keypath = compileTemplateExpression(value);
 
     // Setup default event types and dom property to change
     let eventType = "input";
@@ -80,12 +80,12 @@ specialDirectives[Moon.config.prefix + "model"] = {
     }
 
     // Generate event listener code
-    const code = `function(event) {instance.set(${compiledStringValue}, event.target.${valueProp})}`;
+    const code = `function(event) {instance.set(${keypath}, event.target.${valueProp})}`;
 
     // Push the listener to it's event listeners
     const eventListeners = vnode.meta.eventListeners[eventType];
     if(eventListeners === undefined) {
-      vnode.meta.eventListeners[eventType] = [code]
+      vnode.meta.eventListeners[eventType] = [code];
     } else {
       eventListeners.push(code);
     }
@@ -95,7 +95,7 @@ specialDirectives[Moon.config.prefix + "model"] = {
     if(dom === undefined) {
       vnode.props.dom = dom = {};
     }
-    dom[valueProp] = compiledStringValue;
+    dom[valueProp] = keypath;
   }
 };
 
@@ -115,10 +115,11 @@ specialDirectives[Moon.config.prefix + "literal"] = {
 
 specialDirectives[Moon.config.prefix + "html"] = {
   beforeGenerate: function(value, meta, vnode) {
-    if(vnode.props.dom === undefined) {
-      vnode.props.dom = {};
+    const dom = vnode.props.dom;
+    if(dom === undefined) {
+      vnode.props.dom = dom = {};
     }
-    vnode.props.dom.innerHTML = `("" + ${compileTemplateExpression(value)})`;
+    dom.innerHTML = `("" + ${compileTemplateExpression(value)})`;
   }
 }
 
