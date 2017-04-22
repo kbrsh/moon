@@ -367,7 +367,7 @@
         // Create textnode
         el = document.createTextNode(vnode.val);
       } else {
-        el = vnode.meta.isSVG ? document.createElementNS('http://www.w3.org/2000/svg', vnode.type) : document.createElement(vnode.type);
+        el = vnode.meta.isSVG ? document.createElementNS("http://www.w3.org/2000/svg", vnode.type) : document.createElement(vnode.type);
         // Optimization: VNode only has one child that is text, and create it here
         if (vnode.children.length === 1 && vnode.children[0].type === "#text") {
           el.textContent = vnode.children[0].val;
@@ -379,7 +379,7 @@
             var childNode = createNodeFromVNode(vnode.children[i], instance);
             el.appendChild(childNode);
             // Component detected, mount it here
-            if (childVNode.meta.component) {
+            if (childVNode.meta.component !== undefined) {
               createComponentFromVNode(childNode, childVNode, childVNode.meta.component);
             }
           }
@@ -564,11 +564,16 @@
      */
     var createComponentFromVNode = function (node, vnode, component) {
       var componentInstance = new component.CTor();
+      var props = componentInstance.$props;
+      var data = componentInstance.$data;
+      var attrs = vnode.props.attrs;
+    
       // Merge data with provided props
-      for (var i = 0; i < componentInstance.$props.length; i++) {
-        var prop = componentInstance.$props[i];
-        componentInstance.$data[prop] = vnode.props.attrs[prop];
+      for (var i = 0; i < props.length; i++) {
+        var prop = props[i];
+        data[prop] = attrs[prop];
       }
+    
       componentInstance.$slots = getSlots(vnode.children);
       componentInstance.$el = node;
       componentInstance.build();
@@ -633,9 +638,13 @@
       }
     
       // Execute any directives
-      if (vnode.props.directives !== undefined) {
-        for (var directive in vnode.props.directives) {
-          directives[directive](node, vnode.props.directives[directive], vnode);
+      var vnodeDirectives = null;
+      if ((vnodeDirectives = vnode.props.directives) !== undefined) {
+        for (var directive in vnodeDirectives) {
+          var directiveFn = null;
+          if ((directiveFn = directives[directive]) !== undefined) {
+            directiveFn(node, vnodeDirectives[directive], vnode);
+          }
         }
       }
     
@@ -1412,7 +1421,7 @@
     
           // Remove special directive
           delete attrs[attr];
-        } else if (directives[attrName] !== undefined) {
+        } else if (attrName[0] + attrName[1] === "m-") {
           vnode.props.directives.push(attrInfo);
           vnode.meta.shouldRender = true;
         } else {
@@ -2048,7 +2057,6 @@
      */
     Moon.config = {
       silent: "development" === "production" || typeof console === 'undefined',
-      prefix: "m-",
       delimiters: ["{{", "}}"],
       keyCodes: function (keyCodes) {
         for (var keyCode in keyCodes) {
@@ -2106,7 +2114,7 @@
      * @param {Function} action
      */
     Moon.directive = function (name, action) {
-      directives[Moon.config.prefix + name] = action;
+      directives["m-" + name] = action;
     };
     
     /**
@@ -2152,13 +2160,13 @@
     
     /* ======= Default Directives ======= */
     
-    specialDirectives[Moon.config.prefix + "if"] = {
+    specialDirectives["m-if"] = {
       afterGenerate: function (value, meta, code, vnode) {
         return compileTemplateExpression(value) + ' ? ' + code + ' : h("#text", ' + generateMeta(defaultMetadata()) + ', "")';
       }
     };
     
-    specialDirectives[Moon.config.prefix + "for"] = {
+    specialDirectives["m-for"] = {
       beforeGenerate: function (value, meta, vnode, parentVNode) {
         // Setup Deep Flag to Flatten Array
         parentVNode.deep = true;
@@ -2182,7 +2190,7 @@
       }
     };
     
-    specialDirectives[Moon.config.prefix + "on"] = {
+    specialDirectives["m-on"] = {
       beforeGenerate: function (value, meta, vnode) {
         // Extract Event, Modifiers, and Parameters
         var methodToCall = value;
@@ -2216,7 +2224,7 @@
       }
     };
     
-    specialDirectives[Moon.config.prefix + "model"] = {
+    specialDirectives["m-model"] = {
       beforeGenerate: function (value, meta, vnode) {
         // Compile a string value for the keypath
         var keypath = compileTemplateExpression(value);
@@ -2251,7 +2259,7 @@
       }
     };
     
-    specialDirectives[Moon.config.prefix + "literal"] = {
+    specialDirectives["m-literal"] = {
       duringPropGenerate: function (value, meta, vnode) {
         var prop = meta.arg;
     
@@ -2265,7 +2273,7 @@
       }
     };
     
-    specialDirectives[Moon.config.prefix + "html"] = {
+    specialDirectives["m-html"] = {
       beforeGenerate: function (value, meta, vnode) {
         var dom = vnode.props.dom;
         if (dom === undefined) {
@@ -2275,9 +2283,9 @@
       }
     };
     
-    specialDirectives[Moon.config.prefix + "mask"] = {};
+    specialDirectives["m-mask"] = {};
     
-    directives[Moon.config.prefix + "show"] = function (el, val, vnode) {
+    directives["m-show"] = function (el, val, vnode) {
       el.style.display = val ? '' : 'none';
     };
     return Moon;

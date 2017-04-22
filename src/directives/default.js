@@ -1,12 +1,12 @@
 /* ======= Default Directives ======= */
 
-specialDirectives[Moon.config.prefix + "if"] = {
+specialDirectives["m-if"] = {
   afterGenerate: function(value, meta, code, vnode) {
     return `${compileTemplateExpression(value)} ? ${code} : h("#text", ${generateMeta(defaultMetadata())}, "")`;
   }
 }
 
-specialDirectives[Moon.config.prefix + "for"] = {
+specialDirectives["m-for"] = {
   beforeGenerate: function(value, meta, vnode, parentVNode) {
     // Setup Deep Flag to Flatten Array
     parentVNode.deep = true;
@@ -30,7 +30,7 @@ specialDirectives[Moon.config.prefix + "for"] = {
   }
 }
 
-specialDirectives[Moon.config.prefix + "on"] = {
+specialDirectives["m-on"] = {
   beforeGenerate: function(value, meta, vnode) {
     // Extract Event, Modifiers, and Parameters
     let methodToCall = value;
@@ -64,7 +64,7 @@ specialDirectives[Moon.config.prefix + "on"] = {
   }
 }
 
-specialDirectives[Moon.config.prefix + "model"] = {
+specialDirectives["m-model"] = {
   beforeGenerate: function(value, meta, vnode) {
     // Compile a string value for the keypath
     const keypath = compileTemplateExpression(value);
@@ -99,7 +99,7 @@ specialDirectives[Moon.config.prefix + "model"] = {
   }
 };
 
-specialDirectives[Moon.config.prefix + "literal"] = {
+specialDirectives["m-literal"] = {
   duringPropGenerate: function(value, meta, vnode) {
     const prop = meta.arg;
 
@@ -113,7 +113,7 @@ specialDirectives[Moon.config.prefix + "literal"] = {
   }
 };
 
-specialDirectives[Moon.config.prefix + "html"] = {
+specialDirectives["m-html"] = {
   beforeGenerate: function(value, meta, vnode) {
     const dom = vnode.props.dom;
     if(dom === undefined) {
@@ -123,10 +123,10 @@ specialDirectives[Moon.config.prefix + "html"] = {
   }
 }
 
-specialDirectives[Moon.config.prefix + "mask"] = {
+specialDirectives["m-mask"] = {
 
 }
 
-directives[Moon.config.prefix + "show"] = function(el, val, vnode) {
+directives["m-show"] = function(el, val, vnode) {
   el.style.display = (val ? '' : 'none');
 }

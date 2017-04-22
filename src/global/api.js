@@ -5,7 +5,6 @@
  */
 Moon.config = {
   silent: ("__ENV__" === "production") || (typeof console === 'undefined'),
-  prefix: "m-",
   delimiters: ["{{", "}}"],
   keyCodes: function(keyCodes) {
     for(var keyCode in keyCodes) {
@@ -63,7 +62,7 @@ Moon.nextTick = function(task) {
  * @param {Function} action
  */
 Moon.directive = function(name, action) {
-  directives[Moon.config.prefix + name] = action;
+  directives["m-" + name] = action;
 }
 
 /**
