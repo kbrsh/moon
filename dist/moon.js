@@ -649,9 +649,10 @@
       }
     
       // Add/Update any DOM Props
-      if (vnode.props.dom !== undefined) {
-        for (var domProp in vnode.props.dom) {
-          var domPropValue = vnode.props.dom[domProp];
+      var dom = null;
+      if ((dom = vnode.props.dom) !== undefined) {
+        for (var domProp in dom) {
+          var domPropValue = dom[domProp];
           if (node[domProp] !== domPropValue) {
             node[domProp] = domPropValue;
           }
