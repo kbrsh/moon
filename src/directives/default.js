@@ -1,5 +1,7 @@
 /* ======= Default Directives ======= */
 
+const getterRE = /instance\.get\("[\w\d]+"\)/;
+
 specialDirectives["m-if"] = {
   afterGenerate: function(value, meta, code, vnode) {
     return `${compileTemplateExpression(value)} ? ${code} : h("#text", ${generateMeta(defaultMetadata())}, "")`;
@@ -80,7 +82,23 @@ specialDirectives["m-model"] = {
     }
 
     // Generate event listener code
-    const code = `function(event) {instance.set(${keypath}, event.target.${valueProp})}`;
+    let keypath = value;
+
+    // Compute getter if dynamic
+    const bracketIndex = value.indexOf("[");
+    const dotIndex = value.indexOf(".");
+    let base = null;
+    if(bracketIndex !== -1 && (dotIndex === -1 || bracketIndex < dotIndex)) {
+      base = value.slice(0, bracketIndex);
+    } else if(dotIndex !== -1 && (bracketIndex === -1 || dotIndex < bracketIndex)) {
+      base = value.slice(0, dotIndex);
+    }
+    if(base !== null) {
+      keypath = getter.replace(new RegExp(`instance\\.get\\("${base}"\\)`, 'g'), `" + "${base}" + "`).replace(getterRE, "\" + $& + \"").slice(1, -1);
+    }
+
+    // Generate the listener
+    const code = `function(event) {instance.set("${keypath}", event.target.${valueProp})}`;
 
     // Push the listener to it's event listeners
     const eventListeners = vnode.meta.eventListeners[eventType];
