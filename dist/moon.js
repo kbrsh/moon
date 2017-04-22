@@ -1557,9 +1557,11 @@
       call += generateProps(vnode, parentVNode) + ", ";
     
       // Generate code for children recursively here (in case modified by special directives)
-      var children = vnode.children.map(function (vchild) {
-        return generateEl(vchild, vnode);
-      });
+      var children = [];
+      var parsedChildren = vnode.children;
+      for (var i = 0; i < parsedChildren.length; i++) {
+        children.push(generateEl(parsedChildren[i], vnode));
+      }
     
       // If the "shouldRender" flag is not present, ensure node will be updated
       if (vnode.meta.shouldRender === true && parentVNode !== undefined) {
