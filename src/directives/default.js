@@ -23,9 +23,7 @@ specialDirectives[Moon.config.prefix + "for"] = {
     const params = aliases.join(",");
 
     // Change any references to the parameters in children
-    code.replace(new RegExp(`instance\\.get\\("(${aliases.join("|")})"\\)`, 'g'), function(match, alias) {
-      code = code.replace(new RegExp(`instance.get\\("${alias}"\\)`, "g"), alias);
-    });
+    code.replace(new RegExp(`instance\\.get\\("(${aliases.join("|")})"\\)`, 'g'), "$1");
 
     // Use the renderLoop runtime helper
     return `instance.renderLoop(${iteratable}, function(${params}) { return ${code}; })`;
