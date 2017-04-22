@@ -6,6 +6,9 @@
   <a href="https://codecov.io/gh/KingPixil/moon"><img src="https://codecov.io/gh/KingPixil/moon/branch/master/graph/badge.svg" alt="Code Coverage"></a>
   <a href="https://kingpixil.github.io/license"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
 </p>
+<p align="center">
+  <a href="https://saucelabs.com/u/KingPixil"><img src="https://saucelabs.com/browser-matrix/KingPixil.svg" alt="License"></a>
+</p>
 
 ### Summary
 
@@ -36,10 +39,6 @@ Still, you do **not have to** use Moon if you are happy with your current soluti
 ### Usage
 
 See [the website.](https://kingpixil.github.io/moon)
-
-### Browser Support
-
-[![Sauce Test Status](https://saucelabs.com/browser-matrix/KingPixil.svg)](https://saucelabs.com/u/KingPixil)
 
 ### License
 
