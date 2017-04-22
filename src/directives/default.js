@@ -23,7 +23,7 @@ specialDirectives["m-for"] = {
     const params = aliases.join(",");
 
     // Change any references to the parameters in children
-    code.replace(new RegExp(`instance\\.get\\("(${aliases.join("|")})"\\)`, 'g'), "$1");
+    code = code.replace(new RegExp(`instance\\.get\\("(${aliases.join("|")})"\\)`, 'g'), "$1");
 
     // Use the renderLoop runtime helper
     return `instance.renderLoop(${iteratable}, function(${params}) { return ${code}; })`;
@@ -66,8 +66,8 @@ specialDirectives["m-on"] = {
 
 specialDirectives["m-model"] = {
   beforeGenerate: function(value, meta, vnode) {
-    // Compile a string value for the keypath
-    const keypath = compileTemplateExpression(value);
+    // Compile a literal value for the getter
+    const getter = compileTemplateExpression(value);
 
     // Setup default event types and dom property to change
     let eventType = "input";
@@ -95,7 +95,7 @@ specialDirectives["m-model"] = {
     if(dom === undefined) {
       vnode.props.dom = dom = {};
     }
-    dom[valueProp] = keypath;
+    dom[valueProp] = getter;
   }
 };
 
