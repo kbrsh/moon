@@ -2164,6 +2164,8 @@
     
     /* ======= Default Directives ======= */
     
+    var getterRE = /instance\.get\("[\w\d]+"\)/;
+    
     specialDirectives["m-if"] = {
       afterGenerate: function (value, meta, code, vnode) {
         return compileTemplateExpression(value) + ' ? ' + code + ' : h("#text", ' + generateMeta(defaultMetadata()) + ', "")';
@@ -2187,7 +2189,7 @@
         var params = aliases.join(",");
     
         // Change any references to the parameters in children
-        code.replace(new RegExp('instance\\.get\\("(' + aliases.join("|") + ')"\\)', 'g'), "$1");
+        code = code.replace(new RegExp('instance\\.get\\("(' + aliases.join("|") + ')"\\)', 'g'), "$1");
     
         // Use the renderLoop runtime helper
         return 'instance.renderLoop(' + iteratable + ', function(' + params + ') { return ' + code + '; })';
@@ -2230,8 +2232,8 @@
     
     specialDirectives["m-model"] = {
       beforeGenerate: function (value, meta, vnode) {
-        // Compile a string value for the keypath
-        var keypath = compileTemplateExpression(value);
+        // Compile a literal value for the getter
+        var getter = compileTemplateExpression(value);
     
         // Setup default event types and dom property to change
         var eventType = "input";
@@ -2244,7 +2246,23 @@
         }
     
         // Generate event listener code
-        var code = 'function(event) {instance.set(' + keypath + ', event.target.' + valueProp + ')}';
+        var keypath = value;
+    
+        // Compute getter if dynamic
+        var bracketIndex = value.indexOf("[");
+        var dotIndex = value.indexOf(".");
+        var base = null;
+        if (bracketIndex !== -1 && (dotIndex === -1 || bracketIndex < dotIndex)) {
+          base = value.slice(0, bracketIndex);
+        } else if (dotIndex !== -1 && (bracketIndex === -1 || dotIndex < bracketIndex)) {
+          base = value.slice(0, dotIndex);
+        }
+        if (base !== null) {
+          keypath = getter.replace(new RegExp('instance\\.get\\("' + base + '"\\)', 'g'), '" + "' + base + '" + "').replace(getterRE, "\" + $& + \"").slice(1, -1);
+        }
+    
+        // Generate the listener
+        var code = 'function(event) {instance.set("' + keypath + '", event.target.' + valueProp + ')}';
     
         // Push the listener to it's event listeners
         var eventListeners = vnode.meta.eventListeners[eventType];
@@ -2259,7 +2277,7 @@
         if (dom === undefined) {
           vnode.props.dom = dom = {};
         }
-        dom[valueProp] = keypath;
+        dom[valueProp] = getter;
       }
     };
     
