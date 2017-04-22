@@ -36,7 +36,7 @@ specialDirectives[Moon.config.prefix + "on"] = {
     let methodToCall = value;
 
     let rawModifiers = meta.arg.split(".");
-    const eventToCall = rawModifiers.shift();
+    const eventType = rawModifiers.shift();
 
     let params = "event";
     const rawParams = methodToCall.split("(");
@@ -55,9 +55,9 @@ specialDirectives[Moon.config.prefix + "on"] = {
 
     // Final event listener code
     const code = `function(event) {${modifiers}instance.callMethod("${methodToCall}", [${params}])}`;
-    const eventListeners = vnode.meta.eventListeners[eventToCall];
+    const eventListeners = vnode.meta.eventListeners[eventType];
     if(eventListeners === undefined) {
-      vnode.meta.eventListeners[eventToCall] = [code]
+      vnode.meta.eventListeners[eventType] = [code]
     } else {
       eventListeners.push(code);
     }
@@ -83,17 +83,19 @@ specialDirectives[Moon.config.prefix + "model"] = {
     const code = `function(event) {instance.set(${compiledStringValue}, event.target.${valueProp})}`;
 
     // Push the listener to it's event listeners
-    if(vnode.meta.eventListeners[eventType] === undefined) {
-      vnode.meta.eventListeners[eventType] = [code];
+    const eventListeners = vnode.meta.eventListeners[eventType];
+    if(eventListeners === undefined) {
+      vnode.meta.eventListeners[eventType] = [code]
     } else {
-      vnode.meta.eventListeners[eventType].push(code);
+      eventListeners.push(code);
     }
 
     // Setup a query used to get the value, and set the corresponding dom property
-    if(vnode.props.dom === undefined) {
-      vnode.props.dom = {};
+    const dom = vnode.props.dom;
+    if(dom === undefined) {
+      vnode.props.dom = dom = {};
     }
-    vnode.props.dom[valueProp] = compiledStringValue;
+    dom[valueProp] = compiledStringValue;
   }
 };
 
