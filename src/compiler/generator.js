@@ -14,7 +14,7 @@ let escapedDelimiters = null;
  * @param {Object} parentVNode
  * @return {String} generated code
  */
-const generateProps = function(vnode, parentVNode) {
+const generateProps = function(vnode, parentVNode, dependencies) {
 	let attrs = vnode.props.attrs;
 	let generatedObject = "{attrs: {";
 
@@ -28,7 +28,7 @@ const generateProps = function(vnode, parentVNode) {
 		let beforeGenerate = null;
 
 		if((beforeSpecialDirective = specialDirectives[beforeAttrInfo.name]) !== undefined && (beforeGenerate = beforeSpecialDirective.beforeGenerate) !== undefined) {
-			beforeGenerate(beforeAttrInfo.value, beforeAttrInfo.meta, vnode, parentVNode);
+			beforeGenerate(beforeAttrInfo.value, beforeAttrInfo.meta, vnode, parentVNode, dependencies);
 		}
 	}
 
@@ -58,7 +58,7 @@ const generateProps = function(vnode, parentVNode) {
 			// Invoke any special directives that need to change values of props during code generation
 			let duringPropGenerate = null;
 			if((duringPropGenerate = specialDirective.duringPropGenerate) !== undefined) {
-				generatedObject += duringPropGenerate(attrInfo.value, attrInfo.meta, vnode);
+				generatedObject += duringPropGenerate(attrInfo.value, attrInfo.meta, vnode, dependencies);
 			}
 
 			// Keep a flag to know to always rerender this
@@ -71,7 +71,7 @@ const generateProps = function(vnode, parentVNode) {
 			vnode.meta.shouldRender = true;
 		} else {
 			const propValue = attrInfo.value;
-			const compiledProp = compileTemplate(propValue, delimiters, escapedDelimiters, true);
+			const compiledProp = compileTemplate(propValue, delimiters, escapedDelimiters, dependencies, true);
 			if(propValue !== compiledProp) {
 				vnode.meta.shouldRender = true;
 			}
@@ -113,10 +113,12 @@ const generateProps = function(vnode, parentVNode) {
 			let compiledDirectiveValue = "\"\"";
 
 			if(directiveValue.length !== 0) {
-				compiledDirectiveValue = compileTemplateExpression(directiveValue);
+				compileTemplateExpression(directiveValue, dependencies);
+			} else {
+				directiveValue = "\"\"";
 			}
 
-			generatedObject += `"${directiveInfo.name}": ${compiledDirectiveValue}, `;
+			generatedObject += `"${directiveInfo.name}": ${directiveValue}, `;
 		}
 
 		// Close object
@@ -201,20 +203,21 @@ const generateArray = function(arr) {
  * Creates an "h" Call for a VNode
  * @param {Object} vnode
  * @param {Object} parentVNode
+ * @param {Array} dependencies
  * @return {String} "h" call
  */
-const createCall = function(vnode, parentVNode) {
+const createCall = function(vnode, parentVNode, dependencies) {
 	// Generate Code for Type
 	let call = `h("${vnode.type}", `;
 
 	// Generate Code for Props
-	call += generateProps(vnode, parentVNode) + ", ";
+	call += generateProps(vnode, parentVNode, dependencies) + ", ";
 
 	// Generate code for children recursively here (in case modified by special directives)
 	let children = [];
 	const parsedChildren = vnode.children;
 	for(var i = 0; i < parsedChildren.length; i++) {
-		children.push(generateEl(parsedChildren[i], vnode));
+		children.push(generateEl(parsedChildren[i], vnode, dependencies));
 	}
 
 	// If the "shouldRender" flag is not present, ensure node will be updated
@@ -244,13 +247,13 @@ const createCall = function(vnode, parentVNode) {
   return call;
 }
 
-const generateEl = function(vnode, parentVNode) {
+const generateEl = function(vnode, parentVNode, dependencies) {
 	let code = "";
 
 	if(typeof vnode === "string") {
 		// Escape newlines and double quotes, and compile the string
 		const escapedString = vnode;
-		const compiledText = compileTemplate(escapedString, delimiters, escapedDelimiters, true);
+		const compiledText = compileTemplate(escapedString, delimiters, escapedDelimiters, dependencies, true);
 		let textMeta = defaultMetadata();
 
 		if(escapedString !== compiledText) {
@@ -285,14 +288,14 @@ const generateEl = function(vnode, parentVNode) {
 			const slotNameAttr = vnode.props.attrs.name;
 			compiledCode = `instance.$slots['${(slotNameAttr && slotNameAttr.value) || ("default")}']`;
 		} else {
-			compiledCode = createCall(vnode, parentVNode);
+			compiledCode = createCall(vnode, parentVNode, dependencies);
 		}
 
 		// Check for Special Directives that change the code after generation and run them
 		if(vnode.specialDirectivesAfter !== undefined) {
 			for(let specialDirectiveAfterInfo in vnode.specialDirectivesAfter) {
 				const specialDirectiveAfter = vnode.specialDirectivesAfter[specialDirectiveAfterInfo];
-				compiledCode = specialDirectives[specialDirectiveAfter.name].afterGenerate(specialDirectiveAfter.value, specialDirectiveAfter.meta, compiledCode, vnode);
+				compiledCode = specialDirectives[specialDirectiveAfter.name].afterGenerate(specialDirectiveAfter.value, specialDirectiveAfter.meta, compiledCode, vnode, dependencies);
 			}
 		}
 		code += compiledCode;
@@ -303,6 +306,9 @@ const generateEl = function(vnode, parentVNode) {
 const generate = function(ast) {
 	// Get root element
 	const root = ast.children[0];
+
+	// Dependencies
+	const dependencies = [];
 
 	// Update delimiters if needed
 	let newDelimeters = null;
@@ -315,8 +321,16 @@ const generate = function(ast) {
 		escapedDelimiters[1] = escapeRegex(delimiters[1]);
 	}
 
-	// Begin Code
-  const code = "var instance = this; return " + generateEl(root);
+	// Generate Rendering Code
+	const rootCode = generateEl(root, undefined, dependencies);
+
+	let dependenciesCode = "";
+	for(var i = 0; i < dependencies.length; i++) {
+		const dependency = dependencies[i];
+		dependenciesCode += `var ${dependency} = instance.get("${dependency}");`;
+	}
+
+  const code = `var instance = this; ${dependenciesCode} return ${rootCode}`;
 
   try {
     return new Function("h", code);

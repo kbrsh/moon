@@ -908,10 +908,11 @@
      * @param {String} template
      * @param {Array} delimiters
      * @param {Array} escapedDelimiters
+     * @param {Array} dependencies
      * @param {Boolean} isString
      * @return {String} compiled template
      */
-    var compileTemplate = function (template, delimiters, escapedDelimiters, isString) {
+    var compileTemplate = function (template, delimiters, escapedDelimiters, dependencies, isString) {
       var state = {
         current: 0,
         template: template,
@@ -919,7 +920,8 @@
         openDelimiterLen: delimiters[0].length,
         closeDelimiterLen: delimiters[1].length,
         openRE: new RegExp(escapedDelimiters[0]),
-        closeRE: new RegExp('\\s*' + escapedDelimiters[1])
+        closeRE: new RegExp('\\s*' + escapedDelimiters[1]),
+        dependencies: dependencies
       };
     
       compileTemplateState(state, isString);
@@ -962,7 +964,7 @@
     
         if (name) {
           // Extract Variable References
-          name = compileTemplateExpression(name);
+          compileTemplateExpression(name, state.dependencies);
     
           // Add quotes if string
           if (isString) {
@@ -981,14 +983,14 @@
       }
     };
     
-    var compileTemplateExpression = function (expr) {
-      return "(" + expr.replace(expressionRE, function (match, reference) {
-        if (reference !== undefined && globals.indexOf(reference) === -1) {
-          return 'instance.get("' + reference + '")';
-        } else {
-          return match;
+    var compileTemplateExpression = function (expr, dependencies) {
+      expr.replace(expressionRE, function (match, reference) {
+        if (reference !== undefined && globals.indexOf(reference) === -1 && dependencies.indexOf(reference) === -1) {
+          dependencies.push(reference);
         }
-      }) + ")";
+      });
+    
+      return dependencies;
     };
     
     var scanTemplateStateUntil = function (state, re) {
@@ -1373,7 +1375,7 @@
      * @param {Object} parentVNode
      * @return {String} generated code
      */
-    var generateProps = function (vnode, parentVNode) {
+    var generateProps = function (vnode, parentVNode, dependencies) {
       var attrs = vnode.props.attrs;
       var generatedObject = "{attrs: {";
     
@@ -1387,7 +1389,7 @@
         var beforeGenerate = null;
     
         if ((beforeSpecialDirective = specialDirectives[beforeAttrInfo.name]) !== undefined && (beforeGenerate = beforeSpecialDirective.beforeGenerate) !== undefined) {
-          beforeGenerate(beforeAttrInfo.value, beforeAttrInfo.meta, vnode, parentVNode);
+          beforeGenerate(beforeAttrInfo.value, beforeAttrInfo.meta, vnode, parentVNode, dependencies);
         }
       }
     
@@ -1417,7 +1419,7 @@
           // Invoke any special directives that need to change values of props during code generation
           var duringPropGenerate = null;
           if ((duringPropGenerate = specialDirective.duringPropGenerate) !== undefined) {
-            generatedObject += duringPropGenerate(attrInfo.value, attrInfo.meta, vnode);
+            generatedObject += duringPropGenerate(attrInfo.value, attrInfo.meta, vnode, dependencies);
           }
     
           // Keep a flag to know to always rerender this
@@ -1430,7 +1432,7 @@
           vnode.meta.shouldRender = true;
         } else {
           var propValue = attrInfo.value;
-          var compiledProp = compileTemplate(propValue, delimiters, escapedDelimiters, true);
+          var compiledProp = compileTemplate(propValue, delimiters, escapedDelimiters, dependencies, true);
           if (propValue !== compiledProp) {
             vnode.meta.shouldRender = true;
           }
@@ -1472,10 +1474,12 @@
           var compiledDirectiveValue = "\"\"";
     
           if (directiveValue.length !== 0) {
-            compiledDirectiveValue = compileTemplateExpression(directiveValue);
+            compileTemplateExpression(directiveValue, dependencies);
+          } else {
+            directiveValue = "\"\"";
           }
     
-          generatedObject += '"' + directiveInfo.name + '": ' + compiledDirectiveValue + ', ';
+          generatedObject += '"' + directiveInfo.name + '": ' + directiveValue + ', ';
         }
     
         // Close object
@@ -1560,20 +1564,21 @@
      * Creates an "h" Call for a VNode
      * @param {Object} vnode
      * @param {Object} parentVNode
+     * @param {Array} dependencies
      * @return {String} "h" call
      */
-    var createCall = function (vnode, parentVNode) {
+    var createCall = function (vnode, parentVNode, dependencies) {
       // Generate Code for Type
       var call = 'h("' + vnode.type + '", ';
     
       // Generate Code for Props
-      call += generateProps(vnode, parentVNode) + ", ";
+      call += generateProps(vnode, parentVNode, dependencies) + ", ";
     
       // Generate code for children recursively here (in case modified by special directives)
       var children = [];
       var parsedChildren = vnode.children;
       for (var i = 0; i < parsedChildren.length; i++) {
-        children.push(generateEl(parsedChildren[i], vnode));
+        children.push(generateEl(parsedChildren[i], vnode, dependencies));
       }
     
       // If the "shouldRender" flag is not present, ensure node will be updated
@@ -1603,13 +1608,13 @@
       return call;
     };
     
-    var generateEl = function (vnode, parentVNode) {
+    var generateEl = function (vnode, parentVNode, dependencies) {
       var code = "";
     
       if (typeof vnode === "string") {
         // Escape newlines and double quotes, and compile the string
         var escapedString = vnode;
-        var compiledText = compileTemplate(escapedString, delimiters, escapedDelimiters, true);
+        var compiledText = compileTemplate(escapedString, delimiters, escapedDelimiters, dependencies, true);
         var textMeta = defaultMetadata();
     
         if (escapedString !== compiledText) {
@@ -1644,14 +1649,14 @@
           var slotNameAttr = vnode.props.attrs.name;
           compiledCode = 'instance.$slots[\'' + (slotNameAttr && slotNameAttr.value || "default") + '\']';
         } else {
-          compiledCode = createCall(vnode, parentVNode);
+          compiledCode = createCall(vnode, parentVNode, dependencies);
         }
     
         // Check for Special Directives that change the code after generation and run them
         if (vnode.specialDirectivesAfter !== undefined) {
           for (var specialDirectiveAfterInfo in vnode.specialDirectivesAfter) {
             var specialDirectiveAfter = vnode.specialDirectivesAfter[specialDirectiveAfterInfo];
-            compiledCode = specialDirectives[specialDirectiveAfter.name].afterGenerate(specialDirectiveAfter.value, specialDirectiveAfter.meta, compiledCode, vnode);
+            compiledCode = specialDirectives[specialDirectiveAfter.name].afterGenerate(specialDirectiveAfter.value, specialDirectiveAfter.meta, compiledCode, vnode, dependencies);
           }
         }
         code += compiledCode;
@@ -1662,6 +1667,9 @@
     var generate = function (ast) {
       // Get root element
       var root = ast.children[0];
+    
+      // Dependencies
+      var dependencies = [];
     
       // Update delimiters if needed
       var newDelimeters = null;
@@ -1674,8 +1682,16 @@
         escapedDelimiters[1] = escapeRegex(delimiters[1]);
       }
     
-      // Begin Code
-      var code = "var instance = this; return " + generateEl(root);
+      // Generate Rendering Code
+      var rootCode = generateEl(root, undefined, dependencies);
+    
+      var dependenciesCode = "";
+      for (var i = 0; i < dependencies.length; i++) {
+        var dependency = dependencies[i];
+        dependenciesCode += 'var ' + dependency + ' = instance.get("' + dependency + '");';
+      }
+    
+      var code = 'var instance = this; ' + dependenciesCode + ' return ' + rootCode;
     
       try {
         return new Function("h", code);
@@ -2167,29 +2183,36 @@
     var getterRE = /instance\.get\("[\w\d]+"\)/;
     
     specialDirectives["m-if"] = {
-      afterGenerate: function (value, meta, code, vnode) {
-        return compileTemplateExpression(value) + ' ? ' + code + ' : h("#text", ' + generateMeta(defaultMetadata()) + ', "")';
+      afterGenerate: function (value, meta, code, vnode, dependencies) {
+        compileTemplateExpression(value, dependencies);
+        return value + ' ? ' + code + ' : h("#text", ' + generateMeta(defaultMetadata()) + ', "")';
       }
     };
     
     specialDirectives["m-for"] = {
-      beforeGenerate: function (value, meta, vnode, parentVNode) {
+      beforeGenerate: function (value, meta, vnode, parentVNode, dependencies) {
         // Setup Deep Flag to Flatten Array
         parentVNode.deep = true;
       },
-      afterGenerate: function (value, meta, code, vnode) {
+      afterGenerate: function (value, meta, code, vnode, dependencies) {
         // Get Parts
         var parts = value.split(" in ");
         // Aliases
         var aliases = parts[0].split(",");
         // The Iteratable
-        var iteratable = compileTemplateExpression(parts[1]);
+        var iteratable = parts[1];
+        compileTemplateExpression(iteratable, dependencies);
     
         // Get any parameters
         var params = aliases.join(",");
     
-        // Change any references to the parameters in children
-        code = code.replace(new RegExp('instance\\.get\\("(' + aliases.join("|") + ')"\\)', 'g'), "$1");
+        // Add aliases to scope
+        for (var i = 0; i < aliases.length; i++) {
+          var aliasIndex = dependencies.indexOf(aliases[i]);
+          if (aliasIndex !== -1) {
+            dependencies.splice(aliasIndex, 1);
+          }
+        }
     
         // Use the renderLoop runtime helper
         return 'instance.renderLoop(' + iteratable + ', function(' + params + ') { return ' + code + '; })';
@@ -2197,7 +2220,7 @@
     };
     
     specialDirectives["m-on"] = {
-      beforeGenerate: function (value, meta, vnode) {
+      beforeGenerate: function (value, meta, vnode, parentVNode, dependencies) {
         // Extract Event, Modifiers, and Parameters
         var methodToCall = value;
     
@@ -2210,7 +2233,8 @@
         if (rawParams.length > 1) {
           // Custom parameters detected, update method to call, and generated parameter code
           methodToCall = rawParams.shift();
-          params = compileTemplateExpression(rawParams.join("(").slice(0, -1));
+          params = rawParams.join("(").slice(0, -1);
+          compileTemplateExpression(params, dependencies);
         }
     
         // Generate any modifiers
@@ -2231,9 +2255,9 @@
     };
     
     specialDirectives["m-model"] = {
-      beforeGenerate: function (value, meta, vnode) {
+      beforeGenerate: function (value, meta, vnode, parentVNode, dependencies) {
         // Compile a literal value for the getter
-        var getter = compileTemplateExpression(value);
+        compileTemplateExpression(value, dependencies);
     
         // Setup default event types and dom property to change
         var eventType = "input";
@@ -2258,7 +2282,13 @@
           base = value.slice(0, dotIndex);
         }
         if (base !== null) {
-          keypath = getter.replace(new RegExp('instance\\.get\\("' + base + '"\\)', 'g'), '" + "' + base + '" + "').replace(getterRE, "\" + $& + \"").slice(1, -1);
+          keypath = keypath.replace(expressionRE, function (match, reference) {
+            if (reference !== undefined && reference !== base) {
+              return '" + ' + reference + ' + "';
+            } else {
+              return match;
+            }
+          });
         }
     
         // Generate the listener
@@ -2277,31 +2307,32 @@
         if (dom === undefined) {
           vnode.props.dom = dom = {};
         }
-        dom[valueProp] = getter;
+        dom[valueProp] = value;
       }
     };
     
     specialDirectives["m-literal"] = {
-      duringPropGenerate: function (value, meta, vnode) {
+      duringPropGenerate: function (value, meta, vnode, dependencies) {
         var prop = meta.arg;
-    
+        compileTemplateExpression(value, dependencies);
         if (prop === "class") {
           // Detected class, use runtime class render helper
-          return '"class": instance.renderClass(' + compileTemplateExpression(value) + '), ';
+          return '"class": instance.renderClass(' + value + '), ';
         } else {
           // Default literal attribute
-          return '"' + prop + '": ' + compileTemplateExpression(value) + ', ';
+          return '"' + prop + '": ' + value + ', ';
         }
       }
     };
     
     specialDirectives["m-html"] = {
-      beforeGenerate: function (value, meta, vnode) {
+      beforeGenerate: function (value, meta, vnode, parentVNode, dependencies) {
         var dom = vnode.props.dom;
         if (dom === undefined) {
           vnode.props.dom = dom = {};
         }
-        dom.innerHTML = '("" + ' + compileTemplateExpression(value) + ')';
+        compileTemplateExpression(value, dependencies);
+        dom.innerHTML = '("" + ' + value + ')';
       }
     };
     
