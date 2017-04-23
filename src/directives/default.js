@@ -3,29 +3,36 @@
 const getterRE = /instance\.get\("[\w\d]+"\)/;
 
 specialDirectives["m-if"] = {
-  afterGenerate: function(value, meta, code, vnode) {
-    return `${compileTemplateExpression(value)} ? ${code} : h("#text", ${generateMeta(defaultMetadata())}, "")`;
+  afterGenerate: function(value, meta, code, vnode, dependencies) {
+    compileTemplateExpression(value, dependencies);
+    return `${value} ? ${code} : h("#text", ${generateMeta(defaultMetadata())}, "")`;
   }
 }
 
 specialDirectives["m-for"] = {
-  beforeGenerate: function(value, meta, vnode, parentVNode) {
+  beforeGenerate: function(value, meta, vnode, parentVNode, dependencies) {
     // Setup Deep Flag to Flatten Array
     parentVNode.deep = true;
   },
-  afterGenerate: function(value, meta, code, vnode) {
+  afterGenerate: function(value, meta, code, vnode, dependencies) {
     // Get Parts
     const parts = value.split(" in ");
     // Aliases
     const aliases = parts[0].split(",");
     // The Iteratable
-    const iteratable = compileTemplateExpression(parts[1]);
+    const iteratable = parts[1];
+    compileTemplateExpression(iteratable, dependencies);
 
     // Get any parameters
     const params = aliases.join(",");
 
-    // Change any references to the parameters in children
-    code = code.replace(new RegExp(`instance\\.get\\("(${aliases.join("|")})"\\)`, 'g'), "$1");
+    // Add aliases to scope
+    for(let i = 0; i < aliases.length; i++) {
+      const aliasIndex = dependencies.indexOf(aliases[i]);
+      if(aliasIndex !== -1) {
+        dependencies.splice(aliasIndex, 1);
+      }
+    }
 
     // Use the renderLoop runtime helper
     return `instance.renderLoop(${iteratable}, function(${params}) { return ${code}; })`;
@@ -33,7 +40,7 @@ specialDirectives["m-for"] = {
 }
 
 specialDirectives["m-on"] = {
-  beforeGenerate: function(value, meta, vnode) {
+  beforeGenerate: function(value, meta, vnode, parentVNode, dependencies) {
     // Extract Event, Modifiers, and Parameters
     let methodToCall = value;
 
@@ -46,7 +53,8 @@ specialDirectives["m-on"] = {
     if(rawParams.length > 1) {
       // Custom parameters detected, update method to call, and generated parameter code
       methodToCall = rawParams.shift();
-      params = compileTemplateExpression(rawParams.join("(").slice(0, -1));
+      params = rawParams.join("(").slice(0, -1);
+      compileTemplateExpression(params, dependencies);
     }
 
     // Generate any modifiers
@@ -67,9 +75,9 @@ specialDirectives["m-on"] = {
 }
 
 specialDirectives["m-model"] = {
-  beforeGenerate: function(value, meta, vnode) {
+  beforeGenerate: function(value, meta, vnode, parentVNode, dependencies) {
     // Compile a literal value for the getter
-    const getter = compileTemplateExpression(value);
+    compileTemplateExpression(value, dependencies);
 
     // Setup default event types and dom property to change
     let eventType = "input";
@@ -94,7 +102,13 @@ specialDirectives["m-model"] = {
       base = value.slice(0, dotIndex);
     }
     if(base !== null) {
-      keypath = getter.replace(new RegExp(`instance\\.get\\("${base}"\\)`, 'g'), `" + "${base}" + "`).replace(getterRE, "\" + $& + \"").slice(1, -1);
+      keypath = keypath.replace(expressionRE, function(match, reference) {
+        if(reference !== undefined && reference !== base) {
+          return `" + ${reference} + "`;
+        } else {
+          return match;
+        }
+      });
     }
 
     // Generate the listener
@@ -113,31 +127,32 @@ specialDirectives["m-model"] = {
     if(dom === undefined) {
       vnode.props.dom = dom = {};
     }
-    dom[valueProp] = getter;
+    dom[valueProp] = value;
   }
 };
 
 specialDirectives["m-literal"] = {
-  duringPropGenerate: function(value, meta, vnode) {
+  duringPropGenerate: function(value, meta, vnode, dependencies) {
     const prop = meta.arg;
-
+    compileTemplateExpression(value, dependencies);
     if(prop === "class") {
       // Detected class, use runtime class render helper
-      return `"class": instance.renderClass(${compileTemplateExpression(value)}), `;
+      return `"class": instance.renderClass(${value}), `;
     } else {
       // Default literal attribute
-      return `"${prop}": ${compileTemplateExpression(value)}, `;
+      return `"${prop}": ${value}, `;
     }
   }
 };
 
 specialDirectives["m-html"] = {
-  beforeGenerate: function(value, meta, vnode) {
+  beforeGenerate: function(value, meta, vnode, parentVNode, dependencies) {
     const dom = vnode.props.dom;
     if(dom === undefined) {
       vnode.props.dom = dom = {};
     }
-    dom.innerHTML = `("" + ${compileTemplateExpression(value)})`;
+    compileTemplateExpression(value, dependencies);
+    dom.innerHTML = `("" + ${value})`;
   }
 }
 

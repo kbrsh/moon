@@ -7,10 +7,11 @@ const globals = ['true', 'false', 'undefined', 'NaN', 'typeof'];
  * @param {String} template
  * @param {Array} delimiters
  * @param {Array} escapedDelimiters
+ * @param {Array} dependencies
  * @param {Boolean} isString
  * @return {String} compiled template
  */
-const compileTemplate = function(template, delimiters, escapedDelimiters, isString) {
+const compileTemplate = function(template, delimiters, escapedDelimiters, dependencies, isString) {
   let state = {
     current: 0,
     template: template,
@@ -18,7 +19,8 @@ const compileTemplate = function(template, delimiters, escapedDelimiters, isStri
     openDelimiterLen: delimiters[0].length,
     closeDelimiterLen: delimiters[1].length,
     openRE: new RegExp(escapedDelimiters[0]),
-    closeRE: new RegExp(`\\s*${escapedDelimiters[1]}`)
+    closeRE: new RegExp(`\\s*${escapedDelimiters[1]}`),
+    dependencies: dependencies
   };
 
   compileTemplateState(state, isString);
@@ -61,7 +63,7 @@ const compileTemplateState = function(state, isString) {
 
     if(name) {
       // Extract Variable References
-      name = compileTemplateExpression(name);
+      compileTemplateExpression(name, state.dependencies);
 
       // Add quotes if string
       if(isString) {
@@ -80,14 +82,14 @@ const compileTemplateState = function(state, isString) {
   }
 }
 
-const compileTemplateExpression = function(expr) {
-  return "(" + expr.replace(expressionRE, function(match, reference) {
-    if(reference !== undefined && globals.indexOf(reference) === -1) {
-      return `instance.get("${reference}")`;
-    } else {
-      return match;
+const compileTemplateExpression = function(expr, dependencies) {
+  expr.replace(expressionRE, function(match, reference) {
+    if(reference !== undefined && globals.indexOf(reference) === -1 && dependencies.indexOf(reference) === -1) {
+      dependencies.push(reference);
     }
-  }) + ")";
+  });
+
+  return dependencies;
 }
 
 const scanTemplateStateUntil = function(state, re) {
