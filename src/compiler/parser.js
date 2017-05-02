@@ -35,7 +35,7 @@ const walk = function(state) {
   let previousToken = state.tokens[state.current - 1];
   let nextToken = state.tokens[state.current + 1];
 
-  const increment = function(num) {
+  const move = function(num) {
     state.current += num === undefined ? 1 : num;
     token = state.tokens[state.current];
     previousToken = state.tokens[state.current - 1];
@@ -43,12 +43,12 @@ const walk = function(state) {
   }
 
   if(token.type === "text") {
-    increment();
+    move();
     return previousToken.value;
   }
 
   if(token.type === "comment") {
-    increment();
+    move();
     return null;
   }
 
@@ -59,18 +59,18 @@ const walk = function(state) {
     const closeEnd = token.closeEnd;
 
     const isSVGElement = SVG_ELEMENTS.indexOf(tagType) !== -1;
-    const isVoidElement = VOID_ELEMENTS.indexOf(tagType) !== -1;
+    const isVoidElement = VOID_ELEMENTS.indexOf(tagType) !== -1 || closeEnd === true;
 
     let node = createParseNode(tagType, token.attributes, []);
 
-    increment();
+    move();
 
     // If it is an svg element, let code generator know
     if(isSVGElement) {
       node.isSVG = true;
     }
 
-    if(isVoidElement) {
+    if(isVoidElement === true) {
       // Self closing, don't process further
       return node;
     } else if(closeStart === true) {
@@ -80,11 +80,13 @@ const walk = function(state) {
       // Match all children
       const current = state.current;
       while((token.type !== "tag") || ((token.type === "tag") && ((token.closeStart === undefined && token.closeEnd === undefined) || (token.value !== tagType)))) {
-        var parsedChildState = walk(state);
+        const parsedChildState = walk(state);
         if(parsedChildState !== null) {
           node.children.push(parsedChildState);
         }
-        increment(0);
+
+        move(0);
+
         if(token === undefined) {
           // No token means a tag was most likely left unclosed
           if("__ENV__" !== "production") {
@@ -94,12 +96,12 @@ const walk = function(state) {
         }
       }
 
-      increment();
+      move();
     }
 
     return node;
   }
 
-  increment();
+  move();
   return;
 }

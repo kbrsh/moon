@@ -1290,7 +1290,7 @@
       var previousToken = state.tokens[state.current - 1];
       var nextToken = state.tokens[state.current + 1];
     
-      var increment = function (num) {
+      var move = function (num) {
         state.current += num === undefined ? 1 : num;
         token = state.tokens[state.current];
         previousToken = state.tokens[state.current - 1];
@@ -1298,12 +1298,12 @@
       };
     
       if (token.type === "text") {
-        increment();
+        move();
         return previousToken.value;
       }
     
       if (token.type === "comment") {
-        increment();
+        move();
         return null;
       }
     
@@ -1314,18 +1314,18 @@
         var closeEnd = token.closeEnd;
     
         var isSVGElement = SVG_ELEMENTS.indexOf(tagType) !== -1;
-        var isVoidElement = VOID_ELEMENTS.indexOf(tagType) !== -1;
+        var isVoidElement = VOID_ELEMENTS.indexOf(tagType) !== -1 || closeEnd === true;
     
         var node = createParseNode(tagType, token.attributes, []);
     
-        increment();
+        move();
     
         // If it is an svg element, let code generator know
         if (isSVGElement) {
           node.isSVG = true;
         }
     
-        if (isVoidElement) {
+        if (isVoidElement === true) {
           // Self closing, don't process further
           return node;
         } else if (closeStart === true) {
@@ -1339,7 +1339,9 @@
             if (parsedChildState !== null) {
               node.children.push(parsedChildState);
             }
-            increment(0);
+    
+            move(0);
+    
             if (token === undefined) {
               // No token means a tag was most likely left unclosed
               if ("development" !== "production") {
@@ -1349,13 +1351,13 @@
             }
           }
     
-          increment();
+          move();
         }
     
         return node;
       }
     
-      increment();
+      move();
       return;
     };
     
