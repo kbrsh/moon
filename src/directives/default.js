@@ -1,11 +1,9 @@
 /* ======= Default Directives ======= */
 
-const getterRE = /instance\.get\("[\w\d]+"\)/;
-
 specialDirectives["m-if"] = {
   afterGenerate: function(value, meta, code, vnode, dependencies) {
     compileTemplateExpression(value, dependencies);
-    return `${value} ? ${code} : h("#text", ${generateMeta(defaultMetadata())}, "")`;
+    return `${value} ? ${code} : null`;
   }
 }
 
