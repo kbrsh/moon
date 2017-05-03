@@ -343,7 +343,7 @@ const diff = function(oldVNode, vnode, parent, instance) {
       // Both Don't Exist, Remove Both
       return PATCH.REMOVE;
     }
-    
+
     // No Node, append a node
     appendChild(createNodeFromVNode(vnode, instance), vnode, parent);
 
@@ -420,8 +420,8 @@ const diff = function(oldVNode, vnode, parent, instance) {
     } else {
       // Traverse and Diff Children
       let totalLen = newLength > oldLength ? newLength : oldLength;
-      for(var i = 0; i < totalLen; i++) {
-        let oldChild = i < oldLength ? oldChildren[i] : null;
+      for(let i = 0, j = 0; i < totalLen; i++, j++) {
+        let oldChild = j < oldLength ? oldChildren[j] : null;
         let child = i < newLength ? children[i] : null;
 
         const action = diff(oldChild, child, node, instance);
@@ -432,11 +432,11 @@ const diff = function(oldVNode, vnode, parent, instance) {
             oldChildren[oldLength++] = child;
             break;
           case PATCH.REMOVE:
-            oldChildren.splice(i, 1);
+            oldChildren.splice(j--, 1);
             oldLength--;
             break;
           case PATCH.REPLACE:
-            oldChildren[i] = children[i];
+            oldChildren[j] = children[i];
             break;
           case PATCH.TEXT:
             oldChild.val = child.val;

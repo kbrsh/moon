@@ -872,8 +872,8 @@
         } else {
           // Traverse and Diff Children
           var totalLen = newLength > oldLength ? newLength : oldLength;
-          for (var i = 0; i < totalLen; i++) {
-            var oldChild = i < oldLength ? oldChildren[i] : null;
+          for (var i = 0, j = 0; i < totalLen; i++, j++) {
+            var oldChild = j < oldLength ? oldChildren[j] : null;
             var child = i < newLength ? children[i] : null;
     
             var action = diff(oldChild, child, _node, instance);
@@ -884,11 +884,11 @@
                 oldChildren[oldLength++] = child;
                 break;
               case PATCH.REMOVE:
-                oldChildren.splice(i, 1);
+                oldChildren.splice(j--, 1);
                 oldLength--;
                 break;
               case PATCH.REPLACE:
-                oldChildren[i] = children[i];
+                oldChildren[j] = children[i];
                 break;
               case PATCH.TEXT:
                 oldChild.val = child.val;
