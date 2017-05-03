@@ -339,6 +339,11 @@ const hydrate = function(node, vnode, parent, instance) {
  */
 const diff = function(oldVNode, vnode, parent, instance) {
   if(oldVNode === null) {
+    if(vnode === null) {
+      // Both Don't Exist, Remove Both
+      return PATCH.REMOVE;
+    }
+    
     // No Node, append a node
     appendChild(createNodeFromVNode(vnode, instance), vnode, parent);
 
@@ -398,8 +403,10 @@ const diff = function(oldVNode, vnode, parent, instance) {
     }
 
     // Diff Children
-    let newLength = vnode.children.length;
-    let oldLength = oldVNode.children.length;
+    const children = vnode.children;
+    const oldChildren = oldVNode.children;
+    let newLength = children.length;
+    let oldLength = oldChildren.length;
 
     if(newLength === 0) {
       // No Children, Remove all Children if not Already Removed
@@ -408,28 +415,28 @@ const diff = function(oldVNode, vnode, parent, instance) {
         while((firstChild = node.firstChild) !== null) {
           removeChild(firstChild, node);
         }
-        oldVNode.children = [];
+        oldChildren = [];
       }
     } else {
       // Traverse and Diff Children
       let totalLen = newLength > oldLength ? newLength : oldLength;
       for(var i = 0; i < totalLen; i++) {
-        let oldChild = i < oldLength ? oldVNode.children[i] : null;
-        let child = i < newLength ? vnode.children[i] : null;
+        let oldChild = i < oldLength ? oldChildren[i] : null;
+        let child = i < newLength ? children[i] : null;
 
         const action = diff(oldChild, child, node, instance);
 
         // Update Children to Match Action
         switch (action) {
           case PATCH.APPEND:
-            oldVNode.children[oldLength++] = child;
+            oldChildren[oldLength++] = child;
             break;
           case PATCH.REMOVE:
-            oldVNode.children.splice(i, 1);
+            oldChildren.splice(i, 1);
             oldLength--;
             break;
           case PATCH.REPLACE:
-            oldVNode.children[i] = vnode.children[i];
+            oldChildren[i] = children[i];
             break;
           case PATCH.TEXT:
             oldChild.val = child.val;
