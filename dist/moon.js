@@ -792,6 +792,11 @@
      */
     var diff = function (oldVNode, vnode, parent, instance) {
       if (oldVNode === null) {
+        if (vnode === null) {
+          // Both Don't Exist, Remove Both
+          return PATCH.REMOVE;
+        }
+    
         // No Node, append a node
         appendChild(createNodeFromVNode(vnode, instance), vnode, parent);
     
@@ -850,8 +855,10 @@
         }
     
         // Diff Children
-        var newLength = vnode.children.length;
-        var oldLength = oldVNode.children.length;
+        var children = vnode.children;
+        var oldChildren = oldVNode.children;
+        var newLength = children.length;
+        var oldLength = oldChildren.length;
     
         if (newLength === 0) {
           // No Children, Remove all Children if not Already Removed
@@ -860,28 +867,28 @@
             while ((firstChild = _node.firstChild) !== null) {
               removeChild(firstChild, _node);
             }
-            oldVNode.children = [];
+            oldChildren = [];
           }
         } else {
           // Traverse and Diff Children
           var totalLen = newLength > oldLength ? newLength : oldLength;
           for (var i = 0; i < totalLen; i++) {
-            var oldChild = i < oldLength ? oldVNode.children[i] : null;
-            var child = i < newLength ? vnode.children[i] : null;
+            var oldChild = i < oldLength ? oldChildren[i] : null;
+            var child = i < newLength ? children[i] : null;
     
             var action = diff(oldChild, child, _node, instance);
     
             // Update Children to Match Action
             switch (action) {
               case PATCH.APPEND:
-                oldVNode.children[oldLength++] = child;
+                oldChildren[oldLength++] = child;
                 break;
               case PATCH.REMOVE:
-                oldVNode.children.splice(i, 1);
+                oldChildren.splice(i, 1);
                 oldLength--;
                 break;
               case PATCH.REPLACE:
-                oldVNode.children[i] = vnode.children[i];
+                oldChildren[i] = children[i];
                 break;
               case PATCH.TEXT:
                 oldChild.val = child.val;
