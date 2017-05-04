@@ -5,7 +5,7 @@
  * @param {String} msg
  */
 const log = function(msg) {
-  if(!Moon.config.silent) console.log(msg);
+  if(Moon.config.silent === false) console.log(msg);
 }
 
 /**
@@ -13,7 +13,7 @@ const log = function(msg) {
  * @param {String} msg
  */
 const error = function(msg) {
-  if(!Moon.config.silent) console.error("[Moon] ERR: " + msg);
+  if(Moon.config.silent === false) console.error("[Moon] ERR: " + msg);
 }
 
 /**
