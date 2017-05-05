@@ -140,6 +140,8 @@
     
     /* ======= Global Utilities ======= */
     
+    var hashRE = /\[(\w+)\]/g;
+    
     /**
      * Logs a Message
      * @param {String} msg
@@ -203,9 +205,7 @@
      */
     var resolveKeyPath = function (instance, obj, keypath, val) {
       var i = null;
-      keypath.replace(/\[(\w+)\]/g, function (match, index) {
-        keypath = keypath.replace(match, '.' + index);
-      });
+      keypath = keypath.replace(hashRE, '.$1');
       var path = keypath.split(".");
       for (i = 0; i < path.length - 1; i++) {
         var propName = path[i];
