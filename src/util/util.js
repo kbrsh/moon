@@ -1,5 +1,7 @@
 /* ======= Global Utilities ======= */
 
+const hashRE = /\[(\w+)\]/g;
+
 /**
  * Logs a Message
  * @param {String} msg
@@ -63,9 +65,7 @@ const escapeString = function(str) {
  */
 const resolveKeyPath = function(instance, obj, keypath, val) {
   let i = null;
-  keypath.replace(/\[(\w+)\]/g, function(match, index) {
-    keypath = keypath.replace(match, `.${index}`);
-  });
+  keypath = keypath.replace(hashRE, '.$1');
   var path = keypath.split(".");
   for(i = 0; i < path.length - 1; i++) {
     const propName = path[i];
