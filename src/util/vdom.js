@@ -260,7 +260,7 @@ const hydrate = function(node, vnode, parent, instance) {
 
   if(node === null) {
     // No node, create one
-    var newNode = createNodeFromVNode(vnode, instance);
+    const newNode = createNodeFromVNode(vnode, instance);
     appendChild(newNode, vnode, parent);
 
     return newNode;
@@ -269,7 +269,7 @@ const hydrate = function(node, vnode, parent, instance) {
 
     return null;
   } else if(nodeName !== vnode.type) {
-    var newNode = createNodeFromVNode(vnode, instance);
+    const newNode = createNodeFromVNode(vnode, instance);
     replaceChild(node, newNode, vnode, parent);
     return newNode;
   } else if(vnode.type === TEXT_TYPE) {
@@ -307,21 +307,23 @@ const hydrate = function(node, vnode, parent, instance) {
     addEventListeners(node, vnode, instance);
 
     // Check if innerHTML was changed, and don't diff children if so
-    if(vnode.props.dom !== undefined && vnode.props.dom.innerHTML !== undefined) {
+    const domProps = vnode.props.dom;
+    if(domProps !== undefined && domProps.innerHTML !== undefined) {
       return node;
     }
 
     // Hydrate Children
-    const vnodeChildrenLength = vnode.children.length;
+    const children = vnode.children;
+    const length = children.length;
 
     let i = 0;
     let currentChildNode = node.firstChild;
-    let vchild = vnodeChildrenLength !== 0 ? vnode.children[0] : null;
+    let vchild = length !== 0 ? children[0] : null;
 
     while(vchild !== null || currentChildNode !== null) {
       const next = currentChildNode ? currentChildNode.nextSibling : null;
       hydrate(currentChildNode, vchild, node, instance);
-      vchild = ++i < vnodeChildrenLength ? vnode.children[i] : null;
+      vchild = ++i < length ? children[i] : null;
       currentChildNode = next;
     }
 
@@ -397,7 +399,8 @@ const diff = function(oldVNode, vnode, parent, instance) {
     diffEventListeners(node, oldVNode, vnode);
 
     // Check if innerHTML was changed, don't diff children
-    if(vnode.props.dom !== undefined && vnode.props.dom.innerHTML !== undefined) {
+    const domProps = vnode.props.dom;
+    if(domProps !== undefined && domProps.innerHTML !== undefined) {
       // Skip Children
       return PATCH.SKIP;
     }
