@@ -1273,7 +1273,7 @@
       };
     
       while (state.current < tokens.length) {
-        var child = walk(state);
+        var child = parseWalk(state);
         if (child) {
           root.children.push(child);
         }
@@ -1293,7 +1293,7 @@
       };
     };
     
-    var walk = function (state) {
+    var parseWalk = function (state) {
       var token = state.tokens[state.current];
       var previousToken = state.tokens[state.current - 1];
       var nextToken = state.tokens[state.current + 1];
@@ -1346,7 +1346,7 @@
           // Match all children
           var current = state.current;
           while (token.type !== "tag" || token.type === "tag" && (token.closeStart === undefined && token.closeEnd === undefined || token.value !== tagType)) {
-            var parsedChildState = walk(state);
+            var parsedChildState = parseWalk(state);
             if (parsedChildState !== null) {
               node.children.push(parsedChildState);
             }

@@ -10,7 +10,7 @@ const parse = function(tokens) {
   }
 
   while(state.current < tokens.length) {
-    const child = walk(state);
+    const child = parseWalk(state);
     if(child) {
       root.children.push(child);
     }
@@ -30,7 +30,7 @@ const createParseNode = function(type, props, children) {
   }
 }
 
-const walk = function(state) {
+const parseWalk = function(state) {
   let token = state.tokens[state.current];
   let previousToken = state.tokens[state.current - 1];
   let nextToken = state.tokens[state.current + 1];
@@ -83,7 +83,7 @@ const walk = function(state) {
       // Match all children
       const current = state.current;
       while((token.type !== "tag") || ((token.type === "tag") && ((token.closeStart === undefined && token.closeEnd === undefined) || (token.value !== tagType)))) {
-        const parsedChildState = walk(state);
+        const parsedChildState = parseWalk(state);
         if(parsedChildState !== null) {
           node.children.push(parsedChildState);
         }
