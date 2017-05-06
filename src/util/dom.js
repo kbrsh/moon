@@ -65,7 +65,10 @@ const createNodeFromVNode = function(vnode, instance) {
     } else {
       // Add all children
       for(var i = 0; i < vnode.children.length; i++) {
-        appendChild(createNodeFromVNode(vnode.children[i], instance), vnode.children[i], el);
+        const vchild = vnode.children[i];
+        if(vchild !== null) {
+          appendChild(createNodeFromVNode(vchild, instance), vchild, el);
+        }
       }
     }
     // Add all event listeners
