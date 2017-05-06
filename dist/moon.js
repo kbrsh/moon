@@ -377,9 +377,7 @@
           // Add all children
           for (var i = 0; i < vnode.children.length; i++) {
             var vchild = vnode.children[i];
-            if (vchild !== null) {
-              appendChild(createNodeFromVNode(vchild, instance), vchild, el);
-            }
+            appendChild(createNodeFromVNode(vchild, instance), vchild, el);
           }
         }
         // Add all event listeners
@@ -793,11 +791,6 @@
      */
     var diff = function (oldVNode, vnode, parent, instance) {
       if (oldVNode === null) {
-        if (vnode === null) {
-          // Both Don't Exist, Remove Both
-          return PATCH.REMOVE;
-        }
-    
         // No Node, append a node
         appendChild(createNodeFromVNode(vnode, instance), vnode, parent);
     
@@ -2197,7 +2190,7 @@
     specialDirectives["m-if"] = {
       afterGenerate: function (value, meta, code, vnode, dependencies) {
         compileTemplateExpression(value, dependencies);
-        return value + ' ? ' + code + ' : null';
+        return value + ' ? ' + code + ' : h("#text", ' + generateMeta(defaultMetadata()) + ', "")';
       }
     };
     

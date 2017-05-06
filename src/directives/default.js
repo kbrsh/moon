@@ -3,7 +3,7 @@
 specialDirectives["m-if"] = {
   afterGenerate: function(value, meta, code, vnode, dependencies) {
     compileTemplateExpression(value, dependencies);
-    return `${value} ? ${code} : null`;
+    return `${value} ? ${code} : h("#text", ${generateMeta(defaultMetadata())}, "")`;
   }
 }
 
