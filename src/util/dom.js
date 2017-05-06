@@ -65,18 +65,13 @@ const createNodeFromVNode = function(vnode, instance) {
     } else {
       // Add all children
       for(var i = 0; i < vnode.children.length; i++) {
-        let childVNode = vnode.children[i];
-        let childNode = createNodeFromVNode(vnode.children[i], instance);
-        el.appendChild(childNode);
-        // Component detected, mount it here
-        if(childVNode.meta.component !== undefined) {
-          createComponentFromVNode(childNode, childVNode, childVNode.meta.component);
-        }
+        appendChild(createNodeFromVNode(vnode.children[i], instance), vnode.children[i], el);
       }
     }
     // Add all event listeners
     addEventListeners(el, vnode, instance);
   }
+
   // Setup Props
   diffProps(el, {}, vnode, vnode.props.attrs);
 
