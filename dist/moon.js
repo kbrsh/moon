@@ -721,9 +721,9 @@
     
         return null;
       } else if (nodeName !== vnode.type) {
-        var newNode = createNodeFromVNode(vnode, instance);
-        replaceChild(node, newNode, vnode, parent);
-        return newNode;
+        var _newNode = createNodeFromVNode(vnode, instance);
+        replaceChild(node, _newNode, vnode, parent);
+        return _newNode;
       } else if (vnode.type === TEXT_TYPE) {
         if (nodeName === TEXT_TYPE) {
           // Both are textnodes, update the node
@@ -759,21 +759,23 @@
         addEventListeners(node, vnode, instance);
     
         // Check if innerHTML was changed, and don't diff children if so
-        if (vnode.props.dom !== undefined && vnode.props.dom.innerHTML !== undefined) {
+        var domProps = vnode.props.dom;
+        if (domProps !== undefined && domProps.innerHTML !== undefined) {
           return node;
         }
     
         // Hydrate Children
-        var vnodeChildrenLength = vnode.children.length;
+        var children = vnode.children;
+        var length = children.length;
     
         var i = 0;
         var currentChildNode = node.firstChild;
-        var vchild = vnodeChildrenLength !== 0 ? vnode.children[0] : null;
+        var vchild = length !== 0 ? children[0] : null;
     
         while (vchild !== null || currentChildNode !== null) {
           var next = currentChildNode ? currentChildNode.nextSibling : null;
           hydrate(currentChildNode, vchild, node, instance);
-          vchild = ++i < vnodeChildrenLength ? vnode.children[i] : null;
+          vchild = ++i < length ? children[i] : null;
           currentChildNode = next;
         }
     
@@ -848,7 +850,8 @@
         diffEventListeners(_node, oldVNode, vnode);
     
         // Check if innerHTML was changed, don't diff children
-        if (vnode.props.dom !== undefined && vnode.props.dom.innerHTML !== undefined) {
+        var domProps = vnode.props.dom;
+        if (domProps !== undefined && domProps.innerHTML !== undefined) {
           // Skip Children
           return PATCH.SKIP;
         }
