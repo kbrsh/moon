@@ -341,11 +341,6 @@ const hydrate = function(node, vnode, parent, instance) {
  */
 const diff = function(oldVNode, vnode, parent, instance) {
   if(oldVNode === null) {
-    if(vnode === null) {
-      // Both Don't Exist, Remove Both
-      return PATCH.REMOVE;
-    }
-
     // No Node, append a node
     appendChild(createNodeFromVNode(vnode, instance), vnode, parent);
 
