@@ -449,6 +449,11 @@
     };
     
     /**
+     * Text VNode/Node Type
+     */
+    var TEXT_TYPE = "#text";
+    
+    /**
      * Patch Types
      */
     var PATCH = {
@@ -459,11 +464,6 @@
       TEXT: 4,
       CHILDREN: 5
     };
-    
-    /**
-     * Text VNode/Node Type
-     */
-    var TEXT_TYPE = "#text";
     
     /**
      * Creates a Virtual DOM Node
@@ -2187,10 +2187,12 @@
     
     /* ======= Default Directives ======= */
     
+    var emptyVNode = 'h("#text", ' + generateMeta(defaultMetadata()) + ', "")';
+    
     specialDirectives["m-if"] = {
       afterGenerate: function (value, meta, code, vnode, dependencies) {
         compileTemplateExpression(value, dependencies);
-        return value + ' ? ' + code + ' : h("#text", ' + generateMeta(defaultMetadata()) + ', "")';
+        return value + ' ? ' + code + ' : ' + emptyVNode;
       }
     };
     

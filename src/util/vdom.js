@@ -1,4 +1,9 @@
 /**
+ * Text VNode/Node Type
+ */
+const TEXT_TYPE = "#text";
+
+/**
  * Patch Types
  */
 const PATCH = {
@@ -9,11 +14,6 @@ const PATCH = {
   TEXT: 4,
   CHILDREN: 5
 }
-
-/**
- * Text VNode/Node Type
- */
-const TEXT_TYPE = "#text";
 
 /**
  * Creates a Virtual DOM Node
