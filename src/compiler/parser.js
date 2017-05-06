@@ -76,7 +76,7 @@ const parseWalk = function(state) {
     } else if(closeStart === true) {
       // Unmatched closing tag on non void element
       if("__ENV__" !== "production") {
-        error(`The element "${node.type}" was ignored, as it does not match with an opening tag.`);
+        error(`Could not locate opening tag for the element "${node.type}".`);
       }
       return null;
     } else if(token !== undefined) {
