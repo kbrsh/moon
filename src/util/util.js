@@ -1,6 +1,10 @@
 /* ======= Global Utilities ======= */
 
 const hashRE = /\[(\w+)\]/g;
+const RegExEscapeRE = /[\-\[\]{}()*+?.,\\\^$|#\s]/g;
+const newLineRE = /\n/g;
+const doubleQuoteRE = /"/g;
+const backslashRE = /\\/g;
 
 /**
  * Logs a Message
@@ -49,10 +53,7 @@ const defaultMetadata = function() {
  * @param {String} str
  */
 const escapeString = function(str) {
-	const NEWLINE_RE = /\n/g;
-	const DOUBLE_QUOTE_RE = /"/g;
-  const BACKSLASH_RE = /\\/g;
-  return str.replace(BACKSLASH_RE, "\\\\").replace(DOUBLE_QUOTE_RE, "\\\"").replace(NEWLINE_RE, "\\n");
+  return str.replace(backslashRE, "\\\\").replace(doubleQuoteRE, "\\\"").replace(newLineRE, "\\n");
 }
 
 /**
@@ -160,7 +161,7 @@ const callHook = function(instance, name) {
  * @param {str} str
  */
 const escapeRegex = function(str) {
-  return str.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
+  return str.replace(RegExEscapeRE, "\\$&");
 }
 
 /**

@@ -141,6 +141,10 @@
     /* ======= Global Utilities ======= */
     
     var hashRE = /\[(\w+)\]/g;
+    var RegExEscapeRE = /[\-\[\]{}()*+?.,\\\^$|#\s]/g;
+    var newLineRE = /\n/g;
+    var doubleQuoteRE = /"/g;
+    var backslashRE = /\\/g;
     
     /**
      * Logs a Message
@@ -189,10 +193,7 @@
      * @param {String} str
      */
     var escapeString = function (str) {
-      var NEWLINE_RE = /\n/g;
-      var DOUBLE_QUOTE_RE = /"/g;
-      var BACKSLASH_RE = /\\/g;
-      return str.replace(BACKSLASH_RE, "\\\\").replace(DOUBLE_QUOTE_RE, "\\\"").replace(NEWLINE_RE, "\\n");
+      return str.replace(backslashRE, "\\\\").replace(doubleQuoteRE, "\\\"").replace(newLineRE, "\\n");
     };
     
     /**
@@ -300,7 +301,7 @@
      * @param {str} str
      */
     var escapeRegex = function (str) {
-      return str.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
+      return str.replace(RegExEscapeRE, "\\$&");
     };
     
     /**
