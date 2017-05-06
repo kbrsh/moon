@@ -75,6 +75,9 @@ const walk = function(state) {
       return node;
     } else if(closeStart === true) {
       // Unmatched closing tag on non void element
+      if("__ENV__" !== "production") {
+        error(`The element "${node.type}" was ignored, as it does not match with an opening tag.`);
+      }
       return null;
     } else if(token !== undefined) {
       // Match all children
