@@ -1,147 +1,165 @@
 /* ======= Default Directives ======= */
 
-specialDirectives[Moon.config.prefix + "if"] = {
-  afterGenerate: function(value, meta, code, vnode) {
-    return `(${compileTemplate(value, false)}) ? ${code} : null`;
+const emptyVNode = `h("#text", ${generateMeta(defaultMetadata())}, "")`;
+
+specialDirectives["m-if"] = {
+  afterGenerate: function(value, meta, code, vnode, dependencies) {
+    compileTemplateExpression(value, dependencies);
+    return `${value} ? ${code} : ${emptyVNode}`;
   }
 }
 
-specialDirectives[Moon.config.prefix + "show"] = {
-  beforeGenerate: function(value, meta, vnode, parentVNode) {
-    const runTimeShowDirective = {
-      name: Moon.config.prefix + "show",
-      value: compileTemplate(value, false),
-      literal: true
-    }
-
-    if(!vnode.props.directives) {
-      vnode.props.directives = [runTimeShowDirective];
-    } else {
-      vnode.props.directives.push(runTimeShowDirective);
-    }
-  }
-}
-
-specialDirectives[Moon.config.prefix + "for"] = {
-  beforeGenerate: function(value, meta, vnode, parentVNode) {
+specialDirectives["m-for"] = {
+  beforeGenerate: function(value, meta, vnode, parentVNode, dependencies) {
     // Setup Deep Flag to Flatten Array
     parentVNode.deep = true;
   },
-  afterGenerate: function(value, meta, code, vnode) {
+  afterGenerate: function(value, meta, code, vnode, dependencies) {
     // Get Parts
     const parts = value.split(" in ");
     // Aliases
     const aliases = parts[0].split(",");
     // The Iteratable
-    const iteratable = compileTemplate(parts[1], false);
+    const iteratable = parts[1];
+    compileTemplateExpression(iteratable, dependencies);
 
     // Get any parameters
     const params = aliases.join(",");
 
-    // Change any references to the parameters in children
-    code.replace(new RegExp(`instance\\.get\\("(${aliases.join("|")})"\\)`, 'g'), function(match, alias) {
-      code = code.replace(new RegExp(`instance.get\\("${alias}"\\)`, "g"), alias);
-    });
+    // Add aliases to scope
+    for(let i = 0; i < aliases.length; i++) {
+      const aliasIndex = dependencies.indexOf(aliases[i]);
+      if(aliasIndex !== -1) {
+        dependencies.splice(aliasIndex, 1);
+      }
+    }
 
     // Use the renderLoop runtime helper
     return `instance.renderLoop(${iteratable}, function(${params}) { return ${code}; })`;
   }
 }
 
-specialDirectives[Moon.config.prefix + "on"] = {
-  beforeGenerate: function(value, meta, vnode) {
+specialDirectives["m-on"] = {
+  beforeGenerate: function(value, meta, vnode, parentVNode, dependencies) {
+    // Extract Event, Modifiers, and Parameters
+    let methodToCall = value;
 
-    // Extract modifiers and the event
     let rawModifiers = meta.arg.split(".");
-    const eventToCall = rawModifiers[0];
+    const eventType = rawModifiers.shift();
+
     let params = "event";
-    let methodToCall = compileTemplate(value, false);
     const rawParams = methodToCall.split("(");
 
     if(rawParams.length > 1) {
+      // Custom parameters detected, update method to call, and generated parameter code
       methodToCall = rawParams.shift();
       params = rawParams.join("(").slice(0, -1);
+      compileTemplateExpression(params, dependencies);
     }
-    var modifiers = "";
 
-    rawModifiers.shift();
-
+    // Generate any modifiers
+    let modifiers = "";
     for(var i = 0; i < rawModifiers.length; i++) {
       modifiers += eventModifiersCode[rawModifiers[i]];
     }
 
-    var code = `function(event) {${modifiers}instance.callMethod("${methodToCall}", [${params}])}`;
-    if(!vnode.meta.eventListeners[eventToCall]) {
-      vnode.meta.eventListeners[eventToCall] = [code]
+    // Final event listener code
+    const code = `function(event) {${modifiers}instance.callMethod("${methodToCall}", [${params}])}`;
+    const eventListeners = vnode.meta.eventListeners[eventType];
+    if(eventListeners === undefined) {
+      vnode.meta.eventListeners[eventType] = [code]
     } else {
-      vnode.meta.eventListeners[eventToCall].push(code);
+      eventListeners.push(code);
     }
   }
 }
 
-specialDirectives[Moon.config.prefix + "model"] = {
-  beforeGenerate: function(value, meta, vnode) {
-    // Compile a string value for the keypath
-    const compiledStringValue = compileTemplate(value, true);
+specialDirectives["m-model"] = {
+  beforeGenerate: function(value, meta, vnode, parentVNode, dependencies) {
+    // Compile a literal value for the getter
+    compileTemplateExpression(value, dependencies);
+
     // Setup default event types and dom property to change
     let eventType = "input";
     let valueProp = "value";
 
     // If input type is checkbox, listen on 'change' and change the 'checked' dom property
-    if(vnode.props.attrs.type && vnode.props.attrs.type.value === "checkbox") {
+    if(vnode.props.attrs.type !== undefined && vnode.props.attrs.type.value === "checkbox") {
       eventType = "change";
       valueProp = "checked";
     }
 
     // Generate event listener code
-    const code = `function(event) {instance.set("${compiledStringValue}", event.target.${valueProp})}`;
+    let keypath = value;
+
+    // Compute getter if dynamic
+    const bracketIndex = value.indexOf("[");
+    const dotIndex = value.indexOf(".");
+    let base = null;
+    if(bracketIndex !== -1 && (dotIndex === -1 || bracketIndex < dotIndex)) {
+      base = value.slice(0, bracketIndex);
+    } else if(dotIndex !== -1 && (bracketIndex === -1 || dotIndex < bracketIndex)) {
+      base = value.slice(0, dotIndex);
+    }
+    if(base !== null) {
+      keypath = keypath.replace(expressionRE, function(match, reference) {
+        if(reference !== undefined && reference !== base) {
+          return `" + ${reference} + "`;
+        } else {
+          return match;
+        }
+      });
+    }
+
+    // Generate the listener
+    const code = `function(event) {instance.set("${keypath}", event.target.${valueProp})}`;
 
     // Push the listener to it's event listeners
-    if(!vnode.meta.eventListeners[eventType]) {
-      vnode.meta.eventListeners[eventType] = [code]
+    const eventListeners = vnode.meta.eventListeners[eventType];
+    if(eventListeners === undefined) {
+      vnode.meta.eventListeners[eventType] = [code];
     } else {
-      vnode.meta.eventListeners[eventType].push(code);
+      eventListeners.push(code);
     }
 
     // Setup a query used to get the value, and set the corresponding dom property
-    const getQuery = compileTemplate(`{{${compileTemplate(value, false)}}}`, false);
-    if(!vnode.props.dom) {
-      vnode.props.dom = {};
+    const dom = vnode.props.dom;
+    if(dom === undefined) {
+      vnode.props.dom = dom = {};
     }
-    vnode.props.dom[valueProp] = getQuery;
+    dom[valueProp] = value;
   }
 };
 
-specialDirectives[Moon.config.prefix + "literal"] = {
-  duringPropGenerate: function(value, meta, vnode) {
+specialDirectives["m-literal"] = {
+  duringPropGenerate: function(value, meta, vnode, dependencies) {
     const prop = meta.arg;
-    // make sure object is treated correctly during code generation
-    vnode.props.attrs[prop] = {
-      value: true,
-      meta: {}
-    };
-
+    compileTemplateExpression(value, dependencies);
     if(prop === "class") {
-      // Classes need to be rendered differently
-      return `"class": instance.renderClass(${compileTemplate(value, false)}), `;
+      // Detected class, use runtime class render helper
+      return `"class": instance.renderClass(${value}), `;
+    } else {
+      // Default literal attribute
+      return `"${prop}": ${value}, `;
     }
-    return `"${prop}": ${compileTemplate(value, false)}, `;
   }
 };
 
-specialDirectives[Moon.config.prefix + "html"] = {
-  beforeGenerate: function(value, meta, vnode) {
-    if(!vnode.props.dom) {
-      vnode.props.dom = {};
+specialDirectives["m-html"] = {
+  beforeGenerate: function(value, meta, vnode, parentVNode, dependencies) {
+    const dom = vnode.props.dom;
+    if(dom === undefined) {
+      vnode.props.dom = dom = {};
     }
-    vnode.props.dom.innerHTML = `"${compileTemplate(value, true)}"`;
+    compileTemplateExpression(value, dependencies);
+    dom.innerHTML = `("" + ${value})`;
   }
 }
 
-directives[Moon.config.prefix + "show"] = function(el, val, vnode) {
-  el.style.display = (val ? '' : 'none');
+specialDirectives["m-mask"] = {
+
 }
 
-directives[Moon.config.prefix + "mask"] = function(el, val, vnode) {
-
+directives["m-show"] = function(el, val, vnode) {
+  el.style.display = (val ? '' : 'none');
 }

@@ -5,42 +5,45 @@
  */
 const initComputed = function(instance, computed) {
   let setComputedProperty = function(prop) {
-    // Flush Cache if Dependencies Change
-    instance.$observer.observe(prop);
+    const observer = instance.$observer;
 
-    // Create Getters/Setters
-    let properties = {
+    // Flush Cache if Dependencies Change
+    observer.observe(prop);
+
+    // Add Getters
+    Object.defineProperty(instance.$data, prop, {
       get: function() {
         // Property Cache
         let cache = null;
 
         // If no cache, create it
-        if(!instance.$observer.cache[prop]) {
+        if(observer.cache[prop] === undefined) {
           // Capture Dependencies
-          instance.$observer.dep.target = prop;
+          observer.target = prop;
+
           // Invoke getter
           cache = computed[prop].get.call(instance);
+
           // Stop Capturing Dependencies
-          instance.$observer.dep.target = null;
+          observer.target = null;
+
           // Store value in cache
-          instance.$observer.cache[prop] = cache;
+          observer.cache[prop] = cache;
         } else {
           // Cache found, use it
-          cache = instance.$observer.cache[prop];
+          cache = observer.cache[prop];
         }
 
         return cache;
-      }
-    };
+      },
+      set: noop
+    });
 
-    if(computed[prop].set) {
-      properties.set = function(val) {
-        return computed[prop].set.call(instance, val);
-      }
+    // Add Setters
+    let setter = null;
+    if((setter = computed[prop].set) !== undefined) {
+      observer.setters[prop] = setter;
     }
-
-    // Add Getters/Setters
-    Object.defineProperty(instance.$data, prop, properties);
   }
 
   // Set All Computed Properties

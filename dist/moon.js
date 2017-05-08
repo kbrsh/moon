@@ -1,5 +1,5 @@
 /**
- * Moon v0.8.0
+ * Moon v0.9.0
  * Copyright 2016-2017 Kabir Shah
  * Released under the MIT License
  * http://moonjs.ga
@@ -28,48 +28,67 @@
     
     /* ======= Observer ======= */
     /**
+     * Sets Up Methods
+     * @param {Object} instance
+     */
+    var initMethods = function (instance, methods) {
+      var initMethod = function (methodName, method) {
+        instance.$data[methodName] = function () {
+          return method.apply(instance, arguments);
+        };
+      };
+    
+      for (var method in methods) {
+        initMethod(method, methods[method]);
+      }
+    };
+    
+    /**
      * Makes Computed Properties for an Instance
      * @param {Object} instance
      * @param {Object} computed
      */
     var initComputed = function (instance, computed) {
       var setComputedProperty = function (prop) {
-        // Flush Cache if Dependencies Change
-        instance.$observer.observe(prop);
+        var observer = instance.$observer;
     
-        // Create Getters/Setters
-        var properties = {
+        // Flush Cache if Dependencies Change
+        observer.observe(prop);
+    
+        // Add Getters
+        Object.defineProperty(instance.$data, prop, {
           get: function () {
             // Property Cache
             var cache = null;
     
             // If no cache, create it
-            if (!instance.$observer.cache[prop]) {
+            if (observer.cache[prop] === undefined) {
               // Capture Dependencies
-              instance.$observer.dep.target = prop;
+              observer.target = prop;
+    
               // Invoke getter
               cache = computed[prop].get.call(instance);
+    
               // Stop Capturing Dependencies
-              instance.$observer.dep.target = null;
+              observer.target = null;
+    
               // Store value in cache
-              instance.$observer.cache[prop] = cache;
+              observer.cache[prop] = cache;
             } else {
               // Cache found, use it
-              cache = instance.$observer.cache[prop];
+              cache = observer.cache[prop];
             }
     
             return cache;
-          }
-        };
+          },
+          set: noop
+        });
     
-        if (computed[prop].set) {
-          properties.set = function (val) {
-            return computed[prop].set.call(instance, val);
-          };
+        // Add Setters
+        var setter = null;
+        if ((setter = computed[prop].set) !== undefined) {
+          observer.setters[prop] = setter;
         }
-    
-        // Add Getters/Setters
-        Object.defineProperty(instance.$data, prop, properties);
       };
     
       // Set All Computed Properties
@@ -79,44 +98,62 @@
     };
     
     function Observer(instance) {
+      // Associated Moon Instance
       this.instance = instance;
+    
+      // Computed Property Cache
       this.cache = {};
-      this.signals = {};
-      this.dep = {
-        target: null,
-        map: {}
-      };
+    
+      // Computed Property Setters
+      this.setters = {};
+    
+      // Set of events to clear cache when dependencies change
+      this.clear = {};
+    
+      // Property Currently Being Observed for Dependencies
+      this.target = null;
+    
+      // Dependency Map
+      this.map = {};
     }
     
     Observer.prototype.observe = function (key) {
       var self = this;
-      this.signals[key] = function () {
-        self.cache[key] = null;
+      this.clear[key] = function () {
+        self.cache[key] = undefined;
       };
     };
     
-    Observer.prototype.notify = function (key) {
-      if (this.dep.map[key]) {
-        for (var i = 0; i < this.dep.map[key].length; i++) {
-          this.notify(this.dep.map[key][i]);
+    Observer.prototype.notify = function (key, val) {
+      var depMap = null;
+      if ((depMap = this.map[key]) !== undefined) {
+        for (var i = 0; i < depMap.length; i++) {
+          this.notify(depMap[i]);
         }
       }
     
-      if (!this.signals[key]) {
-        return;
+      var clear = null;
+      if ((clear = this.clear[key]) !== undefined) {
+        clear();
       }
-    
-      this.signals[key]();
     };
     
     /* ======= Global Utilities ======= */
+    
+    var hashRE = /\[(\w+)\]/g;
+    var RegExEscapeRE = /[\-\[\]{}()*+?.,\\\^$|#\s]/g;
+    var newLineRE = /\n/g;
+    var doubleQuoteRE = /"/g;
+    var backslashRE = /\\/g;
     
     /**
      * Logs a Message
      * @param {String} msg
      */
     var log = function (msg) {
-      if (!Moon.config.silent) console.log(msg);
+      if (Moon.config.silent === false) {
+        console.log(msg);
+      }
     };
     
     /**
@@ -124,7 +161,9 @@
      * @param {String} msg
      */
     var error = function (msg) {
-      if (!Moon.config.silent) console.error("[Moon] ERR: " + msg);
+      if (Moon.config.silent === false) {
+        console.error("[Moon] ERR: " + msg);
+      }
     };
     
     /**
@@ -158,10 +197,7 @@
      * @param {String} str
      */
     var escapeString = function (str) {
-      var NEWLINE_RE = /\n/g;
-      var DOUBLE_QUOTE_RE = /"/g;
-      var BACKSLASH_RE = /\\/g;
-      return str.replace(BACKSLASH_RE, "\\\\").replace(DOUBLE_QUOTE_RE, "\\\"").replace(NEWLINE_RE, "\\n");
+      return str.replace(backslashRE, "\\\\").replace(doubleQuoteRE, "\\\"").replace(newLineRE, "\\n");
     };
     
     /**
@@ -174,9 +210,7 @@
      */
     var resolveKeyPath = function (instance, obj, keypath, val) {
       var i = null;
-      keypath.replace(/\[(\w+)\]/g, function (match, index) {
-        keypath = keypath.replace(match, '.' + index);
-      });
+      keypath = keypath.replace(hashRE, '.$1');
       var path = keypath.split(".");
       for (i = 0; i < path.length - 1; i++) {
         var propName = path[i];
@@ -267,6 +301,14 @@
     };
     
     /**
+     * Escapes String Values for a Regular Expression
+     * @param {str} str
+     */
+    var escapeRegex = function (str) {
+      return str.replace(RegExEscapeRE, "\\$&");
+    };
+    
+    /**
      * Does No Operation
      */
     var noop = function () {};
@@ -292,11 +334,28 @@
      */
     var addEventListeners = function (node, vnode, instance) {
       var eventListeners = vnode.meta.eventListeners;
+    
+      var addHandler = function (type) {
+        // Create handle function
+        var handle = function (evt) {
+          var handlers = handle.handlers;
+          for (var i = 0; i < handlers.length; i++) {
+            handlers[i](evt);
+          }
+        };
+    
+        // Add handlers to handle
+        handle.handlers = eventListeners[type];
+    
+        // Add handler to vnode
+        eventListeners[type] = handle;
+    
+        // Add event listener
+        node.addEventListener(type, handle);
+      };
+    
       for (var type in eventListeners) {
-        for (var i = 0; i < eventListeners[type].length; i++) {
-          var method = eventListeners[type][i];
-          node.addEventListener(type, method);
-        }
+        addHandler(type);
       }
     };
     
@@ -313,7 +372,7 @@
         // Create textnode
         el = document.createTextNode(vnode.val);
       } else {
-        el = vnode.meta.isSVG ? document.createElementNS('http://www.w3.org/2000/svg', vnode.type) : document.createElement(vnode.type);
+        el = vnode.meta.isSVG ? document.createElementNS("http://www.w3.org/2000/svg", vnode.type) : document.createElement(vnode.type);
         // Optimization: VNode only has one child that is text, and create it here
         if (vnode.children.length === 1 && vnode.children[0].type === "#text") {
           el.textContent = vnode.children[0].val;
@@ -321,18 +380,14 @@
         } else {
           // Add all children
           for (var i = 0; i < vnode.children.length; i++) {
-            var childVNode = vnode.children[i];
-            var childNode = createNodeFromVNode(vnode.children[i], instance);
-            el.appendChild(childNode);
-            // Component detected, mount it here
-            if (childVNode.meta.component) {
-              createComponentFromVNode(childNode, childVNode, childVNode.meta.component);
-            }
+            var vchild = vnode.children[i];
+            appendChild(createNodeFromVNode(vchild, instance), vchild, el);
           }
         }
         // Add all event listeners
         addEventListeners(el, vnode, instance);
       }
+    
       // Setup Props
       diffProps(el, {}, vnode, vnode.props.attrs);
     
@@ -398,6 +453,11 @@
     };
     
     /**
+     * Text VNode/Node Type
+     */
+    var TEXT_TYPE = "#text";
+    
+    /**
      * Patch Types
      */
     var PATCH = {
@@ -408,11 +468,6 @@
       TEXT: 4,
       CHILDREN: 5
     };
-    
-    /**
-     * Text VNode/Node Type
-     */
-    var TEXT_TYPE = "#text";
     
     /**
      * Creates a Virtual DOM Node
@@ -442,13 +497,18 @@
      */
     var createFunctionalComponent = function (props, children, functionalComponent) {
       var data = functionalComponent.opts.data || {};
+    
       // Merge data with provided props
       if (functionalComponent.opts.props !== undefined) {
-        for (var i = 0; i < functionalComponent.opts.props.length; i++) {
-          var prop = functionalComponent.opts.props[i];
+        var propNames = functionalComponent.opts.props;
+    
+        for (var i = 0; i < propNames.length; i++) {
+          var prop = propNames[i];
           data[prop] = props.attrs[prop];
         }
       }
+    
+      // Call render function
       return functionalComponent.opts.render(h, {
         data: data,
         slots: getSlots(children)
@@ -505,11 +565,16 @@
      */
     var createComponentFromVNode = function (node, vnode, component) {
       var componentInstance = new component.CTor();
+      var props = componentInstance.$props;
+      var data = componentInstance.$data;
+      var attrs = vnode.props.attrs;
+    
       // Merge data with provided props
-      for (var i = 0; i < componentInstance.$props.length; i++) {
-        var prop = componentInstance.$props[i];
-        componentInstance.$data[prop] = vnode.props.attrs[prop];
+      for (var i = 0; i < props.length; i++) {
+        var prop = props[i];
+        data[prop] = attrs[prop];
       }
+    
       componentInstance.$slots = getSlots(vnode.children);
       componentInstance.$el = node;
       componentInstance.build();
@@ -519,6 +584,26 @@
       vnode.meta.el = componentInstance.$el;
     
       return componentInstance.$el;
+    };
+    
+    /**
+     * Diffs Event Listeners of Two VNodes
+     * @param {Object} node
+     * @param {Object} oldVNode
+     * @param {Object} vnode
+     */
+    var diffEventListeners = function (node, oldVNode, vnode) {
+      var oldEventListeners = oldVNode.meta.eventListeners;
+      var eventListeners = vnode.meta.eventListeners;
+    
+      for (var type in eventListeners) {
+        var oldEventListener = oldEventListeners[type];
+        if (oldEventListener === undefined) {
+          node.removeEventListener(type, oldEventListener);
+        } else {
+          oldEventListeners[type].handlers = eventListeners[type];
+        }
+      }
     };
     
     /**
@@ -536,29 +621,39 @@
         var vnodePropValue = vnodeProps[vnodePropName];
         var nodePropValue = nodeProps[vnodePropName];
     
-        if (nodePropValue == null || vnodePropValue !== nodePropValue) {
-          node.setAttribute(vnodePropName, vnodePropValue);
+        if ((vnodePropValue !== undefined || vnodePropValue !== false || vnodePropValue !== null) && (nodePropValue === undefined || nodePropValue === false || nodePropValue === null || vnodePropValue !== nodePropValue)) {
+          if (vnodePropName.length === 10 && vnodePropName === "xlink:href") {
+            node.setAttributeNS('http://www.w3.org/1999/xlink', "href", vnodePropValue);
+          } else {
+            node.setAttribute(vnodePropName, vnodePropValue === true ? '' : vnodePropValue);
+          }
         }
       }
     
       // Diff Node Props with VNode Props
       for (var nodePropName in nodeProps) {
-        if (vnodeProps[nodePropName] == null) {
+        var _vnodePropValue = vnodeProps[nodePropName];
+        if (_vnodePropValue === undefined || _vnodePropValue === false || _vnodePropValue === null) {
           node.removeAttribute(nodePropName);
         }
       }
     
       // Execute any directives
-      if (vnode.props.directives !== undefined) {
-        for (var directive in vnode.props.directives) {
-          directives[directive](node, vnode.props.directives[directive], vnode);
+      var vnodeDirectives = null;
+      if ((vnodeDirectives = vnode.props.directives) !== undefined) {
+        for (var directive in vnodeDirectives) {
+          var directiveFn = null;
+          if ((directiveFn = directives[directive]) !== undefined) {
+            directiveFn(node, vnodeDirectives[directive], vnode);
+          }
         }
       }
     
       // Add/Update any DOM Props
-      if (vnode.props.dom !== undefined) {
-        for (var domProp in vnode.props.dom) {
-          var domPropValue = vnode.props.dom[domProp];
+      var dom = null;
+      if ((dom = vnode.props.dom) !== undefined) {
+        for (var domProp in dom) {
+          var domPropValue = dom[domProp];
           if (node[domProp] !== domPropValue) {
             node[domProp] = domPropValue;
           }
@@ -582,10 +677,13 @@
         var componentChanged = false;
     
         // Merge any properties that changed
-        for (var i = 0; i < componentInstance.$props.length; i++) {
-          var prop = componentInstance.$props[i];
-          if (componentInstance.$data[prop] !== vnode.props.attrs[prop]) {
-            componentInstance.$data[prop] = vnode.props.attrs[prop];
+        var props = componentInstance.$props;
+        var data = componentInstance.$data;
+        var attrs = vnode.props.attrs;
+        for (var i = 0; i < props.length; i++) {
+          var prop = props[i];
+          if (data[prop] !== attrs[prop]) {
+            data[prop] = attrs[prop];
             componentChanged = true;
           }
         }
@@ -620,14 +718,14 @@
         appendChild(newNode, vnode, parent);
     
         return newNode;
-      } else if (vnode === undefined) {
+      } else if (vnode === null) {
         removeChild(node, parent);
     
         return null;
       } else if (nodeName !== vnode.type) {
-        var newNode = createNodeFromVNode(vnode, instance);
-        replaceChild(node, newNode, vnode, parent);
-        return newNode;
+        var _newNode = createNodeFromVNode(vnode, instance);
+        replaceChild(node, _newNode, vnode, parent);
+        return _newNode;
       } else if (vnode.type === TEXT_TYPE) {
         if (nodeName === TEXT_TYPE) {
           // Both are textnodes, update the node
@@ -663,18 +761,24 @@
         addEventListeners(node, vnode, instance);
     
         // Check if innerHTML was changed, and don't diff children if so
-        if (vnode.props.dom !== undefined && vnode.props.dom.innerHTML !== undefined) {
+        var domProps = vnode.props.dom;
+        if (domProps !== undefined && domProps.innerHTML !== undefined) {
           return node;
         }
     
         // Hydrate Children
+        var children = vnode.children;
+        var length = children.length;
+    
         var i = 0;
         var currentChildNode = node.firstChild;
-        var vchild = vnode.children[i];
-        while (vchild !== undefined || currentChildNode !== null) {
+        var vchild = length !== 0 ? children[0] : null;
+    
+        while (vchild !== null || currentChildNode !== null) {
+          var next = currentChildNode ? currentChildNode.nextSibling : null;
           hydrate(currentChildNode, vchild, node, instance);
-          vchild = vnode.children[++i];
-          currentChildNode = currentChildNode ? currentChildNode.nextSibling : null;
+          vchild = ++i < length ? children[i] : null;
+          currentChildNode = next;
         }
     
         return node;
@@ -682,8 +786,8 @@
     };
     
     /**
-     * Diffs Node and a VNode, and applies Changes
-     * @param {Object} node
+     * Diffs VNodes, and applies Changes
+     * @param {Object} oldVNode
      * @param {Object} vnode
      * @param {Object} parent
      * @param {Object} instance
@@ -739,15 +843,21 @@
         diffProps(_node, oldVNode.props.attrs, vnode);
         oldVNode.props.attrs = vnode.props.attrs;
     
+        // Diff event listeners
+        diffEventListeners(_node, oldVNode, vnode);
+    
         // Check if innerHTML was changed, don't diff children
-        if (vnode.props.dom !== undefined && vnode.props.dom.innerHTML !== undefined) {
+        var domProps = vnode.props.dom;
+        if (domProps !== undefined && domProps.innerHTML !== undefined) {
           // Skip Children
           return PATCH.SKIP;
         }
     
         // Diff Children
-        var newLength = vnode.children.length;
-        var oldLength = oldVNode.children.length;
+        var children = vnode.children;
+        var oldChildren = oldVNode.children;
+        var newLength = children.length;
+        var oldLength = oldChildren.length;
     
         if (newLength === 0) {
           // No Children, Remove all Children if not Already Removed
@@ -756,28 +866,28 @@
             while ((firstChild = _node.firstChild) !== null) {
               removeChild(firstChild, _node);
             }
-            oldVNode.children = [];
+            oldChildren = [];
           }
         } else {
           // Traverse and Diff Children
           var totalLen = newLength > oldLength ? newLength : oldLength;
-          for (var i = 0; i < totalLen; i++) {
-            var oldChild = i < oldLength ? oldVNode.children[i] : null;
-            var child = i < newLength ? vnode.children[i] : null;
+          for (var i = 0, j = 0; i < totalLen; i++, j++) {
+            var oldChild = j < oldLength ? oldChildren[j] : null;
+            var child = i < newLength ? children[i] : null;
     
             var action = diff(oldChild, child, _node, instance);
     
             // Update Children to Match Action
             switch (action) {
               case PATCH.APPEND:
-                oldVNode.children[oldLength++] = child;
+                oldChildren[oldLength++] = child;
                 break;
               case PATCH.REMOVE:
-                oldVNode.children.splice(i, 1);
+                oldChildren.splice(j--, 1);
                 oldLength--;
                 break;
               case PATCH.REPLACE:
-                oldVNode.children[i] = vnode.children[i];
+                oldChildren[j] = children[i];
                 break;
               case PATCH.TEXT:
                 oldChild.val = child.val;
@@ -795,15 +905,29 @@
     };
     
     /* ======= Compiler ======= */
-    var openRE = /\{\{/;
-    var closeRE = /\}\}/;
-    var modifierRE = /\[|\.|\(/;
+    var whitespaceRE = /\s/;
+    var expressionRE = /"[^"]*"|'[^']*'|\.\w*[a-zA-Z$_]\w*|\w*[a-zA-Z$_]\w*:|(\w*[a-zA-Z$_]\w*)/g;
+    var globals = ['true', 'false', 'undefined', 'NaN', 'typeof'];
     
-    var compileTemplate = function (template, isString) {
+    /**
+     * Compiles a Template
+     * @param {String} template
+     * @param {Array} delimiters
+     * @param {Array} escapedDelimiters
+     * @param {Array} dependencies
+     * @param {Boolean} isString
+     * @return {String} compiled template
+     */
+    var compileTemplate = function (template, delimiters, escapedDelimiters, dependencies, isString) {
       var state = {
         current: 0,
         template: template,
-        output: ""
+        output: "",
+        openDelimiterLen: delimiters[0].length,
+        closeDelimiterLen: delimiters[1].length,
+        openRE: new RegExp(escapedDelimiters[0]),
+        closeRE: new RegExp('\\s*' + escapedDelimiters[1]),
+        dependencies: dependencies
       };
     
       compileTemplateState(state, isString);
@@ -816,10 +940,10 @@
       var length = template.length;
       while (state.current < length) {
         // Match Text Between Templates
-        var value = scanTemplateStateUntil(state, openRE);
+        var value = scanTemplateStateUntil(state, state.openRE);
     
         if (value) {
-          state.output += value;
+          state.output += escapeString(value);
         }
     
         // If we've reached the end, there are no more templates
@@ -827,11 +951,14 @@
           break;
         }
     
-        // Exit The Opening Tag
-        state.current += 2;
+        // Exit Opening Delimiter
+        state.current += state.openDelimiterLen;
+    
+        // Consume whitespace
+        scanTemplateStateForWhitespace(state);
     
         // Get the name of the opening tag
-        var name = scanTemplateStateUntil(state, closeRE);
+        var name = scanTemplateStateUntil(state, state.closeRE);
     
         // If we've reached the end, the tag was unclosed
         if (state.current === length) {
@@ -842,22 +969,34 @@
         }
     
         if (name) {
-          var modifiers = "";
-          var modifierIndex = null;
-          if ((modifierIndex = name.search(modifierRE)) !== -1) {
-            modifiers = name.substring(modifierIndex);
-            name = name.substring(0, modifierIndex);
+          // Extract Variable References
+          compileTemplateExpression(name, state.dependencies);
+    
+          // Add quotes if string
+          if (isString) {
+            name = '" + ' + name + ' + "';
           }
     
-          if (isString) {
-            state.output += '" + instance.get("' + name + '")' + modifiers + ' + "';
-          } else {
-            state.output += 'instance.get("' + name + '")' + modifiers;
-          }
+          // Generate code
+          state.output += name;
         }
     
-        state.current += 2;
+        // Consume whitespace
+        scanTemplateStateForWhitespace(state);
+    
+        // Exit closing delimiter
+        state.current += state.closeDelimiterLen;
       }
+    };
+    
+    var compileTemplateExpression = function (expr, dependencies) {
+      expr.replace(expressionRE, function (match, reference) {
+        if (reference !== undefined && globals.indexOf(reference) === -1 && dependencies.indexOf(reference) === -1) {
+          dependencies.push(reference);
+        }
+      });
+    
+      return dependencies;
     };
     
     var scanTemplateStateUntil = function (state, re) {
@@ -883,6 +1022,16 @@
     
       return match;
     };
+    
+    var scanTemplateStateForWhitespace = function (state) {
+      var template = state.template;
+      var char = template[state.current];
+      while (whitespaceRE.test(char)) {
+        char = template[++state.current];
+      }
+    };
+    
+    var tagOrCommentStartRE = /<[\w/]\s*|<!--/;
     
     var lex = function (input) {
       var state = {
@@ -918,7 +1067,8 @@
     var lexText = function (state) {
       var input = state.input;
       var len = input.length;
-      var endOfText = input.indexOf("<", state.current);
+      var endOfText = input.substring(state.current).search(tagOrCommentStartRE);
+    
       // Only Text
       if (endOfText === -1) {
         state.tokens.push({
@@ -930,11 +1080,12 @@
       }
     
       // No Text at All
-      if (endOfText === state.current) {
+      if (endOfText === 0) {
         return;
       }
     
       // End of Text Found
+      endOfText += state.current;
       state.tokens.push({
         type: "text",
         value: input.slice(state.current, endOfText)
@@ -1120,7 +1271,7 @@
       };
     
       while (state.current < tokens.length) {
-        var child = walk(state);
+        var child = parseWalk(state);
         if (child) {
           root.children.push(child);
         }
@@ -1140,12 +1291,12 @@
       };
     };
     
-    var walk = function (state) {
+    var parseWalk = function (state) {
       var token = state.tokens[state.current];
       var previousToken = state.tokens[state.current - 1];
       var nextToken = state.tokens[state.current + 1];
     
-      var increment = function (num) {
+      var move = function (num) {
         state.current += num === undefined ? 1 : num;
         token = state.tokens[state.current];
         previousToken = state.tokens[state.current - 1];
@@ -1153,12 +1304,12 @@
       };
     
       if (token.type === "text") {
-        increment();
+        move();
         return previousToken.value;
       }
     
       if (token.type === "comment") {
-        increment();
+        move();
         return null;
       }
     
@@ -1169,32 +1320,37 @@
         var closeEnd = token.closeEnd;
     
         var isSVGElement = SVG_ELEMENTS.indexOf(tagType) !== -1;
-        var isVoidElement = VOID_ELEMENTS.indexOf(tagType) !== -1;
+        var isVoidElement = VOID_ELEMENTS.indexOf(tagType) !== -1 || closeEnd === true;
     
         var node = createParseNode(tagType, token.attributes, []);
     
-        increment();
+        move();
     
         // If it is an svg element, let code generator know
         if (isSVGElement) {
           node.isSVG = true;
         }
     
-        if (isVoidElement) {
+        if (isVoidElement === true) {
           // Self closing, don't process further
           return node;
         } else if (closeStart === true) {
           // Unmatched closing tag on non void element
+          if ("development" !== "production") {
+            error('Could not locate opening tag for the element "' + node.type + '".');
+          }
           return null;
         } else if (token !== undefined) {
           // Match all children
           var current = state.current;
-          while (token.type !== "tag" || token.type === "tag" && (token.closeStart === false && token.closeEnd === false || token.value !== tagType)) {
-            var parsedChildState = walk(state);
+          while (token.type !== "tag" || token.type === "tag" && (token.closeStart === undefined && token.closeEnd === undefined || token.value !== tagType)) {
+            var parsedChildState = parseWalk(state);
             if (parsedChildState !== null) {
               node.children.push(parsedChildState);
             }
-            increment(0);
+    
+            move(0);
+    
             if (token === undefined) {
               // No token means a tag was most likely left unclosed
               if ("development" !== "production") {
@@ -1204,15 +1360,25 @@
             }
           }
     
-          increment();
+          move();
         }
     
         return node;
       }
     
-      increment();
+      move();
       return;
     };
+    
+    /**
+     * Delimiters (updated every time generation is called)
+     */
+    var delimiters = null;
+    
+    /**
+     * Escaped Delimiters
+     */
+    var escapedDelimiters = null;
     
     /**
      * Generates Code for Props
@@ -1220,76 +1386,76 @@
      * @param {Object} parentVNode
      * @return {String} generated code
      */
-    var generateProps = function (vnode, parentVNode) {
+    var generateProps = function (vnode, parentVNode, dependencies) {
       var attrs = vnode.props.attrs;
       var generatedObject = "{attrs: {";
     
       // Array of all directives (to be generated later)
       vnode.props.directives = [];
     
-      if (attrs) {
-        // Invoke any special directives that need to change values before code generation
-        for (var beforeAttr in attrs) {
-          var beforeAttrInfo = attrs[beforeAttr];
-          var beforeAttrName = beforeAttrInfo.name;
-          var beforeSpecialDirective = null;
+      // Invoke any special directives that need to change values before code generation
+      for (var beforeAttr in attrs) {
+        var beforeAttrInfo = attrs[beforeAttr];
+        var beforeSpecialDirective = null;
+        var beforeGenerate = null;
     
-          if ((beforeSpecialDirective = specialDirectives[beforeAttrName]) !== undefined && beforeSpecialDirective.beforeGenerate) {
-            beforeSpecialDirective.beforeGenerate(beforeAttrInfo.value, beforeAttrInfo.meta, vnode, parentVNode);
-          }
+        if ((beforeSpecialDirective = specialDirectives[beforeAttrInfo.name]) !== undefined && (beforeGenerate = beforeSpecialDirective.beforeGenerate) !== undefined) {
+          beforeGenerate(beforeAttrInfo.value, beforeAttrInfo.meta, vnode, parentVNode, dependencies);
         }
+      }
     
-        // Generate all other attributes
-        for (var attr in attrs) {
-          // Attribute Info
-          var attrInfo = attrs[attr];
+      // Generate all other attributes
+      for (var attr in attrs) {
+        // Attribute Info
+        var attrInfo = attrs[attr];
     
-          // Get attr by it's actual name (in case it had any arguments)
-          var attrName = attrInfo.name;
+        // Get attr by it's actual name (in case it had any arguments)
+        var attrName = attrInfo.name;
     
-          // Late bind for special directive
-          var specialDirective = null;
+        // Late bind for special directive
+        var specialDirective = null;
     
-          // If it is a directive, mark it as dynamic
-          if ((specialDirective = specialDirectives[attrName]) !== undefined) {
-            // Generate Special Directives
-            // Special directive found that generates code after initial generation, push it to its known special directives to run afterGenerate later
-            if (specialDirective.afterGenerate !== undefined) {
-              if (vnode.specialDirectivesAfter === undefined) {
-                vnode.specialDirectivesAfter = {};
-              }
-              vnode.specialDirectivesAfter[attr] = attrInfo;
+        // If it is a directive, mark it as dynamic
+        if ((specialDirective = specialDirectives[attrName]) !== undefined) {
+          // Generate Special Directives
+          // Special directive found that generates code after initial generation, push it to its known special directives to run afterGenerate later
+          var specialDirectivesAfter = vnode.specialDirectivesAfter;
+          if (specialDirective.afterGenerate !== undefined) {
+            if (specialDirectivesAfter === undefined) {
+              vnode.specialDirectivesAfter = specialDirectivesAfter = {};
             }
-    
-            // Invoke any special directives that need to change values of props during code generation
-            if (specialDirective.duringPropGenerate !== undefined) {
-              generatedObject += specialDirective.duringPropGenerate(attrInfo.value, attrInfo.meta, vnode);
-            }
-    
-            // Keep a flag to know to always rerender this
-            vnode.meta.shouldRender = true;
-    
-            // Remove special directive
-            delete attrs[attr];
-          } else if (directives[attrName] !== undefined) {
-            vnode.props.directives.push(attrInfo);
-            vnode.meta.shouldRender = true;
-          } else {
-            var normalizedProp = JSON.stringify(attrInfo.value);
-            var compiledProp = compileTemplate(normalizedProp, true);
-            if (normalizedProp !== compiledProp) {
-              vnode.meta.shouldRender = true;
-            }
-            generatedObject += '"' + attr + '": ' + compiledProp + ', ';
+            specialDirectivesAfter[attr] = attrInfo;
           }
-        }
     
-        // Close object
-        if (Object.keys(attrs).length !== 0) {
-          generatedObject = generatedObject.slice(0, -2) + "}";
+          // Invoke any special directives that need to change values of props during code generation
+          var duringPropGenerate = null;
+          if ((duringPropGenerate = specialDirective.duringPropGenerate) !== undefined) {
+            generatedObject += duringPropGenerate(attrInfo.value, attrInfo.meta, vnode, dependencies);
+          }
+    
+          // Keep a flag to know to always rerender this
+          vnode.meta.shouldRender = true;
+    
+          // Remove special directive
+          delete attrs[attr];
+        } else if (attrName[0] + attrName[1] === "m-") {
+          vnode.props.directives.push(attrInfo);
+          vnode.meta.shouldRender = true;
         } else {
-          generatedObject += "}";
+          var propValue = attrInfo.value;
+          var compiledProp = compileTemplate(propValue, delimiters, escapedDelimiters, dependencies, true);
+          if (propValue !== compiledProp) {
+            vnode.meta.shouldRender = true;
+          }
+          generatedObject += '"' + attr + '": "' + compiledProp + '", ';
         }
+      }
+    
+      // Close object
+      if (Object.keys(attrs).length !== 0) {
+        generatedObject = generatedObject.slice(0, -2) + "}";
+      } else {
+        generatedObject += "}";
       }
     
       // Check for DOM Properties
@@ -1315,9 +1481,16 @@
     
         for (var i = 0; i < allDirectives.length; i++) {
           var directiveInfo = allDirectives[i];
-          // If literal, then add value as a literal expression, or escape it
-          var normalizedValue = directiveInfo.literal ? directiveInfo.value : JSON.stringify(directiveInfo.value);
-          generatedObject += '"' + directiveInfo.name + '": ' + normalizedValue + ', ';
+          var directiveValue = directiveInfo.value;
+          var compiledDirectiveValue = "\"\"";
+    
+          if (directiveValue.length !== 0) {
+            compileTemplateExpression(directiveValue, dependencies);
+          } else {
+            directiveValue = "\"\"";
+          }
+    
+          generatedObject += '"' + directiveInfo.name + '": ' + directiveValue + ', ';
         }
     
         // Close object
@@ -1402,19 +1575,22 @@
      * Creates an "h" Call for a VNode
      * @param {Object} vnode
      * @param {Object} parentVNode
+     * @param {Array} dependencies
      * @return {String} "h" call
      */
-    var createCall = function (vnode, parentVNode) {
+    var createCall = function (vnode, parentVNode, dependencies) {
       // Generate Code for Type
       var call = 'h("' + vnode.type + '", ';
     
       // Generate Code for Props
-      call += generateProps(vnode, parentVNode) + ", ";
+      call += generateProps(vnode, parentVNode, dependencies) + ", ";
     
       // Generate code for children recursively here (in case modified by special directives)
-      var children = vnode.children.map(function (vchild) {
-        return generateEl(vchild, vnode);
-      });
+      var children = [];
+      var parsedChildren = vnode.children;
+      for (var i = 0; i < parsedChildren.length; i++) {
+        children.push(generateEl(parsedChildren[i], vnode, dependencies));
+      }
     
       // If the "shouldRender" flag is not present, ensure node will be updated
       if (vnode.meta.shouldRender === true && parentVNode !== undefined) {
@@ -1443,13 +1619,13 @@
       return call;
     };
     
-    var generateEl = function (vnode, parentVNode) {
+    var generateEl = function (vnode, parentVNode, dependencies) {
       var code = "";
     
       if (typeof vnode === "string") {
         // Escape newlines and double quotes, and compile the string
-        var escapedString = escapeString(vnode);
-        var compiledText = compileTemplate(escapedString, true);
+        var escapedString = vnode;
+        var compiledText = compileTemplate(escapedString, delimiters, escapedDelimiters, dependencies, true);
         var textMeta = defaultMetadata();
     
         if (escapedString !== compiledText) {
@@ -1461,13 +1637,11 @@
       } else {
         // Recursively generate code for children
     
-        // Generate Metadata if not Already
-        if (!vnode.meta) {
-          vnode.meta = defaultMetadata();
-        }
+        // Generate Metadata
+        vnode.meta = defaultMetadata();
     
         // Detect SVG Element
-        if (vnode.isSVG) {
+        if (vnode.isSVG === true) {
           vnode.meta.isSVG = true;
         }
     
@@ -1486,14 +1660,14 @@
           var slotNameAttr = vnode.props.attrs.name;
           compiledCode = 'instance.$slots[\'' + (slotNameAttr && slotNameAttr.value || "default") + '\']';
         } else {
-          compiledCode = createCall(vnode, parentVNode);
+          compiledCode = createCall(vnode, parentVNode, dependencies);
         }
     
         // Check for Special Directives that change the code after generation and run them
         if (vnode.specialDirectivesAfter !== undefined) {
           for (var specialDirectiveAfterInfo in vnode.specialDirectivesAfter) {
             var specialDirectiveAfter = vnode.specialDirectivesAfter[specialDirectiveAfterInfo];
-            compiledCode = specialDirectives[specialDirectiveAfter.name].afterGenerate(specialDirectiveAfter.value, specialDirectiveAfter.meta, compiledCode, vnode);
+            compiledCode = specialDirectives[specialDirectiveAfter.name].afterGenerate(specialDirectiveAfter.value, specialDirectiveAfter.meta, compiledCode, vnode, dependencies);
           }
         }
         code += compiledCode;
@@ -1504,8 +1678,31 @@
     var generate = function (ast) {
       // Get root element
       var root = ast.children[0];
-      // Begin Code
-      var code = "var instance = this; return " + generateEl(root);
+    
+      // Dependencies
+      var dependencies = [];
+    
+      // Update delimiters if needed
+      var newDelimeters = null;
+      if ((newDelimeters = Moon.config.delimiters) !== delimiters) {
+        delimiters = newDelimeters;
+    
+        // Escape delimiters
+        escapedDelimiters = new Array(2);
+        escapedDelimiters[0] = escapeRegex(delimiters[0]);
+        escapedDelimiters[1] = escapeRegex(delimiters[1]);
+      }
+    
+      // Generate Rendering Code
+      var rootCode = generateEl(root, undefined, dependencies);
+    
+      var dependenciesCode = "";
+      for (var i = 0; i < dependencies.length; i++) {
+        var dependency = dependencies[i];
+        dependenciesCode += 'var ' + dependency + ' = instance.get("' + dependency + '");';
+      }
+    
+      var code = 'var instance = this; ' + dependenciesCode + ' return ' + rootCode;
     
       try {
         return new Function("h", code);
@@ -1525,6 +1722,9 @@
       /* ======= Initial Values ======= */
       this.$opts = opts || {};
     
+      // Reference to Instance
+      var self = this;
+    
       // Unique ID for Instance
       this.$id = id++;
     
@@ -1541,9 +1741,12 @@
       this.$hooks = this.$opts.hooks || {};
     
       // Custom Methods
-      this.$methods = this.$opts.methods || {};
+      var methods = this.$opts.methods;
+      if (methods !== undefined) {
+        initMethods(self, methods);
+      }
     
-      // Pool of Events
+      // Events
       this.$events = {};
     
       // Virtual DOM
@@ -1559,8 +1762,9 @@
       this.$queued = false;
     
       // Setup Computed Properties
-      if (this.$opts.computed) {
-        initComputed(this, this.$opts.computed);
+      var computed = this.$opts.computed;
+      if (computed !== undefined) {
+        initComputed(this, computed);
       }
     
       /* ======= Initialize 🎉 ======= */
@@ -1575,13 +1779,20 @@
      * @return {String} Value of key in data
      */
     Moon.prototype.get = function (key) {
-      if (this.$observer.dep.target) {
-        var target = this.$observer.dep.target;
-        if (!this.$observer.dep.map[key]) {
-          this.$observer.dep.map[key] = [target];
-        } else if (this.$observer.dep.map[key].indexOf(target) === -1) {
-          this.$observer.dep.map[key].push(target);
+      // Collect dependencies if currently collecting
+      var observer = this.$observer;
+      var target = null;
+      if ((target = observer.target) !== null) {
+        if (observer.map[key] === undefined) {
+          observer.map[key] = [target];
+        } else if (observer.map[key].indexOf(target) === -1) {
+          observer.map[key].push(target);
         }
+      }
+    
+      // Return value found
+      if ("development" !== "production" && !(key in this.$data)) {
+        error('The item "' + key + '" was not defined but was referenced.');
       }
       return this.$data[key];
     };
@@ -1592,11 +1803,20 @@
      * @param {String} val
      */
     Moon.prototype.set = function (key, val) {
+      // Get observer
+      var observer = this.$observer;
+    
       // Get base of keypath
       var base = resolveKeyPath(this, this.$data, key, val);
     
+      // Invoke custom setter
+      var setter = null;
+      if ((setter = observer.setters[base]) !== undefined) {
+        setter.call(this, val);
+      }
+    
       // Notify observer of change
-      this.$observer.notify(base);
+      observer.notify(base, val);
     
       // Queue a build
       queueBuild(this);
@@ -1628,7 +1848,7 @@
       args = args || [];
     
       // Call method in context of instance
-      this.$methods[method].apply(this, args);
+      this.$data[method].apply(this, args);
     };
     
     // Event Emitter, adapted from https://github.com/KingPixil/voke
@@ -1756,7 +1976,7 @@
      */
     Moon.prototype.mount = function (el) {
       // Get element from the DOM
-      this.$el = document.querySelector(el);
+      this.$el = typeof el === 'string' ? document.querySelector(el) : el;
     
       // Remove destroyed state
       this.$destroyed = false;
@@ -1868,7 +2088,7 @@
      */
     Moon.config = {
       silent: "development" === "production" || typeof console === 'undefined',
-      prefix: "m-",
+      delimiters: ["{{", "}}"],
       keyCodes: function (keyCodes) {
         for (var keyCode in keyCodes) {
           eventModifiersCode[keyCode] = 'if(event.keyCode !== ' + keyCodes[keyCode] + ') {return;};';
@@ -1879,7 +2099,7 @@
     /**
      * Version of Moon
      */
-    Moon.version = '0.8.0';
+    Moon.version = '0.9.0';
     
     /**
      * Moon Utilities
@@ -1896,9 +2116,10 @@
     /**
      * Runs an external Plugin
      * @param {Object} plugin
+     * @param {Object} opts
      */
-    Moon.use = function (plugin) {
-      plugin.init(Moon);
+    Moon.use = function (plugin, opts) {
+      plugin.init(Moon, opts);
     };
     
     /**
@@ -1924,7 +2145,7 @@
      * @param {Function} action
      */
     Moon.directive = function (name, action) {
-      directives[Moon.config.prefix + name] = action;
+      directives["m-" + name] = action;
     };
     
     /**
@@ -1970,148 +2191,166 @@
     
     /* ======= Default Directives ======= */
     
-    specialDirectives[Moon.config.prefix + "if"] = {
-      afterGenerate: function (value, meta, code, vnode) {
-        return '(' + compileTemplate(value, false) + ') ? ' + code + ' : null';
+    var emptyVNode = 'h("#text", ' + generateMeta(defaultMetadata()) + ', "")';
+    
+    specialDirectives["m-if"] = {
+      afterGenerate: function (value, meta, code, vnode, dependencies) {
+        compileTemplateExpression(value, dependencies);
+        return value + ' ? ' + code + ' : ' + emptyVNode;
       }
     };
     
-    specialDirectives[Moon.config.prefix + "show"] = {
-      beforeGenerate: function (value, meta, vnode, parentVNode) {
-        var runTimeShowDirective = {
-          name: Moon.config.prefix + "show",
-          value: compileTemplate(value, false),
-          literal: true
-        };
-    
-        if (!vnode.props.directives) {
-          vnode.props.directives = [runTimeShowDirective];
-        } else {
-          vnode.props.directives.push(runTimeShowDirective);
-        }
-      }
-    };
-    
-    specialDirectives[Moon.config.prefix + "for"] = {
-      beforeGenerate: function (value, meta, vnode, parentVNode) {
+    specialDirectives["m-for"] = {
+      beforeGenerate: function (value, meta, vnode, parentVNode, dependencies) {
         // Setup Deep Flag to Flatten Array
         parentVNode.deep = true;
       },
-      afterGenerate: function (value, meta, code, vnode) {
+      afterGenerate: function (value, meta, code, vnode, dependencies) {
         // Get Parts
         var parts = value.split(" in ");
         // Aliases
         var aliases = parts[0].split(",");
         // The Iteratable
-        var iteratable = compileTemplate(parts[1], false);
+        var iteratable = parts[1];
+        compileTemplateExpression(iteratable, dependencies);
     
         // Get any parameters
         var params = aliases.join(",");
     
-        // Change any references to the parameters in children
-        code.replace(new RegExp('instance\\.get\\("(' + aliases.join("|") + ')"\\)', 'g'), function (match, alias) {
-          code = code.replace(new RegExp('instance.get\\("' + alias + '"\\)', "g"), alias);
-        });
+        // Add aliases to scope
+        for (var i = 0; i < aliases.length; i++) {
+          var aliasIndex = dependencies.indexOf(aliases[i]);
+          if (aliasIndex !== -1) {
+            dependencies.splice(aliasIndex, 1);
+          }
+        }
     
         // Use the renderLoop runtime helper
         return 'instance.renderLoop(' + iteratable + ', function(' + params + ') { return ' + code + '; })';
       }
     };
     
-    specialDirectives[Moon.config.prefix + "on"] = {
-      beforeGenerate: function (value, meta, vnode) {
+    specialDirectives["m-on"] = {
+      beforeGenerate: function (value, meta, vnode, parentVNode, dependencies) {
+        // Extract Event, Modifiers, and Parameters
+        var methodToCall = value;
     
-        // Extract modifiers and the event
         var rawModifiers = meta.arg.split(".");
-        var eventToCall = rawModifiers[0];
+        var eventType = rawModifiers.shift();
+    
         var params = "event";
-        var methodToCall = compileTemplate(value, false);
         var rawParams = methodToCall.split("(");
     
         if (rawParams.length > 1) {
+          // Custom parameters detected, update method to call, and generated parameter code
           methodToCall = rawParams.shift();
           params = rawParams.join("(").slice(0, -1);
+          compileTemplateExpression(params, dependencies);
         }
+    
+        // Generate any modifiers
         var modifiers = "";
-    
-        rawModifiers.shift();
-    
         for (var i = 0; i < rawModifiers.length; i++) {
           modifiers += eventModifiersCode[rawModifiers[i]];
         }
     
+        // Final event listener code
         var code = 'function(event) {' + modifiers + 'instance.callMethod("' + methodToCall + '", [' + params + '])}';
-        if (!vnode.meta.eventListeners[eventToCall]) {
-          vnode.meta.eventListeners[eventToCall] = [code];
+        var eventListeners = vnode.meta.eventListeners[eventType];
+        if (eventListeners === undefined) {
+          vnode.meta.eventListeners[eventType] = [code];
         } else {
-          vnode.meta.eventListeners[eventToCall].push(code);
+          eventListeners.push(code);
         }
       }
     };
     
-    specialDirectives[Moon.config.prefix + "model"] = {
-      beforeGenerate: function (value, meta, vnode) {
-        // Compile a string value for the keypath
-        var compiledStringValue = compileTemplate(value, true);
+    specialDirectives["m-model"] = {
+      beforeGenerate: function (value, meta, vnode, parentVNode, dependencies) {
+        // Compile a literal value for the getter
+        compileTemplateExpression(value, dependencies);
+    
         // Setup default event types and dom property to change
         var eventType = "input";
         var valueProp = "value";
     
         // If input type is checkbox, listen on 'change' and change the 'checked' dom property
-        if (vnode.props.attrs.type && vnode.props.attrs.type.value === "checkbox") {
+        if (vnode.props.attrs.type !== undefined && vnode.props.attrs.type.value === "checkbox") {
           eventType = "change";
           valueProp = "checked";
         }
     
         // Generate event listener code
-        var code = 'function(event) {instance.set("' + compiledStringValue + '", event.target.' + valueProp + ')}';
+        var keypath = value;
+    
+        // Compute getter if dynamic
+        var bracketIndex = value.indexOf("[");
+        var dotIndex = value.indexOf(".");
+        var base = null;
+        if (bracketIndex !== -1 && (dotIndex === -1 || bracketIndex < dotIndex)) {
+          base = value.slice(0, bracketIndex);
+        } else if (dotIndex !== -1 && (bracketIndex === -1 || dotIndex < bracketIndex)) {
+          base = value.slice(0, dotIndex);
+        }
+        if (base !== null) {
+          keypath = keypath.replace(expressionRE, function (match, reference) {
+            if (reference !== undefined && reference !== base) {
+              return '" + ' + reference + ' + "';
+            } else {
+              return match;
+            }
+          });
+        }
+    
+        // Generate the listener
+        var code = 'function(event) {instance.set("' + keypath + '", event.target.' + valueProp + ')}';
     
         // Push the listener to it's event listeners
-        if (!vnode.meta.eventListeners[eventType]) {
+        var eventListeners = vnode.meta.eventListeners[eventType];
+        if (eventListeners === undefined) {
           vnode.meta.eventListeners[eventType] = [code];
         } else {
-          vnode.meta.eventListeners[eventType].push(code);
+          eventListeners.push(code);
         }
     
         // Setup a query used to get the value, and set the corresponding dom property
-        var getQuery = compileTemplate('{{' + compileTemplate(value, false) + '}}', false);
-        if (!vnode.props.dom) {
-          vnode.props.dom = {};
+        var dom = vnode.props.dom;
+        if (dom === undefined) {
+          vnode.props.dom = dom = {};
         }
-        vnode.props.dom[valueProp] = getQuery;
+        dom[valueProp] = value;
       }
     };
     
-    specialDirectives[Moon.config.prefix + "literal"] = {
-      duringPropGenerate: function (value, meta, vnode) {
+    specialDirectives["m-literal"] = {
+      duringPropGenerate: function (value, meta, vnode, dependencies) {
         var prop = meta.arg;
-        // make sure object is treated correctly during code generation
-        vnode.props.attrs[prop] = {
-          value: true,
-          meta: {}
-        };
-    
+        compileTemplateExpression(value, dependencies);
         if (prop === "class") {
-          // Classes need to be rendered differently
-          return '"class": instance.renderClass(' + compileTemplate(value, false) + '), ';
+          // Detected class, use runtime class render helper
+          return '"class": instance.renderClass(' + value + '), ';
+        } else {
+          // Default literal attribute
+          return '"' + prop + '": ' + value + ', ';
         }
-        return '"' + prop + '": ' + compileTemplate(value, false) + ', ';
       }
     };
     
-    specialDirectives[Moon.config.prefix + "html"] = {
-      beforeGenerate: function (value, meta, vnode) {
-        if (!vnode.props.dom) {
-          vnode.props.dom = {};
+    specialDirectives["m-html"] = {
+      beforeGenerate: function (value, meta, vnode, parentVNode, dependencies) {
+        var dom = vnode.props.dom;
+        if (dom === undefined) {
+          vnode.props.dom = dom = {};
         }
-        vnode.props.dom.innerHTML = '"' + compileTemplate(value, true) + '"';
+        compileTemplateExpression(value, dependencies);
+        dom.innerHTML = '("" + ' + value + ')';
       }
     };
     
-    directives[Moon.config.prefix + "show"] = function (el, val, vnode) {
+    specialDirectives["m-mask"] = {};
+    
+    directives["m-show"] = function (el, val, vnode) {
       el.style.display = val ? '' : 'none';
     };
-    
-    directives[Moon.config.prefix + "mask"] = function (el, val, vnode) {};
     return Moon;
 }));

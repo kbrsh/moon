@@ -19,11 +19,28 @@ const extractAttrs = function(node) {
  */
 const addEventListeners = function(node, vnode, instance) {
   const eventListeners = vnode.meta.eventListeners;
-  for(let type in eventListeners) {
-    for(let i = 0; i < eventListeners[type].length; i++) {
-      const method = eventListeners[type][i];
-      node.addEventListener(type, method);
+
+  const addHandler = function(type) {
+    // Create handle function
+    const handle = function(evt) {
+      const handlers = handle.handlers;
+      for(let i = 0; i < handlers.length; i++) {
+        handlers[i](evt);
+      }
     }
+
+    // Add handlers to handle
+    handle.handlers = eventListeners[type];
+
+    // Add handler to vnode
+    eventListeners[type] = handle;
+
+    // Add event listener
+    node.addEventListener(type, handle);
+  }
+
+  for(let type in eventListeners) {
+    addHandler(type);
   }
 }
 
@@ -40,7 +57,7 @@ const createNodeFromVNode = function(vnode, instance) {
     // Create textnode
     el = document.createTextNode(vnode.val);
   } else {
-    el = vnode.meta.isSVG ? document.createElementNS('http://www.w3.org/2000/svg', vnode.type) : document.createElement(vnode.type);
+    el = vnode.meta.isSVG ? document.createElementNS("http://www.w3.org/2000/svg", vnode.type) : document.createElement(vnode.type);
     // Optimization: VNode only has one child that is text, and create it here
     if(vnode.children.length === 1 && vnode.children[0].type === "#text") {
       el.textContent = vnode.children[0].val;
@@ -48,18 +65,14 @@ const createNodeFromVNode = function(vnode, instance) {
     } else {
       // Add all children
       for(var i = 0; i < vnode.children.length; i++) {
-        let childVNode = vnode.children[i];
-        let childNode = createNodeFromVNode(vnode.children[i], instance);
-        el.appendChild(childNode);
-        // Component detected, mount it here
-        if(childVNode.meta.component) {
-          createComponentFromVNode(childNode, childVNode, childVNode.meta.component);
-        }
+        const vchild = vnode.children[i];
+        appendChild(createNodeFromVNode(vchild, instance), vchild, el);
       }
     }
     // Add all event listeners
     addEventListeners(el, vnode, instance);
   }
+
   // Setup Props
   diffProps(el, {}, vnode, vnode.props.attrs);
 

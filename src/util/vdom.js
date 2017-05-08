@@ -1,4 +1,9 @@
 /**
+ * Text VNode/Node Type
+ */
+const TEXT_TYPE = "#text";
+
+/**
  * Patch Types
  */
 const PATCH = {
@@ -9,11 +14,6 @@ const PATCH = {
   TEXT: 4,
   CHILDREN: 5
 }
-
-/**
- * Text VNode/Node Type
- */
-const TEXT_TYPE = "#text";
 
 /**
  * Creates a Virtual DOM Node
@@ -43,13 +43,18 @@ const createElement = function(type, val, props, meta, children) {
  */
 const createFunctionalComponent = function(props, children, functionalComponent) {
   let data = functionalComponent.opts.data || {};
+
   // Merge data with provided props
   if(functionalComponent.opts.props !== undefined) {
-    for(var i = 0; i < functionalComponent.opts.props.length; i++) {
-      var prop = functionalComponent.opts.props[i];
+    const propNames = functionalComponent.opts.props;
+
+    for(var i = 0; i < propNames.length; i++) {
+      const prop = propNames[i];
       data[prop] = props.attrs[prop];
     }
   }
+
+  // Call render function
   return functionalComponent.opts.render(h, {
     data: data,
     slots: getSlots(children)
@@ -105,12 +110,17 @@ const h = function(tag, attrs, meta, children) {
  * @return {Object} DOM Node
  */
 const createComponentFromVNode = function(node, vnode, component) {
-  let componentInstance = new component.CTor();
+  const componentInstance = new component.CTor();
+  const props = componentInstance.$props;
+  const data = componentInstance.$data;
+  const attrs = vnode.props.attrs;
+
   // Merge data with provided props
-  for(let i = 0; i < componentInstance.$props.length; i++) {
-    var prop = componentInstance.$props[i];
-    componentInstance.$data[prop] = vnode.props.attrs[prop];
+  for(let i = 0; i < props.length; i++) {
+    const prop = props[i];
+    data[prop] = attrs[prop];
   }
+
   componentInstance.$slots = getSlots(vnode.children);
   componentInstance.$el = node;
   componentInstance.build();
@@ -120,6 +130,26 @@ const createComponentFromVNode = function(node, vnode, component) {
   vnode.meta.el = componentInstance.$el;
 
   return componentInstance.$el;
+}
+
+/**
+ * Diffs Event Listeners of Two VNodes
+ * @param {Object} node
+ * @param {Object} oldVNode
+ * @param {Object} vnode
+ */
+const diffEventListeners = function(node, oldVNode, vnode) {
+  const oldEventListeners = oldVNode.meta.eventListeners;
+  const eventListeners = vnode.meta.eventListeners;
+
+  for(const type in eventListeners) {
+    const oldEventListener = oldEventListeners[type];
+    if(oldEventListener === undefined) {
+      node.removeEventListener(type, oldEventListener);
+    } else {
+      oldEventListeners[type].handlers = eventListeners[type];
+    }
+  }
 }
 
 /**
@@ -134,32 +164,42 @@ const diffProps = function(node, nodeProps, vnode) {
 
   // Diff VNode Props with Node Props
   for(let vnodePropName in vnodeProps) {
-    var vnodePropValue = vnodeProps[vnodePropName];
-    var nodePropValue = nodeProps[vnodePropName];
+    const vnodePropValue = vnodeProps[vnodePropName];
+    const nodePropValue = nodeProps[vnodePropName];
 
-    if(nodePropValue == null || vnodePropValue !== nodePropValue) {
-      node.setAttribute(vnodePropName, vnodePropValue);
+    if((vnodePropValue !== undefined || vnodePropValue !== false || vnodePropValue !== null) && ((nodePropValue === undefined || nodePropValue === false || nodePropValue === null) || vnodePropValue !== nodePropValue)) {
+      if(vnodePropName.length === 10 && vnodePropName === "xlink:href") {
+        node.setAttributeNS('http://www.w3.org/1999/xlink', "href", vnodePropValue);
+      } else {
+        node.setAttribute(vnodePropName, vnodePropValue === true ? '' : vnodePropValue);
+      }
     }
   }
 
   // Diff Node Props with VNode Props
   for(let nodePropName in nodeProps) {
-    if(vnodeProps[nodePropName] == null) {
+    const vnodePropValue = vnodeProps[nodePropName];
+    if(vnodePropValue === undefined || vnodePropValue === false || vnodePropValue === null) {
       node.removeAttribute(nodePropName);
     }
   }
 
   // Execute any directives
-  if(vnode.props.directives !== undefined) {
-    for(let directive in vnode.props.directives) {
-      directives[directive](node, vnode.props.directives[directive], vnode);
+  let vnodeDirectives = null;
+  if((vnodeDirectives = vnode.props.directives) !== undefined) {
+    for(const directive in vnodeDirectives) {
+      let directiveFn = null;
+      if((directiveFn = directives[directive]) !== undefined) {
+        directiveFn(node, vnodeDirectives[directive], vnode);
+      }
     }
   }
 
   // Add/Update any DOM Props
-  if(vnode.props.dom !== undefined) {
-    for(let domProp in vnode.props.dom) {
-      const domPropValue = vnode.props.dom[domProp];
+  let dom = null;
+  if((dom = vnode.props.dom) !== undefined) {
+    for(let domProp in dom) {
+      const domPropValue = dom[domProp];
       if(node[domProp] !== domPropValue) {
         node[domProp] = domPropValue;
       }
@@ -183,10 +223,13 @@ const diffComponent = function(node, vnode) {
     let componentChanged = false;
 
     // Merge any properties that changed
-    for(var i = 0; i < componentInstance.$props.length; i++) {
-      let prop = componentInstance.$props[i];
-      if(componentInstance.$data[prop] !== vnode.props.attrs[prop]) {
-        componentInstance.$data[prop] = vnode.props.attrs[prop];
+    const props = componentInstance.$props;
+    const data = componentInstance.$data;
+    const attrs = vnode.props.attrs;
+    for(var i = 0; i < props.length; i++) {
+      let prop = props[i];
+      if(data[prop] !== attrs[prop]) {
+        data[prop] = attrs[prop];
         componentChanged = true;
       }
     }
@@ -217,16 +260,16 @@ const hydrate = function(node, vnode, parent, instance) {
 
   if(node === null) {
     // No node, create one
-    var newNode = createNodeFromVNode(vnode, instance);
+    const newNode = createNodeFromVNode(vnode, instance);
     appendChild(newNode, vnode, parent);
 
     return newNode;
-  } else if(vnode === undefined) {
+  } else if(vnode === null) {
     removeChild(node, parent);
 
     return null;
   } else if(nodeName !== vnode.type) {
-    var newNode = createNodeFromVNode(vnode, instance);
+    const newNode = createNodeFromVNode(vnode, instance);
     replaceChild(node, newNode, vnode, parent);
     return newNode;
   } else if(vnode.type === TEXT_TYPE) {
@@ -264,18 +307,24 @@ const hydrate = function(node, vnode, parent, instance) {
     addEventListeners(node, vnode, instance);
 
     // Check if innerHTML was changed, and don't diff children if so
-    if(vnode.props.dom !== undefined && vnode.props.dom.innerHTML !== undefined) {
+    const domProps = vnode.props.dom;
+    if(domProps !== undefined && domProps.innerHTML !== undefined) {
       return node;
     }
 
     // Hydrate Children
-    var i = 0;
+    const children = vnode.children;
+    const length = children.length;
+
+    let i = 0;
     let currentChildNode = node.firstChild;
-    let vchild = vnode.children[i];
-    while(vchild !== undefined || currentChildNode !== null) {
+    let vchild = length !== 0 ? children[0] : null;
+
+    while(vchild !== null || currentChildNode !== null) {
+      const next = currentChildNode ? currentChildNode.nextSibling : null;
       hydrate(currentChildNode, vchild, node, instance);
-      vchild = vnode.children[++i];
-      currentChildNode = currentChildNode ? currentChildNode.nextSibling : null;
+      vchild = ++i < length ? children[i] : null;
+      currentChildNode = next;
     }
 
     return node;
@@ -283,8 +332,8 @@ const hydrate = function(node, vnode, parent, instance) {
 }
 
 /**
- * Diffs Node and a VNode, and applies Changes
- * @param {Object} node
+ * Diffs VNodes, and applies Changes
+ * @param {Object} oldVNode
  * @param {Object} vnode
  * @param {Object} parent
  * @param {Object} instance
@@ -341,15 +390,21 @@ const diff = function(oldVNode, vnode, parent, instance) {
     diffProps(node, oldVNode.props.attrs, vnode);
     oldVNode.props.attrs = vnode.props.attrs;
 
+    // Diff event listeners
+    diffEventListeners(node, oldVNode, vnode);
+
     // Check if innerHTML was changed, don't diff children
-    if(vnode.props.dom !== undefined && vnode.props.dom.innerHTML !== undefined) {
+    const domProps = vnode.props.dom;
+    if(domProps !== undefined && domProps.innerHTML !== undefined) {
       // Skip Children
       return PATCH.SKIP;
     }
 
     // Diff Children
-    let newLength = vnode.children.length;
-    let oldLength = oldVNode.children.length;
+    const children = vnode.children;
+    const oldChildren = oldVNode.children;
+    let newLength = children.length;
+    let oldLength = oldChildren.length;
 
     if(newLength === 0) {
       // No Children, Remove all Children if not Already Removed
@@ -358,28 +413,28 @@ const diff = function(oldVNode, vnode, parent, instance) {
         while((firstChild = node.firstChild) !== null) {
           removeChild(firstChild, node);
         }
-        oldVNode.children = [];
+        oldChildren = [];
       }
     } else {
       // Traverse and Diff Children
       let totalLen = newLength > oldLength ? newLength : oldLength;
-      for(var i = 0; i < totalLen; i++) {
-        let oldChild = i < oldLength ? oldVNode.children[i] : null;
-        let child = i < newLength ? vnode.children[i] : null;
+      for(let i = 0, j = 0; i < totalLen; i++, j++) {
+        let oldChild = j < oldLength ? oldChildren[j] : null;
+        let child = i < newLength ? children[i] : null;
 
         const action = diff(oldChild, child, node, instance);
 
         // Update Children to Match Action
         switch (action) {
           case PATCH.APPEND:
-            oldVNode.children[oldLength++] = child;
+            oldChildren[oldLength++] = child;
             break;
           case PATCH.REMOVE:
-            oldVNode.children.splice(i, 1);
+            oldChildren.splice(j--, 1);
             oldLength--;
             break;
           case PATCH.REPLACE:
-            oldVNode.children[i] = vnode.children[i];
+            oldChildren[j] = children[i];
             break;
           case PATCH.TEXT:
             oldChild.val = child.val;

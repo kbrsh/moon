@@ -6,13 +6,20 @@
  * @return {String} Value of key in data
  */
 Moon.prototype.get = function(key) {
-  if(this.$observer.dep.target) {
-    const target = this.$observer.dep.target;
-    if(!this.$observer.dep.map[key]) {
-      this.$observer.dep.map[key] = [target];
-    } else if(this.$observer.dep.map[key].indexOf(target) === -1) {
-      this.$observer.dep.map[key].push(target);
+  // Collect dependencies if currently collecting
+  const observer = this.$observer;
+  let target = null;
+  if((target = observer.target) !== null) {
+    if(observer.map[key] === undefined) {
+      observer.map[key] = [target];
+    } else if(observer.map[key].indexOf(target) === -1) {
+      observer.map[key].push(target);
     }
+  }
+
+  // Return value found
+  if("__ENV__" !== "production" && !(key in this.$data)) {
+    error(`The item "${key}" was not defined but was referenced.`);
   }
   return this.$data[key];
 }
@@ -23,11 +30,20 @@ Moon.prototype.get = function(key) {
  * @param {String} val
  */
 Moon.prototype.set = function(key, val) {
+  // Get observer
+  const observer = this.$observer;
+
   // Get base of keypath
   const base = resolveKeyPath(this, this.$data, key, val);
 
+  // Invoke custom setter
+  let setter = null;
+  if((setter = observer.setters[base]) !== undefined) {
+    setter.call(this, val);
+  }
+
   // Notify observer of change
-  this.$observer.notify(base);
+  observer.notify(base, val);
 
   // Queue a build
   queueBuild(this);
@@ -59,7 +75,7 @@ Moon.prototype.callMethod = function(method, args) {
   args = args || [];
 
   // Call method in context of instance
-  this.$methods[method].apply(this, args);
+  this.$data[method].apply(this, args);
 }
 
 // Event Emitter, adapted from https://github.com/KingPixil/voke
@@ -187,7 +203,7 @@ Moon.prototype.renderClass = function(classNames) {
  */
 Moon.prototype.mount = function(el) {
   // Get element from the DOM
-  this.$el = document.querySelector(el);
+  this.$el = typeof el === 'string' ? document.querySelector(el) : el;
 
   // Remove destroyed state
   this.$destroyed = false;

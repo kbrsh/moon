@@ -1,11 +1,19 @@
 /* ======= Global Utilities ======= */
 
+const hashRE = /\[(\w+)\]/g;
+const RegExEscapeRE = /[\-\[\]{}()*+?.,\\\^$|#\s]/g;
+const newLineRE = /\n/g;
+const doubleQuoteRE = /"/g;
+const backslashRE = /\\/g;
+
 /**
  * Logs a Message
  * @param {String} msg
  */
 const log = function(msg) {
-  if(!Moon.config.silent) console.log(msg);
+  if(Moon.config.silent === false) {
+    console.log(msg);
+  }
 }
 
 /**
@@ -13,7 +21,9 @@ const log = function(msg) {
  * @param {String} msg
  */
 const error = function(msg) {
-  if(!Moon.config.silent) console.error("[Moon] ERR: " + msg);
+  if(Moon.config.silent === false) {
+    console.error("[Moon] ERR: " + msg);
+  }
 }
 
 /**
@@ -47,10 +57,7 @@ const defaultMetadata = function() {
  * @param {String} str
  */
 const escapeString = function(str) {
-	const NEWLINE_RE = /\n/g;
-	const DOUBLE_QUOTE_RE = /"/g;
-  const BACKSLASH_RE = /\\/g;
-  return str.replace(BACKSLASH_RE, "\\\\").replace(DOUBLE_QUOTE_RE, "\\\"").replace(NEWLINE_RE, "\\n");
+  return str.replace(backslashRE, "\\\\").replace(doubleQuoteRE, "\\\"").replace(newLineRE, "\\n");
 }
 
 /**
@@ -63,9 +70,7 @@ const escapeString = function(str) {
  */
 const resolveKeyPath = function(instance, obj, keypath, val) {
   let i = null;
-  keypath.replace(/\[(\w+)\]/g, function(match, index) {
-    keypath = keypath.replace(match, `.${index}`);
-  });
+  keypath = keypath.replace(hashRE, '.$1');
   var path = keypath.split(".");
   for(i = 0; i < path.length - 1; i++) {
     const propName = path[i];
@@ -153,6 +158,14 @@ const callHook = function(instance, name) {
   if(hook !== undefined) {
     hook.call(instance);
   }
+}
+
+/**
+ * Escapes String Values for a Regular Expression
+ * @param {str} str
+ */
+const escapeRegex = function(str) {
+  return str.replace(RegExEscapeRE, "\\$&");
 }
 
 /**

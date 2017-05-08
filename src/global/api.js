@@ -5,7 +5,7 @@
  */
 Moon.config = {
   silent: ("__ENV__" === "production") || (typeof console === 'undefined'),
-  prefix: "m-",
+  delimiters: ["{{", "}}"],
   keyCodes: function(keyCodes) {
     for(var keyCode in keyCodes) {
       eventModifiersCode[keyCode] = `if(event.keyCode !== ${keyCodes[keyCode]}) {return;};`;
@@ -33,9 +33,10 @@ Moon.util = {
 /**
  * Runs an external Plugin
  * @param {Object} plugin
+ * @param {Object} opts
  */
-Moon.use = function(plugin) {
-  plugin.init(Moon);
+Moon.use = function(plugin, opts) {
+  plugin.init(Moon, opts);
 }
 
 /**
@@ -61,7 +62,7 @@ Moon.nextTick = function(task) {
  * @param {Function} action
  */
 Moon.directive = function(name, action) {
-  directives[Moon.config.prefix + name] = action;
+  directives["m-" + name] = action;
 }
 
 /**

@@ -2,9 +2,11 @@
 if(!chai) {
   var chai = require("chai");
 }
+
 if(!Moon) {
   var Moon = require("../../dist/moon.js");
 }
+
 if(document.getElementById("moon-els")) {
   var moon_els = document.getElementById("moon-els");
 } else {
@@ -12,8 +14,11 @@ if(document.getElementById("moon-els")) {
   moon_els.id = "moon-els";
   document.body.appendChild(moon_els);
 }
+
 var expect = chai.expect;
+
 Moon.config.silent = true;
+
 var createTestElement = function(id, html) {
   var el = document.createElement("div");
   el.innerHTML = html;
@@ -21,82 +26,41 @@ var createTestElement = function(id, html) {
   moon_els.appendChild(el);
   return el;
 }
-// var MoonPerformance = {
-//   init: function() {
-//     var MoonBuild = Moon.prototype.build;
-//     var MoonInit = Moon.prototype.init;
-//     var MoonRender = Moon.prototype.render;
-//     var MoonMount = Moon.prototype.mount;
-//     var MoonPatch = Moon.prototype.patch;
-//
-//     var formatNum = function(num) {
-//       if(num >= 0.5) {
-//       	return num.toFixed(2) + 'ms'
-//       } else {
-//       	return num.toFixed(2)*1000 + "µs";
-//       }
-//     }
-//
-//     var name = function(instance) {
-//       return instance.$parent ? instance.$name : "root";
-//     }
-//
-//     Moon.prototype.init = function() {
-//       var id = name(this) + "@init";
-//       performance.mark("start " + id);
-//       MoonInit.apply(this, arguments);
-//       performance.mark("end " + id);
-//       performance.measure(id, "start " + id, "end " + id);
-//       var entries = performance.getEntriesByName(id);
-//     }
-//
-//     Moon.prototype.build = function() {
-//       var id = name(this) + "@build";
-//       performance.mark("start " + id);
-//       MoonBuild.apply(this, arguments);
-//       performance.mark("end " + id);
-//       performance.measure(id, "start " + id, "end " + id);
-//       var entries = performance.getEntriesByName(id);
-//     }
-//
-//     Moon.prototype.render = function() {
-//       var id = name(this) + "@render";
-//       performance.mark("start " + id);
-//       var r = MoonRender.apply(this, arguments);
-//       performance.mark("end " + id);
-//       performance.measure(id, "start " + id, "end " + id);
-//       var entries = performance.getEntriesByName(id);
-//       return r;
-//     }
-//
-//     Moon.prototype.mount = function() {
-//       var id = name(this) + "@mount";
-//       performance.mark("start " + id);
-//       MoonMount.apply(this, arguments);
-//       performance.mark("end " + id);
-//       performance.measure(id, "start " + id, "end " + id);
-//       var entries = performance.getEntriesByName(id);
-//     }
-//
-//     Moon.prototype.patch = function() {
-//       var id = name(this) + "@patch";
-//       performance.mark("start " + id);
-//       MoonPatch.apply(this, arguments);
-//       performance.mark("end " + id);
-//       performance.measure(id, "start " + id, "end " + id);
-//       var entries = performance.getEntriesByName(id);
-//     }
-//   }
-// }
-//
-// Moon.use(MoonPerformance);
 
 
+// Begin Tests
 describe('Instance', function() {
   describe('Initializing', function() {
     createTestElement("initialize", "");
     it('with new', function() {
       expect(new Moon({el: "#initialize"}) instanceof Moon).to.equal(true);
+    });
+  });
+
+  describe('Mount', function() {
+    var mountEl = createTestElement("mountEl", '{{msg}}');
+    createTestElement("mountStr", '{{msg}}');
+    var mountStrApp = new Moon({
+      el: "#mountStr",
+      data: {
+        msg: "Hello Moon!"
+      }
+    });
+    var mountElApp = new Moon({
+      el: mountEl,
+      data: {
+        msg: "Hello Moon!"
+      }
+    });
+    it('when mounted on a selector', function() {
+      Moon.nextTick(function() {
+        expect(document.getElementById("mountStr").innerHTML).to.equal("Hello Moon!");
+      });
+    });
+    it('when mounted on an element', function() {
+      Moon.nextTick(function() {
+        expect(mountEl.innerHTML).to.equal("Hello Moon!");
+      });
     });
   });
 
@@ -119,6 +83,16 @@ describe('Instance', function() {
 });
 
 describe("Compiler", function() {
+  it("should compile whitespace in mustaches", function() {
+    var el = createTestElement("compilerMustacheWhitespace", '{{  msg   }}');
+    var app = new Moon({
+      el: "#compilerMustacheWhitespace",
+      data: {
+        msg: "Hello Moon!"
+      }
+    });
+    expect(el.innerHTML).to.equal("Hello Moon!");
+  });
   it("should not compile comments", function() {
     var el = createTestElement("compilerComment", '<!-- comment -->');
     var compilerCommentApp = new Moon({
@@ -194,6 +168,7 @@ describe("Compiler", function() {
 
 describe('Data', function() {
   createTestElement("data", '{{msg}}');
+  createTestElement("dataCustomDelimiters", '${msg}');
   createTestElement("data2", '{{msg.obj.nested}}');
   createTestElement("data3", '{{msg.obj.nested}}');
   var dataApp = new Moon({
@@ -202,6 +177,14 @@ describe('Data', function() {
       msg: "Hello Moon!"
     }
   });
+  Moon.config.delimiters = ['${', '}'];
+  var dataAppCustomDelimiters = new Moon({
+    el: "#dataCustomDelimiters",
+    data: {
+      msg: "Hello Moon!"
+    }
+  })
+  Moon.config.delimiters = ['{{', '}}'];
   var dataApp2 = new Moon({
     el: "#data2",
     data: {
@@ -224,6 +207,9 @@ describe('Data', function() {
   });
   it('when initializing', function() {
     expect(document.getElementById("data").innerHTML).to.equal("Hello Moon!");
+  });
+  it('when initializing with custom delimiters', function() {
+    expect(document.getElementById("dataCustomDelimiters").innerHTML).to.equal("Hello Moon!");
   });
   it('when setting', function(done) {
     dataApp.set('msg', 'New Value');
@@ -251,12 +237,12 @@ describe('Data', function() {
   //     expect(document.getElementById("data2").innerHTML).to.equal("Nested Object");
   //   });
   // });
-  // it('when setting new data property', function() {
-  //   dataApp3.set("msg.obj.nested", "New Nested");
-  //   Moon.nextTick(function() {
-  //     expect(document.getElementById("data3").innerHTML).to.equal("New Nested");
-  //   });
-  // });
+  it('when setting new data property', function() {
+    dataApp3.set("msg.obj.nested", "New Nested");
+    Moon.nextTick(function() {
+      expect(document.getElementById("data3").innerHTML).to.equal("New Nested");
+    });
+  });
   it('when getting', function() {
     expect(dataApp.get('msg')).to.equal("New Value");
   });
@@ -317,8 +303,7 @@ describe("Directive", function() {
   describe('Custom Directive', function() {
     createTestElement("customDirective", '<span m-square="2" id="custom-directive-span"></span>');
     Moon.directive("square", function(el, val, vdom) {
-      var num = parseInt(val);
-      vdom.props.dom = {innerHTML: String(num*num)};
+      vdom.props.dom = {innerHTML: String(val*val)};
     });
     var customDirectiveApp = new Moon({
       el: "#customDirective"
@@ -331,7 +316,7 @@ describe("Directive", function() {
   });
 
   describe('If Directive', function() {
-    createTestElement("if", '<p m-if="{{condition}}" id="if-condition">Condition True</p>');
+    createTestElement("if", '<p m-if="condition" id="if-condition">Condition True</p>');
     var ifApp = new Moon({
       el: "#if",
       data: {
@@ -353,7 +338,7 @@ describe("Directive", function() {
   });
 
   describe('Show Directive', function() {
-    createTestElement("show", '<p m-show="{{condition}}" id="show-condition">Condition True</p>');
+    createTestElement("show", '<p m-show="condition" id="show-condition">Condition True</p>');
     var showApp = new Moon({
       el: "#show",
       data: {
@@ -444,7 +429,7 @@ describe("Directive", function() {
   });
 
   describe('For Directive', function() {
-    createTestElement("for", "<ul id='forList'><li m-for='item in {{items}}'>{{item}}</li></ul>");
+    createTestElement("for", "<ul id='forList'><li m-for='item in items'>{{item}}</li></ul>");
     var forApp = new Moon({
       el: "#for",
       data: {
@@ -468,9 +453,10 @@ describe("Directive", function() {
   });
 
   describe('Literal Directive', function() {
-    createTestElement("literal", '<span m-literal:class="({{num}}+1).toString()" id="literal-directive-span"></span>');
+    createTestElement("literal", '<span m-literal:class="(num+1).toString()" id="literal-directive-span"></span>');
     createTestElement("literalClass", '<span m-literal:class="[\'1\', \'2\', \'3\']" id="literal-class-directive-span"></span>');
-    createTestElement("literalConditionalClass", '<span m-literal:class="{trueVal: {{trueVal}}, falseVal: {{falseVal}}}" id="literal-conditional-class-directive-span"></span>');
+    createTestElement("literalConditionalClass", '<span m-literal:class="{trueVal: trueVal, falseVal: falseVal}" id="literal-conditional-class-directive-span"></span>');
+    createTestElement("literalBooleanValue", '<span m-literal:disabled="condition" id="literal-boolean-value-directive-span"></span>');
     var literalApp = new Moon({
       el: "#literal",
       data: {
@@ -487,6 +473,12 @@ describe("Directive", function() {
         falseVal: false
       }
     });
+    var literalBooleanValueApp = new Moon({
+      el: "#literalBooleanValue",
+      data: {
+        condition: true
+      }
+    });
     it('should treat the value as a literal expression', function() {
       expect(document.getElementById("literal-directive-span").getAttribute("class")).to.equal("2");
     });
@@ -496,13 +488,22 @@ describe("Directive", function() {
     it('should be able to handle an object of conditional classes', function() {
       expect(document.getElementById("literal-conditional-class-directive-span").getAttribute("class")).to.equal("trueVal");
     });
+    it('should be able to handle a true boolean value', function() {
+      expect(document.getElementById("literal-boolean-value-directive-span").getAttribute("disabled")).to.equal("");
+    });
+    it('should be able to handle a false boolean value', function() {
+      literalBooleanValueApp.set('condition', false);
+      Moon.nextTick(function() {
+        expect(document.getElementById("literal-boolean-value-directive-span").getAttribute("disabled")).to.equal(null);
+      })
+    });
     it('should not be present at runtime', function() {
       expect(document.getElementById('literal-directive-span').getAttribute("m-literal")).to.be['null'];
     });
   });
 
   describe('HTML Directive', function() {
-    createTestElement("html", '<span m-html="{{html}}" id="html-directive-span"></span>');
+    createTestElement("html", '<span m-html="html" id="html-directive-span"></span>');
     var htmlApp = new Moon({
       el: "#html",
       data: {

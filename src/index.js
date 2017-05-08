@@ -15,6 +15,7 @@ let eventModifiersCode = {
 let id = 0;
 
 /* ======= Observer ======= */
+//=require observer/methods.js
 //=require observer/computed.js
 //=require observer/observer.js
 
@@ -33,6 +34,9 @@ function Moon(opts) {
     /* ======= Initial Values ======= */
     this.$opts = opts || {};
 
+    // Reference to Instance
+    const self = this;
+
     // Unique ID for Instance
     this.$id = id++;
 
@@ -49,9 +53,12 @@ function Moon(opts) {
     this.$hooks = this.$opts.hooks || {};
 
     // Custom Methods
-    this.$methods = this.$opts.methods || {};
+    const methods = this.$opts.methods;
+    if(methods !== undefined) {
+      initMethods(self, methods);
+    }
 
-    // Pool of Events
+    // Events
     this.$events = {};
 
     // Virtual DOM
@@ -67,8 +74,9 @@ function Moon(opts) {
     this.$queued = false;
 
     // Setup Computed Properties
-    if(this.$opts.computed) {
-      initComputed(this, this.$opts.computed);
+    const computed = this.$opts.computed;
+    if(computed !== undefined) {
+      initComputed(this, computed);
     }
 
     /* ======= Initialize 🎉 ======= */

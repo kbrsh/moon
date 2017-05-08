@@ -1,3 +1,5 @@
+const tagOrCommentStartRE = /<[\w/]\s*|<!--/;
+
 const lex = function(input) {
   let state = {
     input: input,
@@ -32,7 +34,8 @@ const lexState = function(state) {
 const lexText = function(state) {
   const input = state.input;
   const len = input.length;
-  const endOfText = input.indexOf("<", state.current);
+  let endOfText = input.substring(state.current).search(tagOrCommentStartRE);
+
   // Only Text
   if(endOfText === -1) {
     state.tokens.push({
@@ -44,11 +47,12 @@ const lexText = function(state) {
   }
 
   // No Text at All
-  if(endOfText === state.current) {
+  if(endOfText === 0) {
     return;
   }
 
   // End of Text Found
+  endOfText += state.current;
   state.tokens.push({
     type: "text",
     value: input.slice(state.current, endOfText)

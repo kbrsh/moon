@@ -1,30 +1,40 @@
 function Observer(instance) {
+  // Associated Moon Instance
   this.instance = instance;
+
+  // Computed Property Cache
   this.cache = {};
-  this.signals = {};
-  this.dep = {
-    target: null,
-    map: {}
-  };
+
+  // Computed Property Setters
+  this.setters = {};
+
+  // Set of events to clear cache when dependencies change
+  this.clear = {};
+
+  // Property Currently Being Observed for Dependencies
+  this.target = null;
+
+  // Dependency Map
+  this.map = {};
 }
 
 Observer.prototype.observe = function(key) {
-  let self = this;
-  this.signals[key] = function() {
-    self.cache[key] = null;
+  const self = this;
+  this.clear[key] = function() {
+    self.cache[key] = undefined;
   }
 }
 
-Observer.prototype.notify = function(key) {
-  if(this.dep.map[key]) {
-    for(let i = 0; i < this.dep.map[key].length; i++) {
-      this.notify(this.dep.map[key][i]);
+Observer.prototype.notify = function(key, val) {
+  let depMap = null;
+  if((depMap = this.map[key]) !== undefined) {
+    for(let i = 0; i < depMap.length; i++) {
+      this.notify(depMap[i]);
     }
   }
 
-  if(!this.signals[key]) {
-    return;
+  let clear = null;
+  if((clear = this.clear[key]) !== undefined) {
+    clear();
   }
-
-  this.signals[key]();
 }
