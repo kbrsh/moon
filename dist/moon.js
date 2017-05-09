@@ -209,10 +209,9 @@
      * @return {Object} resolved object
      */
     var resolveKeyPath = function (instance, obj, keypath, val) {
-      var i = null;
       keypath = keypath.replace(hashRE, '.$1');
       var path = keypath.split(".");
-      for (i = 0; i < path.length - 1; i++) {
+      for (var i = 0; i < path.length - 1; i++) {
         var propName = path[i];
         obj = obj[propName];
       }

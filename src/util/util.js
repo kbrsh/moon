@@ -69,10 +69,9 @@ const escapeString = function(str) {
  * @return {Object} resolved object
  */
 const resolveKeyPath = function(instance, obj, keypath, val) {
-  let i = null;
   keypath = keypath.replace(hashRE, '.$1');
   var path = keypath.split(".");
-  for(i = 0; i < path.length - 1; i++) {
+  for(var i = 0; i < path.length - 1; i++) {
     const propName = path[i];
     obj = obj[propName];
   }
