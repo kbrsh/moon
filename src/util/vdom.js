@@ -321,7 +321,7 @@ const hydrate = function(node, vnode, parent, instance) {
     let vchild = length !== 0 ? children[0] : null;
 
     while(vchild !== null || currentChildNode !== null) {
-      const next = currentChildNode ? currentChildNode.nextSibling : null;
+      const next = currentChildNode !== null ? currentChildNode.nextSibling : null;
       hydrate(currentChildNode, vchild, node, instance);
       vchild = ++i < length ? children[i] : null;
       currentChildNode = next;
