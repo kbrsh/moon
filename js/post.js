@@ -5,6 +5,16 @@ docsearch({
   debug: false
 });
 
+var STR_RE = /(["'])(.*?)\1/g;
+var SPECIAL_RE = /\b(new|var|const|if|do|function|while|switch|for|foreach|in|continue|break|return)(?=[^\w])/g;
+var GLOBAL_VARIABLE_RE = /\b(document|window|Array|String|true|false|Object|this|Boolean|Function|Number|\$)/g;
+var METHODS_RE = /\b(indexOf|match|replace|toString|length)(?=[^\w])/g;
+var MULTILINE_COMMENT_RE  = /(\/\*.*\*\/)/g;
+var COMMENT_RE = /(\/\/.*)/g;
+var HTML_COMMENT_RE = /\<\!\-\-(\/\/.*)\-\-\>/g;
+
+var TAG_RE = /(&lt;(.|\n)*?&gt;)/g;
+
 var sidebarToggle = document.getElementById("sidebar-toggle");
 
 sidebarToggle.addEventListener("click", function() {
@@ -16,45 +26,21 @@ var code = document.getElementsByTagName("code");
 var compile = function(val, lang) {
   var compiled = val;
 
-  var STR_RE = /(["'])(.*?)\1/g;
-  var SPECIAL_RE = /\b(new|var|if|do|function|while|switch|for|foreach|in|continue|break|return)(?=[^\w])/g;
-  var GLOBAL_VARIABLE_RE = /\b(document|window|Array|String|true|false|Object|this|Boolean|Function|Number|\$)/g;
-  var METHODS_RE = /\b(indexOf|match|replace|toString|length)(?=[^\w])/g;
-  var MULTILINE_COMMENT_RE  = /(\/\*.*\*\/)/g;
-  var COMMENT_RE = /(\/\/.*)/g;
-
-  var TAG_RE = /(&lt;(.|\n)*?&gt;)/g;
-
-  compiled.replace(STR_RE, function(match, quote, value) {
-    match = match.replace(/\(/g, "\\\(");
-    match = match.replace(/\)/g, "\\\)");
-    compiled = compiled.replace(new RegExp(match, "g"), "<span class=\"string\">" + quote + value + quote + "</span>");
-  });
+  compiled = compiled.replace(STR_RE, "<span class=\"string\">$1$2$1</span>");
 
   if(lang === "html") {
-    compiled.replace(TAG_RE, function(match, value) {
-      compiled = compiled.replace(new RegExp(match, "g"), "<span class=\"tag\">" + value + "</span>");
-    });
+    compiled = compiled.replace(TAG_RE, "<span class=\"tag\">$1</span>");
+
+    compiled = compiled.replace(HTML_COMMENT_RE, "<span class=\"comment\">$1</span>");
   } else {
-    compiled.replace(SPECIAL_RE, function(match, value) {
-      compiled = compiled.replace(new RegExp(match, "g"), "<span class=\"special\">" + value + "</span>");
-    });
+    compiled = compiled.replace(SPECIAL_RE, "<span class=\"special\">$1</span>");
 
-    compiled.replace(GLOBAL_VARIABLE_RE, function(match, value) {
-      compiled = compiled.replace(new RegExp(match, "g"), "<span class=\"global\">" + value + "</span>");
-    });
+    compiled = compiled.replace(GLOBAL_VARIABLE_RE, "<span class=\"global\">$1</span>");
 
-    compiled.replace(METHODS_RE, function(match, value) {
-      compiled = compiled.replace(new RegExp(match, "g"), "<span class=\"method\">" + value + "</span>");
-    });
+    compiled = compiled.replace(METHODS_RE, "<span class=\"method\">$1</span>");
 
-    compiled.replace(COMMENT_RE, function(match, value) {
-      compiled = compiled.replace(new RegExp(match, "g"), "<span class=\"comment\">" + value + "</span>");
-    });
-
-    compiled.replace(MULTILINE_COMMENT_RE, function(match, value) {
-      compiled = compiled.replace(new RegExp(match, "g"), "<span class=\"comment\">" + value + "</span>");
-    });
+    compiled = compiled.replace(COMMENT_RE, "<span class=\"comment\">$1</span>");
+    compiled = compiled.replace(MULTILINE_COMMENT_RE, "<span class=\"comment\">$1</span>");
   }
 
 
