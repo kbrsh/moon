@@ -55,15 +55,14 @@ button {
 }
 
 #hero {
-  min-height: 100vh;
+  min-height: 80vh;
 }
 
 #hero .container {
   max-width: 500px;
 }
 
-#hero .inner {
-  margin-top: 85px;
+#hero .container .inner {
   text-align: center;
 }
 
@@ -77,8 +76,10 @@ button {
 }
 
 #nav {
-  margin-top: 5rem;
+  margin-top: 1rem;
+  margin-right: 2rem;
   text-align: center;
+  height: 8vh;
 }
 
 #nav a {
@@ -86,11 +87,23 @@ button {
   color: #a8a8a8;
   text-decoration: none;
   transition: all 0.2s ease;
-  margin: 1rem;
 }
 
 #nav a:hover {
   color: #6e6d6d;
+}
+
+.algolia-autocomplete {
+  padding: 1rem 3rem;
+}
+
+#search {
+  height: 7px;
+  width: 140px;
+  border: 1px solid #a8a8a8;
+  padding: 10px 0px 10px 35px;
+  background: #f5f5f5 url('../img/search.svg') 10px center no-repeat;
+  border-radius: 100px;
 }
 
 .cta {
@@ -128,30 +141,6 @@ button {
 /* Features */
 
 #features p {
-  font-size: 2rem;
-}
-
-/*Documentation*/
-
-.docs-section p {
-  font-size: 1.6rem;
-}
-
-.accepts {
-  padding: 3px;
-  font-family: "Inconsolata", monospace;
-  background-color: #E7E7E7;
-  color: #00C2FC;
-}
-
-.docs-subhead {
-  font-size: 3.5rem;
-  text-transform: uppercase;
-}
-
-.sample {
-  background: #E7E7E7;
-  padding: 2rem;
   font-size: 2rem;
 }
 
@@ -210,110 +199,6 @@ code {
 
 #app h1 {
   margin: 1rem;
-}
-
-/* Sidebar */
-.sidebar {
-  position: fixed;
-  z-index: 1;
-  padding: 40px 0;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 300px;
-  border-right: 1px solid #d9d9d9;
-  transition: all 0.2s ease;
-}
-
-.sidebar-head {
-  text-align: center;
-  margin-top: 0;
-}
-
-.sidebar-head a {
-  color: #4a4848;
-  text-decoration: none;
-}
-
-.sidebar-nav {
-  padding: 2rem 4rem;
-}
-
-.sidebar-nav a {
-  color: #7f8082;
-  text-decoration: none;
-  font-size: 2rem;
-  display: block;
-  font-weight: 200;
-}
-
-.sidebar-nav a.sidebar-link-active {
-  color: #44aecd;
-}
-
-#sidebar-toggle {
-  position: fixed;
-  width: 21px;
-  height: 20px;
-  z-index: 2;
-  bottom: 1.5rem;
-  left: 2rem;
-  cursor: pointer;
-}
-
-body.close .sidebar {
-  transform: translateX(-300px);
-}
-
-body.close .post {
-  left: 0px;
-}
-
-#sidebar-toggle span {
-  height: 2px;
-  width: 100%;
-  background-color: #1ed6e2;
-  position: absolute;
-}
-
-#sidebar-toggle-2 {
-  top: 7px;
-}
-#sidebar-toggle-3 {
-  top: 14px;
-}
-
-.post {
-  left: 300px;
-  z-index: 0;
-  position: absolute;
-  right: 0;
-  padding-bottom: 5rem;
-  transition: all 0.2s ease;
-}
-
-@media (max-width:550px) {
-  .sidebar {
-    transform: translateX(-300px);
-    box-shadow: 2px 3px 40px #a8a8a8;
-  }
-  .post {
-    left: 0;
-  }
-  body.close .sidebar {
-    background: #f5f5f5;
-    transform: translateX(0px);
-  }
-
-  body.close .post {
-    /*left: 300px;*/
-  }
-}
-
-/* Examples */
-.example {
-  background: #E7E7E7;
-  padding: 1rem 3rem;
 }
 
 /* === Footer === */
