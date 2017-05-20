@@ -78,12 +78,13 @@
 <h5 id="-mount-"><strong>mount</strong></h5>
 <ul>
 <li>Arguments:<ul>
-<li><code>{String} selector</code></li>
+<li><code>{String|Node} selector</code></li>
 </ul>
 </li>
 </ul>
 <p>Usage:</p>
 <pre><code class="lang-js">instance.mount(&quot;#app&quot;);
+instance.mount(el);
 </code></pre>
 <p>Used to manually mount an instance to an element, compiling a template or using a render function, and running the initial build.</p>
 <h5 id="-destroy-"><strong>destroy</strong></h5>
@@ -138,7 +139,8 @@ instance.off();
 </li>
 </ul>
 <p>Usage:</p>
-<pre><code class="lang-js">instance.emit(&quot;foo&quot;, {bar: true});
+<pre><code class="lang-js">instance.emit(&quot;foo&quot;);
+instance.emit(&quot;foo&quot;, {bar: true});
 </code></pre>
 <p>Used to emit an event, invoking all current event listeners for that specific events. If there is custom data provided, it will attach this data and provide it as the first parameter. By default, the custom data will always have a <code>type</code> to indicate the type of event fired:</p>
 <pre><code class="lang-js">{
