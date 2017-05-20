@@ -40,7 +40,7 @@ Let's show the user this message, by adding this to the HTML:
 </div>
 ```
 
-Notice the `{{mustache}}` syntax? This is used to interpolate properties in the `data` your provide. Moon analyzes these and will update this element every time you change the `msg` property.
+Notice the `{{mustache}}` syntax? This is used to interpolate properties in the `data` you provide. Moon analyzes these and will update this element every time you change the `msg` property.
 
 We should now have something that looks like this:
 
