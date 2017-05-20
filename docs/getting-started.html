@@ -63,7 +63,7 @@
   &lt;p&gt;{{msg}}&lt;/p&gt;
 &lt;/div&gt;
 </code></pre>
-<p>Notice the <code>{{mustache}}</code> syntax? This is used to interpolate properties in the <code>data</code> you provide. Moon analyzes these and will update this element every time you change the <code>msg</code> property.</p>
+<p>Notice the <code>{{mustache}}</code> syntax? This is used to interpolate properties in the <code>data</code> you provide. All of this data is <strong>reactive</strong>. Moon analyzes these and will update this element every time you change the <code>msg</code> property.</p>
 <p>We should now have something that looks like this:</p>
 <div id="app1" class="example">
   <p>{{msg}}</p>
@@ -152,27 +152,64 @@ app3.callMethod('changeMessage', ['New Message!']);
 <pre><code class="lang-js">app3.callMethod(&#39;changeMessage&#39;, [&#39;Calling a Method!&#39;]);
 </code></pre>
 <p> in the console!</p>
+<p> Along with this, methods are available inside of templates, meaning you can get the output of a method. For example:</p>
+<pre><code class="lang-html"> &lt;div id=&quot;app4&quot;&gt;
+   &lt;p&gt;{{reverse(msg)}}&lt;/p&gt;
+ &lt;/div&gt;
+</code></pre>
+<pre><code class="lang-js"> var app4 = new Moon({
+   el: &quot;#app4&quot;,
+   data: {
+     msg: &quot;Hello Moon!&quot;
+   },
+   methods: {
+     reverse: function(str) {
+       return str.split(&quot;&quot;).reverse().join(&quot;&quot;);
+     }
+   }
+ });
+</code></pre>
+ <div id="app4" class="example">
+   <p>{{reverse(msg)}}</p>
+ </div>
+
+ <script>
+ var app4 = new Moon({
+   el: "#app4",
+   data: {
+     msg: "Hello Moon!"
+   },
+   methods: {
+     reverse: function(str) {
+       return str.split("").reverse().join("");
+     }
+   }
+ });
+ </script>
+
+<p> Go ahead, try entering <code>app4.set(&#39;msg&#39;, &#39;racecaR&#39;)</code> in the console!</p>
 <h4 id="conditional-rendering">Conditional Rendering</h4>
 <p>Let&#39;s get started with our first <em>directive!</em> Directives are ways of adding special behavior to elements. Right now, we are going to use <code>m-if</code>. This lets us put in any data, including <code>{{mustache}}</code> templates into the directive as an attribute. If it is truthy, it will be rendered, if it is falsy, it won&#39;t be rendered (the element won&#39;t exist).</p>
-<p>You can put any valid javascript expression for the value, such as <code>true === false</code>, but remember to always use templates for data.</p>
-<pre><code class="lang-html">&lt;div id=&quot;app4&quot;&gt;
-  &lt;p m-if=&quot;{{condition}}&quot;&gt;The Condition is True!&lt;/p&gt;
+<p>You can put any valid javascript expression for the value, such as <code>true === false</code>. This is true for any directive. Directives are treated as if they are an <strong>expression</strong>, and have access to any data property as if they were local variables.</p>
+<p>In normal attributes, <strong>you must use templates</strong>.</p>
+<pre><code class="lang-html">&lt;div id=&quot;app5&quot;&gt;
+  &lt;p m-if=&quot;condition&quot;&gt;The Condition is True!&lt;/p&gt;
 &lt;/div&gt;
 </code></pre>
-<pre><code class="lang-js">var app4 = new Moon({
-  el: &quot;#app4&quot;,
+<pre><code class="lang-js">var app5 = new Moon({
+  el: &quot;#app5&quot;,
   data: {
     condition: true
   }
 });
 </code></pre>
-<div id="app4" class="example">
-  <p m-if="{{condition}}">The Condition is True!</p>
+<div id="app5" class="example">
+  <p m-if="condition">The Condition is True!</p>
 </div>
 
 <script>
-var app4 = new Moon({
-  el: "#app4",
+var app5 = new Moon({
+  el: "#app5",
   data: {
     condition: true
   }
@@ -180,79 +217,75 @@ var app4 = new Moon({
 </script>
 
 <p>You can also use <code>m-show</code>, and this will toggle the <code>display</code> property of the element.</p>
-<p>Go ahead, try entering <code>app4.set(&#39;condition&#39;, false)</code> in the console!</p>
+<p>Go ahead, try entering <code>app5.set(&#39;condition&#39;, false)</code> in the console!</p>
 <h4 id="loops">Loops</h4>
 <p>Another directive (<code>m-for</code>) allows you to iterate through arrays and display them! If you change any elements of the array, the DOM will be updated to match.</p>
-<pre><code class="lang-html">&lt;div id=&quot;app5&quot;&gt;
+<pre><code class="lang-html">&lt;div id=&quot;app6&quot;&gt;
   &lt;ul&gt;
-    &lt;li m-for=&quot;item in {{list}}&quot;&gt;{{item}}&lt;/li&gt;
+    &lt;li m-for=&quot;item in list&quot;&gt;{{item}}&lt;/li&gt;
   &lt;/ul&gt;
 &lt;/div&gt;
 </code></pre>
 <p>The <code>item</code> will now be available to us as an <strong>alias</strong> for each item in the list.</p>
-<pre><code class="lang-js">var app5 = new Moon({
-  el: &quot;#app5&quot;,
+<pre><code class="lang-js">var app6 = new Moon({
+  el: &quot;#app6&quot;,
   data: {
     list: [&#39;Item - 1&#39;, &#39;Item - 2&#39;, &#39;Item - 3&#39;, &#39;Item - 4&#39;]
   }
 });
 </code></pre>
-<div id="app5" class="example">
-  <ul>
-    <li m-for="item in {{list}}">{{item}}</li>
-  </ul>
-</div>
-
-<script>
-var app5 = new Moon({
-  el: "#app5",
-  data: {
-    list: ['Item - 1', 'Item - 2', 'Item - 3', 'Item - 4']
-  }
-});
-</script>
-
-<p>Go ahead, try entering <code>app5.set(&#39;list&#39;, [&#39;New Item&#39;, &#39;Another Item&#39;])</code> in the console!</p>
-<h4 id="event-listeners">Event Listeners</h4>
-<p>Great! We&#39;ve been able to conditionally render elements, and render lists, but what if we need to get data from the user? For this, and adding other events, we use the <code>m-on</code> directive.</p>
-<p>The syntax for this directive is like: <code>event:method</code>. The event is passed as an argument, like <code>m-on:click</code>. If you need custom parameters, you can use <code>event:method(&#39;custom parameter&#39;)</code>.</p>
-<pre><code class="lang-html">&lt;div id=&quot;app6&quot;&gt;
-  &lt;p&gt;{{count}}&lt;/p&gt;
-  &lt;button m-on:click=&quot;increment&quot;&gt;Increment&lt;/button&gt;
-&lt;/div&gt;
-</code></pre>
-<pre><code class="lang-js">var app6 = new Moon({
-  el: &quot;#app6&quot;,
-  data: {
-    count: 0
-  },
-  methods: {
-    increment: function() {
-      // Increment the count by one
-      var count = this.get(&#39;count&#39;);
-      count++;
-      this.set(&#39;count&#39;, count);
-    }
-  }
-});
-</code></pre>
 <div id="app6" class="example">
-  <p>{{count}}</p>
-  <button m-on:click="increment">Increment</button>
+  <ul>
+    <li m-for="item in list">{{item}}</li>
+  </ul>
 </div>
 
 <script>
 var app6 = new Moon({
   el: "#app6",
   data: {
+    list: ['Item - 1', 'Item - 2', 'Item - 3', 'Item - 4']
+  }
+});
+</script>
+
+<p>Go ahead, try entering <code>app6.set(&#39;list&#39;, [&#39;New Item&#39;, &#39;Another Item&#39;])</code> in the console!</p>
+<h4 id="event-listeners">Event Listeners</h4>
+<p>Great! We&#39;ve been able to conditionally render elements, and render lists, but what if we need to get data from the user? For this, and adding other events, we use the <code>m-on</code> directive.</p>
+<p>The syntax for this directive is like: <code>event:method</code>. The event is passed as an argument, like <code>m-on:click</code>. If you need custom parameters, you can use <code>event:method(&#39;custom parameter&#39;)</code>.</p>
+<pre><code class="lang-html">&lt;div id=&quot;app7&quot;&gt;
+  &lt;p&gt;{{count}}&lt;/p&gt;
+  &lt;button m-on:click=&quot;increment&quot;&gt;Increment&lt;/button&gt;
+&lt;/div&gt;
+</code></pre>
+<pre><code class="lang-js">var app7 = new Moon({
+  el: &quot;#app7&quot;,
+  data: {
     count: 0
   },
   methods: {
     increment: function() {
       // Increment the count by one
-      var count = this.get('count');
-      count++;
-      this.set('count', count);
+      this.set(&#39;count&#39;, this.get(&#39;count&#39;) + 1);
+    }
+  }
+});
+</code></pre>
+<div id="app7" class="example">
+  <p>{{count}}</p>
+  <button m-on:click="increment">Increment</button>
+</div>
+
+<script>
+var app7 = new Moon({
+  el: "#app7",
+  data: {
+    count: 0
+  },
+  methods: {
+    increment: function() {
+      // Increment the count by one
+      this.set('count', this.get('count') + 1);
     }
   }
 });
@@ -272,7 +305,7 @@ var app6 = new Moon({
 <pre><code class="lang-html">&lt;component-name&gt;&lt;/component-name&gt;
 </code></pre>
 <p>For example:</p>
-<pre><code class="lang-html">&lt;div id=&quot;app7&quot;&gt;
+<pre><code class="lang-html">&lt;div id=&quot;app8&quot;&gt;
   &lt;my-component&gt;&lt;/my-component&gt;
 &lt;/div&gt;
 </code></pre>
@@ -280,12 +313,12 @@ var app6 = new Moon({
   template: &quot;&lt;p&gt;This is a Component!&lt;/p&gt;&quot;
 });
 
-var app7 = new Moon({
-  el: &quot;#app7&quot;
+var app8 = new Moon({
+  el: &quot;#app8&quot;
 });
 </code></pre>
 <p>This will render:</p>
-<div id="app7" class="example">
+<div id="app8" class="example">
   <my-component></my-component>
 </div>
 
@@ -294,15 +327,15 @@ Moon.component('my-component', {
   template: "<p>This is a Component!</p>"
 });
 
-var app7 = new Moon({
-  el: "#app7"
+var app8 = new Moon({
+  el: "#app8"
 });
 </script>
 
 <p>Components can be nested within each other, and each have their own scope. Updating one component&#39;s data <strong>will not</strong> update any other components other than itself.</p>
 <h5 id="props">Props</h5>
 <p>Components do not have access to data from their parent. To pass data down from the parent, you can use <code>props</code>. Define them in your component options, and you will have access to them via <code>{{mustache}}</code> templates. You can pass them by putting them as attributes.</p>
-<pre><code class="lang-html">&lt;div id=&quot;app8&quot;&gt;
+<pre><code class="lang-html">&lt;div id=&quot;app9&quot;&gt;
   &lt;my-component content=&quot;{{parentMsg}}&quot;&gt;&lt;/my-component&gt;
 &lt;/div&gt;
 </code></pre>
@@ -311,14 +344,14 @@ var app7 = new Moon({
   template: &quot;&lt;p&gt;Data from Parent: {{content}}&lt;/p&gt;&quot;
 });
 
-var app8 = new Moon({
-  el: &quot;#app8&quot;,
+var app9 = new Moon({
+  el: &quot;#app9&quot;,
   data: {
     parentMsg: &quot;Parent Data&quot;
   }
 });
 </code></pre>
-<div id="app8" class="example">
+<div id="app9" class="example">
   <my-component content="{{parentMsg}}"></my-component>
 </div>
 
@@ -328,15 +361,15 @@ Moon.component('my-component', {
   template: "<p>Data from Parent: {{content}}</p>"
 });
 
-var app8 = new Moon({
-  el: "#app8",
+var app9 = new Moon({
+  el: "#app9",
   data: {
     parentMsg: "Parent Data"
   }
 });
 </script>
 
-<p>Go ahead, try entering <code>app8.set(&#39;parentMsg&#39;, &#39;New Parent Data&#39;)</code> and watch the component being updated!</p>
+<p>Go ahead, try entering <code>app9.set(&#39;parentMsg&#39;, &#39;New Parent Data&#39;)</code> and watch the component being updated!</p>
 <h4 id="next-steps">Next Steps</h4>
 <p>Congrats! You just learned the core features of the Moon API! If you&#39;d like to see some advanced features, check out the API docs, or the other guides.</p>
 
