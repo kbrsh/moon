@@ -48,7 +48,7 @@ Take a look at this example:
 ```
 
 ```js
-var app1 = new Moon({
+const app1 = new Moon({
   el: "#app1",
   data: {
     color: "blue"
@@ -107,7 +107,7 @@ Let's look at a practical example: What if you need to display a "Profile" link 
 ```
 
 ```js
-var app2 = new Moon({
+const app2 = new Moon({
   el: "#app2",
   data: {
     signedIn: true
