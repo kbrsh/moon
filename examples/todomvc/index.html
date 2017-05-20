@@ -20,27 +20,27 @@
           m-model="newTodo"
           m-on:keyup.enter="addTodo">
       </header>
-      <section class="main" m-if="{{todos.length}}">
+      <section class="main" m-if="todos.length !== 0">
         <input class="toggle-all" type="checkbox" m-model="done">
         <ul class="todo-list">
-          <li m-for="todo,index in {{filtered}}" m-literal:class="{todo: true, editing: {{todo}} === {{editedTodo}}, completed: {{todo.completed}}}">
+          <li m-for="todo,index in filtered" m-literal:class="{todo: true, editing: todo === editedTodo, completed: todo.completed}">
             <div class="view">
-              <input class="toggle" type="checkbox" m-model="filtered[{{index}}].completed">
-              <label m-on:dblclick="editTodo({{todo}})">{{todo.content}}</label>
-              <button class="destroy" m-on:click="removeTodo({{todo}})"></button>
+              <input class="toggle" type="checkbox" m-model="filtered[index].completed">
+              <label m-on:dblclick="editTodo(todo)">{{todo.content}}</label>
+              <button class="destroy" m-on:click="removeTodo(todo)"></button>
             </div>
-            <input class="edit" type="text" m-model="filtered[{{index}}].content" m-on:keyup.enter="updateTodo({{todo}})" m-on:keyup.esc="discardEdit({{todo}})" m-literal:m-focus="{{todo}} === {{editedTodo}}"/>
+            <input class="edit" type="text" m-model="filtered[index].content" m-on:keyup.enter="updateTodo(todo)" m-on:keyup.esc="discardEdit(todo)" m-focus="todo === editedTodo"/>
           </li>
         </ul>
       </section>
-      <footer class="footer" m-if="{{todos.length}}">
+      <footer class="footer" m-if="todos.length !== 0">
         <span class="todo-count">
           <strong>{{remaining}}</strong> items left
         </span>
         <ul class="filters">
-          <li><a href="#/all" m-literal:class="{{filter}} == 'all' ? 'selected' : ''">All</a></li>
-          <li><a href="#/active" m-literal:class="{{filter}} == 'active' ? 'selected' : ''">Active</a></li>
-          <li><a href="#/completed" m-literal:class="{{filter}} == 'completed' ? 'selected' : ''">Completed</a></li>
+          <li><a href="#/all" m-literal:class="filter == 'all' ? 'selected' : ''">All</a></li>
+          <li><a href="#/active" m-literal:class="filter == 'active' ? 'selected' : ''">Active</a></li>
+          <li><a href="#/completed" m-literal:class="filter == 'completed' ? 'selected' : ''">Completed</a></li>
         </ul>
         <button class="clear-completed" m-on:click="removeCompleted">
           Clear completed
