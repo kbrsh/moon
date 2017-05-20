@@ -1030,7 +1030,7 @@
       }
     };
     
-    var tagOrCommentStartRE = /<[\w/]\s*|<!--/;
+    var tagOrCommentStartRE = /<\/?(?:[A-Za-z]+\w*)|<!--/;
     
     var lex = function (input) {
       var state = {
@@ -1128,7 +1128,7 @@
     
       // Lex Starting of Tag
       var isClosingStart = input.charAt(current + 1) === "/";
-      state.current += isClosingStart ? 2 : 1;
+      state.current += isClosingStart === true ? 2 : 1;
     
       // Lex type and attributes
       var tagToken = lexTagType(state);
@@ -1136,15 +1136,15 @@
     
       // Lex ending tag
       var isClosingEnd = input.charAt(current) === "/";
-      state.current += isClosingEnd ? 2 : 1;
+      state.current += isClosingEnd === true ? 2 : 1;
     
       // Check if Closing Start
-      if (isClosingStart) {
+      if (isClosingStart === true) {
         tagToken.closeStart = true;
       }
     
       // Check if Closing End
-      if (isClosingEnd) {
+      if (isClosingEnd === true) {
         tagToken.closeEnd = true;
       }
     };

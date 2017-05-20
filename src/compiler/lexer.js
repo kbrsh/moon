@@ -1,4 +1,4 @@
-const tagOrCommentStartRE = /<[\w/]\s*|<!--/;
+const tagOrCommentStartRE = /<\/?(?:[A-Za-z]+\w*)|<!--/;
 
 const lex = function(input) {
   let state = {
@@ -96,7 +96,7 @@ const lexTag = function(state) {
 
   // Lex Starting of Tag
   const isClosingStart = input.charAt(current + 1) === "/";
-  state.current += isClosingStart ? 2 : 1;
+  state.current += isClosingStart === true ? 2 : 1;
 
   // Lex type and attributes
   let tagToken = lexTagType(state);
@@ -104,15 +104,15 @@ const lexTag = function(state) {
 
   // Lex ending tag
   const isClosingEnd = input.charAt(current) === "/";
-  state.current += isClosingEnd ? 2 : 1;
+  state.current += isClosingEnd === true ? 2 : 1;
 
   // Check if Closing Start
-  if(isClosingStart) {
+  if(isClosingStart === true) {
     tagToken.closeStart = true;
   }
 
   // Check if Closing End
-  if(isClosingEnd) {
+  if(isClosingEnd === true) {
     tagToken.closeEnd = true;
   }
 }
