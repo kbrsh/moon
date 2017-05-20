@@ -413,7 +413,7 @@ const diff = function(oldVNode, vnode, parent, instance) {
         while((firstChild = node.firstChild) !== null) {
           removeChild(firstChild, node);
         }
-        oldChildren = [];
+        oldVNode.children = [];
       }
     } else {
       // Traverse and Diff Children
