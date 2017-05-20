@@ -102,7 +102,7 @@ Let's look at a practical example: What if you need to display a "Profile" link 
 
 ```html
 <div id="app2">
-  <p m-if="{{signedIn}}">Profile</p>
+  <p m-if="signedIn">Profile</p>
 </div>
 ```
 
@@ -115,7 +115,7 @@ var app2 = new Moon({
 });
 ```
 <div id="app2" class="example">
-  <p m-if="{{signedIn}}">Profile</p>
+  <p m-if="signedIn">Profile</p>
 </div>
 
 <script>
@@ -131,7 +131,7 @@ Now, if you detected the user has signed out, the `m-if` directive will handle t
 
 Type `app2.set('signedIn', false)` in the console, and watch the DOM being updated!
 
-Directives always have a prefix of `m-`, and this prefix can be set in `Moon.config.prefix`.
+Directives always have a prefix of `m-`.
 
 #### Components
 

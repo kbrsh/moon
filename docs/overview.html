@@ -109,7 +109,7 @@ app.set(&#39;count&#39;, 3);
 <p>Angular provided a lot of helpful directives that could perform a variety of tasks. Moon has directives built in as well, and can be used to conditionally render items, to render lists, to attach event listeners, to skip updating, and more!</p>
 <p>Let&#39;s look at a practical example: What if you need to display a &quot;Profile&quot; link if a user is signed in? How would you update if the user signed out?</p>
 <pre><code class="lang-html">&lt;div id=&quot;app2&quot;&gt;
-  &lt;p m-if=&quot;{{signedIn}}&quot;&gt;Profile&lt;/p&gt;
+  &lt;p m-if=&quot;signedIn&quot;&gt;Profile&lt;/p&gt;
 &lt;/div&gt;
 </code></pre>
 <pre><code class="lang-js">var app2 = new Moon({
@@ -120,7 +120,7 @@ app.set(&#39;count&#39;, 3);
 });
 </code></pre>
 <div id="app2" class="example">
-  <p m-if="{{signedIn}}">Profile</p>
+  <p m-if="signedIn">Profile</p>
 </div>
 
 <script>
@@ -134,7 +134,7 @@ var app2 = new Moon({
 
 <p>Now, if you detected the user has signed out, the <code>m-if</code> directive will handle this, try it yourself!</p>
 <p>Type <code>app2.set(&#39;signedIn&#39;, false)</code> in the console, and watch the DOM being updated!</p>
-<p>Directives always have a prefix of <code>m-</code>, and this prefix can be set in <code>Moon.config.prefix</code>.</p>
+<p>Directives always have a prefix of <code>m-</code>.</p>
 <h4 id="components">Components</h4>
 <p>Components are super useful, allowing you to reuse certain elements of your app. Moon has a component system like React/Vue, allowing you to compose entire applications with components.</p>
 <p>Each component is a mini Moon instance, that the diff engine treats differently.</p>
