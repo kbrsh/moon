@@ -11,9 +11,9 @@ var GLOBAL_VARIABLE_RE = /\b(document|window|Array|String|true|false|Object|this
 var METHODS_RE = /\b(indexOf|match|replace|toString|length)(?=[^\w])/g;
 var MULTILINE_COMMENT_RE  = /(\/\*.*\*\/)/g;
 var COMMENT_RE = /(\/\/.*)/g;
-var HTML_COMMENT_RE = /\<\!\-\-(\/\/.*)\-\-\>/g;
+var HTML_COMMENT_RE = /(\&lt;\!\-\-(?:(?:.|\n)*)\-\-\&gt;)/g;
 
-var TAG_RE = /(&lt;(.|\n)*?&gt;)/g;
+var TAG_RE = /(&lt;(?!\!\-\-)(.|\n)*?&gt;)/g;
 
 var sidebarToggle = document.getElementById("sidebar-toggle");
 
@@ -29,9 +29,8 @@ var compile = function(val, lang) {
   compiled = compiled.replace(STR_RE, "<span class=\"string\">$1$2$1</span>");
 
   if(lang === "html") {
-    compiled = compiled.replace(TAG_RE, "<span class=\"tag\">$1</span>");
-
     compiled = compiled.replace(HTML_COMMENT_RE, "<span class=\"comment\">$1</span>");
+    compiled = compiled.replace(TAG_RE, "<span class=\"tag\">$1</span>");
   } else {
     compiled = compiled.replace(SPECIAL_RE, "<span class=\"special\">$1</span>");
 
