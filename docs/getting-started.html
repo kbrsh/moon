@@ -49,7 +49,7 @@
 <p>Now just follow along!</p>
 <h4 id="initialization">Initialization</h4>
 <p>First, let&#39;s create a new <strong>Moon Instance</strong>, this is where all our options for Moon go, and where we initialize it.</p>
-<pre><code class="lang-js">var app1 = new Moon({
+<pre><code class="lang-js">const app1 = new Moon({
   el: &quot;#app1&quot;,
   data: {
     msg: &quot;Hello Moon!&quot;
@@ -84,7 +84,7 @@
   &lt;p&gt;{{msg}}&lt;/p&gt;
 &lt;/div&gt;
 </code></pre>
-<pre><code class="lang-js">var app2 = new Moon({
+<pre><code class="lang-js">const app2 = new Moon({
   el: &quot;#app2&quot;,
   data: {
     msg: &quot;Hello Moon!&quot;
@@ -115,7 +115,7 @@ app2.set(&#39;msg&#39;, &quot;Changed Message!&quot;);
   &lt;p&gt;{{msg}}&lt;/p&gt;
 &lt;/div&gt;
 </code></pre>
-<pre><code class="lang-js">var app3 = new Moon({
+<pre><code class="lang-js">const app3 = new Moon({
   el: &quot;#app3&quot;,
   data: {
     msg: &quot;Hello Moon!&quot;
@@ -157,7 +157,7 @@ app3.callMethod('changeMessage', ['New Message!']);
    &lt;p&gt;{{reverse(msg)}}&lt;/p&gt;
  &lt;/div&gt;
 </code></pre>
-<pre><code class="lang-js"> var app4 = new Moon({
+<pre><code class="lang-js"> const app4 = new Moon({
    el: &quot;#app4&quot;,
    data: {
      msg: &quot;Hello Moon!&quot;
@@ -196,7 +196,7 @@ app3.callMethod('changeMessage', ['New Message!']);
   &lt;p m-if=&quot;condition&quot;&gt;The Condition is True!&lt;/p&gt;
 &lt;/div&gt;
 </code></pre>
-<pre><code class="lang-js">var app5 = new Moon({
+<pre><code class="lang-js">const app5 = new Moon({
   el: &quot;#app5&quot;,
   data: {
     condition: true
@@ -227,7 +227,7 @@ var app5 = new Moon({
 &lt;/div&gt;
 </code></pre>
 <p>The <code>item</code> will now be available to us as an <strong>alias</strong> for each item in the list.</p>
-<pre><code class="lang-js">var app6 = new Moon({
+<pre><code class="lang-js">const app6 = new Moon({
   el: &quot;#app6&quot;,
   data: {
     list: [&#39;Item - 1&#39;, &#39;Item - 2&#39;, &#39;Item - 3&#39;, &#39;Item - 4&#39;]
@@ -258,7 +258,7 @@ var app6 = new Moon({
   &lt;button m-on:click=&quot;increment&quot;&gt;Increment&lt;/button&gt;
 &lt;/div&gt;
 </code></pre>
-<pre><code class="lang-js">var app7 = new Moon({
+<pre><code class="lang-js">const app7 = new Moon({
   el: &quot;#app7&quot;,
   data: {
     count: 0
@@ -313,7 +313,7 @@ var app7 = new Moon({
   template: &quot;&lt;p&gt;This is a Component!&lt;/p&gt;&quot;
 });
 
-var app8 = new Moon({
+const app8 = new Moon({
   el: &quot;#app8&quot;
 });
 </code></pre>
@@ -344,7 +344,7 @@ var app8 = new Moon({
   template: &quot;&lt;p&gt;Data from Parent: {{content}}&lt;/p&gt;&quot;
 });
 
-var app9 = new Moon({
+const app9 = new Moon({
   el: &quot;#app9&quot;,
   data: {
     parentMsg: &quot;Parent Data&quot;

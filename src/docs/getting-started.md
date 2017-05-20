@@ -20,7 +20,7 @@ Now just follow along!
 First, let's create a new **Moon Instance**, this is where all our options for Moon go, and where we initialize it.
 
 ```js
-var app1 = new Moon({
+const app1 = new Moon({
   el: "#app1",
   data: {
     msg: "Hello Moon!"
@@ -68,7 +68,7 @@ Moon can update the DOM as a result of you changing the data. To change data, yo
 ```
 
 ```js
-var app2 = new Moon({
+const app2 = new Moon({
   el: "#app2",
   data: {
     msg: "Hello Moon!"
@@ -107,7 +107,7 @@ You have to use the `callMethod` function every time you call a method, or else 
 ```
 
 ```js
-var app3 = new Moon({
+const app3 = new Moon({
   el: "#app3",
   data: {
     msg: "Hello Moon!"
@@ -156,7 +156,7 @@ app3.callMethod('changeMessage', ['Calling a Method!']);
  ```
 
  ```js
- var app4 = new Moon({
+ const app4 = new Moon({
    el: "#app4",
    data: {
      msg: "Hello Moon!"
@@ -204,7 +204,7 @@ In normal attributes, **you must use templates**.
 ```
 
 ```js
-var app5 = new Moon({
+const app5 = new Moon({
   el: "#app5",
   data: {
     condition: true
@@ -244,7 +244,7 @@ Another directive (`m-for`) allows you to iterate through arrays and display the
 The `item` will now be available to us as an **alias** for each item in the list.
 
 ```js
-var app6 = new Moon({
+const app6 = new Moon({
   el: "#app6",
   data: {
     list: ['Item - 1', 'Item - 2', 'Item - 3', 'Item - 4']
@@ -283,7 +283,7 @@ The syntax for this directive is like: `event:method`. The event is passed as an
 ```
 
 ```js
-var app7 = new Moon({
+const app7 = new Moon({
   el: "#app7",
   data: {
     count: 0
@@ -353,7 +353,7 @@ Moon.component('my-component', {
   template: "<p>This is a Component!</p>"
 });
 
-var app8 = new Moon({
+const app8 = new Moon({
   el: "#app8"
 });
 ```
@@ -392,7 +392,7 @@ Moon.component('my-component', {
   template: "<p>Data from Parent: {{content}}</p>"
 });
 
-var app9 = new Moon({
+const app9 = new Moon({
   el: "#app9",
   data: {
     parentMsg: "Parent Data"

@@ -41,19 +41,42 @@ Methods allow you to reuse certain actions in you code, for example, instead of 
 Using `this` inside a method is a reference to the instance, so you can do `this.set`. This also means that you will have to call it in a special way (when doing it manually), you have to use the `app.callMethod` method.
 
 ```js
-var app = new Moon({
+const app = new Moon({
   data: {
     count: 0
   },
   methods: {
     increment: function() {
-      this.set("count", this.get("count")+1);
+      this.set("count", this.get("count") + 1);
     }
   }
 });
 
 app.callMethod("increment");
 // count => 1
+```
+
+Methods are also available inside of templates, available as you would call any function.
+
+```html
+<div id="app">
+  <p>reverse(msg)</p>
+  <p>reverse("racecaR")</p>
+</div>
+```
+
+```js
+const app = new Moon({
+  el: "#app",
+  data: {
+    msg: "!nooM olleH"
+  },
+  methods: {
+    reverse: function(str) {
+      return str.split("").reverse().join("");
+    }
+  }
+});
 ```
 
 #### Lifecycle
@@ -88,4 +111,9 @@ Just like how you can mount an instance manually, you can also use:
 app.destroy();
 ```
 
-This will destroy the instance (no changes will be made when data is updated)
+This will destroy the instance, which will:
+
+* Prevent Reactive Updates
+* Teardown Event Listeners
+
+You can always mount it again, and the data will be restored and reactive.

@@ -59,19 +59,37 @@
 <h4 id="methods">Methods</h4>
 <p>Methods allow you to reuse certain actions in you code, for example, instead of always incrementing a counter, you can just call a method.</p>
 <p>Using <code>this</code> inside a method is a reference to the instance, so you can do <code>this.set</code>. This also means that you will have to call it in a special way (when doing it manually), you have to use the <code>app.callMethod</code> method.</p>
-<pre><code class="lang-js">var app = new Moon({
+<pre><code class="lang-js">const app = new Moon({
   data: {
     count: 0
   },
   methods: {
     increment: function() {
-      this.set(&quot;count&quot;, this.get(&quot;count&quot;)+1);
+      this.set(&quot;count&quot;, this.get(&quot;count&quot;) + 1);
     }
   }
 });
 
 app.callMethod(&quot;increment&quot;);
 // count =&gt; 1
+</code></pre>
+<p>Methods are also available inside of templates, available as you would call any function.</p>
+<pre><code class="lang-html">&lt;div id=&quot;app&quot;&gt;
+  &lt;p&gt;reverse(msg)&lt;/p&gt;
+  &lt;p&gt;reverse(&quot;racecaR&quot;)&lt;/p&gt;
+&lt;/div&gt;
+</code></pre>
+<pre><code class="lang-js">const app = new Moon({
+  el: &quot;#app&quot;,
+  data: {
+    msg: &quot;!nooM olleH&quot;
+  },
+  methods: {
+    reverse: function(str) {
+      return str.split(&quot;&quot;).reverse().join(&quot;&quot;);
+    }
+  }
+});
 </code></pre>
 <h4 id="lifecycle">Lifecycle</h4>
 <p>Like React and Vue, Moon calls certain lifecycle hooks throughout the life of your instance/component.</p>
@@ -97,7 +115,12 @@ app.callMethod(&quot;increment&quot;);
 <p>Just like how you can mount an instance manually, you can also use:</p>
 <pre><code class="lang-js">app.destroy();
 </code></pre>
-<p>This will destroy the instance (no changes will be made when data is updated)</p>
+<p>This will destroy the instance, which will:</p>
+<ul>
+<li>Prevent Reactive Updates</li>
+<li>Teardown Event Listeners</li>
+</ul>
+<p>You can always mount it again, and the data will be restored and reactive.</p>
 
       </div>
     </div>
