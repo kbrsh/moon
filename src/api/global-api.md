@@ -55,7 +55,7 @@ Moon.directive('custom', function(el, val) {
 });
 ```
 
-Can be used to create custom directives for Moon, the example above, a directive called `m-custom` will be created. This can be used anywhere, and will be automatically extracted from the DOM during runtime.
+Can be used to create custom directives for Moon, the example above, a directive called `m-custom` will be created. This can be used anywhere, and will be automatically extracted from the DOM during runtime. These directives will be compiled as an **expression**, meaning there are no mustache templates, but plain Javascript.
 
 You will be provided with the element the directive is in, and the value of the directive.
 
@@ -74,3 +74,5 @@ Moon.component('my-component', {
 ```
 
 Used to create custom components, usable in HTML like `<my-component></my-component>`. Can take all options a Moon instance takes (except `el`)
+
+A component can take all of the options of a Moon instance, and is essentially an instance with special behavior.
