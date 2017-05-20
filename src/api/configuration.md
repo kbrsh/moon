@@ -31,7 +31,7 @@ Moon.config.keycodes({
 Can set custom keycodes usable in `m-on` modifiers. For example:
 
 ```html
-<input m-on="keyup.m:someMethod"/>
+<input m-on:keyup.m="someMethod"/>
 ```
 
 It will only fire when the `m` key is being clicked.
