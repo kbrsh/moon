@@ -1064,15 +1064,17 @@
     };
     
     var lexText = function (state) {
+      var current = state.current;
       var input = state.input;
       var len = input.length;
-      var endOfText = input.substring(state.current).search(tagOrCommentStartRE);
+    
+      var endOfText = input.substring(current).search(tagOrCommentStartRE);
     
       // Only Text
       if (endOfText === -1) {
         state.tokens.push({
           type: "text",
-          value: input.slice(state.current)
+          value: input.slice(current)
         });
         state.current = len;
         return;
@@ -1084,25 +1086,28 @@
       }
     
       // End of Text Found
-      endOfText += state.current;
+      endOfText += current;
       state.tokens.push({
         type: "text",
-        value: input.slice(state.current, endOfText)
+        value: input.slice(current, endOfText)
       });
       state.current = endOfText;
     };
     
     var lexComment = function (state) {
+      var current = state.current;
       var input = state.input;
       var len = input.length;
-      state.current += 4;
-      var endOfComment = input.indexOf("-->", state.current);
+    
+      current += 4;
+    
+      var endOfComment = input.indexOf("-->", current);
     
       // Only an unclosed comment
       if (endOfComment === -1) {
         state.tokens.push({
           type: "comment",
-          value: input.slice(state.current)
+          value: input.slice(current)
         });
         state.current = len;
         return;
@@ -1111,17 +1116,18 @@
       // End of Comment Found
       state.tokens.push({
         type: "comment",
-        value: input.slice(state.current, endOfComment)
+        value: input.slice(current, endOfComment)
       });
       state.current = endOfComment + 3;
     };
     
     var lexTag = function (state) {
+      var current = state.current;
       var input = state.input;
       var len = input.length;
     
       // Lex Starting of Tag
-      var isClosingStart = input.charAt(state.current + 1) === "/";
+      var isClosingStart = input.charAt(current + 1) === "/";
       state.current += isClosingStart ? 2 : 1;
     
       // Lex type and attributes
@@ -1129,7 +1135,7 @@
       lexAttributes(tagToken, state);
     
       // Lex ending tag
-      var isClosingEnd = input.charAt(state.current) === "/";
+      var isClosingEnd = input.charAt(current) === "/";
       state.current += isClosingEnd ? 2 : 1;
     
       // Check if Closing Start
