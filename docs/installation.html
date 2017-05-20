@@ -38,17 +38,31 @@
     <div class="container-small">
       <h1 class="post-title">Installation</h1>
       <div class="post-content">
-        <h4 id="cdn">CDN</h4>
+        <h4 id="builds">Builds</h4>
+<p>Moon comes in two builds, <strong>development</strong>, and <strong>production</strong>. The development build is intended for use while developing, as Moon comes built with extra checks and helpful error messages. In the production build, these are stripped out and everything is minified.</p>
+<ul>
+<li>Development: <a href="https://unpkg.com/moonjs/dist/moon.js"><code>moon.js</code></a></li>
+<li>Production: <a href="https://unpkg.com/moonjs/dist/moon.min.js"><code>moon.min.js</code></a></li>
+</ul>
+<h4 id="cdn">CDN</h4>
 <p>Installing Moon is as easy as including a script tag to a CDN. The preferred CDN is <a href="https://unpkg.com">unpkg</a>:</p>
-<pre><code class="lang-html">&lt;script src=&quot;https://unpkg.com/moonjs&quot;&gt;&lt;/script&gt;
+<pre><code class="lang-html">&lt;!-- Production Build --&gt;
+&lt;script src=&quot;https://unpkg.com/moonjs&quot;&gt;&lt;/script&gt;
+
+&lt;!-- Development Build --&gt;
+&lt;script src=&quot;https://unpkg.com/moonjs/dist/moon.js&quot;&gt;&lt;/script&gt;
 </code></pre>
 <h4 id="npm">NPM</h4>
 <p>Moon is supported in RequireJS environments, but to actually update/patch elements, it requires the DOM.</p>
 <pre><code class="lang-bash">$ npm install moonjs
 </code></pre>
-<pre><code class="lang-js">var Moon = require(&quot;moonjs&quot;);
+<pre><code class="lang-js">// Production Build
+const Moon = require(&quot;moonjs&quot;);
+
+// Development Build
+const Moon = require(&quot;moonjs/dist/moon.js&quot;);
 </code></pre>
-<h4 id="development-build">Development Build</h4>
+<h4 id="building-from-scratch">Building from Scratch</h4>
 <p>To edit the source files and build Moon from scratch, clone the repo, and edit any files in the <code>src</code> directory.</p>
 <pre><code class="lang-bash">$ npm run build
 </code></pre>
