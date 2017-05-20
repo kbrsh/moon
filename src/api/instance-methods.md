@@ -46,11 +46,12 @@ Used to call a method defined in the `methods` option of a Moon instance with th
 ##### **mount**
 
 - Arguments:
-  - `{String} selector`
+  - `{String|Node} selector`
 
 Usage:
 ```js
 instance.mount("#app");
+instance.mount(el);
 ```
 
 Used to manually mount an instance to an element, compiling a template or using a render function, and running the initial build.
@@ -116,6 +117,7 @@ Used to remove an event listener from a certain event.
 
 Usage:
 ```js
+instance.emit("foo");
 instance.emit("foo", {bar: true});
 ```
 
