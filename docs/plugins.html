@@ -33,20 +33,38 @@
       <a href="./instance.html">Instance</a>
       <a href="./compiler.html">Compiler</a>
       <a href="./templates.html">Templates</a>
-      <a href="./plugins.html">Plugins</a>
-      <a href="./examples.html" class="sidebar-link-active">Examples</a>
+      <a href="./plugins.html" class="sidebar-link-active">Plugins</a>
+      <a href="./examples.html">Examples</a>
       
     </div>
   </aside>
   <div class="post">
     <div class="container-small">
-      <h1 class="post-title">Examples</h1>
+      <h1 class="post-title">Plugins</h1>
       <div class="post-content">
-        <p>Here are some simple examples of Moon in action:</p>
-<ul>
-<li><a href="../examples/todomvc/index.html">Todo MVC</a></li>
-<li><a href="../examples/markdown/index.html">Markdown Editor</a></li>
-</ul>
+        <p>Plugins allow for developers to add in their own modifications to Moon. Plugins allow for adding multiple components, directives, changing methods, or injecting custom options.</p>
+<h3 id="using-plugins">Using Plugins</h3>
+<p>Include the plugin script, and use the global <a href="../api/global-api.html#-use-"><code>Moon.use</code></a> method.</p>
+<pre><code class="lang-js">Moon.use(plugin);
+</code></pre>
+<h3 id="making-plugins">Making Plugins</h3>
+<p>A plugin has to be an object with an <code>init</code> method. This method is called when <code>Moon.use</code> is called, and is provided with <code>Moon</code> as a parameter.</p>
+<p>For example:</p>
+<pre><code class="lang-js">const plugin = {
+  init: function(Moon) {
+    Moon.component(&quot;example&quot;, {
+      template: &quot;&lt;h1&gt;Example Component&lt;/h1&gt;&quot;
+    });
+  }
+}
+</code></pre>
+<p>As you can see, there is an <code>init</code> method that installs a component to Moon. This plugin can now be installed, and will include the component where it is installed.</p>
+<pre><code class="lang-js">Moon.use(plugin);
+</code></pre>
+<p>Now you can use the registered component.</p>
+<pre><code class="lang-html">&lt;example&gt;&lt;/example&gt;
+</code></pre>
+<p>A plugin can do anything with <code>Moon</code>, including registering as many components, directives, and methods as it needs.</p>
 
       </div>
     </div>

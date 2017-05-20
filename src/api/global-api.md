@@ -11,10 +11,10 @@ Moon comes with global methods available via `Moon.foo` that don't come with eve
 
 Usage:
 ```js
-Moon.use(myPlugin);
+Moon.use(plugin);
 ```
 
-Can initialize and begin using a Moon plugin.
+Can initialize and begin using a Moon plugin. Calls the `init` method of the plugin provided with `Moon` as a parameter.
 
 ##### **compile**
 
