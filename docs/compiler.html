@@ -44,7 +44,7 @@
 <p>For example:</p>
 <pre><code class="lang-js">new Moon({
   render: function(h) {
-    return h(&#39;h1&#39;, {}, null, &#39;Hello Moon!&#39;); // same as &lt;h1&gt;Hello Moon!&lt;/h1&gt;
+    return h(&#39;h1&#39;, {attrs: {}}, {shouldRender: true, eventListeners: {}}, &#39;Hello Moon!&#39;); // same as &lt;h1&gt;Hello Moon!&lt;/h1&gt;
   }
 });
 </code></pre>
@@ -54,7 +54,7 @@
 <pre><code class="lang-js">Moon.compile(&quot;&lt;p&gt;Some HTML&lt;/p&gt;&quot;);
 </code></pre>
 <p>You can also play around with the compiler below:</p>
-<div id="compiler" class="example"><textarea m-on:input="compile"></textarea><pre><code data-nohighlight="true" m-literal:style="'color: ' + ({{err}} ? 'red' : '')">{{compiled}}</code></pre></div>
+<div id="compiler" class="example"><textarea m-on:input="compile"></textarea><pre><code data-nohighlight="true" m-literal:style="'color: ' + (err ? 'red' : '')">{{compiled}}</code></pre></div>
 
 <script>
 new Moon({

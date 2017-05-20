@@ -13,7 +13,7 @@ For example:
 ```js
 new Moon({
   render: function(h) {
-    return h('h1', {}, null, 'Hello Moon!'); // same as <h1>Hello Moon!</h1>
+    return h('h1', {attrs: {}}, {shouldRender: true, eventListeners: {}}, 'Hello Moon!'); // same as <h1>Hello Moon!</h1>
   }
 });
 ```
@@ -30,7 +30,7 @@ Moon.compile("<p>Some HTML</p>");
 
 You can also play around with the compiler below:
 
-<div id="compiler" class="example"><textarea m-on:input="compile"></textarea><pre><code data-nohighlight="true" m-literal:style="'color: ' + ({{err}} ? 'red' : '')">{{compiled}}</code></pre></div>
+<div id="compiler" class="example"><textarea m-on:input="compile"></textarea><pre><code data-nohighlight="true" m-literal:style="'color: ' + (err ? 'red' : '')">{{compiled}}</code></pre></div>
 
 <script>
 new Moon({
