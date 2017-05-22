@@ -137,8 +137,10 @@ Moon.prototype.emit = function(eventName, customMeta) {
   var globalHandlers = this.$events["*"];
 
   // Call all handlers for the event name
-  for(var i = 0; i < handlers.length; i++) {
-    handlers[i](meta);
+  if(handlers !== undefined) {
+    for(var i = 0; i < handlers.length; i++) {
+      handlers[i](meta);
+    }
   }
 
   if(globalHandlers !== undefined) {
