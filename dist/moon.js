@@ -1487,7 +1487,6 @@
         for (var i = 0; i < allDirectives.length; i++) {
           var directiveInfo = allDirectives[i];
           var directiveValue = directiveInfo.value;
-          var compiledDirectiveValue = "\"\"";
     
           if (directiveValue.length !== 0) {
             compileTemplateExpression(directiveValue, dependencies);
@@ -1915,8 +1914,10 @@
       var globalHandlers = this.$events["*"];
     
       // Call all handlers for the event name
-      for (var i = 0; i < handlers.length; i++) {
-        handlers[i](meta);
+      if (handlers !== undefined) {
+        for (var i = 0; i < handlers.length; i++) {
+          handlers[i](meta);
+        }
       }
     
       if (globalHandlers !== undefined) {

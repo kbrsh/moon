@@ -109,8 +109,7 @@ const generateProps = function(vnode, parentVNode, dependencies) {
 
 		for(var i = 0; i < allDirectives.length; i++) {
 			const directiveInfo = allDirectives[i];
-			const directiveValue = directiveInfo.value;
-			let compiledDirectiveValue = "\"\"";
+			let directiveValue = directiveInfo.value;
 
 			if(directiveValue.length !== 0) {
 				compileTemplateExpression(directiveValue, dependencies);
