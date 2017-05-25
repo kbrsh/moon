@@ -119,8 +119,10 @@ button {
 }
 
 .cta:hover {
-  box-shadow: 0px 4px 50px #8a8585;
-  color: #f5f5f5;
+  border: 3px solid #00C2FC;
+  background: transparent;
+  box-shadow: 0px 4px 50px rgba(0, 0, 0, 0.1);
+  color: #00C2FC;
 }
 
 #logo {
