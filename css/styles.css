@@ -1,10 +1,10 @@
 body {
-  background: #f5f5f5;
-  color: #4a4848;
+  background: #111111;
+  color: #f5f5f5;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  color: #4a4848;
+  color: #f5f5f5;
   font-family: "Muli", -apple-system, BlinkMacSystemFont, Avenir, "Avenir Next", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 }
 
@@ -102,14 +102,15 @@ button {
   width: 140px;
   border: 1px solid #a8a8a8;
   padding: 10px 0px 10px 35px;
-  background: #f5f5f5 url('../img/search.svg') 10px center no-repeat;
+  color: #a8a8a8;
+  background: #111111 url('../img/search.svg') 10px center no-repeat;
   border-radius: 100px;
 }
 
 .cta {
   padding: 1.5rem 5rem;
   font-size: 1.4rem;
-  box-shadow: 0px 4px 30px #a8a8a8;
+  box-shadow: 0px 4px 30px rgba(0, 0, 0, 0.1);
   border-radius: 30px;
   text-decoration: none;
   background: #00C2FC;
@@ -146,7 +147,7 @@ button {
 
 /* Code Styles */
 pre code {
-  background: #E7E7E7;
+  background: #1e1e1e;
   font-family: "Inconsolata", monospace;
   position: relative;
   border: none;
@@ -188,12 +189,14 @@ code {
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  background: #E7E7E7;
+  background: #1e1e1e;
   text-align: center;
   height: 100%;
 }
 
 #app input[type=text] {
+  background: #252525;
+  color: #f5f5f5;
   width: 250px;
 }
 
@@ -238,6 +241,6 @@ footer {
 }
 
 #footer-link {
-	color: #6B6B6B;
+	color: #f5f5f5;
 	text-decoration: none;
 }
