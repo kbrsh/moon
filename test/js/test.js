@@ -362,6 +362,7 @@ describe("Directive", function() {
   describe('Model Directive', function() {
     createTestElement("model", '<p id="model-msg">{{msg}}</p><input type="text" m-model="msg" id="model-msg-input"/>');
     createTestElement("modelDynamic", '<p id="model-dynamic-msg">{{arr[index]}}</p><input type="text" m-model="arr[index]" id="model-dynamic-msg-input"/>');
+    createTestElement("modelCheckbox", '<p id="model-checkbox">{{checked}}</p><input type="checkbox" m-model="checked" id="model-checkbox-input"/>');
     var modelApp = new Moon({
       el: "#model",
       data: {
@@ -373,6 +374,12 @@ describe("Directive", function() {
       data: {
         arr: ["Random", "Hello Moon!"],
         index: 1
+      }
+    });
+    var modelCheckboxApp = new Moon({
+      el: "#modelCheckbox",
+      data: {
+        checked: true
       }
     });
     it('should update value when initialized', function() {
@@ -397,6 +404,18 @@ describe("Directive", function() {
       document.getElementById('model-dynamic-msg-input').dispatchEvent(inputEvent);
       Moon.nextTick(function() {
         expect(document.getElementById('model-dynamic-msg').innerHTML).to.equal('Changed');
+      });
+    });
+    it('should update value of checkbox model when initialized', function() {
+      expect(document.getElementById('model-checkbox').innerHTML).to.equal('true');
+      expect(document.getElementById('model-checkbox-input').checked).to.equal(true);
+    });
+    it('should update value of checkbox model', function() {
+      document.getElementById('model-checkbox-input').checked = false;
+      var changeEvent = new Event('change');
+      document.getElementById('model-checkbox-input').dispatchEvent(changeEvent);
+      Moon.nextTick(function() {
+        expect(document.getElementById('model-checkbox').innerHTML).to.equal('false');
       });
     });
     it('should not be present at runtime', function() {
