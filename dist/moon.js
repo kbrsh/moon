@@ -906,7 +906,7 @@
     /* ======= Compiler ======= */
     var whitespaceRE = /\s/;
     var expressionRE = /"[^"]*"|'[^']*'|\.\w*[a-zA-Z$_]\w*|\w*[a-zA-Z$_]\w*:|(\w*[a-zA-Z$_]\w*)/g;
-    var globals = ['true', 'false', 'undefined', 'NaN', 'typeof'];
+    var globals = ['true', 'false', 'undefined', 'null', 'NaN', 'typeof', 'in'];
     
     /**
      * Compiles a Template
