@@ -2273,6 +2273,9 @@
     
     specialDirectives["m-model"] = {
       beforeGenerate: function (value, meta, vnode, parentVNode, dependencies) {
+        // Get attributes
+        var attrs = vnode.props.attrs;
+    
         // Compile a literal value for the getter
         compileTemplateExpression(value, dependencies);
     
@@ -2281,7 +2284,7 @@
         var valueProp = "value";
     
         // If input type is checkbox, listen on 'change' and change the 'checked' dom property
-        if (vnode.props.attrs.type !== undefined && vnode.props.attrs.type.value === "checkbox") {
+        if (attrs.type !== undefined && attrs.type.value === "checkbox") {
           eventType = "change";
           valueProp = "checked";
         }
