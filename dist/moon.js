@@ -2276,9 +2276,6 @@
         // Get attributes
         var attrs = vnode.props.attrs;
     
-        // Compile a literal value for the getter
-        compileTemplateExpression(value, dependencies);
-    
         // Setup default event types and dom property to change
         var eventType = "input";
         var valueProp = "value";
@@ -2292,16 +2289,28 @@
         // Generate event listener code
         var keypath = value;
     
-        // Compute getter if dynamic
+        // Compute getter base if dynamic
         var bracketIndex = value.indexOf("[");
         var dotIndex = value.indexOf(".");
         var base = null;
-        if (bracketIndex !== -1 && (dotIndex === -1 || bracketIndex < dotIndex)) {
-          base = value.slice(0, bracketIndex);
-        } else if (dotIndex !== -1 && (bracketIndex === -1 || dotIndex < bracketIndex)) {
-          base = value.slice(0, dotIndex);
-        }
-        if (base !== null) {
+        var dynamicPath = null;
+        var dynamicIndex = -1;
+    
+        if (bracketIndex !== -1 && dotIndex !== -1) {
+          // Dynamic getter found,
+          // Extract base and dynamic path
+          if (bracketIndex < dotIndex) {
+            dynamicIndex = bracketIndex;
+          } else {
+            dynamicIndex = dotIndex;
+          }
+          base = value.substring(0, dynamicIndex);
+          dynamicPath = value.slice(-dynamicIndex);
+    
+          // Add dependencies for the dynamic getter
+          compileTemplateExpression(value, dependencies);
+    
+          // Replace string references with actual references
           keypath = keypath.replace(expressionRE, function (match, reference) {
             if (reference !== undefined && reference !== base) {
               return '" + ' + reference + ' + "';
@@ -2309,6 +2318,9 @@
               return match;
             }
           });
+        } else {
+          // Add dependencies for the simple getter
+          compileTemplateExpression(value.slice(-dynamicIndex), dependencies);
         }
     
         // Generate the listener
