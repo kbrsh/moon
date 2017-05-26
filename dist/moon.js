@@ -2262,11 +2262,12 @@
     
         // Final event listener code
         var code = 'function(event) {' + modifiers + 'instance.callMethod("' + methodToCall + '", [' + params + '])}';
-        var eventListeners = vnode.meta.eventListeners[eventType];
-        if (eventListeners === undefined) {
-          vnode.meta.eventListeners[eventType] = [code];
+        var eventListeners = vnode.meta.eventListeners;
+        var eventHandlers = eventListeners[eventType];
+        if (eventHandlers === undefined) {
+          eventListeners[eventType] = [code];
         } else {
-          eventListeners.push(code);
+          eventHandlers.push(code);
         }
       }
     };
@@ -2328,11 +2329,12 @@
         var code = 'function(event) {instance.set("' + keypath + '", event.target.' + valueProp + ')}';
     
         // Push the listener to it's event listeners
-        var eventListeners = vnode.meta.eventListeners[eventType];
-        if (eventListeners === undefined) {
-          vnode.meta.eventListeners[eventType] = [code];
+        var eventListeners = vnode.meta.eventListeners;
+        var eventHandlers = eventListeners[eventType];
+        if (eventHandlers === undefined) {
+          eventListeners[eventType] = [code];
         } else {
-          eventListeners.push(code);
+          eventHandlers.push(code);
         }
     
         // Setup a query used to get the value, and set the corresponding dom property
