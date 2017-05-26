@@ -65,11 +65,12 @@ specialDirectives["m-on"] = {
 
     // Final event listener code
     const code = `function(event) {${modifiers}instance.callMethod("${methodToCall}", [${params}])}`;
-    const eventListeners = vnode.meta.eventListeners[eventType];
-    if(eventListeners === undefined) {
-      vnode.meta.eventListeners[eventType] = [code]
+    const eventListeners = vnode.meta.eventListeners;
+    const eventHandlers = eventListeners[eventType];
+    if(eventHandlers === undefined) {
+      eventListeners[eventType] = [code];
     } else {
-      eventListeners.push(code);
+      eventHandlers.push(code);
     }
   }
 }
@@ -131,11 +132,12 @@ specialDirectives["m-model"] = {
     const code = `function(event) {instance.set("${keypath}", event.target.${valueProp})}`;
 
     // Push the listener to it's event listeners
-    const eventListeners = vnode.meta.eventListeners[eventType];
-    if(eventListeners === undefined) {
-      vnode.meta.eventListeners[eventType] = [code];
+    const eventListeners = vnode.meta.eventListeners;
+    const eventHandlers = eventListeners[eventType];
+    if(eventHandlers === undefined) {
+      eventListeners[eventType] = [code];
     } else {
-      eventListeners.push(code);
+      eventHandlers.push(code);
     }
 
     // Setup a query used to get the value, and set the corresponding dom property
