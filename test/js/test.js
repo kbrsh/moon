@@ -391,6 +391,14 @@ describe("Directive", function() {
       expect(document.getElementById('model-dynamic-msg').innerHTML).to.equal('Hello Moon!');
       expect(document.getElementById('model-dynamic-msg-input').value).to.equal('Hello Moon!');
     });
+    it('should update value of dynamic model', function() {
+      document.getElementById('model-dynamic-msg-input').value = "Changed";
+      var inputEvent = new Event('input');
+      document.getElementById('model-dynamic-msg-input').dispatchEvent(inputEvent);
+      Moon.nextTick(function() {
+        expect(document.getElementById('model-dynamic-msg').innerHTML).to.equal('Changed');
+      });
+    });
     it('should not be present at runtime', function() {
       expect(document.getElementById('model-msg-input').getAttribute("m-model")).to.be['null'];
       expect(document.getElementById('model-dynamic-msg-input').getAttribute("m-model")).to.be['null'];

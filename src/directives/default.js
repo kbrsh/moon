@@ -115,7 +115,7 @@ specialDirectives["m-model"] = {
         dynamicIndex = dotIndex;
       }
       base = value.substring(0, dynamicIndex);
-      dynamicPath = value.slice(-dynamicIndex);
+      dynamicPath = value.substring(dynamicIndex);
 
       // Replace string references with actual references
       keypath = base + dynamicPath.replace(expressionRE, function(match, reference) {
