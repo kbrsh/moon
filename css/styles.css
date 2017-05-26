@@ -186,12 +186,22 @@ code {
 
 /* Example Styles */
 
+#example #code pre:first-of-type {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+#example #code pre {
+  margin: 0;
+}
+
 #app {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   background: #1e1e1e;
+  border-radius: 3px;
   text-align: center;
   height: 100%;
 }
