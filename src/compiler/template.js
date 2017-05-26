@@ -1,6 +1,6 @@
 const whitespaceRE = /\s/;
 const expressionRE = /"[^"]*"|'[^']*'|\.\w*[a-zA-Z$_]\w*|\w*[a-zA-Z$_]\w*:|(\w*[a-zA-Z$_]\w*)/g;
-const globals = ['true', 'false', 'undefined', 'NaN', 'typeof'];
+const globals = ['true', 'false', 'undefined', 'null', 'NaN', 'typeof', 'in'];
 
 /**
  * Compiles a Template
