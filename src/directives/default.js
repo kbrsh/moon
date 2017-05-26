@@ -83,22 +83,36 @@ specialDirectives["m-model"] = {
     // Add dependencies for the getter and setter
     compileTemplateExpression(value, dependencies);
 
-    // Setup default event types and dom property to change
+    // Setup default event type, keypath to set, value of setter, DOM property to change, and value of DOM property
     let eventType = "input";
-    let valueProp = "value";
+    let domGetter = "value";
+    let domSetter = value;
+    let keypathGetter = value;
+    let keypathSetter = `event.target.${domGetter}`;
 
-    // If input type is checkbox, listen on 'change' and change the 'checked' dom property
-    if(attrs.type !== undefined && attrs.type.value === "checkbox") {
-      eventType = "change";
-      valueProp = "checked";
+    // If input type is checkbox, listen on 'change' and change the 'checked' DOM property
+    let type = attrs.type;
+    if(type !== undefined) {
+      type = type.value;
+      let radio = false;
+      if(type === "checkbox" || (type === "radio" && (radio = true))) {
+        eventType = "change";
+        domGetter = "checked";
+
+        if(radio === true) {
+          let valueAttr = attrs.value;
+          const valueAttrValue = valueAttr === undefined ? "null" : `"${valueAttr.value}"`;
+          domSetter = `${domSetter} === ${valueAttrValue}`;
+          keypathSetter = valueAttrValue;
+        } else {
+          keypathSetter = `event.target.${domGetter}`;
+        }
+      }
     }
 
-    // Generate event listener code
-    let keypath = value;
-
     // Compute getter base if dynamic
-    const bracketIndex = value.indexOf("[");
-    const dotIndex = value.indexOf(".");
+    const bracketIndex = keypathGetter.indexOf("[");
+    const dotIndex = keypathGetter.indexOf(".");
     let base = null;
     let dynamicPath = null;
     let dynamicIndex = -1;
@@ -119,7 +133,7 @@ specialDirectives["m-model"] = {
       dynamicPath = value.substring(dynamicIndex);
 
       // Replace string references with actual references
-      keypath = base + dynamicPath.replace(expressionRE, function(match, reference) {
+      keypathGetter = base + dynamicPath.replace(expressionRE, function(match, reference) {
         if(reference !== undefined) {
           return `" + ${reference} + "`;
         } else {
@@ -129,7 +143,7 @@ specialDirectives["m-model"] = {
     }
 
     // Generate the listener
-    const code = `function(event) {instance.set("${keypath}", event.target.${valueProp})}`;
+    const code = `function(event) {instance.set("${keypathGetter}", ${keypathSetter})}`;
 
     // Push the listener to it's event listeners
     const eventListeners = vnode.meta.eventListeners;
@@ -145,7 +159,7 @@ specialDirectives["m-model"] = {
     if(dom === undefined) {
       vnode.props.dom = dom = {};
     }
-    dom[valueProp] = value;
+    dom[domGetter] = domSetter;
   }
 };
 

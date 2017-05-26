@@ -2280,22 +2280,36 @@
         // Add dependencies for the getter and setter
         compileTemplateExpression(value, dependencies);
     
-        // Setup default event types and dom property to change
+        // Setup default event type, keypath to set, value of setter, DOM property to change, and value of DOM property
         var eventType = "input";
-        var valueProp = "value";
+        var domGetter = "value";
+        var domSetter = value;
+        var keypathGetter = value;
+        var keypathSetter = 'event.target.' + domGetter;
     
-        // If input type is checkbox, listen on 'change' and change the 'checked' dom property
-        if (attrs.type !== undefined && attrs.type.value === "checkbox") {
-          eventType = "change";
-          valueProp = "checked";
+        // If input type is checkbox, listen on 'change' and change the 'checked' DOM property
+        var type = attrs.type;
+        if (type !== undefined) {
+          type = type.value;
+          var radio = false;
+          if (type === "checkbox" || type === "radio" && (radio = true)) {
+            eventType = "change";
+            domGetter = "checked";
+    
+            if (radio === true) {
+              var valueAttr = attrs.value;
+              var valueAttrValue = valueAttr === undefined ? "null" : '"' + valueAttr.value + '"';
+              domSetter = domSetter + ' === ' + valueAttrValue;
+              keypathSetter = valueAttrValue;
+            } else {
+              keypathSetter = 'event.target.' + domGetter;
+            }
+          }
         }
     
-        // Generate event listener code
-        var keypath = value;
-    
         // Compute getter base if dynamic
-        var bracketIndex = value.indexOf("[");
-        var dotIndex = value.indexOf(".");
+        var bracketIndex = keypathGetter.indexOf("[");
+        var dotIndex = keypathGetter.indexOf(".");
         var base = null;
         var dynamicPath = null;
         var dynamicIndex = -1;
@@ -2316,7 +2330,7 @@
           dynamicPath = value.substring(dynamicIndex);
     
           // Replace string references with actual references
-          keypath = base + dynamicPath.replace(expressionRE, function (match, reference) {
+          keypathGetter = base + dynamicPath.replace(expressionRE, function (match, reference) {
             if (reference !== undefined) {
               return '" + ' + reference + ' + "';
             } else {
@@ -2326,7 +2340,7 @@
         }
     
         // Generate the listener
-        var code = 'function(event) {instance.set("' + keypath + '", event.target.' + valueProp + ')}';
+        var code = 'function(event) {instance.set("' + keypathGetter + '", ' + keypathSetter + ')}';
     
         // Push the listener to it's event listeners
         var eventListeners = vnode.meta.eventListeners;
@@ -2342,7 +2356,7 @@
         if (dom === undefined) {
           vnode.props.dom = dom = {};
         }
-        dom[valueProp] = value;
+        dom[domGetter] = domSetter;
       }
     };
     
