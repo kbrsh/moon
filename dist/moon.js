@@ -2276,6 +2276,9 @@
         // Get attributes
         var attrs = vnode.props.attrs;
     
+        // Add dependencies for the getter and setter
+        compileTemplateExpression(value, dependencies);
+    
         // Setup default event types and dom property to change
         var eventType = "input";
         var valueProp = "value";
@@ -2296,10 +2299,14 @@
         var dynamicPath = null;
         var dynamicIndex = -1;
     
-        if (bracketIndex !== -1 && dotIndex !== -1) {
-          // Dynamic getter found,
+        if (bracketIndex !== -1 || dotIndex !== -1) {
+          // Dynamic keypath found,
           // Extract base and dynamic path
-          if (bracketIndex < dotIndex) {
+          if (bracketIndex === -1) {
+            dynamicIndex = dotIndex;
+          } else if (dotIndex === -1) {
+            dynamicIndex = bracketIndex;
+          } else if (bracketIndex < dotIndex) {
             dynamicIndex = bracketIndex;
           } else {
             dynamicIndex = dotIndex;
@@ -2307,20 +2314,14 @@
           base = value.substring(0, dynamicIndex);
           dynamicPath = value.slice(-dynamicIndex);
     
-          // Add dependencies for the dynamic getter
-          compileTemplateExpression(value, dependencies);
-    
           // Replace string references with actual references
-          keypath = keypath.replace(expressionRE, function (match, reference) {
-            if (reference !== undefined && reference !== base) {
+          keypath = base + dynamicPath.replace(expressionRE, function (match, reference) {
+            if (reference !== undefined) {
               return '" + ' + reference + ' + "';
             } else {
               return match;
             }
           });
-        } else {
-          // Add dependencies for the simple getter
-          compileTemplateExpression(value.slice(-dynamicIndex), dependencies);
         }
     
         // Generate the listener

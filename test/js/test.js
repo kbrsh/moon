@@ -361,17 +361,39 @@ describe("Directive", function() {
 
   describe('Model Directive', function() {
     createTestElement("model", '<p id="model-msg">{{msg}}</p><input type="text" m-model="msg" id="model-msg-input"/>');
+    createTestElement("modelDynamic", '<p id="model-dynamic-msg">{{arr[index]}}</p><input type="text" m-model="arr[index]" id="model-dynamic-msg-input"/>');
     var modelApp = new Moon({
       el: "#model",
       data: {
         msg: "Hello Moon!"
       }
     });
+    var modelDynamicApp = new Moon({
+      el: "#modelDynamic",
+      data: {
+        arr: ["Random", "Hello Moon!"],
+        index: 1
+      }
+    });
     it('should update value when initialized', function() {
       expect(document.getElementById('model-msg').innerHTML).to.equal('Hello Moon!');
+      expect(document.getElementById('model-msg-input').value).to.equal('Hello Moon!');
+    });
+    it('should update value', function() {
+      document.getElementById('model-msg-input').value = "Changed";
+      var inputEvent = new Event('input');
+      document.getElementById('model-msg-input').dispatchEvent(inputEvent);
+      Moon.nextTick(function() {
+        expect(document.getElementById('model-msg').innerHTML).to.equal('Changed');
+      });
+    });
+    it('should update value of dynamic model when initialized', function() {
+      expect(document.getElementById('model-dynamic-msg').innerHTML).to.equal('Hello Moon!');
+      expect(document.getElementById('model-dynamic-msg-input').value).to.equal('Hello Moon!');
     });
     it('should not be present at runtime', function() {
       expect(document.getElementById('model-msg-input').getAttribute("m-model")).to.be['null'];
+      expect(document.getElementById('model-dynamic-msg-input').getAttribute("m-model")).to.be['null'];
     });
   });
 
