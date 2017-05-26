@@ -213,6 +213,8 @@ code {
 }
 
 #app h1 {
+  font-family: -apple-system, BlinkMacSystemFont, Avenir, "Avenir Next", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  font-weight: 200;
   margin: 1rem;
 }
 
