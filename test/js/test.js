@@ -1,3 +1,16 @@
+// Custom Event Polyfill
+(function () {
+  function CustomEvent ( event, params ) {
+    params = params || { bubbles: false, cancelable: false, detail: undefined };
+    var evt = document.createEvent( 'CustomEvent' );
+    evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail );
+    return evt;
+   }
+
+  CustomEvent.prototype = window.Event.prototype;
+
+  window.CustomEvent = CustomEvent;
+})();
 // Tests
 if(!chai) {
   var chai = require("chai");
@@ -388,7 +401,7 @@ describe("Directive", function() {
     });
     it('should update value', function() {
       document.getElementById('model-msg-input').value = "Changed";
-      var inputEvent = new Event('input');
+      var inputEvent = new CustomEvent('input');
       document.getElementById('model-msg-input').dispatchEvent(inputEvent);
       Moon.nextTick(function() {
         expect(document.getElementById('model-msg').innerHTML).to.equal('Changed');
@@ -400,7 +413,7 @@ describe("Directive", function() {
     });
     it('should update value of dynamic model', function() {
       document.getElementById('model-dynamic-msg-input').value = "Changed";
-      var inputEvent = new Event('input');
+      var inputEvent = new CustomEvent('input');
       document.getElementById('model-dynamic-msg-input').dispatchEvent(inputEvent);
       Moon.nextTick(function() {
         expect(document.getElementById('model-dynamic-msg').innerHTML).to.equal('Changed');
@@ -412,7 +425,7 @@ describe("Directive", function() {
     });
     it('should update value of checkbox model', function() {
       document.getElementById('model-checkbox-input').checked = false;
-      var changeEvent = new Event('change');
+      var changeEvent = new CustomEvent('change');
       document.getElementById('model-checkbox-input').dispatchEvent(changeEvent);
       Moon.nextTick(function() {
         expect(document.getElementById('model-checkbox').innerHTML).to.equal('false');
