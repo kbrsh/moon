@@ -19,7 +19,7 @@ Moon.prototype.get = function(key) {
 
   // Return value found
   if("__ENV__" !== "production" && !(key in this.$data)) {
-    error(`The item "${key}" was not defined but was referenced.`);
+    error(`The item "${key}" was not defined but was referenced`);
   }
   return this.$data[key];
 }

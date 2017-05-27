@@ -1357,7 +1357,7 @@
         } else if (closeStart === true) {
           // Unmatched closing tag on non void element
           if ("development" !== "production") {
-            error('Could not locate opening tag for the element "' + node.type + '".');
+            error('Could not locate opening tag for the element "' + node.type + '"');
           }
           return null;
         } else if (token !== undefined) {
@@ -1374,7 +1374,7 @@
             if (token === undefined) {
               // No token means a tag was most likely left unclosed
               if ("development" !== "production") {
-                error('The element "' + node.type + '" was left unclosed.');
+                error('The element "' + node.type + '" was left unclosed');
               }
               break;
             }
@@ -1823,7 +1823,7 @@
     
       // Return value found
       if ("development" !== "production" && !(key in this.$data)) {
-        error('The item "' + key + '" was not defined but was referenced.');
+        error('The item "' + key + '" was not defined but was referenced');
       }
       return this.$data[key];
     };
@@ -2190,10 +2190,14 @@
     Moon.component = function (name, opts) {
       var Parent = this;
     
-      if (opts.name) {
+      if (opts.name !== undefined) {
         name = opts.name;
       } else {
         opts.name = name;
+      }
+    
+      if (opts.data !== undefined && typeof opts.data !== "function") {
+        error("In components, data must be a function returning an object");
       }
     
       function MoonComponent() {
