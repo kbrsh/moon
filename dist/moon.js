@@ -288,6 +288,21 @@
     };
     
     /**
+     * Defines a Property on an Object or a Default Value
+     * @param {Object} obj
+     * @param {String} prop
+     * @param {Any} value
+     * @param {Any} def
+     */
+    var defineProperty = function (obj, prop, value, def) {
+      if (value === undefined) {
+        obj[prop] = def;
+      } else {
+        obj[prop] = value;
+      }
+    };
+    
+    /**
      * Calls a Hook
      * @param {Object} instance
      * @param {String} name
@@ -1722,9 +1737,14 @@
       return generate(ast);
     };
     
-    function Moon(opts) {
+    function Moon(options) {
       /* ======= Initial Values ======= */
-      this.$opts = opts || {};
+    
+      // Options
+      if (options === undefined) {
+        options = {};
+      }
+      this.$options = options;
     
       // Reference to Instance
       var self = this;
@@ -1733,19 +1753,26 @@
       this.$id = id++;
     
       // Readable name (component name or "root")
-      this.$name = this.$opts.name || "root";
+      defineProperty(this, "$name", options.name, "root");
     
       // Custom Data
-      this.$data = this.$opts.data || {};
+      var data = options.data;
+      if (data === undefined) {
+        this.$data = {};
+      } else if (typeof data === "function") {
+        this.$data = data();
+      } else {
+        this.$data = data;
+      }
     
       // Render function
-      this.$render = this.$opts.render || noop;
+      defineProperty(this, "$render", options.render, noop);
     
       // Hooks
-      this.$hooks = this.$opts.hooks || {};
+      defineProperty(this, "$hooks", options.hooks, {});
     
       // Custom Methods
-      var methods = this.$opts.methods;
+      var methods = options.methods;
       if (methods !== undefined) {
         initMethods(self, methods);
       }
@@ -1766,7 +1793,7 @@
       this.$queued = false;
     
       // Setup Computed Properties
-      var computed = this.$opts.computed;
+      var computed = options.computed;
       if (computed !== undefined) {
         initComputed(this, computed);
       }
@@ -1989,14 +2016,14 @@
     
       if ("development" !== "production" && this.$el === null) {
         // Element not found
-        error("Element " + this.$opts.el + " not found");
+        error("Element " + this.$options.$el + " not found");
       }
     
       // Sync Element and Moon instance
       this.$el.__moon__ = this;
     
       // Setup template as provided `template` or outerHTML of the Element
-      this.$template = this.$opts.template || this.$el.outerHTML;
+      defineProperty(this, "$template", this.$options.template, this.$el.outerHTML);
     
       // Setup render Function
       if (this.$render === noop) {
@@ -2082,8 +2109,9 @@
       log("======= Moon =======");
       callHook(this, 'init');
     
-      if (this.$opts.el !== undefined) {
-        this.mount(this.$opts.el);
+      var el = this.$options.el;
+      if (el !== undefined) {
+        this.mount(el);
       }
     };
     
@@ -2177,13 +2205,16 @@
     
       MoonComponent.prototype.init = function () {
         callHook(this, 'init');
-        this.$destroyed = false;
-        this.$props = this.$opts.props || [];
     
-        this.$template = this.$opts.template;
+        var options = this.$options;
+        this.$destroyed = false;
+        defineProperty(this, "$props", options.props, []);
+    
+        var template = options.template;
+        this.$template = template;
     
         if (this.$render === noop) {
-          this.$render = Moon.compile(this.$template);
+          this.$render = Moon.compile(template);
         }
       };
     

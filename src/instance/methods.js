@@ -212,14 +212,14 @@ Moon.prototype.mount = function(el) {
 
   if("__ENV__" !== "production" && this.$el === null) {
     // Element not found
-    error("Element " + this.$opts.el + " not found");
+    error("Element " + this.$options.$el + " not found");
   }
 
   // Sync Element and Moon instance
   this.$el.__moon__ = this;
 
   // Setup template as provided `template` or outerHTML of the Element
-  this.$template = this.$opts.template || this.$el.outerHTML;
+  defineProperty(this, "$template", this.$options.template, this.$el.outerHTML);
 
   // Setup render Function
   if(this.$render === noop) {
@@ -306,7 +306,8 @@ Moon.prototype.init = function() {
   log("======= Moon =======");
   callHook(this, 'init');
 
-  if(this.$opts.el !== undefined) {
-    this.mount(this.$opts.el);
+  const el = this.$options.el;
+  if(el !== undefined) {
+    this.mount(el);
   }
 }
