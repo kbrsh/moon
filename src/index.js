@@ -12,7 +12,6 @@ let eventModifiersCode = {
   alt: 'if(!event.altKey) {return;};',
   enter: 'if(event.keyCode !== 13) {return;};'
 };
-let id = 0;
 
 /* ======= Observer ======= */
 //=require observer/methods.js
@@ -41,9 +40,6 @@ function Moon(options) {
 
     // Reference to Instance
     const self = this;
-
-    // Unique ID for Instance
-    this.$id = id++;
 
     // Readable name (component name or "root")
     defineProperty(this, "$name", options.name, "root");
