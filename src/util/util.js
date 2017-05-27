@@ -148,6 +148,21 @@ const merge = function(parent, child) {
 }
 
 /**
+ * Defines a Property on an Object or a Default Value
+ * @param {Object} obj
+ * @param {String} prop
+ * @param {Any} value
+ * @param {Any} def
+ */
+const defineProperty = function(obj, prop, value, def) {
+  if(value === undefined) {
+    obj[prop] = def;
+  } else {
+    obj[prop] = value;
+  }
+}
+
+/**
  * Calls a Hook
  * @param {Object} instance
  * @param {String} name

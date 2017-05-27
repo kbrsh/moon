@@ -88,13 +88,16 @@ Moon.component = function(name, opts) {
 
   MoonComponent.prototype.init = function() {
     callHook(this, 'init');
-    this.$destroyed = false;
-    this.$props = this.$opts.props || [];
 
-    this.$template = this.$opts.template;
+    const options = this.$options;
+    this.$destroyed = false;
+    defineProperty(this, "$props", options.props, []);
+
+    const template = options.template;
+    this.$template = template;
 
     if(this.$render === noop) {
-      this.$render = Moon.compile(this.$template);
+      this.$render = Moon.compile(template);
     }
   }
 

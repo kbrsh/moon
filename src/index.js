@@ -30,9 +30,14 @@ let id = 0;
 //=require compiler/generator.js
 //=require compiler/compiler.js
 
-function Moon(opts) {
+function Moon(options) {
     /* ======= Initial Values ======= */
-    this.$opts = opts || {};
+
+    // Options
+    if(options === undefined) {
+      options = {};
+    }
+    this.$options = options;
 
     // Reference to Instance
     const self = this;
@@ -41,19 +46,26 @@ function Moon(opts) {
     this.$id = id++;
 
     // Readable name (component name or "root")
-    this.$name = this.$opts.name || "root";
+    defineProperty(this, "$name", options.name, "root");
 
     // Custom Data
-    this.$data = this.$opts.data || {};
+    const data = options.data;
+    if(data === undefined) {
+      this.$data = {};
+    } else if(typeof data === "function") {
+      this.$data = data();
+    } else {
+      this.$data = data;
+    }
 
     // Render function
-    this.$render = this.$opts.render || noop;
+    defineProperty(this, "$render", options.render, noop);
 
     // Hooks
-    this.$hooks = this.$opts.hooks || {};
+    defineProperty(this, "$hooks", options.hooks, {});
 
     // Custom Methods
-    const methods = this.$opts.methods;
+    const methods = options.methods;
     if(methods !== undefined) {
       initMethods(self, methods);
     }
@@ -74,7 +86,7 @@ function Moon(opts) {
     this.$queued = false;
 
     // Setup Computed Properties
-    const computed = this.$opts.computed;
+    const computed = options.computed;
     if(computed !== undefined) {
       initComputed(this, computed);
     }
