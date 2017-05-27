@@ -24,7 +24,6 @@
       alt: 'if(!event.altKey) {return;};',
       enter: 'if(event.keyCode !== 13) {return;};'
     };
-    var id = 0;
     
     /* ======= Observer ======= */
     /**
@@ -1741,9 +1740,6 @@
     
       // Reference to Instance
       var self = this;
-    
-      // Unique ID for Instance
-      this.$id = id++;
     
       // Readable name (component name or "root")
       defineProperty(this, "$name", options.name, "root");
