@@ -90,12 +90,11 @@ const lexComment = function(state) {
 }
 
 const lexTag = function(state) {
-  const current = state.current;
   const input = state.input;
   const len = input.length;
 
   // Lex Starting of Tag
-  const isClosingStart = input.charAt(current + 1) === "/";
+  const isClosingStart = input.charAt(state.current + 1) === "/";
   state.current += isClosingStart === true ? 2 : 1;
 
   // Lex type and attributes
@@ -103,7 +102,7 @@ const lexTag = function(state) {
   lexAttributes(tagToken, state);
 
   // Lex ending tag
-  const isClosingEnd = input.charAt(current) === "/";
+  const isClosingEnd = input.charAt(state.current) === "/";
   state.current += isClosingEnd === true ? 2 : 1;
 
   // Check if Closing Start

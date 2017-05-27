@@ -1137,12 +1137,11 @@
     };
     
     var lexTag = function (state) {
-      var current = state.current;
       var input = state.input;
       var len = input.length;
     
       // Lex Starting of Tag
-      var isClosingStart = input.charAt(current + 1) === "/";
+      var isClosingStart = input.charAt(state.current + 1) === "/";
       state.current += isClosingStart === true ? 2 : 1;
     
       // Lex type and attributes
@@ -1150,7 +1149,7 @@
       lexAttributes(tagToken, state);
     
       // Lex ending tag
-      var isClosingEnd = input.charAt(current) === "/";
+      var isClosingEnd = input.charAt(state.current) === "/";
       state.current += isClosingEnd === true ? 2 : 1;
     
       // Check if Closing Start
