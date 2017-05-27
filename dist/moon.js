@@ -1085,28 +1085,23 @@
     
       var endOfText = input.substring(current).search(tagOrCommentStartRE);
     
-      // Only Text
       if (endOfText === -1) {
+        // Only Text
         state.tokens.push({
           type: "text",
           value: input.slice(current)
         });
         state.current = len;
         return;
+      } else if (endOfText !== 0) {
+        // End of Text Found
+        endOfText += current;
+        state.tokens.push({
+          type: "text",
+          value: input.slice(current, endOfText)
+        });
+        state.current = endOfText;
       }
-    
-      // No Text at All
-      if (endOfText === 0) {
-        return;
-      }
-    
-      // End of Text Found
-      endOfText += current;
-      state.tokens.push({
-        type: "text",
-        value: input.slice(current, endOfText)
-      });
-      state.current = endOfText;
     };
     
     var lexComment = function (state) {
@@ -1118,22 +1113,21 @@
     
       var endOfComment = input.indexOf("-->", current);
     
-      // Only an unclosed comment
       if (endOfComment === -1) {
+        // Only an unclosed comment
         state.tokens.push({
           type: "comment",
           value: input.slice(current)
         });
         state.current = len;
-        return;
+      } else {
+        // End of Comment Found
+        state.tokens.push({
+          type: "comment",
+          value: input.slice(current, endOfComment)
+        });
+        state.current = endOfComment + 3;
       }
-    
-      // End of Comment Found
-      state.tokens.push({
-        type: "comment",
-        value: input.slice(current, endOfComment)
-      });
-      state.current = endOfComment + 3;
     };
     
     var lexTag = function (state) {
@@ -1210,7 +1204,7 @@
           break;
         }
     
-        // If there is a space, the attribute ended
+        // If there is a space, skip
         if (char === " ") {
           incrementChar();
           continue;
@@ -1221,11 +1215,11 @@
         var noValue = false;
     
         while (current < len && char !== "=") {
-          if (char !== " " && char !== ">" && char !== "/" && nextChar !== ">") {
-            attrName += char;
-          } else {
+          if (char === " " || char === ">" || char === "/" && nextChar === ">") {
             noValue = true;
             break;
+          } else {
+            attrName += char;
           }
           incrementChar();
         }
@@ -1236,7 +1230,7 @@
           meta: {}
         };
     
-        if (noValue) {
+        if (noValue === true) {
           attributes[attrName] = attrValue;
           continue;
         }
