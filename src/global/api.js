@@ -73,10 +73,14 @@ Moon.directive = function(name, action) {
 Moon.component = function(name, opts) {
   let Parent = this;
 
-  if(opts.name) {
+  if(opts.name !== undefined) {
     name = opts.name;
   } else {
     opts.name = name;
+  }
+
+  if(opts.data !== undefined && typeof opts.data !== "function") {
+    error("In components, data must be a function returning an object");
   }
 
   function MoonComponent() {

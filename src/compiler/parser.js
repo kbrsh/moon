@@ -76,7 +76,7 @@ const parseWalk = function(state) {
     } else if(closeStart === true) {
       // Unmatched closing tag on non void element
       if("__ENV__" !== "production") {
-        error(`Could not locate opening tag for the element "${node.type}".`);
+        error(`Could not locate opening tag for the element "${node.type}"`);
       }
       return null;
     } else if(token !== undefined) {
@@ -93,7 +93,7 @@ const parseWalk = function(state) {
         if(token === undefined) {
           // No token means a tag was most likely left unclosed
           if("__ENV__" !== "production") {
-            error(`The element "${node.type}" was left unclosed.`);
+            error(`The element "${node.type}" was left unclosed`);
           }
           break;
         }
