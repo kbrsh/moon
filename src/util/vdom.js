@@ -42,11 +42,11 @@ const createElement = function(type, val, props, meta, children) {
  * @return {Object} Virtual DOM Node
  */
 const createFunctionalComponent = function(props, children, functionalComponent) {
-  let data = functionalComponent.opts.data || {};
+  let data = functionalComponent.options.data || {};
 
   // Merge data with provided props
-  if(functionalComponent.opts.props !== undefined) {
-    const propNames = functionalComponent.opts.props;
+  if(functionalComponent.options.props !== undefined) {
+    const propNames = functionalComponent.options.props;
 
     for(var i = 0; i < propNames.length; i++) {
       const prop = propNames[i];
@@ -55,7 +55,7 @@ const createFunctionalComponent = function(props, children, functionalComponent)
   }
 
   // Call render function
-  return functionalComponent.opts.render(h, {
+  return functionalComponent.options.render(h, {
     data: data,
     slots: getSlots(children)
   });
@@ -80,7 +80,7 @@ const h = function(tag, attrs, meta, children) {
     return createElement(TEXT_TYPE, meta, {attrs:{}}, attrs, []);
   } else if((component = components[tag]) !== undefined) {
     // Resolve Component
-    if(component.opts.functional === true) {
+    if(component.options.functional === true) {
       return createFunctionalComponent(attrs, children, components[tag]);
     } else {
       meta.component = component;

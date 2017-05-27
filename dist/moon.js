@@ -509,11 +509,11 @@
      * @return {Object} Virtual DOM Node
      */
     var createFunctionalComponent = function (props, children, functionalComponent) {
-      var data = functionalComponent.opts.data || {};
+      var data = functionalComponent.options.data || {};
     
       // Merge data with provided props
-      if (functionalComponent.opts.props !== undefined) {
-        var propNames = functionalComponent.opts.props;
+      if (functionalComponent.options.props !== undefined) {
+        var propNames = functionalComponent.options.props;
     
         for (var i = 0; i < propNames.length; i++) {
           var prop = propNames[i];
@@ -522,7 +522,7 @@
       }
     
       // Call render function
-      return functionalComponent.opts.render(h, {
+      return functionalComponent.options.render(h, {
         data: data,
         slots: getSlots(children)
       });
@@ -547,7 +547,7 @@
         return createElement(TEXT_TYPE, meta, { attrs: {} }, attrs, []);
       } else if ((component = components[tag]) !== undefined) {
         // Resolve Component
-        if (component.opts.functional === true) {
+        if (component.options.functional === true) {
           return createFunctionalComponent(attrs, children, components[tag]);
         } else {
           meta.component = component;
@@ -2139,10 +2139,10 @@
     /**
      * Runs an external Plugin
      * @param {Object} plugin
-     * @param {Object} opts
+     * @param {Object} options
      */
-    Moon.use = function (plugin, opts) {
-      plugin.init(Moon, opts);
+    Moon.use = function (plugin, options) {
+      plugin.init(Moon, options);
     };
     
     /**
@@ -2174,23 +2174,23 @@
     /**
      * Creates a Component
      * @param {String} name
-     * @param {Function} action
+     * @param {Object} options
      */
-    Moon.component = function (name, opts) {
+    Moon.component = function (name, options) {
       var Parent = this;
     
-      if (opts.name !== undefined) {
-        name = opts.name;
+      if (options.name !== undefined) {
+        name = options.name;
       } else {
-        opts.name = name;
+        options.name = name;
       }
     
-      if (opts.data !== undefined && typeof opts.data !== "function") {
+      if (options.data !== undefined && typeof options.data !== "function") {
         error("In components, data must be a function returning an object");
       }
     
       function MoonComponent() {
-        Moon.call(this, opts);
+        Moon.call(this, options);
       }
     
       MoonComponent.prototype = Object.create(Parent.prototype);
@@ -2213,7 +2213,7 @@
     
       components[name] = {
         CTor: MoonComponent,
-        opts: opts
+        options: options
       };
     
       return MoonComponent;

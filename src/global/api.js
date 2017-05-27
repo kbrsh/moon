@@ -33,10 +33,10 @@ Moon.util = {
 /**
  * Runs an external Plugin
  * @param {Object} plugin
- * @param {Object} opts
+ * @param {Object} options
  */
-Moon.use = function(plugin, opts) {
-  plugin.init(Moon, opts);
+Moon.use = function(plugin, options) {
+  plugin.init(Moon, options);
 }
 
 /**
@@ -68,23 +68,23 @@ Moon.directive = function(name, action) {
 /**
  * Creates a Component
  * @param {String} name
- * @param {Function} action
+ * @param {Object} options
  */
-Moon.component = function(name, opts) {
+Moon.component = function(name, options) {
   let Parent = this;
 
-  if(opts.name !== undefined) {
-    name = opts.name;
+  if(options.name !== undefined) {
+    name = options.name;
   } else {
-    opts.name = name;
+    options.name = name;
   }
 
-  if(opts.data !== undefined && typeof opts.data !== "function") {
+  if(options.data !== undefined && typeof options.data !== "function") {
     error("In components, data must be a function returning an object");
   }
 
   function MoonComponent() {
-    Moon.call(this, opts);
+    Moon.call(this, options);
   }
 
   MoonComponent.prototype = Object.create(Parent.prototype);
@@ -107,7 +107,7 @@ Moon.component = function(name, opts) {
 
   components[name] = {
     CTor: MoonComponent,
-    opts: opts
+    options: options
   };
 
   return MoonComponent;
