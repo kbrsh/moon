@@ -16,6 +16,7 @@ let escapedDelimiters = null;
  */
 const generateProps = function(vnode, parentVNode, dependencies) {
 	let attrs = vnode.props.attrs;
+	let hasAttrs = false;
 	let generatedObject = "{attrs: {";
 
 	// Array of all directives (to be generated later)
@@ -70,6 +71,10 @@ const generateProps = function(vnode, parentVNode, dependencies) {
 			vnode.props.directives.push(attrInfo);
 			vnode.meta.shouldRender = true;
 		} else {
+			if(hasAttrs === false) {
+				hasAttrs = true;
+			}
+
 			const propValue = attrInfo.value;
 			const compiledProp = compileTemplate(propValue, delimiters, escapedDelimiters, dependencies, true);
 			if(propValue !== compiledProp) {
@@ -80,7 +85,7 @@ const generateProps = function(vnode, parentVNode, dependencies) {
 	}
 
 	// Close object
-	if(Object.keys(attrs).length !== 0) {
+	if(hasAttrs === true) {
 		generatedObject = generatedObject.slice(0, -2) + "}";
 	} else {
 		generatedObject += "}";
@@ -94,7 +99,7 @@ const generateProps = function(vnode, parentVNode, dependencies) {
 		generatedObject += ", dom: {";
 
 		// Generate all properties
-		for(var domProp in dom) {
+		for(let domProp in dom) {
 			generatedObject += `"${domProp}": ${dom[domProp]}, `;
 		}
 
@@ -114,7 +119,7 @@ const generateProps = function(vnode, parentVNode, dependencies) {
 			if(directiveValue.length !== 0) {
 				compileTemplateExpression(directiveValue, dependencies);
 			} else {
-				directiveValue = "\"\"";
+				directiveValue = `""`;
 			}
 
 			generatedObject += `"${directiveInfo.name}": ${directiveValue}, `;
@@ -165,7 +170,7 @@ const generateMeta = function(meta) {
 
 	// Generate all metadata
 	for(let key in meta) {
-		if(key === 'eventListeners') {
+		if(key === "eventListeners") {
 			generatedObject += `"${key}": ${generateEventListeners(meta[key])}, `;
 		} else {
 			generatedObject += `"${key}": ${meta[key]}, `;

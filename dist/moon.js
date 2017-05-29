@@ -1400,6 +1400,7 @@
      */
     var generateProps = function (vnode, parentVNode, dependencies) {
       var attrs = vnode.props.attrs;
+      var hasAttrs = false;
       var generatedObject = "{attrs: {";
     
       // Array of all directives (to be generated later)
@@ -1454,6 +1455,10 @@
           vnode.props.directives.push(attrInfo);
           vnode.meta.shouldRender = true;
         } else {
+          if (hasAttrs === false) {
+            hasAttrs = true;
+          }
+    
           var propValue = attrInfo.value;
           var compiledProp = compileTemplate(propValue, delimiters, escapedDelimiters, dependencies, true);
           if (propValue !== compiledProp) {
@@ -1464,7 +1469,7 @@
       }
     
       // Close object
-      if (Object.keys(attrs).length !== 0) {
+      if (hasAttrs === true) {
         generatedObject = generatedObject.slice(0, -2) + "}";
       } else {
         generatedObject += "}";
@@ -1498,7 +1503,7 @@
           if (directiveValue.length !== 0) {
             compileTemplateExpression(directiveValue, dependencies);
           } else {
-            directiveValue = "\"\"";
+            directiveValue = '""';
           }
     
           generatedObject += '"' + directiveInfo.name + '": ' + directiveValue + ', ';
@@ -1549,7 +1554,7 @@
     
       // Generate all metadata
       for (var key in meta) {
-        if (key === 'eventListeners') {
+        if (key === "eventListeners") {
           generatedObject += '"' + key + '": ' + generateEventListeners(meta[key]) + ', ';
         } else {
           generatedObject += '"' + key + '": ' + meta[key] + ', ';
