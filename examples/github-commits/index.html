@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Moon | Github Commits</title>
+    <meta charset="UTF-8">
+    
+    <link href="../../css/lib/wing.min.css" rel="stylesheet"/>
+    <link href="./styles.css"
+</head>
+<body>
+    <div class="container" id="app">
+        <h1>Latest Moon Commits</h1>
+        <label m-for="branch in branches">
+            <input type="radio" name="branch" m-model="currentBranch" m-on:change="effectChange"/>
+            {{branch}}
+        </label>
+        
+        <p>{{currentBranch}}</p>
+    </div>
+    
+    
+    <script src="../../dist/moon.js"></script>
+    <script src="scripts.js"></script>
+</body>
+</html>
