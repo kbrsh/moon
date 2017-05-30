@@ -10,16 +10,27 @@
 <body>
     <div class="container" id="app">
         <h1>Latest Moon Commits</h1>
-        <label m-for="branch in branches">
-            <input type="radio" name="branch" m-model="currentBranch" m-on:change="effectChange"/>
-            {{branch}}
-        </label>
+        <select m-model="currentBranch" m-on:change="fetchCommits">
+            <option m-for="branch in branches" m-literal:value="branch">{{branch}}</option>
+        </select>
         
-        <p>{{currentBranch}}</p>
+        <p>MoonJS/moon@{{currentBranch}}</p>
+        
+        <ul class="row">
+            <li class="col" m-for="record in commits">
+                <a m-literal:href="record.html_url">
+                    <h5>{{record.sha.slice(0, 7)}}</h5>
+                </a>
+                <p>{{record.commit.author.name}} - {{record.commit.message}} </p>
+                <p> {{record.commit.author.date}} </p>
+            </li>
+        </ul>
+          
     </div>
     
     
     <script src="../../dist/moon.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="scripts.js"></script>
 </body>
 </html>
