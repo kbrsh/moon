@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Moon | Github Commits</title>
+    <meta charset="UTF-8">
+    
+    <link href="../../css/lib/wing.min.css" rel="stylesheet"/>
+    <link href="./styles.css"
+</head>
+<body>
+    <div class="container" id="app">
+        <h1>Latest Moon Commits</h1>
+        <select m-model="currentBranch" m-on:change="fetchCommits">
+            <option m-for="branch in branches" m-literal:value="branch">{{branch}}</option>
+        </select>
+        
+        <p>MoonJS/moon@{{currentBranch}}</p>
+        
+        <ul class="row">
+            <li class="col" m-for="record in commits">
+                <a m-literal:href="record.html_url">
+                    <h5>{{record.sha.slice(0, 7)}}</h5>
+                </a>
+                <p>{{record.commit.author.name}} - {{record.commit.message}} </p>
+                <p> {{record.commit.author.date}} </p>
+            </li>
+        </ul>
+          
+    </div>
+    
+    
+    <script src="../../dist/moon.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="scripts.js"></script>
+</body>
+</html>
