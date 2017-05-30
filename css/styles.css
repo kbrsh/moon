@@ -141,6 +141,10 @@ button {
   #logo {
     height: 100px;
   }
+  #nav {
+    flex-wrap: nowrap;
+    align-items: flex-start;
+  }
 }
 
 /* Features */
