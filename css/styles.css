@@ -77,9 +77,11 @@ button {
 
 #nav {
   margin-top: 1rem;
-  margin-right: 2rem;
+  margin-right: auto;
+  margin-left: auto;
   text-align: center;
   height: 8vh;
+  max-width: 700px;
 }
 
 #nav a {
