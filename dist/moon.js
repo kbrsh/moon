@@ -181,17 +181,6 @@
     };
     
     /**
-     * Gives Default Metadata for a VNode
-     * @return {Object} metadata
-     */
-    var defaultMetadata = function () {
-      return {
-        shouldRender: false,
-        eventListeners: {}
-      };
-    };
-    
-    /**
      * Escapes a String
      * @param {String} str
      */
@@ -342,12 +331,9 @@
     /**
      * Adds metadata Event Listeners to an Element
      * @param {Object} node
-     * @param {Object} vnode
-     * @param {Object} instance
+     * @param {Object} eventListeners
      */
-    var addEventListeners = function (node, vnode, instance) {
-      var eventListeners = vnode.meta.eventListeners;
-    
+    var addEventListeners = function (node, eventListeners) {
       var addHandler = function (type) {
         // Create handle function
         var handle = function (evt) {
@@ -375,10 +361,9 @@
     /**
      * Creates DOM Node from VNode
      * @param {Object} vnode
-     * @param {Object} instance
      * @return {Object} DOM Node
      */
-    var createNodeFromVNode = function (vnode, instance) {
+    var createNodeFromVNode = function (vnode) {
       var el = null;
     
       if (vnode.type === "#text") {
@@ -394,11 +379,11 @@
           // Add all children
           for (var i = 0; i < vnode.children.length; i++) {
             var vchild = vnode.children[i];
-            appendChild(createNodeFromVNode(vchild, instance), vchild, el);
+            appendChild(createNodeFromVNode(vchild), vchild, el);
           }
         }
         // Add all event listeners
-        addEventListeners(el, vnode, instance);
+        addEventListeners(el, vnode);
       }
     
       // Setup Props
@@ -480,6 +465,36 @@
       REPLACE: 3,
       TEXT: 4,
       CHILDREN: 5
+    };
+    
+    /**
+     * Gives Default Metadata for a VNode
+     * @return {Object} metadata
+     */
+    var defaultMetadata = function () {
+      return {
+        shouldRender: false
+      };
+    };
+    
+    /**
+     * Adds an Event Listener to a VNode
+     * @param {String} name
+     * @param {String} handler
+     * @return {Object} vnode
+     */
+    var addEventListenerCodeToVNode = function (name, handler, vnode) {
+      var meta = vnode.meta;
+      var eventListeners = meta.eventListeners;
+      if (eventListeners === undefined) {
+        eventListeners = meta.eventListeners = {};
+      }
+      var eventHandlers = eventListeners[name];
+      if (eventHandlers === undefined) {
+        eventListeners[name] = [handler];
+      } else {
+        eventHandlers.push(handler);
+      }
     };
     
     /**
@@ -602,12 +617,11 @@
     /**
      * Diffs Event Listeners of Two VNodes
      * @param {Object} node
+     * @param {Object} eventListeners
      * @param {Object} oldVNode
-     * @param {Object} vnode
      */
-    var diffEventListeners = function (node, oldVNode, vnode) {
+    var diffEventListeners = function (node, eventListeners, oldVNode) {
       var oldEventListeners = oldVNode.meta.eventListeners;
-      var eventListeners = vnode.meta.eventListeners;
     
       for (var type in eventListeners) {
         var oldEventListener = oldEventListeners[type];
@@ -719,15 +733,14 @@
      * @param {Object} node
      * @param {Object} vnode
      * @param {Object} parent
-     * @param {Object} instance
      * @return {Object} adjusted node only if it was replaced
      */
-    var hydrate = function (node, vnode, parent, instance) {
+    var hydrate = function (node, vnode, parent) {
       var nodeName = node ? node.nodeName.toLowerCase() : null;
     
       if (node === null) {
         // No node, create one
-        var newNode = createNodeFromVNode(vnode, instance);
+        var newNode = createNodeFromVNode(vnode);
         appendChild(newNode, vnode, parent);
     
         return newNode;
@@ -736,7 +749,7 @@
     
         return null;
       } else if (nodeName !== vnode.type) {
-        var _newNode = createNodeFromVNode(vnode, instance);
+        var _newNode = createNodeFromVNode(vnode);
         replaceChild(node, _newNode, vnode, parent);
         return _newNode;
       } else if (vnode.type === TEXT_TYPE) {
@@ -750,7 +763,7 @@
           vnode.meta.el = node;
         } else {
           // Node isn't text, replace with one
-          replaceChild(node, createNodeFromVNode(vnode, instance), vnode, parent);
+          replaceChild(node, createNodeFromVNode(vnode), vnode, parent);
         }
     
         return node;
@@ -771,7 +784,10 @@
         diffProps(node, extractAttrs(node), vnode);
     
         // Add event listeners
-        addEventListeners(node, vnode, instance);
+        var eventListeners = null;
+        if ((eventListeners = vnode.meta.eventListeners) !== undefined) {
+          addEventListeners(node, eventListeners);
+        }
     
         // Check if innerHTML was changed, and don't diff children if so
         var domProps = vnode.props.dom;
@@ -789,7 +805,7 @@
     
         while (vchild !== null || currentChildNode !== null) {
           var next = currentChildNode !== null ? currentChildNode.nextSibling : null;
-          hydrate(currentChildNode, vchild, node, instance);
+          hydrate(currentChildNode, vchild, node);
           vchild = ++i < length ? children[i] : null;
           currentChildNode = next;
         }
@@ -809,7 +825,7 @@
     var diff = function (oldVNode, vnode, parent, instance) {
       if (oldVNode === null) {
         // No Node, append a node
-        appendChild(createNodeFromVNode(vnode, instance), vnode, parent);
+        appendChild(createNodeFromVNode(vnode), vnode, parent);
     
         return PATCH.APPEND;
       } else if (vnode === null) {
@@ -822,7 +838,7 @@
         return PATCH.SKIP;
       } else if (oldVNode.type !== vnode.type) {
         // Different types, replace it
-        replaceChild(oldVNode.meta.el, createNodeFromVNode(vnode, instance), vnode, parent);
+        replaceChild(oldVNode.meta.el, createNodeFromVNode(vnode), vnode, parent);
     
         return PATCH.REPLACE;
       } else if (vnode.meta.shouldRender === true && vnode.type === TEXT_TYPE) {
@@ -837,7 +853,7 @@
           return PATCH.TEXT;
         } else {
           // Node isn't text, replace with one
-          replaceChild(node, createNodeFromVNode(vnode, instance), vnode, parent);
+          replaceChild(node, createNodeFromVNode(vnode), vnode, parent);
           return PATCH.REPLACE;
         }
       } else if (vnode.meta.shouldRender === true) {
@@ -857,7 +873,10 @@
         oldVNode.props.attrs = vnode.props.attrs;
     
         // Diff event listeners
-        diffEventListeners(_node, oldVNode, vnode);
+        var eventListeners = null;
+        if ((eventListeners = vnode.meta.eventListeners) !== undefined) {
+          diffEventListeners(_node, eventListeners, oldVNode);
+        }
     
         // Check if innerHTML was changed, don't diff children
         var domProps = vnode.props.dom;
@@ -888,7 +907,7 @@
             var oldChild = j < oldLength ? oldChildren[j] : null;
             var child = i < newLength ? children[i] : null;
     
-            var action = diff(oldChild, child, _node, instance);
+            var action = diff(oldChild, child, _node);
     
             // Update Children to Match Action
             switch (action) {
@@ -1951,16 +1970,33 @@
     
     /**
      * Renders "m-for" Directive Array
-     * @param {Array} arr
+     * @param {Array|Object} iteratable
      * @param {Function} item
      */
-    Moon.prototype.renderLoop = function (arr, item) {
-      // Get the amount of items (vnodes) to be created
-      var items = new Array(arr.length);
+    Moon.prototype.renderLoop = function (iteratable, item) {
+      var items = null;
     
-      // Call the function and get the item for the current index
-      for (var i = 0; i < arr.length; i++) {
-        items[i] = item(arr[i], i);
+      if (Array.isArray(iteratable)) {
+        items = new Array(iteratable.length);
+    
+        // Iterate through the array
+        for (var i = 0; i < iteratable.length; i++) {
+          items[i] = item(iteratable[i], i);
+        }
+      } else if (typeof iteratable === "object") {
+        items = [];
+    
+        // Iterate through the object
+        for (var key in iteratable) {
+          items.push(item(iteratable[key], key));
+        }
+      } else if (typeof iteratable === "number") {
+        items = new Array(iteratable);
+    
+        // Repeat a certain amount of times
+        for (var _i = 0; _i < iteratable; _i++) {
+          items[_i] = item(_i + 1, _i);
+        }
       }
     
       return items;
@@ -2047,23 +2083,23 @@
      * @param {Object} parent
      */
     Moon.prototype.patch = function (old, vnode, parent) {
-      if (old.meta !== undefined && old.meta.el !== undefined) {
-        // If it is not a VNode, then diff
+      if (old.meta !== undefined) {
+        // If it is a VNode, then diff
         if (vnode.type !== old.type) {
           // Root Element Changed During Diff
           // Replace Root Element
-          replaceChild(old.meta.el, createNodeFromVNode(vnode, this), parent);
+          replaceChild(old.meta.el, createNodeFromVNode(vnode), parent);
     
           // Update Bound Instance
           this.$el = vnode.meta.el;
           this.$el.__moon__ = this;
         } else {
           // Diff
-          diff(old, vnode, parent, this);
+          diff(old, vnode, parent);
         }
       } else if (old instanceof Node) {
         // Hydrate
-        var newNode = hydrate(old, vnode, parent, this);
+        var newNode = hydrate(old, vnode, parent);
     
         if (newNode !== old) {
           // Root Element Changed During Hydration
@@ -2291,13 +2327,7 @@
     
         // Final event listener code
         var code = 'function(event) {' + modifiers + 'instance.callMethod("' + methodToCall + '", [' + params + '])}';
-        var eventListeners = vnode.meta.eventListeners;
-        var eventHandlers = eventListeners[eventType];
-        if (eventHandlers === undefined) {
-          eventListeners[eventType] = [code];
-        } else {
-          eventHandlers.push(code);
-        }
+        addEventListenerCodeToVNode(eventType, code, vnode);
       }
     };
     
@@ -2372,13 +2402,7 @@
         var code = 'function(event) {instance.set("' + keypathGetter + '", ' + keypathSetter + ')}';
     
         // Push the listener to it's event listeners
-        var eventListeners = vnode.meta.eventListeners;
-        var eventHandlers = eventListeners[eventType];
-        if (eventHandlers === undefined) {
-          eventListeners[eventType] = [code];
-        } else {
-          eventHandlers.push(code);
-        }
+        addEventListenerCodeToVNode(eventType, code, vnode);
     
         // Setup a query used to get the value, and set the corresponding dom property
         var dom = vnode.props.dom;

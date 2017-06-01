@@ -42,17 +42,6 @@ const queueBuild = function(instance) {
 }
 
 /**
- * Gives Default Metadata for a VNode
- * @return {Object} metadata
- */
-const defaultMetadata = function() {
-  return {
-    shouldRender: false,
-    eventListeners: {}
-  }
-}
-
-/**
  * Escapes a String
  * @param {String} str
  */

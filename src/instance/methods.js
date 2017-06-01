@@ -153,16 +153,33 @@ Moon.prototype.emit = function(eventName, customMeta) {
 
 /**
  * Renders "m-for" Directive Array
- * @param {Array} arr
+ * @param {Array|Object} iteratable
  * @param {Function} item
  */
-Moon.prototype.renderLoop = function(arr, item) {
-  // Get the amount of items (vnodes) to be created
-  let items = new Array(arr.length);
+Moon.prototype.renderLoop = function(iteratable, item) {
+  let items = null;
 
-  // Call the function and get the item for the current index
-  for(let i = 0; i < arr.length; i++) {
-    items[i] = item(arr[i], i);
+  if(Array.isArray(iteratable)) {
+    items = new Array(iteratable.length);
+
+    // Iterate through the array
+    for(let i = 0; i < iteratable.length; i++) {
+      items[i] = item(iteratable[i], i);
+    }
+  } else if(typeof iteratable === "object") {
+    items = [];
+
+    // Iterate through the object
+    for(let key in iteratable) {
+      items.push(item(iteratable[key], key));
+    }
+  } else if(typeof iteratable === "number") {
+    items = new Array(iteratable);
+
+    // Repeat a certain amount of times
+    for(let i = 0; i < iteratable; i++) {
+      items[i] = item(i + 1, i);
+    }
   }
 
   return items;
@@ -249,24 +266,24 @@ Moon.prototype.render = function() {
  * @param {Object} parent
  */
 Moon.prototype.patch = function(old, vnode, parent) {
-  if(old.meta !== undefined && old.meta.el !== undefined) {
-    // If it is not a VNode, then diff
+  if(old.meta !== undefined) {
+    // If it is a VNode, then diff
     if(vnode.type !== old.type) {
       // Root Element Changed During Diff
       // Replace Root Element
-      replaceChild(old.meta.el, createNodeFromVNode(vnode, this), parent);
+      replaceChild(old.meta.el, createNodeFromVNode(vnode), parent);
 
       // Update Bound Instance
       this.$el = vnode.meta.el;
       this.$el.__moon__ = this;
     } else {
       // Diff
-      diff(old, vnode, parent, this);
+      diff(old, vnode, parent);
     }
 
   } else if(old instanceof Node) {
     // Hydrate
-    const newNode = hydrate(old, vnode, parent, this);
+    const newNode = hydrate(old, vnode, parent);
 
     if(newNode !== old) {
       // Root Element Changed During Hydration

@@ -14,12 +14,9 @@ const extractAttrs = function(node) {
 /**
  * Adds metadata Event Listeners to an Element
  * @param {Object} node
- * @param {Object} vnode
- * @param {Object} instance
+ * @param {Object} eventListeners
  */
-const addEventListeners = function(node, vnode, instance) {
-  const eventListeners = vnode.meta.eventListeners;
-
+const addEventListeners = function(node, eventListeners) {
   const addHandler = function(type) {
     // Create handle function
     const handle = function(evt) {
@@ -47,10 +44,9 @@ const addEventListeners = function(node, vnode, instance) {
 /**
  * Creates DOM Node from VNode
  * @param {Object} vnode
- * @param {Object} instance
  * @return {Object} DOM Node
  */
-const createNodeFromVNode = function(vnode, instance) {
+const createNodeFromVNode = function(vnode) {
   let el = null;
 
   if(vnode.type === "#text") {
@@ -66,11 +62,11 @@ const createNodeFromVNode = function(vnode, instance) {
       // Add all children
       for(var i = 0; i < vnode.children.length; i++) {
         const vchild = vnode.children[i];
-        appendChild(createNodeFromVNode(vchild, instance), vchild, el);
+        appendChild(createNodeFromVNode(vchild), vchild, el);
       }
     }
     // Add all event listeners
-    addEventListeners(el, vnode, instance);
+    addEventListeners(el, vnode);
   }
 
   // Setup Props
