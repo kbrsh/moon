@@ -16,6 +16,36 @@ const PATCH = {
 }
 
 /**
+ * Gives Default Metadata for a VNode
+ * @return {Object} metadata
+ */
+const defaultMetadata = function() {
+  return {
+    shouldRender: false
+  }
+}
+
+/**
+ * Adds an Event Listener to a VNode
+ * @param {String} name
+ * @param {String} handler
+ * @return {Object} vnode
+ */
+const addEventListenerCodeToVNode = function(name, handler, vnode) {
+  const meta = vnode.meta;
+  let eventListeners = meta.eventListeners;
+  if(eventListeners === undefined) {
+    eventListeners = meta.eventListeners = {};
+  }
+  let eventHandlers = eventListeners[name];
+  if(eventHandlers === undefined) {
+    eventListeners[name] = [handler];
+  } else {
+    eventHandlers.push(handler);
+  }
+}
+
+/**
  * Creates a Virtual DOM Node
  * @param {String} type
  * @param {String} val
@@ -135,12 +165,11 @@ const createComponentFromVNode = function(node, vnode, component) {
 /**
  * Diffs Event Listeners of Two VNodes
  * @param {Object} node
+ * @param {Object} eventListeners
  * @param {Object} oldVNode
- * @param {Object} vnode
  */
-const diffEventListeners = function(node, oldVNode, vnode) {
+const diffEventListeners = function(node, eventListeners, oldVNode) {
   const oldEventListeners = oldVNode.meta.eventListeners;
-  const eventListeners = vnode.meta.eventListeners;
 
   for(const type in eventListeners) {
     const oldEventListener = oldEventListeners[type];
@@ -252,15 +281,14 @@ const diffComponent = function(node, vnode) {
  * @param {Object} node
  * @param {Object} vnode
  * @param {Object} parent
- * @param {Object} instance
  * @return {Object} adjusted node only if it was replaced
  */
-const hydrate = function(node, vnode, parent, instance) {
+const hydrate = function(node, vnode, parent) {
   let nodeName = node ? node.nodeName.toLowerCase() : null;
 
   if(node === null) {
     // No node, create one
-    const newNode = createNodeFromVNode(vnode, instance);
+    const newNode = createNodeFromVNode(vnode);
     appendChild(newNode, vnode, parent);
 
     return newNode;
@@ -269,7 +297,7 @@ const hydrate = function(node, vnode, parent, instance) {
 
     return null;
   } else if(nodeName !== vnode.type) {
-    const newNode = createNodeFromVNode(vnode, instance);
+    const newNode = createNodeFromVNode(vnode);
     replaceChild(node, newNode, vnode, parent);
     return newNode;
   } else if(vnode.type === TEXT_TYPE) {
@@ -283,7 +311,7 @@ const hydrate = function(node, vnode, parent, instance) {
       vnode.meta.el = node;
     } else {
       // Node isn't text, replace with one
-      replaceChild(node, createNodeFromVNode(vnode, instance), vnode, parent);
+      replaceChild(node, createNodeFromVNode(vnode), vnode, parent);
     }
 
     return node;
@@ -304,7 +332,10 @@ const hydrate = function(node, vnode, parent, instance) {
     diffProps(node, extractAttrs(node), vnode);
 
     // Add event listeners
-    addEventListeners(node, vnode, instance);
+    let eventListeners = null;
+    if((eventListeners = vnode.meta.eventListeners) !== undefined) {
+      addEventListeners(node, eventListeners);
+    }
 
     // Check if innerHTML was changed, and don't diff children if so
     const domProps = vnode.props.dom;
@@ -322,7 +353,7 @@ const hydrate = function(node, vnode, parent, instance) {
 
     while(vchild !== null || currentChildNode !== null) {
       const next = currentChildNode !== null ? currentChildNode.nextSibling : null;
-      hydrate(currentChildNode, vchild, node, instance);
+      hydrate(currentChildNode, vchild, node);
       vchild = ++i < length ? children[i] : null;
       currentChildNode = next;
     }
@@ -342,7 +373,7 @@ const hydrate = function(node, vnode, parent, instance) {
 const diff = function(oldVNode, vnode, parent, instance) {
   if(oldVNode === null) {
     // No Node, append a node
-    appendChild(createNodeFromVNode(vnode, instance), vnode, parent);
+    appendChild(createNodeFromVNode(vnode), vnode, parent);
 
     return PATCH.APPEND;
   } else if(vnode === null) {
@@ -355,7 +386,7 @@ const diff = function(oldVNode, vnode, parent, instance) {
     return PATCH.SKIP;
   } else if(oldVNode.type !== vnode.type) {
     // Different types, replace it
-    replaceChild(oldVNode.meta.el, createNodeFromVNode(vnode, instance), vnode, parent);
+    replaceChild(oldVNode.meta.el, createNodeFromVNode(vnode), vnode, parent);
 
     return PATCH.REPLACE;
   } else if(vnode.meta.shouldRender === true && vnode.type === TEXT_TYPE) {
@@ -370,7 +401,7 @@ const diff = function(oldVNode, vnode, parent, instance) {
       return PATCH.TEXT;
     } else {
       // Node isn't text, replace with one
-      replaceChild(node, createNodeFromVNode(vnode, instance), vnode, parent);
+      replaceChild(node, createNodeFromVNode(vnode), vnode, parent);
       return PATCH.REPLACE;
     }
 
@@ -391,7 +422,10 @@ const diff = function(oldVNode, vnode, parent, instance) {
     oldVNode.props.attrs = vnode.props.attrs;
 
     // Diff event listeners
-    diffEventListeners(node, oldVNode, vnode);
+    let eventListeners = null;
+    if((eventListeners = vnode.meta.eventListeners) !== undefined) {
+      diffEventListeners(node, eventListeners, oldVNode);
+    }
 
     // Check if innerHTML was changed, don't diff children
     const domProps = vnode.props.dom;
@@ -422,7 +456,7 @@ const diff = function(oldVNode, vnode, parent, instance) {
         let oldChild = j < oldLength ? oldChildren[j] : null;
         let child = i < newLength ? children[i] : null;
 
-        const action = diff(oldChild, child, node, instance);
+        const action = diff(oldChild, child, node);
 
         // Update Children to Match Action
         switch (action) {

@@ -65,13 +65,7 @@ specialDirectives["m-on"] = {
 
     // Final event listener code
     const code = `function(event) {${modifiers}instance.callMethod("${methodToCall}", [${params}])}`;
-    const eventListeners = vnode.meta.eventListeners;
-    const eventHandlers = eventListeners[eventType];
-    if(eventHandlers === undefined) {
-      eventListeners[eventType] = [code];
-    } else {
-      eventHandlers.push(code);
-    }
+    addEventListenerCodeToVNode(eventType, code, vnode);
   }
 }
 
@@ -146,13 +140,7 @@ specialDirectives["m-model"] = {
     const code = `function(event) {instance.set("${keypathGetter}", ${keypathSetter})}`;
 
     // Push the listener to it's event listeners
-    const eventListeners = vnode.meta.eventListeners;
-    const eventHandlers = eventListeners[eventType];
-    if(eventHandlers === undefined) {
-      eventListeners[eventType] = [code];
-    } else {
-      eventHandlers.push(code);
-    }
+    addEventListenerCodeToVNode(eventType, code, vnode);
 
     // Setup a query used to get the value, and set the corresponding dom property
     const dom = vnode.props.dom;
