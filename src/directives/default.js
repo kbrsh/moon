@@ -101,7 +101,7 @@ specialDirectives["m-model"] = {
 
         if(radio === true) {
           let valueAttr = attrs.value;
-          const valueAttrValue = valueAttr === undefined ? "null" : `"${valueAttr.value}"`;
+          const valueAttrValue = valueAttr === undefined ? "null" : `"${compileTemplate(valueAttr.value, delimiters, escapedDelimiters, dependencies, true)}"`;
           domSetter = `${domSetter} === ${valueAttrValue}`;
           keypathSetter = valueAttrValue;
         } else {

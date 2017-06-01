@@ -61,7 +61,7 @@ const compileTemplateState = function(state, isString) {
       break;
     }
 
-    if(name) {
+    if(name.length !== 0) {
       // Extract Variable References
       compileTemplateExpression(name, state.dependencies);
 
@@ -84,7 +84,7 @@ const compileTemplateState = function(state, isString) {
 
 const compileTemplateExpression = function(expr, dependencies) {
   expr.replace(expressionRE, function(match, reference) {
-    if(reference !== undefined && globals.indexOf(reference) === -1 && dependencies.indexOf(reference) === -1) {
+    if(reference !== undefined && dependencies.indexOf(reference) === -1 && globals.indexOf(reference) === -1) {
       dependencies.push(reference);
     }
   });

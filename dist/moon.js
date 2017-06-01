@@ -981,7 +981,7 @@
           break;
         }
     
-        if (name) {
+        if (name.length !== 0) {
           // Extract Variable References
           compileTemplateExpression(name, state.dependencies);
     
@@ -1004,7 +1004,7 @@
     
     var compileTemplateExpression = function (expr, dependencies) {
       expr.replace(expressionRE, function (match, reference) {
-        if (reference !== undefined && globals.indexOf(reference) === -1 && dependencies.indexOf(reference) === -1) {
+        if (reference !== undefined && dependencies.indexOf(reference) === -1 && globals.indexOf(reference) === -1) {
           dependencies.push(reference);
         }
       });
@@ -2327,7 +2327,7 @@
     
             if (radio === true) {
               var valueAttr = attrs.value;
-              var valueAttrValue = valueAttr === undefined ? "null" : '"' + valueAttr.value + '"';
+              var valueAttrValue = valueAttr === undefined ? "null" : '"' + compileTemplate(valueAttr.value, delimiters, escapedDelimiters, dependencies, true) + '"';
               domSetter = domSetter + ' === ' + valueAttrValue;
               keypathSetter = valueAttrValue;
             } else {
