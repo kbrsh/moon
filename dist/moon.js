@@ -229,12 +229,14 @@
         var child = children[i];
         var childProps = child.props.attrs;
         var slotName = "";
+        var slotValue = null;
     
         if ((slotName = childProps.slot) !== undefined) {
-          if (slots[slotName] === undefined) {
+          slotValue = slots[slotName];
+          if (slotValue === undefined) {
             slots[slotName] = [child];
           } else {
-            slots[slotName].push(child);
+            slotValue.push(child);
           }
           delete childProps.slot;
         } else {
@@ -383,7 +385,10 @@
           }
         }
         // Add all event listeners
-        addEventListeners(el, vnode);
+        var eventListeners = null;
+        if ((eventListeners = vnode.meta.eventListeners) !== undefined) {
+          addEventListeners(el, eventListeners);
+        }
       }
     
       // Setup Props
@@ -406,8 +411,9 @@
       parent.appendChild(node);
     
       // Check for Component
-      if (vnode.meta.component) {
-        createComponentFromVNode(node, vnode, vnode.meta.component);
+      var component = null;
+      if ((component = vnode.meta.component) !== undefined) {
+        createComponentFromVNode(node, vnode, component);
       }
     };
     
@@ -418,9 +424,10 @@
      */
     var removeChild = function (node, parent) {
       // Check for Component
-      if (node.__moon__) {
+      var componentInstance = null;
+      if ((componentInstance = node.__moon__) !== undefined) {
         // Component was unmounted, destroy it here
-        node.__moon__.destroy();
+        componentInstance.destroy();
       }
     
       // Remove the Node
@@ -445,8 +452,9 @@
       parent.replaceChild(newNode, oldNode);
     
       // Check for Component
-      if (vnode.meta.component) {
-        createComponentFromVNode(newNode, vnode, vnode.meta.component);
+      var component = null;
+      if ((component = vnode.meta.component) !== undefined) {
+        createComponentFromVNode(newNode, vnode, component);
       }
     };
     
@@ -563,7 +571,7 @@
       } else if ((component = components[tag]) !== undefined) {
         // Resolve Component
         if (component.options.functional === true) {
-          return createFunctionalComponent(attrs, children, components[tag]);
+          return createFunctionalComponent(attrs, children, component);
         } else {
           meta.component = component;
         }
@@ -620,9 +628,7 @@
      * @param {Object} eventListeners
      * @param {Object} oldVNode
      */
-    var diffEventListeners = function (node, eventListeners, oldVNode) {
-      var oldEventListeners = oldVNode.meta.eventListeners;
-    
+    var diffEventListeners = function (node, eventListeners, oldEventListeners) {
       for (var type in eventListeners) {
         var oldEventListener = oldEventListeners[type];
         if (oldEventListener === undefined) {
@@ -736,7 +742,7 @@
      * @return {Object} adjusted node only if it was replaced
      */
     var hydrate = function (node, vnode, parent) {
-      var nodeName = node ? node.nodeName.toLowerCase() : null;
+      var nodeName = node !== null ? node.nodeName.toLowerCase() : null;
     
       if (node === null) {
         // No node, create one
@@ -819,10 +825,9 @@
      * @param {Object} oldVNode
      * @param {Object} vnode
      * @param {Object} parent
-     * @param {Object} instance
      * @return {Number} patch type
      */
-    var diff = function (oldVNode, vnode, parent, instance) {
+    var diff = function (oldVNode, vnode, parent) {
       if (oldVNode === null) {
         // No Node, append a node
         appendChild(createNodeFromVNode(vnode), vnode, parent);
@@ -875,7 +880,7 @@
         // Diff event listeners
         var eventListeners = null;
         if ((eventListeners = vnode.meta.eventListeners) !== undefined) {
-          diffEventListeners(_node, eventListeners, oldVNode);
+          diffEventListeners(_node, eventListeners, oldVNode.meta.eventListeners);
         }
     
         // Check if innerHTML was changed, don't diff children
@@ -2088,11 +2093,12 @@
         if (vnode.type !== old.type) {
           // Root Element Changed During Diff
           // Replace Root Element
-          replaceChild(old.meta.el, createNodeFromVNode(vnode), parent);
+          var newRoot = createNodeFromVNode(vnode);
+          replaceChild(old.meta.el, newRoot, vnode, parent);
     
           // Update Bound Instance
-          this.$el = vnode.meta.el;
-          this.$el.__moon__ = this;
+          newRoot.__moon__ = this;
+          this.$el = newRoot;
         } else {
           // Diff
           diff(old, vnode, parent);

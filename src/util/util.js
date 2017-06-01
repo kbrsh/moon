@@ -90,12 +90,14 @@ const getSlots = function(children) {
     const child = children[i];
     const childProps = child.props.attrs;
     let slotName = "";
+    let slotValue = null;
 
     if((slotName = childProps.slot) !== undefined) {
-      if(slots[slotName] === undefined) {
+      slotValue = slots[slotName];
+      if(slotValue === undefined) {
         slots[slotName] = [child];
       } else {
-        slots[slotName].push(child);
+        slotValue.push(child);
       }
       delete childProps.slot;
     } else {
