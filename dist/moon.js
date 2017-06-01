@@ -1739,10 +1739,10 @@
       var dependenciesCode = "";
       for (var i = 0; i < dependencies.length; i++) {
         var dependency = dependencies[i];
-        dependenciesCode += 'var ' + dependency + ' = instance.get("' + dependency + '");';
+        dependenciesCode += 'var ' + dependency + ' = instance.get("' + dependency + '"); ';
       }
     
-      var code = 'var instance = this; ' + dependenciesCode + ' return ' + rootCode;
+      var code = 'var instance = this; ' + dependenciesCode + 'return ' + rootCode;
     
       try {
         return new Function("h", code);

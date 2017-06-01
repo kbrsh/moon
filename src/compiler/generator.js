@@ -331,10 +331,10 @@ const generate = function(ast) {
 	let dependenciesCode = "";
 	for(var i = 0; i < dependencies.length; i++) {
 		const dependency = dependencies[i];
-		dependenciesCode += `var ${dependency} = instance.get("${dependency}");`;
+		dependenciesCode += `var ${dependency} = instance.get("${dependency}"); `;
 	}
 
-  const code = `var instance = this; ${dependenciesCode} return ${rootCode}`;
+  const code = `var instance = this; ${dependenciesCode}return ${rootCode}`;
 
   try {
     return new Function("h", code);
