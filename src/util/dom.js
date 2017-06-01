@@ -66,7 +66,10 @@ const createNodeFromVNode = function(vnode) {
       }
     }
     // Add all event listeners
-    addEventListeners(el, vnode);
+    let eventListeners = null;
+    if((eventListeners = vnode.meta.eventListeners) !== undefined) {
+      addEventListeners(el, eventListeners);
+    }
   }
 
   // Setup Props
@@ -89,8 +92,9 @@ const appendChild = function(node, vnode, parent) {
   parent.appendChild(node);
 
   // Check for Component
-  if(vnode.meta.component) {
-    createComponentFromVNode(node, vnode, vnode.meta.component);
+  let component = null;
+  if((component = vnode.meta.component) !== undefined) {
+    createComponentFromVNode(node, vnode, component);
   }
 }
 
@@ -101,9 +105,10 @@ const appendChild = function(node, vnode, parent) {
  */
 const removeChild = function(node, parent) {
   // Check for Component
-  if(node.__moon__) {
+  let componentInstance = null;
+  if((componentInstance = node.__moon__) !== undefined) {
     // Component was unmounted, destroy it here
-    node.__moon__.destroy();
+    componentInstance.destroy();
   }
 
   // Remove the Node
@@ -128,7 +133,8 @@ const replaceChild = function(oldNode, newNode, vnode, parent) {
   parent.replaceChild(newNode, oldNode);
 
   // Check for Component
-  if(vnode.meta.component) {
-    createComponentFromVNode(newNode, vnode, vnode.meta.component);
+  let component = null;
+  if((component = vnode.meta.component) !== undefined) {
+    createComponentFromVNode(newNode, vnode, component);
   }
 }

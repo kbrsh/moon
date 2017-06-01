@@ -111,7 +111,7 @@ const h = function(tag, attrs, meta, children) {
   } else if((component = components[tag]) !== undefined) {
     // Resolve Component
     if(component.options.functional === true) {
-      return createFunctionalComponent(attrs, children, components[tag]);
+      return createFunctionalComponent(attrs, children, component);
     } else {
       meta.component = component;
     }
@@ -168,9 +168,7 @@ const createComponentFromVNode = function(node, vnode, component) {
  * @param {Object} eventListeners
  * @param {Object} oldVNode
  */
-const diffEventListeners = function(node, eventListeners, oldVNode) {
-  const oldEventListeners = oldVNode.meta.eventListeners;
-
+const diffEventListeners = function(node, eventListeners, oldEventListeners) {
   for(const type in eventListeners) {
     const oldEventListener = oldEventListeners[type];
     if(oldEventListener === undefined) {
@@ -284,7 +282,7 @@ const diffComponent = function(node, vnode) {
  * @return {Object} adjusted node only if it was replaced
  */
 const hydrate = function(node, vnode, parent) {
-  let nodeName = node ? node.nodeName.toLowerCase() : null;
+  const nodeName = node !== null ? node.nodeName.toLowerCase() : null;
 
   if(node === null) {
     // No node, create one
@@ -367,10 +365,9 @@ const hydrate = function(node, vnode, parent) {
  * @param {Object} oldVNode
  * @param {Object} vnode
  * @param {Object} parent
- * @param {Object} instance
  * @return {Number} patch type
  */
-const diff = function(oldVNode, vnode, parent, instance) {
+const diff = function(oldVNode, vnode, parent) {
   if(oldVNode === null) {
     // No Node, append a node
     appendChild(createNodeFromVNode(vnode), vnode, parent);
@@ -424,7 +421,7 @@ const diff = function(oldVNode, vnode, parent, instance) {
     // Diff event listeners
     let eventListeners = null;
     if((eventListeners = vnode.meta.eventListeners) !== undefined) {
-      diffEventListeners(node, eventListeners, oldVNode);
+      diffEventListeners(node, eventListeners, oldVNode.meta.eventListeners);
     }
 
     // Check if innerHTML was changed, don't diff children
