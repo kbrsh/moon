@@ -124,9 +124,10 @@ const removeChild = function(node, parent) {
  */
 const replaceChild = function(oldNode, newNode, vnode, parent) {
   // Check for Component
-  if(oldNode.__moon__) {
+  let componentInstance = null;
+  if((componentInstance = oldNode.__moon__) !== undefined) {
     // Component was unmounted, destroy it here
-    oldNode.__moon__.destroy();
+    componentInstance.destroy();
   }
 
   // Replace It
