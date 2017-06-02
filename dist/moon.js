@@ -443,9 +443,10 @@
      */
     var replaceChild = function (oldNode, newNode, vnode, parent) {
       // Check for Component
-      if (oldNode.__moon__) {
+      var componentInstance = null;
+      if ((componentInstance = oldNode.__moon__) !== undefined) {
         // Component was unmounted, destroy it here
-        oldNode.__moon__.destroy();
+        componentInstance.destroy();
       }
     
       // Replace It
