@@ -533,15 +533,22 @@
      * @return {Object} Virtual DOM Node
      */
     var createFunctionalComponent = function (props, children, functionalComponent) {
-      var data = functionalComponent.options.data || {};
+      var options = functionalComponent.options;
+      var attrs = props.attrs;
+      var data = options.data;
+    
+      if (data === undefined) {
+        data = {};
+      }
     
       // Merge data with provided props
-      if (functionalComponent.options.props !== undefined) {
-        var propNames = functionalComponent.options.props;
-    
+      var propNames = options.props;
+      if (propNames === undefined) {
+        data = attrs;
+      } else {
         for (var i = 0; i < propNames.length; i++) {
           var prop = propNames[i];
-          data[prop] = props.attrs[prop];
+          data[prop] = attrs[prop];
         }
       }
     
