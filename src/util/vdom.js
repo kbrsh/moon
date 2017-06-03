@@ -72,15 +72,22 @@ const createElement = function(type, val, props, meta, children) {
  * @return {Object} Virtual DOM Node
  */
 const createFunctionalComponent = function(props, children, functionalComponent) {
-  let data = functionalComponent.options.data || {};
+  const options = functionalComponent.options;
+  const attrs = props.attrs;
+  let data = options.data;
+
+  if(data === undefined) {
+    data = {};
+  }
 
   // Merge data with provided props
-  if(functionalComponent.options.props !== undefined) {
-    const propNames = functionalComponent.options.props;
-
+  const propNames = options.props;
+  if(propNames === undefined) {
+    data = attrs;
+  } else {
     for(var i = 0; i < propNames.length; i++) {
       const prop = propNames[i];
-      data[prop] = props.attrs[prop];
+      data[prop] = attrs[prop];
     }
   }
 
