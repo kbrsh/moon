@@ -173,7 +173,7 @@ const createComponentFromVNode = function(node, vnode, component) {
  * Diffs Event Listeners of Two VNodes
  * @param {Object} node
  * @param {Object} eventListeners
- * @param {Object} oldVNode
+ * @param {Object} oldEventListeners
  */
 const diffEventListeners = function(node, eventListeners, oldEventListeners) {
   for(const type in eventListeners) {

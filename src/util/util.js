@@ -167,7 +167,7 @@ const callHook = function(instance, name) {
 
 /**
  * Escapes String Values for a Regular Expression
- * @param {str} str
+ * @param {String} str
  */
 const escapeRegex = function(str) {
   return str.replace(RegExEscapeRE, "\\$&");
