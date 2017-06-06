@@ -306,7 +306,7 @@
     
     /**
      * Escapes String Values for a Regular Expression
-     * @param {str} str
+     * @param {String} str
      */
     var escapeRegex = function (str) {
       return str.replace(RegExEscapeRE, "\\$&");
@@ -634,7 +634,7 @@
      * Diffs Event Listeners of Two VNodes
      * @param {Object} node
      * @param {Object} eventListeners
-     * @param {Object} oldVNode
+     * @param {Object} oldEventListeners
      */
     var diffEventListeners = function (node, eventListeners, oldEventListeners) {
       for (var type in eventListeners) {
