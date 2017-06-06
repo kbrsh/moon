@@ -5,7 +5,7 @@
  */
 const extractAttrs = function(node) {
   let attrs = {};
-  for(var rawAttrs = node.attributes, i = rawAttrs.length; i--;) {
+  for(let rawAttrs = node.attributes, i = rawAttrs.length; i--;) {
     attrs[rawAttrs[i].name] = rawAttrs[i].value;
   }
   return attrs;
@@ -60,7 +60,7 @@ const createNodeFromVNode = function(vnode) {
       vnode.children[0].meta.el = el.firstChild;
     } else {
       // Add all children
-      for(var i = 0; i < vnode.children.length; i++) {
+      for(let i = 0; i < vnode.children.length; i++) {
         const vchild = vnode.children[i];
         appendChild(createNodeFromVNode(vchild), vchild, el);
       }

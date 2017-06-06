@@ -38,9 +38,6 @@ function Moon(options) {
     }
     this.$options = options;
 
-    // Reference to Instance
-    const self = this;
-
     // Readable name (component name or "root")
     defineProperty(this, "$name", options.name, "root");
 
@@ -63,7 +60,7 @@ function Moon(options) {
     // Custom Methods
     const methods = options.methods;
     if(methods !== undefined) {
-      initMethods(self, methods);
+      initMethods(this, methods);
     }
 
     // Events

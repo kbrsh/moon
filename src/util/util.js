@@ -59,8 +59,8 @@ const escapeString = function(str) {
  */
 const resolveKeyPath = function(instance, obj, keypath, val) {
   keypath = keypath.replace(hashRE, '.$1');
-  var path = keypath.split(".");
-  for(var i = 0; i < path.length - 1; i++) {
+  let path = keypath.split(".");
+  for(let i = 0; i < path.length - 1; i++) {
     const propName = path[i];
     obj = obj[propName];
   }
@@ -129,10 +129,10 @@ const extend = function(parent, child) {
  */
 const merge = function(parent, child) {
   let merged = {};
-  for(var key in parent) {
+  for(let key in parent) {
     merged[key] = parent[key];
   }
-  for (var key in child) {
+  for (let key in child) {
     merged[key] = child[key];
   }
   return merged;
@@ -167,7 +167,7 @@ const callHook = function(instance, name) {
 
 /**
  * Escapes String Values for a Regular Expression
- * @param {str} str
+ * @param {String} str
  */
 const escapeRegex = function(str) {
   return str.replace(RegExEscapeRE, "\\$&");

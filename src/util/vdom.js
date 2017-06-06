@@ -85,7 +85,7 @@ const createFunctionalComponent = function(props, children, functionalComponent)
   if(propNames === undefined) {
     data = attrs;
   } else {
-    for(var i = 0; i < propNames.length; i++) {
+    for(let i = 0; i < propNames.length; i++) {
       const prop = propNames[i];
       data[prop] = attrs[prop];
     }
@@ -173,7 +173,7 @@ const createComponentFromVNode = function(node, vnode, component) {
  * Diffs Event Listeners of Two VNodes
  * @param {Object} node
  * @param {Object} eventListeners
- * @param {Object} oldVNode
+ * @param {Object} oldEventListeners
  */
 const diffEventListeners = function(node, eventListeners, oldEventListeners) {
   for(const type in eventListeners) {
@@ -260,7 +260,7 @@ const diffComponent = function(node, vnode) {
     const props = componentInstance.$props;
     const data = componentInstance.$data;
     const attrs = vnode.props.attrs;
-    for(var i = 0; i < props.length; i++) {
+    for(let i = 0; i < props.length; i++) {
       let prop = props[i];
       if(data[prop] !== attrs[prop]) {
         data[prop] = attrs[prop];

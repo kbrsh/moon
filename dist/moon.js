@@ -126,8 +126,8 @@
     Observer.prototype.notify = function (key, val) {
       var depMap = null;
       if ((depMap = this.map[key]) !== undefined) {
-        for (var i = 0; i < depMap.length; i++) {
-          this.notify(depMap[i]);
+        for (var _i = 0; _i < depMap.length; _i++) {
+          this.notify(depMap[_i]);
         }
       }
     
@@ -140,106 +140,173 @@
     /* ======= Global Utilities ======= */
     
     var hashRE = /\[(\w+)\]/g;
+    
     var RegExEscapeRE = /[\-\[\]{}()*+?.,\\\^$|#\s]/g;
+    
     var newLineRE = /\n/g;
+    
     var doubleQuoteRE = /"/g;
+    
     var backslashRE = /\\/g;
     
     /**
+    
      * Logs a Message
+    
      * @param {String} msg
+    
      */
+    
     var log = function (msg) {
+    
       if (Moon.config.silent === false) {
+    
         console.log(msg);
       }
     };
     
     /**
+    
      * Throws an Error
+    
      * @param {String} msg
+    
      */
+    
     var error = function (msg) {
+    
       if (Moon.config.silent === false) {
+    
         console.error("[Moon] ERR: " + msg);
       }
     };
     
     /**
+    
      * Adds DOM Updates to Queue
+    
      * @param {Object} instance
+    
      */
+    
     var queueBuild = function (instance) {
+    
       if (instance.$queued === false && instance.$destroyed === false) {
+    
         instance.$queued = true;
+    
         setTimeout(function () {
+    
           instance.build();
+    
           callHook(instance, 'updated');
+    
           instance.$queued = false;
         }, 0);
       }
     };
     
     /**
+    
      * Escapes a String
+    
      * @param {String} str
+    
      */
+    
     var escapeString = function (str) {
+    
       return str.replace(backslashRE, "\\\\").replace(doubleQuoteRE, "\\\"").replace(newLineRE, "\\n");
     };
     
     /**
+    
      * Resolves an Object Keypath and Sets it
+    
      * @param {Object} instance
+    
      * @param {Object} obj
+    
      * @param {String} keypath
+    
      * @param {String} val
+    
      * @return {Object} resolved object
+    
      */
+    
     var resolveKeyPath = function (instance, obj, keypath, val) {
+    
       keypath = keypath.replace(hashRE, '.$1');
+    
       var path = keypath.split(".");
-      for (var i = 0; i < path.length - 1; i++) {
-        var propName = path[i];
+    
+      for (var _i2 = 0; _i2 < path.length - 1; _i2++) {
+    
+        var propName = path[_i2];
+    
         obj = obj[propName];
       }
+    
       obj[path[i]] = val;
+    
       return path[0];
     };
     
     /**
+    
      * Extracts the Slots From Component Children
+    
      * @param {Array} children
+    
      * @return {Object} extracted slots
+    
      */
+    
     var getSlots = function (children) {
+    
       var slots = {};
     
       // Setup default slots
+    
       var defaultSlotName = "default";
+    
       slots[defaultSlotName] = [];
     
       // No Children Means No Slots
+    
       if (children.length === 0) {
+    
         return slots;
       }
     
       // Get rest of the slots
-      for (var i = 0; i < children.length; i++) {
-        var child = children[i];
+    
+      for (var _i3 = 0; _i3 < children.length; _i3++) {
+    
+        var child = children[_i3];
+    
         var childProps = child.props.attrs;
+    
         var slotName = "";
+    
         var slotValue = null;
     
         if ((slotName = childProps.slot) !== undefined) {
+    
           slotValue = slots[slotName];
+    
           if (slotValue === undefined) {
+    
             slots[slotName] = [child];
           } else {
+    
             slotValue.push(child);
           }
+    
           delete childProps.slot;
         } else {
+    
           slots[defaultSlotName].push(child);
         }
       }
@@ -248,73 +315,120 @@
     };
     
     /**
+    
      * Extends an Object with another Object's properties
+    
      * @param {Object} parent
+    
      * @param {Object} child
+    
      * @return {Object} Extended Parent
+    
      */
+    
     var extend = function (parent, child) {
+    
       for (var key in child) {
+    
         parent[key] = child[key];
       }
+    
       return parent;
     };
     
     /**
+    
      * Merges Two Objects Together
+    
      * @param {Object} parent
+    
      * @param {Object} child
+    
      * @return {Object} Merged Object
+    
      */
+    
     var merge = function (parent, child) {
+    
       var merged = {};
+    
       for (var key in parent) {
+    
         merged[key] = parent[key];
       }
-      for (var key in child) {
-        merged[key] = child[key];
+    
+      for (var _key in child) {
+    
+        merged[_key] = child[_key];
       }
+    
       return merged;
     };
     
     /**
+    
      * Defines a Property on an Object or a Default Value
+    
      * @param {Object} obj
+    
      * @param {String} prop
+    
      * @param {Any} value
+    
      * @param {Any} def
+    
      */
+    
     var defineProperty = function (obj, prop, value, def) {
+    
       if (value === undefined) {
+    
         obj[prop] = def;
       } else {
+    
         obj[prop] = value;
       }
     };
     
     /**
+    
      * Calls a Hook
+    
      * @param {Object} instance
+    
      * @param {String} name
+    
      */
+    
     var callHook = function (instance, name) {
+    
       var hook = instance.$hooks[name];
+    
       if (hook !== undefined) {
+    
         hook.call(instance);
       }
     };
     
     /**
+    
      * Escapes String Values for a Regular Expression
-     * @param {str} str
+    
+     * @param {String} str
+    
      */
+    
     var escapeRegex = function (str) {
+    
       return str.replace(RegExEscapeRE, "\\$&");
     };
     
     /**
+    
      * Does No Operation
+    
      */
+    
     var noop = function () {};
     
     /**
@@ -324,8 +438,8 @@
      */
     var extractAttrs = function (node) {
       var attrs = {};
-      for (var rawAttrs = node.attributes, i = rawAttrs.length; i--;) {
-        attrs[rawAttrs[i].name] = rawAttrs[i].value;
+      for (var rawAttrs = node.attributes, _i4 = rawAttrs.length; _i4--;) {
+        attrs[rawAttrs[_i4].name] = rawAttrs[_i4].value;
       }
       return attrs;
     };
@@ -340,8 +454,8 @@
         // Create handle function
         var handle = function (evt) {
           var handlers = handle.handlers;
-          for (var i = 0; i < handlers.length; i++) {
-            handlers[i](evt);
+          for (var _i5 = 0; _i5 < handlers.length; _i5++) {
+            handlers[_i5](evt);
           }
         };
     
@@ -379,8 +493,8 @@
           vnode.children[0].meta.el = el.firstChild;
         } else {
           // Add all children
-          for (var i = 0; i < vnode.children.length; i++) {
-            var vchild = vnode.children[i];
+          for (var _i6 = 0; _i6 < vnode.children.length; _i6++) {
+            var vchild = vnode.children[_i6];
             appendChild(createNodeFromVNode(vchild), vchild, el);
           }
         }
@@ -474,13 +588,12 @@
       REPLACE: 3,
       TEXT: 4,
       CHILDREN: 5
-    };
     
-    /**
-     * Gives Default Metadata for a VNode
-     * @return {Object} metadata
-     */
-    var defaultMetadata = function () {
+      /**
+       * Gives Default Metadata for a VNode
+       * @return {Object} metadata
+       */
+    };var defaultMetadata = function () {
       return {
         shouldRender: false
       };
@@ -546,8 +659,8 @@
       if (propNames === undefined) {
         data = attrs;
       } else {
-        for (var i = 0; i < propNames.length; i++) {
-          var prop = propNames[i];
+        for (var _i7 = 0; _i7 < propNames.length; _i7++) {
+          var prop = propNames[_i7];
           data[prop] = attrs[prop];
         }
       }
@@ -614,8 +727,8 @@
       var attrs = vnode.props.attrs;
     
       // Merge data with provided props
-      for (var i = 0; i < props.length; i++) {
-        var prop = props[i];
+      for (var _i8 = 0; _i8 < props.length; _i8++) {
+        var prop = props[_i8];
         data[prop] = attrs[prop];
       }
     
@@ -634,7 +747,7 @@
      * Diffs Event Listeners of Two VNodes
      * @param {Object} node
      * @param {Object} eventListeners
-     * @param {Object} oldVNode
+     * @param {Object} oldEventListeners
      */
     var diffEventListeners = function (node, eventListeners, oldEventListeners) {
       for (var type in eventListeners) {
@@ -721,8 +834,8 @@
         var props = componentInstance.$props;
         var data = componentInstance.$data;
         var attrs = vnode.props.attrs;
-        for (var i = 0; i < props.length; i++) {
-          var prop = props[i];
+        for (var _i9 = 0; _i9 < props.length; _i9++) {
+          var prop = props[_i9];
           if (data[prop] !== attrs[prop]) {
             data[prop] = attrs[prop];
             componentChanged = true;
@@ -813,14 +926,14 @@
         var children = vnode.children;
         var length = children.length;
     
-        var i = 0;
+        var _i10 = 0;
         var currentChildNode = node.firstChild;
         var vchild = length !== 0 ? children[0] : null;
     
         while (vchild !== null || currentChildNode !== null) {
           var next = currentChildNode !== null ? currentChildNode.nextSibling : null;
           hydrate(currentChildNode, vchild, node);
-          vchild = ++i < length ? children[i] : null;
+          vchild = ++_i10 < length ? children[_i10] : null;
           currentChildNode = next;
         }
     
@@ -916,9 +1029,9 @@
         } else {
           // Traverse and Diff Children
           var totalLen = newLength > oldLength ? newLength : oldLength;
-          for (var i = 0, j = 0; i < totalLen; i++, j++) {
+          for (var _i11 = 0, j = 0; _i11 < totalLen; _i11++, j++) {
             var oldChild = j < oldLength ? oldChildren[j] : null;
-            var child = i < newLength ? children[i] : null;
+            var child = _i11 < newLength ? children[_i11] : null;
     
             var action = diff(oldChild, child, _node);
     
@@ -932,7 +1045,7 @@
                 oldLength--;
                 break;
               case PATCH.REPLACE:
-                oldChildren[j] = children[i];
+                oldChildren[j] = children[_i11];
                 break;
               case PATCH.TEXT:
                 oldChild.val = child.val;
@@ -1528,8 +1641,8 @@
       if (allDirectives.length !== 0) {
         generatedObject += ", directives: {";
     
-        for (var i = 0; i < allDirectives.length; i++) {
-          var directiveInfo = allDirectives[i];
+        for (var _i12 = 0; _i12 < allDirectives.length; _i12++) {
+          var directiveInfo = allDirectives[_i12];
           var directiveValue = directiveInfo.value;
     
           if (directiveValue.length !== 0) {
@@ -1609,8 +1722,8 @@
       var generatedArray = "";
     
       // Generate all items (literal expressions)
-      for (var i = 0; i < arr.length; i++) {
-        generatedArray += arr[i] + ', ';
+      for (var _i13 = 0; _i13 < arr.length; _i13++) {
+        generatedArray += arr[_i13] + ', ';
       }
     
       // Close array
@@ -1636,8 +1749,8 @@
       // Generate code for children recursively here (in case modified by special directives)
       var children = [];
       var parsedChildren = vnode.children;
-      for (var i = 0; i < parsedChildren.length; i++) {
-        children.push(generateEl(parsedChildren[i], vnode, dependencies));
+      for (var _i14 = 0; _i14 < parsedChildren.length; _i14++) {
+        children.push(generateEl(parsedChildren[_i14], vnode, dependencies));
       }
     
       // If the "shouldRender" flag is not present, ensure node will be updated
@@ -1696,10 +1809,9 @@
         // Setup Nested Attributes within Properties
         vnode.props = {
           attrs: vnode.props
-        };
     
-        // Create a Call for the Element, or Register a Slot
-        var compiledCode = "";
+          // Create a Call for the Element, or Register a Slot
+        };var compiledCode = "";
     
         if (vnode.type === "slot") {
           parentVNode.meta.shouldRender = true;
@@ -1745,8 +1857,8 @@
       var rootCode = generateEl(root, undefined, dependencies);
     
       var dependenciesCode = "";
-      for (var i = 0; i < dependencies.length; i++) {
-        var dependency = dependencies[i];
+      for (var _i15 = 0; _i15 < dependencies.length; _i15++) {
+        var dependency = dependencies[_i15];
         dependenciesCode += 'var ' + dependency + ' = instance.get("' + dependency + '"); ';
       }
     
@@ -1775,9 +1887,6 @@
       }
       this.$options = options;
     
-      // Reference to Instance
-      var self = this;
-    
       // Readable name (component name or "root")
       defineProperty(this, "$name", options.name, "root");
     
@@ -1800,7 +1909,7 @@
       // Custom Methods
       var methods = options.methods;
       if (methods !== undefined) {
-        initMethods(self, methods);
+        initMethods(this, methods);
       }
     
       // Events
@@ -1831,184 +1940,286 @@
     /* ======= Instance Methods ======= */
     
     /**
+    
      * Gets Value in Data
+    
      * @param {String} key
-     * @return {String} Value of key in data
+    
+     * @return {Any} Value of key in data
+    
      */
+    
     Moon.prototype.get = function (key) {
+    
       // Collect dependencies if currently collecting
+    
       var observer = this.$observer;
+    
       var target = null;
+    
       if ((target = observer.target) !== null) {
+    
         if (observer.map[key] === undefined) {
+    
           observer.map[key] = [target];
         } else if (observer.map[key].indexOf(target) === -1) {
+    
           observer.map[key].push(target);
         }
       }
     
       // Return value found
+    
       if ("development" !== "production" && !(key in this.$data)) {
+    
         error('The item "' + key + '" was not defined but was referenced');
       }
+    
       return this.$data[key];
     };
     
     /**
+    
      * Sets Value in Data
+    
      * @param {String} key
-     * @param {String} val
+    
+     * @param {Any} val
+    
      */
+    
     Moon.prototype.set = function (key, val) {
+    
       // Get observer
+    
       var observer = this.$observer;
     
       // Get base of keypath
+    
       var base = resolveKeyPath(this, this.$data, key, val);
     
       // Invoke custom setter
+    
       var setter = null;
+    
       if ((setter = observer.setters[base]) !== undefined) {
+    
         setter.call(this, val);
       }
     
       // Notify observer of change
+    
       observer.notify(base, val);
     
       // Queue a build
+    
       queueBuild(this);
     };
     
     /**
+    
      * Destroys Moon Instance
+    
      */
+    
     Moon.prototype.destroy = function () {
+    
       // Remove event listeners
+    
       this.off();
     
       // Remove reference to element
+    
       this.$el = null;
     
       // Setup destroyed state
+    
       this.$destroyed = true;
     
       // Call destroyed hook
+    
       callHook(this, 'destroyed');
     };
     
     /**
+    
      * Calls a method
+    
      * @param {String} method
+    
+     * @param {Array} args
+    
      */
+    
     Moon.prototype.callMethod = function (method, args) {
+    
       // Get arguments
+    
       args = args || [];
     
       // Call method in context of instance
+    
       this.$data[method].apply(this, args);
     };
     
     // Event Emitter, adapted from https://github.com/KingPixil/voke
     
+    
     /**
+    
      * Attaches an Event Listener
+    
      * @param {String} eventName
+    
      * @param {Function} handler
+    
      */
+    
     Moon.prototype.on = function (eventName, handler) {
+    
       // Get list of handlers
+    
       var handlers = this.$events[eventName];
     
       if (handlers === undefined) {
+    
         // If no handlers, create them
+    
         this.$events[eventName] = [handler];
       } else {
+    
         // If there are already handlers, add it to the list of them
+    
         handlers.push(handler);
       }
     };
     
     /**
+    
      * Removes an Event Listener
+    
      * @param {String} eventName
+    
      * @param {Function} handler
+    
      */
+    
     Moon.prototype.off = function (eventName, handler) {
+    
       if (eventName === undefined) {
+    
         // No event name provided, remove all events
+    
         this.$events = {};
       } else if (handler === undefined) {
+    
         // No handler provided, remove all handlers for the event name
+    
         this.$events[eventName] = [];
       } else {
+    
         // Get handlers from event name
+    
         var handlers = this.$events[eventName];
     
         // Get index of the handler to remove
+    
         var index = handlers.indexOf(handler);
     
         // Remove the handler
+    
         handlers.splice(index, 1);
       }
     };
     
     /**
+    
      * Emits an Event
+    
      * @param {String} eventName
+    
      * @param {Object} customMeta
+    
      */
+    
     Moon.prototype.emit = function (eventName, customMeta) {
+    
       // Setup metadata to pass to event
+    
       var meta = customMeta || {};
+    
       meta.type = eventName;
     
       // Get handlers and global handlers
+    
       var handlers = this.$events[eventName];
+    
       var globalHandlers = this.$events["*"];
     
       // Call all handlers for the event name
+    
       if (handlers !== undefined) {
-        for (var i = 0; i < handlers.length; i++) {
-          handlers[i](meta);
+    
+        for (var _i16 = 0; _i16 < handlers.length; _i16++) {
+    
+          handlers[_i16](meta);
         }
       }
     
       if (globalHandlers !== undefined) {
+    
         // Call all of the global handlers if present
-        for (var i = 0; i < globalHandlers.length; i++) {
-          globalHandlers[i](meta);
+    
+        for (var _i17 = 0; _i17 < globalHandlers.length; _i17++) {
+    
+          globalHandlers[_i17](meta);
         }
       }
     };
     
     /**
+    
      * Renders "m-for" Directive Array
-     * @param {Array|Object} iteratable
+    
+     * @param {Array|Object|Number} iteratable
+    
      * @param {Function} item
+    
      */
+    
     Moon.prototype.renderLoop = function (iteratable, item) {
+    
       var items = null;
     
       if (Array.isArray(iteratable)) {
+    
         items = new Array(iteratable.length);
     
         // Iterate through the array
-        for (var i = 0; i < iteratable.length; i++) {
-          items[i] = item(iteratable[i], i);
+    
+        for (var _i18 = 0; _i18 < iteratable.length; _i18++) {
+    
+          items[_i18] = item(iteratable[_i18], _i18);
         }
       } else if (typeof iteratable === "object") {
+    
         items = [];
     
         // Iterate through the object
+    
         for (var key in iteratable) {
+    
           items.push(item(iteratable[key], key));
         }
       } else if (typeof iteratable === "number") {
+    
         items = new Array(iteratable);
     
         // Repeat a certain amount of times
-        for (var _i = 0; _i < iteratable; _i++) {
-          items[_i] = item(_i + 1, _i);
+    
+        for (var _i19 = 0; _i19 < iteratable; _i19++) {
+    
+          items[_i19] = item(_i19 + 1, _i19);
         }
       }
     
@@ -2016,145 +2227,225 @@
     };
     
     /**
+    
      * Renders a Class in Array/Object Form
+    
      * @param {Array|Object|String} classNames
+    
      * @return {String} renderedClassNames
+    
      */
+    
     Moon.prototype.renderClass = function (classNames) {
+    
       if (typeof classNames === "string") {
+    
         // If they are a string, no need for any more processing
+    
         return classNames;
       }
     
       var renderedClassNames = "";
+    
       if (Array.isArray(classNames)) {
+    
         // It's an array, so go through them all and generate a string
-        for (var i = 0; i < classNames.length; i++) {
-          renderedClassNames += this.renderClass(classNames[i]) + ' ';
+    
+        for (var _i20 = 0; _i20 < classNames.length; _i20++) {
+    
+          renderedClassNames += this.renderClass(classNames[_i20]) + ' ';
         }
       } else if (typeof classNames === "object") {
+    
         // It's an object, so to through and render them to a string if the corresponding condition is true
+    
         for (var className in classNames) {
+    
           if (classNames[className]) {
+    
             renderedClassNames += className + ' ';
           }
         }
       }
     
       // Remove trailing space and return
+    
       renderedClassNames = renderedClassNames.slice(0, -1);
+    
       return renderedClassNames;
     };
     
     /**
+    
      * Mounts Moon Element
+    
      * @param {Object} el
+    
      */
+    
     Moon.prototype.mount = function (el) {
+    
       // Get element from the DOM
+    
       this.$el = typeof el === 'string' ? document.querySelector(el) : el;
     
       // Remove destroyed state
+    
       this.$destroyed = false;
     
       if ("development" !== "production" && this.$el === null) {
+    
         // Element not found
+    
         error("Element " + this.$options.$el + " not found");
       }
     
       // Sync Element and Moon instance
+    
       this.$el.__moon__ = this;
     
       // Setup template as provided `template` or outerHTML of the Element
+    
       defineProperty(this, "$template", this.$options.template, this.$el.outerHTML);
     
       // Setup render Function
+    
       if (this.$render === noop) {
+    
         this.$render = Moon.compile(this.$template);
       }
     
       // Run First Build
+    
       this.build();
     
       // Call mounted hook
+    
       callHook(this, 'mounted');
     };
     
     /**
+    
      * Renders Virtual DOM
+    
      * @return Virtual DOM
+    
      */
+    
     Moon.prototype.render = function () {
+    
       // Call render function
+    
       return this.$render(h);
     };
     
     /**
+    
      * Diff then Patches Nodes With Data
+    
      * @param {Object} old
+    
      * @param {Object} vnode
+    
      * @param {Object} parent
+    
      */
+    
     Moon.prototype.patch = function (old, vnode, parent) {
+    
       if (old.meta !== undefined) {
+    
         // If it is a VNode, then diff
+    
         if (vnode.type !== old.type) {
+    
           // Root Element Changed During Diff
+    
           // Replace Root Element
+    
           var newRoot = createNodeFromVNode(vnode);
+    
           replaceChild(old.meta.el, newRoot, vnode, parent);
     
           // Update Bound Instance
+    
           newRoot.__moon__ = this;
+    
           this.$el = newRoot;
         } else {
+    
           // Diff
+    
           diff(old, vnode, parent);
         }
       } else if (old instanceof Node) {
+    
         // Hydrate
+    
         var newNode = hydrate(old, vnode, parent);
     
         if (newNode !== old) {
+    
           // Root Element Changed During Hydration
+    
           this.$el = vnode.meta.el;
+    
           this.$el.__moon__ = this;
         }
       }
     };
     
     /**
+    
      * Render and Patches the DOM With Data
+    
      */
+    
     Moon.prototype.build = function () {
+    
       // Get new virtual DOM
+    
       var dom = this.render();
     
       // Old item to patch
+    
       var old = null;
     
       if (this.$dom.meta !== undefined) {
+    
         // If old virtual dom exists, patch against it
+    
         old = this.$dom;
       } else {
+    
         // No virtual DOM, patch with actual DOM element, and setup virtual DOM
+    
         old = this.$el;
+    
         this.$dom = dom;
       }
     
       // Patch old and new
+    
       this.patch(old, dom, this.$el.parentNode);
     };
     
     /**
+    
      * Initializes Moon
+    
      */
+    
     Moon.prototype.init = function () {
+    
       log("======= Moon =======");
+    
       callHook(this, 'init');
     
       var el = this.$options.el;
+    
       if (el !== undefined) {
+    
         this.mount(el);
       }
     };
@@ -2162,113 +2453,173 @@
     /* ======= Global API ======= */
     
     /**
+    
      * Configuration of Moon
+    
      */
+    
     Moon.config = {
+    
       silent: "development" === "production" || typeof console === 'undefined',
+    
       delimiters: ["{{", "}}"],
+    
       keyCodes: function (keyCodes) {
+    
         for (var keyCode in keyCodes) {
+    
           eventModifiersCode[keyCode] = 'if(event.keyCode !== ' + keyCodes[keyCode] + ') {return;};';
         }
       }
-    };
+    
+      /**
+      
+       * Version of Moon
+      
+       */
+    
+    };Moon.version = '0.10.0';
     
     /**
-     * Version of Moon
-     */
-    Moon.version = '0.10.0';
     
-    /**
      * Moon Utilities
-     */
-    Moon.util = {
-      noop: noop,
-      error: error,
-      log: log,
-      merge: merge,
-      extend: extend,
-      h: h
-    };
     
-    /**
-     * Runs an external Plugin
-     * @param {Object} plugin
-     * @param {Object} options
      */
-    Moon.use = function (plugin, options) {
+    
+    Moon.util = {
+    
+      noop: noop,
+    
+      error: error,
+    
+      log: log,
+    
+      merge: merge,
+    
+      extend: extend,
+    
+      h: h
+    
+      /**
+      
+       * Runs an external Plugin
+      
+       * @param {Object} plugin
+      
+       * @param {Object} options
+      
+       */
+    
+    };Moon.use = function (plugin, options) {
+    
       plugin.init(Moon, options);
     };
     
     /**
+    
      * Compiles HTML to a Render Function
+    
      * @param {String} template
+    
      * @return {Function} render function
+    
      */
+    
     Moon.compile = function (template) {
+    
       return compile(template);
     };
     
     /**
+    
      * Runs a Task After Update Queue
+    
      * @param {Function} task
+    
      */
+    
     Moon.nextTick = function (task) {
+    
       setTimeout(task, 0);
     };
     
     /**
+    
      * Creates a Directive
+    
      * @param {String} name
+    
      * @param {Function} action
+    
      */
+    
     Moon.directive = function (name, action) {
+    
       directives["m-" + name] = action;
     };
     
     /**
+    
      * Creates a Component
+    
      * @param {String} name
+    
      * @param {Object} options
+    
      */
+    
     Moon.component = function (name, options) {
+    
       var Parent = this;
     
       if (options.name !== undefined) {
+    
         name = options.name;
       } else {
+    
         options.name = name;
       }
     
       if (options.data !== undefined && typeof options.data !== "function") {
+    
         error("In components, data must be a function returning an object");
       }
     
       function MoonComponent() {
+    
         Moon.call(this, options);
       }
     
       MoonComponent.prototype = Object.create(Parent.prototype);
+    
       MoonComponent.prototype.constructor = MoonComponent;
     
       MoonComponent.prototype.init = function () {
+    
         callHook(this, 'init');
     
         var options = this.$options;
+    
         this.$destroyed = false;
+    
         defineProperty(this, "$props", options.props, []);
     
         var template = options.template;
+    
         this.$template = template;
     
         if (this.$render === noop) {
+    
           this.$render = Moon.compile(template);
         }
       };
     
       components[name] = {
+    
         CTor: MoonComponent,
+    
         options: options
+    
       };
     
       return MoonComponent;
@@ -2279,182 +2630,282 @@
     var emptyVNode = 'h("#text", ' + generateMeta(defaultMetadata()) + ', "")';
     
     specialDirectives["m-if"] = {
+    
       afterGenerate: function (value, meta, code, vnode, dependencies) {
+    
         compileTemplateExpression(value, dependencies);
+    
         return value + ' ? ' + code + ' : ' + emptyVNode;
       }
+    
     };
     
     specialDirectives["m-for"] = {
+    
       beforeGenerate: function (value, meta, vnode, parentVNode, dependencies) {
+    
         // Setup Deep Flag to Flatten Array
+    
         parentVNode.deep = true;
       },
+    
       afterGenerate: function (value, meta, code, vnode, dependencies) {
+    
         // Get Parts
+    
         var parts = value.split(" in ");
+    
         // Aliases
+    
         var aliases = parts[0].split(",");
+    
         // The Iteratable
+    
         var iteratable = parts[1];
+    
         compileTemplateExpression(iteratable, dependencies);
     
         // Get any parameters
+    
         var params = aliases.join(",");
     
         // Add aliases to scope
-        for (var i = 0; i < aliases.length; i++) {
-          var aliasIndex = dependencies.indexOf(aliases[i]);
+    
+        for (var _i21 = 0; _i21 < aliases.length; _i21++) {
+    
+          var aliasIndex = dependencies.indexOf(aliases[_i21]);
+    
           if (aliasIndex !== -1) {
+    
             dependencies.splice(aliasIndex, 1);
           }
         }
     
         // Use the renderLoop runtime helper
+    
         return 'instance.renderLoop(' + iteratable + ', function(' + params + ') { return ' + code + '; })';
       }
+    
     };
     
     specialDirectives["m-on"] = {
+    
       beforeGenerate: function (value, meta, vnode, parentVNode, dependencies) {
+    
         // Extract Event, Modifiers, and Parameters
+    
         var methodToCall = value;
     
         var rawModifiers = meta.arg.split(".");
+    
         var eventType = rawModifiers.shift();
     
         var params = "event";
+    
         var rawParams = methodToCall.split("(");
     
         if (rawParams.length > 1) {
+    
           // Custom parameters detected, update method to call, and generated parameter code
+    
           methodToCall = rawParams.shift();
+    
           params = rawParams.join("(").slice(0, -1);
+    
           compileTemplateExpression(params, dependencies);
         }
     
         // Generate any modifiers
+    
         var modifiers = "";
-        for (var i = 0; i < rawModifiers.length; i++) {
-          modifiers += eventModifiersCode[rawModifiers[i]];
+    
+        for (var _i22 = 0; _i22 < rawModifiers.length; _i22++) {
+    
+          modifiers += eventModifiersCode[rawModifiers[_i22]];
         }
     
         // Final event listener code
+    
         var code = 'function(event) {' + modifiers + 'instance.callMethod("' + methodToCall + '", [' + params + '])}';
+    
         addEventListenerCodeToVNode(eventType, code, vnode);
       }
+    
     };
     
     specialDirectives["m-model"] = {
+    
       beforeGenerate: function (value, meta, vnode, parentVNode, dependencies) {
+    
         // Get attributes
+    
         var attrs = vnode.props.attrs;
     
         // Add dependencies for the getter and setter
+    
         compileTemplateExpression(value, dependencies);
     
         // Setup default event type, keypath to set, value of setter, DOM property to change, and value of DOM property
+    
         var eventType = "input";
+    
         var domGetter = "value";
+    
         var domSetter = value;
+    
         var keypathGetter = value;
+    
         var keypathSetter = 'event.target.' + domGetter;
     
         // If input type is checkbox, listen on 'change' and change the 'checked' DOM property
+    
         var type = attrs.type;
+    
         if (type !== undefined) {
+    
           type = type.value;
+    
           var radio = false;
+    
           if (type === "checkbox" || type === "radio" && (radio = true)) {
+    
             eventType = "change";
+    
             domGetter = "checked";
     
             if (radio === true) {
+    
               var valueAttr = attrs.value;
+    
               var valueAttrValue = valueAttr === undefined ? "null" : '"' + compileTemplate(valueAttr.value, delimiters, escapedDelimiters, dependencies, true) + '"';
+    
               domSetter = domSetter + ' === ' + valueAttrValue;
+    
               keypathSetter = valueAttrValue;
             } else {
+    
               keypathSetter = 'event.target.' + domGetter;
             }
           }
         }
     
         // Compute getter base if dynamic
+    
         var bracketIndex = keypathGetter.indexOf("[");
+    
         var dotIndex = keypathGetter.indexOf(".");
+    
         var base = null;
+    
         var dynamicPath = null;
+    
         var dynamicIndex = -1;
     
         if (bracketIndex !== -1 || dotIndex !== -1) {
+    
           // Dynamic keypath found,
+    
           // Extract base and dynamic path
+    
           if (bracketIndex === -1) {
+    
             dynamicIndex = dotIndex;
           } else if (dotIndex === -1) {
+    
             dynamicIndex = bracketIndex;
           } else if (bracketIndex < dotIndex) {
+    
             dynamicIndex = bracketIndex;
           } else {
+    
             dynamicIndex = dotIndex;
           }
+    
           base = value.substring(0, dynamicIndex);
+    
           dynamicPath = value.substring(dynamicIndex);
     
           // Replace string references with actual references
+    
           keypathGetter = base + dynamicPath.replace(expressionRE, function (match, reference) {
+    
             if (reference !== undefined) {
+    
               return '" + ' + reference + ' + "';
             } else {
+    
               return match;
             }
           });
         }
     
         // Generate the listener
+    
         var code = 'function(event) {instance.set("' + keypathGetter + '", ' + keypathSetter + ')}';
     
         // Push the listener to it's event listeners
+    
         addEventListenerCodeToVNode(eventType, code, vnode);
     
         // Setup a query used to get the value, and set the corresponding dom property
+    
         var dom = vnode.props.dom;
+    
         if (dom === undefined) {
+    
           vnode.props.dom = dom = {};
         }
+    
         dom[domGetter] = domSetter;
       }
+    
     };
     
     specialDirectives["m-literal"] = {
+    
       duringPropGenerate: function (value, meta, vnode, dependencies) {
+    
         var prop = meta.arg;
+    
         compileTemplateExpression(value, dependencies);
+    
         if (prop === "class") {
+    
           // Detected class, use runtime class render helper
+    
           return '"class": instance.renderClass(' + value + '), ';
         } else {
+    
           // Default literal attribute
+    
           return '"' + prop + '": ' + value + ', ';
         }
       }
+    
     };
     
     specialDirectives["m-html"] = {
+    
       beforeGenerate: function (value, meta, vnode, parentVNode, dependencies) {
+    
         var dom = vnode.props.dom;
+    
         if (dom === undefined) {
+    
           vnode.props.dom = dom = {};
         }
+    
         compileTemplateExpression(value, dependencies);
+    
         dom.innerHTML = '("" + ' + value + ')';
       }
+    
     };
     
     specialDirectives["m-mask"] = {};
     
     directives["m-show"] = function (el, val, vnode) {
+    
       el.style.display = val ? '' : 'none';
     };
     return Moon;

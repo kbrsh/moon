@@ -112,7 +112,7 @@ const generateProps = function(vnode, parentVNode, dependencies) {
 	if(allDirectives.length !== 0) {
 		generatedObject += ", directives: {";
 
-		for(var i = 0; i < allDirectives.length; i++) {
+		for(let i = 0; i < allDirectives.length; i++) {
 			const directiveInfo = allDirectives[i];
 			let directiveValue = directiveInfo.value;
 
@@ -220,7 +220,7 @@ const createCall = function(vnode, parentVNode, dependencies) {
 	// Generate code for children recursively here (in case modified by special directives)
 	let children = [];
 	const parsedChildren = vnode.children;
-	for(var i = 0; i < parsedChildren.length; i++) {
+	for(let i = 0; i < parsedChildren.length; i++) {
 		children.push(generateEl(parsedChildren[i], vnode, dependencies));
 	}
 
@@ -329,7 +329,7 @@ const generate = function(ast) {
 	const rootCode = generateEl(root, undefined, dependencies);
 
 	let dependenciesCode = "";
-	for(var i = 0; i < dependencies.length; i++) {
+	for(let i = 0; i < dependencies.length; i++) {
 		const dependency = dependencies[i];
 		dependenciesCode += `var ${dependency} = instance.get("${dependency}"); `;
 	}
