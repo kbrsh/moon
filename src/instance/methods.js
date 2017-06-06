@@ -3,7 +3,7 @@
 /**
  * Gets Value in Data
  * @param {String} key
- * @return {String} Value of key in data
+ * @return {Any} Value of key in data
  */
 Moon.prototype.get = function(key) {
   // Collect dependencies if currently collecting
@@ -27,7 +27,7 @@ Moon.prototype.get = function(key) {
 /**
  * Sets Value in Data
  * @param {String} key
- * @param {String} val
+ * @param {Any} val
  */
 Moon.prototype.set = function(key, val) {
   // Get observer
@@ -69,6 +69,7 @@ Moon.prototype.destroy = function() {
 /**
  * Calls a method
  * @param {String} method
+ * @param {Array} args
  */
 Moon.prototype.callMethod = function(method, args) {
   // Get arguments
@@ -129,23 +130,23 @@ Moon.prototype.off = function(eventName, handler) {
  */
 Moon.prototype.emit = function(eventName, customMeta) {
   // Setup metadata to pass to event
-  var meta = customMeta || {};
+  let meta = customMeta || {};
   meta.type = eventName;
 
   // Get handlers and global handlers
-  var handlers = this.$events[eventName];
-  var globalHandlers = this.$events["*"];
+  let handlers = this.$events[eventName];
+  let globalHandlers = this.$events["*"];
 
   // Call all handlers for the event name
   if(handlers !== undefined) {
-    for(var i = 0; i < handlers.length; i++) {
+    for(let i = 0; i < handlers.length; i++) {
       handlers[i](meta);
     }
   }
 
   if(globalHandlers !== undefined) {
     // Call all of the global handlers if present
-    for(var i = 0; i < globalHandlers.length; i++) {
+    for(let i = 0; i < globalHandlers.length; i++) {
       globalHandlers[i](meta);
     }
   }
@@ -153,7 +154,7 @@ Moon.prototype.emit = function(eventName, customMeta) {
 
 /**
  * Renders "m-for" Directive Array
- * @param {Array|Object} iteratable
+ * @param {Array|Object|Number} iteratable
  * @param {Function} item
  */
 Moon.prototype.renderLoop = function(iteratable, item) {

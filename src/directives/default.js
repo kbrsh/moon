@@ -59,7 +59,7 @@ specialDirectives["m-on"] = {
 
     // Generate any modifiers
     let modifiers = "";
-    for(var i = 0; i < rawModifiers.length; i++) {
+    for(let i = 0; i < rawModifiers.length; i++) {
       modifiers += eventModifiersCode[rawModifiers[i]];
     }
 
