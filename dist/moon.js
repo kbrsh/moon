@@ -1775,9 +1775,6 @@
       }
       this.$options = options;
     
-      // Reference to Instance
-      var self = this;
-    
       // Readable name (component name or "root")
       defineProperty(this, "$name", options.name, "root");
     
@@ -1800,7 +1797,7 @@
       // Custom Methods
       var methods = options.methods;
       if (methods !== undefined) {
-        initMethods(self, methods);
+        initMethods(this, methods);
       }
     
       // Events
