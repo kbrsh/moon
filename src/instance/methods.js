@@ -27,7 +27,7 @@ Moon.prototype.get = function(key) {
 /**
  * Sets Value in Data
  * @param {String} key
- * @param {String} val
+ * @param {Any} val
  */
 Moon.prototype.set = function(key, val) {
   // Get observer
