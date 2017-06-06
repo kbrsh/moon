@@ -1983,7 +1983,7 @@
     
     /**
      * Renders "m-for" Directive Array
-     * @param {Array|Object} iteratable
+     * @param {Array|Object|Number} iteratable
      * @param {Function} item
      */
     Moon.prototype.renderLoop = function (iteratable, item) {
