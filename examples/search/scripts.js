@@ -18,7 +18,7 @@ new Moon({
 		search: function() {
 			var results = search(this.get("query"));
 			this.set("results", results.sort(function(a, b) {
-				return a.score - b.score;
+				return b.score - a.score;
 			}));
 		}
 	}
