@@ -1984,71 +1984,6 @@
     };
     
     /**
-     * Renders "m-for" Directive Array
-     * @param {Array|Object|Number} iteratable
-     * @param {Function} item
-     */
-    Moon.prototype.renderLoop = function (iteratable, item) {
-      var items = null;
-    
-      if (Array.isArray(iteratable)) {
-        items = new Array(iteratable.length);
-    
-        // Iterate through the array
-        for (var i = 0; i < iteratable.length; i++) {
-          items[i] = item(iteratable[i], i);
-        }
-      } else if (typeof iteratable === "object") {
-        items = [];
-    
-        // Iterate through the object
-        for (var key in iteratable) {
-          items.push(item(iteratable[key], key));
-        }
-      } else if (typeof iteratable === "number") {
-        items = new Array(iteratable);
-    
-        // Repeat a certain amount of times
-        for (var _i = 0; _i < iteratable; _i++) {
-          items[_i] = item(_i + 1, _i);
-        }
-      }
-    
-      return items;
-    };
-    
-    /**
-     * Renders a Class in Array/Object Form
-     * @param {Array|Object|String} classNames
-     * @return {String} renderedClassNames
-     */
-    Moon.prototype.renderClass = function (classNames) {
-      if (typeof classNames === "string") {
-        // If they are a string, no need for any more processing
-        return classNames;
-      }
-    
-      var renderedClassNames = "";
-      if (Array.isArray(classNames)) {
-        // It's an array, so go through them all and generate a string
-        for (var i = 0; i < classNames.length; i++) {
-          renderedClassNames += this.renderClass(classNames[i]) + ' ';
-        }
-      } else if (typeof classNames === "object") {
-        // It's an object, so to through and render them to a string if the corresponding condition is true
-        for (var className in classNames) {
-          if (classNames[className]) {
-            renderedClassNames += className + ' ';
-          }
-        }
-      }
-    
-      // Remove trailing space and return
-      renderedClassNames = renderedClassNames.slice(0, -1);
-      return renderedClassNames;
-    };
-    
-    /**
      * Mounts Moon Element
      * @param {Object} el
      */
@@ -2273,6 +2208,71 @@
     };
     
     /**
+     * Renders a Class in Array/Object Form
+     * @param {Array|Object|String} classNames
+     * @return {String} renderedClassNames
+     */
+    Moon.renderClass = function (classNames) {
+      if (typeof classNames === "string") {
+        // If they are a string, no need for any more processing
+        return classNames;
+      }
+    
+      var renderedClassNames = "";
+      if (Array.isArray(classNames)) {
+        // It's an array, so go through them all and generate a string
+        for (var i = 0; i < classNames.length; i++) {
+          renderedClassNames += Moon.renderClass(classNames[i]) + ' ';
+        }
+      } else if (typeof classNames === "object") {
+        // It's an object, so to through and render them to a string if the corresponding condition is truthy
+        for (var className in classNames) {
+          if (classNames[className]) {
+            renderedClassNames += className + ' ';
+          }
+        }
+      }
+    
+      // Remove trailing space and return
+      renderedClassNames = renderedClassNames.slice(0, -1);
+      return renderedClassNames;
+    };
+    
+    /**
+     * Renders "m-for" Directive Array
+     * @param {Array|Object|Number} iteratable
+     * @param {Function} item
+     */
+    Moon.renderLoop = function (iteratable, item) {
+      var items = null;
+    
+      if (Array.isArray(iteratable)) {
+        items = new Array(iteratable.length);
+    
+        // Iterate through the array
+        for (var i = 0; i < iteratable.length; i++) {
+          items[i] = item(iteratable[i], i);
+        }
+      } else if (typeof iteratable === "object") {
+        items = [];
+    
+        // Iterate through the object
+        for (var key in iteratable) {
+          items.push(item(iteratable[key], key));
+        }
+      } else if (typeof iteratable === "number") {
+        items = new Array(iteratable);
+    
+        // Repeat a certain amount of times
+        for (var _i = 0; _i < iteratable; _i++) {
+          items[_i] = item(_i + 1, _i);
+        }
+      }
+    
+      return items;
+    };
+    
+    /**
      * Renders an Event Modifier
      * @param {Number} keyCode
      * @param {String} modifier
@@ -2318,7 +2318,7 @@
         }
     
         // Use the renderLoop runtime helper
-        return 'instance.renderLoop(' + iteratable + ', function(' + params + ') { return ' + code + '; })';
+        return 'Moon.renderLoop(' + iteratable + ', function(' + params + ') { return ' + code + '; })';
       }
     };
     
@@ -2445,7 +2445,7 @@
         compileTemplateExpression(value, dependencies);
         if (prop === "class") {
           // Detected class, use runtime class render helper
-          return '"class": instance.renderClass(' + value + '), ';
+          return '"class": Moon.renderClass(' + value + '), ';
         } else {
           // Default literal attribute
           return '"' + prop + '": ' + value + ', ';

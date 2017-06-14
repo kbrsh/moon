@@ -35,7 +35,7 @@ specialDirectives["m-for"] = {
     }
 
     // Use the renderLoop runtime helper
-    return `instance.renderLoop(${iteratable}, function(${params}) { return ${code}; })`;
+    return `Moon.renderLoop(${iteratable}, function(${params}) { return ${code}; })`;
   }
 }
 
@@ -162,7 +162,7 @@ specialDirectives["m-literal"] = {
     compileTemplateExpression(value, dependencies);
     if(prop === "class") {
       // Detected class, use runtime class render helper
-      return `"class": instance.renderClass(${value}), `;
+      return `"class": Moon.renderClass(${value}), `;
     } else {
       // Default literal attribute
       return `"${prop}": ${value}, `;
