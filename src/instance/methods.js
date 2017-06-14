@@ -129,23 +129,26 @@ Moon.prototype.off = function(eventName, handler) {
  */
 Moon.prototype.emit = function(eventName, customMeta) {
   // Setup metadata to pass to event
-  var meta = customMeta || {};
+  let meta = customMeta || {};
   meta.type = eventName;
 
   // Get handlers and global handlers
-  var handlers = this.$events[eventName];
-  var globalHandlers = this.$events["*"];
+  let handlers = this.$events[eventName];
+  let globalHandlers = this.$events["*"];
+
+  // Counter
+  let i = 0;
 
   // Call all handlers for the event name
   if(handlers !== undefined) {
-    for(var i = 0; i < handlers.length; i++) {
+    for(i = 0; i < handlers.length; i++) {
       handlers[i](meta);
     }
   }
 
   if(globalHandlers !== undefined) {
     // Call all of the global handlers if present
-    for(var i = 0; i < globalHandlers.length; i++) {
+    for(i = 0; i < globalHandlers.length; i++) {
       globalHandlers[i](meta);
     }
   }

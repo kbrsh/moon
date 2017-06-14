@@ -1968,16 +1968,19 @@
       var handlers = this.$events[eventName];
       var globalHandlers = this.$events["*"];
     
+      // Counter
+      var i = 0;
+    
       // Call all handlers for the event name
       if (handlers !== undefined) {
-        for (var i = 0; i < handlers.length; i++) {
+        for (i = 0; i < handlers.length; i++) {
           handlers[i](meta);
         }
       }
     
       if (globalHandlers !== undefined) {
         // Call all of the global handlers if present
-        for (var i = 0; i < globalHandlers.length; i++) {
+        for (i = 0; i < globalHandlers.length; i++) {
           globalHandlers[i](meta);
         }
       }
