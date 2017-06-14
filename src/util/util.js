@@ -42,14 +42,6 @@ const queueBuild = function(instance) {
 }
 
 /**
- * Escapes a String
- * @param {String} str
- */
-const escapeString = function(str) {
-  return str.replace(backslashRE, "\\\\").replace(doubleQuoteRE, "\\\"").replace(newLineRE, "\\n");
-}
-
-/**
  * Resolves an Object Keypath and Sets it
  * @param {Object} instance
  * @param {Object} obj
@@ -59,13 +51,26 @@ const escapeString = function(str) {
  */
 const resolveKeyPath = function(instance, obj, keypath, val) {
   keypath = keypath.replace(hashRE, '.$1');
-  var path = keypath.split(".");
-  for(var i = 0; i < path.length - 1; i++) {
+  const path = keypath.split(".");
+  let i = 0;
+  for(; i < path.length - 1; i++) {
     const propName = path[i];
     obj = obj[propName];
   }
   obj[path[i]] = val;
   return path[0];
+}
+
+/**
+ * Calls a Hook
+ * @param {Object} instance
+ * @param {String} name
+ */
+const callHook = function(instance, name) {
+  const hook = instance.$hooks[name];
+  if(hook !== undefined) {
+    hook.call(instance);
+  }
 }
 
 /**
@@ -118,6 +123,7 @@ const extend = function(parent, child) {
   for(let key in child) {
     parent[key] = child[key];
   }
+
   return parent;
 }
 
@@ -129,12 +135,16 @@ const extend = function(parent, child) {
  */
 const merge = function(parent, child) {
   let merged = {};
-  for(var key in parent) {
+  let key = null;
+
+  for(key in parent) {
     merged[key] = parent[key];
   }
-  for (var key in child) {
+
+  for(key in child) {
     merged[key] = child[key];
   }
+
   return merged;
 }
 
@@ -154,15 +164,11 @@ const defineProperty = function(obj, prop, value, def) {
 }
 
 /**
- * Calls a Hook
- * @param {Object} instance
- * @param {String} name
+ * Escapes a String
+ * @param {String} str
  */
-const callHook = function(instance, name) {
-  const hook = instance.$hooks[name];
-  if(hook !== undefined) {
-    hook.call(instance);
-  }
+const escapeString = function(str) {
+  return str.replace(backslashRE, "\\\\").replace(doubleQuoteRE, "\\\"").replace(newLineRE, "\\n");
 }
 
 /**

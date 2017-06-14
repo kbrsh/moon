@@ -19,11 +19,12 @@
     var eventModifiersCode = {
       stop: 'event.stopPropagation();',
       prevent: 'event.preventDefault();',
-      ctrl: 'if(!event.ctrlKey) {return;};',
-      shift: 'if(!event.shiftKey) {return;};',
-      alt: 'if(!event.altKey) {return;};',
-      enter: 'if(event.keyCode !== 13) {return;};'
+      ctrl: 'if(event.ctrlKey === false) {return null;};',
+      shift: 'if(event.shiftKey === false) {return null;};',
+      alt: 'if(event.altKey === false) {return null;};',
+      enter: 'if(event.keyCode !== 13) {return null;};'
     };
+    var eventModifiers = {};
     
     /* ======= Observer ======= */
     /**
@@ -181,14 +182,6 @@
     };
     
     /**
-     * Escapes a String
-     * @param {String} str
-     */
-    var escapeString = function (str) {
-      return str.replace(backslashRE, "\\\\").replace(doubleQuoteRE, "\\\"").replace(newLineRE, "\\n");
-    };
-    
-    /**
      * Resolves an Object Keypath and Sets it
      * @param {Object} instance
      * @param {Object} obj
@@ -199,12 +192,25 @@
     var resolveKeyPath = function (instance, obj, keypath, val) {
       keypath = keypath.replace(hashRE, '.$1');
       var path = keypath.split(".");
-      for (var i = 0; i < path.length - 1; i++) {
+      var i = 0;
+      for (; i < path.length - 1; i++) {
         var propName = path[i];
         obj = obj[propName];
       }
       obj[path[i]] = val;
       return path[0];
+    };
+    
+    /**
+     * Calls a Hook
+     * @param {Object} instance
+     * @param {String} name
+     */
+    var callHook = function (instance, name) {
+      var hook = instance.$hooks[name];
+      if (hook !== undefined) {
+        hook.call(instance);
+      }
     };
     
     /**
@@ -257,6 +263,7 @@
       for (var key in child) {
         parent[key] = child[key];
       }
+    
       return parent;
     };
     
@@ -268,12 +275,16 @@
      */
     var merge = function (parent, child) {
       var merged = {};
-      for (var key in parent) {
+      var key = null;
+    
+      for (key in parent) {
         merged[key] = parent[key];
       }
-      for (var key in child) {
+    
+      for (key in child) {
         merged[key] = child[key];
       }
+    
       return merged;
     };
     
@@ -293,15 +304,11 @@
     };
     
     /**
-     * Calls a Hook
-     * @param {Object} instance
-     * @param {String} name
+     * Escapes a String
+     * @param {String} str
      */
-    var callHook = function (instance, name) {
-      var hook = instance.$hooks[name];
-      if (hook !== undefined) {
-        hook.call(instance);
-      }
+    var escapeString = function (str) {
+      return str.replace(backslashRE, "\\\\").replace(doubleQuoteRE, "\\\"").replace(newLineRE, "\\n");
     };
     
     /**
@@ -474,13 +481,12 @@
       REPLACE: 3,
       TEXT: 4,
       CHILDREN: 5
-    };
     
-    /**
-     * Gives Default Metadata for a VNode
-     * @return {Object} metadata
-     */
-    var defaultMetadata = function () {
+      /**
+       * Gives Default Metadata for a VNode
+       * @return {Object} metadata
+       */
+    };var defaultMetadata = function () {
       return {
         shouldRender: false
       };
@@ -1696,10 +1702,9 @@
         // Setup Nested Attributes within Properties
         vnode.props = {
           attrs: vnode.props
-        };
     
-        // Create a Call for the Element, or Register a Slot
-        var compiledCode = "";
+          // Create a Call for the Element, or Register a Slot
+        };var compiledCode = "";
     
         if (vnode.type === "slot") {
           parentVNode.meta.shouldRender = true;
@@ -2165,16 +2170,13 @@
       silent: "development" === "production" || typeof console === 'undefined',
       delimiters: ["{{", "}}"],
       keyCodes: function (keyCodes) {
-        for (var keyCode in keyCodes) {
-          eventModifiersCode[keyCode] = 'if(event.keyCode !== ' + keyCodes[keyCode] + ') {return;};';
-        }
+        extend(eventModifiers, keyCodes);
       }
-    };
     
-    /**
-     * Version of Moon
-     */
-    Moon.version = '0.10.0';
+      /**
+       * Version of Moon
+       */
+    };Moon.version = '0.10.0';
     
     /**
      * Moon Utilities
@@ -2186,14 +2188,13 @@
       merge: merge,
       extend: extend,
       h: h
-    };
     
-    /**
-     * Runs an external Plugin
-     * @param {Object} plugin
-     * @param {Object} options
-     */
-    Moon.use = function (plugin, options) {
+      /**
+       * Runs an external Plugin
+       * @param {Object} plugin
+       * @param {Object} options
+       */
+    };Moon.use = function (plugin, options) {
       plugin.init(Moon, options);
     };
     
@@ -2271,6 +2272,15 @@
       return MoonComponent;
     };
     
+    /**
+     * Renders an Event Modifier
+     * @param {Number} keyCode
+     * @param {String} modifier
+     */
+    Moon.renderEventModifier = function (keyCode, modifier) {
+      return keyCode === eventModifiers[modifier];
+    };
+    
     /* ======= Default Directives ======= */
     
     var emptyVNode = 'h("#text", ' + generateMeta(defaultMetadata()) + ', "")';
@@ -2333,7 +2343,12 @@
         // Generate any modifiers
         var modifiers = "";
         for (var i = 0; i < rawModifiers.length; i++) {
-          modifiers += eventModifiersCode[rawModifiers[i]];
+          var eventModifierCode = eventModifiersCode[rawModifiers[i]];
+          if (eventModifierCode === undefined) {
+            modifiers += 'if(Moon.renderEventModifier(event.keyCode, "' + rawModifiers[i] + '") === false) {return null;};';
+          } else {
+            modifiers += eventModifierCode;
+          }
         }
     
         // Final event listener code

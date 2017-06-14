@@ -59,8 +59,13 @@ specialDirectives["m-on"] = {
 
     // Generate any modifiers
     let modifiers = "";
-    for(var i = 0; i < rawModifiers.length; i++) {
-      modifiers += eventModifiersCode[rawModifiers[i]];
+    for(let i = 0; i < rawModifiers.length; i++) {
+      const eventModifierCode = eventModifiersCode[rawModifiers[i]];
+      if(eventModifierCode === undefined) {
+        modifiers += `if(Moon.renderEventModifier(event.keyCode, "${rawModifiers[i]}") === false) {return null;};`
+      } else {
+        modifiers += eventModifierCode;
+      }
     }
 
     // Final event listener code

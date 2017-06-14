@@ -7,9 +7,7 @@ Moon.config = {
   silent: ("__ENV__" === "production") || (typeof console === 'undefined'),
   delimiters: ["{{", "}}"],
   keyCodes: function(keyCodes) {
-    for(var keyCode in keyCodes) {
-      eventModifiersCode[keyCode] = `if(event.keyCode !== ${keyCodes[keyCode]}) {return;};`;
-    }
+    extend(eventModifiers, keyCodes);
   }
 }
 
@@ -112,3 +110,13 @@ Moon.component = function(name, options) {
 
   return MoonComponent;
 }
+
+
+/**
+ * Renders an Event Modifier
+ * @param {Number} keyCode
+ * @param {String} modifier
+ */
+ Moon.renderEventModifier = function(keyCode, modifier) {
+  return keyCode === eventModifiers[modifier];
+ }
