@@ -40,6 +40,10 @@ Still, you do **not have to** use Moon if you are happy with your current soluti
 
 See [the website.](https://kingpixil.github.io/moon)
 
+## How to Contribute?
+
+Check the [CONTRIBUTING](/CONTRIBUTING.md) file for more information about this project and how to help.
+
 ### License
 
 Licensed under the [MIT License](http://kingpixil.github.io/license) by [Kabir Shah](https://kabir.ml)
