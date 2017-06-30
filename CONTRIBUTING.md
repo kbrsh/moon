@@ -68,6 +68,20 @@ Be sure to put the number of the issue you fixed.
   * `util` - code for utilities used throughout the codebase
   * `index.js` - code that defines the Moon constructor and normalizes all options
   * `wrapper.js` - code that exports Moon correctly depending on the environment
+* `dist` - distribution files
+  * `moon.js` - development version of moon
+  * `moon.min.js` - production (minified + no warnings) version of moon
+* `build` - scripts for automating certain build tasks
+  * `release.js` - generates release notes and copies them to the clipboard
+  * `travis.sh` - script for Travis CI to run for every push to Git or a PR
+* `test` - files for testing
+  * `test` - folder with actual test definitions
+    * `test.js` - file with assertions for tests
+  * `index.html` - HTML file for Mocha/Chai Phantom browser tests
+  * `test.js` - file that logs the browser test URL
+* `benchmarks` - benchmarks for measuring performance
+  * `dbmon` - DBMonster benchmark code
+  * `loop` - Loop benchmark code
 
 ### Submitting an Issue
 
