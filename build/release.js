@@ -77,7 +77,7 @@ const generateCategory = (header, entries) => {
 	}
 }
 
-generateCategory("Breaking", breaking);
+generateCategory("Breaking Changes", breaking);
 generateCategory("Features", features);
 generateCategory("Patches", patches);
 generateCategory("Performance", performance);
