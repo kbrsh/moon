@@ -6,7 +6,8 @@
   "scripts": {
     "build": "gulp",
     "test": "gulp test && node test/test.js",
-    "test-saucelabs": "gulp test-saucelabs"
+    "test-saucelabs": "gulp test-saucelabs",
+    "release": "node build/release.js"
   },
   "repository": {
     "type": "git",
