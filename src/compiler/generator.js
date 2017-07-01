@@ -36,6 +36,7 @@ const generateProps = function(node, parent, state) {
 					afterGenerate: afterGenerate
 				};
 
+				node.meta.shouldRender = true;
 				hasSpecialDirectivesAfter = true;
 			}
 		} else if(name[0] === "m" && name[1] === "-") {
@@ -46,9 +47,6 @@ const generateProps = function(node, parent, state) {
 
 			if(value !== compiled) {
 				node.meta.shouldRender = true;
-				if(parent !== undefined) {
-					parent.meta.shouldRender = true;
-				}
 			}
 
 			if(state.hasAttrs === false) {
