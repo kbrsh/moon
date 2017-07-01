@@ -1,7 +1,6 @@
 /* ======= Global Utilities ======= */
 
 const hashRE = /\[(\w+)\]/g;
-const RegExEscapeRE = /[\-\[\]{}()*+?.,\\\^$|#\s]/g;
 const newLineRE = /\n/g;
 const doubleQuoteRE = /"/g;
 const backslashRE = /\\/g;
@@ -169,14 +168,6 @@ const defineProperty = function(obj, prop, value, def) {
  */
 const escapeString = function(str) {
   return str.replace(backslashRE, "\\\\").replace(doubleQuoteRE, "\\\"").replace(newLineRE, "\\n");
-}
-
-/**
- * Escapes String Values for a Regular Expression
- * @param {String} str
- */
-const escapeRegex = function(str) {
-  return str.replace(RegExEscapeRE, "\\$&");
 }
 
 /**

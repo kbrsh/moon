@@ -1,3 +1,5 @@
+const openRE = /\{\{/;
+const closeRE = /\s*\}\}/;
 const whitespaceRE = /\s/;
 const expressionRE = /"[^"]*"|'[^']*'|\.\w*[a-zA-Z$_]\w*|\w*[a-zA-Z$_]\w*:|(\w*[a-zA-Z$_]\w*)/g;
 const globals = ['true', 'false', 'undefined', 'null', 'NaN', 'typeof', 'in'];
@@ -5,21 +7,15 @@ const globals = ['true', 'false', 'undefined', 'null', 'NaN', 'typeof', 'in'];
 /**
  * Compiles a Template
  * @param {String} template
- * @param {Array} delimiters
- * @param {Array} escapedDelimiters
  * @param {Array} dependencies
  * @param {Boolean} isString
  * @return {String} compiled template
  */
-const compileTemplate = function(template, delimiters, escapedDelimiters, dependencies, isString) {
+const compileTemplate = function(template, dependencies, isString) {
   let state = {
     current: 0,
     template: template,
     output: "",
-    openDelimiterLen: delimiters[0].length,
-    closeDelimiterLen: delimiters[1].length,
-    openRE: new RegExp(escapedDelimiters[0]),
-    closeRE: new RegExp(`\\s*${escapedDelimiters[1]}`),
     dependencies: dependencies
   };
 
@@ -33,7 +29,7 @@ const compileTemplateState = function(state, isString) {
   const length = template.length;
   while(state.current < length) {
     // Match Text Between Templates
-    const value = scanTemplateStateUntil(state, state.openRE);
+    const value = scanTemplateStateUntil(state, openRE);
 
     if(value) {
       state.output += escapeString(value);
@@ -45,13 +41,13 @@ const compileTemplateState = function(state, isString) {
     }
 
     // Exit Opening Delimiter
-    state.current += state.openDelimiterLen;
+    state.current += 2;
 
     // Consume whitespace
     scanTemplateStateForWhitespace(state);
 
     // Get the name of the opening tag
-    let name = scanTemplateStateUntil(state, state.closeRE);
+    let name = scanTemplateStateUntil(state, closeRE);
 
     // If we've reached the end, the tag was unclosed
     if(state.current === length) {
@@ -78,7 +74,7 @@ const compileTemplateState = function(state, isString) {
     scanTemplateStateForWhitespace(state);
 
     // Exit closing delimiter
-    state.current += state.closeDelimiterLen;
+    state.current += 2;
   }
 }
 
