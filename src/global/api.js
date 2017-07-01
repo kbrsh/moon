@@ -5,7 +5,6 @@
  */
 Moon.config = {
   silent: ("__ENV__" === "production") || (typeof console === 'undefined'),
-  delimiters: ["{{", "}}"],
   keyCodes: function(keyCodes) {
     extend(eventModifiers, keyCodes);
   }
