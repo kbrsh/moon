@@ -10,7 +10,7 @@ specialDirectives["m-if"] = {
 }
 
 specialDirectives["m-for"] = {
-  beforeGenerate: function(value, meta, vnode, parentVNode, dependencies) {
+  beforeGenerate: function(prop, vnode, parentVNode, state) {
     // Setup Deep Flag to Flatten Array
     parentVNode.deep = true;
   },
@@ -40,8 +40,11 @@ specialDirectives["m-for"] = {
 }
 
 specialDirectives["m-on"] = {
-  beforeGenerate: function(value, meta, vnode, parentVNode, dependencies) {
+  beforeGenerate: function(prop, vnode, parentVNode, state) {
     // Extract Event, Modifiers, and Parameters
+    let value = prop.value;
+    let meta = prop.meta;
+
     let methodToCall = value;
 
     let rawModifiers = meta.arg.split(".");
@@ -54,7 +57,7 @@ specialDirectives["m-on"] = {
       // Custom parameters detected, update method to call, and generated parameter code
       methodToCall = rawParams.shift();
       params = rawParams.join("(").slice(0, -1);
-      compileTemplateExpression(params, dependencies);
+      compileTemplateExpression(params, state.dependencies);
     }
 
     // Generate any modifiers
@@ -75,12 +78,13 @@ specialDirectives["m-on"] = {
 }
 
 specialDirectives["m-model"] = {
-  beforeGenerate: function(value, meta, vnode, parentVNode, dependencies) {
+  beforeGenerate: function(prop, vnode, parentVNode, state) {
     // Get attributes
+    const value = prop.value;
     const attrs = vnode.props.attrs;
 
     // Add dependencies for the getter and setter
-    compileTemplateExpression(value, dependencies);
+    compileTemplateExpression(value, state.dependencies);
 
     // Setup default event type, keypath to set, value of setter, DOM property to change, and value of DOM property
     let eventType = "input";
@@ -171,7 +175,7 @@ specialDirectives["m-literal"] = {
 };
 
 specialDirectives["m-html"] = {
-  beforeGenerate: function(value, meta, vnode, parentVNode, dependencies) {
+  beforeGenerate: function(prop, vnode, parentVNode, state) {
     const dom = vnode.props.dom;
     if(dom === undefined) {
       vnode.props.dom = dom = {};
