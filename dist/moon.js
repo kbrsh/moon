@@ -1408,6 +1408,9 @@
     
     var generateProps = function (node, parent, state) {
       var props = node.props;
+      node.props = {
+        attrs: props
+      };
     
       var directives = {};
     

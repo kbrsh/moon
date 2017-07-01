@@ -1,5 +1,8 @@
 const generateProps = function(node, parent, state) {
 	const props = node.props;
+	node.props = {
+		attrs: props
+	}
 
 	let directives = {};
 
@@ -51,7 +54,7 @@ const generateProps = function(node, parent, state) {
 			if(state.hasAttrs === false) {
 				state.hasAttrs = true;
 			}
-			
+
 			propsCode += `"${propKey}": "${compiled}", `;
 		}
 	}

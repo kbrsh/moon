@@ -174,7 +174,6 @@ describe("Compiler", function() {
 
 describe('Data', function() {
   createTestElement("data", '{{msg}}');
-  createTestElement("dataCustomDelimiters", '${msg}');
   createTestElement("data2", '{{msg.obj.nested}}');
   createTestElement("data3", '{{msg.obj.nested}}');
   var dataApp = new Moon({
@@ -183,14 +182,6 @@ describe('Data', function() {
       msg: "Hello Moon!"
     }
   });
-  Moon.config.delimiters = ['${', '}'];
-  var dataAppCustomDelimiters = new Moon({
-    el: "#dataCustomDelimiters",
-    data: {
-      msg: "Hello Moon!"
-    }
-  })
-  Moon.config.delimiters = ['{{', '}}'];
   var dataApp2 = new Moon({
     el: "#data2",
     data: {
@@ -213,9 +204,6 @@ describe('Data', function() {
   });
   it('when initializing', function() {
     expect(document.getElementById("data").innerHTML).to.equal("Hello Moon!");
-  });
-  it('when initializing with custom delimiters', function() {
-    expect(document.getElementById("dataCustomDelimiters").innerHTML).to.equal("Hello Moon!");
   });
   it('when setting', function(done) {
     dataApp.set('msg', 'New Value');
