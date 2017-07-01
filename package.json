@@ -36,13 +36,16 @@
     "gulp-include": "^2.3.1",
     "gulp-istanbul": "^1.1.1",
     "gulp-istanbul-report": "0.0.1",
-    "gulp-mocha-phantomjs": "^0.12.0",
     "gulp-replace": "^0.5.4",
     "gulp-saucelabs": "^0.1.5",
     "gulp-size": "^2.1.0",
     "gulp-uglify": "^2.1.2",
     "istanbul": "^0.4.5",
+    "karma": "^1.7.0",
+    "karma-mocha": "^1.3.0",
+    "karma-phantomjs-launcher": "^1.0.4",
+    "karma-spec-reporter": "0.0.31",
     "mocha": "^3.2.0",
-    "mocha-phantomjs-istanbul": "0.0.2"
+    "phantomjs-prebuilt": "^2.1.14"
   }
 }

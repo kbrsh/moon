@@ -1,6 +1,6 @@
 /* ======= Default Directives ======= */
 
-const emptyVNode = `h("#text", ${generateMeta(defaultMetadata())}, "")`;
+const emptyVNode = `h("#text", ${generateMeta(defaultMetadata())}"")`;
 
 specialDirectives["m-if"] = {
   afterGenerate: function(prop, code, vnode, state) {

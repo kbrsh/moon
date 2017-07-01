@@ -7,7 +7,7 @@ var istanbul = require("gulp-istanbul");
 var babel = require('gulp-babel');
 var replace = require('gulp-replace');
 var istanbulReport = require('gulp-istanbul-report');
-var mochaPhantomJS = require('gulp-mocha-phantomjs');
+var Server = require('karma').Server;
 var include = require("gulp-include");
 var concat = require("gulp-concat");
 var header = require("gulp-header");
@@ -68,25 +68,20 @@ gulp.task('instrument', function () {
 });
 
 // Run Tests
-gulp.task('test', ['instrument'], function () {
+gulp.task('test', ['instrument'], function (done) {
     console.log("[Moon] Running Tests...");
     console.log("[Moon] Version: " + require("./dist/moon.min.js").version);
-    return gulp.src('test/test.html', {read:false})
-      .pipe(mochaPhantomJS({
-        phantomjs: {
-          hooks: 'mocha-phantomjs-istanbul',
-          coverageFile: './coverage/coverage.json',
-          useColors: true
-        },
-        reporter: 'spec'
-      }))
-      .on('finish', function() {
-        console.log('[Moon] Tests Passed\n');
-        console.log('[Moon] Generating Coverage Report...');
-        gulp.src('./coverage/coverage.json')
-          .pipe(istanbulReport())
-        console.log("[Moon] Generated Coverage Report");
-      });
+    new Server({
+      configFile: __dirname + '/test/karma.conf.js',
+      singleRun: true
+    }, function() {
+      // console.log('[Moon] Tests Passed\n');
+      //   console.log('[Moon] Generating Coverage Report...');
+      //   gulp.src('./coverage/coverage.json')
+      //     .pipe(istanbulReport())
+      // console.log("[Moon] Generated Coverage Report");
+      done();
+    }).start();
 });
 
 // Saucelabs

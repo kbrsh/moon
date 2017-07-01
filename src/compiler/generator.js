@@ -38,10 +38,10 @@ const generateProps = function(node, parent, state) {
 		} else if(name[0] === "m" && name[1] === "-") {
 
 		} else {
-			const escaped = escapeString(prop.value);
-			const compiled = compileTemplate(escaped, state.dependencies, true);
+			const value = prop.value;
+			const compiled = compileTemplate(value, state.dependencies, true);
 
-			if(escaped !== compiled) {
+			if(value !== compiled) {
 				node.meta.shouldRender = true;
 				if(parent !== undefined) {
 					parent.meta.shouldRender = true;
@@ -51,6 +51,7 @@ const generateProps = function(node, parent, state) {
 			if(state.hasAttrs === false) {
 				state.hasAttrs = true;
 			}
+			
 			propsCode += `"${propKey}": "${compiled}", `;
 		}
 	}
@@ -103,11 +104,10 @@ const generateMeta = function(meta) {
 
 const generateNode = function(node, parent, state) {
 	if(typeof node === "string") {
-		const escaped = escapeString(node);
-		const compiled = compileTemplate(escaped, state.dependencies, true);
+		const compiled = compileTemplate(node, state.dependencies, true);
 		let meta = defaultMetadata();
 
-		if(escaped !== compiled) {
+		if(node !== compiled) {
 			meta.shouldRender = true;
 			parent.meta.shouldRender = true;
 		}
@@ -180,7 +180,6 @@ const generate = function(tree) {
 
 	const code = `var instance = this; ${dependenciesCode}return ${rootCode};`;
 
-	return code;
 	try {
     return new Function("h", code);
   } catch(e) {
@@ -188,67 +187,3 @@ const generate = function(tree) {
     return noop;
   }
 }
-
-console.log(generate({
-  "type": "ROOT",
-  "children": [
-    {
-      "type": "div",
-      "props": {
-        "m-if": {
-          "name": "m-if",
-          "value": "true",
-          "meta": {}
-        }
-      },
-      "children": [
-        {
-          "type": "h1",
-          "props": {
-          	"class": {
-          		"name": "class",
-          		"value": "red",
-          		"meta": {}
-          	}
-          },
-          "children": [
-            "static"
-          ]
-        },
-        {
-          "type": "h5",
-          "props": {
-          	"m-on:click": {
-          		"name": "m-on",
-          		"value": "handle",
-          		"meta": {
-          			"arg": "click"
-          		}
-          	}
-          },
-          "children": [
-            "{{dynamic}}"
-          ]
-        },
-        {
-          "type": "p",
-          "props": {
-            "m-mask": {
-              "name": "m-mask",
-              "value": "",
-              "meta": {}
-            },
-            "m-literal:hi": {
-              "name": "m-literal",
-              "value": "true",
-              "meta": {
-                "arg": "hi"
-              }
-            }
-          },
-          "children": []
-        }
-      ]
-    }
-  ]
-}))

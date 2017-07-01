@@ -12,13 +12,6 @@
   window.CustomEvent = CustomEvent;
 })();
 // Tests
-if(!chai) {
-  var chai = require("chai");
-}
-
-if(!Moon) {
-  var Moon = require("../../dist/moon.js");
-}
 
 if(document.getElementById("moon-els")) {
   var moon_els = document.getElementById("moon-els");
