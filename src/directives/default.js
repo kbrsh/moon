@@ -3,8 +3,9 @@
 const emptyVNode = `h("#text", ${generateMeta(defaultMetadata())}, "")`;
 
 specialDirectives["m-if"] = {
-  afterGenerate: function(value, meta, code, vnode, dependencies) {
-    compileTemplateExpression(value, dependencies);
+  afterGenerate: function(prop, code, vnode, state) {
+    const value = prop.value;
+    compileTemplateExpression(value, state.dependencies);
     return `${value} ? ${code} : ${emptyVNode}`;
   }
 }
@@ -14,14 +15,14 @@ specialDirectives["m-for"] = {
     // Setup Deep Flag to Flatten Array
     parentVNode.deep = true;
   },
-  afterGenerate: function(value, meta, code, vnode, dependencies) {
+  afterGenerate: function(prop, code, vnode, state) {
     // Get Parts
-    const parts = value.split(" in ");
+    const parts = prop.value.split(" in ");
     // Aliases
     const aliases = parts[0].split(",");
     // The Iteratable
     const iteratable = parts[1];
-    compileTemplateExpression(iteratable, dependencies);
+    compileTemplateExpression(iteratable, state.dependencies);
 
     // Get any parameters
     const params = aliases.join(",");
