@@ -4,6 +4,7 @@ const generateProps = function(node, parent, state) {
 		attrs: props
 	}
 
+	let hasDirectives = false;
 	let directives = {};
 
 	let hasSpecialDirectivesAfter = false;
@@ -40,7 +41,8 @@ const generateProps = function(node, parent, state) {
 				hasSpecialDirectivesAfter = true;
 			}
 		} else if(name[0] === "m" && name[1] === "-") {
-
+			node.meta.shouldRender = true;
+			hasDirectives = true;
 		} else {
 			const value = prop.value;
 			const compiled = compileTemplate(value, state.dependencies, true);
