@@ -16,13 +16,18 @@ specialDirectives["m-for"] = {
     parentVNode.deep = true;
   },
   afterGenerate: function(prop, code, vnode, state) {
+    // Get dependencies
+    let dependencies = state.dependencies;
+
     // Get Parts
     const parts = prop.value.split(" in ");
+
     // Aliases
     const aliases = parts[0].split(",");
+
     // The Iteratable
     const iteratable = parts[1];
-    compileTemplateExpression(iteratable, state.dependencies);
+    compileTemplateExpression(iteratable, dependencies);
 
     // Get any parameters
     const params = aliases.join(",");
@@ -84,8 +89,11 @@ specialDirectives["m-model"] = {
     const value = prop.value;
     const attrs = vnode.props.attrs;
 
+    // Get dependencies
+    let dependencies = state.dependencies;
+
     // Add dependencies for the getter and setter
-    compileTemplateExpression(value, state.dependencies);
+    compileTemplateExpression(value, dependencies);
 
     // Setup default event type, keypath to set, value of setter, DOM property to change, and value of DOM property
     let eventType = "input";
@@ -164,7 +172,8 @@ specialDirectives["m-model"] = {
 specialDirectives["m-literal"] = {
   duringPropGenerate: function(prop, vnode, state) {
     const propName = prop.meta.arg;
-    compileTemplateExpression(prop.value, state.dependencies);
+    const propValue = prop.value;
+    compileTemplateExpression(propValue, state.dependencies);
 
     if(state.hasAttrs === false) {
       state.hasAttrs = true;
@@ -172,21 +181,22 @@ specialDirectives["m-literal"] = {
 
     if(propName === "class") {
       // Detected class, use runtime class render helper
-      return `"class": Moon.renderClass(${value}), `;
+      return `"class": Moon.renderClass(${propValue}), `;
     } else {
       // Default literal attribute
-      return `"${prop}": ${value}, `;
+      return `"${propName}": ${propValue}, `;
     }
   }
 };
 
 specialDirectives["m-html"] = {
   beforeGenerate: function(prop, vnode, parentVNode, state) {
+    const value = prop.value;
     const dom = vnode.props.dom;
     if(dom === undefined) {
       vnode.props.dom = dom = {};
     }
-    compileTemplateExpression(value, dependencies);
+    compileTemplateExpression(value, state.dependencies);
     dom.innerHTML = `("" + ${value})`;
   }
 }

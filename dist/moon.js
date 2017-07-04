@@ -978,10 +978,10 @@
       var length = template.length;
       while (state.current < length) {
         // Match Text Between Templates
-        var _value = scanTemplateStateUntil(state, openRE);
+        var value = scanTemplateStateUntil(state, openRE);
     
-        if (_value) {
-          state.output += escapeString(_value);
+        if (value) {
+          state.output += escapeString(value);
         }
     
         // If we've reached the end, there are no more templates
@@ -1458,10 +1458,10 @@
           hasDirectives = true;
           node.meta.shouldRender = true;
         } else {
-          var _value2 = _prop.value;
-          var compiled = compileTemplate(_value2, state.dependencies, true);
+          var value = _prop.value;
+          var compiled = compileTemplate(value, state.dependencies, true);
     
-          if (_value2 !== compiled) {
+          if (value !== compiled) {
             node.meta.shouldRender = true;
           }
     
@@ -1490,14 +1490,25 @@
           directivePropValue = directiveProp.value;
     
           compileTemplateExpression(directivePropValue, state.dependencies);
-          propsCode += '"' + directiveProp.name + '": ' + directivePropValue;
+          propsCode += '"' + directiveProp.name + '": ' + (directivePropValue.length === 0 ? "\"\"" : directivePropValue) + ', ';
         }
     
-        propsCode += "}";
+        propsCode = propsCode.substring(0, propsCode.length - 2) + "}";
       }
     
       if (hasSpecialDirectivesAfter === true) {
         state.specialDirectivesAfter = specialDirectivesAfter;
+      }
+    
+      var domProps = node.props.dom;
+      if (domProps !== undefined) {
+        propsCode += ", dom: {";
+    
+        for (var domProp in domProps) {
+          propsCode += '"' + domProp + '": ' + domProps[domProp] + ', ';
+        }
+    
+        propsCode = propsCode.substring(0, propsCode.length - 2) + "}";
       }
     
       propsCode += "}, ";
@@ -1549,8 +1560,11 @@
     
         return 'h("#text", ' + generateMeta(_meta) + '"' + compiled + '")';
       } else if (node.type === "slot") {
+        parent.meta.shouldRender = true;
+        parent.deep = true;
+    
         var slotName = node.props.name;
-        return 'instance.$slots["' + (slotName === undefined ? "default" : slotName) + '"]';
+        return 'instance.$slots["' + (slotName === undefined ? "default" : slotName.value) + '"]';
       }
     
       var call = 'h("' + node.type + '", ';
@@ -2164,13 +2178,18 @@
         parentVNode.deep = true;
       },
       afterGenerate: function (prop, code, vnode, state) {
+        // Get dependencies
+        var dependencies = state.dependencies;
+    
         // Get Parts
         var parts = prop.value.split(" in ");
+    
         // Aliases
         var aliases = parts[0].split(",");
+    
         // The Iteratable
         var iteratable = parts[1];
-        compileTemplateExpression(iteratable, state.dependencies);
+        compileTemplateExpression(iteratable, dependencies);
     
         // Get any parameters
         var params = aliases.join(",");
@@ -2232,8 +2251,11 @@
         var value = prop.value;
         var attrs = vnode.props.attrs;
     
+        // Get dependencies
+        var dependencies = state.dependencies;
+    
         // Add dependencies for the getter and setter
-        compileTemplateExpression(value, state.dependencies);
+        compileTemplateExpression(value, dependencies);
     
         // Setup default event type, keypath to set, value of setter, DOM property to change, and value of DOM property
         var eventType = "input";
@@ -2312,7 +2334,8 @@
     specialDirectives["m-literal"] = {
       duringPropGenerate: function (prop, vnode, state) {
         var propName = prop.meta.arg;
-        compileTemplateExpression(prop.value, state.dependencies);
+        var propValue = prop.value;
+        compileTemplateExpression(propValue, state.dependencies);
     
         if (state.hasAttrs === false) {
           state.hasAttrs = true;
@@ -2320,21 +2343,22 @@
     
         if (propName === "class") {
           // Detected class, use runtime class render helper
-          return '"class": Moon.renderClass(' + value + '), ';
+          return '"class": Moon.renderClass(' + propValue + '), ';
         } else {
           // Default literal attribute
-          return '"' + prop + '": ' + value + ', ';
+          return '"' + propName + '": ' + propValue + ', ';
         }
       }
     };
     
     specialDirectives["m-html"] = {
       beforeGenerate: function (prop, vnode, parentVNode, state) {
+        var value = prop.value;
         var dom = vnode.props.dom;
         if (dom === undefined) {
           vnode.props.dom = dom = {};
         }
-        compileTemplateExpression(value, dependencies);
+        compileTemplateExpression(value, state.dependencies);
         dom.innerHTML = '("" + ' + value + ')';
       }
     };

@@ -82,17 +82,26 @@ const generateProps = function(node, parent, state) {
 			directivePropValue = directiveProp.value;
 
 			compileTemplateExpression(directivePropValue, state.dependencies);
-			propsCode += `"${directiveProp.name}": ${directivePropValue}`;
+			propsCode += `"${directiveProp.name}": ${directivePropValue.length === 0 ? "\"\"" : directivePropValue}, `;
 		}
 
-		propsCode += "}";
+		propsCode = propsCode.substring(0, propsCode.length - 2) + "}";
 	}
 
 	if(hasSpecialDirectivesAfter === true) {
 		state.specialDirectivesAfter = specialDirectivesAfter;
 	}
 
+	let domProps = node.props.dom;
+	if(domProps !== undefined) {
+		propsCode += ", dom: {";
 
+		for(let domProp in domProps) {
+			propsCode += `"${domProp}": ${domProps[domProp]}, `;
+		}
+
+		propsCode = propsCode.substring(0, propsCode.length - 2) + "}";
+	}
 
 	propsCode += "}, ";
 
@@ -143,8 +152,11 @@ const generateNode = function(node, parent, state) {
 
 		return `h("#text", ${generateMeta(meta)}"${compiled}")`;
 	} else if(node.type === "slot") {
+		parent.meta.shouldRender = true;
+		parent.deep = true;
+
 		const slotName = node.props.name;
-		return `instance.$slots["${slotName === undefined ? "default" : slotName}"]`;
+		return `instance.$slots["${slotName === undefined ? "default" : slotName.value}"]`;
 	}
 
 	let call = `h("${node.type}", `;

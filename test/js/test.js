@@ -145,7 +145,7 @@ describe("Compiler", function() {
     });
     expect(el.innerHTML).to.equal("text");
   });
-  it("should double quotes in text", function() {
+  it("should compile double quotes in text", function() {
     var el = createTestElement("compilerDoubleQuote", '"Hello Moon!"');
     var compilerCommentApp = new Moon({
       el: "#compilerDoubleQuote"
