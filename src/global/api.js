@@ -24,7 +24,7 @@ Moon.util = {
   log: log,
   merge: merge,
   extend: extend,
-  h: h
+  m: m
 }
 
 /**

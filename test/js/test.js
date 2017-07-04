@@ -620,8 +620,8 @@ describe('Custom Render', function() {
     createTestElement("render", '');
     var renderApp = new Moon({
       el: "#render",
-      render: function(h) {
-        return h('div', {attrs: {id: "render"}}, {shouldRender: true}, [h("#text", {shouldRender: true}, this.get('msg'))])
+      render: function(m) {
+        return m('div', {attrs: {id: "render"}}, {shouldRender: true}, [m("#text", {shouldRender: true}, this.get('msg'))])
       },
       data: {
         msg: "Hello Moon!"
@@ -645,16 +645,16 @@ describe('Functional Component', function() {
     Moon.component('functional-component', {
       functional: true,
       props: ['someprop'],
-      render: function(h, ctx) {
-        return h("h1", functionalComponentDivProps, {shouldRender: true}, [h("#text", {shouldRender: true}, ctx.data.someprop)]);
+      render: function(m, ctx) {
+        return m("h1", functionalComponentDivProps, {shouldRender: true}, [m("#text", {shouldRender: true}, ctx.data.someprop)]);
       }
     });
     var functionalComponentDivSlotProps = {attrs: {}};
     functionalComponentDivSlotProps.attrs["class"] = "functionalSlotComponent";
     Moon.component('slot-functional-component', {
       functional: true,
-      render: function(h, ctx) {
-        return h("div", functionalComponentDivSlotProps, {shouldRender: true}, [h("h1", {}, {shouldRender: true}, ctx.slots['default']), h("h1", {}, {shouldRender: true}, ctx.slots.named)]);
+      render: function(m, ctx) {
+        return m("div", functionalComponentDivSlotProps, {shouldRender: true}, [m("h1", {}, {shouldRender: true}, ctx.slots['default']), m("h1", {}, {shouldRender: true}, ctx.slots.named)]);
       }
     });
     var functionalApp = new Moon({

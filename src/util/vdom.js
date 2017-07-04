@@ -92,7 +92,7 @@ const createFunctionalComponent = function(props, children, functionalComponent)
   }
 
   // Call render function
-  return functionalComponent.options.render(h, {
+  return functionalComponent.options.render(m, {
     data: data,
     slots: getSlots(children)
   });
@@ -106,7 +106,7 @@ const createFunctionalComponent = function(props, children, functionalComponent)
  * @param {Object|String} children
  * @return {Object} Object usable in Virtual DOM (VNode)
  */
-const h = function(tag, attrs, meta, children) {
+const m = function(tag, attrs, meta, children) {
   let component = null;
 
   if(tag === TEXT_TYPE) {
@@ -130,8 +130,8 @@ const h = function(tag, attrs, meta, children) {
   // {
   //  type: 'h1', <= nodename
   //  props: {
-  //    attrs: {id: 'someId'}, <= regular attributes
-  //    dom: {textContent: 'some text content'} <= only for DOM properties added by directives,
+  //    attrs: {'id': 'someId'}, <= regular attributes
+  //    dom: {'textContent': 'some text content'} <= only for DOM properties added by directives,
   //    directives: {'m-mask': ''} <= any directives
   //  },
   //  meta: {}, <= metadata used internally

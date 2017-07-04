@@ -194,7 +194,7 @@ Moon.prototype.mount = function(el) {
  */
 Moon.prototype.render = function() {
   // Call render function
-  return this.$render(h);
+  return this.$render(m);
 }
 
 /**

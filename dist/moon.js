@@ -550,7 +550,7 @@
       }
     
       // Call render function
-      return functionalComponent.options.render(h, {
+      return functionalComponent.options.render(m, {
         data: data,
         slots: getSlots(children)
       });
@@ -564,7 +564,7 @@
      * @param {Object|String} children
      * @return {Object} Object usable in Virtual DOM (VNode)
      */
-    var h = function (tag, attrs, meta, children) {
+    var m = function (tag, attrs, meta, children) {
       var component = null;
     
       if (tag === TEXT_TYPE) {
@@ -588,8 +588,8 @@
       // {
       //  type: 'h1', <= nodename
       //  props: {
-      //    attrs: {id: 'someId'}, <= regular attributes
-      //    dom: {textContent: 'some text content'} <= only for DOM properties added by directives,
+      //    attrs: {'id': 'someId'}, <= regular attributes
+      //    dom: {'textContent': 'some text content'} <= only for DOM properties added by directives,
       //    directives: {'m-mask': ''} <= any directives
       //  },
       //  meta: {}, <= metadata used internally
@@ -1558,7 +1558,7 @@
           parent.meta.shouldRender = true;
         }
     
-        return 'h("#text", ' + generateMeta(_meta) + '"' + compiled + '")';
+        return 'm("#text", ' + generateMeta(_meta) + '"' + compiled + '")';
       } else if (node.type === "slot") {
         parent.meta.shouldRender = true;
         parent.deep = true;
@@ -1567,7 +1567,7 @@
         return 'instance.$slots["' + (slotName === undefined ? "default" : slotName.value) + '"]';
       }
     
-      var call = 'h("' + node.type + '", ';
+      var call = 'm("' + node.type + '", ';
     
       var meta = defaultMetadata();
       node.meta = meta;
@@ -1635,7 +1635,7 @@
       var code = 'var instance = this; ' + dependenciesCode + 'return ' + rootCode + ';';
     
       try {
-        return new Function("h", code);
+        return new Function("m", code);
       } catch (e) {
         error("Could not create render function");
         return noop;
@@ -1903,7 +1903,7 @@
      */
     Moon.prototype.render = function () {
       // Call render function
-      return this.$render(h);
+      return this.$render(m);
     };
     
     /**
@@ -2001,7 +2001,7 @@
       log: log,
       merge: merge,
       extend: extend,
-      h: h
+      m: m
     
       /**
        * Runs an external Plugin
@@ -2162,7 +2162,7 @@
     
     /* ======= Default Directives ======= */
     
-    var emptyVNode = 'h("#text", ' + generateMeta(defaultMetadata()) + '"")';
+    var emptyVNode = 'm("#text", ' + generateMeta(defaultMetadata()) + '"")';
     
     specialDirectives["m-if"] = {
       afterGenerate: function (prop, code, vnode, state) {

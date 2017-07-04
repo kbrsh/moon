@@ -150,7 +150,7 @@ const generateNode = function(node, parent, state) {
 			parent.meta.shouldRender = true;
 		}
 
-		return `h("#text", ${generateMeta(meta)}"${compiled}")`;
+		return `m("#text", ${generateMeta(meta)}"${compiled}")`;
 	} else if(node.type === "slot") {
 		parent.meta.shouldRender = true;
 		parent.deep = true;
@@ -159,7 +159,7 @@ const generateNode = function(node, parent, state) {
 		return `instance.$slots["${slotName === undefined ? "default" : slotName.value}"]`;
 	}
 
-	let call = `h("${node.type}", `;
+	let call = `m("${node.type}", `;
 
 	let meta = defaultMetadata();
 	node.meta = meta;
@@ -227,7 +227,7 @@ const generate = function(tree) {
 	const code = `var instance = this; ${dependenciesCode}return ${rootCode};`;
 
 	try {
-    return new Function("h", code);
+    return new Function("m", code);
   } catch(e) {
     error("Could not create render function");
     return noop;
