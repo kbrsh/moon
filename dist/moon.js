@@ -1548,6 +1548,9 @@
         }
     
         return 'h("#text", ' + generateMeta(_meta) + '"' + compiled + '")';
+      } else if (node.type === "slot") {
+        var slotName = node.props.name;
+        return 'instance.$slots["' + (slotName === undefined ? "default" : slotName) + '"]';
       }
     
       var call = 'h("' + node.type + '", ';

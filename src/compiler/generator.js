@@ -92,6 +92,8 @@ const generateProps = function(node, parent, state) {
 		state.specialDirectivesAfter = specialDirectivesAfter;
 	}
 
+
+
 	propsCode += "}, ";
 
 	return propsCode;
@@ -140,6 +142,9 @@ const generateNode = function(node, parent, state) {
 		}
 
 		return `h("#text", ${generateMeta(meta)}"${compiled}")`;
+	} else if(node.type === "slot") {
+		const slotName = node.props.name;
+		return `instance.$slots["${slotName === undefined ? "default" : slotName}"]`;
 	}
 
 	let call = `h("${node.type}", `;
