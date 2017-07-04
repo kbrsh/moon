@@ -1,2 +1,2 @@
-# npm run test
-# npm run test-saucelabs
+npm run test
+npm run test-saucelabs

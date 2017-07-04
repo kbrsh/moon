@@ -69,19 +69,15 @@ gulp.task('test', function(done) {
     new Server({
       configFile: __dirname + '/test/karma.conf.js',
       singleRun: true
-    }, function() {
-      // console.log('[Moon] Tests Passed\n');
-      //   console.log('[Moon] Generating Coverage Report...');
-      //   gulp.src('./coverage/coverage.json')
-      //     .pipe(istanbulReport())
-      // console.log("[Moon] Generated Coverage Report");
-      done();
-    }).start();
+    }, done).start();
 });
 
 // Saucelabs
 gulp.task('test-saucelabs', function() {
-
+  new Server({
+    configFile: __dirname + '/test/karma.sauce.conf.js',
+    singleRun: true
+  }, done).start();
 });
 
 // Default task
