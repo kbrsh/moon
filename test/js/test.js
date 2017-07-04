@@ -11,8 +11,8 @@
 
   window.CustomEvent = CustomEvent;
 })();
-// Tests
 
+// Tests
 if(document.getElementById("moon-els")) {
   var moon_els = document.getElementById("moon-els");
 } else {

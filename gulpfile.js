@@ -3,18 +3,13 @@
 var gulp = require('gulp');
 var pkg = require('./package.json');
 var uglify = require("gulp-uglify");
-var istanbul = require("gulp-istanbul");
 var babel = require('gulp-babel');
 var replace = require('gulp-replace');
-var istanbulReport = require('gulp-istanbul-report');
 var Server = require('karma').Server;
 var include = require("gulp-include");
 var concat = require("gulp-concat");
 var header = require("gulp-header");
 var size = require("gulp-size");
-
-var saucelabs = require('gulp-saucelabs');
-var connect = require('gulp-connect');
 
 var comment = `/**
  * Moon v${pkg.version}
@@ -59,16 +54,16 @@ gulp.task('minify', ['build'], function() {
     .pipe(gulp.dest('./dist/'));
 });
 
-gulp.task('instrument', function () {
-	return gulp.src(['dist/moon.js'])
-		.pipe(istanbul({
-			coverageVariable: '__coverage__'
-		}))
-		.pipe(gulp.dest('coverage/'))
-});
+// gulp.task('instrument', function () {
+// 	return gulp.src(['dist/moon.js'])
+// 		.pipe(istanbul({
+// 			coverageVariable: '__coverage__'
+// 		}))
+// 		.pipe(gulp.dest('coverage/'))
+// });
 
 // Run Tests
-gulp.task('test', ['instrument'], function (done) {
+gulp.task('test', function(done) {
     console.log("[Moon] Running Tests...");
     console.log("[Moon] Version: " + require("./dist/moon.min.js").version);
     new Server({
@@ -85,68 +80,9 @@ gulp.task('test', ['instrument'], function (done) {
 });
 
 // Saucelabs
-gulp.task('saucelabs', function() {
-  return saucelabs({
-    build: process.env.TRAVIS_JOB_ID,
-    statusCheckAttempts: 500,
-    urls: ['http://localhost:3000/test/test.html'],
-    testname: 'Moon',
-    framework: 'mocha',
-    browsers: [
-      {
-        browserName: 'chrome',
-        version: '46',
-        platform: 'windows 7'
-      },
-      {
-        browserName: 'chrome',
-        version: '55',
-        platform: 'windows 7'
-      },
-      {
-        browserName: 'firefox',
-        version: '45',
-        platform: 'windows 7'
-      },
-      {
-        browserName: 'internet explorer',
-        version: '9'
-      },
-      {
-        browserName: 'internet explorer',
-        version: '10'
-      },
-      {
-        browserName: 'internet explorer',
-        version: '11',
-        platform: 'windows 10'
-      },
-      {
-        browserName: 'iphone',
-        version: '8.4',
-        platform: 'ios 10'
-      },
-      {
-        browserName: 'android',
-        version: '5.1',
-        platform: 'latest'
-      }
-    ],
-    onException: function(err) {
-      console.log(err)
-    }
-  });
-});
+gulp.task('test-saucelabs', function() {
 
-gulp.task('saucelabs:connect', function() {
-    connect.server({ port: 3000, root: './' });
 });
-
-gulp.task('saucelabs:disconnect', () => {
-    connect.serverClose();
-});
-
-gulp.task('test-saucelabs', ['saucelabs:connect', 'saucelabs'], () => gulp.start('saucelabs:disconnect'));
 
 // Default task
 gulp.task('default', ['build', 'minify']);

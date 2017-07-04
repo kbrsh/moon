@@ -4,7 +4,7 @@ module.exports = function(config) {
     frameworks: ['mocha'],
 
     files: [
-      '../coverage/moon.js',
+      '../dist/moon.js',
       '../node_modules/chai/chai.js',
       './js/test.js',
     ],
@@ -13,9 +13,10 @@ module.exports = function(config) {
     ],
 
     preprocessors: {
+      '../dist/moon.js': ['coverage']
     },
 
-    reporters: ['spec'],
+    reporters: ['spec', 'coverage'],
 
     port: 9876,
 
@@ -28,7 +29,22 @@ module.exports = function(config) {
     browsers: ['PhantomJS'],
 
     singleRun: true,
-    
-    concurrency: Infinity
+
+    concurrency: Infinity,
+
+    coverageReporter: {
+      type: 'text',
+      dir: '../coverage/',
+      reporters: [
+        {
+          type: 'lcovonly',
+          subdir: '.'
+        },
+        {
+          type: 'json',
+          subdir: '.'
+        }
+      ]
+    }
   })
 }
