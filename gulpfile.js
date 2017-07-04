@@ -19,7 +19,7 @@ var comment = `/**
  */\r\n`;
 
 // Build Moon
-gulp.task('transpile', function () {
+gulp.task('transpile', function() {
   return gulp.src(['./src/index.js'])
     .pipe(include())
     .pipe(babel({
@@ -29,7 +29,7 @@ gulp.task('transpile', function () {
     .pipe(gulp.dest('./dist/'));
 });
 
-gulp.task('build', ['transpile'], function () {
+gulp.task('build', ['transpile'], function() {
   return gulp.src(['./src/wrapper.js'])
     .pipe(include())
     .pipe(concat('moon.js'))
@@ -54,14 +54,6 @@ gulp.task('minify', ['build'], function() {
     .pipe(gulp.dest('./dist/'));
 });
 
-// gulp.task('instrument', function () {
-// 	return gulp.src(['dist/moon.js'])
-// 		.pipe(istanbul({
-// 			coverageVariable: '__coverage__'
-// 		}))
-// 		.pipe(gulp.dest('coverage/'))
-// });
-
 // Run Tests
 gulp.task('test', function(done) {
     console.log("[Moon] Running Tests...");
@@ -73,7 +65,7 @@ gulp.task('test', function(done) {
 });
 
 // Saucelabs
-gulp.task('test-saucelabs', function() {
+gulp.task('test-saucelabs', function(done) {
   new Server({
     configFile: __dirname + '/test/karma.sauce.conf.js',
     singleRun: true
