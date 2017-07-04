@@ -5,7 +5,7 @@ const generateProps = function(node, parent, state) {
 	}
 
 	let hasDirectives = false;
-	let directives = {};
+	let directiveProps = [];
 
 	let hasSpecialDirectivesAfter = false;
 	let specialDirectivesAfter = {};
@@ -37,12 +37,18 @@ const generateProps = function(node, parent, state) {
 					afterGenerate: afterGenerate
 				};
 
-				node.meta.shouldRender = true;
 				hasSpecialDirectivesAfter = true;
 			}
-		} else if(name[0] === "m" && name[1] === "-") {
+
+			if((duringPropGenerate = specialDirective.duringPropGenerate) !== undefined) {
+				duringPropGenerate(prop, node, state);
+			}
+
 			node.meta.shouldRender = true;
+		} else if(name[0] === "m" && name[1] === "-") {
+			directiveProps.push(prop);
 			hasDirectives = true;
+			node.meta.shouldRender = true;
 		} else {
 			const value = prop.value;
 			const compiled = compileTemplate(value, state.dependencies, true);
@@ -60,15 +66,33 @@ const generateProps = function(node, parent, state) {
 	}
 
 	if(state.hasAttrs === true) {
-		propsCode = propsCode.substring(0, propsCode.length - 2) + "}}, ";
+		propsCode = propsCode.substring(0, propsCode.length - 2) + "}";
 		state.hasAttrs = false;
 	} else {
-		propsCode += "}}, ";
+		propsCode += "}";
+	}
+
+	if(hasDirectives === true) {
+		propsCode += ", directives: {";
+
+		let directiveProp = null;
+		let directivePropValue = null;
+		for(let i = 0; i < directiveProps.length; i++) {
+			directiveProp = directiveProps[i];
+			directivePropValue = directiveProp.value;
+
+			compileTemplateExpression(directivePropValue, state.dependencies);
+			propsCode += `"${directiveProp.name}": ${directivePropValue}`;
+		}
+
+		propsCode += "}";
 	}
 
 	if(hasSpecialDirectivesAfter === true) {
 		state.specialDirectivesAfter = specialDirectivesAfter;
 	}
+
+	propsCode += "}, ";
 
 	return propsCode;
 }
@@ -81,13 +105,13 @@ const generateEventlisteners = function(eventListeners) {
 		eventListenersCode += `"${type}": [`;
 
 		for(let i = 0; i < handlers.length; i++) {
-			eventListenersCode += handlers[i];
+			eventListenersCode += `${handlers[i]}, `;
 		}
 
 		eventListenersCode = eventListenersCode.substring(0, eventListenersCode.length - 2) + "], ";
 	}
 
-	eventListenersCode = eventListenersCode.substring(0, eventListenersCode.length - 2) + "}";
+	eventListenersCode = eventListenersCode.substring(0, eventListenersCode.length - 2) + "}, ";
 	return eventListenersCode;
 }
 
@@ -125,7 +149,6 @@ const generateNode = function(node, parent, state) {
 
 	const propsCode = generateProps(node, parent, state);
 	let specialDirectivesAfter = state.specialDirectivesAfter;
-	state.specialDirectivesAfter = null;
 
 	let children = node.children;
 	const childrenLength = children.length;
@@ -140,6 +163,10 @@ const generateNode = function(node, parent, state) {
 		childrenCode = childrenCode.substring(0, childrenCode.length - 2) + "]";
 	}
 
+	if(node.deep === true) {
+		childrenCode = `[].concat.apply([], ${childrenCode})`;
+	}
+
 	if(node.meta.shouldRender === true && parent !== undefined) {
 		parent.meta.shouldRender = true;
 	}
@@ -149,7 +176,6 @@ const generateNode = function(node, parent, state) {
 	call += childrenCode;
 	call += ")";
 
-	
 	if(specialDirectivesAfter !== null) {
 		let specialDirectiveAfter;
 		for(let specialDirectiveKey in specialDirectivesAfter) {

@@ -1412,7 +1412,8 @@
         attrs: props
       };
     
-      var directives = {};
+      var hasDirectives = false;
+      var directiveProps = [];
     
       var hasSpecialDirectivesAfter = false;
       var specialDirectivesAfter = {};
@@ -1446,15 +1447,22 @@
     
             hasSpecialDirectivesAfter = true;
           }
-        } else if (_name[0] === "m" && _name[1] === "-") {} else {
+    
+          if ((duringPropGenerate = specialDirective.duringPropGenerate) !== undefined) {
+            duringPropGenerate(_prop, node, state);
+          }
+    
+          node.meta.shouldRender = true;
+        } else if (_name[0] === "m" && _name[1] === "-") {
+          directiveProps.push(_prop);
+          hasDirectives = true;
+          node.meta.shouldRender = true;
+        } else {
           var _value2 = _prop.value;
           var compiled = compileTemplate(_value2, state.dependencies, true);
     
           if (_value2 !== compiled) {
             node.meta.shouldRender = true;
-            if (parent !== undefined) {
-              parent.meta.shouldRender = true;
-            }
           }
     
           if (state.hasAttrs === false) {
@@ -1466,15 +1474,33 @@
       }
     
       if (state.hasAttrs === true) {
-        propsCode = propsCode.substring(0, propsCode.length - 2) + "}}, ";
+        propsCode = propsCode.substring(0, propsCode.length - 2) + "}";
         state.hasAttrs = false;
       } else {
-        propsCode += "}}, ";
+        propsCode += "}";
+      }
+    
+      if (hasDirectives === true) {
+        propsCode += ", directives: {";
+    
+        var directiveProp = null;
+        var directivePropValue = null;
+        for (var i = 0; i < directiveProps.length; i++) {
+          directiveProp = directiveProps[i];
+          directivePropValue = directiveProp.value;
+    
+          compileTemplateExpression(directivePropValue, state.dependencies);
+          propsCode += '"' + directiveProp.name + '": ' + directivePropValue;
+        }
+    
+        propsCode += "}";
       }
     
       if (hasSpecialDirectivesAfter === true) {
         state.specialDirectivesAfter = specialDirectivesAfter;
       }
+    
+      propsCode += "}, ";
     
       return propsCode;
     };
@@ -1487,13 +1513,13 @@
         eventListenersCode += '"' + type + '": [';
     
         for (var i = 0; i < handlers.length; i++) {
-          eventListenersCode += handlers[i];
+          eventListenersCode += handlers[i] + ', ';
         }
     
         eventListenersCode = eventListenersCode.substring(0, eventListenersCode.length - 2) + "], ";
       }
     
-      eventListenersCode = eventListenersCode.substring(0, eventListenersCode.length - 2) + "}";
+      eventListenersCode = eventListenersCode.substring(0, eventListenersCode.length - 2) + "}, ";
       return eventListenersCode;
     };
     
@@ -1531,7 +1557,6 @@
     
       var propsCode = generateProps(node, parent, state);
       var specialDirectivesAfter = state.specialDirectivesAfter;
-      state.specialDirectivesAfter = null;
     
       var children = node.children;
       var childrenLength = children.length;
@@ -1544,6 +1569,10 @@
           childrenCode += generateNode(children[i], node, state) + ', ';
         }
         childrenCode = childrenCode.substring(0, childrenCode.length - 2) + "]";
+      }
+    
+      if (node.deep === true) {
+        childrenCode = '[].concat.apply([], ' + childrenCode + ')';
       }
     
       if (node.meta.shouldRender === true && parent !== undefined) {
@@ -1595,6 +1624,7 @@
         return noop;
       }
     };
+    
     var compile = function (template) {
       var tokens = lex(template);
       var ast = parse(tokens);
@@ -2277,10 +2307,15 @@
     };
     
     specialDirectives["m-literal"] = {
-      duringPropGenerate: function (value, meta, vnode, dependencies) {
-        var prop = meta.arg;
-        compileTemplateExpression(value, dependencies);
-        if (prop === "class") {
+      duringPropGenerate: function (prop, vnode, state) {
+        var propName = prop.meta.arg;
+        compileTemplateExpression(prop.value, state.dependencies);
+    
+        if (state.hasAttrs === false) {
+          state.hasAttrs = true;
+        }
+    
+        if (propName === "class") {
           // Detected class, use runtime class render helper
           return '"class": Moon.renderClass(' + value + '), ';
         } else {

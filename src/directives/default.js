@@ -162,10 +162,15 @@ specialDirectives["m-model"] = {
 };
 
 specialDirectives["m-literal"] = {
-  duringPropGenerate: function(value, meta, vnode, dependencies) {
-    const prop = meta.arg;
-    compileTemplateExpression(value, dependencies);
-    if(prop === "class") {
+  duringPropGenerate: function(prop, vnode, state) {
+    const propName = prop.meta.arg;
+    compileTemplateExpression(prop.value, state.dependencies);
+
+    if(state.hasAttrs === false) {
+      state.hasAttrs = true;
+    }
+
+    if(propName === "class") {
       // Detected class, use runtime class render helper
       return `"class": Moon.renderClass(${value}), `;
     } else {
