@@ -1449,7 +1449,7 @@
           }
     
           if ((duringPropGenerate = specialDirective.duringPropGenerate) !== undefined) {
-            duringPropGenerate(_prop, node, state);
+            propsCode += duringPropGenerate(_prop, node, state);
           }
     
           node.meta.shouldRender = true;

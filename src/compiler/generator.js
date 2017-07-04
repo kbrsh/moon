@@ -41,7 +41,7 @@ const generateProps = function(node, parent, state) {
 			}
 
 			if((duringPropGenerate = specialDirective.duringPropGenerate) !== undefined) {
-				duringPropGenerate(prop, node, state);
+				propsCode += duringPropGenerate(prop, node, state);
 			}
 
 			node.meta.shouldRender = true;
