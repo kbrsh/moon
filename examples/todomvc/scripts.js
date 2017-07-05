@@ -1,4 +1,4 @@
-var KEY = 'moon-todos';
+var KEY = 'todos-moon';
 
 // Storage for getting data from local storage
 var storage = {
@@ -69,11 +69,17 @@ var app = new Moon({
     addTodo: function() {
       // Add a new todo
       var todos = this.get("todos");
-      todos.push({
-        content: this.get("newTodo"),
-        completed: false
-      });
-      this.set('todos', todos);
+      var newTodo = this.get("newTodo");
+
+      if(newTodo.length !== 0 && newTodo.trim() !== "") {
+        todos.push({
+          content: newTodo,
+          completed: false
+        });
+
+        this.set('todos', todos);
+      }
+
       this.set("newTodo", "");
     },
     removeTodo: function(index) {
@@ -107,7 +113,7 @@ var app = new Moon({
 
       var i = todos.length;
       while(i-- !== 0) {
-        if(todos[i].completed === false) {
+        if(todos[i].completed === true) {
           todos.splice(i, 1);
         }
       }
