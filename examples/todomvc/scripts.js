@@ -1,4 +1,4 @@
-var KEY = 'moon-todos'
+var KEY = 'moon-todos';
 
 // Storage for getting data from local storage
 var storage = {
@@ -62,10 +62,10 @@ var app = new Moon({
       this.set('todos', todos);
       this.set("newTodo", "");
     },
-    removeTodo: function(todo) {
+    removeTodo: function(index) {
       // Remove a todo at a certain index
       var todos = this.get('todos');
-      todos.splice(todos.indexOf(todo), 1);
+      todos.splice(index, 1);
       this.set('todos', todos);
     },
     editTodo: function(todo) {
@@ -73,26 +73,31 @@ var app = new Moon({
       this.set('cachedEdit', todo.content);
       this.set('editedTodo', todo);
     },
-    updateTodo: function(todo) {
+    updateTodo: function(index) {
       // Update a certain todo by index
       var todos = this.get('todos');
-      todos[todos.indexOf(todo)] = this.get('editedTodo');
+      todos[index] = this.get('editedTodo');
       this.set('editedTodo', '');
       this.set('todos', todos);
     },
-    discardEdit: function(todo) {
+    discardEdit: function(index) {
       // Discard the edited todo
       var todos = this.get('todos');
-      todos[todos.indexOf(todo)].content = this.get('cachedEdit');
+      todos[index].content = this.get('cachedEdit');
       this.set('editedTodo', '');
       this.set('todos', todos);
     },
     removeCompleted: function() {
       // Remove all completed todos
       var todos = this.get('todos');
-      todos = todos.filter(function(todo) {
-        return !todo.completed;
-      });
+
+      var i = todos.length;
+      while(i-- !== 0) {
+        if(todos[i].completed === false) {
+          todos.splice(i, 1);
+        }
+      }
+
       this.set('todos', todos);
     }
   },

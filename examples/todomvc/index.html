@@ -27,9 +27,9 @@
             <div class="view">
               <input class="toggle" type="checkbox" m-model="filtered[index].completed">
               <label m-on:dblclick="editTodo(todo)">{{todo.content}}</label>
-              <button class="destroy" m-on:click="removeTodo(todo)"></button>
+              <button class="destroy" m-on:click="removeTodo(index)"></button>
             </div>
-            <input class="edit" type="text" m-model="filtered[index].content" m-on:keyup.enter="updateTodo(todo)" m-on:keyup.esc="discardEdit(todo)" m-focus="todo === editedTodo"/>
+            <input class="edit" type="text" m-model="filtered[index].content" m-on:keyup.enter="updateTodo(index)" m-on:blur="updateTodo(index)" m-on:keyup.esc="discardEdit(index)" m-focus="todo === editedTodo"/>
           </li>
         </ul>
       </section>
