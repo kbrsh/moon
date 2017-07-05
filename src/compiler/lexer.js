@@ -58,7 +58,7 @@ const lexText = function(state) {
 }
 
 const lexComment = function(state) {
-  const current = state.current;
+  let current = state.current;
   const input = state.input;
   const len = input.length;
 

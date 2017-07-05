@@ -26,10 +26,12 @@ Observer.prototype.observe = function(key) {
 }
 
 Observer.prototype.notify = function(key, val) {
+  const self = this;
+
   let depMap = null;
   if((depMap = this.map[key]) !== undefined) {
     for(let i = 0; i < depMap.length; i++) {
-      this.notify(depMap[i]);
+      self.notify(depMap[i]);
     }
   }
 

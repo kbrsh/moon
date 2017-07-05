@@ -26,10 +26,9 @@
   },
   "homepage": "https://github.com/KingPixil/moon#readme",
   "devDependencies": {
-    "babel-preset-transpile-moon": "^1.0.2",
+    "buble": "^0.15.2",
     "chai": "^3.5.0",
     "gulp": "^3.9.1",
-    "gulp-babel": "^6.1.2",
     "gulp-concat": "^2.6.0",
     "gulp-connect": "^5.0.0",
     "gulp-header": "^1.8.8",

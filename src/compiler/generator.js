@@ -157,52 +157,52 @@ const generateNode = function(node, parent, state) {
 
 		const slotName = node.props.name;
 		return `instance.$slots["${slotName === undefined ? "default" : slotName.value}"]`;
-	}
-
-	let call = `m("${node.type}", `;
-
-	let meta = defaultMetadata();
-	node.meta = meta;
-
-	const propsCode = generateProps(node, parent, state);
-	let specialDirectivesAfter = state.specialDirectivesAfter;
-
-	let children = node.children;
-	const childrenLength = children.length;
-	let childrenCode = "[";
-
-	if(childrenLength === 0) {
-		childrenCode += "]";
 	} else {
-		for(let i = 0; i < children.length; i++) {
-			childrenCode += `${generateNode(children[i], node, state)}, `;
+		let call = `m("${node.type}", `;
+
+		let meta = defaultMetadata();
+		node.meta = meta;
+
+		const propsCode = generateProps(node, parent, state);
+		let specialDirectivesAfter = state.specialDirectivesAfter;
+
+		let children = node.children;
+		const childrenLength = children.length;
+		let childrenCode = "[";
+
+		if(childrenLength === 0) {
+			childrenCode += "]";
+		} else {
+			for(let i = 0; i < children.length; i++) {
+				childrenCode += `${generateNode(children[i], node, state)}, `;
+			}
+			childrenCode = childrenCode.substring(0, childrenCode.length - 2) + "]";
 		}
-		childrenCode = childrenCode.substring(0, childrenCode.length - 2) + "]";
-	}
 
-	if(node.deep === true) {
-		childrenCode = `[].concat.apply([], ${childrenCode})`;
-	}
-
-	if(node.meta.shouldRender === true && parent !== undefined) {
-		parent.meta.shouldRender = true;
-	}
-
-	call += propsCode;
-	call += generateMeta(meta);
-	call += childrenCode;
-	call += ")";
-
-	if(specialDirectivesAfter !== null) {
-		let specialDirectiveAfter;
-		for(let specialDirectiveKey in specialDirectivesAfter) {
-			specialDirectiveAfter = specialDirectivesAfter[specialDirectiveKey];
-			call = specialDirectiveAfter.afterGenerate(specialDirectiveAfter.prop, call, node, state);
+		if(node.deep === true) {
+			childrenCode = `[].concat.apply([], ${childrenCode})`;
 		}
-		state.specialDirectivesAfter = null;
-	}
 
-	return call;
+		if(node.meta.shouldRender === true && parent !== undefined) {
+			parent.meta.shouldRender = true;
+		}
+
+		call += propsCode;
+		call += generateMeta(meta);
+		call += childrenCode;
+		call += ")";
+
+		if(specialDirectivesAfter !== null) {
+			let specialDirectiveAfter;
+			for(let specialDirectiveKey in specialDirectivesAfter) {
+				specialDirectiveAfter = specialDirectivesAfter[specialDirectiveKey];
+				call = specialDirectiveAfter.afterGenerate(specialDirectiveAfter.prop, call, node, state);
+			}
+			state.specialDirectivesAfter = null;
+		}
+
+		return call;
+	}
 }
 
 const generate = function(tree) {

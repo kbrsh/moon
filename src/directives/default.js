@@ -161,7 +161,7 @@ specialDirectives["m-model"] = {
     addEventListenerCodeToVNode(eventType, code, vnode);
 
     // Setup a query used to get the value, and set the corresponding dom property
-    const dom = vnode.props.dom;
+    let dom = vnode.props.dom;
     if(dom === undefined) {
       vnode.props.dom = dom = {};
     }
@@ -192,7 +192,7 @@ specialDirectives["m-literal"] = {
 specialDirectives["m-html"] = {
   beforeGenerate: function(prop, vnode, parentVNode, state) {
     const value = prop.value;
-    const dom = vnode.props.dom;
+    let dom = vnode.props.dom;
     if(dom === undefined) {
       vnode.props.dom = dom = {};
     }

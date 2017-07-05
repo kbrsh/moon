@@ -21,7 +21,7 @@ const log = function(msg) {
  */
 const error = function(msg) {
   if(Moon.config.silent === false) {
-    console.error("[Moon] ERR: " + msg);
+    console.error("[Moon] ERROR: " + msg);
   }
 }
 
