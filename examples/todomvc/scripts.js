@@ -120,6 +120,9 @@ var app = new Moon({
       }
 
       this.set('todos', todos);
+    },
+    pluralize: function(num) {
+      return num === 1 ? 'item' : 'items'
     }
   },
   computed: {

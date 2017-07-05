@@ -35,7 +35,7 @@
       </section>
       <footer class="footer" m-if="todos.length !== 0">
         <span class="todo-count">
-          <strong>{{remaining}}</strong> items left
+          <strong>{{remaining}}</strong> {{pluralize(remaining)}} left
         </span>
         <ul class="filters">
           <li><a href="#/all" m-literal:class="filter == 'all' ? 'selected' : ''">All</a></li>
