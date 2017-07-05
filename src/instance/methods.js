@@ -69,13 +69,14 @@ Moon.prototype.destroy = function() {
 /**
  * Calls a method
  * @param {String} method
+ * @return {Any} output of method
  */
 Moon.prototype.callMethod = function(method, args) {
   // Get arguments
   args = args || [];
 
   // Call method in context of instance
-  this.$data[method].apply(this, args);
+  return this.$data[method].apply(this, args);
 }
 
 // Event Emitter, adapted from https://github.com/KingPixil/voke
