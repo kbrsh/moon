@@ -4,7 +4,7 @@ var KEY = 'todos-moon';
 var storage = {
   fetch: function() {
     // Fetch data from localStorage
-    return JSON.parse(localStorage.getItem(KEY) || '[]');;
+    return JSON.parse(localStorage.getItem(KEY) || '[]');
   },
   save: function(todos) {
     // Save todos to localStorage
@@ -73,6 +73,7 @@ var app = new Moon({
 
       if(newTodo.length !== 0 && newTodo.trim() !== "") {
         todos.push({
+          id: todos.length,
           content: newTodo,
           completed: false
         });
