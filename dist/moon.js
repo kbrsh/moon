@@ -1582,6 +1582,10 @@
     		var propsCode = generateProps(node, parent, state);
     		var specialDirectivesAfter = state.specialDirectivesAfter;
     
+    		if(specialDirectivesAfter !== null) {
+    			state.specialDirectivesAfter = null;
+    		}
+    
     		var children = node.children;
     		var childrenLength = children.length;
     		var childrenCode = "[";
@@ -1614,7 +1618,6 @@
     				specialDirectiveAfter = specialDirectivesAfter[specialDirectiveKey];
     				call = specialDirectiveAfter.afterGenerate(specialDirectiveAfter.prop, call, node, state);
     			}
-    			state.specialDirectivesAfter = null;
     		}
     
     		return call;

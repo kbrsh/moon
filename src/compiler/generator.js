@@ -166,6 +166,10 @@ const generateNode = function(node, parent, state) {
 		const propsCode = generateProps(node, parent, state);
 		let specialDirectivesAfter = state.specialDirectivesAfter;
 
+		if(specialDirectivesAfter !== null) {
+			state.specialDirectivesAfter = null;
+		}
+
 		let children = node.children;
 		const childrenLength = children.length;
 		let childrenCode = "[";
@@ -198,7 +202,6 @@ const generateNode = function(node, parent, state) {
 				specialDirectiveAfter = specialDirectivesAfter[specialDirectiveKey];
 				call = specialDirectiveAfter.afterGenerate(specialDirectiveAfter.prop, call, node, state);
 			}
-			state.specialDirectivesAfter = null;
 		}
 
 		return call;
