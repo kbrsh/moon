@@ -18,14 +18,28 @@ var filters = {
     return todos;
   },
   completed: function(todos) {
-    return todos.filter(function(todo) {
-      return todo.completed
-    });
+    var filtered = [];
+
+    for(var i = 0; i < todos.length; i++) {
+      var todo = todos[i];
+      if(todo.completed === true) {
+        filtered.push(todo);
+      }
+    }
+
+    return filtered;
   },
   active: function(todos) {
-    return todos.filter(function(todo) {
-      return !todo.completed
-    });
+    var filtered = [];
+
+    for(var i = 0; i < todos.length; i++) {
+      var todo = todos[i];
+      if(todo.completed === false) {
+        filtered.push(todo);
+      }
+    }
+
+    return filtered;
   }
 }
 
@@ -140,6 +154,6 @@ window.addEventListener("hashchange", function() {
 });
 
 // Save todos to storage before user leaves
-window.addEventListener("beforeunload", function(){
+window.addEventListener("beforeunload", function() {
   storage.save(app.get('todos'));
 });
