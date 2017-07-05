@@ -131,7 +131,7 @@ gulp.task('test', function(done) {
     console.log("[Moon] Version: " + require("./dist/moon.min.js").version);
     new Server({
       configFile: __dirname + '/test/karma.conf.js',
-      singleRun: false
+      singleRun: true
     }, done).start();
 });
 
