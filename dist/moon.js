@@ -1414,6 +1414,8 @@
       return;
     }
     
+    var eventNames = [];
+    
     var generateProps = function(node, parent, state) {
     	var props = node.props;
     	node.props = {
@@ -1908,7 +1910,7 @@
     
     /**
      * Renders Virtual DOM
-     * @return Virtual DOM
+     * @return {Object} Virtual DOM
      */
     Moon.prototype.render = function() {
       // Call render function

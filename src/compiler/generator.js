@@ -1,3 +1,5 @@
+const eventNames = [];
+
 const generateProps = function(node, parent, state) {
 	const props = node.props;
 	node.props = {

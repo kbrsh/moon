@@ -190,7 +190,7 @@ Moon.prototype.mount = function(el) {
 
 /**
  * Renders Virtual DOM
- * @return Virtual DOM
+ * @return {Object} Virtual DOM
  */
 Moon.prototype.render = function() {
   // Call render function
