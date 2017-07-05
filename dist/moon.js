@@ -1414,8 +1414,6 @@
       return;
     }
     
-    var eventNames = [];
-    
     var generateProps = function(node, parent, state) {
     	var props = node.props;
     	node.props = {
