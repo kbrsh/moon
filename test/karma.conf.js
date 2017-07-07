@@ -6,7 +6,14 @@ module.exports = function(config) {
     files: [
       '../dist/moon.js',
       '../node_modules/chai/chai.js',
-      './js/test.js',
+      './core/util.js',
+      './core/instance/*.js',
+      './core/compiler/*.js',
+      './core/directives/*.js',
+      './core/plugin/*.js',
+      './core/component/*.js',
+      './core/events/*.js',
+      './core/util/*.js'
     ],
 
     exclude: [

@@ -1857,7 +1857,7 @@
     
     /**
      * Mounts Moon Element
-     * @param {Object} el
+     * @param {String|Object} el
      */
     Moon.prototype.mount = function(el) {
       // Get element from the DOM
@@ -1868,7 +1868,7 @@
     
       if("development" !== "production" && this.$el === null) {
         // Element not found
-        error("Element " + this.$options.$el + " not found");
+        error("Element " + this.$options.el + " not found");
       }
     
       // Sync Element and Moon instance
@@ -2271,7 +2271,7 @@
     
             if(radio === true) {
               var valueAttr = attrs.value;
-              var valueAttrValue = valueAttr === undefined ? "null" : ("\"" + (compileTemplate(valueAttr.value, delimiters, escapedDelimiters, dependencies, true)) + "\"");
+              var valueAttrValue = valueAttr === undefined ? "null" : ("\"" + (compileTemplate(valueAttr.value, dependencies, true)) + "\"");
               domSetter = domSetter + " === " + valueAttrValue;
               keypathSetter = valueAttrValue;
             } else {
