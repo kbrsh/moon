@@ -1,34 +1,3 @@
-describe("Directive", function() {
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-  describe('Mask Directive', function() {
-    createTestElement("mask", '<span m-mask id="mask-directive-span">{{msg}}</span>');
-
-    var maskApp = new Moon({
-      el: "#mask",
-      data: {
-        msg: "Hello Moon!"
-      }
-    });
-
-    it('should not be present at runtime', function() {
-      expect(document.getElementById('mask-directive-span').getAttribute("m-mask")).to.be['null'];
-    });
-  });
-});
-
 describe('Functional Component', function() {
     createTestElement("functional", '<functional-component someprop="{{parentMsg}}"></functional-component><slot-functional-component>Default Slot Content<span slot="named">Named Slot Content</span></slot-functional-component>');
 
