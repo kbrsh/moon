@@ -60,8 +60,8 @@ Methods are also available inside of templates, available as you would call any 
 
 ```html
 <div id="app">
-  <p>reverse(msg)</p>
-  <p>reverse("racecaR")</p>
+  <p>{{reverse(msg)}}</p>
+  <p>{{reverse("racecaR")}}</p>
 </div>
 ```
 
