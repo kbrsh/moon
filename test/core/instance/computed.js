@@ -16,7 +16,9 @@ describe('Computed', function() {
   });
 
   it('should compute at initial render', function() {
-    expect(computed.childNodes[1].textContent).to.equal("egasseM");
+    return wait(function() {
+      expect(computed.childNodes[1].textContent).to.equal("egasseM");
+    });
   });
 
   it('should update when the message updates', function() {

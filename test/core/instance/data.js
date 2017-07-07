@@ -33,7 +33,9 @@ describe('Data', function() {
   });
 
   it('when initializing', function() {
-    expect(data.innerHTML).to.equal("Hello Moon!");
+    return wait(function() {
+      expect(data.innerHTML).to.equal("Hello Moon!");
+    });
   });
 
   it('when setting', function() {

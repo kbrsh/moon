@@ -15,7 +15,9 @@ describe('Methods', function() {
 
   it('when calling a method', function() {
     app.callMethod('increment');
-    expect(app.get('count')).to.equal(1);
+    return wait(function() {
+      expect(app.get('count')).to.equal(1);
+    });
   });
 
   it('should update DOM', function() {

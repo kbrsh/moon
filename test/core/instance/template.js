@@ -10,7 +10,9 @@ describe('Template', function() {
   });
 
   it('should use provided template', function() {
-    expect(template.innerHTML).to.equal("Hello Moon!");
+    return wait(function() {
+      expect(template.innerHTML).to.equal("Hello Moon!");
+    });
   });
 
   it('should update', function() {

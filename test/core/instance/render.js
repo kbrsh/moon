@@ -12,7 +12,9 @@ describe('Custom Render', function() {
     });
 
     it('should use provided render function', function() {
-      expect(render.innerHTML).to.equal("Hello Moon!");
+      return wait(function() {
+        expect(render.innerHTML).to.equal("Hello Moon!");
+      });
     });
 
     it('should update', function() {
