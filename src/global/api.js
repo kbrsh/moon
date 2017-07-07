@@ -22,7 +22,6 @@ Moon.util = {
   noop: noop,
   error: error,
   log: log,
-  merge: merge,
   extend: extend,
   m: m
 }

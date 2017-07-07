@@ -269,27 +269,6 @@
     }
     
     /**
-     * Merges Two Objects Together
-     * @param {Object} parent
-     * @param {Object} child
-     * @return {Object} Merged Object
-     */
-    var merge = function(parent, child) {
-      var merged = {};
-      var key = null;
-    
-      for(key in parent) {
-        merged[key] = parent[key];
-      }
-    
-      for(key in child) {
-        merged[key] = child[key];
-      }
-    
-      return merged;
-    }
-    
-    /**
      * Defines a Property on an Object or a Default Value
      * @param {Object} obj
      * @param {String} prop
@@ -2015,7 +1994,6 @@
       noop: noop,
       error: error,
       log: log,
-      merge: merge,
       extend: extend,
       m: m
     }

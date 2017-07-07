@@ -127,27 +127,6 @@ const extend = function(parent, child) {
 }
 
 /**
- * Merges Two Objects Together
- * @param {Object} parent
- * @param {Object} child
- * @return {Object} Merged Object
- */
-const merge = function(parent, child) {
-  let merged = {};
-  let key = null;
-
-  for(key in parent) {
-    merged[key] = parent[key];
-  }
-
-  for(key in child) {
-    merged[key] = child[key];
-  }
-
-  return merged;
-}
-
-/**
  * Defines a Property on an Object or a Default Value
  * @param {Object} obj
  * @param {String} prop
