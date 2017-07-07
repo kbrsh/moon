@@ -157,7 +157,7 @@ Moon.prototype.emit = function(eventName, customMeta) {
 
 /**
  * Mounts Moon Element
- * @param {Object} el
+ * @param {String|Object} el
  */
 Moon.prototype.mount = function(el) {
   // Get element from the DOM
@@ -168,7 +168,7 @@ Moon.prototype.mount = function(el) {
 
   if("__ENV__" !== "production" && this.$el === null) {
     // Element not found
-    error("Element " + this.$options.$el + " not found");
+    error("Element " + this.$options.el + " not found");
   }
 
   // Sync Element and Moon instance
