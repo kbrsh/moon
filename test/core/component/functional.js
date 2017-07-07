@@ -14,7 +14,7 @@ describe("Functional Component", function() {
     });
 
     return wait(function() {
-      expect(functional.firstChild).to.not.be["null"];
+      expect(functional.firstChild.nodeName.toLowerCase()).to.equal("h1");
     });
   });
 
@@ -59,7 +59,7 @@ describe("Functional Component", function() {
     Moon.component("functional-component-slots", {
       functional: true,
       render: function(m, ctx) {
-        return m("div", {attrs: {}}, {shouldRender: tru}, [
+        return m("div", {attrs: {}}, {shouldRender: true}, [
           m("h1", {}, {shouldRender: true}, ctx.slots["default"]),
           m("h1", {attrs: {}}, {shouldRender: true}, ctx.slots.named)
         ]);
