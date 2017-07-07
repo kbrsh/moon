@@ -1,5 +1,9 @@
 describe('On Directive', function() {
-  createTestElement("on", '<p id="on-count">{{count}}</p><button m-on:click="increment" id="on-increment-button">Increment</button><a id="on-modifier-link" href="https://kabir.ml" m-on:click.prevent="modifier">Link</a><button id="on-keycode-link" m-on:click.m="keycode"></button>');
+  var on = createTestElement("on", '<p>{{count}}</p><button m-on:click="increment">Increment</button><a href="https://kabir.ml" m-on:click.prevent="modifier">Link</a><button m-on:click.m="keycode"></button>');
+  var p = on.firstChild;
+  var button = p.nextSibling;
+  var a = button.nextSibling;
+  var buttonKeycode = a.nextSibling;
 
   var evt, modifier_active, keycode;
   Moon.config.keyCodes({
@@ -26,7 +30,7 @@ describe('On Directive', function() {
   });
 
   it('should call a method', function() {
-    document.getElementById("on-increment-button").click();
+    button.click();
 
     return wait(function() {
       expect(app.get('count')).to.equal(1);
@@ -34,9 +38,9 @@ describe('On Directive', function() {
   });
 
   it('should update DOM', function() {
-    document.getElementById("on-increment-button").click();
+    button.click();
     return wait(function() {
-      expect(document.getElementById("on-count").innerHTML).to.equal('2');
+      expect(p.innerHTML).to.equal('2');
     });
   });
 
@@ -45,7 +49,7 @@ describe('On Directive', function() {
   });
 
   it('should use modifiers', function() {
-    document.getElementById("on-modifier-link").click();
+    a.click();
 
     return wait(function() {
       expect(modifier_active).to.be['true'];
@@ -56,7 +60,7 @@ describe('On Directive', function() {
     var e = document.createEvent('HTMLEvents');
     e.initEvent("click", false, true);
     e.keyCode = 77;
-    document.getElementById("on-keycode-link").dispatchEvent(e);
+    buttonKeycode.dispatchEvent(e);
 
     return wait(function() {
       expect(keycode).to.be['true'];
@@ -64,6 +68,8 @@ describe('On Directive', function() {
   });
 
   it('should not be present at runtime', function() {
-    expect(document.getElementById('on-increment-button').getAttribute("m-on")).to.be['null'];
+    expect(button.getAttribute("m-on")).to.be['null'];
+    expect(a.getAttribute("m-on")).to.be['null'];
+    expect(buttonKeycode.getAttribute("m-on")).to.be['null'];
   });
 });
