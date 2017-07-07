@@ -11,7 +11,9 @@ describe('For Directive', function() {
     });
 
     it('should render a list', function() {
-      expect(ul.childNodes.length).to.equal(5);
+      return wait(function() {
+        expect(ul.childNodes.length).to.equal(5);
+      });
     });
 
     it('should update a list', function() {
@@ -46,7 +48,9 @@ describe('For Directive', function() {
     });
 
     it('should render a list', function() {
-      expect(ul.childNodes.length).to.equal(3);
+      return wait(function() {
+        expect(ul.childNodes.length).to.equal(3);
+      });
     });
 
     it('should update a list', function() {
@@ -69,7 +73,7 @@ describe('For Directive', function() {
 
   describe("Range", function() {
     var forRangeEl = createTestElement("forRange", "<ul><li m-for='item in range'>{{item}}</li></ul>");
-    var ul = forObjectEl.firstChild;
+    var ul = forRangeEl.firstChild;
 
     var app = new Moon({
       el: "#forRange",
@@ -79,7 +83,9 @@ describe('For Directive', function() {
     });
 
     it('should render a list', function() {
-      expect(ul.childNodes.length).to.equal(3);
+      return wait(function() {
+        expect(ul.childNodes.length).to.equal(3);
+      });
     });
 
     it('should update a list', function() {

@@ -10,7 +10,9 @@ describe('HTML Directive', function() {
   });
 
   it('should fill DOM with a value', function() {
-    expect(span.innerHTML).to.equal("<strong>Hello Moon!</strong>");
+    return wait(function() {
+      expect(span.innerHTML).to.equal("<strong>Hello Moon!</strong>");
+    });
   });
 
   it('should not be present at runtime', function() {

@@ -10,6 +10,8 @@ describe('Mask Directive', function() {
   });
 
   it('should not be present at runtime', function() {
-    expect(span.getAttribute("m-mask")).to.be['null'];
+    return wait(function() {
+      expect(span.getAttribute("m-mask")).to.be['null'];
+    });
   });
 });
