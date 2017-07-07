@@ -76,7 +76,7 @@ Be sure to put the number of the issue you fixed.
   * `travis.sh` - script for Travis CI to run for every push to Git or a PR
 * `test` - files for testing
   * `test` - folder with actual test definitions
-    * `test.js` - file with assertions for tests
+    * `core` - all core tests
   * `index.html` - HTML file for Mocha/Chai Phantom browser tests
   * `log.js` - file that logs the browser test URL
 * `benchmarks` - benchmarks for measuring performance
