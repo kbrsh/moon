@@ -600,6 +600,17 @@
         data[prop] = attrs[prop];
       }
     
+      // Check for events
+      var eventListeners = vnode.meta.eventListeners;
+      if(eventListeners !== undefined) {
+        for(var type in eventListeners) {
+          var handlers = eventListeners[type];
+          for(var i$1 = 0; i$1 < handlers.length; i$1++) {
+            componentInstance.on(type, handlers[i$1]);
+          }
+        }
+      }
+    
       componentInstance.$slots = getSlots(vnode.children);
       componentInstance.$el = node;
       componentInstance.build();
