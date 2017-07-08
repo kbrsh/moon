@@ -40,8 +40,12 @@ var wait = function(cb) {
   return new Promise(function(resolve, reject) {
     Moon.nextTick(function() {
       try {
-        cb();
-        resolve();
+        if(cb.toString().indexOf("done") !== -1) {
+          cb(resolve);
+        } else {
+          cb();
+          resolve();
+        }
       } catch(err) {
         reject(err);
       }

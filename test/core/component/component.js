@@ -127,4 +127,53 @@ describe("Component", function() {
     });
   });
 
+  describe("Events from Children", function() {
+    it("should listen to events from child components", function() {
+      var childEvent = createTestElement("childEvent", "<p>{{total}}</p><counter m-on:increment='incrementTotal'></counter>");
+      var p = childEvent.firstChild;
+      var h1 = null;
+      var button = null;
+
+      var counter = Moon.component("counter", {
+        template: "<div><h1>{{count}}</h1><button m-on:click='increment'>Increment</button></div>",
+        data: function() {
+          return {
+            count: 0
+          }
+        },
+        methods: {
+          increment: function() {
+            this.set("count", this.get("count") + 1);
+            this.emit("increment");
+          }
+        }
+      });
+
+      new Moon({
+        el: "#childEvent",
+        data: {
+          total: 0
+        },
+        methods: {
+          incrementTotal: function() {
+            this.set("total", this.get("total") + 1);
+          }
+        }
+      });
+
+      return wait(function(done) {
+        h1 = p.nextSibling.firstChild;
+        button = h1.nextSibling;
+
+        button.click();
+        
+        Moon.nextTick(function() {
+          expect(p.innerHTML).to.equal("1");
+          expect(h1.innerHTML).to.equal("1");
+
+          done();
+        });
+      });
+    });
+  });
 });
