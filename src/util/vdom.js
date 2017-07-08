@@ -161,12 +161,7 @@ const createComponentFromVNode = function(node, vnode, component) {
   // Check for events
   const eventListeners = vnode.meta.eventListeners;
   if(eventListeners !== undefined) {
-    for(let type in eventListeners) {
-      const handlers = eventListeners[type];
-      for(let i = 0; i < handlers.length; i++) {
-        componentInstance.on(type, handlers[i]);
-      }
-    }
+    extend(componentInstance.$events, eventListeners);
   }
 
   componentInstance.$slots = getSlots(vnode.children);
