@@ -2277,7 +2277,13 @@
     
             if(radio === true) {
               var valueAttr = attrs.value;
-              var valueAttrValue = valueAttr === undefined ? "null" : ("\"" + (compileTemplate(valueAttr.value, dependencies, true)) + "\"");
+              var literalValueAttr = null;
+              var valueAttrValue = "null";
+              if(valueAttr !== undefined) {
+                valueAttrValue = "\"" + (compileTemplate(valueAttr.value, dependencies, true)) + "\"";
+              } else if((literalValueAttr = attrs["m-literal:value"])) {
+                valueAttrValue = "" + (compileTemplate(literalValueAttr.value, dependencies, true));
+              }
               domSetter = domSetter + " === " + valueAttrValue;
               keypathSetter = valueAttrValue;
             } else {
