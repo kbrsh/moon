@@ -207,7 +207,7 @@ const diffProps = function(node, nodeProps, vnode) {
     const vnodePropValue = vnodeProps[vnodePropName];
     const nodePropValue = nodeProps[vnodePropName];
 
-    if((vnodePropValue !== undefined || vnodePropValue !== false || vnodePropValue !== null) && ((nodePropValue === undefined || nodePropValue === false || nodePropValue === null) || vnodePropValue !== nodePropValue)) {
+    if((vnodePropValue !== undefined && vnodePropValue !== false && vnodePropValue !== null) && ((nodePropValue === undefined || nodePropValue === false || nodePropValue === null) || vnodePropValue !== nodePropValue)) {
       if(vnodePropName.length === 10 && vnodePropName === "xlink:href") {
         node.setAttributeNS('http://www.w3.org/1999/xlink', "href", vnodePropValue);
       } else {
