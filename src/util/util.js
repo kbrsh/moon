@@ -4,12 +4,13 @@ const hashRE = /\[(\w+)\]/g;
 const newLineRE = /\n/g;
 const doubleQuoteRE = /"/g;
 const HTMLEscapeRE = /&(?:lt|gt|quot|amp);/;
-const escapeRE = /(?:(?:&(?:lt|gt|quot|amp);)|"|\n)/g;
+const escapeRE = /(?:(?:&(?:lt|gt|quot|amp);)|"|\\|\n)/g;
 const escapeMap = {
   "&lt;": "<",
   "&gt;": ">",
   "&quot;": "\\\"",
   "&amp;": "&",
+  "\\": "\\\\",
   "\"": "\\\"",
   "\n": "\\n"
 }
