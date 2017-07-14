@@ -41,16 +41,23 @@ Similar to `if`, but it toggles the `display` property of an element. It can tak
 
 ##### **for**
 
-- Expects: `Array`
+- Expects: `Array|Object|Number`
 
 Usage:
 ```html
 <ul>
-  <li m-for="item in items">{{item}}</li>
+  <li m-for="item in array">{{item}}</li>
+  <li m-for="item,index in array">{{item}}</li>
+
+  <li m-for="item in object">{{item}}</li>
+  <li m-for="item,key in object">{{item}}</li>
+
+  <li m-for="i in 10">{{item}}</li>
+  <li m-for="i,index in 10">{{item}}</li>
 </ul>
 ```
 
-Can be used to render an array, the alias (the part before `in`) can be used in `{{mustache}}` templates within the element.
+Can be used to render an array, object, or number (a range), the alias (the part before `in`) can be used in `{{mustache}}` templates within the element.
 
 ##### **on**
 
