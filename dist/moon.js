@@ -1,5 +1,5 @@
 /**
- * Moon v0.10.0
+ * Moon v0.11.0
  * Copyright 2016-2017 Kabir Shah
  * Released under the MIT License
  * http://moonjs.ga
@@ -29,10 +29,13 @@
     /**
      * Sets Up Methods
      * @param {Object} instance
+     * @param {Array} methods
      */
     var initMethods = function(instance, methods) {
+      var data = instance.$data;
+
       var initMethod = function(methodName, method) {
-        instance.$data[methodName] = function() {
+        data[methodName] = function() {
           return method.apply(instance, arguments);
         }
       }
@@ -145,7 +148,17 @@
     var hashRE = /\[(\w+)\]/g;
     var newLineRE = /\n/g;
     var doubleQuoteRE = /"/g;
-    var backslashRE = /\\/g;
+    var HTMLEscapeRE = /&(?:lt|gt|quot|amp);/;
+    var escapeRE = /(?:(?:&(?:lt|gt|quot|amp);)|"|\\|\n)/g;
+    var escapeMap = {
+      "&lt;": "<",
+      "&gt;": ">",
+      "&quot;": "\\\"",
+      "&amp;": "&",
+      "\\": "\\\\",
+      "\"": "\\\"",
+      "\n": "\\n"
+    }
 
     /**
      * Logs a Message
@@ -288,7 +301,9 @@
      * @param {String} str
      */
     var escapeString = function(str) {
-      return str.replace(backslashRE, "\\\\").replace(doubleQuoteRE, "\\\"").replace(newLineRE, "\\n");
+      return str.replace(escapeRE, function(match) {
+        return escapeMap[match];
+      });
     }
 
     /**
@@ -972,7 +987,7 @@
         // Match Text Between Templates
         var value = scanTemplateStateUntil(state, openRE);
 
-        if(value) {
+        if(value.length !== 0) {
           state.output += escapeString(value);
         }
 
@@ -1991,7 +2006,7 @@
     /**
      * Version of Moon
      */
-    Moon.version = '0.10.0';
+    Moon.version = '0.11.0';
 
     /**
      * Moon Utilities
