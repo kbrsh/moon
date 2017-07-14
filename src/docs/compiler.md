@@ -6,14 +6,15 @@ Moon has a custom HTML compiler built in to generate render functions. This mean
 
 #### Render
 
-Render functions are called in each update, and it gives Moon a new version of the lightweight virtual DOM. These render functions can be defined in a `render` option (for advanced users).
+Render functions are called in each update, and it gives Moon a new version of the lightweight virtual DOM. These render functions can be defined in a `render` option (for advanced users). They use a "HyperMoon" syntax which should provide custom meta data for the virtual DOM engine.
 
 For example:
 
 ```js
 new Moon({
-  render: function(h) {
-    return h('h1', {attrs: {}}, {shouldRender: true, eventListeners: {}}, 'Hello Moon!'); // same as <h1>Hello Moon!</h1>
+  render: function(m) {
+    return m('h1', {attrs: {}}, {shouldRender: false}, m("#text", {shouldRender: false}, "Hello Moon!"));
+    // same as <h1>Hello Moon!</h1>
   }
 });
 ```
@@ -42,7 +43,7 @@ new Moon({
   methods: {
     compile: function(event) {
       var app = this;
-      app.set('err', false);
+      this.set('err', false);
       console.error = function(msg) {
         app.set('compiled', msg)
         app.set('err', 'true');
@@ -53,7 +54,6 @@ new Moon({
         if(!this.get('err')) {
           this.set('compiled', val);
           this.set('err', false);
-          console.log(this.get('compiled'))
         }
       }
     }
