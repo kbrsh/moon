@@ -461,7 +461,7 @@ const app10 = new Moon({
 
 <script>
 Moon.component('slot-component', {
-  template: "<div><slot></slot><h5>Component Content.</h5><slot name="paragraph"></slot></div>"
+  template: "<div><slot></slot><h5>Component Content.</h5><slot name='paragraph'></slot></div>"
 });
 
 var app10 = new Moon({

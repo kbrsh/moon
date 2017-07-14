@@ -44,11 +44,12 @@
       <div class="post-content">
         <p>Moon has a custom HTML compiler built in to generate render functions. This means that before Moon can mount, the template must go through Moon&#39;s HTML compiler to be turned into plain javascript.</p>
 <h4 id="render">Render</h4>
-<p>Render functions are called in each update, and it gives Moon a new version of the lightweight virtual DOM. These render functions can be defined in a <code>render</code> option (for advanced users).</p>
+<p>Render functions are called in each update, and it gives Moon a new version of the lightweight virtual DOM. These render functions can be defined in a <code>render</code> option (for advanced users). They use a &quot;HyperMoon&quot; syntax which should provide custom meta data for the virtual DOM engine.</p>
 <p>For example:</p>
 <pre><code class="lang-js">new Moon({
-  render: function(h) {
-    return h(&#39;h1&#39;, {attrs: {}}, {shouldRender: true, eventListeners: {}}, &#39;Hello Moon!&#39;); // same as &lt;h1&gt;Hello Moon!&lt;/h1&gt;
+  render: function(m) {
+    return m(&#39;h1&#39;, {attrs: {}}, {shouldRender: false}, m(&quot;#text&quot;, {shouldRender: false}, &quot;Hello Moon!&quot;));
+    // same as &lt;h1&gt;Hello Moon!&lt;/h1&gt;
   }
 });
 </code></pre>
@@ -70,7 +71,7 @@ new Moon({
   methods: {
     compile: function(event) {
       var app = this;
-      app.set('err', false);
+      this.set('err', false);
       console.error = function(msg) {
         app.set('compiled', msg)
         app.set('err', 'true');
@@ -81,7 +82,6 @@ new Moon({
         if(!this.get('err')) {
           this.set('compiled', val);
           this.set('err', false);
-          console.log(this.get('compiled'))
         }
       }
     }

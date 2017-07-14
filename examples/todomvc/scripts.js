@@ -60,8 +60,8 @@ var app = new Moon({
   el: ".todoapp",
   data: {
     newTodo: '',
-    editedTodo: '',
-    cachedEdit: '',
+    editedTodo: null,
+    cachedEdit: null,
     filter: 'all',
     todos: storage.fetch()
   },
@@ -96,16 +96,15 @@ var app = new Moon({
     },
     updateTodo: function(index) {
       // Update a certain todo by index
-      var todos = this.get('todos');
-      todos[index] = this.get('editedTodo');
-      this.set('editedTodo', '');
-      this.set('todos', todos);
+      this.set('editedTodo', null);
+      this.set('cachedEdit', null);
     },
     discardEdit: function(index) {
       // Discard the edited todo
       var todos = this.get('todos');
       todos[index].content = this.get('cachedEdit');
-      this.set('editedTodo', '');
+      this.set('editedTodo', null);
+      this.set('cachedEdit', null);
       this.set('todos', todos);
     },
     removeCompleted: function() {

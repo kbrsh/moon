@@ -374,6 +374,52 @@ var app9 = new Moon({
 </script>
 
 <p>Go ahead, try entering <code>app9.set(&#39;parentMsg&#39;, &#39;New Parent Data&#39;)</code> and watch the component being updated!</p>
+<h5 id="slots">Slots</h5>
+<p>When you have a component that needs to distribute content passed to it, it can get messy when attempting to achieve it with props. Instead, you can provide a component with HTML, and the component can distribute it accordingly.</p>
+<p>To do this, Moon has <em>slots</em>. A can have the <code>slot</code> element anywhere with an optional <code>name</code> attribute. When a new component instance is created, the content inside of it is distributed. Any elements without a <code>slot</code> attribute will be put into the default slot, and any elements with the <code>slot</code> attribute will be put inside their respective slot.</p>
+<pre><code class="lang-html">&lt;div id=&quot;app10&quot;&gt;
+  &lt;slot-component&gt;
+    &lt;h1&gt;Default Slot Content. Parent data: {{parentMsg}}&lt;/h1&gt;
+    &lt;p slot=&quot;paragraph&quot;&gt;Named slot content.&lt;/p&gt;
+  &lt;/slot-component&gt;
+&lt;/div&gt;
+</code></pre>
+<pre><code class="lang-js">Moon.component(&#39;slot-component&#39;, {
+  template: `&lt;div&gt;
+    &lt;slot&gt;&lt;/slot&gt;
+    &lt;h5&gt;Component Content.&lt;/h5&gt;
+    &lt;slot name=&quot;paragraph&quot;&gt;&lt;/slot&gt;
+  &lt;/div&gt;`
+});
+
+const app10 = new Moon({
+  el: &quot;#app10&quot;,
+  data: {
+    parentMsg: &quot;Parent Data&quot;
+  }
+});
+</code></pre>
+<div id="app10" class="example">
+  <slot-component>
+    <h1>Default Slot Content. Parent data: {{parentMsg}}</h1>
+    <p slot="paragraph">Named slot content.</p>
+  </slot-component>
+</div>
+
+<script>
+Moon.component('slot-component', {
+  template: "<div><slot></slot><h5>Component Content.</h5><slot name='paragraph'></slot></div>"
+});
+
+var app10 = new Moon({
+  el: "#app10",
+  data: {
+    parentMsg: "Parent Data"
+  }
+});
+</script>
+
+<p>Go ahead, try entering <code>app10.set(&quot;parentMsg&quot;, &quot;New Parent Data&quot;);</code> and watch the component update.</p>
 <h4 id="next-steps">Next Steps</h4>
 <p>Congrats! You just learned the core features of the Moon API! If you&#39;d like to see some advanced features, check out the API docs, or the other guides.</p>
 
