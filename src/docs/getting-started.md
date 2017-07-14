@@ -420,6 +420,60 @@ var app9 = new Moon({
 
 Go ahead, try entering `app9.set('parentMsg', 'New Parent Data')` and watch the component being updated!
 
+##### Slots
+
+When you have a component that needs to distribute content passed to it, it can get messy when attempting to achieve it with props. Instead, you can provide a component with HTML, and the component can distribute it accordingly.
+
+To do this, Moon has _slots_. A can have the `slot` element anywhere with an optional `name` attribute. When a new component instance is created, the content inside of it is distributed. Any elements without a `slot` attribute will be put into the default slot, and any elements with the `slot` attribute will be put inside their respective slot.
+
+```html
+<div id="app10">
+  <slot-component>
+    <h1>Default Slot Content. Parent data: {{parentMsg}}</h1>
+    <p slot="paragraph">Named slot content.</p>
+  </slot-component>
+</div>
+```
+
+```js
+Moon.component('slot-component', {
+  template: `<div>
+    <slot></slot>
+    <h5>Component Content.</h5>
+    <slot name="paragraph"></slot>
+  </div>`
+});
+
+const app10 = new Moon({
+  el: "#app10",
+  data: {
+    parentMsg: "Parent Data"
+  }
+});
+```
+
+<div id="app10" class="example">
+  <slot-component>
+    <h1>Default Slot Content. Parent data: {{parentMsg}}</h1>
+    <p slot="paragraph">Named slot content.</p>
+  </slot-component>
+</div>
+
+<script>
+Moon.component('slot-component', {
+  template: "<div><slot></slot><h5>Component Content.</h5><slot name="paragraph"></slot></div>"
+});
+
+var app10 = new Moon({
+  el: "#app10",
+  data: {
+    parentMsg: "Parent Data"
+  }
+});
+</script>
+
+Go ahead, try entering `app10.set("parentMsg", "New Parent Data");` and watch the component update.
+
 #### Next Steps
 
 Congrats! You just learned the core features of the Moon API! If you'd like to see some advanced features, check out the API docs, or the other guides.
