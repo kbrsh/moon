@@ -1,5 +1,5 @@
 /**
- * Moon v0.10.0
+ * Moon v0.11.0
  * Copyright 2016-2017 Kabir Shah
  * Released under the MIT License
  * http://moonjs.ga
@@ -2006,7 +2006,7 @@
     /**
      * Version of Moon
      */
-    Moon.version = '0.10.0';
+    Moon.version = '0.11.0';
     
     /**
      * Moon Utilities
