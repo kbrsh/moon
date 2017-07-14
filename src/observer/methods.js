@@ -7,7 +7,9 @@ const initMethods = function(instance, methods) {
   let data = instance.$data;
 
   const initMethod = function(methodName, method) {
-    data[methodName] = method.bind(instance);
+    data[methodName] = function() {
+      return method.apply(instance, arguments);
+    }
   }
 
   for(const method in methods) {
