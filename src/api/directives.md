@@ -69,9 +69,12 @@ Usage:
 <button m-on:click="someMethod"></button>
 <button m-on:click="someMethod(msg, 'foo', 'bar')"></button>
 <button m-on:click.shift="someMethod(msg, 'foo', 'bar')"></button>
+<component m-on:customEvent="parentHandler"></component>
 ```
 
 Can be used to attach an event listener to an element correctly, and firing a method when invoked. All data is available within the parameters (including methods), and can be accessed with plain Javascript.
+
+Can also attach an event listener to listen any child component events. The event fired on the child will result in the parent handler being called. Note that this only works if the handler is set on the root child component.
 
 ##### **model**
 
