@@ -79,6 +79,34 @@ const app = new Moon({
 });
 ```
 
+#### Computed Properties
+
+If you have a value that depends on other values and returns some dynamic result, then you should use a computed property. Computed properties are analyzed for their dependencies, and will only run when needed.
+
+For example:
+
+```js
+const app = new Moon({
+  el: "#app",
+  data: {
+    msg: "Hello Moon!",
+    count: 0
+  },
+  computed: {
+    reversedMsg: {
+      get: function() {
+        return this.get("msg").split("").reverse().join("");
+      }
+    }
+  }
+});
+
+app.set("msg", "New Message"); // Will cause `reversedMsg` to evaluate
+app.set("count", 1); // `reversedMsg` will be cached
+```
+
+This caching behavior efficiently prevents any complex computations to be run only when needed. If a property that the computed property depends on is updated, then the computed property is evaluated again and analyzed for new dependencies.
+
 #### Lifecycle
 
 Like React and Vue, Moon calls certain lifecycle hooks throughout the life of your instance/component.
