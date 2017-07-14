@@ -29,12 +29,13 @@
     /**
      * Sets Up Methods
      * @param {Object} instance
+     * @param {Array} methods
      */
     var initMethods = function(instance, methods) {
+      var data = instance.$data;
+    
       var initMethod = function(methodName, method) {
-        instance.$data[methodName] = function() {
-          return method.apply(instance, arguments);
-        }
+        data[methodName] = method.bind(instance);
       }
     
       for(var method in methods) {
