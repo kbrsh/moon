@@ -82,10 +82,16 @@ Can also attach an event listener to listen any child component events. The even
 
 Usage:
 ```html
-<input m-model="msg">
+<input type="text" m-model="msg">
+<input type="checkbox" name="value" value="Item" m-model="selectedItems[0]">
+<input type="radio" name="value" value="Item" m-model="selectedItem">
 ```
 
 Can be used for two way data binding, the value of any input with this directive will be bound to the data property provided, and any changes to the data property will be reflected in the input value.
+
+When used on a checkbox, the resulting value will be the current state of the checkbox.
+
+When used on a radio button, the resulting value will be the `value` attribute of the current selected item.
 
 ##### **literal**
 
