@@ -3,7 +3,16 @@
 const hashRE = /\[(\w+)\]/g;
 const newLineRE = /\n/g;
 const doubleQuoteRE = /"/g;
-const backslashRE = /\\/g;
+const HTMLEscapeRE = /&(?:lt|gt|quot|amp);/;
+const escapeRE = /(?:(?:&(?:lt|gt|quot|amp);)|"|\n)/g;
+const escapeMap = {
+  "&lt;": "<",
+  "&gt;": ">",
+  "&quot;": "\\\"",
+  "&amp;": "&",
+  "\"": "\\\"",
+  "\n": "\\n"
+}
 
 /**
  * Logs a Message
@@ -146,7 +155,9 @@ const defineProperty = function(obj, prop, value, def) {
  * @param {String} str
  */
 const escapeString = function(str) {
-  return str.replace(backslashRE, "\\\\").replace(doubleQuoteRE, "\\\"").replace(newLineRE, "\\n");
+  return str.replace(escapeRE, function(match) {
+    return escapeMap[match];
+  });
 }
 
 /**

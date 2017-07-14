@@ -31,7 +31,7 @@ const compileTemplateState = function(state, isString) {
     // Match Text Between Templates
     const value = scanTemplateStateUntil(state, openRE);
 
-    if(value) {
+    if(value.length !== 0) {
       state.output += escapeString(value);
     }
 

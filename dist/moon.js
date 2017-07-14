@@ -145,7 +145,16 @@
     var hashRE = /\[(\w+)\]/g;
     var newLineRE = /\n/g;
     var doubleQuoteRE = /"/g;
-    var backslashRE = /\\/g;
+    var HTMLEscapeRE = /&(?:lt|gt|quot|amp);/;
+    var escapeRE = /(?:(?:&(?:lt|gt|quot|amp);)|"|\n)/g;
+    var escapeMap = {
+      "&lt;": "<",
+      "&gt;": ">",
+      "&quot;": "\\\"",
+      "&amp;": "&",
+      "\"": "\\\"",
+      "\n": "\\n"
+    }
     
     /**
      * Logs a Message
@@ -288,7 +297,9 @@
      * @param {String} str
      */
     var escapeString = function(str) {
-      return str.replace(backslashRE, "\\\\").replace(doubleQuoteRE, "\\\"").replace(newLineRE, "\\n");
+      return str.replace(escapeRE, function(match) {
+        return escapeMap[match];
+      });
     }
     
     /**
@@ -972,7 +983,7 @@
         // Match Text Between Templates
         var value = scanTemplateStateUntil(state, openRE);
     
-        if(value) {
+        if(value.length !== 0) {
           state.output += escapeString(value);
         }
     
