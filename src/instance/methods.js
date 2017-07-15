@@ -208,8 +208,8 @@ Moon.prototype.patch = function(old, vnode, parent) {
   if(old.meta !== undefined) {
     // If it is a VNode, then diff
     if(vnode.type !== old.type) {
-      // Root Element Changed During Diff
-      // Replace Root Element
+      // Root element changed during diff
+      // replace root element
       const newRoot = createNodeFromVNode(vnode);
       replaceChild(old.meta.el, newRoot, vnode, parent);
 
@@ -218,7 +218,7 @@ Moon.prototype.patch = function(old, vnode, parent) {
       this.$el = newRoot;
     } else {
       // Diff
-      diff(old, vnode, parent);
+      diff(old, [], vnode, [], 0, parent);
     }
 
   } else if(old instanceof Node) {

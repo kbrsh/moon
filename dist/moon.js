@@ -362,33 +362,38 @@
      * @return {Object} DOM Node
      */
     var createNodeFromVNode = function(vnode) {
+      var type = vnode.type;
+      var meta = vnode.meta;
       var el = null;
     
-      if(vnode.type === "#text") {
+      if(type === "#text") {
         // Create textnode
         el = document.createTextNode(vnode.val);
       } else {
-        el = vnode.meta.isSVG ? document.createElementNS("http://www.w3.org/2000/svg", vnode.type) : document.createElement(vnode.type);
+        var children = vnode.children;
+        el = meta.isSVG ? document.createElementNS("http://www.w3.org/2000/svg", type) : document.createElement(type);
+    
         // Optimization: VNode only has one child that is text, and create it here
-        if(vnode.children.length === 1 && vnode.children[0].type === "#text") {
-          el.textContent = vnode.children[0].val;
-          vnode.children[0].meta.el = el.firstChild;
+        var firstChild = children[0];
+        if(children.length === 1 && firstChild.type === "#text") {
+          el.textContent = firstChild.val;
+          firstChild.meta.el = el.firstChild;
         } else {
           // Add all children
-          for(var i = 0; i < vnode.children.length; i++) {
-            var vchild = vnode.children[i];
+          for(var i = 0; i < children.length; i++) {
+            var vchild = children[i];
             appendChild(createNodeFromVNode(vchild), vchild, el);
           }
         }
         // Add all event listeners
         var eventListeners = null;
-        if((eventListeners = vnode.meta.eventListeners) !== undefined) {
+        if((eventListeners = meta.eventListeners) !== undefined) {
           addEventListeners(el, eventListeners);
         }
       }
     
       // Setup Props
-      diffProps(el, {}, vnode, vnode.props.attrs);
+      diffProps(el, {}, vnode, vnode.props);
     
       // Hydrate
       vnode.meta.el = el;
@@ -654,10 +659,11 @@
      * @param {Object} node
      * @param {Object} nodeProps
      * @param {Object} vnode
+     * @param {Object} props
      */
-    var diffProps = function(node, nodeProps, vnode) {
+    var diffProps = function(node, nodeProps, vnode, props) {
       // Get VNode Attributes
-      var vnodeProps = vnode.props.attrs;
+      var vnodeProps = props.attrs;
     
       // Diff VNode Props with Node Props
       for(var vnodePropName in vnodeProps) {
@@ -683,7 +689,7 @@
     
       // Execute any directives
       var vnodeDirectives = null;
-      if((vnodeDirectives = vnode.props.directives) !== undefined) {
+      if((vnodeDirectives = props.directives) !== undefined) {
         for(var directive in vnodeDirectives) {
           var directiveFn = null;
           if((directiveFn = directives[directive]) !== undefined) {
@@ -694,7 +700,7 @@
     
       // Add/Update any DOM Props
       var dom = null;
-      if((dom = vnode.props.dom) !== undefined) {
+      if((dom = props.dom) !== undefined) {
         for(var domProp in dom) {
           var domPropValue = dom[domProp];
           if(node[domProp] !== domPropValue) {
@@ -761,6 +767,7 @@
     
         return newNode;
       } else if(vnode === null) {
+        // No vnode, create one
         removeChild(node, parent);
     
         return null;
@@ -769,19 +776,13 @@
         replaceChild(node, newNode$1, vnode, parent);
         return newNode$1;
       } else if(vnode.type === TEXT_TYPE) {
-        if(nodeName === TEXT_TYPE) {
-          // Both are textnodes, update the node
-          if(node.textContent !== vnode.val) {
-            node.textContent = vnode.val;
-          }
-    
-          // Hydrate
-          vnode.meta.el = node;
-        } else {
-          // Node isn't text, replace with one
-          replaceChild(node, createNodeFromVNode(vnode), vnode, parent);
+        // Both are text nodes, update node if needed
+        if(node.textContent !== vnode.val) {
+          node.textContent = vnode.val;
         }
     
+        // Hydrate
+        vnode.meta.el = node;
         return node;
       } else {
         // Hydrate
@@ -797,7 +798,7 @@
         }
     
         // Diff props
-        diffProps(node, extractAttrs(node), vnode);
+        diffProps(node, extractAttrs(node), vnode, vnode.props);
     
         // Add event listeners
         var eventListeners = null;
@@ -833,122 +834,105 @@
     /**
      * Diffs VNodes, and applies Changes
      * @param {Object} oldVNode
+     * @param {Array} oldChildren
      * @param {Object} vnode
+     * @param {Array} children
+     * @param {Number} index
      * @param {Object} parent
      * @return {Number} patch type
      */
-    var diff = function(oldVNode, vnode, parent) {
-      if(oldVNode === null) {
-        // No Node, append a node
-        appendChild(createNodeFromVNode(vnode), vnode, parent);
+    var diff = function(oldVNode, oldChildren, vnode, children, index, parent) {
+      var oldMeta = oldVNode.meta;
+      var meta = vnode.meta;
     
-        return PATCH.APPEND;
-      } else if(vnode === null) {
-        // No New VNode, remove Node
-        removeChild(oldVNode.meta.el, parent);
+      if(oldVNode.type !== vnode.type) {
+        // Different types, replace
+        oldChildren[index] = vnode;
+        replaceChild(oldMeta.el, createNodeFromVNode(vnode), vnode, parent);
+      } else if(meta.shouldRender === true) {
+        if(vnode.type === TEXT_TYPE) {
+          // Text, update if needed
+          var val = vnode.val;
+          if(oldVNode.val !== val) {
+            oldVNode.val = val;
+            oldMeta.el.textContent = val;
+          }
+        } else if(meta.component !== undefined) {
+          // Component, diff props and slots
+          diffComponent(oldMeta.el, vnode);
+        } else {
+          var node = oldMeta.el;
     
-        return PATCH.REMOVE;
-      } else if(oldVNode === vnode) {
-        // Both have the same reference, skip
-        return PATCH.SKIP;
-      } else if(oldVNode.type !== vnode.type) {
-        // Different types, replace it
-        replaceChild(oldVNode.meta.el, createNodeFromVNode(vnode), vnode, parent);
+          // Diff props
+          var oldProps = oldVNode.props;
+          var props = vnode.props;
+          diffProps(node, oldProps.attrs, vnode, props);
+          oldProps.attrs = props.attrs;
     
-        return PATCH.REPLACE;
-      } else if(vnode.meta.shouldRender === true && vnode.type === TEXT_TYPE) {
-        var node = oldVNode.meta.el;
-    
-        if(oldVNode.type === TEXT_TYPE) {
-          // Both are textnodes, update the node
-          if(vnode.val !== oldVNode.val) {
-            node.textContent = vnode.val;
+          // Diff event listeners
+          var eventListeners = null;
+          if((eventListeners = meta.eventListeners) !== undefined) {
+            diffEventListeners(node, eventListeners, oldMeta.eventListeners);
           }
     
-          return PATCH.TEXT;
-        } else {
-          // Node isn't text, replace with one
-          replaceChild(node, createNodeFromVNode(vnode), vnode, parent);
-          return PATCH.REPLACE;
-        }
+          // Ensure innerHTML wasn't changed
+          var domProps = props.dom;
+          if(domProps === undefined || domProps.innerHTML === undefined) {
+            // Diff children
+            var children$1 = vnode.children;
+            var oldChildren$1 = oldVNode.children;
+            var newLength = children$1.length;
+            var oldLength = oldChildren$1.length;
     
-      } else if(vnode.meta.shouldRender === true) {
-        var node$1 = oldVNode.meta.el;
+            if(newLength === 0 && oldLength !== 0) {
+              var firstChild = null;
+              while((firstChild = node.firstChild) !== null) {
+                removeChild(firstChild, node);
+              }
+              oldVNode.children = [];
+            } else if(oldLength === 0) {
+              var childVnode = null;
+              for(var i = 0; i < newLength; i++) {
+                childVnode = children$1[i];
+                appendChild(createNodeFromVNode(childVnode), childVnode, node);
+              }
+              oldVNode.children = children$1;
+            } else {
+              var totalLen = newLength > oldLength ? newLength : oldLength;
+              var oldChild = null;
+              var child = null;
+              for(var i$1 = 0; i$1 < totalLen; i$1++) {
+                if(i$1 === newLength) {
+                  // Remove extra children
+                  var childNode = oldChildren$1[i$1].meta.el;
+                  var nextSibling = null;
+                  do {
+                    nextSibling = childNode.nextSibling;
+                    removeChild(childNode, node);
+                    childNode = nextSibling;
+                  } while(childNode !== null);
+                  oldChildren$1.length = newLength;
+                } else if(i$1 === oldLength) {
+                  // Add extra children
+                  var childVnode$1 = null;
+                  for(var j = oldLength; j < newLength; j++) {
+                    childVnode$1 = children$1[j];
+                    appendChild(createNodeFromVNode(childVnode$1), childVnode$1, node);
+                  }
+                  oldVNode.children = children$1;
+                } else {
+                  // Diff child if they don't have the same reference
+                  oldChild = oldChildren$1[i$1];
+                  child = children$1[i$1];
     
-        // Check for Component
-        if(vnode.meta.component !== undefined) {
-          // Diff Component
-          diffComponent(node$1, vnode);
-    
-          // Skip diffing any children
-          return PATCH.SKIP;
-        }
-    
-        // Diff props
-        diffProps(node$1, oldVNode.props.attrs, vnode);
-        oldVNode.props.attrs = vnode.props.attrs;
-    
-        // Diff event listeners
-        var eventListeners = null;
-        if((eventListeners = vnode.meta.eventListeners) !== undefined) {
-          diffEventListeners(node$1, eventListeners, oldVNode.meta.eventListeners);
-        }
-    
-        // Check if innerHTML was changed, don't diff children
-        var domProps = vnode.props.dom;
-        if(domProps !== undefined && domProps.innerHTML !== undefined) {
-          // Skip Children
-          return PATCH.SKIP;
-        }
-    
-        // Diff Children
-        var children = vnode.children;
-        var oldChildren = oldVNode.children;
-        var newLength = children.length;
-        var oldLength = oldChildren.length;
-    
-        if(newLength === 0) {
-          // No Children, Remove all Children if not Already Removed
-          if(oldLength !== 0) {
-            var firstChild = null;
-            while((firstChild = node$1.firstChild) !== null) {
-              removeChild(firstChild, node$1);
-            }
-            oldVNode.children = [];
-          }
-        } else {
-          // Traverse and Diff Children
-          var totalLen = newLength > oldLength ? newLength : oldLength;
-          for(var i = 0, j = 0; i < totalLen; i++, j++) {
-            var oldChild = j < oldLength ? oldChildren[j] : null;
-            var child = i < newLength ? children[i] : null;
-    
-            var action = diff(oldChild, child, node$1);
-    
-            // Update Children to Match Action
-            switch (action) {
-              case PATCH.APPEND:
-                oldChildren[oldLength++] = child;
-                break;
-              case PATCH.REMOVE:
-                oldChildren.splice(j--, 1);
-                oldLength--;
-                break;
-              case PATCH.REPLACE:
-                oldChildren[j] = children[i];
-                break;
-              case PATCH.TEXT:
-                oldChild.val = child.val;
-                break;
+                  if(oldChild !== child) {
+                    diff(oldChild, oldChildren$1, child, children$1, i$1, node);
+                  }
+                }
+              }
             }
           }
         }
-    
-        return PATCH.CHILDREN;
-      } else {
-        // Nothing Changed, Rehydrate and Exit
-        vnode.meta.el = oldVNode.meta.el;
-        return PATCH.SKIP;
       }
     }
     
@@ -1929,8 +1913,8 @@
       if(old.meta !== undefined) {
         // If it is a VNode, then diff
         if(vnode.type !== old.type) {
-          // Root Element Changed During Diff
-          // Replace Root Element
+          // Root element changed during diff
+          // replace root element
           var newRoot = createNodeFromVNode(vnode);
           replaceChild(old.meta.el, newRoot, vnode, parent);
     
@@ -1939,7 +1923,7 @@
           this.$el = newRoot;
         } else {
           // Diff
-          diff(old, vnode, parent);
+          diff(old, [], vnode, [], 0, parent);
         }
     
       } else if(old instanceof Node) {
