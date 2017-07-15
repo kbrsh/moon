@@ -466,18 +466,6 @@
     var TEXT_TYPE = "#text";
     
     /**
-     * Patch Types
-     */
-    var PATCH = {
-      SKIP: 0,
-      APPEND: 1,
-      REMOVE: 2,
-      REPLACE: 3,
-      TEXT: 4,
-      CHILDREN: 5
-    }
-    
-    /**
      * Gives Default Metadata for a VNode
      * @return {Object} metadata
      */
@@ -759,74 +747,71 @@
      */
     var hydrate = function(node, vnode, parent) {
       var nodeName = node !== null ? node.nodeName.toLowerCase() : null;
+      var meta = vnode.meta;
     
-      if(node === null) {
-        // No node, create one
+      if(nodeName !== vnode.type) {
         var newNode = createNodeFromVNode(vnode);
-        appendChild(newNode, vnode, parent);
-    
+        replaceChild(node, newNode, vnode, parent);
         return newNode;
-      } else if(vnode === null) {
-        // No vnode, create one
-        removeChild(node, parent);
-    
-        return null;
-      } else if(nodeName !== vnode.type) {
-        var newNode$1 = createNodeFromVNode(vnode);
-        replaceChild(node, newNode$1, vnode, parent);
-        return newNode$1;
       } else if(vnode.type === TEXT_TYPE) {
-        // Both are text nodes, update node if needed
+        // Both are text nodes, update if needed
         if(node.textContent !== vnode.val) {
           node.textContent = vnode.val;
         }
     
         // Hydrate
-        vnode.meta.el = node;
+        meta.el = node;
+      } else if(meta.component !== undefined) {
+        // Component
+        diffComponent(node, vnode);
         return node;
       } else {
         // Hydrate
-        vnode.meta.el = node;
-    
-        // Check for Component
-        if(vnode.meta.component !== undefined) {
-          // Diff the Component
-          diffComponent(node, vnode);
-    
-          // Skip diffing any children
-          return node;
-        }
+        meta.el = node;
     
         // Diff props
-        diffProps(node, extractAttrs(node), vnode, vnode.props);
+        var props = vnode.props;
+        diffProps(node, extractAttrs(node), vnode, props);
     
         // Add event listeners
         var eventListeners = null;
-        if((eventListeners = vnode.meta.eventListeners) !== undefined) {
+        if((eventListeners = meta.eventListeners) !== undefined) {
           addEventListeners(node, eventListeners);
         }
     
-        // Check if innerHTML was changed, and don't diff children if so
-        var domProps = vnode.props.dom;
-        if(domProps !== undefined && domProps.innerHTML !== undefined) {
-          return node;
+        // Ensure innerHTML wasn't changed
+        var domProps = props.dom;
+        if(domProps === undefined || domProps.innerHTML === undefined) {
+          var children = vnode.children;
+          var length = children.length;
+    
+          var i = 0;
+          var currentChildNode = node.firstChild;
+          var vchild = length !== 0 ? children[0] : null;
+    
+          while(vchild !== null || currentChildNode !== null) {
+            if(vchild === null) {
+              var nextSibling = null;
+              do {
+                nextSibling = currentChildNode.nextSibling;
+                removeChild(currentChildNode, node);
+                currentChildNode = nextSibling;
+              } while(currentChildNode !== null);
+              currentChildNode = null;
+            } else if(currentChildNode === null) {
+              for(; i < children.length; i++) {
+                vchild = children[i];
+                appendChild(createNodeFromVNode(vchild), vchild, node);
+              }
+              vchild = null;
+            } else {
+              var next = currentChildNode.nextSibling;
+              hydrate(currentChildNode, vchild, node);
+              vchild = ++i < length ? children[i] : null;
+              currentChildNode = next;
+            }
+          }
         }
-    
-        // Hydrate Children
-        var children = vnode.children;
-        var length = children.length;
-    
-        var i = 0;
-        var currentChildNode = node.firstChild;
-        var vchild = length !== 0 ? children[0] : null;
-    
-        while(vchild !== null || currentChildNode !== null) {
-          var next = currentChildNode !== null ? currentChildNode.nextSibling : null;
-          hydrate(currentChildNode, vchild, node);
-          vchild = ++i < length ? children[i] : null;
-          currentChildNode = next;
-        }
-    
         return node;
       }
     }
@@ -915,8 +900,8 @@
                 } else if(i$1 === oldLength) {
                   // Add extra children
                   var childVnode$1 = null;
-                  for(var j = oldLength; j < newLength; j++) {
-                    childVnode$1 = children$1[j];
+                  for(; i$1 < newLength; i$1++) {
+                    childVnode$1 = children$1[i$1];
                     appendChild(createNodeFromVNode(childVnode$1), childVnode$1, node);
                   }
                   oldVNode.children = children$1;

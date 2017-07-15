@@ -4,18 +4,6 @@
 const TEXT_TYPE = "#text";
 
 /**
- * Patch Types
- */
-const PATCH = {
-  SKIP: 0,
-  APPEND: 1,
-  REMOVE: 2,
-  REPLACE: 3,
-  TEXT: 4,
-  CHILDREN: 5
-}
-
-/**
  * Gives Default Metadata for a VNode
  * @return {Object} metadata
  */
@@ -297,74 +285,71 @@ const diffComponent = function(node, vnode) {
  */
 const hydrate = function(node, vnode, parent) {
   const nodeName = node !== null ? node.nodeName.toLowerCase() : null;
+  let meta = vnode.meta;
 
-  if(node === null) {
-    // No node, create one
-    const newNode = createNodeFromVNode(vnode);
-    appendChild(newNode, vnode, parent);
-
-    return newNode;
-  } else if(vnode === null) {
-    // No vnode, create one
-    removeChild(node, parent);
-
-    return null;
-  } else if(nodeName !== vnode.type) {
+  if(nodeName !== vnode.type) {
     const newNode = createNodeFromVNode(vnode);
     replaceChild(node, newNode, vnode, parent);
     return newNode;
   } else if(vnode.type === TEXT_TYPE) {
-    // Both are text nodes, update node if needed
+    // Both are text nodes, update if needed
     if(node.textContent !== vnode.val) {
       node.textContent = vnode.val;
     }
 
     // Hydrate
-    vnode.meta.el = node;
+    meta.el = node;
+  } else if(meta.component !== undefined) {
+    // Component
+    diffComponent(node, vnode);
     return node;
   } else {
     // Hydrate
-    vnode.meta.el = node;
-
-    // Check for Component
-    if(vnode.meta.component !== undefined) {
-      // Diff the Component
-      diffComponent(node, vnode);
-
-      // Skip diffing any children
-      return node;
-    }
+    meta.el = node;
 
     // Diff props
-    diffProps(node, extractAttrs(node), vnode, vnode.props);
+    let props = vnode.props;
+    diffProps(node, extractAttrs(node), vnode, props);
 
     // Add event listeners
     let eventListeners = null;
-    if((eventListeners = vnode.meta.eventListeners) !== undefined) {
+    if((eventListeners = meta.eventListeners) !== undefined) {
       addEventListeners(node, eventListeners);
     }
 
-    // Check if innerHTML was changed, and don't diff children if so
-    const domProps = vnode.props.dom;
-    if(domProps !== undefined && domProps.innerHTML !== undefined) {
-      return node;
+    // Ensure innerHTML wasn't changed
+    const domProps = props.dom;
+    if(domProps === undefined || domProps.innerHTML === undefined) {
+      const children = vnode.children;
+      const length = children.length;
+
+      let i = 0;
+      let currentChildNode = node.firstChild;
+      let vchild = length !== 0 ? children[0] : null;
+
+      while(vchild !== null || currentChildNode !== null) {
+        if(vchild === null) {
+          let nextSibling = null;
+          do {
+            nextSibling = currentChildNode.nextSibling;
+            removeChild(currentChildNode, node);
+            currentChildNode = nextSibling;
+          } while(currentChildNode !== null);
+          currentChildNode = null;
+        } else if(currentChildNode === null) {
+          for(; i < children.length; i++) {
+            vchild = children[i];
+            appendChild(createNodeFromVNode(vchild), vchild, node);
+          }
+          vchild = null;
+        } else {
+          const next = currentChildNode.nextSibling;
+          hydrate(currentChildNode, vchild, node);
+          vchild = ++i < length ? children[i] : null;
+          currentChildNode = next;
+        }
+      }
     }
-
-    // Hydrate Children
-    const children = vnode.children;
-    const length = children.length;
-
-    let i = 0;
-    let currentChildNode = node.firstChild;
-    let vchild = length !== 0 ? children[0] : null;
-
-    while(vchild !== null || currentChildNode !== null) {
-      const next = currentChildNode !== null ? currentChildNode.nextSibling : null;
-      hydrate(currentChildNode, vchild, node);
-      vchild = ++i < length ? children[i] : null;
-      currentChildNode = next;
-    }
-
     return node;
   }
 }
@@ -453,8 +438,8 @@ const diff = function(oldVNode, oldChildren, vnode, children, index, parent) {
             } else if(i === oldLength) {
               // Add extra children
               let childVnode = null;
-              for(let j = oldLength; j < newLength; j++) {
-                childVnode = children[j];
+              for(; i < newLength; i++) {
+                childVnode = children[i];
                 appendChild(createNodeFromVNode(childVnode), childVnode, node);
               }
               oldVNode.children = children;
