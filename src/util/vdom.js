@@ -417,9 +417,9 @@ const diff = function(oldVNode, oldChildren, vnode, children, index, parent) {
           let childVnode = null;
           for(let i = 0; i < newLength; i++) {
             childVnode = children[i];
-            oldVNode.children.push(childVnode);
             appendChild(createNodeFromVNode(childVnode), childVnode, node);
           }
+          oldVNode.children = children;
         } else {
           const totalLen = newLength > oldLength ? newLength : oldLength;
           let oldChild = null;
@@ -440,9 +440,9 @@ const diff = function(oldVNode, oldChildren, vnode, children, index, parent) {
               let childVnode = null;
               for(; i < newLength; i++) {
                 childVnode = children[i];
+                oldVNode.children.push(childVnode);
                 appendChild(createNodeFromVNode(childVnode), childVnode, node);
               }
-              oldVNode.children = children;
             } else {
               // Diff child if they don't have the same reference
               oldChild = oldChildren[i];

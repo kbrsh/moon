@@ -879,9 +879,9 @@
               var childVnode = null;
               for(var i = 0; i < newLength; i++) {
                 childVnode = children$1[i];
-                oldVNode.children.push(childVnode);
                 appendChild(createNodeFromVNode(childVnode), childVnode, node);
               }
+              oldVNode.children = children$1;
             } else {
               var totalLen = newLength > oldLength ? newLength : oldLength;
               var oldChild = null;
@@ -902,9 +902,9 @@
                   var childVnode$1 = null;
                   for(; i$1 < newLength; i$1++) {
                     childVnode$1 = children$1[i$1];
+                    oldVNode.children.push(childVnode$1);
                     appendChild(createNodeFromVNode(childVnode$1), childVnode$1, node);
                   }
-                  oldVNode.children = children$1;
                 } else {
                   // Diff child if they don't have the same reference
                   oldChild = oldChildren$1[i$1];
