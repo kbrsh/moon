@@ -743,7 +743,7 @@
      * @param {Object} node
      * @param {Object} vnode
      * @param {Object} parent
-     * @return {Object} adjusted node only if it was replaced
+     * @return {Object} adjusted node
      */
     var hydrate = function(node, vnode, parent) {
       var nodeName = node !== null ? node.nodeName.toLowerCase() : null;
@@ -824,7 +824,6 @@
      * @param {Array} children
      * @param {Number} index
      * @param {Object} parent
-     * @return {Number} patch type
      */
     var diff = function(oldVNode, oldChildren, vnode, children, index, parent) {
       var oldMeta = oldVNode.meta;

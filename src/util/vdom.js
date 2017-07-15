@@ -281,7 +281,7 @@ const diffComponent = function(node, vnode) {
  * @param {Object} node
  * @param {Object} vnode
  * @param {Object} parent
- * @return {Object} adjusted node only if it was replaced
+ * @return {Object} adjusted node
  */
 const hydrate = function(node, vnode, parent) {
   const nodeName = node !== null ? node.nodeName.toLowerCase() : null;
@@ -362,7 +362,6 @@ const hydrate = function(node, vnode, parent) {
  * @param {Array} children
  * @param {Number} index
  * @param {Object} parent
- * @return {Number} patch type
  */
 const diff = function(oldVNode, oldChildren, vnode, children, index, parent) {
   let oldMeta = oldVNode.meta;
