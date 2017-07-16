@@ -901,7 +901,7 @@
                   var childVnode$1 = null;
                   for(; i$1 < newLength; i$1++) {
                     childVnode$1 = children$1[i$1];
-                    oldVNode.children.push(childVnode$1);
+                    oldChildren$1.push(childVnode$1);
                     appendChild(createNodeFromVNode(childVnode$1), childVnode$1, node);
                   }
                 } else {

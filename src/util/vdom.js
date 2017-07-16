@@ -439,7 +439,7 @@ const diff = function(oldVNode, oldChildren, vnode, children, index, parent) {
               let childVnode = null;
               for(; i < newLength; i++) {
                 childVnode = children[i];
-                oldVNode.children.push(childVnode);
+                oldChildren.push(childVnode);
                 appendChild(createNodeFromVNode(childVnode), childVnode, node);
               }
             } else {
