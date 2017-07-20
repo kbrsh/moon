@@ -41,7 +41,7 @@ specialDirectives["m-for"] = {
     }
 
     // Use the renderLoop runtime helper
-    return `Moon.renderLoop(${iteratable}, function(${params}) { return ${code}; })`;
+    return `m.renderLoop(${iteratable}, function(${params}) { return ${code}; })`;
   }
 }
 
@@ -71,7 +71,7 @@ specialDirectives["m-on"] = {
     for(let i = 0; i < rawModifiers.length; i++) {
       const eventModifierCode = eventModifiersCode[rawModifiers[i]];
       if(eventModifierCode === undefined) {
-        modifiers += `if(Moon.renderEventModifier(event.keyCode, "${rawModifiers[i]}") === false) {return null;};`
+        modifiers += `if(m.renderEventModifier(event.keyCode, "${rawModifiers[i]}") === false) {return null;};`
       } else {
         modifiers += eventModifierCode;
       }
@@ -187,7 +187,7 @@ specialDirectives["m-literal"] = {
 
     if(propName === "class") {
       // Detected class, use runtime class render helper
-      return `"class": Moon.renderClass(${propValue}), `;
+      return `"class": m.renderClass(${propValue}), `;
     } else {
       // Default literal attribute
       return `"${propName}": ${propValue}, `;

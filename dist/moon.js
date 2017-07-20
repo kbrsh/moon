@@ -590,6 +590,80 @@
     };
     
     /**
+     * Renders a Class in Array/Object Form
+     * @param {Array|Object|String} classNames
+     * @return {String} renderedClassNames
+     */
+    m.renderClass = function(classNames) {
+      if(typeof classNames === "string") {
+        // If they are a string, no need for any more processing
+        return classNames;
+      }
+    
+      var renderedClassNames = "";
+      if(Array.isArray(classNames)) {
+        // It's an array, so go through them all and generate a string
+        for(var i = 0; i < classNames.length; i++) {
+          renderedClassNames += (m.renderClass(classNames[i])) + " ";
+        }
+      } else if(typeof classNames === "object") {
+        // It's an object, so to through and render them to a string if the corresponding condition is truthy
+        for(var className in classNames) {
+          if(classNames[className]) {
+            renderedClassNames += className + " ";
+          }
+        }
+      }
+    
+      // Remove trailing space and return
+      renderedClassNames = renderedClassNames.slice(0, -1);
+      return renderedClassNames;
+    }
+    
+    /**
+     * Renders "m-for" Directive Array
+     * @param {Array|Object|Number} iteratable
+     * @param {Function} item
+     */
+    m.renderLoop = function(iteratable, item) {
+      var items = null;
+    
+      if(Array.isArray(iteratable)) {
+        items = new Array(iteratable.length);
+    
+        // Iterate through the array
+        for(var i = 0; i < iteratable.length; i++) {
+          items[i] = item(iteratable[i], i);
+        }
+      } else if(typeof iteratable === "object") {
+        items = [];
+    
+        // Iterate through the object
+        for(var key in iteratable) {
+          items.push(item(iteratable[key], key));
+        }
+      } else if(typeof iteratable === "number") {
+        items = new Array(iteratable);
+    
+        // Repeat a certain amount of times
+        for(var i$1 = 0; i$1 < iteratable; i$1++) {
+          items[i$1] = item(i$1 + 1, i$1);
+        }
+      }
+    
+      return items;
+    }
+    
+    /**
+     * Renders an Event Modifier
+     * @param {Number} keyCode
+     * @param {String} modifier
+     */
+     m.renderEventModifier = function(keyCode, modifier) {
+      return keyCode === eventModifiers[modifier];
+     }
+    
+    /**
      * Mounts a Component To The DOM
      * @param {Object} node
      * @param {Object} vnode
@@ -2056,80 +2130,6 @@
       return MoonComponent;
     }
     
-    /**
-     * Renders a Class in Array/Object Form
-     * @param {Array|Object|String} classNames
-     * @return {String} renderedClassNames
-     */
-    Moon.renderClass = function(classNames) {
-      if(typeof classNames === "string") {
-        // If they are a string, no need for any more processing
-        return classNames;
-      }
-    
-      var renderedClassNames = "";
-      if(Array.isArray(classNames)) {
-        // It's an array, so go through them all and generate a string
-        for(var i = 0; i < classNames.length; i++) {
-          renderedClassNames += (Moon.renderClass(classNames[i])) + " ";
-        }
-      } else if(typeof classNames === "object") {
-        // It's an object, so to through and render them to a string if the corresponding condition is truthy
-        for(var className in classNames) {
-          if(classNames[className]) {
-            renderedClassNames += className + " ";
-          }
-        }
-      }
-    
-      // Remove trailing space and return
-      renderedClassNames = renderedClassNames.slice(0, -1);
-      return renderedClassNames;
-    }
-    
-    /**
-     * Renders "m-for" Directive Array
-     * @param {Array|Object|Number} iteratable
-     * @param {Function} item
-     */
-    Moon.renderLoop = function(iteratable, item) {
-      var items = null;
-    
-      if(Array.isArray(iteratable)) {
-        items = new Array(iteratable.length);
-    
-        // Iterate through the array
-        for(var i = 0; i < iteratable.length; i++) {
-          items[i] = item(iteratable[i], i);
-        }
-      } else if(typeof iteratable === "object") {
-        items = [];
-    
-        // Iterate through the object
-        for(var key in iteratable) {
-          items.push(item(iteratable[key], key));
-        }
-      } else if(typeof iteratable === "number") {
-        items = new Array(iteratable);
-    
-        // Repeat a certain amount of times
-        for(var i$1 = 0; i$1 < iteratable; i$1++) {
-          items[i$1] = item(i$1 + 1, i$1);
-        }
-      }
-    
-      return items;
-    }
-    
-    /**
-     * Renders an Event Modifier
-     * @param {Number} keyCode
-     * @param {String} modifier
-     */
-     Moon.renderEventModifier = function(keyCode, modifier) {
-      return keyCode === eventModifiers[modifier];
-     }
-    
     
     /* ======= Default Directives ======= */
     
@@ -2174,7 +2174,7 @@
         }
     
         // Use the renderLoop runtime helper
-        return ("Moon.renderLoop(" + iteratable + ", function(" + params + ") { return " + code + "; })");
+        return ("m.renderLoop(" + iteratable + ", function(" + params + ") { return " + code + "; })");
       }
     }
     
@@ -2204,7 +2204,7 @@
         for(var i = 0; i < rawModifiers.length; i++) {
           var eventModifierCode = eventModifiersCode[rawModifiers[i]];
           if(eventModifierCode === undefined) {
-            modifiers += "if(Moon.renderEventModifier(event.keyCode, \"" + (rawModifiers[i]) + "\") === false) {return null;};"
+            modifiers += "if(m.renderEventModifier(event.keyCode, \"" + (rawModifiers[i]) + "\") === false) {return null;};"
           } else {
             modifiers += eventModifierCode;
           }
@@ -2320,7 +2320,7 @@
     
         if(propName === "class") {
           // Detected class, use runtime class render helper
-          return ("\"class\": Moon.renderClass(" + propValue + "), ");
+          return ("\"class\": m.renderClass(" + propValue + "), ");
         } else {
           // Default literal attribute
           return ("\"" + propName + "\": " + propValue + ", ");
