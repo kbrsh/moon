@@ -423,14 +423,11 @@ const diff = function(oldVNode, oldChildren, vnode, children, index, parent) {
             if(i >= newLength) {
               // Remove extra child
               removeChild(oldChildren.pop().meta.el, node);
-            } else if(i === oldLength) {
-              // Add extra children
-              let childVnode = null;
-              for(; i < newLength; i++) {
-                childVnode = children[i];
-                oldChildren.push(childVnode);
-                appendChild(createNodeFromVNode(childVnode), childVnode, node);
-              }
+            } else if(i >= oldLength) {
+              // Add extra child
+              child = children[i];
+              appendChild(createNodeFromVNode(child), childVnode, node);
+              oldChildren.push(child);
             } else {
               // Diff child if they don't have the same reference
               oldChild = oldChildren[i];
