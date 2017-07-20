@@ -330,7 +330,7 @@ const hydrate = function(node, vnode, parent) {
 
       while(vchild !== null || currentChildNode !== null) {
         nextSibling = null;
-        
+
         if(currentChildNode === null) {
           appendChild(createNodeFromVNode(vchild), vchild, node);
         } else {
@@ -420,16 +420,9 @@ const diff = function(oldVNode, oldChildren, vnode, children, index, parent) {
           let oldChild = null;
           let child = null;
           for(let i = 0; i < totalLen; i++) {
-            if(i === newLength) {
-              // Remove extra children
-              let childNode = oldChildren[i].meta.el;
-              let nextSibling = null;
-              do {
-                nextSibling = childNode.nextSibling;
-                removeChild(childNode, node);
-                childNode = nextSibling;
-              } while(childNode !== null);
-              oldChildren.length = newLength;
+            if(i >= newLength) {
+              // Remove extra child
+              removeChild(oldChildren.pop().meta.el, node);
             } else if(i === oldLength) {
               // Add extra children
               let childVnode = null;

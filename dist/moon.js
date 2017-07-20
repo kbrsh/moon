@@ -792,7 +792,7 @@
     
           while(vchild !== null || currentChildNode !== null) {
             nextSibling = null;
-            
+    
             if(currentChildNode === null) {
               appendChild(createNodeFromVNode(vchild), vchild, node);
             } else {
@@ -882,16 +882,9 @@
               var oldChild = null;
               var child = null;
               for(var i$1 = 0; i$1 < totalLen; i$1++) {
-                if(i$1 === newLength) {
-                  // Remove extra children
-                  var childNode = oldChildren$1[i$1].meta.el;
-                  var nextSibling = null;
-                  do {
-                    nextSibling = childNode.nextSibling;
-                    removeChild(childNode, node);
-                    childNode = nextSibling;
-                  } while(childNode !== null);
-                  oldChildren$1.length = newLength;
+                if(i$1 >= newLength) {
+                  // Remove extra child
+                  removeChild(oldChildren$1.pop().meta.el, node);
                 } else if(i$1 === oldLength) {
                   // Add extra children
                   var childVnode$1 = null;
