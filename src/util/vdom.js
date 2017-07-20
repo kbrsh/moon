@@ -426,7 +426,7 @@ const diff = function(oldVNode, oldChildren, vnode, children, index, parent) {
             } else if(i >= oldLength) {
               // Add extra child
               child = children[i];
-              appendChild(createNodeFromVNode(child), childVnode, node);
+              appendChild(createNodeFromVNode(child), child, node);
               oldChildren.push(child);
             } else {
               // Diff child if they don't have the same reference

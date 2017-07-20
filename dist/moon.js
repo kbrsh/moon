@@ -885,14 +885,11 @@
                 if(i$1 >= newLength) {
                   // Remove extra child
                   removeChild(oldChildren$1.pop().meta.el, node);
-                } else if(i$1 === oldLength) {
-                  // Add extra children
-                  var childVnode$1 = null;
-                  for(; i$1 < newLength; i$1++) {
-                    childVnode$1 = children$1[i$1];
-                    oldChildren$1.push(childVnode$1);
-                    appendChild(createNodeFromVNode(childVnode$1), childVnode$1, node);
-                  }
+                } else if(i$1 >= oldLength) {
+                  // Add extra child
+                  child = children$1[i$1];
+                  appendChild(createNodeFromVNode(child), child, node);
+                  oldChildren$1.push(child);
                 } else {
                   // Diff child if they don't have the same reference
                   oldChild = oldChildren$1[i$1];
