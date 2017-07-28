@@ -148,7 +148,6 @@
     var hashRE = /\[(\w+)\]/g;
     var newLineRE = /\n/g;
     var doubleQuoteRE = /"/g;
-    var HTMLEscapeRE = /&(?:lt|gt|quot|amp);/;
     var escapeRE = /(?:(?:&(?:lt|gt|quot|amp);)|"|\\|\n)/g;
     var escapeMap = {
       "&lt;": "<",
