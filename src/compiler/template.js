@@ -8,10 +8,9 @@ const globals = ['true', 'false', 'undefined', 'null', 'NaN', 'typeof', 'in'];
  * Compiles a Template
  * @param {String} template
  * @param {Array} dependencies
- * @param {Boolean} isString
  * @return {String} compiled template
  */
-const compileTemplate = function(template, dependencies, isString) {
+const compileTemplate = function(template, dependencies) {
   let state = {
     current: 0,
     template: template,
@@ -19,12 +18,12 @@ const compileTemplate = function(template, dependencies, isString) {
     dependencies: dependencies
   };
 
-  compileTemplateState(state, isString);
+  compileTemplateState(state);
 
   return state.output;
 }
 
-const compileTemplateState = function(state, isString) {
+const compileTemplateState = function(state) {
   const template = state.template;
   const length = template.length;
   while(state.current < length) {
@@ -61,10 +60,8 @@ const compileTemplateState = function(state, isString) {
       // Extract Variable References
       compileTemplateExpression(name, state.dependencies);
 
-      // Add quotes if string
-      if(isString) {
-        name = `" + ${name} + "`;
-      }
+      // Add quotes
+      name = `" + ${name} + "`;
 
       // Generate code
       state.output += name;

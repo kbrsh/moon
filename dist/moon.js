@@ -991,10 +991,9 @@
      * Compiles a Template
      * @param {String} template
      * @param {Array} dependencies
-     * @param {Boolean} isString
      * @return {String} compiled template
      */
-    var compileTemplate = function(template, dependencies, isString) {
+    var compileTemplate = function(template, dependencies) {
       var state = {
         current: 0,
         template: template,
@@ -1002,12 +1001,12 @@
         dependencies: dependencies
       };
     
-      compileTemplateState(state, isString);
+      compileTemplateState(state);
     
       return state.output;
     }
     
-    var compileTemplateState = function(state, isString) {
+    var compileTemplateState = function(state) {
       var template = state.template;
       var length = template.length;
       while(state.current < length) {
@@ -1044,10 +1043,8 @@
           // Extract Variable References
           compileTemplateExpression(name, state.dependencies);
     
-          // Add quotes if string
-          if(isString) {
-            name = "\" + " + name + " + \"";
-          }
+          // Add quotes
+          name = "\" + " + name + " + \"";
     
           // Generate code
           state.output += name;
@@ -1494,7 +1491,7 @@
     			node.meta.shouldRender = true;
     		} else {
     			var value = prop$1.value;
-    			var compiled = compileTemplate(value, state.dependencies, true);
+    			var compiled = compileTemplate(value, state.dependencies);
     
     			if(value !== compiled) {
     				node.meta.shouldRender = true;
@@ -1585,7 +1582,7 @@
     
     var generateNode = function(node, parent, state) {
     	if(typeof node === "string") {
-    		var compiled = compileTemplate(node, state.dependencies, true);
+    		var compiled = compileTemplate(node, state.dependencies);
     		var meta = defaultMetadata();
     
     		if(node !== compiled) {
@@ -2248,9 +2245,9 @@
               var literalValueAttr = null;
               var valueAttrValue = "null";
               if(valueAttr !== undefined) {
-                valueAttrValue = "\"" + (compileTemplate(valueAttr.value, dependencies, true)) + "\"";
+                valueAttrValue = "\"" + (compileTemplate(valueAttr.value, dependencies)) + "\"";
               } else if((literalValueAttr = attrs["m-literal:value"])) {
-                valueAttrValue = "" + (compileTemplate(literalValueAttr.value, dependencies, true));
+                valueAttrValue = "" + (compileTemplate(literalValueAttr.value, dependencies));
               }
               domSetter = domSetter + " === " + valueAttrValue;
               keypathSetter = valueAttrValue;

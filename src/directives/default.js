@@ -116,9 +116,9 @@ specialDirectives["m-model"] = {
           let literalValueAttr = null;
           let valueAttrValue = "null";
           if(valueAttr !== undefined) {
-            valueAttrValue = `"${compileTemplate(valueAttr.value, dependencies, true)}"`;
+            valueAttrValue = `"${compileTemplate(valueAttr.value, dependencies)}"`;
           } else if((literalValueAttr = attrs["m-literal:value"])) {
-            valueAttrValue = `${compileTemplate(literalValueAttr.value, dependencies, true)}`;
+            valueAttrValue = `${compileTemplate(literalValueAttr.value, dependencies)}`;
           }
           domSetter = `${domSetter} === ${valueAttrValue}`;
           keypathSetter = valueAttrValue;

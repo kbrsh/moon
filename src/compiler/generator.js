@@ -51,7 +51,7 @@ const generateProps = function(node, parent, state) {
 			node.meta.shouldRender = true;
 		} else {
 			const value = prop.value;
-			const compiled = compileTemplate(value, state.dependencies, true);
+			const compiled = compileTemplate(value, state.dependencies);
 
 			if(value !== compiled) {
 				node.meta.shouldRender = true;
@@ -142,7 +142,7 @@ const generateMeta = function(meta) {
 
 const generateNode = function(node, parent, state) {
 	if(typeof node === "string") {
-		const compiled = compileTemplate(node, state.dependencies, true);
+		const compiled = compileTemplate(node, state.dependencies);
 		let meta = defaultMetadata();
 
 		if(node !== compiled) {
