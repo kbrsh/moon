@@ -2332,7 +2332,7 @@
           vnode.props.dom = dom = {};
         }
         compileTemplateExpression(value, state.dependencies);
-        dom.innerHTML = "(\"\" + " + value + ")";
+        dom.innerHTML = "" + value;
       }
     }
     
