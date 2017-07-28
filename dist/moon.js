@@ -1481,6 +1481,10 @@
     			}
     
     			if((duringPropGenerate = specialDirective.duringPropGenerate) !== undefined) {
+    				if(state.hasAttrs === false) {
+    		      state.hasAttrs = true;
+    		    }
+    
     				propsCode += duringPropGenerate(prop$1, node, state);
     			}
     
@@ -2309,10 +2313,6 @@
         var propName = prop.meta.arg;
         var propValue = prop.value;
         compileTemplateExpression(propValue, state.dependencies);
-    
-        if(state.hasAttrs === false) {
-          state.hasAttrs = true;
-        }
     
         if(propName === "class") {
           // Detected class, use runtime class render helper

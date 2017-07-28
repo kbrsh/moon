@@ -181,10 +181,6 @@ specialDirectives["m-literal"] = {
     const propValue = prop.value;
     compileTemplateExpression(propValue, state.dependencies);
 
-    if(state.hasAttrs === false) {
-      state.hasAttrs = true;
-    }
-
     if(propName === "class") {
       // Detected class, use runtime class render helper
       return `"class": m.renderClass(${propValue}), `;

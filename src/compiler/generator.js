@@ -41,6 +41,10 @@ const generateProps = function(node, parent, state) {
 			}
 
 			if((duringPropGenerate = specialDirective.duringPropGenerate) !== undefined) {
+				if(state.hasAttrs === false) {
+		      state.hasAttrs = true;
+		    }
+
 				propsCode += duringPropGenerate(prop, node, state);
 			}
 
