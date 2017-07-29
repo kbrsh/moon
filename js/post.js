@@ -5,7 +5,7 @@ docsearch({
   debug: false
 });
 
-var STR_RE = /(["'])(.*?)\1/g;
+var STR_RE = /(["'`])((?:.|\n)*?)\1/g;
 var SPECIAL_RE = /\b(new|var|const|if|do|function|while|switch|for|foreach|in|continue|break|return)(?=[^\w])/g;
 var GLOBAL_VARIABLE_RE = /\b(document|window|Array|String|true|false|Object|this|Boolean|Function|Number|\$)/g;
 var METHODS_RE = /\b(indexOf|match|replace|toString|length)(?=[^\w])/g;
