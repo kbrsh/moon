@@ -31,9 +31,6 @@ var compile = function(val, lang) {
 
   if(lang === "html") {
     compiled = compiled.replace(HTML_COMMENT_RE, "<span class=\"comment\">$1</span>");
-    // compiled = compiled.replace(HTML_ATTRIBUTE_RE, function(match, name, value) {
-    //   return "<span class=\"global\">" + name + "</span>" + value;
-    // });
     compiled = compiled.replace(HTML_TAG_RE, function(match, start, content, end) {
       if(content === undefined) {
         content = "";
