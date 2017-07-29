@@ -119,7 +119,7 @@ Moon.component("counter-component", {
     <p>Count: {{count}}</p>
     <button m-on:click="increment">Increment</button>
   </div>`,
-  data() {
+  data: function() {
     return {
       count: 0
     }
@@ -176,8 +176,12 @@ Here is an example of two local children incrementing a single count on the pare
 ```html
 <div id="app4">
   <h5>Total Count: {{total}}</h5>
-  <counter-child-component m-on:increment="incrementTotal"></counter-child-component>
-  <counter-child-component m-on:increment="incrementTotal"></counter-child-component>
+  
+  <counter-child-component m-on:increment="incrementTotal">
+  </counter-child-component>
+
+  <counter-child-component m-on:increment="incrementTotal">
+  </counter-child-component>
 </div>
 ```
 
@@ -187,7 +191,7 @@ Moon.component("counter-child-component", {
     <p>Count: {{count}}</p>
     <button m-on:click="increment">Increment</button>
   </div>`,
-  data() {
+  data: function() {
     return {
       count: 0
     }

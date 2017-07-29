@@ -94,17 +94,20 @@ code {
 .tag {
   color: #00A2CD;
 }
-.special {
-  color: #AC2EC5;
-}
 .string {
   color: #02C1A7;
 }
-.comment {
-  color: #989898;
+.special {
+  color: #AC2EC5;
 }
 .global {
   color: #db9114;
+}
+.method {
+  color: #00A2CD;
+}
+.comment {
+  color: #989898;
 }
 
 .sidebar {

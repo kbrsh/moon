@@ -132,7 +132,7 @@ var app2 = new Moon({
     &lt;p&gt;Count: {{count}}&lt;/p&gt;
     &lt;button m-on:click=&quot;increment&quot;&gt;Increment&lt;/button&gt;
   &lt;/div&gt;`,
-  data() {
+  data: function() {
     return {
       count: 0
     }
@@ -181,8 +181,12 @@ var app3 = new Moon({
 <p>Here is an example of two local children incrementing a single count on the parent:</p>
 <pre><code class="lang-html">&lt;div id=&quot;app4&quot;&gt;
   &lt;h5&gt;Total Count: {{total}}&lt;/h5&gt;
-  &lt;counter-child-component m-on:increment=&quot;incrementTotal&quot;&gt;&lt;/counter-child-component&gt;
-  &lt;counter-child-component m-on:increment=&quot;incrementTotal&quot;&gt;&lt;/counter-child-component&gt;
+
+  &lt;counter-child-component m-on:increment=&quot;incrementTotal&quot;&gt;
+  &lt;/counter-child-component&gt;
+
+  &lt;counter-child-component m-on:increment=&quot;incrementTotal&quot;&gt;
+  &lt;/counter-child-component&gt;
 &lt;/div&gt;
 </code></pre>
 <pre><code class="lang-js">Moon.component(&quot;counter-child-component&quot;, {
@@ -190,7 +194,7 @@ var app3 = new Moon({
     &lt;p&gt;Count: {{count}}&lt;/p&gt;
     &lt;button m-on:click=&quot;increment&quot;&gt;Increment&lt;/button&gt;
   &lt;/div&gt;`,
-  data() {
+  data: function() {
     return {
       count: 0
     }
