@@ -13,8 +13,8 @@ var METHODS_RE = /\b([\w\d]+)(\((?:.|\n)*?\))/g;
 var MULTILINE_COMMENT_RE  = /(\/\*.*\*\/)/g;
 var COMMENT_RE = /(\/\/.*)/g;
 var HTML_COMMENT_RE = /(\&lt;\!\-\-(?:(?:.|\n)*)\-\-\&gt;)/g;
-
-var TAG_RE = /(&lt;(?!\!\-\-)(.|\n)*?&gt;)/g;
+var HTML_ATTRIBUTE_RE = /(\S+)=["']?((?:.(?!["']?\s+(?:\S+)=|[>"']))+.)["']?/g;
+var HTML_TAG_RE = /(&lt;\/?[\w\d-]*?)(\s(?:.|\n)*?)?(&gt;)/g;
 
 var sidebarToggle = document.getElementById("sidebar-toggle");
 
@@ -31,15 +31,43 @@ var compile = function(val, lang) {
 
   if(lang === "html") {
     compiled = compiled.replace(HTML_COMMENT_RE, "<span class=\"comment\">$1</span>");
-    compiled = compiled.replace(TAG_RE, "<span class=\"tag\">$1</span>");
+    // compiled = compiled.replace(HTML_ATTRIBUTE_RE, function(match, name, value) {
+    //   return "<span class=\"global\">" + name + "</span>" + value;
+    // });
+    compiled = compiled.replace(HTML_TAG_RE, function(match, start, content, end) {
+      if(content === undefined) {
+        content = "";
+      } else {
+        content = content.replace(HTML_ATTRIBUTE_RE, function(match, name, value) {
+          if(value === "string") {
+            return match;
+          } else {
+            if(value === undefined) {
+              value = "";
+            } else {
+              value = "=" + value;
+            }
+            return "<span class=\"global\">" + name + "</span>" + value;
+          }
+        });
+      }
+
+      return "<span class=\"method\">" + start + "</span>" + content + "<span class=\"method\">" + end + "</span>";
+    });
   } else {
     compiled = compiled.replace(SPECIAL_RE, "<span class=\"special\">$1</span>");
     compiled = compiled.replace(GLOBAL_VARIABLE_RE, "<span class=\"global\">$1</span>");
 
     compiled = compiled.replace(CONST_RE, "<span class=\"special\">$1</span><span class=\"global\">$2</span>");
     compiled = compiled.replace(METHODS_RE, function(match, name, params) {
+      if(params === undefined) {
+        params = "";
+      }
+
       if(name !== "function") {
         return "<span class=\"method\">" + name + "</span>" + params;
+      } else {
+        return match;
       }
     });
 
