@@ -33,6 +33,7 @@
       <a href="./instance.html">Instance</a>
       <a href="./compiler.html">Compiler</a>
       <a href="./templates.html">Templates</a>
+      <a href="./components.html">Components</a>
       <a href="./plugins.html">Plugins</a>
       <a href="./examples.html">Examples</a>
       
@@ -297,131 +298,8 @@ var app7 = new Moon({
 </script>
 
 <p>Go ahead, try clicking the button to increment the count in real-time!</p>
-<h4 id="components">Components</h4>
-<p>Like React/Vue/Angular/Mithril, Moon provides a component system. There are two main types of components, we&#39;ll be talking about normal components.</p>
-<h5 id="registering">Registering</h5>
-<p>To register a component, use the global <code>component</code> method, with the component name as the first argument, and all options as the second argument. A component can take (most) arguments a regular instance can take.</p>
-<pre><code class="lang-js">Moon.component(&quot;name&quot;, {
-  // options
-});
-</code></pre>
-<p>Once this component is registered, you can use it in your HTML like:</p>
-<pre><code class="lang-html">&lt;component-name&gt;&lt;/component-name&gt;
-</code></pre>
-<p>For example:</p>
-<pre><code class="lang-html">&lt;div id=&quot;app8&quot;&gt;
-  &lt;my-component&gt;&lt;/my-component&gt;
-&lt;/div&gt;
-</code></pre>
-<pre><code class="lang-js">Moon.component(&#39;my-component&#39;, {
-  template: &quot;&lt;p&gt;This is a Component!&lt;/p&gt;&quot;
-});
-
-const app8 = new Moon({
-  el: &quot;#app8&quot;
-});
-</code></pre>
-<p>This will render:</p>
-<div id="app8" class="example">
-  <my-component></my-component>
-</div>
-
-<script>
-Moon.component('my-component', {
-  template: "<p>This is a Component!</p>"
-});
-
-var app8 = new Moon({
-  el: "#app8"
-});
-</script>
-
-<p>Components can be nested within each other, and each have their own scope. Updating one component&#39;s data <strong>will not</strong> update any other components other than itself.</p>
-<h5 id="props">Props</h5>
-<p>Components do not have access to data from their parent. To pass data down from the parent, you can use <code>props</code>. Define them in your component options, and you will have access to them via <code>{{mustache}}</code> templates. You can pass them by putting them as attributes.</p>
-<pre><code class="lang-html">&lt;div id=&quot;app9&quot;&gt;
-  &lt;my-component content=&quot;{{parentMsg}}&quot;&gt;&lt;/my-component&gt;
-&lt;/div&gt;
-</code></pre>
-<pre><code class="lang-js">Moon.component(&#39;my-component&#39;, {
-  props: [&#39;content&#39;],
-  template: &quot;&lt;p&gt;Data from Parent: {{content}}&lt;/p&gt;&quot;
-});
-
-const app9 = new Moon({
-  el: &quot;#app9&quot;,
-  data: {
-    parentMsg: &quot;Parent Data&quot;
-  }
-});
-</code></pre>
-<div id="app9" class="example">
-  <my-component content="{{parentMsg}}"></my-component>
-</div>
-
-<script>
-Moon.component('my-component', {
-  props: ['content'],
-  template: "<p>Data from Parent: {{content}}</p>"
-});
-
-var app9 = new Moon({
-  el: "#app9",
-  data: {
-    parentMsg: "Parent Data"
-  }
-});
-</script>
-
-<p>Go ahead, try entering <code>app9.set(&#39;parentMsg&#39;, &#39;New Parent Data&#39;)</code> and watch the component being updated!</p>
-<h5 id="slots">Slots</h5>
-<p>When you have a component that needs to distribute content passed to it, it can get messy when attempting to achieve it with props. Instead, you can provide a component with HTML, and the component can distribute it accordingly.</p>
-<p>To do this, Moon has <em>slots</em>. A can have the <code>slot</code> element anywhere with an optional <code>name</code> attribute. When a new component instance is created, the content inside of it is distributed. Any elements without a <code>slot</code> attribute will be put into the default slot, and any elements with the <code>slot</code> attribute will be put inside their respective slot.</p>
-<pre><code class="lang-html">&lt;div id=&quot;app10&quot;&gt;
-  &lt;slot-component&gt;
-    &lt;h1&gt;Default Slot Content. Parent data: {{parentMsg}}&lt;/h1&gt;
-    &lt;p slot=&quot;paragraph&quot;&gt;Named slot content.&lt;/p&gt;
-  &lt;/slot-component&gt;
-&lt;/div&gt;
-</code></pre>
-<pre><code class="lang-js">Moon.component(&#39;slot-component&#39;, {
-  template: `&lt;div&gt;
-    &lt;slot&gt;&lt;/slot&gt;
-    &lt;h5&gt;Component Content.&lt;/h5&gt;
-    &lt;slot name=&quot;paragraph&quot;&gt;&lt;/slot&gt;
-  &lt;/div&gt;`
-});
-
-const app10 = new Moon({
-  el: &quot;#app10&quot;,
-  data: {
-    parentMsg: &quot;Parent Data&quot;
-  }
-});
-</code></pre>
-<div id="app10" class="example">
-  <slot-component>
-    <h1>Default Slot Content. Parent data: {{parentMsg}}</h1>
-    <p slot="paragraph">Named slot content.</p>
-  </slot-component>
-</div>
-
-<script>
-Moon.component('slot-component', {
-  template: "<div><slot></slot><h5>Component Content.</h5><slot name='paragraph'></slot></div>"
-});
-
-var app10 = new Moon({
-  el: "#app10",
-  data: {
-    parentMsg: "Parent Data"
-  }
-});
-</script>
-
-<p>Go ahead, try entering <code>app10.set(&quot;parentMsg&quot;, &quot;New Parent Data&quot;);</code> and watch the component update.</p>
 <h4 id="next-steps">Next Steps</h4>
-<p>Congrats! You just learned the core features of the Moon API! If you&#39;d like to see some advanced features, check out the API docs, or the other guides.</p>
+<p>Congrats! You just learned the core features of the Moon API! The next thing to learn is how to compose with <a href="./components.html">components</a>. If you&#39;d like to see some advanced features, check out the API docs, or the other guides.</p>
 
       </div>
     </div>
