@@ -79,8 +79,8 @@ app.callMethod(&quot;increment&quot;);
 </code></pre>
 <p>Methods are also available inside of templates, available as you would call any function.</p>
 <pre><code class="lang-html">&lt;div id=&quot;app&quot;&gt;
-  &lt;p&gt;reverse(msg)&lt;/p&gt;
-  &lt;p&gt;reverse(&quot;racecaR&quot;)&lt;/p&gt;
+  &lt;p&gt;{{reverse(msg)}}&lt;/p&gt;
+  &lt;p&gt;{{reverse(&quot;racecaR&quot;)}}&lt;/p&gt;
 &lt;/div&gt;
 </code></pre>
 <pre><code class="lang-js">const app = new Moon({

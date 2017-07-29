@@ -101,7 +101,7 @@ Usage:
 instance.off("foo", listener);
 
 // remove all listeners for the "foo" event
-instance.off("foo", listener);
+instance.off("foo");
 
 // remove all event listeners
 instance.off();
