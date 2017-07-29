@@ -163,6 +163,93 @@ var app3 = new Moon({
 
 Go ahead, click each counter!
 
+##### Parent/Child Communication
+
+Moon, like Vue and React, allows parent and child components to communicate with a simple concept: *props down, events up*.
+
+For a parent to communicate with a child, you use [props]("./components.html#props"). But how can a child let a parent know about its activity? For this, we use the event system. While events are normally local to an instance, Moon allows children to emit an event that parents can listen on, by using `m-on` when creating a component.
+
+Using something like: `m-on:eventName="parentMethod"` will call a method on the parent when a child event is emitted.
+
+Here is an example of two local children incrementing a single count on the parent:
+
+```html
+<div id="app4">
+  <h5>Total Count: {{total}}</h5>
+  <counter-child-component m-on:increment="incrementTotal"></counter-child-component>
+  <counter-child-component m-on:increment="incrementTotal"></counter-child-component>
+</div>
+```
+
+```js
+Moon.component("counter-child-component", {
+  template: `<div>
+    <p>Count: {{count}}</p>
+    <button m-on:click="increment">Increment</button>
+  </div>`,
+  data() {
+    return {
+      count: 0
+    }
+  },
+  methods: {
+    increment: function() {
+      this.set("count", this.get("count") + 1);
+      this.emit("increment");
+    }
+  }
+});
+
+const app4 = new Moon({
+  el: "#app4",
+  data: {
+    total: 0
+  },
+  methods: {
+    incrementTotal: function() {
+      this.set("total", this.get("total") + 1);
+    }
+  }
+});
+```
+
+As you can see, each child counter will emit an `increment` event, which the parent listens to by using `m-on` on the component element.
+
+<div id="app4" class="example">
+  <h5>Total Count: {{total}}</h5>
+  <counter-child-component m-on:increment="incrementTotal"></counter-child-component>
+  <counter-child-component m-on:increment="incrementTotal"></counter-child-component>
+</div>
+
+<script>
+Moon.component("counter-child-component", {
+  template: '<div><p>Count: {{count}}</p><button m-on:click="increment">Increment</button></div>',
+  data: function() {
+    return {
+      count: 0
+    }
+  },
+  methods: {
+    increment: function() {
+      this.set("count", this.get("count") + 1);
+      this.emit("increment");
+    }
+  }
+});
+
+var app4 = new Moon({
+  el: "#app4",
+  data: {
+    total: 0
+  },
+  methods: {
+    incrementTotal: function() {
+      this.set("total", this.get("total") + 1);
+    }
+  }
+});
+</script>
+
 ##### Slots
 
 When you have a component that needs to distribute content passed to it, it can get messy when attempting to achieve it with props. Instead, you can provide a component with HTML, and the component can distribute it accordingly.
