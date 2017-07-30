@@ -16,6 +16,7 @@
     ]
   },
   "dependencies": {
+    "firebase": "^4.2.0",
     "monx": "github:KingPixil/monx",
     "moon-router": "github:KingPixil/moon-router",
     "moonjs": "KingPixil/moon"

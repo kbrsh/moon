@@ -1,0 +1,10 @@
+name: moon-hnpwa-server
+version: 0.1.0
+
+authors:
+  - Kabir Shah
+
+description: |
+  Moon Hacker News Server
+
+license: MIT

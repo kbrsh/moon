@@ -6,23 +6,36 @@ body {
   background: #f5f5f5;
 }
 
-#app {
-
-}
-
 #logo {
-  height: 25px;
-  background-color: #f5f5f5;
-  padding: 10px;
-  border-radius: 50%;
+  display: block;
+  height: 30px;
 }
 
 .nav {
-  background-color: #5F43F9;
+  background-color: #5C53FF;
 }
 
-.container.small {
+a.nav-item {
+  color: #e5e5e5;
+  text-decoration: none;
+  transition: color .2s ease;
+}
+
+a.nav-item:hover {
+  color: #f5f5f5;
+}
+
+a.nav-item.router-link-active {
+  color: #f5f5f5;
+}
+
+.container {
   max-width: 800px;
+}
+
+.container.background {
+  max-width: 700px;
+  height: 100%;
 }
 
 [m-mask] {

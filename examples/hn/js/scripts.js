@@ -2,21 +2,40 @@
   Primary Application Code
 =============================*/
 
+// Promise
+require("./util/promise.js");
+
+// Moon
 var Moon = require("moonjs");
 var MoonRouter = require("moon-router");
-var Monx = require("monx");
-require("./components/home.moon")(Moon);
 
+// API Initializer
+var initAPI = require("./util/api.js").init;
+
+// Initialize Store
+require("./store/store.js").init(Moon);
+
+// Components
+require("./components/list.moon")(Moon);
+
+// Install Moon Router
 Moon.use(MoonRouter);
-Moon.use(Monx);
 
+// Initialize API
+initAPI();
+
+// Initialize Router
 var router = new MoonRouter({
   "default": "/",
   "map": {
-    "/": "home"
+    "/": "list",
+    "/:type": "list",
+    "/:type/:page": "list"
   }
 });
 
+// Initialize App
 new Moon({
-  el: "#app"
+  el: "#app",
+  router: router
 });
