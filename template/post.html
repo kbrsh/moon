@@ -1,60 +1,59 @@
 <!doctype html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="{{title}} | Moon Documentation">
-  <meta name="author" content="Kabir Shah">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{{title}} | Moon Documentation">
+    <meta name="author" content="Kabir Shah">
 
-  <title>Moon</title>
-  <link href="https://fonts.googleapis.com/css?family=Inconsolata|Muli" rel="stylesheet">
+    <title>Moon</title>
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata|Muli" rel="stylesheet">
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/2/docsearch.min.css" />
-  <link rel="stylesheet" type="text/css" href="../css/lib/wing.min.css" />
-  <link rel="stylesheet" type="text/css" href="../css/post.css" />
-  <script type="text/javascript" src="../dist/moon.js"></script>
-</head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/2/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../css/lib/wing.min.css" />
+    <link rel="stylesheet" type="text/css" href="../css/post.css" />
+    <script type="text/javascript" src="../dist/moon.js"></script>
+  </head>
 
-<body>
-  <div id="sidebar-toggle">
-    <span id="sidebar-toggle-1"></span>
-    <span id="sidebar-toggle-2"></span>
-    <span id="sidebar-toggle-3"></span>
-  </div>
-  <aside class="sidebar">
-    <h3 class="sidebar-head"><a href="../">Moon</a></h3>
-    <input type="text" id="search">
-    <div class="sidebar-nav">
-      <% if(section === 'api') { %>
-      <a href="./configuration.html"<% if(file === "configuration.html") { %> class="sidebar-link-active"<% } %>>Configuration</a>
-      <a href="./global-api.html"<% if(file === "global-api.html") { %> class="sidebar-link-active"<% } %>>Global API</a>
-      <a href="./instance-methods.html"<% if(file === "instance-methods.html") { %> class="sidebar-link-active"<% } %>>Instance Methods</a>
-      <a href="./directives.html"<% if(file === "directives.html") { %> class="sidebar-link-active"<% } %>>Directives</a>
-      <% } else if(section === 'docs') { %>
-      <a href="./installation.html"<% if(file === "installation.html") { %> class="sidebar-link-active"<% } %>>Installation</a>
-      <a href="./overview.html"<% if(file === "overview.html") { %> class="sidebar-link-active"<% } %>>Overview</a>
-      <a href="./getting-started.html"<% if(file === "getting-started.html") { %> class="sidebar-link-active"<% } %>>Getting Started</a>
-      <a href="./instance.html"<% if(file === "instance.html") { %> class="sidebar-link-active"<% } %>>Instance</a>
-      <a href="./compiler.html"<% if(file === "compiler.html") { %> class="sidebar-link-active"<% } %>>Compiler</a>
-      <a href="./templates.html"<% if(file === "templates.html") { %> class="sidebar-link-active"<% } %>>Templates</a>
-      <a href="./components.html"<% if(file === "components.html") { %> class="sidebar-link-active"<% } %>>Components</a>
-      <a href="./plugins.html"<% if(file === "plugins.html") { %> class="sidebar-link-active"<% } %>>Plugins</a>
-      <a href="./examples.html"<% if(file === "examples.html") { %> class="sidebar-link-active"<% } %>>Examples</a>
-      <% } %>
+  <body>
+    <div id="sidebar-toggle">
+      <span id="sidebar-toggle-1"></span>
+      <span id="sidebar-toggle-2"></span>
+      <span id="sidebar-toggle-3"></span>
     </div>
-  </aside>
-  <div class="post">
-    <div class="container-small">
-      <h1 class="post-title"><%= title %></h1>
-      <div class="post-content">
-        <%- content %>
+    <aside class="sidebar">
+      <h3 class="sidebar-head"><a href="../">Moon</a></h3>
+      <input type="text" id="search">
+      <div class="sidebar-nav">
+        <% if(section === 'api') { %>
+        <a href="./configuration.html"<% if(file === "configuration.html") { %> class="sidebar-link-active"<% } %>>Configuration</a>
+        <a href="./global-api.html"<% if(file === "global-api.html") { %> class="sidebar-link-active"<% } %>>Global API</a>
+        <a href="./instance-methods.html"<% if(file === "instance-methods.html") { %> class="sidebar-link-active"<% } %>>Instance Methods</a>
+        <a href="./directives.html"<% if(file === "directives.html") { %> class="sidebar-link-active"<% } %>>Directives</a>
+        <% } else if(section === 'docs') { %>
+        <a href="./installation.html"<% if(file === "installation.html") { %> class="sidebar-link-active"<% } %>>Installation</a>
+        <a href="./overview.html"<% if(file === "overview.html") { %> class="sidebar-link-active"<% } %>>Overview</a>
+        <a href="./getting-started.html"<% if(file === "getting-started.html") { %> class="sidebar-link-active"<% } %>>Getting Started</a>
+        <a href="./instance.html"<% if(file === "instance.html") { %> class="sidebar-link-active"<% } %>>Instance</a>
+        <a href="./compiler.html"<% if(file === "compiler.html") { %> class="sidebar-link-active"<% } %>>Compiler</a>
+        <a href="./templates.html"<% if(file === "templates.html") { %> class="sidebar-link-active"<% } %>>Templates</a>
+        <a href="./components.html"<% if(file === "components.html") { %> class="sidebar-link-active"<% } %>>Components</a>
+        <a href="./plugins.html"<% if(file === "plugins.html") { %> class="sidebar-link-active"<% } %>>Plugins</a>
+        <a href="./examples.html"<% if(file === "examples.html") { %> class="sidebar-link-active"<% } %>>Examples</a>
+        <% } %>
+      </div>
+    </aside>
+    <div class="post">
+      <div class="container-small">
+        <h1 class="post-title"><%= title %></h1>
+        <div class="post-content">
+          <%- content %>
+        </div>
       </div>
     </div>
-  </div>
 
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/2/docsearch.min.js"></script>
-  <script type="text/javascript" src="../js/post.js"></script>
-</body>
-
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/2/docsearch.min.js"></script>
+    <script type="text/javascript" src="../js/post.js"></script>
+  </body>
 </html>

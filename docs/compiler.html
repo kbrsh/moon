@@ -1,49 +1,49 @@
 <!doctype html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="{{title}} | Moon Documentation">
-  <meta name="author" content="Kabir Shah">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{{title}} | Moon Documentation">
+    <meta name="author" content="Kabir Shah">
 
-  <title>Moon</title>
-  <link href="https://fonts.googleapis.com/css?family=Inconsolata|Muli" rel="stylesheet">
+    <title>Moon</title>
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata|Muli" rel="stylesheet">
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/2/docsearch.min.css" />
-  <link rel="stylesheet" type="text/css" href="../css/lib/wing.min.css" />
-  <link rel="stylesheet" type="text/css" href="../css/post.css" />
-  <script type="text/javascript" src="../dist/moon.js"></script>
-</head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/2/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../css/lib/wing.min.css" />
+    <link rel="stylesheet" type="text/css" href="../css/post.css" />
+    <script type="text/javascript" src="../dist/moon.js"></script>
+  </head>
 
-<body>
-  <div id="sidebar-toggle">
-    <span id="sidebar-toggle-1"></span>
-    <span id="sidebar-toggle-2"></span>
-    <span id="sidebar-toggle-3"></span>
-  </div>
-  <aside class="sidebar">
-    <h3 class="sidebar-head"><a href="../">Moon</a></h3>
-    <input type="text" id="search">
-    <div class="sidebar-nav">
-      
-      <a href="./installation.html">Installation</a>
-      <a href="./overview.html">Overview</a>
-      <a href="./getting-started.html">Getting Started</a>
-      <a href="./instance.html">Instance</a>
-      <a href="./compiler.html" class="sidebar-link-active">Compiler</a>
-      <a href="./templates.html">Templates</a>
-      <a href="./components.html">Components</a>
-      <a href="./plugins.html">Plugins</a>
-      <a href="./examples.html">Examples</a>
-      
+  <body>
+    <div id="sidebar-toggle">
+      <span id="sidebar-toggle-1"></span>
+      <span id="sidebar-toggle-2"></span>
+      <span id="sidebar-toggle-3"></span>
     </div>
-  </aside>
-  <div class="post">
-    <div class="container-small">
-      <h1 class="post-title">Compiler</h1>
-      <div class="post-content">
-        <p>Moon has a custom HTML compiler built in to generate render functions. This means that before Moon can mount, the template must go through Moon&#39;s HTML compiler to be turned into plain javascript.</p>
+    <aside class="sidebar">
+      <h3 class="sidebar-head"><a href="../">Moon</a></h3>
+      <input type="text" id="search">
+      <div class="sidebar-nav">
+        
+        <a href="./installation.html">Installation</a>
+        <a href="./overview.html">Overview</a>
+        <a href="./getting-started.html">Getting Started</a>
+        <a href="./instance.html">Instance</a>
+        <a href="./compiler.html" class="sidebar-link-active">Compiler</a>
+        <a href="./templates.html">Templates</a>
+        <a href="./components.html">Components</a>
+        <a href="./plugins.html">Plugins</a>
+        <a href="./examples.html">Examples</a>
+        
+      </div>
+    </aside>
+    <div class="post">
+      <div class="container-small">
+        <h1 class="post-title">Compiler</h1>
+        <div class="post-content">
+          <p>Moon has a custom HTML compiler built in to generate render functions. This means that before Moon can mount, the template must go through Moon&#39;s HTML compiler to be turned into plain javascript.</p>
 <h4 id="render">Render</h4>
 <p>Render functions are called in each update, and it gives Moon a new version of the lightweight virtual DOM. These render functions can be defined in a <code>render</code> option (for advanced users). They use a &quot;HyperMoon&quot; syntax which should provide custom meta data for the virtual DOM engine.</p>
 <p>For example:</p>
@@ -90,12 +90,11 @@ new Moon({
 });
 </script>
 
+        </div>
       </div>
     </div>
-  </div>
 
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/2/docsearch.min.js"></script>
-  <script type="text/javascript" src="../js/post.js"></script>
-</body>
-
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/2/docsearch.min.js"></script>
+    <script type="text/javascript" src="../js/post.js"></script>
+  </body>
 </html>

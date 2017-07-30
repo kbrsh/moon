@@ -1,49 +1,49 @@
 <!doctype html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="{{title}} | Moon Documentation">
-  <meta name="author" content="Kabir Shah">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{{title}} | Moon Documentation">
+    <meta name="author" content="Kabir Shah">
 
-  <title>Moon</title>
-  <link href="https://fonts.googleapis.com/css?family=Inconsolata|Muli" rel="stylesheet">
+    <title>Moon</title>
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata|Muli" rel="stylesheet">
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/2/docsearch.min.css" />
-  <link rel="stylesheet" type="text/css" href="../css/lib/wing.min.css" />
-  <link rel="stylesheet" type="text/css" href="../css/post.css" />
-  <script type="text/javascript" src="../dist/moon.js"></script>
-</head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/2/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../css/lib/wing.min.css" />
+    <link rel="stylesheet" type="text/css" href="../css/post.css" />
+    <script type="text/javascript" src="../dist/moon.js"></script>
+  </head>
 
-<body>
-  <div id="sidebar-toggle">
-    <span id="sidebar-toggle-1"></span>
-    <span id="sidebar-toggle-2"></span>
-    <span id="sidebar-toggle-3"></span>
-  </div>
-  <aside class="sidebar">
-    <h3 class="sidebar-head"><a href="../">Moon</a></h3>
-    <input type="text" id="search">
-    <div class="sidebar-nav">
-      
-      <a href="./installation.html">Installation</a>
-      <a href="./overview.html">Overview</a>
-      <a href="./getting-started.html">Getting Started</a>
-      <a href="./instance.html">Instance</a>
-      <a href="./compiler.html">Compiler</a>
-      <a href="./templates.html">Templates</a>
-      <a href="./components.html" class="sidebar-link-active">Components</a>
-      <a href="./plugins.html">Plugins</a>
-      <a href="./examples.html">Examples</a>
-      
+  <body>
+    <div id="sidebar-toggle">
+      <span id="sidebar-toggle-1"></span>
+      <span id="sidebar-toggle-2"></span>
+      <span id="sidebar-toggle-3"></span>
     </div>
-  </aside>
-  <div class="post">
-    <div class="container-small">
-      <h1 class="post-title">Components</h1>
-      <div class="post-content">
-        <p>Like React/Vue/Angular/Mithril, Moon provides a component system. There are two main types of components, we&#39;ll be talking about normal components.</p>
+    <aside class="sidebar">
+      <h3 class="sidebar-head"><a href="../">Moon</a></h3>
+      <input type="text" id="search">
+      <div class="sidebar-nav">
+        
+        <a href="./installation.html">Installation</a>
+        <a href="./overview.html">Overview</a>
+        <a href="./getting-started.html">Getting Started</a>
+        <a href="./instance.html">Instance</a>
+        <a href="./compiler.html">Compiler</a>
+        <a href="./templates.html">Templates</a>
+        <a href="./components.html" class="sidebar-link-active">Components</a>
+        <a href="./plugins.html">Plugins</a>
+        <a href="./examples.html">Examples</a>
+        
+      </div>
+    </aside>
+    <div class="post">
+      <div class="container-small">
+        <h1 class="post-title">Components</h1>
+        <div class="post-content">
+          <p>Like React/Vue/Angular/Mithril, Moon provides a component system. There are two main types of components, we&#39;ll be talking about normal components.</p>
 <h5 id="registering">Registering</h5>
 <p>To register a component, use the global <code>component</code> method, with the component name as the first argument, and all options as the second argument. A component can take (most) arguments a regular instance can take.</p>
 <pre><code class="lang-js">Moon.component(&quot;name&quot;, {
@@ -302,12 +302,11 @@ var app10 = new Moon({
 
 <p>Go ahead, try entering <code>app10.set(&quot;parentMsg&quot;, &quot;New Parent Data&quot;);</code> and watch the component update.</p>
 
+        </div>
       </div>
     </div>
-  </div>
 
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/2/docsearch.min.js"></script>
-  <script type="text/javascript" src="../js/post.js"></script>
-</body>
-
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/2/docsearch.min.js"></script>
+    <script type="text/javascript" src="../js/post.js"></script>
+  </body>
 </html>

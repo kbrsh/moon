@@ -1,49 +1,49 @@
 <!doctype html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="{{title}} | Moon Documentation">
-  <meta name="author" content="Kabir Shah">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{{title}} | Moon Documentation">
+    <meta name="author" content="Kabir Shah">
 
-  <title>Moon</title>
-  <link href="https://fonts.googleapis.com/css?family=Inconsolata|Muli" rel="stylesheet">
+    <title>Moon</title>
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata|Muli" rel="stylesheet">
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/2/docsearch.min.css" />
-  <link rel="stylesheet" type="text/css" href="../css/lib/wing.min.css" />
-  <link rel="stylesheet" type="text/css" href="../css/post.css" />
-  <script type="text/javascript" src="../dist/moon.js"></script>
-</head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/2/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../css/lib/wing.min.css" />
+    <link rel="stylesheet" type="text/css" href="../css/post.css" />
+    <script type="text/javascript" src="../dist/moon.js"></script>
+  </head>
 
-<body>
-  <div id="sidebar-toggle">
-    <span id="sidebar-toggle-1"></span>
-    <span id="sidebar-toggle-2"></span>
-    <span id="sidebar-toggle-3"></span>
-  </div>
-  <aside class="sidebar">
-    <h3 class="sidebar-head"><a href="../">Moon</a></h3>
-    <input type="text" id="search">
-    <div class="sidebar-nav">
-      
-      <a href="./installation.html">Installation</a>
-      <a href="./overview.html">Overview</a>
-      <a href="./getting-started.html">Getting Started</a>
-      <a href="./instance.html">Instance</a>
-      <a href="./compiler.html">Compiler</a>
-      <a href="./templates.html" class="sidebar-link-active">Templates</a>
-      <a href="./components.html">Components</a>
-      <a href="./plugins.html">Plugins</a>
-      <a href="./examples.html">Examples</a>
-      
+  <body>
+    <div id="sidebar-toggle">
+      <span id="sidebar-toggle-1"></span>
+      <span id="sidebar-toggle-2"></span>
+      <span id="sidebar-toggle-3"></span>
     </div>
-  </aside>
-  <div class="post">
-    <div class="container-small">
-      <h1 class="post-title">Templates</h1>
-      <div class="post-content">
-        <p>Moon has a custom templating syntax similar to Mustache. All <strong>attributes</strong> (not directives) and <strong>text</strong> are compiled for these templates.</p>
+    <aside class="sidebar">
+      <h3 class="sidebar-head"><a href="../">Moon</a></h3>
+      <input type="text" id="search">
+      <div class="sidebar-nav">
+        
+        <a href="./installation.html">Installation</a>
+        <a href="./overview.html">Overview</a>
+        <a href="./getting-started.html">Getting Started</a>
+        <a href="./instance.html">Instance</a>
+        <a href="./compiler.html">Compiler</a>
+        <a href="./templates.html" class="sidebar-link-active">Templates</a>
+        <a href="./components.html">Components</a>
+        <a href="./plugins.html">Plugins</a>
+        <a href="./examples.html">Examples</a>
+        
+      </div>
+    </aside>
+    <div class="post">
+      <div class="container-small">
+        <h1 class="post-title">Templates</h1>
+        <div class="post-content">
+          <p>Moon has a custom templating syntax similar to Mustache. All <strong>attributes</strong> (not directives) and <strong>text</strong> are compiled for these templates.</p>
 <p>Here is an example:</p>
 <pre><code class="lang-html">&lt;h1 id=&quot;{{id}}&quot;&gt;{{data}}&lt;/h1&gt;
 </code></pre>
@@ -60,12 +60,11 @@
 <p>They are shorthands for the compiler, for example, <code>m-if</code> will tell the compiler to conditionally render some element. Directives are all compiled as if they were inside of a template, meaning they are compiled as <strong>expressions</strong>.</p>
 <p>For example, instead of <code>m-if=&quot;{{condition}}&quot;</code>, you do <code>m-if=&quot;condition&quot;</code>, while you would use the first version for normal attributes.</p>
 
+        </div>
       </div>
     </div>
-  </div>
 
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/2/docsearch.min.js"></script>
-  <script type="text/javascript" src="../js/post.js"></script>
-</body>
-
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/2/docsearch.min.js"></script>
+    <script type="text/javascript" src="../js/post.js"></script>
+  </body>
 </html>
