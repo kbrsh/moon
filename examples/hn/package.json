@@ -1,0 +1,37 @@
+{
+  "name": "hn",
+  "version": "0.0.0",
+  "description": "Moon Hacker News Reader",
+  "scripts": {
+    "watch": "./node_modules/.bin/watchify -vd -e js/scripts.js -o dist/js/build.min.js -p browserify-hmr",
+    "serve": "http-server -o -c 1 -a localhost",
+    "bundle-css": "node ./build/bundle-css.js",
+    "watch-css": "node ./build/watch.js",
+    "dev": "cross-env NODE_ENV=development npm-run-all --parallel watch serve watch-css bundle-css",
+    "build": "cross-env NODE_ENV=production node build/build.js"
+  },
+  "browserify": {
+    "transform": [
+      "moonify"
+    ]
+  },
+  "dependencies": {
+    "monx": "github:KingPixil/monx",
+    "moon-router": "github:KingPixil/moon-router",
+    "moonjs": "KingPixil/moon"
+  },
+  "devDependencies": {
+    "browserify": "14.1.0",
+    "browserify-hmr": "0.3.5",
+    "clean-css": "4.0.8",
+    "cross-env": "^4.0.0",
+    "html-minifier": "^3.4.1",
+    "http-server": "0.9.0",
+    "moonify": "0.0.15",
+    "npm-run-all": "^2.3.0",
+    "uglify-js": "latest",
+    "uglifyify": "3.0.4",
+    "watchify": "3.9.0"
+  },
+  "author": "Kabir Shah"
+}

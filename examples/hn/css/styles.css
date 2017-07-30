@@ -1,0 +1,30 @@
+/*=============================
+  Primary Styles
+=============================*/
+
+body {
+  background: #f5f5f5;
+}
+
+#app {
+
+}
+
+#logo {
+  height: 25px;
+  background-color: #f5f5f5;
+  padding: 10px;
+  border-radius: 50%;
+}
+
+.nav {
+  background-color: #5F43F9;
+}
+
+.container.small {
+  max-width: 800px;
+}
+
+[m-mask] {
+  display: none;
+}

@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Moon Hacker News Reader">
+    <meta name="author" content="Kabir Shah">
+
+    <title>Moon Hacker News</title>
+
+    <link rel="stylesheet" type="text/css" href="./dist/css/build.min.css" />
+  </head>
+
+  <body>
+    <div id="app" m-mask>
+      <div class="nav">
+        <div class="container small">
+          <div class="left">
+            <router-link to="/"><img src="./img/logo.png" alt="Moon Logo" id="logo"/></router-link>
+          </div>
+        </div>
+      </div>
+      <router-view></router-view>
+    </div>
+
+    <script src="./dist/js/build.min.js"></script>
+  </body>
+</html>
