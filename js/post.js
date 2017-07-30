@@ -14,7 +14,7 @@ var MULTILINE_COMMENT_RE  = /(\/\*.*\*\/)/g;
 var COMMENT_RE = /(\/\/.*)/g;
 var HTML_COMMENT_RE = /(\&lt;\!\-\-(?:(?:.|\n)*)\-\-\&gt;)/g;
 var HTML_ATTRIBUTE_RE = /(\S+)=["']?((?:.(?!["']?\s+(?:\S+)=|[>"']))+.)["']?/g;
-var HTML_TAG_RE = /(&lt;\/?[\w\d-]*?)(\s(?:.|\n)*?)?(&gt;)/g;
+var HTML_TAG_RE = /(&lt;\/?[\w\d-]*?)(\s(?:.|\n)*?)?(\/?&gt;)/g;
 
 var sidebarToggle = document.getElementById("sidebar-toggle");
 
