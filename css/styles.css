@@ -131,7 +131,7 @@ button {
   height: 140px;
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 768px) {
   #hero h1 {
     font-size: 4rem;
   }
@@ -142,7 +142,8 @@ button {
     height: 100px;
   }
   #nav {
-    flex-wrap: nowrap;
+    /*flex-wrap: nowrap;*/
+    flex-direction: column;
     align-items: flex-start;
   }
 }
