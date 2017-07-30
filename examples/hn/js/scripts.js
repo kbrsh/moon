@@ -7,7 +7,7 @@ require("./util/promise.js");
 
 // Moon
 var Moon = require("moonjs");
-var MoonRouter = require("moon-router");
+var MoonRouter = require("moon-router/dist/moon-router.js");
 
 // API Initializer
 var initAPI = require("./util/api.js").init;
@@ -30,7 +30,7 @@ var router = new MoonRouter({
   "map": {
     "/": "list",
     "/:type": "list",
-    "/:type/:page": "list"
+    // "/:type/:page": "list"
   }
 });
 

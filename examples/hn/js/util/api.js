@@ -5,6 +5,10 @@ require("firebase/database");
 var api = {
   cache: {
     topstories: [],
+    newstories: [],
+    showstories: [],
+    askstories: [],
+    jobstories: [],
     items: {}
   }
 };

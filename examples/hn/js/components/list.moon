@@ -51,29 +51,44 @@
     props: ["route"],
     data: function() {
       return {
-        list: []
+        list: [],
+        type: "top",
+        page: 1
       }
     },
-    hooks: {
-      mounted: function() {
-        var store = this.get("store");
+    methods: {
+      update: function(init) {
         var params = this.get("route").params;
         var type = params.type;
         var page = params.page;
 
-        if(type === undefined) {
-          type = "top";
-        }
+        if(init === true || type !== this.get("type") || page !== this.get("page")) {
+          var store = this.get("store");
 
-        if(page === undefined) {
-          page = 1;
-        }
+          if(type === undefined) {
+            type = "top";
+          }
 
-        store.dispatch("UPDATE_LISTS", {
-          type: type,
-          page: page,
-          instance: this
-        });
+          if(page === undefined) {
+            page = 1;
+          }
+
+          this.set("type", type);
+          this.set("page", page);
+          store.dispatch("UPDATE_LISTS", {
+            type: type,
+            page: page,
+            instance: this
+          });
+        }
+      }
+    },
+    hooks: {
+      mounted: function() {
+        this.callMethod("update", [true]);
+      },
+      updated: function() {
+        this.callMethod("update", [false]);
       }
     },
     store: store

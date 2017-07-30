@@ -16,6 +16,10 @@ module.exports.init = function(Moon) {
         var type = info.type;
         var page = info.page;
 
+        if(type === "jobs") {
+          type = "job";
+        }
+
         var end = page * 30;
         var start = end - 30;
 
