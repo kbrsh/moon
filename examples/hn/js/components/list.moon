@@ -1,62 +1,57 @@
 <template>
-  <div class="container list">
-    <div class="container background">
-      <div class="item" m-for="item in list">
-        <div class="count-container">
-          <span class="count">{{item.score}}</span>
-        </div>
-        <div class="right-half">
-          <div class="title-container">
-            <a class="title no-decoration" href="{{item.url}}" rel="noopener">{{item.title}}</a>
-            <p class="url" m-if="item.url !== undefined">({{base(item.url)}})</p>
-          </div>
-          <p class="meta">by {{item.by}} {{time(item.time)}}<span m-if="item.descendants !== undefined"> | <router-link to="/item/{{item.id}}" rel="noopener" class="comments">{{item.descendants}} comments</router-link></span></p>
-        </div>
+  <div class="container background">
+    <!--<div class="item" m-for="item,index in list">
+      <div class="count-container">
+        <span class="count">{{(index + 1)}}</span>
+      </div>
+      <div class="right-half">
+        <p class="title"><a class="no-decoration" href="{{item.url}}" rel="noopener">{{item.title}}</a> <span class="url" m-if="item.url !== undefined">({{base(item.url)}})</span></p>
+        <p class="meta">{{item.score}} points by {{item.by}} {{time(item.time)}}<span m-if="item.descendants !== undefined"> | <router-link to="/item/{{item.id}}" rel="noopener" class="comments">{{item.descendants}} comments</router-link></span></p>
+      </div>
+    </div>-->
+    <div class="item" m-for="item,index in list">
+      <p class="count">{{(index + 1)}}</p>
+      <div class="right-half">
+        <p class="title"><a class="no-decoration" href="{{item.url}}" rel="noopener">{{item.title}}</a> <span class="url" m-if="item.url !== undefined">({{base(item.url)}})</span></p>
+        <p class="meta">{{item.score}} points by {{item.by}} {{time(item.time)}}<span m-if="item.descendants !== undefined"> | <router-link to="/item/{{item.id}}" rel="noopener" class="comments">{{item.descendants}} comments</router-link></span></p>
       </div>
     </div>
   </div>
 </template>
 <style scoped>
-  .list {
-    height: 100%;
-    padding-top: 30px;
-    background-color: #FDFDFD;
-  }
-
   .item {
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    height: 50px;
-  }
-
-  .count-container {
-    text-align: center;
-    width: 70px;
   }
 
   .count {
+    flex: 0 0 70px;
+    margin-top: auto;
+    margin-bottom: auto;
     color: #666666;
     font-weight: 100;
     font-size: 2.5rem;
+    text-align: center;
   }
 
-  .title-container {
-    /*line-height: 1.6;*/
+  .right-half {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
   }
 
   .title {
     margin-top: 0;
     margin-bottom: 0;
+  }
+
+  .title a {
     color: #111111;
-    font-weight: 400;
     font-size: 1.5rem;
   }
 
   .url {
-    display: inline-block;
-    margin-top: 0;
-    margin-bottom: 0;
     color: #666666;
     font-size: 1.2rem;
   }
@@ -64,18 +59,12 @@
   .meta {
     margin-top: 0;
     margin-bottom: 0;
-    color: #666666;
     font-size: 1rem;
+    color: #666666;
   }
 
   .comments {
     color: #666666;
-    text-decoration: none;
-  }
-
-  .right-half {
-    display: flex;
-    flex-direction: column;
   }
 </style>
 <script>
@@ -95,7 +84,8 @@
     props: ["route"],
     data: function() {
       return {
-        list: []
+        list: [],
+        parseInt: parseInt
       }
     },
     methods: {

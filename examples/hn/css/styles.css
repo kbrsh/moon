@@ -21,6 +21,7 @@ body {
 
 a.nav-item {
   color: #e5e5e5;
+  padding: 0.5rem 1rem;
   text-decoration: none;
   transition: color .2s ease;
 }
@@ -42,8 +43,10 @@ a.no-decoration {
 }
 
 .container.background {
-  width: 750px;
   height: 100%;
+  padding-top: 30px;
+  padding-bottom: 30px;
+  background-color: #FDFDFD;
 }
 
 [m-mask] {
