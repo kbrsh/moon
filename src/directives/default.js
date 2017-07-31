@@ -1,12 +1,11 @@
 /* ======= Default Directives ======= */
 
 const emptyVNode = `m("#text", ${generateMeta(defaultMetadata())}"")`;
-const excludeEvent = globals.concat(["event"]);
 
 specialDirectives["m-if"] = {
   afterGenerate: function(prop, code, vnode, state) {
     const value = prop.value;
-    compileTemplateExpression(value, globals, state.dependencies);
+    compileTemplateExpression(value, state.exclude, state.dependencies);
     return `${value} ? ${code} : ${emptyVNode}`;
   }
 }
@@ -24,21 +23,22 @@ specialDirectives["m-for"] = {
 
     // Iteratable
     const iteratable = parts[1];
-    const exclude = globals.concat(aliases.split(","));
-    state.exclude = exclude;
+    const exclude = state.exclude;
+    state.exclude = exclude.concat(aliases.split(","));
     compileTemplateExpression(iteratable, exclude, state.dependencies);
 
     // Save for further generation
     let meta = prop.meta;
     meta.iteratable = iteratable;
     meta.aliases = aliases;
+    meta.exclude = exclude;
   },
   afterGenerate: function(prop, code, vnode, state) {
     // Get meta
     const meta = prop.meta;
 
     // Restore globals to exclude
-    state.exclude = globals;
+    state.exclude = meta.exclude;
 
     // Use the renderLoop runtime helper
     return `m.renderLoop(${meta.iteratable}, function(${meta.aliases}) { return ${code}; })`;
@@ -63,7 +63,7 @@ specialDirectives["m-on"] = {
       const paramEnd = methodToCall.lastIndexOf(")");
       params = methodToCall.substring(paramStart + 1, paramEnd);
       methodToCall = methodToCall.substring(0, paramStart);
-      compileTemplateExpression(params, excludeEvent, state.dependencies);
+      compileTemplateExpression(params, state.exclude.concat(["event"]), state.dependencies);
     }
 
     // Generate any modifiers
@@ -90,11 +90,14 @@ specialDirectives["m-model"] = {
     const value = prop.value;
     const attrs = vnode.props.attrs;
 
+    // Get exclusions
+    const exclude = state.exclude;
+
     // Get dependencies
     let dependencies = state.dependencies;
 
     // Add dependencies for the getter and setter
-    compileTemplateExpression(value, globals, dependencies);
+    compileTemplateExpression(value, exclude, dependencies);
 
     // Setup default event type, keypath to set, value of setter, DOM property to change, and value of DOM property
     let eventType = "input";
@@ -117,9 +120,9 @@ specialDirectives["m-model"] = {
           let literalValueAttr = null;
           let valueAttrValue = "null";
           if(valueAttr !== undefined) {
-            valueAttrValue = `"${compileTemplate(valueAttr.value, dependencies)}"`;
+            valueAttrValue = `"${compileTemplate(valueAttr.value, exclude, dependencies)}"`;
           } else if((literalValueAttr = attrs["m-literal:value"])) {
-            valueAttrValue = `${compileTemplate(literalValueAttr.value, dependencies)}`;
+            valueAttrValue = `${compileTemplate(literalValueAttr.value, exclude, dependencies)}`;
           }
           domSetter = `${domSetter} === ${valueAttrValue}`;
           keypathSetter = valueAttrValue;
@@ -180,7 +183,7 @@ specialDirectives["m-literal"] = {
   duringPropGenerate: function(prop, vnode, state) {
     const propName = prop.meta.arg;
     const propValue = prop.value;
-    compileTemplateExpression(propValue, globals, state.dependencies);
+    compileTemplateExpression(propValue, state.exclude, state.dependencies);
 
     if(propName === "class") {
       // Detected class, use runtime class render helper
@@ -199,7 +202,7 @@ specialDirectives["m-html"] = {
     if(dom === undefined) {
       vnode.props.dom = dom = {};
     }
-    compileTemplateExpression(value, globals, state.dependencies);
+    compileTemplateExpression(value, state.exclude, state.dependencies);
     dom.innerHTML = `${value}`;
   }
 }

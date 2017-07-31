@@ -2132,12 +2132,11 @@
     /* ======= Default Directives ======= */
     
     var emptyVNode = "m(\"#text\", " + (generateMeta(defaultMetadata())) + "\"\")";
-    var excludeEvent = globals.concat(["event"]);
     
     specialDirectives["m-if"] = {
       afterGenerate: function(prop, code, vnode, state) {
         var value = prop.value;
-        compileTemplateExpression(value, globals, state.dependencies);
+        compileTemplateExpression(value, state.exclude, state.dependencies);
         return (value + " ? " + code + " : " + emptyVNode);
       }
     }
@@ -2155,21 +2154,22 @@
     
         // Iteratable
         var iteratable = parts[1];
-        var exclude = globals.concat(aliases.split(","));
-        state.exclude = exclude;
+        var exclude = state.exclude;
+        state.exclude = exclude.concat(aliases.split(","));
         compileTemplateExpression(iteratable, exclude, state.dependencies);
     
         // Save for further generation
         var meta = prop.meta;
         meta.iteratable = iteratable;
         meta.aliases = aliases;
+        meta.exclude = exclude;
       },
       afterGenerate: function(prop, code, vnode, state) {
         // Get meta
         var meta = prop.meta;
     
         // Restore globals to exclude
-        state.exclude = globals;
+        state.exclude = meta.exclude;
     
         // Use the renderLoop runtime helper
         return ("m.renderLoop(" + (meta.iteratable) + ", function(" + (meta.aliases) + ") { return " + code + "; })");
@@ -2194,7 +2194,7 @@
           var paramEnd = methodToCall.lastIndexOf(")");
           params = methodToCall.substring(paramStart + 1, paramEnd);
           methodToCall = methodToCall.substring(0, paramStart);
-          compileTemplateExpression(params, excludeEvent, state.dependencies);
+          compileTemplateExpression(params, state.exclude.concat(["event"]), state.dependencies);
         }
     
         // Generate any modifiers
@@ -2221,11 +2221,14 @@
         var value = prop.value;
         var attrs = vnode.props.attrs;
     
+        // Get exclusions
+        var exclude = state.exclude;
+    
         // Get dependencies
         var dependencies = state.dependencies;
     
         // Add dependencies for the getter and setter
-        compileTemplateExpression(value, globals, dependencies);
+        compileTemplateExpression(value, exclude, dependencies);
     
         // Setup default event type, keypath to set, value of setter, DOM property to change, and value of DOM property
         var eventType = "input";
@@ -2248,9 +2251,9 @@
               var literalValueAttr = null;
               var valueAttrValue = "null";
               if(valueAttr !== undefined) {
-                valueAttrValue = "\"" + (compileTemplate(valueAttr.value, dependencies)) + "\"";
+                valueAttrValue = "\"" + (compileTemplate(valueAttr.value, exclude, dependencies)) + "\"";
               } else if((literalValueAttr = attrs["m-literal:value"])) {
-                valueAttrValue = "" + (compileTemplate(literalValueAttr.value, dependencies));
+                valueAttrValue = "" + (compileTemplate(literalValueAttr.value, exclude, dependencies));
               }
               domSetter = domSetter + " === " + valueAttrValue;
               keypathSetter = valueAttrValue;
@@ -2311,7 +2314,7 @@
       duringPropGenerate: function(prop, vnode, state) {
         var propName = prop.meta.arg;
         var propValue = prop.value;
-        compileTemplateExpression(propValue, globals, state.dependencies);
+        compileTemplateExpression(propValue, state.exclude, state.dependencies);
     
         if(propName === "class") {
           // Detected class, use runtime class render helper
@@ -2330,7 +2333,7 @@
         if(dom === undefined) {
           vnode.props.dom = dom = {};
         }
-        compileTemplateExpression(value, globals, state.dependencies);
+        compileTemplateExpression(value, state.exclude, state.dependencies);
         dom.innerHTML = "" + value;
       }
     }
