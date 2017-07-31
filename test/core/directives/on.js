@@ -1,9 +1,11 @@
 describe('On Directive', function() {
-  var on = createTestElement("on", '<p>{{count}}</p><button m-on:click="increment">Increment</button><a href="https://kabir.ml" m-on:click.prevent="modifier">Link</a><button m-on:click.m="keycode"></button>');
+  var on = createTestElement("on", '<p>{{count}}</p><button m-on:click="increment">Increment</button><a href="https://kabir.ml" m-on:click.prevent="modifier">Link</a><button m-on:click.m="keycode"></button><button m-on:click="changeCustomIgnored(true)"></button>');
   var p = on.firstChild;
   var button = p.nextSibling;
   var a = button.nextSibling;
   var buttonKeycode = a.nextSibling;
+  var customIgnoredButton = buttonKeycode.nextSibling
+  var customIgnoredParameters = false;
 
   var evt, modifier_active, keycode;
   Moon.config.keyCodes({
@@ -25,6 +27,9 @@ describe('On Directive', function() {
       },
       keycode: function() {
         keycode = true;
+      },
+      changeCustomIgnored: function(condition) {
+        customIgnoredParameters = condition;
       }
     }
   });
@@ -64,6 +69,13 @@ describe('On Directive', function() {
 
     return wait(function() {
       expect(keycode).to.be['true'];
+    });
+  });
+
+  it('should call with ignored custom parameters', function() {
+    customIgnoredButton.click();
+    return wait(function() {
+      expect(customIgnoredParameters).to.be['true'];
     });
   });
 

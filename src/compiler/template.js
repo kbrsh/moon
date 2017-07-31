@@ -2,7 +2,7 @@ const openRE = /\{\{/;
 const closeRE = /\s*\}\}/;
 const whitespaceRE = /\s/;
 const expressionRE = /"[^"]*"|'[^']*'|\.\w*[a-zA-Z$_]\w*|\w*[a-zA-Z$_]\w*:|(\w*[a-zA-Z$_]\w*)/g;
-const globals = ['true', 'false', 'undefined', 'null', 'NaN', 'typeof', 'in'];
+const globals = ["true", "false", "undefined", "null", "NaN", "typeof", "in"];
 
 /**
  * Compiles a Template
@@ -58,7 +58,7 @@ const compileTemplateState = function(state) {
 
     if(name.length !== 0) {
       // Extract Variable References
-      compileTemplateExpression(name, state.dependencies);
+      compileTemplateExpression(name, globals, state.dependencies);
 
       // Add quotes
       name = `" + ${name} + "`;
@@ -75,12 +75,15 @@ const compileTemplateState = function(state) {
   }
 }
 
-const compileTemplateExpression = function(expr, dependencies) {
-  expr.replace(expressionRE, function(match, reference) {
-    if(reference !== undefined && dependencies.indexOf(reference) === -1 && globals.indexOf(reference) === -1) {
+const compileTemplateExpression = function(expr, exclude, dependencies) {
+  var reference = null;
+  var references = null;
+  while((references = expressionRE.exec(expr)) !== null) {
+    reference = references[1];
+    if(reference !== undefined && dependencies.indexOf(reference) === -1 && exclude.indexOf(reference) === -1) {
       dependencies.push(reference);
     }
-  });
+  }
 
   return dependencies;
 }
@@ -112,7 +115,7 @@ const scanTemplateStateUntil = function(state, re) {
 const scanTemplateStateForWhitespace = function(state) {
   const template = state.template;
   let char = template[state.current];
-  while(whitespaceRE.test(char)) {
+  while(whitespaceRE.test(char) === true) {
     char = template[++state.current];
   }
 }

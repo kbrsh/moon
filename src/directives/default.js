@@ -1,11 +1,12 @@
 /* ======= Default Directives ======= */
 
 const emptyVNode = `m("#text", ${generateMeta(defaultMetadata())}"")`;
+const excludeEvent = globals.concat(["event"]);
 
 specialDirectives["m-if"] = {
   afterGenerate: function(prop, code, vnode, state) {
     const value = prop.value;
-    compileTemplateExpression(value, state.dependencies);
+    compileTemplateExpression(value, globals, state.dependencies);
     return `${value} ? ${code} : ${emptyVNode}`;
   }
 }
@@ -23,62 +24,52 @@ specialDirectives["m-for"] = {
     const parts = prop.value.split(" in ");
 
     // Aliases
-    const aliases = parts[0].split(",");
+    const aliases = parts[0];
 
     // The Iteratable
     const iteratable = parts[1];
-    compileTemplateExpression(iteratable, dependencies);
-
-    // Get any parameters
-    const params = aliases.join(",");
-
-    // Add aliases to scope
-    for(let i = 0; i < aliases.length; i++) {
-      const aliasIndex = dependencies.indexOf(aliases[i]);
-      if(aliasIndex !== -1) {
-        dependencies.splice(aliasIndex, 1);
-      }
-    }
+    compileTemplateExpression(iteratable, globals.concat(aliases.split(",")), dependencies);
 
     // Use the renderLoop runtime helper
-    return `m.renderLoop(${iteratable}, function(${params}) { return ${code}; })`;
+    return `m.renderLoop(${iteratable}, function(${aliases}) { return ${code}; })`;
   }
 }
 
 specialDirectives["m-on"] = {
   beforeGenerate: function(prop, vnode, parentVNode, state) {
-    // Extract Event, Modifiers, and Parameters
-    let value = prop.value;
-    let meta = prop.meta;
+    // Get list of modifiers
+    let modifiers = prop.meta.arg.split(".");
+    const eventType = modifiers.shift();
 
-    let methodToCall = value;
+    // Get method to call
+    let methodToCall = prop.value;
 
-    let rawModifiers = meta.arg.split(".");
-    const eventType = rawModifiers.shift();
-
+    // Default parameters
     let params = "event";
-    const rawParams = methodToCall.split("(");
 
-    if(rawParams.length > 1) {
-      // Custom parameters detected, update method to call, and generated parameter code
-      methodToCall = rawParams.shift();
-      params = rawParams.join("(").slice(0, -1);
-      compileTemplateExpression(params, state.dependencies);
+    // Compile given parameters
+    const paramStart = methodToCall.indexOf("(");
+    if(paramStart !== -1) {
+      const paramEnd = methodToCall.lastIndexOf(")");
+      params = methodToCall.substring(paramStart + 1, paramEnd);
+      methodToCall = methodToCall.substring(0, paramStart);
+      compileTemplateExpression(params, excludeEvent, state.dependencies);
     }
 
     // Generate any modifiers
-    let modifiers = "";
-    for(let i = 0; i < rawModifiers.length; i++) {
-      const eventModifierCode = eventModifiersCode[rawModifiers[i]];
+    let modifiersCode = "";
+    for(let i = 0; i < modifiers.length; i++) {
+      const modifier = modifiers[i];
+      const eventModifierCode = eventModifiersCode[modifier];
       if(eventModifierCode === undefined) {
-        modifiers += `if(m.renderEventModifier(event.keyCode, "${rawModifiers[i]}") === false) {return null;};`
+        modifiersCode += `if(m.renderEventModifier(event.keyCode, "${modifier}") === false) {return null;};`
       } else {
-        modifiers += eventModifierCode;
+        modifiersCode += eventModifierCode;
       }
     }
 
-    // Final event listener code
-    const code = `function(event) {${modifiers}instance.callMethod("${methodToCall}", [${params}])}`;
+    // Generate event listener code and install handler
+    const code = `function(event) {${modifiersCode}instance.callMethod("${methodToCall}", [${params}])}`;
     addEventListenerCodeToVNode(eventType, code, vnode);
   }
 }
@@ -93,7 +84,7 @@ specialDirectives["m-model"] = {
     let dependencies = state.dependencies;
 
     // Add dependencies for the getter and setter
-    compileTemplateExpression(value, dependencies);
+    compileTemplateExpression(value, globals, dependencies);
 
     // Setup default event type, keypath to set, value of setter, DOM property to change, and value of DOM property
     let eventType = "input";
@@ -179,7 +170,7 @@ specialDirectives["m-literal"] = {
   duringPropGenerate: function(prop, vnode, state) {
     const propName = prop.meta.arg;
     const propValue = prop.value;
-    compileTemplateExpression(propValue, state.dependencies);
+    compileTemplateExpression(propValue, globals, state.dependencies);
 
     if(propName === "class") {
       // Detected class, use runtime class render helper
@@ -198,7 +189,7 @@ specialDirectives["m-html"] = {
     if(dom === undefined) {
       vnode.props.dom = dom = {};
     }
-    compileTemplateExpression(value, state.dependencies);
+    compileTemplateExpression(value, globals, state.dependencies);
     dom.innerHTML = `${value}`;
   }
 }

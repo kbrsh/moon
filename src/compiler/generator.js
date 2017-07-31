@@ -85,7 +85,7 @@ const generateProps = function(node, parent, state) {
 			directiveProp = directiveProps[i];
 			directivePropValue = directiveProp.value;
 
-			compileTemplateExpression(directivePropValue, state.dependencies);
+			compileTemplateExpression(directivePropValue, globals, state.dependencies);
 			propsCode += `"${directiveProp.name}": ${directivePropValue.length === 0 ? "\"\"" : directivePropValue}, `;
 		}
 

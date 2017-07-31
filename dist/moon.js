@@ -984,7 +984,7 @@
     var closeRE = /\s*\}\}/;
     var whitespaceRE = /\s/;
     var expressionRE = /"[^"]*"|'[^']*'|\.\w*[a-zA-Z$_]\w*|\w*[a-zA-Z$_]\w*:|(\w*[a-zA-Z$_]\w*)/g;
-    var globals = ['true', 'false', 'undefined', 'null', 'NaN', 'typeof', 'in'];
+    var globals = ["true", "false", "undefined", "null", "NaN", "typeof", "in"];
     
     /**
      * Compiles a Template
@@ -1040,7 +1040,7 @@
     
         if(name.length !== 0) {
           // Extract Variable References
-          compileTemplateExpression(name, state.dependencies);
+          compileTemplateExpression(name, globals, state.dependencies);
     
           // Add quotes
           name = "\" + " + name + " + \"";
@@ -1057,12 +1057,15 @@
       }
     }
     
-    var compileTemplateExpression = function(expr, dependencies) {
-      expr.replace(expressionRE, function(match, reference) {
-        if(reference !== undefined && dependencies.indexOf(reference) === -1 && globals.indexOf(reference) === -1) {
+    var compileTemplateExpression = function(expr, exclude, dependencies) {
+      var reference = null;
+      var references = null;
+      while((references = expressionRE.exec(expr)) !== null) {
+        reference = references[1];
+        if(reference !== undefined && dependencies.indexOf(reference) === -1 && exclude.indexOf(reference) === -1) {
           dependencies.push(reference);
         }
-      });
+      }
     
       return dependencies;
     }
@@ -1094,7 +1097,7 @@
     var scanTemplateStateForWhitespace = function(state) {
       var template = state.template;
       var char = template[state.current];
-      while(whitespaceRE.test(char)) {
+      while(whitespaceRE.test(char) === true) {
         char = template[++state.current];
       }
     }
@@ -1524,7 +1527,7 @@
     			directiveProp = directiveProps[i];
     			directivePropValue = directiveProp.value;
     
-    			compileTemplateExpression(directivePropValue, state.dependencies);
+    			compileTemplateExpression(directivePropValue, globals, state.dependencies);
     			propsCode += "\"" + (directiveProp.name) + "\": " + (directivePropValue.length === 0 ? "\"\"" : directivePropValue) + ", ";
     		}
     
@@ -2133,11 +2136,12 @@
     /* ======= Default Directives ======= */
     
     var emptyVNode = "m(\"#text\", " + (generateMeta(defaultMetadata())) + "\"\")";
+    var excludeEvent = globals.concat(["event"]);
     
     specialDirectives["m-if"] = {
       afterGenerate: function(prop, code, vnode, state) {
         var value = prop.value;
-        compileTemplateExpression(value, state.dependencies);
+        compileTemplateExpression(value, globals, state.dependencies);
         return (value + " ? " + code + " : " + emptyVNode);
       }
     }
@@ -2155,62 +2159,52 @@
         var parts = prop.value.split(" in ");
     
         // Aliases
-        var aliases = parts[0].split(",");
+        var aliases = parts[0];
     
         // The Iteratable
         var iteratable = parts[1];
-        compileTemplateExpression(iteratable, dependencies);
-    
-        // Get any parameters
-        var params = aliases.join(",");
-    
-        // Add aliases to scope
-        for(var i = 0; i < aliases.length; i++) {
-          var aliasIndex = dependencies.indexOf(aliases[i]);
-          if(aliasIndex !== -1) {
-            dependencies.splice(aliasIndex, 1);
-          }
-        }
+        compileTemplateExpression(iteratable, globals.concat(aliases.split(",")), dependencies);
     
         // Use the renderLoop runtime helper
-        return ("m.renderLoop(" + iteratable + ", function(" + params + ") { return " + code + "; })");
+        return ("m.renderLoop(" + iteratable + ", function(" + aliases + ") { return " + code + "; })");
       }
     }
     
     specialDirectives["m-on"] = {
       beforeGenerate: function(prop, vnode, parentVNode, state) {
-        // Extract Event, Modifiers, and Parameters
-        var value = prop.value;
-        var meta = prop.meta;
+        // Get list of modifiers
+        var modifiers = prop.meta.arg.split(".");
+        var eventType = modifiers.shift();
     
-        var methodToCall = value;
+        // Get method to call
+        var methodToCall = prop.value;
     
-        var rawModifiers = meta.arg.split(".");
-        var eventType = rawModifiers.shift();
-    
+        // Default parameters
         var params = "event";
-        var rawParams = methodToCall.split("(");
     
-        if(rawParams.length > 1) {
-          // Custom parameters detected, update method to call, and generated parameter code
-          methodToCall = rawParams.shift();
-          params = rawParams.join("(").slice(0, -1);
-          compileTemplateExpression(params, state.dependencies);
+        // Compile given parameters
+        var paramStart = methodToCall.indexOf("(");
+        if(paramStart !== -1) {
+          var paramEnd = methodToCall.lastIndexOf(")");
+          params = methodToCall.substring(paramStart + 1, paramEnd);
+          methodToCall = methodToCall.substring(0, paramStart);
+          compileTemplateExpression(params, excludeEvent, state.dependencies);
         }
     
         // Generate any modifiers
-        var modifiers = "";
-        for(var i = 0; i < rawModifiers.length; i++) {
-          var eventModifierCode = eventModifiersCode[rawModifiers[i]];
+        var modifiersCode = "";
+        for(var i = 0; i < modifiers.length; i++) {
+          var modifier = modifiers[i];
+          var eventModifierCode = eventModifiersCode[modifier];
           if(eventModifierCode === undefined) {
-            modifiers += "if(m.renderEventModifier(event.keyCode, \"" + (rawModifiers[i]) + "\") === false) {return null;};"
+            modifiersCode += "if(m.renderEventModifier(event.keyCode, \"" + modifier + "\") === false) {return null;};"
           } else {
-            modifiers += eventModifierCode;
+            modifiersCode += eventModifierCode;
           }
         }
     
-        // Final event listener code
-        var code = "function(event) {" + modifiers + "instance.callMethod(\"" + methodToCall + "\", [" + params + "])}";
+        // Generate event listener code and install handler
+        var code = "function(event) {" + modifiersCode + "instance.callMethod(\"" + methodToCall + "\", [" + params + "])}";
         addEventListenerCodeToVNode(eventType, code, vnode);
       }
     }
@@ -2225,7 +2219,7 @@
         var dependencies = state.dependencies;
     
         // Add dependencies for the getter and setter
-        compileTemplateExpression(value, dependencies);
+        compileTemplateExpression(value, globals, dependencies);
     
         // Setup default event type, keypath to set, value of setter, DOM property to change, and value of DOM property
         var eventType = "input";
@@ -2311,7 +2305,7 @@
       duringPropGenerate: function(prop, vnode, state) {
         var propName = prop.meta.arg;
         var propValue = prop.value;
-        compileTemplateExpression(propValue, state.dependencies);
+        compileTemplateExpression(propValue, globals, state.dependencies);
     
         if(propName === "class") {
           // Detected class, use runtime class render helper
@@ -2330,7 +2324,7 @@
         if(dom === undefined) {
           vnode.props.dom = dom = {};
         }
-        compileTemplateExpression(value, state.dependencies);
+        compileTemplateExpression(value, globals, state.dependencies);
         dom.innerHTML = "" + value;
       }
     }
