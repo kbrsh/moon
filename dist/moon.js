@@ -1115,8 +1115,9 @@
     
     var lexState = function(state) {
       var input = state.input;
-      var len = input.length;
-      while(state.current < len) {
+      var length = input.length;
+    
+      while(state.current < length) {
         // Check if it is text
         if(input.charAt(state.current) !== "<") {
           lexText(state);
@@ -1137,7 +1138,6 @@
     var lexText = function(state) {
       var current = state.current;
       var input = state.input;
-      var len = input.length;
     
       var endOfText = input.substring(current).search(tagOrCommentStartRE);
     
@@ -1147,7 +1147,7 @@
           type: "text",
           value: input.slice(current)
         });
-        state.current = len;
+        state.current = input.length;
         return;
       } else if(endOfText !== 0) {
         // End of Text Found
@@ -1163,7 +1163,7 @@
     var lexComment = function(state) {
       var current = state.current;
       var input = state.input;
-      var len = input.length;
+      var length = input.length;
     
       current += 4;
     
@@ -1175,7 +1175,7 @@
           type: "comment",
           value: input.slice(current)
         });
-        state.current = len;
+        state.current = length;
       } else {
         // End of Comment Found
         state.tokens.push({
@@ -1188,9 +1188,8 @@
     
     var lexTag = function(state) {
       var input = state.input;
-      var len = input.length;
     
-      // Lex Starting of Tag
+      // Lex starting tag
       var isClosingStart = input.charAt(state.current + 1) === "/";
       state.current += isClosingStart === true ? 2 : 1;
     
@@ -1202,12 +1201,12 @@
       var isClosingEnd = input.charAt(state.current) === "/";
       state.current += isClosingEnd === true ? 2 : 1;
     
-      // Check if Closing Start
+      // Check if closing start
       if(isClosingStart === true) {
         tagToken.closeStart = true;
       }
     
-      // Check if Closing End
+      // Check if closing end
       if(isClosingEnd === true) {
         tagToken.closeEnd = true;
       }
@@ -1215,10 +1214,10 @@
     
     var lexTagType = function(state) {
       var input = state.input;
-      var len = input.length;
+      var length = input.length;
       var current = state.current;
       var tagType = "";
-      while(current < len) {
+      while(current < length) {
         var char = input.charAt(current);
         if((char === "/") || (char === ">") || (char === " ")) {
           break;
@@ -1241,7 +1240,7 @@
     
     var lexAttributes = function(tagToken, state) {
       var input = state.input;
-      var len = input.length;
+      var length = input.length;
       var current = state.current;
       var char = input.charAt(current);
       var nextChar = input.charAt(current + 1);
@@ -1254,7 +1253,7 @@
     
       var attributes = {};
     
-      while(current < len) {
+      while(current < length) {
         // If it is the end of a tag, exit
         if((char === ">") || (char === "/" && nextChar === ">")) {
           break;
@@ -1270,7 +1269,7 @@
         var attrName = "";
         var noValue = false;
     
-        while(current < len && char !== "=") {
+        while(current < length && char !== "=") {
           if((char === " ") || (char === ">") || (char === "/" && nextChar === ">")) {
             noValue = true;
             break;
@@ -1304,7 +1303,7 @@
         }
     
         // Find the end of it
-        while(current < len && char !== quoteType) {
+        while(current < length && char !== quoteType) {
           attrValue.value += char;
           incrementChar();
         }
@@ -1363,13 +1362,11 @@
     var parseWalk = function(state) {
       var token = state.tokens[state.current];
       var previousToken = state.tokens[state.current - 1];
-      var nextToken = state.tokens[state.current + 1];
     
       var move = function(num) {
         state.current += num === undefined ? 1 : num;
         token = state.tokens[state.current];
         previousToken = state.tokens[state.current - 1];
-        nextToken = state.tokens[state.current + 1];
       }
     
       if(token.type === "text") {
@@ -1396,7 +1393,7 @@
         move();
     
         // If it is an svg element, let code generator know
-        if(isSVGElement) {
+        if(isSVGElement === true) {
           node.isSVG = true;
         }
     
@@ -1411,7 +1408,6 @@
           return null;
         } else if(token !== undefined) {
           // Match all children
-          var current = state.current;
           while((token.type !== "tag") || ((token.type === "tag") && ((token.closeStart === undefined && token.closeEnd === undefined) || (token.value !== tagType)))) {
             var parsedChildState = parseWalk(state);
             if(parsedChildState !== null) {
@@ -1421,7 +1417,7 @@
             move(0);
     
             if(token === undefined) {
-              // No token means a tag was most likely left unclosed
+              // No token means a tag was left unclosed
               if("development" !== "production") {
                 error(("The element \"" + (node.type) + "\" was left unclosed"));
               }

@@ -12,8 +12,9 @@ const lex = function(input) {
 
 const lexState = function(state) {
   const input = state.input;
-  const len = input.length;
-  while(state.current < len) {
+  const length = input.length;
+
+  while(state.current < length) {
     // Check if it is text
     if(input.charAt(state.current) !== "<") {
       lexText(state);
@@ -34,7 +35,6 @@ const lexState = function(state) {
 const lexText = function(state) {
   const current = state.current;
   const input = state.input;
-  const len = input.length;
 
   let endOfText = input.substring(current).search(tagOrCommentStartRE);
 
@@ -44,7 +44,7 @@ const lexText = function(state) {
       type: "text",
       value: input.slice(current)
     });
-    state.current = len;
+    state.current = input.length;
     return;
   } else if(endOfText !== 0) {
     // End of Text Found
@@ -60,7 +60,7 @@ const lexText = function(state) {
 const lexComment = function(state) {
   let current = state.current;
   const input = state.input;
-  const len = input.length;
+  const length = input.length;
 
   current += 4;
 
@@ -72,7 +72,7 @@ const lexComment = function(state) {
       type: "comment",
       value: input.slice(current)
     });
-    state.current = len;
+    state.current = length;
   } else {
     // End of Comment Found
     state.tokens.push({
@@ -85,9 +85,8 @@ const lexComment = function(state) {
 
 const lexTag = function(state) {
   const input = state.input;
-  const len = input.length;
 
-  // Lex Starting of Tag
+  // Lex starting tag
   const isClosingStart = input.charAt(state.current + 1) === "/";
   state.current += isClosingStart === true ? 2 : 1;
 
@@ -99,12 +98,12 @@ const lexTag = function(state) {
   const isClosingEnd = input.charAt(state.current) === "/";
   state.current += isClosingEnd === true ? 2 : 1;
 
-  // Check if Closing Start
+  // Check if closing start
   if(isClosingStart === true) {
     tagToken.closeStart = true;
   }
 
-  // Check if Closing End
+  // Check if closing end
   if(isClosingEnd === true) {
     tagToken.closeEnd = true;
   }
@@ -112,10 +111,10 @@ const lexTag = function(state) {
 
 const lexTagType = function(state) {
   const input = state.input;
-  const len = input.length;
+  const length = input.length;
   let current = state.current;
   let tagType = "";
-  while(current < len) {
+  while(current < length) {
     const char = input.charAt(current);
     if((char === "/") || (char === ">") || (char === " ")) {
       break;
@@ -138,7 +137,7 @@ const lexTagType = function(state) {
 
 const lexAttributes = function(tagToken, state) {
   const input = state.input;
-  const len = input.length;
+  const length = input.length;
   let current = state.current;
   let char = input.charAt(current);
   let nextChar = input.charAt(current + 1);
@@ -151,7 +150,7 @@ const lexAttributes = function(tagToken, state) {
 
   let attributes = {};
 
-  while(current < len) {
+  while(current < length) {
     // If it is the end of a tag, exit
     if((char === ">") || (char === "/" && nextChar === ">")) {
       break;
@@ -167,7 +166,7 @@ const lexAttributes = function(tagToken, state) {
     let attrName = "";
     let noValue = false;
 
-    while(current < len && char !== "=") {
+    while(current < length && char !== "=") {
       if((char === " ") || (char === ">") || (char === "/" && nextChar === ">")) {
         noValue = true;
         break;
@@ -201,7 +200,7 @@ const lexAttributes = function(tagToken, state) {
     }
 
     // Find the end of it
-    while(current < len && char !== quoteType) {
+    while(current < length && char !== quoteType) {
       attrValue.value += char;
       incrementChar();
     }

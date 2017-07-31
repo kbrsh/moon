@@ -33,13 +33,11 @@ const createParseNode = function(type, props, children) {
 const parseWalk = function(state) {
   let token = state.tokens[state.current];
   let previousToken = state.tokens[state.current - 1];
-  let nextToken = state.tokens[state.current + 1];
 
   const move = function(num) {
     state.current += num === undefined ? 1 : num;
     token = state.tokens[state.current];
     previousToken = state.tokens[state.current - 1];
-    nextToken = state.tokens[state.current + 1];
   }
 
   if(token.type === "text") {
@@ -66,7 +64,7 @@ const parseWalk = function(state) {
     move();
 
     // If it is an svg element, let code generator know
-    if(isSVGElement) {
+    if(isSVGElement === true) {
       node.isSVG = true;
     }
 
@@ -81,7 +79,6 @@ const parseWalk = function(state) {
       return null;
     } else if(token !== undefined) {
       // Match all children
-      const current = state.current;
       while((token.type !== "tag") || ((token.type === "tag") && ((token.closeStart === undefined && token.closeEnd === undefined) || (token.value !== tagType)))) {
         const parsedChildState = parseWalk(state);
         if(parsedChildState !== null) {
@@ -91,7 +88,7 @@ const parseWalk = function(state) {
         move(0);
 
         if(token === undefined) {
-          // No token means a tag was most likely left unclosed
+          // No token means a tag was left unclosed
           if("__ENV__" !== "production") {
             error(`The element "${node.type}" was left unclosed`);
           }
