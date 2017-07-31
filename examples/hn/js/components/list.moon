@@ -7,7 +7,7 @@
         </div>
         <div class="right-half">
           <div class="title-container">
-            <a class="title" href="{{item.url}}" rel="noopener">{{item.title}}</a>
+            <a class="title no-decoration" href="{{item.url}}" rel="noopener">{{item.title}}</a>
             <p class="url" m-if="item.url !== undefined">({{base(item.url)}})</p>
           </div>
           <p class="meta">by {{item.by}} {{time(item.time)}}<span m-if="item.descendants !== undefined"> | <router-link to="/item/{{item.id}}" rel="noopener" class="comments">{{item.descendants}} comments</router-link></span></p>
@@ -18,8 +18,8 @@
 </template>
 <style scoped>
   .list {
-    padding-top: 30px;
     height: 100%;
+    padding-top: 30px;
     background-color: #FDFDFD;
   }
 
@@ -31,7 +31,8 @@
   }
 
   .count-container {
-    /*width: 70px;*/
+    text-align: center;
+    width: 70px;
   }
 
   .count {
@@ -41,33 +42,30 @@
   }
 
   .title-container {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+    /*line-height: 1.6;*/
   }
 
   .title {
-    color: #111111;
-    font-weight: 400;
     margin-top: 0;
     margin-bottom: 0;
+    color: #111111;
+    font-weight: 400;
     font-size: 1.5rem;
-    text-decoration: none;
   }
 
   .url {
+    display: inline-block;
     margin-top: 0;
     margin-bottom: 0;
-    margin-left: 5px;
-    font-size: 1.2rem;
     color: #666666;
+    font-size: 1.2rem;
   }
 
   .meta {
-    color: #666666;
-    font-size: 1rem;
     margin-top: 0;
     margin-bottom: 0;
+    color: #666666;
+    font-size: 1rem;
   }
 
   .comments {
@@ -86,11 +84,12 @@
   var HOUR = 3600;
   var DAY = 86400;
 
-  var hostnameRE = /([\w\d-]+\.[\w\d-]+)(?:\/[\w\d-/.?=#&]*)?$/;
+  var hostnameRE = /([\w\d-]+\.[\w\d-]+)(?:\/[\w\d-/.?=#&%@;]*)?$/;
 
   var info = {
     type: "top",
-    page: 1
+    page: 1,
+    beforeInit: false
   };
 
   exports = {
@@ -114,9 +113,12 @@
           page = 1;
         }
 
-        if(init === true || type !== info.type || page !== info.page) {
-          var store = this.get("store");
+        var changed = ((type !== info.type) || (page !== info.page));
 
+        if(info.beforeInit === true && changed === true) {
+          info.beforeInit = false;
+        } else if((init === true && (info.beforeInit = true)) || (changed === true)) {
+          var store = this.get("store");
           info.type = type;
           info.page = page;
           store.dispatch("UPDATE_LISTS", {
@@ -155,9 +157,11 @@
     },
     hooks: {
       mounted: function() {
+        console.log("INIT")
         this.callMethod("update", [true]);
       },
       updated: function() {
+        console.log("Update")
         this.callMethod("update", [false]);
       }
     },

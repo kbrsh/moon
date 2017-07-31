@@ -6,8 +6,8 @@
 require("./util/promise.js");
 
 // Moon
-var Moon = require("moonjs");
-var MoonRouter = require("moon-router/dist/moon-router.js");
+var Moon = require("moonjs/dist/moon.js");
+var MoonRouter = require("moon-router");
 
 // API Initializer
 var initAPI = require("./util/api.js").init;

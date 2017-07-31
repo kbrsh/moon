@@ -33,6 +33,10 @@ a.nav-item.router-link-active {
   color: #f5f5f5;
 }
 
+a.no-decoration {
+  text-decoration: none;
+}
+
 .container {
   max-width: 800px;
 }
