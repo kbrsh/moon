@@ -184,11 +184,10 @@
      * @param {Object} instance
      */
     var queueBuild = function(instance) {
-      if(instance.$queued === false && instance.$destroyed === false) {
+      if(instance.$queued === false) {
         instance.$queued = true;
         setTimeout(function() {
           instance.build();
-          callHook(instance, 'updated');
           instance.$queued = false;
         }, 0);
       }
@@ -1482,8 +1481,8 @@
     
     			if((duringPropGenerate = specialDirective.duringPropGenerate) !== undefined) {
     				if(state.hasAttrs === false) {
-    		      state.hasAttrs = true;
-    		    }
+    					state.hasAttrs = true;
+    				}
     
     				propsCode += duringPropGenerate(prop$1, node, state);
     			}
@@ -1731,9 +1730,6 @@
         // Observer
         this.$observer = new Observer(this);
     
-        // Destroyed State
-        this.$destroyed = true;
-    
         // State of Queue
         this.$queued = false;
     
@@ -1809,10 +1805,10 @@
       this.$el = null;
     
       // Setup destroyed state
-      this.$destroyed = true;
+      this.$queued = true;
     
       // Call destroyed hook
-      callHook(this, 'destroyed');
+      callHook(this, "destroyed");
     }
     
     /**
@@ -2003,6 +1999,9 @@
     
       // Patch old and new
       this.patch(old, dom, this.$el.parentNode);
+    
+      // Call updated hook
+      callHook(this, "updated");
     }
     
     /**

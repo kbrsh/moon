@@ -39,11 +39,10 @@ const error = function(msg) {
  * @param {Object} instance
  */
 const queueBuild = function(instance) {
-  if(instance.$queued === false && instance.$destroyed === false) {
+  if(instance.$queued === false) {
     instance.$queued = true;
     setTimeout(function() {
       instance.build();
-      callHook(instance, 'updated');
       instance.$queued = false;
     }, 0);
   }

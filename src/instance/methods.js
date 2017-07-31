@@ -60,10 +60,10 @@ Moon.prototype.destroy = function() {
   this.$el = null;
 
   // Setup destroyed state
-  this.$destroyed = true;
+  this.$queued = true;
 
   // Call destroyed hook
-  callHook(this, 'destroyed');
+  callHook(this, "destroyed");
 }
 
 /**
@@ -254,6 +254,9 @@ Moon.prototype.build = function() {
 
   // Patch old and new
   this.patch(old, dom, this.$el.parentNode);
+
+  // Call updated hook
+  callHook(this, "updated");
 }
 
 /**
