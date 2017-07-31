@@ -10,7 +10,7 @@
             <a class="title" href="{{item.url}}" rel="noopener">{{item.title}}</a>
             <p class="url" m-if="item.url !== undefined">({{base(item.url)}})</p>
           </div>
-          <p class="meta">by {{item.by}} {{time(item.time)}}</p>
+          <p class="meta">by {{item.by}} {{time(item.time)}}<span m-if="item.descendants !== undefined"> | <router-link to="/item/{{item.id}}" rel="noopener" class="comments">{{item.descendants}} comments</router-link></span></p>
         </div>
       </div>
     </div>
@@ -68,6 +68,11 @@
     font-size: 1rem;
     margin-top: 0;
     margin-bottom: 0;
+  }
+
+  .comments {
+    color: #666666;
+    text-decoration: none;
   }
 
   .right-half {
