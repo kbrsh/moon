@@ -1,25 +1,113 @@
-const Firebase = require("firebase/app");
-require("firebase/database");
+const Firebase = require("firebase");
 
 const path = require("path");
 
 const express = require("express");
 const app = express();
 
-const isDevelopment = process.env.NODE_ENV === "development";
+const db = Firebase.initializeApp({
+  databaseURL: "https://hacker-news.firebaseio.com"
+}).database().ref("/v0");
 
-if(isDevelopment === true) {
-  app.use("/dist/js", express.static(path.resolve("./dist/js")));
-  app.use("/dist/css", express.static(path.resolve("./dist/css")));
-  app.use("/img", express.static(path.resolve("./img")));
-} else {
-  app.use(express.static(path.resolve("./dist/")));
+function Cached(max) {
+  this.queue = [];
+  this.table = {};
+
+  return this;
 }
 
-const indexPath = path.resolve(isDevelopment === true ? "./index.html" : "./dist/index.html");
+Cached.prototype.get = function(key) {
+  return this.table[key];
+}
 
-app.get("/", (req, res) => {
-  res.sendFile(indexPath);
+Cached.prototype.set = function(key, value) {
+  this.table[key] = value;
+}
+
+Cached.prototype.has = function(key) {
+  return this.table[key] === undefined;
+}
+
+let cache = {
+  topstories: [],
+  newstories: [],
+  showstories: [],
+  askstories: [],
+  jobstories: [],
+  items: new Cached(100)
+};
+
+const get = (child, save) => {
+  return new Promise((resolve, reject) => {
+    db.child(child).once("value", (snapshot) => {
+      const val = snapshot.val();
+      save(val);
+      resolve(val);
+    });
+  });
+}
+
+const watch = (child, save) => {
+  db.child(child).on("value", (snapshot) => {
+    save(snapshot.val());
+  });
+}
+
+const getItem = (id) => {
+  let items = cache.items;
+  let cached = items.get(id);
+  if(cached === undefined) {
+    return get("item/" + id, (val) => {
+      items.set("id", val);
+    });
+  } else {
+    return Promise.resolve(cached);
+  }
+}
+
+const getList = (type, page) => {
+  const end = page * 30;
+  const start = end - 30;
+
+  const cached = cache[type].slice(start, end);
+  const length = cached.length;
+  let list = new Array(length);
+
+  for(let i = 0; i < length; i++) {
+    list[i] = getItem(cached[i]);
+  }
+
+  return Promise.all(list);
+}
+
+watch("topstories", (data) => {
+  cache.topstories = data;
 });
 
-app.listen(8080);
+watch("newstories", (data) => {
+  cache.newstories = data;
+});
+
+watch("showstories", (data) => {
+  cache.showstories = data;
+});
+
+watch("askstories", (data) => {
+  cache.askstories = data;
+});
+
+watch("jobstories", (data) => {
+  cache.jobstories = data;
+});
+
+app.get("/api/item/:id", (req, res) => {
+  res.json(getItem(req.params.id));
+});
+
+app.get("/api/lists/:type/:page", (req, res) => {
+  getList(req.params.type, req.params.page).then((list) => {
+    res.json(list);
+  });
+});
+
+app.listen(3000);

@@ -1,7 +1,3 @@
-// Initialize API
-var Firebase = require("firebase/app");
-require("firebase/database");
-
 var api = {
   cache: {
     topstories: [],
@@ -13,54 +9,46 @@ var api = {
   }
 };
 
-var get = function(child, save) {
+var get = function(endpoint, save) {
   return new Promise(function(resolve, reject) {
-    api.db.child(child).once("value", function(snapshot) {
-      var val = snapshot.val();
-      save(val);
-      resolve(val);
+    fetch("/api/" + endpoint).then(function(response) {
+      var json = response.json();
+      save(json);
+      resolve(json);
+    })["catch"](function(err) {
+      reject(err);
     });
   });
 }
 
 api.getItem = function(id) {
-  var cache = api.cache;
-  var cached = cache.items[id];
+  var cache = api.cache.items;
+  var cached = cache[id];
   if(cached === undefined) {
     return get("item/" + id, function(val) {
-      cache.items[id] = val;
+      cache[id] = val;
     });
   } else {
     return Promise.resolve(cached);
   }
 }
 
-api.getItems = function(ids) {
-  var idsLength = ids.length;
-  var items = new Array(idsLength);
-  for(var i = 0; i < idsLength; i++) {
-    items[i] = api.getItem(ids[i]);
-  }
-  return Promise.all(items);
-}
-
-api.getList = function(type) {
+api.getList = function(type, page) {
   type += "stories";
   var cache = api.cache;
+  var itemCache = cache.items;
   var cached = cache[type];
   if(cached.length === 0) {
-    return get(type, function(val) {
+    return get(type + "/" + page, function(val) {
       cache[type] = val;
+      for(var i = 0; i < val.length; i++) {
+        var item = val[i];
+        itemCache[item.id] = item;
+      }
     });
   } else {
     return Promise.resolve(cached);
   }
 }
 
-module.exports.init = function() {
-  api.db = Firebase.initializeApp({
-    databaseURL: "https://hacker-news.firebaseio.com"
-  }).database().ref("/v0");
-}
-
-module.exports.api = api;
+module.exports = api;
