@@ -87,9 +87,8 @@
   var hostnameRE = /([\w\d-]+\.[\w\d-]+)(?:\/[\w\d-/.?=#&%@;]*)?$/;
 
   var info = {
-    type: "top",
-    page: 1,
-    beforeInit: false
+    type: "",
+    page: 0
   };
 
   exports = {
@@ -100,7 +99,7 @@
       }
     },
     methods: {
-      update: function(init) {
+      update: function() {
         var params = this.get("route").params;
         var type = params.type;
         var page = params.page;
@@ -113,11 +112,7 @@
           page = 1;
         }
 
-        var changed = ((type !== info.type) || (page !== info.page));
-
-        if(info.beforeInit === true && changed === true) {
-          info.beforeInit = false;
-        } else if((init === true && (info.beforeInit = true)) || (changed === true)) {
+        if((type !== info.type) || (page !== info.page)) {
           var store = this.get("store");
           info.type = type;
           info.page = page;
@@ -156,11 +151,8 @@
       }
     },
     hooks: {
-      mounted: function() {
-        this.callMethod("update", [true]);
-      },
       updated: function() {
-        this.callMethod("update", [false]);
+        this.callMethod("update", []);
       }
     },
     store: store

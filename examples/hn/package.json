@@ -19,7 +19,7 @@
     "firebase": "^4.2.0",
     "monx": "github:KingPixil/monx",
     "moon-router": "github:KingPixil/moon-router",
-    "moonjs": "KingPixil/moon"
+    "moonjs": "github:KingPixil/moon"
   },
   "devDependencies": {
     "browserify": "14.1.0",
