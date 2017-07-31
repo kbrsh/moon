@@ -9,7 +9,8 @@ module.exports.init = function(Moon) {
     state: {
       lists: {
         top: []
-      }
+      },
+      now: Date.now() / 1000
     },
     actions: {
       "UPDATE_LISTS": function(state, info) {

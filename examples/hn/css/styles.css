@@ -11,6 +11,10 @@ body {
   height: 30px;
 }
 
+#logo-link {
+  padding-left: 0;
+}
+
 .nav {
   background-color: #5C53FF;
 }
@@ -34,7 +38,7 @@ a.nav-item.router-link-active {
 }
 
 .container.background {
-  max-width: 700px;
+  width: 750px;
   height: 100%;
 }
 
