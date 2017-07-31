@@ -1436,242 +1436,242 @@
     }
     
     var generateProps = function(node, parent, state) {
-    	var props = node.props;
-    	node.props = {
-    		attrs: props
-    	}
+      var props = node.props;
+      node.props = {
+        attrs: props
+      }
     
-    	var hasDirectives = false;
-    	var directiveProps = [];
+      var hasDirectives = false;
+      var directiveProps = [];
     
-    	var hasSpecialDirectivesAfter = false;
-    	var specialDirectivesAfter = {};
+      var hasSpecialDirectivesAfter = false;
+      var specialDirectivesAfter = {};
     
-    	var propKey = null;
-    	var specialDirective = null;
+      var propKey = null;
+      var specialDirective = null;
     
-    	var propsCode = "{attrs: {";
+      var propsCode = "{attrs: {";
     
-    	var beforeGenerate = null;
-    	for(propKey in props) {
-    		var prop = props[propKey];
-    		var name = prop.name;
-    		if((specialDirective = specialDirectives[name]) !== undefined && (beforeGenerate = specialDirective.beforeGenerate) !== undefined) {
-    			beforeGenerate(prop, node, parent, state);
-    		}
-    	}
+      var beforeGenerate = null;
+      for(propKey in props) {
+        var prop = props[propKey];
+        var name = prop.name;
+        if((specialDirective = specialDirectives[name]) !== undefined && (beforeGenerate = specialDirective.beforeGenerate) !== undefined) {
+          beforeGenerate(prop, node, parent, state);
+        }
+      }
     
-    	var afterGenerate = null;
-    	var duringPropGenerate = null;
-    	for(propKey in props) {
-    		var prop$1 = props[propKey];
-    		var name$1 = prop$1.name;
+      var afterGenerate = null;
+      var duringPropGenerate = null;
+      for(propKey in props) {
+        var prop$1 = props[propKey];
+        var name$1 = prop$1.name;
     
-    		if((specialDirective = specialDirectives[name$1]) !== undefined) {
-    			if((afterGenerate = specialDirective.afterGenerate) !== undefined) {
-    				specialDirectivesAfter[name$1] = {
-    					prop: prop$1,
-    					afterGenerate: afterGenerate
-    				};
+        if((specialDirective = specialDirectives[name$1]) !== undefined) {
+          if((afterGenerate = specialDirective.afterGenerate) !== undefined) {
+            specialDirectivesAfter[name$1] = {
+              prop: prop$1,
+              afterGenerate: afterGenerate
+            };
     
-    				hasSpecialDirectivesAfter = true;
-    			}
+            hasSpecialDirectivesAfter = true;
+          }
     
-    			if((duringPropGenerate = specialDirective.duringPropGenerate) !== undefined) {
-    				if(state.hasAttrs === false) {
-    					state.hasAttrs = true;
-    				}
+          if((duringPropGenerate = specialDirective.duringPropGenerate) !== undefined) {
+            if(state.hasAttrs === false) {
+              state.hasAttrs = true;
+            }
     
-    				propsCode += duringPropGenerate(prop$1, node, state);
-    			}
+            propsCode += duringPropGenerate(prop$1, node, state);
+          }
     
-    			node.meta.shouldRender = true;
-    		} else if(name$1[0] === "m" && name$1[1] === "-") {
-    			directiveProps.push(prop$1);
-    			hasDirectives = true;
-    			node.meta.shouldRender = true;
-    		} else {
-    			var value = prop$1.value;
-    			var compiled = compileTemplate(value, state.exclude, state.dependencies);
+          node.meta.shouldRender = true;
+        } else if(name$1[0] === "m" && name$1[1] === "-") {
+          directiveProps.push(prop$1);
+          hasDirectives = true;
+          node.meta.shouldRender = true;
+        } else {
+          var value = prop$1.value;
+          var compiled = compileTemplate(value, state.exclude, state.dependencies);
     
-    			if(value !== compiled) {
-    				node.meta.shouldRender = true;
-    			}
+          if(value !== compiled) {
+            node.meta.shouldRender = true;
+          }
     
-    			if(state.hasAttrs === false) {
-    				state.hasAttrs = true;
-    			}
+          if(state.hasAttrs === false) {
+            state.hasAttrs = true;
+          }
     
-    			propsCode += "\"" + propKey + "\": \"" + compiled + "\", ";
-    		}
-    	}
+          propsCode += "\"" + propKey + "\": \"" + compiled + "\", ";
+        }
+      }
     
-    	if(state.hasAttrs === true) {
-    		propsCode = propsCode.substring(0, propsCode.length - 2) + "}";
-    		state.hasAttrs = false;
-    	} else {
-    		propsCode += "}";
-    	}
+      if(state.hasAttrs === true) {
+        propsCode = propsCode.substring(0, propsCode.length - 2) + "}";
+        state.hasAttrs = false;
+      } else {
+        propsCode += "}";
+      }
     
-    	if(hasDirectives === true) {
-    		propsCode += ", directives: {";
+      if(hasDirectives === true) {
+        propsCode += ", directives: {";
     
-    		var directiveProp = null;
-    		var directivePropValue = null;
-    		for(var i = 0; i < directiveProps.length; i++) {
-    			directiveProp = directiveProps[i];
-    			directivePropValue = directiveProp.value;
+        var directiveProp = null;
+        var directivePropValue = null;
+        for(var i = 0; i < directiveProps.length; i++) {
+          directiveProp = directiveProps[i];
+          directivePropValue = directiveProp.value;
     
-    			compileTemplateExpression(directivePropValue, state.exclude, state.dependencies);
-    			propsCode += "\"" + (directiveProp.name) + "\": " + (directivePropValue.length === 0 ? "\"\"" : directivePropValue) + ", ";
-    		}
+          compileTemplateExpression(directivePropValue, state.exclude, state.dependencies);
+          propsCode += "\"" + (directiveProp.name) + "\": " + (directivePropValue.length === 0 ? "\"\"" : directivePropValue) + ", ";
+        }
     
-    		propsCode = propsCode.substring(0, propsCode.length - 2) + "}";
-    	}
+        propsCode = propsCode.substring(0, propsCode.length - 2) + "}";
+      }
     
-    	if(hasSpecialDirectivesAfter === true) {
-    		state.specialDirectivesAfter = specialDirectivesAfter;
-    	}
+      if(hasSpecialDirectivesAfter === true) {
+        state.specialDirectivesAfter = specialDirectivesAfter;
+      }
     
-    	var domProps = node.props.dom;
-    	if(domProps !== undefined) {
-    		propsCode += ", dom: {";
+      var domProps = node.props.dom;
+      if(domProps !== undefined) {
+        propsCode += ", dom: {";
     
-    		for(var domProp in domProps) {
-    			propsCode += "\"" + domProp + "\": " + (domProps[domProp]) + ", ";
-    		}
+        for(var domProp in domProps) {
+          propsCode += "\"" + domProp + "\": " + (domProps[domProp]) + ", ";
+        }
     
-    		propsCode = propsCode.substring(0, propsCode.length - 2) + "}";
-    	}
+        propsCode = propsCode.substring(0, propsCode.length - 2) + "}";
+      }
     
-    	propsCode += "}, ";
+      propsCode += "}, ";
     
-    	return propsCode;
+      return propsCode;
     }
     
     var generateEventlisteners = function(eventListeners) {
-    	var eventListenersCode = "\"eventListeners\": {";
+      var eventListenersCode = "\"eventListeners\": {";
     
-    	for(var type in eventListeners) {
-    		var handlers = eventListeners[type];
-    		eventListenersCode += "\"" + type + "\": [";
+      for(var type in eventListeners) {
+        var handlers = eventListeners[type];
+        eventListenersCode += "\"" + type + "\": [";
     
-    		for(var i = 0; i < handlers.length; i++) {
-    			eventListenersCode += (handlers[i]) + ", ";
-    		}
+          for(var i = 0; i < handlers.length; i++) {
+            eventListenersCode += (handlers[i]) + ", ";
+          }
     
-    		eventListenersCode = eventListenersCode.substring(0, eventListenersCode.length - 2) + "], ";
-    	}
+          eventListenersCode = eventListenersCode.substring(0, eventListenersCode.length - 2) + "], ";
+        }
     
-    	eventListenersCode = eventListenersCode.substring(0, eventListenersCode.length - 2) + "}, ";
-    	return eventListenersCode;
+        eventListenersCode = eventListenersCode.substring(0, eventListenersCode.length - 2) + "}, ";
+        return eventListenersCode;
     }
     
     var generateMeta = function(meta) {
-    	var metaCode = "{";
-    	for(var key in meta) {
-    		if(key === "eventListeners") {
-    			metaCode += generateEventlisteners(meta[key])
-    		} else {
-    			metaCode += "\"" + key + "\": " + (meta[key]) + ", ";
-    		}
-    	}
+      var metaCode = "{";
+      for(var key in meta) {
+        if(key === "eventListeners") {
+          metaCode += generateEventlisteners(meta[key])
+        } else {
+          metaCode += "\"" + key + "\": " + (meta[key]) + ", ";
+        }
+      }
     
-    	metaCode = metaCode.substring(0, metaCode.length - 2) + "}, ";
-    	return metaCode;
+      metaCode = metaCode.substring(0, metaCode.length - 2) + "}, ";
+      return metaCode;
     }
     
     var generateNode = function(node, parent, state) {
-    	if(typeof node === "string") {
-    		var compiled = compileTemplate(node, state.exclude, state.dependencies);
-    		var meta = defaultMetadata();
+      if(typeof node === "string") {
+        var compiled = compileTemplate(node, state.exclude, state.dependencies);
+        var meta = defaultMetadata();
     
-    		if(node !== compiled) {
-    			meta.shouldRender = true;
-    			parent.meta.shouldRender = true;
-    		}
+        if(node !== compiled) {
+          meta.shouldRender = true;
+          parent.meta.shouldRender = true;
+        }
     
-    		return ("m(\"#text\", " + (generateMeta(meta)) + "\"" + compiled + "\")");
-    	} else if(node.type === "slot") {
-    		parent.meta.shouldRender = true;
-    		parent.deep = true;
+        return ("m(\"#text\", " + (generateMeta(meta)) + "\"" + compiled + "\")");
+      } else if(node.type === "slot") {
+        parent.meta.shouldRender = true;
+        parent.deep = true;
     
-    		var slotName = node.props.name;
-    		return ("instance.$slots[\"" + (slotName === undefined ? "default" : slotName.value) + "\"]");
-    	} else {
-    		var call = "m(\"" + (node.type) + "\", ";
+        var slotName = node.props.name;
+        return ("instance.$slots[\"" + (slotName === undefined ? "default" : slotName.value) + "\"]");
+      } else {
+        var call = "m(\"" + (node.type) + "\", ";
     
-    		var meta$1 = defaultMetadata();
-    		node.meta = meta$1;
+        var meta$1 = defaultMetadata();
+        node.meta = meta$1;
     
-    		var propsCode = generateProps(node, parent, state);
-    		var specialDirectivesAfter = state.specialDirectivesAfter;
+        var propsCode = generateProps(node, parent, state);
+        var specialDirectivesAfter = state.specialDirectivesAfter;
     
-    		if(specialDirectivesAfter !== null) {
-    			state.specialDirectivesAfter = null;
-    		}
+        if(specialDirectivesAfter !== null) {
+          state.specialDirectivesAfter = null;
+        }
     
-    		var children = node.children;
-    		var childrenLength = children.length;
-    		var childrenCode = "[";
+        var children = node.children;
+        var childrenLength = children.length;
+        var childrenCode = "[";
     
-    		if(childrenLength === 0) {
-    			childrenCode += "]";
-    		} else {
-    			for(var i = 0; i < children.length; i++) {
-    				childrenCode += (generateNode(children[i], node, state)) + ", ";
-    			}
-    			childrenCode = childrenCode.substring(0, childrenCode.length - 2) + "]";
-    		}
+        if(childrenLength === 0) {
+          childrenCode += "]";
+        } else {
+          for(var i = 0; i < children.length; i++) {
+            childrenCode += (generateNode(children[i], node, state)) + ", ";
+          }
+          childrenCode = childrenCode.substring(0, childrenCode.length - 2) + "]";
+        }
     
-    		if(node.deep === true) {
-    			childrenCode = "[].concat.apply([], " + childrenCode + ")";
-    		}
+        if(node.deep === true) {
+          childrenCode = "[].concat.apply([], " + childrenCode + ")";
+        }
     
-    		if(node.meta.shouldRender === true && parent !== undefined) {
-    			parent.meta.shouldRender = true;
-    		}
+        if(node.meta.shouldRender === true && parent !== undefined) {
+          parent.meta.shouldRender = true;
+        }
     
-    		call += propsCode;
-    		call += generateMeta(meta$1);
-    		call += childrenCode;
-    		call += ")";
+        call += propsCode;
+        call += generateMeta(meta$1);
+        call += childrenCode;
+        call += ")";
     
-    		if(specialDirectivesAfter !== null) {
-    			var specialDirectiveAfter;
-    			for(var specialDirectiveKey in specialDirectivesAfter) {
-    				specialDirectiveAfter = specialDirectivesAfter[specialDirectiveKey];
-    				call = specialDirectiveAfter.afterGenerate(specialDirectiveAfter.prop, call, node, state);
-    			}
-    		}
+        if(specialDirectivesAfter !== null) {
+          var specialDirectiveAfter;
+          for(var specialDirectiveKey in specialDirectivesAfter) {
+            specialDirectiveAfter = specialDirectivesAfter[specialDirectiveKey];
+            call = specialDirectiveAfter.afterGenerate(specialDirectiveAfter.prop, call, node, state);
+          }
+        }
     
-    		return call;
-    	}
+        return call;
+      }
     }
     
     var generate = function(tree) {
-    	var root = tree.children[0];
+      var root = tree.children[0];
     
-    	var state = {
-    		hasAttrs: false,
-    		specialDirectivesAfter: null,
-    		exclude: globals,
-    		dependencies: []
-    	};
+      var state = {
+        hasAttrs: false,
+        specialDirectivesAfter: null,
+        exclude: globals,
+        dependencies: []
+      };
     
-    	var rootCode = generateNode(root, undefined, state);
+      var rootCode = generateNode(root, undefined, state);
     
-    	var dependencies = state.dependencies;
-    	var dependenciesCode = "";
+      var dependencies = state.dependencies;
+      var dependenciesCode = "";
     
-    	for(var i = 0; i < dependencies.length; i++) {
-    		var dependency = dependencies[i];
-    		dependenciesCode += "var " + dependency + " = instance.get(\"" + dependency + "\"); ";
-    	}
+      for(var i = 0; i < dependencies.length; i++) {
+        var dependency = dependencies[i];
+        dependenciesCode += "var " + dependency + " = instance.get(\"" + dependency + "\"); ";
+      }
     
-    	var code = "var instance = this; " + dependenciesCode + "return " + rootCode + ";";
+      var code = "var instance = this; " + dependenciesCode + "return " + rootCode + ";";
     
-    	try {
+      try {
         return new Function("m", code);
       } catch(e) {
         error("Could not create render function");
