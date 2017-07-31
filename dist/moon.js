@@ -126,7 +126,7 @@
       }
     }
     
-    Observer.prototype.notify = function(key, val) {
+    Observer.prototype.notify = function(key) {
       var self = this;
     
       var depMap = null;
@@ -1794,7 +1794,7 @@
       }
     
       // Notify observer of change
-      observer.notify(base, val);
+      observer.notify(base);
     
       // Queue a build
       queueBuild(this);

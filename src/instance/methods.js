@@ -43,7 +43,7 @@ Moon.prototype.set = function(key, val) {
   }
 
   // Notify observer of change
-  observer.notify(base, val);
+  observer.notify(base);
 
   // Queue a build
   queueBuild(this);

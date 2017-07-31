@@ -25,7 +25,7 @@ Observer.prototype.observe = function(key) {
   }
 }
 
-Observer.prototype.notify = function(key, val) {
+Observer.prototype.notify = function(key) {
   const self = this;
 
   let depMap = null;
