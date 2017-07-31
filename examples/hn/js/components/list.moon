@@ -1,19 +1,10 @@
 <template>
   <div class="container background">
-    <!--<div class="item" m-for="item,index in list">
-      <div class="count-container">
-        <span class="count">{{(index + 1)}}</span>
-      </div>
-      <div class="right-half">
-        <p class="title"><a class="no-decoration" href="{{item.url}}" rel="noopener">{{item.title}}</a> <span class="url" m-if="item.url !== undefined">({{base(item.url)}})</span></p>
-        <p class="meta">{{item.score}} points by {{item.by}} {{time(item.time)}}<span m-if="item.descendants !== undefined"> | <router-link to="/item/{{item.id}}" rel="noopener" class="comments">{{item.descendants}} comments</router-link></span></p>
-      </div>
-    </div>-->
     <div class="item" m-for="item,index in list">
       <p class="count">{{(index + 1)}}</p>
       <div class="right-half">
         <p class="title"><a class="no-decoration" href="{{item.url}}" rel="noopener">{{item.title}}</a> <span class="url" m-if="item.url !== undefined">({{base(item.url)}})</span></p>
-        <p class="meta">{{item.score}} points by {{item.by}} {{time(item.time)}}<span m-if="item.descendants !== undefined"> | <router-link to="/item/{{item.id}}" rel="noopener" class="comments">{{item.descendants}} comments</router-link></span></p>
+        <p class="meta">{{item.score}} points by <router-link to="/users/{{item.by}}" class="user">{{item.by}}</router-link> {{time(item.time)}}<span m-if="item.descendants !== undefined"> | <router-link to="/item/{{item.id}}" rel="noopener" class="comments">{{item.descendants}} comments</router-link></span></p>
       </div>
     </div>
   </div>
@@ -60,6 +51,10 @@
     margin-top: 0;
     margin-bottom: 0;
     font-size: 1rem;
+    color: #666666;
+  }
+
+  .user {
     color: #666666;
   }
 
