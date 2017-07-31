@@ -157,11 +157,9 @@
     },
     hooks: {
       mounted: function() {
-        console.log("INIT")
         this.callMethod("update", [true]);
       },
       updated: function() {
-        console.log("Update")
         this.callMethod("update", [false]);
       }
     },
