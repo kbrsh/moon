@@ -47,7 +47,7 @@ const compileTemplateState = function(state) {
     // Consume whitespace
     scanTemplateStateForWhitespace(state);
 
-    // Get the name of the opening tag
+    // Get the value of the expression
     let name = scanTemplateStateUntil(state, closeRE);
 
     // If we've reached the end, the tag was unclosed
@@ -93,12 +93,11 @@ const compileTemplateExpression = function(expr, exclude, dependencies) {
 const scanTemplateStateUntil = function(state, re) {
   const template = state.template;
   const tail = template.substring(state.current);
-  const length = tail.length;
   const idx = tail.search(re);
 
   let match = "";
 
-  switch (idx) {
+  switch(idx) {
     case -1:
       match = tail;
       break;

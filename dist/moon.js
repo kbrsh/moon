@@ -1027,7 +1027,7 @@
         // Consume whitespace
         scanTemplateStateForWhitespace(state);
     
-        // Get the name of the opening tag
+        // Get the value of the expression
         var name = scanTemplateStateUntil(state, closeRE);
     
         // If we've reached the end, the tag was unclosed
@@ -1073,12 +1073,11 @@
     var scanTemplateStateUntil = function(state, re) {
       var template = state.template;
       var tail = template.substring(state.current);
-      var length = tail.length;
       var idx = tail.search(re);
     
       var match = "";
     
-      switch (idx) {
+      switch(idx) {
         case -1:
           match = tail;
           break;
