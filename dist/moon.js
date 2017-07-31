@@ -989,14 +989,16 @@
     /**
      * Compiles a Template
      * @param {String} template
+     * @param {Array} exclude
      * @param {Array} dependencies
      * @return {String} compiled template
      */
-    var compileTemplate = function(template, dependencies) {
+    var compileTemplate = function(template, exclude, dependencies) {
       var state = {
         current: 0,
         template: template,
         output: "",
+        exclude: exclude,
         dependencies: dependencies
       };
     
@@ -1040,7 +1042,7 @@
     
         if(name.length !== 0) {
           // Extract Variable References
-          compileTemplateExpression(name, globals, state.dependencies);
+          compileTemplateExpression(name, state.exclude, state.dependencies);
     
           // Add quotes
           name = "\" + " + name + " + \"";
@@ -1497,7 +1499,7 @@
     			node.meta.shouldRender = true;
     		} else {
     			var value = prop$1.value;
-    			var compiled = compileTemplate(value, state.dependencies);
+    			var compiled = compileTemplate(value, state.exclude, state.dependencies);
     
     			if(value !== compiled) {
     				node.meta.shouldRender = true;
@@ -1527,7 +1529,7 @@
     			directiveProp = directiveProps[i];
     			directivePropValue = directiveProp.value;
     
-    			compileTemplateExpression(directivePropValue, globals, state.dependencies);
+    			compileTemplateExpression(directivePropValue, state.exclude, state.dependencies);
     			propsCode += "\"" + (directiveProp.name) + "\": " + (directivePropValue.length === 0 ? "\"\"" : directivePropValue) + ", ";
     		}
     
@@ -1588,7 +1590,7 @@
     
     var generateNode = function(node, parent, state) {
     	if(typeof node === "string") {
-    		var compiled = compileTemplate(node, state.dependencies);
+    		var compiled = compileTemplate(node, state.exclude, state.dependencies);
     		var meta = defaultMetadata();
     
     		if(node !== compiled) {
@@ -1660,6 +1662,7 @@
     	var state = {
     		hasAttrs: false,
     		specialDirectivesAfter: null,
+    		exclude: globals,
     		dependencies: []
     	};
     
@@ -2150,23 +2153,33 @@
       beforeGenerate: function(prop, vnode, parentVNode, state) {
         // Setup Deep Flag to Flatten Array
         parentVNode.deep = true;
-      },
-      afterGenerate: function(prop, code, vnode, state) {
-        // Get dependencies
-        var dependencies = state.dependencies;
     
-        // Get Parts
+        // Parts
         var parts = prop.value.split(" in ");
     
         // Aliases
         var aliases = parts[0];
     
-        // The Iteratable
+        // Iteratable
         var iteratable = parts[1];
-        compileTemplateExpression(iteratable, globals.concat(aliases.split(",")), dependencies);
+        var exclude = globals.concat(aliases.split(","));
+        state.exclude = exclude;
+        compileTemplateExpression(iteratable, exclude, state.dependencies);
+    
+        // Save for further generation
+        var meta = prop.meta;
+        meta.iteratable = iteratable;
+        meta.aliases = aliases;
+      },
+      afterGenerate: function(prop, code, vnode, state) {
+        // Get meta
+        var meta = prop.meta;
+    
+        // Restore globals to exclude
+        state.exclude = globals;
     
         // Use the renderLoop runtime helper
-        return ("m.renderLoop(" + iteratable + ", function(" + aliases + ") { return " + code + "; })");
+        return ("m.renderLoop(" + (meta.iteratable) + ", function(" + (meta.aliases) + ") { return " + code + "; })");
       }
     }
     

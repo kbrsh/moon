@@ -7,14 +7,16 @@ const globals = ["true", "false", "undefined", "null", "NaN", "typeof", "in"];
 /**
  * Compiles a Template
  * @param {String} template
+ * @param {Array} exclude
  * @param {Array} dependencies
  * @return {String} compiled template
  */
-const compileTemplate = function(template, dependencies) {
+const compileTemplate = function(template, exclude, dependencies) {
   let state = {
     current: 0,
     template: template,
     output: "",
+    exclude: exclude,
     dependencies: dependencies
   };
 
@@ -58,7 +60,7 @@ const compileTemplateState = function(state) {
 
     if(name.length !== 0) {
       // Extract Variable References
-      compileTemplateExpression(name, globals, state.dependencies);
+      compileTemplateExpression(name, state.exclude, state.dependencies);
 
       // Add quotes
       name = `" + ${name} + "`;

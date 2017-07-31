@@ -55,7 +55,7 @@ const generateProps = function(node, parent, state) {
 			node.meta.shouldRender = true;
 		} else {
 			const value = prop.value;
-			const compiled = compileTemplate(value, state.dependencies);
+			const compiled = compileTemplate(value, state.exclude, state.dependencies);
 
 			if(value !== compiled) {
 				node.meta.shouldRender = true;
@@ -85,7 +85,7 @@ const generateProps = function(node, parent, state) {
 			directiveProp = directiveProps[i];
 			directivePropValue = directiveProp.value;
 
-			compileTemplateExpression(directivePropValue, globals, state.dependencies);
+			compileTemplateExpression(directivePropValue, state.exclude, state.dependencies);
 			propsCode += `"${directiveProp.name}": ${directivePropValue.length === 0 ? "\"\"" : directivePropValue}, `;
 		}
 
@@ -146,7 +146,7 @@ const generateMeta = function(meta) {
 
 const generateNode = function(node, parent, state) {
 	if(typeof node === "string") {
-		const compiled = compileTemplate(node, state.dependencies);
+		const compiled = compileTemplate(node, state.exclude, state.dependencies);
 		let meta = defaultMetadata();
 
 		if(node !== compiled) {
@@ -218,6 +218,7 @@ const generate = function(tree) {
 	let state = {
 		hasAttrs: false,
 		specialDirectivesAfter: null,
+		exclude: globals,
 		dependencies: []
 	};
 

@@ -15,23 +15,33 @@ specialDirectives["m-for"] = {
   beforeGenerate: function(prop, vnode, parentVNode, state) {
     // Setup Deep Flag to Flatten Array
     parentVNode.deep = true;
-  },
-  afterGenerate: function(prop, code, vnode, state) {
-    // Get dependencies
-    let dependencies = state.dependencies;
 
-    // Get Parts
+    // Parts
     const parts = prop.value.split(" in ");
 
     // Aliases
     const aliases = parts[0];
 
-    // The Iteratable
+    // Iteratable
     const iteratable = parts[1];
-    compileTemplateExpression(iteratable, globals.concat(aliases.split(",")), dependencies);
+    const exclude = globals.concat(aliases.split(","));
+    state.exclude = exclude;
+    compileTemplateExpression(iteratable, exclude, state.dependencies);
+
+    // Save for further generation
+    let meta = prop.meta;
+    meta.iteratable = iteratable;
+    meta.aliases = aliases;
+  },
+  afterGenerate: function(prop, code, vnode, state) {
+    // Get meta
+    const meta = prop.meta;
+
+    // Restore globals to exclude
+    state.exclude = globals;
 
     // Use the renderLoop runtime helper
-    return `m.renderLoop(${iteratable}, function(${aliases}) { return ${code}; })`;
+    return `m.renderLoop(${meta.iteratable}, function(${meta.aliases}) { return ${code}; })`;
   }
 }
 
