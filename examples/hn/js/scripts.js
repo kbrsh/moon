@@ -25,7 +25,8 @@ var router = new MoonRouter({
     "/": "list",
     "/:type": "list",
     "/:type/:page": "list"
-  }
+  },
+  "mode": "history"
 });
 
 // Initialize App

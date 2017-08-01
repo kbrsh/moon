@@ -85,6 +85,30 @@
       }
     },
     methods: {
+      update: function() {
+        var params = this.get("route").params;
+        var type = params.type;
+        var page = params.page;
+
+        if(type === undefined) {
+          type = "top";
+        }
+
+        if(page === undefined) {
+          page = 1;
+        }
+
+        if((type !== info.type) || (page !== info.page)) {
+          var store = this.get("store");
+          info.type = type;
+          info.page = page;
+          store.dispatch("UPDATE_LISTS", {
+            type: type,
+            page: page,
+            instance: this
+          });
+        }
+      },
       base: function(url) {
         return hostnameRE.exec(url)[1];
       },
@@ -113,29 +137,11 @@
       }
     },
     hooks: {
+      mounted: function() {
+        this.callMethod("update", []);
+      },
       updated: function() {
-        var params = this.get("route").params;
-        var type = params.type;
-        var page = params.page;
-
-        if(type === undefined) {
-          type = "top";
-        }
-
-        if(page === undefined) {
-          page = 1;
-        }
-
-        if((type !== info.type) || (page !== info.page)) {
-          var store = this.get("store");
-          info.type = type;
-          info.page = page;
-          store.dispatch("UPDATE_LISTS", {
-            type: type,
-            page: page,
-            instance: this
-          });
-        }
+        this.callMethod("update", []);
       }
     },
     store: store
