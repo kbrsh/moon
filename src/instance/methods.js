@@ -254,9 +254,6 @@ Moon.prototype.build = function() {
 
   // Patch old and new
   this.patch(old, dom, this.$el.parentNode);
-
-  // Call updated hook
-  callHook(this, "updated");
 }
 
 /**

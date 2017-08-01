@@ -187,6 +187,7 @@
         setTimeout(function() {
           instance.build();
           instance.$queued = false;
+          callHook(instance, "updated");
         }, 0);
       }
     }
@@ -687,7 +688,7 @@
       componentInstance.$slots = getSlots(vnode.children);
       componentInstance.$el = node;
       componentInstance.build();
-      callHook(componentInstance, 'mounted');
+      callHook(componentInstance, "mounted");
     
       // Rehydrate
       vnode.meta.el = componentInstance.$el;
@@ -804,6 +805,7 @@
         // If any changes were detected, build the component
         if(componentChanged === true) {
           componentInstance.build();
+          callHook(componentInstance, "updated");
         }
       }
     }
@@ -1998,9 +2000,6 @@
     
       // Patch old and new
       this.patch(old, dom, this.$el.parentNode);
-    
-      // Call updated hook
-      callHook(this, "updated");
     }
     
     /**

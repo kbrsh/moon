@@ -229,7 +229,7 @@ const createComponentFromVNode = function(node, vnode, component) {
   componentInstance.$slots = getSlots(vnode.children);
   componentInstance.$el = node;
   componentInstance.build();
-  callHook(componentInstance, 'mounted');
+  callHook(componentInstance, "mounted");
 
   // Rehydrate
   vnode.meta.el = componentInstance.$el;
@@ -346,6 +346,7 @@ const diffComponent = function(node, vnode) {
     // If any changes were detected, build the component
     if(componentChanged === true) {
       componentInstance.build();
+      callHook(componentInstance, "updated");
     }
   }
 }

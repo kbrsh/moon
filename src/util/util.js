@@ -42,6 +42,7 @@ const queueBuild = function(instance) {
     setTimeout(function() {
       instance.build();
       instance.$queued = false;
+      callHook(instance, "updated");
     }, 0);
   }
 }
