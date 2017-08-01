@@ -4,6 +4,7 @@
 
 body {
   background: #f5f5f5;
+  color: #111111;
 }
 
 #logo {
@@ -36,6 +37,10 @@ a.nav-item.router-link-active {
 
 a.no-decoration {
   text-decoration: none;
+}
+
+.light {
+  color: #666666;
 }
 
 .container {

@@ -1,13 +1,14 @@
 <template>
   <div class="container background">
     <div class="item" m-for="item,index in list">
-      <p class="count">{{(index + page)}}</p>
+      <p class="count light">{{(index + info.offset)}}</p>
       <div class="right-half">
         <p class="title" m-if="item.url === undefined"><router-link to="/item/{{item.id}}" class="no-decoration" rel="noopener">{{item.title}}</router-link></p>
-        <p class="title" m-if="item.url !== undefined"><a href="{{item.url}}" class="no-decoration" rel="noopener">{{item.title}}</a> <span class="url">({{base(item.url)}})</span></p>
-        <p class="meta">{{item.score}} points by <router-link to="/users/{{item.by}}" class="user">{{item.by}}</router-link> {{time(item.time)}}<span m-if="item.descendants !== undefined"> | <router-link to="/item/{{item.id}}" rel="noopener" class="comments">{{item.descendants}} comments</router-link></span></p>
+        <p class="title" m-if="item.url !== undefined"><a href="{{item.url}}" class="no-decoration" rel="noopener">{{item.title}}</a> <span class="light">({{base(item.url)}})</span></p>
+        <p class="meta light">{{item.score}} points by <router-link to="/users/{{item.by}}" class="light">{{item.by}}</router-link> {{time(item.time)}}<span m-if="item.descendants !== undefined"> | <router-link to="/item/{{item.id}}" rel="noopener" class="light">{{item.descendants}} comments</router-link></span></p>
       </div>
     </div>
+    <router-link to="/{{info.type}}/{{(info.page + 1)}}" class="light">Next</router-link>
   </div>
 </template>
 <style scoped>
@@ -19,7 +20,6 @@
     flex: 0 0 70px;
     margin-top: auto;
     margin-bottom: auto;
-    color: #666666;
     font-weight: 100;
     font-size: 2.5rem;
     text-align: center;
@@ -44,7 +44,6 @@
   }
 
   .url {
-    color: #666666;
     font-size: 1.2rem;
   }
 
@@ -52,15 +51,6 @@
     margin-top: 0;
     margin-bottom: 0;
     font-size: 1rem;
-    color: #666666;
-  }
-
-  .user {
-    color: #666666;
-  }
-
-  .comments {
-    color: #666666;
   }
 </style>
 <script>
@@ -73,7 +63,8 @@
 
   var info = {
     type: "",
-    page: 0
+    page: 0,
+    offset: 0
   };
 
   exports = {
@@ -81,7 +72,8 @@
     data: function() {
       return {
         list: [],
-        page: 1
+        info: info,
+        parseInt: parseInt
       }
     },
     methods: {
@@ -100,8 +92,11 @@
 
         if((type !== info.type) || (page !== info.page)) {
           var store = this.get("store");
+          page = parseInt(page, 10);
+
           info.type = type;
           info.page = page;
+          info.offset = (page * 30) - 29;
           store.dispatch("UPDATE_LISTS", {
             type: type,
             page: page,
