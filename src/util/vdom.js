@@ -247,7 +247,7 @@ const diffEventListeners = function(node, eventListeners, oldEventListeners) {
   for(const type in eventListeners) {
     const oldEventListener = oldEventListeners[type];
     if(oldEventListener === undefined) {
-      node.removeEventListener(type, oldEventListener);
+      addEventHandler(node, type, eventListeners);
     } else {
       oldEventListeners[type].handlers = eventListeners[type];
     }

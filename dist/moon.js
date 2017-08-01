@@ -323,33 +323,35 @@
       return attrs;
     }
     
+    
     /**
-     * Adds metadata Event Listeners to an Element
+     * Adds An Event Handler to a Type of Listener
      * @param {Object} node
+     * @param {String} type
      * @param {Object} eventListeners
      */
-    var addEventListeners = function(node, eventListeners) {
-      var addHandler = function(type) {
-        // Create handle function
-        var handle = function(evt) {
-          var handlers = handle.handlers;
-          for(var i = 0; i < handlers.length; i++) {
-            handlers[i](evt);
-          }
+    var addEventHandler = function(node, type, eventListeners) {
+      // Create handle function
+      var handle = function(evt) {
+        var handlers = handle.handlers;
+        for(var i = 0; i < handlers.length; i++) {
+          handlers[i](evt);
         }
-    
-        // Add handlers to handle
-        handle.handlers = eventListeners[type];
-    
-        // Add handler to vnode
-        eventListeners[type] = handle;
-    
-        // Add event listener
-        node.addEventListener(type, handle);
       }
     
+      // Add handlers to handle
+      handle.handlers = eventListeners[type];
+    
+      // Add handler to vnode
+      eventListeners[type] = handle;
+    
+      // Add event listener
+      node.addEventListener(type, handle);
+    }
+    
+    var addEventListeners = function(node, eventListeners) {
       for(var type in eventListeners) {
-        addHandler(type);
+        addEventHandler(node, type, eventListeners);
       }
     }
     
@@ -706,7 +708,7 @@
       for(var type in eventListeners) {
         var oldEventListener = oldEventListeners[type];
         if(oldEventListener === undefined) {
-          node.removeEventListener(type, oldEventListener);
+          addEventHandler(node, type, eventListeners);
         } else {
           oldEventListeners[type].handlers = eventListeners[type];
         }

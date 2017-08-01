@@ -11,33 +11,35 @@ const extractAttrs = function(node) {
   return attrs;
 }
 
+
 /**
- * Adds metadata Event Listeners to an Element
+ * Adds An Event Handler to a Type of Listener
  * @param {Object} node
+ * @param {String} type
  * @param {Object} eventListeners
  */
-const addEventListeners = function(node, eventListeners) {
-  const addHandler = function(type) {
-    // Create handle function
-    const handle = function(evt) {
-      const handlers = handle.handlers;
-      for(let i = 0; i < handlers.length; i++) {
-        handlers[i](evt);
-      }
+const addEventHandler = function(node, type, eventListeners) {
+  // Create handle function
+  const handle = function(evt) {
+    const handlers = handle.handlers;
+    for(let i = 0; i < handlers.length; i++) {
+      handlers[i](evt);
     }
-
-    // Add handlers to handle
-    handle.handlers = eventListeners[type];
-
-    // Add handler to vnode
-    eventListeners[type] = handle;
-
-    // Add event listener
-    node.addEventListener(type, handle);
   }
 
+  // Add handlers to handle
+  handle.handlers = eventListeners[type];
+
+  // Add handler to vnode
+  eventListeners[type] = handle;
+
+  // Add event listener
+  node.addEventListener(type, handle);
+}
+
+const addEventListeners = function(node, eventListeners) {
   for(let type in eventListeners) {
-    addHandler(type);
+    addEventHandler(node, type, eventListeners);
   }
 }
 
