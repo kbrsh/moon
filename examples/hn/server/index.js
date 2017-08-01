@@ -72,7 +72,7 @@ Cached.prototype.set = function(key, value) {
 }
 
 Cached.prototype.has = function(key) {
-  return this.table[key] === undefined;
+  return this.table[key] !== undefined;
 }
 
 let cache = {
@@ -102,9 +102,9 @@ const watch = (child, save) => {
 
 const getItem = (id) => {
   let items = cache.items;
-  if(items.has(id) === true) {
+  if(items.has(id) === false) {
     return get("item/" + id, (val) => {
-      items.set("id", val);
+      items.set(id, val);
     });
   } else {
     return Promise.resolve(items.get(id));
