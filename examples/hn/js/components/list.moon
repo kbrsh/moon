@@ -4,14 +4,19 @@
       <p class="count light">{{(index + info.offset)}}</p>
       <div class="right-half">
         <p class="title" m-if="item.url === undefined"><router-link to="/item/{{item.id}}" class="no-decoration" rel="noopener">{{item.title}}</router-link></p>
-        <p class="title" m-if="item.url !== undefined"><a href="{{item.url}}" class="no-decoration" rel="noopener">{{item.title}}</a> <span class="light">({{base(item.url)}})</span></p>
+        <p class="title" m-if="item.url !== undefined"><a href="{{item.url}}" class="no-decoration" rel="noopener">{{item.title}}</a> <span class="url light">({{base(item.url)}})</span></p>
         <p class="meta light">{{item.score}} points by <router-link to="/users/{{item.by}}" class="light">{{item.by}}</router-link> {{time(item.time)}}<span m-if="item.descendants !== undefined"> | <router-link to="/item/{{item.id}}" rel="noopener" class="light">{{item.descendants}} comments</router-link></span></p>
       </div>
     </div>
-    <router-link to="/{{info.type}}/{{(info.page + 1)}}" class="light">Next</router-link>
+    <router-link to="/{{info.type}}/{{(info.page + 1)}}" class="next light">Next</router-link>
   </div>
 </template>
 <style scoped>
+  .container.background {
+    display: flex;
+    flex-direction: column;
+  }
+
   .item {
     display: flex;
   }
@@ -52,6 +57,10 @@
     margin-bottom: 0;
     font-size: 1rem;
   }
+
+  .next {
+    align-self: center;
+  }
 </style>
 <script>
   var store = require("../store/store.js").store;
@@ -88,20 +97,17 @@
 
         if(page === undefined) {
           page = 1;
+        } else {
+          page = parseInt(page, 10);
         }
 
         if((type !== info.type) || (page !== info.page)) {
           var store = this.get("store");
-          page = parseInt(page, 10);
 
           info.type = type;
           info.page = page;
           info.offset = (page * 30) - 29;
-          store.dispatch("UPDATE_LISTS", {
-            type: type,
-            page: page,
-            instance: this
-          });
+          store.dispatch("UPDATE_LISTS", info);
         }
       },
       base: function(url) {
@@ -133,9 +139,11 @@
     },
     hooks: {
       mounted: function() {
+        info.instance = this;
         this.callMethod("update", []);
       },
       updated: function() {
+        console.log("UPDATED")
         this.callMethod("update", []);
       }
     },

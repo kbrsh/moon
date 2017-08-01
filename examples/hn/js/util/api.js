@@ -11,6 +11,7 @@ var api = {
 
 var get = function(endpoint, save) {
   return new Promise(function(resolve, reject) {
+    console.log("getting", "http://localhost:3000/api/" + endpoint)
     fetch("http://localhost:3000/api/" + endpoint).then(function(response) {
       var json = response.json();
       save(json);
@@ -33,12 +34,12 @@ api.getItem = function(id) {
   }
 }
 
-api.getList = function(type, page) {
+api.getList = function(type, page, offset) {
   type += "stories";
   var cache = api.cache;
   var itemCache = cache.items;
   var cached = cache[type];
-  if(cached.length === 0) {
+  if(cached[offset - 1] === undefined) {
     return get("lists/" + type + "/" + page, function(val) {
       cache[type] = val;
       for(var i = 0; i < val.length; i++) {

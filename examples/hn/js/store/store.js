@@ -17,15 +17,15 @@ module.exports.init = function(Moon) {
         var instance = info.instance;
         var type = info.type;
         var page = info.page;
+        var offset = info.offset;
 
         if(type === "jobs") {
           type = "job";
         }
 
-        api.getList(type, page).then(function(list) {
+        api.getList(type, page, offset).then(function(list) {
           state.lists[type] = list;
           instance.set("list", list);
-          instance.set("page", (page * 30) - 29);
         });
       }
     }
