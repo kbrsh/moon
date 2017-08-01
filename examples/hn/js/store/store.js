@@ -14,15 +14,18 @@ module.exports.init = function(Moon) {
     },
     actions: {
       "UPDATE_LISTS": function(state, info) {
+        var instance = info.instance;
         var type = info.type;
+        var page = info.page;
 
         if(type === "jobs") {
           type = "job";
         }
 
-        api.getList(type, info.page).then(function(list) {
+        api.getList(type, page).then(function(list) {
           state.lists[type] = list;
-          info.instance.set("list", list);
+          instance.set("list", list);
+          instance.set("page", (page * 30) - 29);
         });
       }
     }

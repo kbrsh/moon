@@ -24,7 +24,7 @@ var router = new MoonRouter({
   "map": {
     "/": "list",
     "/:type": "list",
-    // "/:type/:page": "list"
+    "/:type/:page": "list"
   }
 });
 

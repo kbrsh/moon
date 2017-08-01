@@ -1,9 +1,10 @@
 <template>
   <div class="container background">
     <div class="item" m-for="item,index in list">
-      <p class="count">{{(index + 1)}}</p>
+      <p class="count">{{(index + page)}}</p>
       <div class="right-half">
-        <p class="title"><a class="no-decoration" href="{{item.url}}" rel="noopener">{{item.title}}</a> <span class="url" m-if="item.url !== undefined">({{base(item.url)}})</span></p>
+        <p class="title" m-if="item.url === undefined"><router-link to="/item/{{item.id}}" class="no-decoration" rel="noopener">{{item.title}}</router-link></p>
+        <p class="title" m-if="item.url !== undefined"><a href="{{item.url}}" class="no-decoration" rel="noopener">{{item.title}}</a> <span class="url">({{base(item.url)}})</span></p>
         <p class="meta">{{item.score}} points by <router-link to="/users/{{item.by}}" class="user">{{item.by}}</router-link> {{time(item.time)}}<span m-if="item.descendants !== undefined"> | <router-link to="/item/{{item.id}}" rel="noopener" class="comments">{{item.descendants}} comments</router-link></span></p>
       </div>
     </div>
@@ -68,7 +69,7 @@
   var HOUR = 3600;
   var DAY = 86400;
 
-  var hostnameRE = /([\w\d-]+\.[\w\d-]+)(?:\/[\w\d-/.?=#&%@;]*)?$/;
+  var hostnameRE = /([\w\d-]+\.[\w\d-]+)(?:\/[\w\d-/.?=#&%@;+]*)?$/;
 
   var info = {
     type: "",
@@ -80,7 +81,7 @@
     data: function() {
       return {
         list: [],
-        parseInt: parseInt
+        page: 1
       }
     },
     methods: {
