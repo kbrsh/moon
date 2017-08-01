@@ -8,7 +8,7 @@
         <p class="meta light">{{item.score}} points by <router-link to="/users/{{item.by}}" class="light">{{item.by}}</router-link> {{time(item.time)}}<span m-if="item.descendants !== undefined"> | <router-link to="/item/{{item.id}}" rel="noopener" class="light">{{item.descendants}} comments</router-link></span></p>
       </div>
     </div>
-    <router-link to="/{{info.type}}/{{(info.page + 1)}}" class="next light">Next</router-link>
+    <router-link to="/{{info.type}}/{{(info.page + 1)}}" class="next light" m-if="next === true">Next</router-link>
   </div>
 </template>
 <style scoped>
@@ -68,7 +68,7 @@
   var HOUR = 3600;
   var DAY = 86400;
 
-  var hostnameRE = /([\w\d-]+\.[\w\d-]+)(?:\/[\w\d-/.?=#&%@;+]*)?$/;
+  var hostnameRE = /([\w\d-]+\.[\w\d-]+)(?:\/[\w\d-/.?=#&%@;:+!\(\)]*)?$/;
 
   var info = {
     type: "",
@@ -82,7 +82,7 @@
       return {
         list: [],
         info: info,
-        parseInt: parseInt
+        next: false
       }
     },
     methods: {
@@ -135,6 +135,9 @@
         }
 
         return passed + unit + " ago";
+      },
+      scroll: function() {
+        document.body.scrollTop = 0;
       }
     },
     hooks: {
@@ -143,7 +146,6 @@
         this.callMethod("update", []);
       },
       updated: function() {
-        console.log("UPDATED")
         this.callMethod("update", []);
       }
     },

@@ -23,8 +23,10 @@ module.exports.init = function(Moon) {
           type = "job";
         }
 
-        api.getList(type, page, offset).then(function(list) {
+        api.getList(type, page, offset).then(function(data) {
+          var list = data.list;
           state.lists[type] = list;
+          instance.set("next", data.next);
           instance.set("list", list);
         });
       }

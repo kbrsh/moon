@@ -11,11 +11,11 @@ var api = {
 
 var get = function(endpoint, save) {
   return new Promise(function(resolve, reject) {
-    console.log("getting", "http://localhost:3000/api/" + endpoint)
     fetch("http://localhost:3000/api/" + endpoint).then(function(response) {
-      var json = response.json();
-      save(json);
-      resolve(json);
+      response.json().then(function(json) {
+        save(json);
+        resolve(json);
+      });
     })["catch"](function(err) {
       reject(err);
     });
@@ -40,10 +40,11 @@ api.getList = function(type, page, offset) {
   var itemCache = cache.items;
   var cached = cache[type];
   if(cached[offset - 1] === undefined) {
-    return get("lists/" + type + "/" + page, function(val) {
-      cache[type] = val;
-      for(var i = 0; i < val.length; i++) {
-        var item = val[i];
+    return get("lists/" + type + "/" + page, function(data) {
+      var list = data.list;
+      cache[type] = list;
+      for(var i = 0; i < list.length; i++) {
+        var item = list[i];
         itemCache[item.id] = item;
       }
     });

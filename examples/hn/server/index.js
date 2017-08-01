@@ -112,18 +112,32 @@ const getItem = (id) => {
 }
 
 const getList = (type, page) => {
-  const end = page * 30;
+  let end = page * 30;
   const start = end - 30;
 
-  const cached = cache[type].slice(start, end);
+  const typeCache = cache[type];
+  const typeCacheLength = typeCache.length;
+  const next = typeCacheLength >= end;
+
+  if(next === false) {
+    end = typeCacheLength;
+  }
+
+  const cached = typeCache.slice(start, end);
   const length = cached.length;
+
   let list = new Array(length);
 
   for(let i = 0; i < length; i++) {
     list[i] = getItem(cached[i]);
   }
 
-  return Promise.all(list);
+  return Promise.all(list).then((data) => {
+    return {
+      list: data,
+      next: next
+    }
+  });
 }
 
 watch("topstories", (data) => {
@@ -158,8 +172,8 @@ app.get("/api/item/:id", (req, res) => {
 });
 
 app.get("/api/lists/:type/:page", (req, res) => {
-  getList(req.params.type, req.params.page).then((list) => {
-    res.json(list);
+  getList(req.params.type, req.params.page).then((data) => {
+    res.json(data);
   });
 });
 
