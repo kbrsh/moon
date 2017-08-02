@@ -6,8 +6,8 @@
       <p class="meta light">{{item.score}} points by <router-link to="/users/{{item.by}}" class="light">{{item.by}}</router-link> {{time(store, item.time)}}</p>
     </div>
     <div class="container background" m-if="item.descendants !== 0">
-      <h6 class="comments">{{item.descendants}} comments</h6>
-      <comment m-for="comment in item.kids" m-literal:comment="comment"></comment>
+      <h6 class="comments-title">{{item.descendants}} comments</h6>
+      <comment m-if="item.kids !== undefined" m-for="comment in item.kids" m-literal:comment="comment"></comment>
     </div>
   </div>
 </template>
@@ -38,7 +38,7 @@
     font-size: 1.6rem;
   }
 
-  .comments {
+  .comments-title {
     margin-top: 0;
     margin-bottom: 0;
     font-size: 2rem;

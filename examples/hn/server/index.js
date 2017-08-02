@@ -145,7 +145,16 @@ const getComment = (id) => {
   let comments = cache.comments;
   if(comments.has(id) === false) {
     return get("item/" + id, (val) => {
-      comments.set(id, val);
+      let kids = val.kids;
+      if(kids !== undefined) {
+        getComments(kids).then(function(childComments) {
+          val.kids = childComments;
+          comments.set(id, val);
+        });
+      } else {
+        comments.set(id, val);
+      }
+
     });
   } else {
     return Promise.resolve(comments.get(id));
