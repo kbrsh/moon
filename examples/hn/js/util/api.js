@@ -58,4 +58,8 @@ api.getList = function(type, page) {
   }
 }
 
+api.getComments = function(id) {
+  return get("comments/" + id, function(val) {});
+}
+
 module.exports = api;

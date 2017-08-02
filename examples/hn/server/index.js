@@ -81,7 +81,8 @@ let cache = {
   showstories: [],
   askstories: [],
   jobstories: [],
-  items: new Cached(500)
+  items: new Cached(500),
+  comments: new Cached(500)
 };
 
 const get = (child, save) => {
@@ -140,6 +141,29 @@ const getList = (type, page) => {
   });
 }
 
+const getComment = (id) => {
+  let comments = cache.comments;
+  if(comments.has(id) === false) {
+    return get("item/" + id, (val) => {
+      comments.set(id, val);
+    });
+  } else {
+    return Promise.resolve(comments.get(id));
+  }
+}
+
+const getComments = (ids) => {
+  const length = ids.length;
+
+  let comments = new Array(length);
+
+  for(let i = 0; i < length; i++) {
+    comments[i] = getComment(ids[i]);
+  }
+
+  return Promise.all(comments);
+}
+
 watch("topstories", (data) => {
   cache.topstories = data;
 });
@@ -168,7 +192,18 @@ app.use((req, res, next) => {
 });
 
 app.get("/api/item/:id", (req, res) => {
-  res.json(getItem(req.params.id));
+  getItem(req.params.id).then((item) => {
+    res.json(item);
+  });
+});
+
+app.get("/api/comments/:id", (req, res) => {
+  const id = req.params.id;
+  getItem(id).then((item) => {
+    getComments(item.kids).then((comments) => {
+      res.json(comments);
+    })
+  });
 });
 
 app.get("/api/lists/:type/:page", (req, res) => {

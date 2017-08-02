@@ -14,6 +14,7 @@ require("./store/store.js").init(Moon);
 
 // Components
 require("./components/list.moon")(Moon);
+require("./components/comment.moon")(Moon);
 require("./components/item.moon")(Moon);
 
 // Install Moon Router
