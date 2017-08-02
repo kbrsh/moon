@@ -7,7 +7,7 @@ require("./util/promise.js");
 
 // Moon
 var Moon = require("moonjs/dist/moon.js");
-var MoonRouter = require("moon-router/dist/moon-router.js");
+var MoonRouter = require("moon-router");
 
 // Initialize Store
 require("./store/store.js").init(Moon);
