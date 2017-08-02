@@ -1,3 +1,5 @@
+var Cached = require("./cached.js");
+
 var api = {
   cache: {
     topstories: [],
@@ -5,7 +7,7 @@ var api = {
     showstories: [],
     askstories: [],
     jobstories: [],
-    items: {}
+    items: new Cached(100)
   }
 };
 
@@ -24,32 +26,35 @@ var get = function(endpoint, save) {
 
 api.getItem = function(id) {
   var cache = api.cache.items;
-  var cached = cache[id];
-  if(cached === undefined) {
+  if(cache.has(id) === true) {
     return get("item/" + id, function(val) {
-      cache[id] = val;
+      cache.set(id, val);
     });
   } else {
-    return Promise.resolve(cached);
+    return Promise.resolve(cache.get(id));
   }
 }
 
-api.getList = function(type, page, offset) {
+api.getList = function(type, page) {
   type += "stories";
   var cache = api.cache;
   var itemCache = cache.items;
-  var cached = cache[type];
-  if(cached[offset - 1] === undefined) {
-    return get("lists/" + type + "/" + page, function(data) {
-      var list = data.list;
-      cache[type] = list;
-      for(var i = 0; i < list.length; i++) {
-        var item = list[i];
-        itemCache[item.id] = item;
-      }
+  var result = cache[type];
+
+  if(result[0] === page) {
+    return Promise.resolve({
+      list: result[1],
+      next: page < 17
     });
   } else {
-    return Promise.resolve(cached);
+    return get("lists/" + type + "/" + page, function(data) {
+      var list = data.list;
+      cache[type] = [page, list];
+      for(var i = 0; i < list.length; i++) {
+        var item = list[i];
+        itemCache.set(item.id, item);
+      }
+    });
   }
 }
 
