@@ -38,6 +38,14 @@ module.exports.init = function(Moon) {
             instance.set("item", item);
           });
         });
+      },
+      "GET_USER": function(state, info) {
+        var instance = info.instance;
+        var id = info.id;
+
+        api.getUser(id).then(function(user) {
+          instance.set("user", user);
+        });
       }
     }
   });

@@ -7,7 +7,8 @@ var api = {
     showstories: [],
     askstories: [],
     jobstories: [],
-    items: new Cached(100)
+    items: new Cached(100),
+    users: new Cached(10)
   }
 };
 
@@ -55,6 +56,17 @@ api.getList = function(type, page) {
         itemCache.set(item.id, item);
       }
     });
+  }
+}
+
+api.getUser = function(id) {
+  var cache = api.cache.users;
+  if(cache.has(id) === false) {
+    return get("user/" + id, function(val) {
+      cache.set(id, val);
+    });
+  } else {
+    return Promise.resolve(cache.get(id));
   }
 }
 

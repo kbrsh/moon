@@ -1,11 +1,11 @@
 <template>
   <div class="wrap">
-    <div class="main container background">
-      <p class="title" m-if="item.url === undefined">{{item.title}}</p>
-      <p class="title" m-if="item.url !== undefined"><a href="{{item.url}}" class="no-decoration" rel="noopener">{{item.title}}</a> <span class="url light">({{base(item.url)}})</span></p>
-      <p class="meta light">{{item.score}} points by <router-link to="/users/{{item.by}}" class="light">{{item.by}}</router-link> {{time(store, item.time)}}</p>
+    <div class="main container background padding">
+      <h5 class="title" m-if="item.url === undefined">{{item.title}}</h5>
+      <h5 class="title" m-if="item.url !== undefined"><a href="{{item.url}}" class="no-decoration" rel="noopener">{{item.title}}</a> <span class="url light">({{base(item.url)}})</span></h5>
+      <p class="meta light">{{item.score}} points by <router-link to="/user/{{item.by}}" class="light" rel="noopener">{{item.by}}</router-link> {{time(store, item.time)}}</p>
     </div>
-    <div class="container background" m-if="item.descendants !== 0">
+    <div class="container background padding" m-if="item.descendants !== 0">
       <h6 class="comments-title">{{item.descendants}} comments</h6>
       <div class="comments" m-if="item.children !== undefined">
         <comment m-for="comment in item.children" m-literal:comment="comment"></comment>
@@ -17,13 +17,6 @@
 <style scoped>
   .main {
     margin-bottom: 3rem;
-  }
-
-  .container.background {
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-    padding: 3rem;
   }
 
   .title {

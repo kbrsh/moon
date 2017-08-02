@@ -5,7 +5,7 @@
       <div class="right-half">
         <p class="title" m-if="item.url === undefined"><router-link to="/item/{{item.id}}" class="no-decoration" rel="noopener">{{item.title}}</router-link></p>
         <p class="title" m-if="item.url !== undefined"><a href="{{item.url}}" class="no-decoration" rel="noopener">{{item.title}}</a> <span class="url light">({{base(item.url)}})</span></p>
-        <p class="meta light">{{item.score}} points by <router-link to="/users/{{item.by}}" class="light">{{item.by}}</router-link> {{time(store, item.time)}}<span m-if="item.descendants !== undefined"> | <router-link to="/item/{{item.id}}" rel="noopener" class="light">{{item.descendants}} comments</router-link></span></p>
+        <p class="meta light">{{item.score}} points by <router-link to="/user/{{item.by}}" class="light">{{item.by}}</router-link> {{time(store, item.time)}}<span m-if="item.descendants !== undefined"> | <router-link to="/item/{{item.id}}" rel="noopener" class="light">{{item.descendants}} comments</router-link></span></p>
       </div>
     </div>
     <router-link to="/{{info.type}}/{{(info.page + 1)}}" class="next light" m-if="next === true">Next</router-link>

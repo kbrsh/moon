@@ -1,6 +1,6 @@
 <template>
   <div class="comment">
-    <p class="by light"><router-link to="/user/{{comment.by}}" class="light">{{comment.by}}</router-link> {{time(store, comment.time)}}</p>
+    <p class="by light"><router-link to="/user/{{comment.by}}" class="light" rel="noopener">{{comment.by}}</router-link> {{time(store, comment.time)}}</p>
     <p class="comment-content" m-html="comment.text"></p>
     <div class="comments" m-if="comment.children !== undefined">
       <comment m-for="kid in comment.children" m-literal:comment="kid"></comment>

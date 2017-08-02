@@ -46,6 +46,7 @@ a.no-decoration {
 .title {
   margin-top: 0;
   margin-bottom: 0;
+  color: #111111;
 }
 
 .title a {
@@ -71,6 +72,13 @@ a.no-decoration {
   padding-top: 20px;
   padding-bottom: 20px;
   background-color: #FDFDFD;
+}
+
+.container.background.padding {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 3rem;
 }
 
 [m-mask] {

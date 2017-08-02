@@ -81,7 +81,8 @@ let cache = {
   showstories: [],
   askstories: [],
   jobstories: [],
-  items: new Cached(1000)
+  items: new Cached(800),
+  users: new Cached(200)
 };
 
 const get = (child, save) => {
@@ -138,6 +139,17 @@ const getList = (type, page) => {
       next: next
     }
   });
+}
+
+const getUser = (id) => {
+  let users = cache.users;
+  if(users.has(id) === false) {
+    return get("user/" + id, (val) => {
+      users.set(id, val);
+    });
+  } else {
+    return Promise.resolve(users.get(id));
+  }
 }
 
 const getComment = (id) => {
@@ -198,6 +210,13 @@ app.use((req, res, next) => {
 app.get("/api/item/:id", (req, res) => {
   getItem(req.params.id).then((item) => {
     res.json(item);
+  });
+});
+
+app.get("/api/user/:id", (req, res) => {
+  const id = req.params.id;
+  getUser(id).then((user) => {
+    res.json(user);
   });
 });
 
