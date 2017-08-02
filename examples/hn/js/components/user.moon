@@ -22,7 +22,10 @@
     data: function() {
       return {
         user: {
-          id: "-"
+          id: "-",
+          created: 0,
+          karma: 0,
+          about: undefined
         }
       }
     },
