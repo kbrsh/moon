@@ -34,6 +34,12 @@ module.exports.init = function(Moon) {
           instance.set("item", item);
 
           api.getComments(id).then(function(comments) {
+            var i = comments.length;
+            while((i--) !== 0) {
+              if(comments[i].deleted === true) {
+                comments.splice(i, 1);
+              }
+            }
             item.children = comments;
             instance.set("item", item);
           });
