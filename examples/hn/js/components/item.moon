@@ -2,6 +2,7 @@
   <div class="container background">
     <p class="title" m-if="item.url === undefined">{{item.title}}</p>
     <p class="title" m-if="item.url !== undefined"><a href="{{item.url}}" class="no-decoration" rel="noopener">{{item.title}}</a> <span class="url light">({{base(item.url)}})</span></p>
+    <p class="meta light">{{item.score}} points by <router-link to="/users/{{item.by}}" class="light">{{item.by}}</router-link> {{time(store, item.time)}}</p>
   </div>
 </template>
 
@@ -41,6 +42,9 @@
       return {
         item: {
           title: "-",
+          score: 0,
+          by: "-",
+          time: 0,
           url: undefined
         }
       }
