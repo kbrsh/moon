@@ -30,11 +30,11 @@ module.exports.init = function(Moon) {
         var id = info.id;
 
         api.getItem(id).then(function(item) {
-          item.kids = [];
+          item.children = undefined;
           instance.set("item", item);
 
           api.getComments(id).then(function(comments) {
-            item.kids = comments;
+            item.children = comments;
             instance.set("item", item);
           });
         });

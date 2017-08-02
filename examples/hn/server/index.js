@@ -81,8 +81,7 @@ let cache = {
   showstories: [],
   askstories: [],
   jobstories: [],
-  items: new Cached(500),
-  comments: new Cached(500)
+  items: new Cached(1000)
 };
 
 const get = (child, save) => {
@@ -142,23 +141,7 @@ const getList = (type, page) => {
 }
 
 const getComment = (id) => {
-  let comments = cache.comments;
-  if(comments.has(id) === false) {
-    return get("item/" + id, (val) => {
-      let kids = val.kids;
-      if(kids !== undefined) {
-        getComments(kids).then(function(childComments) {
-          val.kids = childComments;
-          comments.set(id, val);
-        });
-      } else {
-        comments.set(id, val);
-      }
-
-    });
-  } else {
-    return Promise.resolve(comments.get(id));
-  }
+  return getItem(id);
 }
 
 const getComments = (ids) => {
@@ -167,7 +150,19 @@ const getComments = (ids) => {
   let comments = new Array(length);
 
   for(let i = 0; i < length; i++) {
-    comments[i] = getComment(ids[i]);
+    comments[i] = new Promise((resolve, reject) => {
+      getComment(ids[i]).then((comment) => {
+        let kids = comment.kids;
+        if(kids !== undefined) {
+          getComments(kids).then((childComments) => {
+            comment.children = childComments;
+            resolve(comment);
+          });
+        } else {
+          resolve(comment);
+        }
+      });
+    });
   }
 
   return Promise.all(comments);

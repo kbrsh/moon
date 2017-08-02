@@ -7,7 +7,9 @@
     </div>
     <div class="container background" m-if="item.descendants !== 0">
       <h6 class="comments-title">{{item.descendants}} comments</h6>
-      <comment m-if="item.kids !== undefined" m-for="comment in item.kids" m-literal:comment="comment"></comment>
+      <div class="comments" m-if="item.children !== undefined">
+        <comment m-for="comment in item.children" m-literal:comment="comment"></comment>
+      </div>
     </div>
   </div>
 </template>
@@ -25,8 +27,7 @@
   }
 
   .title {
-    display: flex;
-    align-items: center;
+    font-size: 2.5rem;
   }
 
   .title a {
@@ -71,6 +72,7 @@
     },
     hooks: {
       mounted: function() {
+        window.Moon = require("moonjs")
         var store = this.get("store");
         store.dispatch("GET_ITEM", {
           id: this.get("route").params.id,

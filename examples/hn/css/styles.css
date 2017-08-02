@@ -49,7 +49,12 @@ a.no-decoration {
 }
 
 .title a {
+  vertical-align: middle;
   color: #111111;
+}
+
+.url {
+  vertical-align: middle;
 }
 
 .meta {
