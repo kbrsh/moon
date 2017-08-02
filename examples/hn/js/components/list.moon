@@ -5,12 +5,13 @@
       <div class="right-half">
         <p class="title" m-if="item.url === undefined"><router-link to="/item/{{item.id}}" class="no-decoration" rel="noopener">{{item.title}}</router-link></p>
         <p class="title" m-if="item.url !== undefined"><a href="{{item.url}}" class="no-decoration" rel="noopener">{{item.title}}</a> <span class="url light">({{base(item.url)}})</span></p>
-        <p class="meta light">{{item.score}} points by <router-link to="/users/{{item.by}}" class="light">{{item.by}}</router-link> {{time(item.time)}}<span m-if="item.descendants !== undefined"> | <router-link to="/item/{{item.id}}" rel="noopener" class="light">{{item.descendants}} comments</router-link></span></p>
+        <p class="meta light">{{item.score}} points by <router-link to="/users/{{item.by}}" class="light">{{item.by}}</router-link> {{time(store, item.time)}}<span m-if="item.descendants !== undefined"> | <router-link to="/item/{{item.id}}" rel="noopener" class="light">{{item.descendants}} comments</router-link></span></p>
       </div>
     </div>
     <router-link to="/{{info.type}}/{{(info.page + 1)}}" class="next light" m-if="next === true">Next</router-link>
   </div>
 </template>
+
 <style scoped>
   .container.background {
     display: flex;
@@ -38,13 +39,7 @@
     margin-bottom: 1rem;
   }
 
-  .title {
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-
   .title a {
-    color: #111111;
     font-size: 1.5rem;
   }
 
@@ -53,8 +48,6 @@
   }
 
   .meta {
-    margin-top: 0;
-    margin-bottom: 0;
     font-size: 1rem;
   }
 
@@ -62,13 +55,11 @@
     align-self: center;
   }
 </style>
+
 <script>
   var store = require("../store/store.js").store;
-  var MINUTE = 60;
-  var HOUR = 3600;
-  var DAY = 86400;
-
-  var hostnameRE = /([\w\d-]+\.[\w\d-]+)(?:\/[\w\d-/.?=#&%@;:+!\(\)]*)?$/;
+  var base = require("../util/base.js");
+  var time = require("../util/time.js");
 
   var info = {
     type: "",
@@ -110,32 +101,8 @@
           store.dispatch("UPDATE_LISTS", info);
         }
       },
-      base: function(url) {
-        return hostnameRE.exec(url)[1];
-      },
-      time: function(posted) {
-        var difference = store.state.now - posted;
-        var unit = " minute";
-        var passed = 0;
-
-        if(difference < HOUR) {
-          passed = difference / MINUTE;
-        } else if(difference < DAY) {
-          passed = difference / HOUR;
-          unit = " hour";
-        } else {
-          passed = difference / DAY;
-          unit = " day";
-        }
-
-        passed = passed | 0;
-
-        if(passed > 1) {
-          unit += "s";
-        }
-
-        return passed + unit + " ago";
-      },
+      base: base,
+      time: time,
       scroll: function() {
         document.body.scrollTop = 0;
       }
@@ -147,6 +114,11 @@
       },
       updated: function() {
         this.callMethod("update", []);
+      },
+      destroyed: function() {
+        info.type = "";
+        info.page = 0;
+        info.offset = 0;
       }
     },
     store: store

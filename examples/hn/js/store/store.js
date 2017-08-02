@@ -7,9 +7,6 @@ module.exports.init = function(Moon) {
   Moon.use(Monx);
   module.exports.store = new Monx({
     state: {
-      lists: {
-        top: []
-      },
       now: Date.now() / 1000
     },
     actions: {
@@ -24,9 +21,16 @@ module.exports.init = function(Moon) {
 
         api.getList(type, page).then(function(data) {
           var list = data.list;
-          state.lists[type] = list;
           instance.set("next", data.next);
           instance.set("list", list);
+        });
+      },
+      "GET_ITEM": function(state, info) {
+        var instance = info.instance;
+        var id = info.id;
+
+        api.getItem(id).then(function(item) {
+          instance.set("item", item);
         });
       }
     }

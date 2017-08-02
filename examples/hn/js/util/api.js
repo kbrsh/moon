@@ -26,7 +26,7 @@ var get = function(endpoint, save) {
 
 api.getItem = function(id) {
   var cache = api.cache.items;
-  if(cache.has(id) === true) {
+  if(cache.has(id) === false) {
     return get("item/" + id, function(val) {
       cache.set(id, val);
     });

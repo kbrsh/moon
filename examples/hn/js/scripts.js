@@ -14,6 +14,7 @@ require("./store/store.js").init(Moon);
 
 // Components
 require("./components/list.moon")(Moon);
+require("./components/item.moon")(Moon);
 
 // Install Moon Router
 Moon.use(MoonRouter);
@@ -24,7 +25,8 @@ var router = new MoonRouter({
   "map": {
     "/": "list",
     "/:type": "list",
-    "/:type/:page": "list"
+    "/:type/:page": "list",
+    "/item/:id": "item"
   },
   "mode": "history"
 });

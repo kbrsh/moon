@@ -43,6 +43,20 @@ a.no-decoration {
   color: #666666;
 }
 
+.title {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.title a {
+  color: #111111;
+}
+
+.meta {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
 .container {
   max-width: 800px;
 }
