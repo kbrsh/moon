@@ -29,7 +29,7 @@
     "cross-env": "^4.0.0",
     "html-minifier": "^3.4.1",
     "http-server": "0.9.0",
-    "moonify": "0.0.15",
+    "moonify": "github:KingPixil/moonify",
     "npm-run-all": "^2.3.0",
     "uglify-js": "latest",
     "uglifyify": "3.0.4",

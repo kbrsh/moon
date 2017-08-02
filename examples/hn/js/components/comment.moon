@@ -1,6 +1,6 @@
 <template>
   <div class="comment">
-    <p class="by light"><button m-on:click="toggle" class="toggle light">[{{(open === true ? "-" : "+")}}]</button><router-link to="/user/{{comment.by}}" class="light" rel="noopener">{{comment.by}}</router-link> {{time(store, comment.time)}}</p>
+    <p m-literal:class="{'by': true, 'light': true, 'italic': !open}"><button m-on:click="toggle" class="toggle light">[{{(open === true ? "-" : "+")}}]</button><router-link to="/user/{{comment.by}}" class="light" rel="noopener">{{comment.by}}</router-link> {{time(store, comment.time)}}</p>
     <div class="wrap" m-show="open">
       <p class="comment-content" m-html="comment.text"></p>
       <div class="comments" m-if="comment.children !== undefined">
@@ -28,6 +28,10 @@
 
   .by {
     font-size: 1.5rem;
+  }
+
+  .by.italic {
+    font-style: italic;
   }
 
   .comment-content {
