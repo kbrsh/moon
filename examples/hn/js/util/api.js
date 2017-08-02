@@ -45,12 +45,12 @@ api.getList = function(type, page) {
   if(result[0] === page) {
     return Promise.resolve({
       list: result[1],
-      next: page < 17
+      next: result[2]
     });
   } else {
     return get("lists/" + type + "/" + page, function(data) {
       var list = data.list;
-      cache[type] = [page, list];
+      cache[type] = [page, list, data.next];
       for(var i = 0; i < list.length; i++) {
         var item = list[i];
         itemCache.set(item.id, item);
