@@ -31,7 +31,6 @@
     },
     hooks: {
       mounted: function() {
-        console.log(this)
         var store = this.get("store");
         store.dispatch("GET_USER", {
           id: this.get("route").params.id,
