@@ -21,6 +21,13 @@ require("./components/comment.moon")(Moon);
 // Install Moon Router
 Moon.use(MoonRouter);
 
+// Install Service Worker
+if("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/service-worker.js", {
+    scope: "/"
+  });
+}
+
 // Initialize Router
 var router = new MoonRouter({
   "default": "/",

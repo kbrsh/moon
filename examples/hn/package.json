@@ -8,7 +8,7 @@
     "bundle-css": "node ./build/bundle-css.js",
     "watch-css": "node ./build/watch.js",
     "dev": "cross-env NODE_ENV=development npm-run-all --parallel watch serve watch-css bundle-css",
-    "build": "cross-env NODE_ENV=production node build/build.js; cp -a img dist"
+    "build": "cross-env NODE_ENV=production node build/build.js; cp -a img dist; cp service-worker.js dist"
   },
   "browserify": {
     "transform": [
