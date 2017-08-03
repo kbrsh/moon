@@ -1,13 +1,15 @@
 require "http/server"
 
 indexPath = "./dist/index.html"
-cssPath = "./dist/css/build.9b60815d8f.css"
-jsPath = "./dist/js/build.cf4b6320a1.js"
+cssPath = "./dist/css/build.f0efcfd1bc.css"
+jsPath = "./dist/js/build.6e4bbb5394.js"
+serviceWorkerPath = "./dist/service-worker.js"
 imgPath = "./dist/img/logo.png"
 
 index = File.read(indexPath)
 css = File.read(cssPath)
 js = File.read(jsPath)
+serviceWorker = File.read(serviceWorkerPath)
 img = File.read(imgPath)
 
 server = HTTP::Server.new(8080) do |context|
@@ -25,6 +27,9 @@ server = HTTP::Server.new(8080) do |context|
     when "js"
       response.content_type = "text/javascript"
       response.print js
+    when "se"
+      response.content_type = "text/javascript"
+      response.print serviceWorker
     when "im"
       response.content_type = "image/png"
       response.print img
