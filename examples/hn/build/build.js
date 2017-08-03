@@ -51,7 +51,7 @@ const buildHTML = function() {
     collapseWhitespace: true
   });
 
-  minifiedHTML = minifiedHTML.replace(/<link\s+([^>]*?\s+)?href="(\.?\/dist\/([^".]*)\.([^".]*)\.([^".]*))"/gi, `<link $1href="./$3.${cssHash}.$5"`).replace(/<script\s+([^>]*?\s+)?src="(\.?\/dist\/([^".]*)\.([^".]*)\.([^".]*))"/gi, `<script $1src="./$3.${jsHash}.$5"`);
+  minifiedHTML = minifiedHTML.replace(/<link\s+([^>]*?\s+)?href="(\.?\/dist\/([^".]*)\.([^".]*)\.([^".]*))"/gi, `<link $1href="/$3.${cssHash}.$5"`).replace(/<script\s+([^>]*?\s+)?src="(\.?\/dist\/([^".]*)\.([^".]*)\.([^".]*))"/gi, `<script $1src="/$3.${jsHash}.$5"`);
 
   fs.writeFileSync(path.join(cwd, "dist", "index.html"), minifiedHTML);
 }
