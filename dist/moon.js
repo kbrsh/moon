@@ -1352,8 +1352,9 @@
       return root;
     }
     
-    var VOID_ELEMENTS = ["area","base","br","command","embed","hr","img","input","keygen","link","meta","param","source","track","wbr"];
-    var SVG_ELEMENTS = ["svg","animate","circle","clippath","cursor","defs","desc","ellipse","filter","font-face","foreignObject","g","glyph","image","line","marker","mask","missing-glyph","path","pattern","polygon","polyline","rect","switch","symbol","text","textpath","tspan","use","view"];
+    var HTML_ELEMENTS = ["address", "article", "aside", "footer", "header", "h1", "h2", "h3", "h4", "h5", "h6", "hgroup", "nav", "section", "div", "dd", "dl", "dt", "figcaption", "figure", "picture", "li", "main", "ol", "p", "pre", "ul", "a", "b", "abbr", "bdi", "bdo", "cite", "code", "data", "dfn", "em", "i", "kbd", "mark", "q", "rp", "rt", "rtc", "ruby", "s", "samp", "small", "span", "strong", "sub", "sup", "time", "u", "var", "audio", "map", "video", "object", "canvas", "del", "ins", "caption", "col", "colgroup", "table", "thead", "tbody", "td", "th", "tr", "button", "datalist", "fieldset", "form", "label", "legend", "meter", "optgroup", "option", "output", "progress", "select", "textarea", "details", "dialog", "menu", "menuitem", "summary", "content", "element", "shadow", "template", "blockquote", "iframe", "tfoot"];
+    var VOID_ELEMENTS = ["area", "base", "br", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"];
+    var SVG_ELEMENTS = ["svg", "animate", "circle", "clippath", "cursor", "defs", "desc", "ellipse", "filter", "font-face", "foreignObject", "g", "glyph", "image", "line", "marker", "mask", "missing-glyph", "path", "pattern", "polygon", "polyline", "rect", "switch", "symbol", "text", "textpath", "tspan", "use", "view"];
     
     var createParseNode = function(type, props, children) {
       return {
@@ -1411,6 +1412,11 @@
           }
           return null;
         } else if(token !== undefined) {
+          // Check for custom tag
+          if(HTML_ELEMENTS.indexOf(tagType) === -1) {
+            node.custom = true;
+          }
+    
           // Match all children
           while((token.type !== "tag") || ((token.type === "tag") && ((token.closeStart === undefined && token.closeEnd === undefined) || (token.value !== tagType)))) {
             var parsedChildState = parseWalk(state);
@@ -1603,10 +1609,19 @@
         var slotName = node.props.name;
         return ("instance.$slots[\"" + (slotName === undefined ? "default" : slotName.value) + "\"]");
       } else {
-        var call = "m(\"" + (node.type) + "\", ";
+        var type = node.type;
+        var call = "m(\"" + type + "\", ";
     
         var meta$1 = defaultMetadata();
         node.meta = meta$1;
+    
+        if(node.custom === true) {
+          meta$1.shouldRender = true;
+        }
+    
+        if(node.isSVG === true) {
+          meta$1.isSVG = true;
+        }
     
         var propsCode = generateProps(node, parent, state);
         var specialDirectivesAfter = state.specialDirectivesAfter;
@@ -1632,7 +1647,7 @@
           childrenCode = "[].concat.apply([], " + childrenCode + ")";
         }
     
-        if(node.meta.shouldRender === true && parent !== undefined) {
+        if(meta$1.shouldRender === true && parent !== undefined) {
           parent.meta.shouldRender = true;
         }
     

@@ -162,10 +162,19 @@ const generateNode = function(node, parent, state) {
     const slotName = node.props.name;
     return `instance.$slots["${slotName === undefined ? "default" : slotName.value}"]`;
   } else {
-    let call = `m("${node.type}", `;
+    const type = node.type;
+    let call = `m("${type}", `;
 
     let meta = defaultMetadata();
     node.meta = meta;
+
+    if(node.custom === true) {
+      meta.shouldRender = true;
+    }
+
+    if(node.isSVG === true) {
+      meta.isSVG = true;
+    }
 
     const propsCode = generateProps(node, parent, state);
     let specialDirectivesAfter = state.specialDirectivesAfter;
@@ -191,7 +200,7 @@ const generateNode = function(node, parent, state) {
       childrenCode = `[].concat.apply([], ${childrenCode})`;
     }
 
-    if(node.meta.shouldRender === true && parent !== undefined) {
+    if(meta.shouldRender === true && parent !== undefined) {
       parent.meta.shouldRender = true;
     }
 

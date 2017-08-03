@@ -12,7 +12,7 @@
 
 ### Summary
 
-- :tada: Small file size (6kb minified + gzip)
+- :tada: Small file size (7kb minified + gzip)
 - :zap: Blazing fast performance
 - :rocket: Intuitive, easy-to-learn API
 - :gem: Powerful directives
