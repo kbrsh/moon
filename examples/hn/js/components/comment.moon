@@ -37,6 +37,7 @@
   .comment-content {
     color: #111111;
     font-size: 1.5rem;
+    word-wrap: break-word;
   }
 
   .by.dead, .by.dead a, .by.dead .toggle, .comment-content.dead {
