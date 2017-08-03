@@ -14,6 +14,8 @@ var CSS_PATH = "/dist/css/build.min.css";
 
 var CACHED = [INDEX_PATH, CSS_PATH, JS_PATH, IMG_PATH];
 
+var CACHE_RE = /api|topstories|newstories|showstories|askstories|jobstories/;
+
 var add = function(request, response) {
   if(response.ok === true) {
     var clone = response.clone();
@@ -53,7 +55,17 @@ self.addEventListener("fetch", function(event) {
   if(request.method === "GET") {
     var url = request.url;
     var path = url.replace(self.location.origin, "");
-    if(CACHED.indexOf(path) !== -1) {
+    if(CACHED.indexOf(path) === -1) {
+      if(url === path && CACHE_RE.test(url) === true) {
+        event.respondWith(
+          fetch(request).then(function(response) {
+            return add(request, response);
+          }).catch(function() {
+            return get(request);
+          })
+        );
+      }
+    } else {
       event.respondWith(
         get(request).catch(function() {
           return fetch(request).then(function(response) {
