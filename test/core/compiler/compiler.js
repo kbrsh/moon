@@ -88,4 +88,12 @@ describe("Compiler", function() {
     });
     expect(el.firstChild.textContent).to.equal("Moon");
   });
+
+  it("should compile and mark SVG elements", function() {
+    var el = createTestElement("compilerSVG", '<svg></svg>');
+    var app = new Moon({
+      el: "#compilerSVG"
+    });
+    expect(app.render().children[0].meta.isSVG).to.equal(true);
+  });
 });
