@@ -1609,8 +1609,7 @@
         var slotName = node.props.name;
         return ("instance.$slots[\"" + (slotName === undefined ? "default" : slotName.value) + "\"]");
       } else {
-        var type = node.type;
-        var call = "m(\"" + type + "\", ";
+        var call = "m(\"" + (node.type) + "\", ";
     
         var meta$1 = defaultMetadata();
         node.meta = meta$1;

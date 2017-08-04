@@ -162,8 +162,7 @@ const generateNode = function(node, parent, state) {
     const slotName = node.props.name;
     return `instance.$slots["${slotName === undefined ? "default" : slotName.value}"]`;
   } else {
-    const type = node.type;
-    let call = `m("${type}", `;
+    let call = `m("${node.type}", `;
 
     let meta = defaultMetadata();
     node.meta = meta;
