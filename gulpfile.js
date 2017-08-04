@@ -7,7 +7,9 @@ const gulp = require('gulp');
 const buble = require('buble');
 
 // Javascript minifier
-const uglify = require("gulp-uglify");
+const uglifyJS = require('uglify-js');
+const composer = require('gulp-uglify/composer');
+const uglify = composer(uglifyJS, console);
 
 // Replacer to replace keywords
 const replace = require('gulp-replace');
