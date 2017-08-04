@@ -10,7 +10,7 @@ var INDEX_PATH = "/dist/index.html";
 
 // Production
 var CSS_PATH = "/dist/css/build.f0efcfd1bc.css";
-var JS_PATH = "/dist/js/build.6e4bbb5394.js";
+var JS_PATH = "/dist/js/build.36b6f152c2.js";
 
 var CACHED = [INDEX_PATH, CSS_PATH, JS_PATH, IMG_PATH];
 

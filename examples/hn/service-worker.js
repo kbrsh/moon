@@ -6,7 +6,7 @@ var INDEX_PATH = "/dist/index.html";
 
 // Development
 var CSS_PATH = "/dist/css/build.min.css";
-// var JS_PATH = "/dist/js/build.min.js";
+var JS_PATH = "/dist/js/build.min.js";
 
 // Production
 // var CSS_PATH = "/dist/css/build.hash.css";

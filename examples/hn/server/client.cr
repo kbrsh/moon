@@ -2,7 +2,7 @@ require "http/server"
 
 indexPath = "./dist/index.html"
 cssPath = "./dist/css/build.f0efcfd1bc.css"
-jsPath = "./dist/js/build.6e4bbb5394.js"
+jsPath = "./dist/js/build.36b6f152c2.js"
 serviceWorkerPath = "./dist/service-worker.js"
 imgPath = "./dist/img/logo.png"
 
