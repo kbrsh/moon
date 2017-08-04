@@ -15,4 +15,14 @@ describe("Compiler Optimization", function() {
     }
     assertShouldRender(tree);
   });
+
+  it("should deoptimize on unknown HTML", function() {
+    createTestElement("unknownHTMLOptimization", "<custom></custom>");
+
+    var app = new Moon({
+      el: "#unknownHTMLOptimization"
+    });
+
+    expect(app.render().children[0].meta.shouldRender).to.equal(true);
+  });
 });
