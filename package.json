@@ -14,12 +14,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/KingPixil/moon.git"
+    "url": "git+https://github.com/kbrsh/moon.git"
   },
   "author": "Kabir Shah",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/KingPixil/moon/issues"
+    "url": "https://github.com/kbrsh/moon/issues"
   },
-  "homepage": "https://github.com/KingPixil/moon#readme"
+  "homepage": "https://github.com/kbrsh/moon#readme"
 }
