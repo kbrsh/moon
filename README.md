@@ -1,13 +1,13 @@
-<p align="center"><a href="https://kingpixil.github.io/moon" target="_blank"><img width="100"src="https://raw.githubusercontent.com/KingPixil/moon/gh-pages/img/logo.png"></a></p>
+<p align="center"><a href="http://moonjs.ga" target="_blank"><img width="100"src="https://raw.githubusercontent.com/kbrsh/moon/gh-pages/img/logo.png"></a></p>
 <h1 align="center">Moon</h1>
 <p align="center">A minimal, blazing fast UI library.</p>
 <p align="center">
-  <a href="https://travis-ci.org/KingPixil/moon"><img src="https://travis-ci.org/KingPixil/moon.svg?branch=master" alt="Build Status"></a>
-  <a href="https://codecov.io/gh/KingPixil/moon"><img src="https://codecov.io/gh/KingPixil/moon/branch/master/graph/badge.svg" alt="Code Coverage"></a>
-  <a href="https://kingpixil.github.io/license"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
+  <a href="https://travis-ci.org/kbrsh/moon"><img src="https://travis-ci.org/kbrsh/moon.svg?branch=master" alt="Build Status"></a>
+  <a href="https://codecov.io/gh/kbrsh/moon"><img src="https://codecov.io/gh/kbrsh/moon/branch/master/graph/badge.svg" alt="Code Coverage"></a>
+  <a href="https://kbrsh.github.io/license"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
 </p>
 <p align="center">
-  <a href="https://saucelabs.com/u/KingPixil"><img src="https://saucelabs.com/browser-matrix/KingPixil.svg" alt="License"></a>
+  <a href="https://saucelabs.com/u/kbrsh"><img src="https://saucelabs.com/browser-matrix/kbrsh.svg" alt="License"></a>
 </p>
 
 ### Summary
@@ -24,11 +24,11 @@ Moon is a simple front end javascript library heavily inspired by [Vue](https://
 
 ### Extras
 
-* ✨ [moon-cli](https://github.com/KingPixil/moon-cli) - scaffold a feature rich Moon project
-* 🚩 [moon-router](https://github.com/KingPixil/moon-router) - fast router plugin for components
-* 📋 [monx](https://github.com/KingPixil/monx) - clean state management
-* 🌎 [moon-ssr](https://github.com/KingPixil/moon-ssr) - universal server-side rendering
-* 📊 [moon-bars](https://kingpixil.github.io/moon-bars) - beautiful bar graph component
+* ✨ [moon-cli](https://github.com/kbrsh/moon-cli) - scaffold a feature rich Moon project
+* 🚩 [moon-router](https://github.com/kbrsh/moon-router) - fast router plugin for components
+* 📋 [monx](https://github.com/kbrsh/monx) - clean state management
+* 🌎 [moon-ssr](https://github.com/kbrsh/moon-ssr) - universal server-side rendering
+* 📊 [moon-bars](https://kbrsh.github.io/moon-bars) - beautiful bar graph component
 
 ### Another library?
 
@@ -40,7 +40,7 @@ Still, you do **not have to** use Moon if you are happy with your current soluti
 
 ### Usage
 
-See [the website.](https://kingpixil.github.io/moon)
+See [the website.](http://moonjs.ga)
 
 ### How to Contribute?
 
@@ -48,4 +48,4 @@ Check the [CONTRIBUTING](/CONTRIBUTING.md) file for more information about this 
 
 ### License
 
-Licensed under the [MIT License](http://kingpixil.github.io/license) by [Kabir Shah](https://kabir.ml)
+Licensed under the [MIT License](http://kbrsh.github.io/license) by [Kabir Shah](https://kabir.ml)
