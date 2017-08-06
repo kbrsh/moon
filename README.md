@@ -7,7 +7,7 @@
   <a href="https://kbrsh.github.io/license"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
 </p>
 <p align="center">
-  <a href="https://saucelabs.com/u/kbrsh"><img src="https://saucelabs.com/browser-matrix/kbrsh.svg" alt="License"></a>
+  <a href="https://saucelabs.com/u/KingPixil"><img src="https://saucelabs.com/browser-matrix/KingPixil.svg" alt="Browser Support"></a>
 </p>
 
 ### Summary
