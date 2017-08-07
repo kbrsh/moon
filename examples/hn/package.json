@@ -18,9 +18,9 @@
   "dependencies": {
     "express": "^4.15.3",
     "firebase": "^4.2.0",
-    "monx": "github:KingPixil/monx",
-    "moon-router": "github:KingPixil/moon-router",
-    "moonjs": "github:KingPixil/moon"
+    "monx": "github:kbrsh/monx",
+    "moon-router": "github:kbrsh/moon-router",
+    "moonjs": "github:kbrsh/moon"
   },
   "devDependencies": {
     "browserify": "14.1.0",
@@ -29,7 +29,7 @@
     "cross-env": "^4.0.0",
     "html-minifier": "^3.4.1",
     "http-server": "0.9.0",
-    "moonify": "github:KingPixil/moonify",
+    "moonify": "github:kbrsh/moonify",
     "npm-run-all": "^2.3.0",
     "uglify-js": "latest",
     "uglifyify": "3.0.4",
