@@ -14,12 +14,12 @@
 </style>
 
 <script>
-  var store = require("../store/store.js").store;
-  var time = require("../util/time.js");
+  const store = require("../store/store.js").store;
+  const time = require("../util/time.js");
 
   exports = {
     props: ["route"],
-    data: function() {
+    data() {
       return {
         user: {
           id: "-",
@@ -34,7 +34,7 @@
     },
     hooks: {
       mounted: function() {
-        var store = this.get("store");
+        const store = this.get("store");
         store.dispatch("GET_USER", {
           id: this.get("route").params.id,
           instance: this

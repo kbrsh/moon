@@ -1,6 +1,6 @@
-var Cached = require("./cached.js");
+const Cached = require("./cached.js");
 
-var api = {
+let api = {
   cache: {
     topstories: [],
     newstories: [],
@@ -12,7 +12,7 @@ var api = {
   }
 };
 
-var get = function(endpoint, save) {
+const get = (endpoint, save) => {
   return new Promise(function(resolve, reject) {
     fetch("http://localhost:3000/api/" + endpoint).then(function(response) {
       response.json().then(function(json) {
@@ -25,8 +25,8 @@ var get = function(endpoint, save) {
   });
 }
 
-api.getItem = function(id) {
-  var cache = api.cache.items;
+api.getItem = (id) => {
+  let cache = api.cache.items;
   if(cache.has(id) === false) {
     return get("item/" + id, function(val) {
       cache.set(id, val);
@@ -36,11 +36,11 @@ api.getItem = function(id) {
   }
 }
 
-api.getList = function(type, page) {
+api.getList = (type, page) => {
   type += "stories";
-  var cache = api.cache;
-  var itemCache = cache.items;
-  var result = cache[type];
+  let cache = api.cache;
+  let itemCache = cache.items;
+  const result = cache[type];
 
   if(result[0] === page) {
     return Promise.resolve({
@@ -49,7 +49,7 @@ api.getList = function(type, page) {
     });
   } else {
     return get("lists/" + type + "/" + page, function(data) {
-      var list = data.list;
+      const list = data.list;
       cache[type] = [page, list, data.next];
       for(var i = 0; i < list.length; i++) {
         var item = list[i];
@@ -59,8 +59,8 @@ api.getList = function(type, page) {
   }
 }
 
-api.getUser = function(id) {
-  var cache = api.cache.users;
+api.getUser = (id) => {
+  let cache = api.cache.users;
   if(cache.has(id) === false) {
     return get("user/" + id, function(val) {
       cache.set(id, val);
@@ -70,7 +70,7 @@ api.getUser = function(id) {
   }
 }
 
-api.getComments = function(id) {
+api.getComments = (id) => {
   return get("comments/" + id, function(val) {});
 }
 

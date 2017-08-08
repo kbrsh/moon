@@ -3,20 +3,15 @@
   "version": "0.0.0",
   "description": "Moon Hacker News Reader",
   "scripts": {
-    "watch": "./node_modules/.bin/watchify -vd -e js/scripts.js -o dist/js/build.min.js -p browserify-hmr",
+    "watch": "./node_modules/.bin/watchify -vd -e js/scripts.js -o dist/js/build.min.js -t moonify -p browserify-hmr",
     "serve": "http-server -o -c 1 -a localhost",
     "bundle-css": "node ./build/bundle-css.js",
     "watch-css": "node ./build/watch.js",
     "dev": "cross-env NODE_ENV=development npm-run-all --parallel watch serve watch-css bundle-css",
     "build": "cross-env NODE_ENV=production node build/build.js; cp -a img dist; cp service-worker.js dist"
   },
-  "browserify": {
-    "transform": [
-      "moonify"
-    ]
-  },
   "dependencies": {
-    "express": "^4.15.3",
+    "express": "^4.15.4",
     "firebase": "^4.2.0",
     "monx": "github:kbrsh/monx",
     "moon-router": "github:kbrsh/moon-router",
@@ -25,6 +20,7 @@
   "devDependencies": {
     "browserify": "14.1.0",
     "browserify-hmr": "0.3.5",
+    "bubleify": "^0.7.0",
     "clean-css": "4.0.8",
     "cross-env": "^4.0.0",
     "html-minifier": "^3.4.1",

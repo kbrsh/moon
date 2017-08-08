@@ -40,14 +40,14 @@
 </style>
 
 <script>
-  var store = require("../store/store.js").store;
-  var base = require("../util/base.js");
-  var pluralize = require("../util/pluralize.js");
-  var time = require("../util/time.js");
+  const store = require("../store/store.js").store;
+  const base = require("../util/base.js");
+  const pluralize = require("../util/pluralize.js");
+  const time = require("../util/time.js");
 
   exports = {
     props: ["route"],
-    data: function() {
+    data() {
       return {
         item: {
           title: "-",
@@ -68,7 +68,7 @@
     hooks: {
       mounted: function() {
         window.Moon = require("moonjs")
-        var store = this.get("store");
+        const store = this.get("store");
         store.dispatch("GET_ITEM", {
           id: this.get("route").params.id,
           instance: this

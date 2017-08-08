@@ -21,13 +21,11 @@ util.empty(path.join(cwd, "dist"))
 // Build JS
 const tmpJSPath = path.join(cwd, "dist", "js", `build.min.js`);
 bundler
-  .transform({
-    global: true,
-    ignore: [
-      "*.moon",
-      "*.css"
-    ]
-  }, "uglifyify")
+  .transform("moonify")
+  .transform("bubleify", {
+    extensions: [".js", ".moon"]
+  })
+  .transform("uglifyify")
   .plugin("moonify/plugins/extract-css.js")
   .bundle()
   .pipe(fs.createWriteStream(tmpJSPath));
@@ -51,7 +49,7 @@ const buildHTML = function() {
     collapseWhitespace: true
   });
 
-  minifiedHTML = minifiedHTML.replace(/<link\s+([^>]*?\s+)?href="(\.?\/dist\/([^".]*)\.([^".]*)\.([^".]*))"/gi, `<link $1href="/$3.${cssHash}.$5"`).replace(/<script\s+([^>]*?\s+)?src="(\.?\/dist\/([^".]*)\.([^".]*)\.([^".]*))"/gi, `<script $1src="/$3.${jsHash}.$5"`);
+  minifiedHTML = minifiedHTML.replace(/<link\s+([^>]*?\s+)?href="(\.?\/dist\/([^".]*)\.([^".]*)\.([^".]*))"/gi, `<link $1href="./$3.${cssHash}.$5"`).replace(/<script\s+([^>]*?\s+)?src="(\.?\/dist\/([^".]*)\.([^".]*)\.([^".]*))"/gi, `<script $1src="./$3.${jsHash}.$5"`);
 
   fs.writeFileSync(path.join(cwd, "dist", "index.html"), minifiedHTML);
 }

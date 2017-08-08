@@ -1,5 +1,5 @@
-var hostnameRE = /([\w\d-]+\.[\w\d-]+)(?:\/[\w\d-/.?=#&%@;:+!\(\)]*)?$/;
+const hostnameRE = /([\w\d-]+\.[\w\d-]+)(?:\/[\w\d-/.?=#&%@;:+!\(\)]*)?$/;
 
-module.exports = function(url) {
+module.exports = (url) => {
   return hostnameRE.exec(url)[1];
 }

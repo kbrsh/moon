@@ -15,7 +15,7 @@ Cached.prototype.get = function(key) {
 }
 
 Cached.prototype.set = function(key, value) {
-  var table = this.table;
+  let table = this.table;
   if(table[key] === undefined) {
     if(this.head === null && this.tail === null) {
       this.head = {
@@ -34,7 +34,7 @@ Cached.prototype.set = function(key, value) {
     } else if(this.size === 1) {
       this.head.key = key;
     } else {
-      var head = this.head;
+      const head = this.head;
 
       this.head = {
         key: key,
@@ -47,7 +47,7 @@ Cached.prototype.set = function(key, value) {
 
     if(this.size === this.max && this.size !== 1) {
       delete this.table[this.tail.key];
-      var previous = this.tail.previous;
+      let previous = this.tail.previous;
       this.tail.key = previous.key;
       this.tail.next = null;
       this.tail.previous = previous.previous;

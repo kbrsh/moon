@@ -50,12 +50,12 @@
 </style>
 
 <script>
-  var store = require("../store/store.js").store;
-  var time = require("../util/time.js");
+  const store = require("../store/store.js").store;
+  const time = require("../util/time.js");
 
   exports = {
     props: ["comment"],
-    data: function() {
+    data() {
       return {
         open: true
       }

@@ -1,5 +1,5 @@
-var Monx = require("monx");
-var api = require("../util/api.js");
+const Monx = require("monx");
+const api = require("../util/api.js");
 
 module.exports.store = {};
 
@@ -10,31 +10,30 @@ module.exports.init = function(Moon) {
       now: Date.now() / 1000
     },
     actions: {
-      "UPDATE_LISTS": function(state, info) {
-        var instance = info.instance;
-        var type = info.type;
-        var page = info.page;
+      "UPDATE_LISTS": (state, info) => {
+        const instance = info.instance;
+        let type = info.type;
+        const page = info.page;
 
         if(type === "jobs") {
           type = "job";
         }
 
         api.getList(type, page).then(function(data) {
-          var list = data.list;
           instance.set("next", data.next);
-          instance.set("list", list);
+          instance.set("list", data.list);
         });
       },
-      "GET_ITEM": function(state, info) {
-        var instance = info.instance;
-        var id = info.id;
+      "GET_ITEM": (state, info) => {
+        const instance = info.instance;
+        const id = info.id;
 
         api.getItem(id).then(function(item) {
           item.children = undefined;
           instance.set("item", item);
 
           api.getComments(id).then(function(comments) {
-            var i = comments.length;
+            let i = comments.length;
             while((i--) !== 0) {
               if(comments[i].deleted === true) {
                 comments.splice(i, 1);
@@ -45,9 +44,9 @@ module.exports.init = function(Moon) {
           });
         });
       },
-      "GET_USER": function(state, info) {
-        var instance = info.instance;
-        var id = info.id;
+      "GET_USER": (state, info) => {
+        const instance = info.instance;
+        const id = info.id;
 
         api.getUser(id).then(function(user) {
           instance.set("user", user);

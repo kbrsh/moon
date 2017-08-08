@@ -6,8 +6,8 @@
 require("./util/promise.js");
 
 // Moon
-var Moon = require("moonjs/dist/moon.js");
-var MoonRouter = require("moon-router");
+const Moon = require("moonjs");
+const MoonRouter = require("moon-router");
 
 // Initialize Store
 require("./store/store.js").init(Moon);
@@ -29,7 +29,7 @@ if("serviceWorker" in navigator) {
 }
 
 // Initialize Router
-var router = new MoonRouter({
+const router = new MoonRouter({
   "default": "/",
   "map": {
     "/": "list",

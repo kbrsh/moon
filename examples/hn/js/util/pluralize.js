@@ -1,4 +1,4 @@
-module.exports = function(amount, str) {
+module.exports = (amount, str) => {
   if(amount === 1) {
     return amount + " " + str;
   } else {

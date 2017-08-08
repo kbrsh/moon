@@ -57,12 +57,12 @@
 </style>
 
 <script>
-  var store = require("../store/store.js").store;
-  var base = require("../util/base.js");
-  var pluralize = require("../util/pluralize.js");
-  var time = require("../util/time.js");
+  const store = require("../store/store.js").store;
+  const base = require("../util/base.js");
+  const pluralize = require("../util/pluralize.js");
+  const time = require("../util/time.js");
 
-  var info = {
+  let info = {
     type: "",
     page: 0,
     offset: 0
@@ -70,7 +70,7 @@
 
   exports = {
     props: ["route"],
-    data: function() {
+    data() {
       return {
         list: [],
         info: info,
@@ -79,9 +79,9 @@
     },
     methods: {
       update: function() {
-        var params = this.get("route").params;
-        var type = params.type;
-        var page = params.page;
+        const params = this.get("route").params;
+        let type = params.type;
+        let page = params.page;
 
         if(type === undefined) {
           type = "top";
@@ -94,7 +94,7 @@
         }
 
         if((type !== info.type) || (page !== info.page)) {
-          var store = this.get("store");
+          const store = this.get("store");
 
           info.type = type;
           info.page = page;

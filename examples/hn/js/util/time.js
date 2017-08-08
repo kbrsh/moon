@@ -1,11 +1,11 @@
-var MINUTE = 60;
-var HOUR = 3600;
-var DAY = 86400;
+const MINUTE = 60;
+const HOUR = 3600;
+const DAY = 86400;
 
-module.exports = function(store, posted) {
-  var difference = store.state.now - posted;
-  var unit = " minute";
-  var passed = 0;
+module.exports = (store, posted) => {
+  const difference = store.state.now - posted;
+  let unit = " minute";
+  let passed = 0;
 
   if(difference < HOUR) {
     passed = difference / MINUTE;

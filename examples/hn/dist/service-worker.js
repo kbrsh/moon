@@ -4,13 +4,9 @@ var KEY = "moon-hn-cache";
 var IMG_PATH = "/dist/img/logo.png";
 var INDEX_PATH = "/dist/index.html";
 
-// Development
-// var CSS_PATH = "/dist/css/build.min.css";
-// var JS_PATH = "/dist/js/build.min.js";
-
 // Production
-var CSS_PATH = "/dist/css/build.f0efcfd1bc.css";
-var JS_PATH = "/dist/js/build.36b6f152c2.js";
+var CSS_PATH = "/dist/css/build.c914bce47f.css";
+var JS_PATH = "/dist/js/build.29f5068d14.js";
 
 var CACHED = [INDEX_PATH, CSS_PATH, JS_PATH, IMG_PATH];
 
