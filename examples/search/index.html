@@ -1,27 +1,28 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A minimal, blazing fast user interface library.">
-  <meta name="author" content="Kabir Shah">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Moon Examples | Search">
+    <meta name="author" content="Kabir Shah">
 
-  <title>Search</title>
+    <title>Moon | Search</title>
 
-  <link rel="stylesheet" type="text/css" href="../../css/lib/wing.min.css" />
-  <link rel="stylesheet" type="text/css" href="./styles.css" />
-</head>
+    <link rel="stylesheet" type="text/css" href="../../css/lib/wing.min.css" />
+    <link rel="stylesheet" type="text/css" href="./styles.css" />
+  </head>
 
-<body>
-  <div id="app" class="full-screen container center">
-    <h1>Search</h1>
-    <input type="text" placeholder="Search Query" m-model="query" m-on:input="search" id="search"/>
-    <ul>
-      <li m-for="item in results">{{list[item.index]}}</li>
-    </ul>
-  </div>
-  <script type="text/javascript" src="../../dist/moon.js"></script>
-  <script type="text/javascript" src="https://rawgit.com/KingPixil/wade/master/dist/wade.min.js"></script>
-  <script type="text/javascript" src="./scripts.js"></script>
+  <body>
+    <div id="app" class="full-screen container center" m-mask>
+      <h1>Search</h1>
+      <input type="text" placeholder="Search Query" m-model="query" m-on:input="search" id="search"/>
+      <ul>
+        <li m-for="item in results">{{list[item.index]}}</li>
+      </ul>
+    </div>
+    <script type="text/javascript" src="../../dist/moon.js"></script>
+    <script type="text/javascript" src="https://rawgit.com/kbrsh/wade/master/dist/wade.min.js"></script>
+    <script type="text/javascript" src="./scripts.js"></script>
+  </body>
 </html>

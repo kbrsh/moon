@@ -1,36 +1,37 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Moon Examples | Github Commits">
+    <meta name="author" content="Kabir Shah">
 
     <title>Moon | Github Commits</title>
 
     <link href="../../css/lib/wing.min.css" rel="stylesheet"/>
-    <link href="./styles.css"
-</head>
-<body>
+    <link href="./styles.css" rel="stylesheet"/>
+  </head>
+  <body>
     <div class="container" id="app">
-        <h1>Latest Moon Commits</h1>
-        <select m-model="currentBranch" m-on:change="fetchCommits">
-            <option m-for="branch in branches" m-literal:value="branch">{{branch}}</option>
-        </select>
+      <h1>Moon Github Commits</h1>
+      <select m-model="currentBranch" m-on:change="fetchCommits">
+        <option m-for="branch in branches" value="{{branch}}">{{branch}}</option>
+      </select>
 
-        <p>KingPixil/moon@{{currentBranch}}</p>
+      <p>kbrsh/moon@{{currentBranch}}</p>
 
-        <ul class="row">
-            <li class="col" m-for="record in commits">
-                <a m-literal:href="record.html_url">
-                    <h5>{{record.sha.slice(0, 7)}}</h5>
-                </a>
-                <p>{{record.commit.author.name}} - {{record.commit.message}} </p>
-                <p> {{record.commit.author.date}} </p>
-            </li>
-        </ul>
+      <div class="row">
+        <div class="col" m-for="record in commits">
+          <div class="card">
+            <h4 class="card-header"><a href="{{record.html_url}}" rel="noopener">{{record.sha.slice(0, 7)}}</a></h4>
+            <p class="card-body">{{record.commit.author.name}} - {{record.commit.message}}<br/><br/>{{record.commit.author.date}}</p>
+          </div>
+        </div>
+      </div>
     </div>
-
-
     <script src="../../dist/moon.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="scripts.js"></script>
-</body>
+  </body>
 </html>

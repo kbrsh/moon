@@ -28,13 +28,13 @@ var app = new Moon({
   },
   methods: {
     update: debounce(function(evt) {
-      this.set('input', evt.target.value);
-    }, 300)
+      this.set("input", evt.target.value);
+    }, 100)
   },
   computed: {
     html: {
       get: function() {
-        return marked(this.get('input'));
+        return marked(this.get("input"));
       }
     }
   }
