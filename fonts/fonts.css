@@ -1,0 +1,5 @@
+@font-face {
+  font-family: "Glacial Indifference";
+  font-style: normal;
+  src: local("Glacial Indifference"), url("./GlacialIndifference.otf") format("opentype");
+}

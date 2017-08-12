@@ -5,57 +5,28 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   color: #f5f5f5;
-  font-family: "Muli", -apple-system, BlinkMacSystemFont, Avenir, "Avenir Next", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  letter-spacing: 1px;
+  font-family: "Glacial Indifference", -apple-system, BlinkMacSystemFont, Avenir, "Avenir Next", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 }
 
 p {
   font-weight: 200;
 }
 
-ul {
-  display: table;
-  margin-left: 0;
-  padding-left: 0;
-  list-style: none;
-}
-
-li {
-  display: table-row;
-}
-
-li::before {
-  content: "•";
-  display: table-cell;
-  padding-bottom: 1rem;
-  padding-right: 1rem;
-}
-
-button {
-  margin-left: 0;
-}
-
 .head {
+  margin-bottom: 0;
+  font-size: 7rem;
   font-weight: 700;
 }
 
 .subhead {
   font-weight: 600;
   text-align: center;
-  font-size: 3.5rem;
-}
-
-.smallerHead {
-  font-size: 2.5rem;
-}
-
-.container-small {
-  max-width: 700px;
-  margin: 0 auto;
-  width: 80%;
+  font-size: 4rem;
 }
 
 #hero {
-  min-height: 80vh;
+  min-height: 100vh;
 }
 
 #hero .container {
@@ -76,12 +47,12 @@ button {
 }
 
 #nav {
-  margin-top: 1rem;
-  margin-right: auto;
-  margin-left: auto;
+  position: absolute;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
   text-align: center;
-  height: 8vh;
-  max-width: 700px;
 }
 
 #nav a {
@@ -111,20 +82,19 @@ button {
 
 .cta {
   padding: 1.5rem 5rem;
-  font-size: 1.4rem;
-  box-shadow: 0px 4px 30px rgba(0, 0, 0, 0.1);
+  background: #007EFF;
+  border: 3px solid #007EFF;
   border-radius: 30px;
+  font-size: 1.5rem;
+  letter-spacing: 1px;
   text-decoration: none;
-  background: #00C2FC;
   color: #f5f5f5;
   transition: all 0.2s ease;
 }
 
 .cta:hover {
-  border: 3px solid #00C2FC;
   background: transparent;
-  box-shadow: 0px 4px 50px rgba(0, 0, 0, 0.1);
-  color: #00C2FC;
+  color: #007EFF;
 }
 
 #logo {
@@ -135,7 +105,7 @@ button {
   #hero h1 {
     font-size: 4rem;
   }
-  
+
   #hero h3 {
     font-size: 3rem;
   }
@@ -164,6 +134,7 @@ pre code {
   border: none;
   font-size: 1.3rem;
 }
+
 pre code::after {
   content: attr(lang);
   font-size: 1.5rem;
@@ -174,7 +145,7 @@ pre code::after {
 }
 
 code {
-  font-family: "Inconsolata";
+  font-family: "Inconsolata", monospace;
 }
 
 .string {
