@@ -64,7 +64,7 @@
 <p>For example:</p>
 <pre><code class="lang-js">new Moon({
   render: function(m) {
-    return m(&#39;h1&#39;, {attrs: {}}, {shouldRender: false}, m(&quot;#text&quot;, {shouldRender: false}, &quot;Hello Moon!&quot;));
+    return m(&#39;h1&#39;, {attrs: {}}, {shouldRender: false}, [m(&quot;#text&quot;, {shouldRender: false}, &quot;Hello Moon!&quot;)]);
     // same as &lt;h1&gt;Hello Moon!&lt;/h1&gt;
   }
 });

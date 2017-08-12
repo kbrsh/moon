@@ -13,7 +13,7 @@ For example:
 ```js
 new Moon({
   render: function(m) {
-    return m('h1', {attrs: {}}, {shouldRender: false}, m("#text", {shouldRender: false}, "Hello Moon!"));
+    return m('h1', {attrs: {}}, {shouldRender: false}, [m("#text", {shouldRender: false}, "Hello Moon!")]);
     // same as <h1>Hello Moon!</h1>
   }
 });

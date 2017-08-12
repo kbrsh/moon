@@ -25,7 +25,7 @@ Installing Moon is as easy as including a script tag to a CDN. The preferred CDN
 
 Moon is supported in RequireJS environments, but to actually update/patch elements, it requires the DOM.
 
-```bash
+```sh
 $ npm install moonjs
 ```
 
@@ -41,12 +41,12 @@ const Moon = require("moonjs/dist/moon.js");
 
 To edit the source files and build Moon from scratch, clone the repo, and edit any files in the `src` directory.
 
-```bash
+```sh
 $ npm run build
 ```
 
 This will output the built files in the `dist/` directory. To run unit tests, run:
 
-```bash
+```sh
 $ npm run test
 ```
