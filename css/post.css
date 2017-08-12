@@ -5,7 +5,8 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   color: #4a4848;
-  font-family: -apple-system, BlinkMacSystemFont, Avenir, "Avenir Next", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  letter-spacing: 1px;
+  font-family: "Glacial Indifference", -apple-system, BlinkMacSystemFont, Avenir, "Avenir Next", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 }
 
 p {
@@ -21,6 +22,7 @@ ul {
 
 li {
   display: table-row;
+  font-weight: 200;
 }
 
 li::before {
@@ -30,12 +32,8 @@ li::before {
   padding-right: 1rem;
 }
 
-button {
-  margin-left: 0;
-}
-
-.head {
-  font-weight: 700;
+.post-title {
+  font-size: 7rem;
 }
 
 .subhead {
@@ -44,18 +42,10 @@ button {
   font-size: 3.5rem;
 }
 
-.smallerHead {
-  font-size: 2.5rem;
-}
-
 .container-small {
   max-width: 700px;
   margin: 0 auto;
   width: 80%;
-}
-
-.docs-section p {
-  font-size: 1.6rem;
 }
 
 .accepts {
@@ -63,11 +53,6 @@ button {
   font-family: "Inconsolata", monospace;
   background-color: #E7E7E7;
   color: #00C2FC;
-}
-
-.docs-subhead {
-  font-size: 3.5rem;
-  text-transform: uppercase;
 }
 
 /* Code Styles */
@@ -201,7 +186,7 @@ body.close .post {
   transition: all 0.2s ease;
 }
 
-@media (max-width:550px) {
+@media screen and (max-width: 768px) {
   .sidebar {
     transform: translateX(-300px);
     box-shadow: 2px 3px 40px #a8a8a8;
