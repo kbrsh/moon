@@ -23,7 +23,7 @@ Installing Moon is as easy as including a script tag to a CDN. The preferred CDN
 
 #### NPM
 
-Moon is supported in RequireJS environments, but to actually update/patch elements, it requires the DOM.
+Moon is supported in Node environments, but to actually update/patch elements, it requires the DOM.
 
 ```sh
 $ npm install moonjs
