@@ -135,14 +135,16 @@ button {
   #hero h1 {
     font-size: 4rem;
   }
+  
   #hero h3 {
     font-size: 3rem;
   }
+
   #logo {
     height: 100px;
   }
+
   #nav {
-    /*flex-wrap: nowrap;*/
     flex-direction: column;
     align-items: flex-start;
   }
