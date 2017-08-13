@@ -25,18 +25,19 @@ p {
 }
 
 #hero {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   min-height: 100vh;
 }
 
 #hero .container {
+  text-align: center;
   max-width: 500px;
 }
 
-#hero .container .inner {
-  text-align: center;
-}
-
-#hero .inner h3 {
+#hero h3 {
   font-family: -apple-system, BlinkMacSystemFont, Avenir, "Avenir Next", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   font-weight: 200;
   max-width: 350px;
@@ -133,6 +134,16 @@ p {
     display: none;
     margin: 0;
     padding: 0;
+  }
+}
+
+@media screen and (max-height: 600px) {
+  #hero {
+    align-items: flex-start;
+  }
+
+  #hero .container {
+    margin-top: 10rem;
   }
 }
 
