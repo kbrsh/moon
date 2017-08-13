@@ -115,10 +115,7 @@ p {
   }
 
   #nav {
-    /*font-size: 1rem;*/
-    /*padding-*/
-    /*flex-direction: column;*/
-    /*align-items: flex-start;*/
+    font-size: 1.3rem;
   }
 
   .nav-item {
@@ -127,11 +124,15 @@ p {
   }
 
   #search {
-    width: 100px;
+    display: none;
+    margin: 0;
+    padding: 0;
   }
 
   .algolia-autocomplete {
-    padding: 1rem 1rem;
+    display: none;
+    margin: 0;
+    padding: 0;
   }
 }
 
