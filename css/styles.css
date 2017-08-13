@@ -14,7 +14,6 @@ p {
 }
 
 .head {
-  margin-bottom: 0;
   font-size: 7rem;
   font-weight: 700;
 }
@@ -99,6 +98,7 @@ p {
 
 #logo {
   height: 120px;
+  margin-bottom: 5rem;
 }
 
 @media screen and (max-width: 768px) {
@@ -121,6 +121,9 @@ p {
 }
 
 /* Features */
+#features {
+  margin-bottom: 5rem;
+}
 
 #features p {
   font-size: 2rem;
@@ -200,7 +203,6 @@ code {
 
 /* === Footer === */
 footer {
-	position: absolute;
 	margin: 5rem;
 }
 
@@ -211,27 +213,25 @@ footer {
 }
 
 #footer-name, #footer-madeby {
-	margin-bottom: 0;
 	margin-top: 0;
-}
-
-#footer-madeby {
-  font-weight: 200;
+	margin-bottom: 0;
+	font-size: 2.5rem;
 }
 
 #footer-name {
-  font-weight: 700;
+	font-family: "Gilroy-Bold", sans-serif;
 }
 
 #footer-desc {
-	font-size: 2.5rem;
-  margin-left: 1rem;
+	margin-left: 1rem;
+	font-family: "Gilroy-Light", sans-serif;
 }
 
 #footer-logo {
 	height: 75px;
 	width: 75px;
 	border-radius: 10px;
+	margin-bottom: 0;
 }
 
 #footer-link {
