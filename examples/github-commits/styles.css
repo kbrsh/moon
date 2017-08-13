@@ -9,3 +9,7 @@ h1 {
 .card {
   background: #fafafa;
 }
+
+[m-mask] {
+  display: none;
+}

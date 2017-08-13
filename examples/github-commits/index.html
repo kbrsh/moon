@@ -13,7 +13,7 @@
     <link href="./styles.css" rel="stylesheet"/>
   </head>
   <body>
-    <div class="container" id="app">
+    <div class="container" id="app" m-mask>
       <h1>Moon Github Commits</h1>
       <select m-model="currentBranch" m-on:change="fetchCommits">
         <option m-for="branch in branches" value="{{branch}}">{{branch}}</option>
