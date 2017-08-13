@@ -57,6 +57,7 @@ pre code::after {
 
 code {
   font-family: "Inconsolata", monospace;
+  font-size: 1.5rem;
 }
 
 .string {
