@@ -9,30 +9,12 @@ h1, h2, h3, h4, h5, h6 {
   font-family: "Glacial Indifference", -apple-system, BlinkMacSystemFont, Avenir, "Avenir Next", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 }
 
-p {
+p, li {
   font-weight: 200;
-}
-
-ul {
-  display: table;
-  margin-left: 0;
-  padding-left: 0;
-  list-style: none;
-}
-
-li {
-  display: table-row;
-  font-weight: 200;
-}
-
-li::before {
-  content: "•";
-  display: table-cell;
-  padding-bottom: 1rem;
-  padding-right: 1rem;
 }
 
 .post-title {
+  margin-top: 4rem;
   font-size: 7rem;
 }
 
@@ -63,6 +45,7 @@ pre code {
   border: none;
   font-size: 1.3rem;
 }
+
 pre code::after {
   content: attr(lang);
   font-size: 1.5rem;
@@ -94,19 +77,18 @@ code {
 
 .sidebar {
   position: fixed;
-  z-index: 1;
-  padding: 40px 0;
   top: 0;
   bottom: 0;
   left: 0;
-  width: 300px;
+  width: 250px;
+  padding-top: 40px;
   border-right: 1px solid #d9d9d9;
+  z-index: 1;
   transition: all 0.2s ease;
 }
 
 .sidebar-head {
   text-align: center;
-  margin-top: 0;
 }
 
 .sidebar-head a {
@@ -141,11 +123,11 @@ code {
 }
 
 body.close .sidebar {
-  transform: translateX(-300px);
+  transform: translateX(-250px);
 }
 
 body.close .post {
-  left: 0px;
+  left: 0;
 }
 
 #sidebar-toggle span {
@@ -178,17 +160,17 @@ body.close .post {
 }
 
 .post {
-  left: 300px;
-  z-index: 0;
   position: absolute;
+  left: 250px;
   right: 0;
+  z-index: 0;
   padding-bottom: 5rem;
   transition: all 0.2s ease;
 }
 
 @media screen and (max-width: 768px) {
   .sidebar {
-    transform: translateX(-300px);
+    transform: translateX(-250px);
     box-shadow: 2px 3px 40px #a8a8a8;
   }
 
@@ -206,4 +188,11 @@ body.close .post {
 .example {
   background: #E7E7E7;
   padding: 1rem 3rem;
+  margin-top: 0;
+  margin-bottom: 2rem;
+}
+
+.example p, .example ul {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
