@@ -115,8 +115,23 @@ p {
   }
 
   #nav {
-    flex-direction: column;
-    align-items: flex-start;
+    /*font-size: 1rem;*/
+    /*padding-*/
+    /*flex-direction: column;*/
+    /*align-items: flex-start;*/
+  }
+
+  .nav-item {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  #search {
+    width: 100px;
+  }
+
+  .algolia-autocomplete {
+    padding: 1rem 1rem;
   }
 }
 
@@ -135,7 +150,6 @@ pre code {
   font-family: "Inconsolata", monospace;
   position: relative;
   border: none;
-  font-size: 1.3rem;
 }
 
 pre code::after {
@@ -170,7 +184,6 @@ code {
 /* Example Styles */
 
 #example #code pre:first-of-type {
-  margin-top: 0;
   margin-bottom: 1rem;
 }
 
