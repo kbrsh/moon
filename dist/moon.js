@@ -734,6 +734,8 @@
         if((vnodePropValue !== undefined && vnodePropValue !== false && vnodePropValue !== null) && ((nodePropValue === undefined || nodePropValue === false || nodePropValue === null) || vnodePropValue !== nodePropValue)) {
           if(vnodePropName.length === 10 && vnodePropName === "xlink:href") {
             node.setAttributeNS('http://www.w3.org/1999/xlink', "href", vnodePropValue);
+          } else if(vnodePropName === "class") {
+            node.className = vnodePropValue === true ? '' : vnodePropValue;
           } else {
             node.setAttribute(vnodePropName, vnodePropValue === true ? '' : vnodePropValue);
           }
