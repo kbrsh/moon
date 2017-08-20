@@ -62,10 +62,11 @@ const createElement = function(type, val, props, meta, children) {
 const createFunctionalComponent = function(props, children, functionalComponent) {
   const options = functionalComponent.options;
   const attrs = props.attrs;
-  let data = options.data;
+  let data = {};
+  let getData = options.data;
 
-  if(data === undefined) {
-    data = {};
+  if(getData !== undefined) {
+    data = getData();
   }
 
   // Merge data with provided props
@@ -73,7 +74,7 @@ const createFunctionalComponent = function(props, children, functionalComponent)
   if(propNames === undefined) {
     data = attrs;
   } else {
-    for(var i = 0; i < propNames.length; i++) {
+    for(let i = 0; i < propNames.length; i++) {
       const prop = propNames[i];
       data[prop] = attrs[prop];
     }
