@@ -523,10 +523,11 @@
     var createFunctionalComponent = function(props, children, functionalComponent) {
       var options = functionalComponent.options;
       var attrs = props.attrs;
-      var data = options.data;
+      var data = {};
+      var getData = options.data;
     
-      if(data === undefined) {
-        data = {};
+      if(getData !== undefined) {
+        data = getData();
       }
     
       // Merge data with provided props
@@ -541,7 +542,7 @@
       }
     
       // Call render function
-      return functionalComponent.options.render(m, {
+      return options.render(m, {
         data: data,
         slots: getSlots(children)
       });

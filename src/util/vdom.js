@@ -81,7 +81,7 @@ const createFunctionalComponent = function(props, children, functionalComponent)
   }
 
   // Call render function
-  return functionalComponent.options.render(m, {
+  return options.render(m, {
     data: data,
     slots: getSlots(children)
   });
