@@ -79,7 +79,7 @@ Moon.prototype.callMethod = function(method, args) {
   return this.$data[method].apply(this, args);
 }
 
-// Event Emitter, adapted from https://github.com/KingPixil/voke
+// Event Emitter, adapted from https://github.com/kbrsh/voke
 
 /**
  * Attaches an Event Listener
