@@ -330,7 +330,7 @@ const diffComponent = function(node, vnode) {
     const props = componentInstance.$props;
     const data = componentInstance.$data;
     const attrs = vnode.props.attrs;
-    for(var i = 0; i < props.length; i++) {
+    for(let i = 0; i < props.length; i++) {
       let prop = props[i];
       if(data[prop] !== attrs[prop]) {
         data[prop] = attrs[prop];
