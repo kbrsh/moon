@@ -14,7 +14,7 @@ $ npm install moon-router
 
 ```js
 const MoonRouter = require("moon-router");
-Moon.use(MoonRouter)
+Moon.use(MoonRouter);
 ```
 
 With a CDN/Local:
