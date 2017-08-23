@@ -24,7 +24,7 @@ describe("Compiler", function() {
       el: "#compilerSelfClosing",
       template: "<div><self-closing/></div>"
     });
-    expect(app.$dom.children[0].type).to.equal("self-closing");
+    expect(app.dom.children[0].type).to.equal("self-closing");
   });
 
   it("should compile self closing elements without a slash and consume children", function() {
@@ -33,7 +33,7 @@ describe("Compiler", function() {
       el: "#compilerSelfClosingNoSlash",
       template: "<div><self-closing>hi</div>"
     });
-    expect(app.$dom.children[0].children[0].val).to.equal("hi");
+    expect(app.dom.children[0].children[0].val).to.equal("hi");
   });
 
   it("should ignore just closing elements", function() {
@@ -42,7 +42,7 @@ describe("Compiler", function() {
       el: "#compilerJustClosing",
       template: "<div></h1></div>"
     });
-    expect(app.$dom.children[0]).to.equal(undefined);
+    expect(app.dom.children[0]).to.equal(undefined);
   });
 
   it("should ignore just closing custom elements", function() {
@@ -51,7 +51,7 @@ describe("Compiler", function() {
       el: "#compilerJustClosingCustom",
       template: "<div></custom></div>"
     });
-    expect(app.$dom.children[0]).to.equal(undefined);
+    expect(app.dom.children[0]).to.equal(undefined);
   });
 
   it("should compile only text", function() {

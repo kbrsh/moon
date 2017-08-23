@@ -7,7 +7,7 @@
  */
 Moon.prototype.get = function(key) {
   // Collect dependencies if currently collecting
-  const observer = this.$observer;
+  const observer = this.observer;
   let target = null;
   if((target = observer.target) !== null) {
     if(observer.map[key] === undefined) {
@@ -18,10 +18,10 @@ Moon.prototype.get = function(key) {
   }
 
   // Return value found
-  if("__ENV__" !== "production" && !(key in this.$data)) {
+  if("__ENV__" !== "production" && !(key in this.data)) {
     error(`The item "${key}" was not defined but was referenced`);
   }
-  return this.$data[key];
+  return this.data[key];
 }
 
 /**
@@ -31,16 +31,10 @@ Moon.prototype.get = function(key) {
  */
 Moon.prototype.set = function(key, val) {
   // Get observer
-  const observer = this.$observer;
+  const observer = this.observer;
 
   // Get base of keypath
-  const base = resolveKeyPath(this, this.$data, key, val);
-
-  // Invoke custom setter
-  let setter = null;
-  if((setter = observer.setters[base]) !== undefined) {
-    setter.call(this, val);
-  }
+  const base = resolveKeyPath(this, this.data, key, val);
 
   // Notify observer of change
   observer.notify(base);
@@ -57,10 +51,10 @@ Moon.prototype.destroy = function() {
   this.off();
 
   // Remove reference to element
-  this.$el = null;
+  this.el = null;
 
-  // Setup destroyed state
-  this.$queued = true;
+  // Queue
+  this.queued = true;
 
   // Call destroyed hook
   callHook(this, "destroyed");
@@ -76,7 +70,7 @@ Moon.prototype.callMethod = function(method, args) {
   args = args || [];
 
   // Call method in context of instance
-  return this.$data[method].apply(this, args);
+  return this.data[method].apply(this, args);
 }
 
 // Event Emitter, adapted from https://github.com/kbrsh/voke
@@ -88,11 +82,11 @@ Moon.prototype.callMethod = function(method, args) {
  */
 Moon.prototype.on = function(eventName, handler) {
   // Get list of handlers
-  let handlers = this.$events[eventName];
+  let handlers = this.events[eventName];
 
   if(handlers === undefined) {
     // If no handlers, create them
-    this.$events[eventName] = [handler];
+    this.events[eventName] = [handler];
   } else {
     // If there are already handlers, add it to the list of them
     handlers.push(handler);
@@ -107,13 +101,13 @@ Moon.prototype.on = function(eventName, handler) {
 Moon.prototype.off = function(eventName, handler) {
   if(eventName === undefined) {
     // No event name provided, remove all events
-    this.$events = {};
+    this.events = {};
   } else if(handler === undefined) {
     // No handler provided, remove all handlers for the event name
-    this.$events[eventName] = [];
+    this.events[eventName] = [];
   } else {
     // Get handlers from event name
-    let handlers = this.$events[eventName];
+    let handlers = this.events[eventName];
 
     // Get index of the handler to remove
     const index = handlers.indexOf(handler);
@@ -134,8 +128,8 @@ Moon.prototype.emit = function(eventName, customMeta) {
   meta.type = eventName;
 
   // Get handlers and global handlers
-  let handlers = this.$events[eventName];
-  let globalHandlers = this.$events["*"];
+  let handlers = this.events[eventName];
+  let globalHandlers = this.events['*'];
 
   // Counter
   let i = 0;
@@ -161,32 +155,29 @@ Moon.prototype.emit = function(eventName, customMeta) {
  */
 Moon.prototype.mount = function(el) {
   // Get element from the DOM
-  this.$el = typeof el === 'string' ? document.querySelector(el) : el;
+  this.el = typeof el === "string" ? document.querySelector(el) : el;
 
-  // Remove destroyed state
-  this.$destroyed = false;
-
-  if("__ENV__" !== "production" && this.$el === null) {
+  if("__ENV__" !== "production" && this.el === null) {
     // Element not found
-    error("Element " + this.$options.el + " not found");
+    error("Element " + this.options.el + " not found");
   }
 
   // Sync Element and Moon instance
-  this.$el.__moon__ = this;
+  this.el.__moon__ = this;
 
   // Setup template as provided `template` or outerHTML of the Element
-  defineProperty(this, "$template", this.$options.template, this.$el.outerHTML);
+  defineProperty(this, "template", this.options.template, this.el.outerHTML);
 
   // Setup render Function
-  if(this.$render === noop) {
-    this.$render = Moon.compile(this.$template);
+  if(this.compiledRender === noop) {
+    this.compiledRender = Moon.compile(this.template);
   }
 
   // Run First Build
   this.build();
 
   // Call mounted hook
-  callHook(this, 'mounted');
+  callHook(this, "mounted");
 }
 
 /**
@@ -195,7 +186,7 @@ Moon.prototype.mount = function(el) {
  */
 Moon.prototype.render = function() {
   // Call render function
-  return this.$render(m);
+  return this.compiledRender(m);
 }
 
 /**
@@ -215,7 +206,7 @@ Moon.prototype.patch = function(old, vnode, parent) {
 
       // Update Bound Instance
       newRoot.__moon__ = this;
-      this.$el = newRoot;
+      this.el = newRoot;
     } else {
       // Diff
       diff(old, [], vnode, [], 0, parent);
@@ -227,8 +218,8 @@ Moon.prototype.patch = function(old, vnode, parent) {
 
     if(newNode !== old) {
       // Root Element Changed During Hydration
-      this.$el = vnode.meta.el;
-      this.$el.__moon__ = this;
+      this.el = vnode.meta.el;
+      this.el.__moon__ = this;
     }
   }
 }
@@ -243,17 +234,17 @@ Moon.prototype.build = function() {
   // Old item to patch
   let old = null;
 
-  if(this.$dom.meta !== undefined) {
+  if(this.dom.meta !== undefined) {
     // If old virtual dom exists, patch against it
-    old = this.$dom;
+    old = this.dom;
   } else {
     // No virtual DOM, patch with actual DOM element, and setup virtual DOM
-    old = this.$el;
-    this.$dom = dom;
+    old = this.el;
+    this.dom = dom;
   }
 
   // Patch old and new
-  this.patch(old, dom, this.$el.parentNode);
+  this.patch(old, dom, this.el.parentNode);
 }
 
 /**
@@ -261,9 +252,9 @@ Moon.prototype.build = function() {
  */
 Moon.prototype.init = function() {
   log("======= Moon =======");
-  callHook(this, 'init');
+  callHook(this, "init");
 
-  const el = this.$options.el;
+  const el = this.options.el;
   if(el !== undefined) {
     this.mount(el);
   }

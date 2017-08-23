@@ -32,7 +32,7 @@
      * @param {Array} methods
      */
     var initMethods = function(instance, methods) {
-      var data = instance.$data;
+      var data = instance.data;
     
       var initMethod = function(methodName, method) {
         data[methodName] = function() {
@@ -52,13 +52,16 @@
      */
     var initComputed = function(instance, computed) {
       var setComputedProperty = function(prop) {
-        var observer = instance.$observer;
+        var observer = instance.observer;
+        var option = computed[prop];
+        var getter = option.get;
+        var setter = option.set;
     
         // Flush Cache if Dependencies Change
         observer.observe(prop);
     
         // Add Getters
-        Object.defineProperty(instance.$data, prop, {
+        Object.defineProperty(instance.data, prop, {
           get: function() {
             // Property Cache
             var cache = null;
@@ -69,7 +72,7 @@
               observer.target = prop;
     
               // Invoke getter
-              cache = computed[prop].get.call(instance);
+              cache = getter.call(instance);
     
               // Stop Capturing Dependencies
               observer.target = null;
@@ -83,14 +86,8 @@
     
             return cache;
           },
-          set: noop
+          set: setter === undefined ? noop : setter
         });
-    
-        // Add Setters
-        var setter = null;
-        if((setter = computed[prop].set) !== undefined) {
-          observer.setters[prop] = setter;
-        }
       }
     
       // Set All Computed Properties
@@ -105,9 +102,6 @@
     
       // Computed Property Cache
       this.cache = {};
-    
-      // Computed Property Setters
-      this.setters = {};
     
       // Set of events to clear cache when dependencies change
       this.clear = {};
@@ -182,11 +176,11 @@
      * @param {Object} instance
      */
     var queueBuild = function(instance) {
-      if(instance.$queued === false) {
-        instance.$queued = true;
+      if(instance.queued === false) {
+        instance.queued = true;
         setTimeout(function() {
           instance.build();
-          instance.$queued = false;
+          instance.queued = false;
           callHook(instance, "updated");
         }, 0);
       }
@@ -201,8 +195,8 @@
      * @return {Object} resolved object
      */
     var resolveKeyPath = function(instance, obj, keypath, val) {
-      keypath = keypath.replace(hashRE, '.$1');
-      var path = keypath.split(".");
+      keypath = keypath.replace(hashRE, ".$1");
+      var path = keypath.split('.');
       var i = 0;
       for(; i < path.length - 1; i++) {
         var propName = path[i];
@@ -218,7 +212,7 @@
      * @param {String} name
      */
     var callHook = function(instance, name) {
-      var hook = instance.$hooks[name];
+      var hook = instance.hooks[name];
       if(hook !== undefined) {
         hook.call(instance);
       }
@@ -509,7 +503,7 @@
         val: val,
         props: props,
         children: children,
-        meta: meta || defaultMetadata()
+        meta: meta
       };
     }
     
@@ -564,7 +558,7 @@
         // Tag => #text
         // Attrs => meta
         // Meta => val
-        return createElement(TEXT_TYPE, meta, {attrs:{}}, attrs, []);
+        return createElement(TEXT_TYPE, meta, {attrs: {}}, attrs, []);
       } else if((component = components[tag]) !== undefined) {
         // Resolve Component
         if(component.options.functional === true) {
@@ -600,7 +594,7 @@
         return classNames;
       }
     
-      var renderedClassNames = "";
+      var renderedClassNames = '';
       if(Array.isArray(classNames)) {
         // It's an array, so go through them all and generate a string
         for(var i = 0; i < classNames.length; i++) {
@@ -672,9 +666,9 @@
      */
     var createComponentFromVNode = function(node, vnode, component) {
       var componentInstance = new component.CTor();
-      var props = componentInstance.$props;
-      var data = componentInstance.$data;
+      var props = componentInstance.props;
       var attrs = vnode.props.attrs;
+      var data = componentInstance.data;
     
       // Merge data with provided props
       for(var i = 0; i < props.length; i++) {
@@ -685,18 +679,18 @@
       // Check for events
       var eventListeners = vnode.meta.eventListeners;
       if(eventListeners !== undefined) {
-        extend(componentInstance.$events, eventListeners);
+        extend(componentInstance.events, eventListeners);
       }
     
-      componentInstance.$slots = getSlots(vnode.children);
-      componentInstance.$el = node;
+      componentInstance.slots = getSlots(vnode.children);
+      componentInstance.el = node;
       componentInstance.build();
       callHook(componentInstance, "mounted");
     
       // Rehydrate
-      vnode.meta.el = componentInstance.$el;
+      vnode.meta.el = componentInstance.el;
     
-      return componentInstance.$el;
+      return componentInstance.el;
     }
     
     /**
@@ -788,8 +782,8 @@
         var componentChanged = false;
     
         // Merge any properties that changed
-        var props = componentInstance.$props;
-        var data = componentInstance.$data;
+        var props = componentInstance.props;
+        var data = componentInstance.data;
         var attrs = vnode.props.attrs;
         for(var i = 0; i < props.length; i++) {
           var prop = props[i];
@@ -801,7 +795,7 @@
     
         // If it has children, resolve any new slots
         if(vnode.children.length !== 0) {
-          componentInstance.$slots = getSlots(vnode.children);
+          componentInstance.slots = getSlots(vnode.children);
           componentChanged = true;
         }
     
@@ -1608,7 +1602,7 @@
         parent.deep = true;
     
         var slotName = node.props.name;
-        return ("instance.$slots[\"" + (slotName === undefined ? "default" : slotName.value) + "\"]");
+        return ("instance.slots[\"" + (slotName === undefined ? "default" : slotName.value) + "\"]");
       } else {
         var call = "m(\"" + (node.type) + "\", ";
     
@@ -1712,26 +1706,26 @@
         if(options === undefined) {
           options = {};
         }
-        this.$options = options;
+        this.options = options;
     
         // Readable name (component name or "root")
-        defineProperty(this, "$name", options.name, "root");
+        defineProperty(this, "name", options.name, "root");
     
         // Custom Data
         var data = options.data;
         if(data === undefined) {
-          this.$data = {};
+          this.data = {};
         } else if(typeof data === "function") {
-          this.$data = data();
+          this.data = data();
         } else {
-          this.$data = data;
+          this.data = data;
         }
     
         // Render function
-        defineProperty(this, "$render", options.render, noop);
+        defineProperty(this, "compiledRender", options.render, noop);
     
         // Hooks
-        defineProperty(this, "$hooks", options.hooks, {});
+        defineProperty(this, "hooks", options.hooks, {});
     
         // Custom Methods
         var methods = options.methods;
@@ -1740,16 +1734,16 @@
         }
     
         // Events
-        this.$events = {};
+        this.events = {};
     
         // Virtual DOM
-        this.$dom = {};
+        this.dom = {};
     
         // Observer
-        this.$observer = new Observer(this);
+        this.observer = new Observer(this);
     
         // State of Queue
-        this.$queued = false;
+        this.queued = false;
     
         // Setup Computed Properties
         var computed = options.computed;
@@ -1770,7 +1764,7 @@
      */
     Moon.prototype.get = function(key) {
       // Collect dependencies if currently collecting
-      var observer = this.$observer;
+      var observer = this.observer;
       var target = null;
       if((target = observer.target) !== null) {
         if(observer.map[key] === undefined) {
@@ -1781,10 +1775,10 @@
       }
     
       // Return value found
-      if("development" !== "production" && !(key in this.$data)) {
+      if("development" !== "production" && !(key in this.data)) {
         error(("The item \"" + key + "\" was not defined but was referenced"));
       }
-      return this.$data[key];
+      return this.data[key];
     }
     
     /**
@@ -1794,16 +1788,10 @@
      */
     Moon.prototype.set = function(key, val) {
       // Get observer
-      var observer = this.$observer;
+      var observer = this.observer;
     
       // Get base of keypath
-      var base = resolveKeyPath(this, this.$data, key, val);
-    
-      // Invoke custom setter
-      var setter = null;
-      if((setter = observer.setters[base]) !== undefined) {
-        setter.call(this, val);
-      }
+      var base = resolveKeyPath(this, this.data, key, val);
     
       // Notify observer of change
       observer.notify(base);
@@ -1820,10 +1808,10 @@
       this.off();
     
       // Remove reference to element
-      this.$el = null;
+      this.el = null;
     
-      // Setup destroyed state
-      this.$queued = true;
+      // Queue
+      this.queued = true;
     
       // Call destroyed hook
       callHook(this, "destroyed");
@@ -1839,7 +1827,7 @@
       args = args || [];
     
       // Call method in context of instance
-      return this.$data[method].apply(this, args);
+      return this.data[method].apply(this, args);
     }
     
     // Event Emitter, adapted from https://github.com/kbrsh/voke
@@ -1851,11 +1839,11 @@
      */
     Moon.prototype.on = function(eventName, handler) {
       // Get list of handlers
-      var handlers = this.$events[eventName];
+      var handlers = this.events[eventName];
     
       if(handlers === undefined) {
         // If no handlers, create them
-        this.$events[eventName] = [handler];
+        this.events[eventName] = [handler];
       } else {
         // If there are already handlers, add it to the list of them
         handlers.push(handler);
@@ -1870,13 +1858,13 @@
     Moon.prototype.off = function(eventName, handler) {
       if(eventName === undefined) {
         // No event name provided, remove all events
-        this.$events = {};
+        this.events = {};
       } else if(handler === undefined) {
         // No handler provided, remove all handlers for the event name
-        this.$events[eventName] = [];
+        this.events[eventName] = [];
       } else {
         // Get handlers from event name
-        var handlers = this.$events[eventName];
+        var handlers = this.events[eventName];
     
         // Get index of the handler to remove
         var index = handlers.indexOf(handler);
@@ -1897,8 +1885,8 @@
       meta.type = eventName;
     
       // Get handlers and global handlers
-      var handlers = this.$events[eventName];
-      var globalHandlers = this.$events["*"];
+      var handlers = this.events[eventName];
+      var globalHandlers = this.events["*"];
     
       // Counter
       var i = 0;
@@ -1924,32 +1912,29 @@
      */
     Moon.prototype.mount = function(el) {
       // Get element from the DOM
-      this.$el = typeof el === 'string' ? document.querySelector(el) : el;
+      this.el = typeof el === "string" ? document.querySelector(el) : el;
     
-      // Remove destroyed state
-      this.$destroyed = false;
-    
-      if("development" !== "production" && this.$el === null) {
+      if("development" !== "production" && this.el === null) {
         // Element not found
-        error("Element " + this.$options.el + " not found");
+        error("Element " + this.options.el + " not found");
       }
     
       // Sync Element and Moon instance
-      this.$el.__moon__ = this;
+      this.el.__moon__ = this;
     
       // Setup template as provided `template` or outerHTML of the Element
-      defineProperty(this, "$template", this.$options.template, this.$el.outerHTML);
+      defineProperty(this, "template", this.options.template, this.el.outerHTML);
     
       // Setup render Function
-      if(this.$render === noop) {
-        this.$render = Moon.compile(this.$template);
+      if(this.compiledRender === noop) {
+        this.compiledRender = Moon.compile(this.template);
       }
     
       // Run First Build
       this.build();
     
       // Call mounted hook
-      callHook(this, 'mounted');
+      callHook(this, "mounted");
     }
     
     /**
@@ -1958,7 +1943,7 @@
      */
     Moon.prototype.render = function() {
       // Call render function
-      return this.$render(m);
+      return this.compiledRender(m);
     }
     
     /**
@@ -1978,7 +1963,7 @@
     
           // Update Bound Instance
           newRoot.__moon__ = this;
-          this.$el = newRoot;
+          this.el = newRoot;
         } else {
           // Diff
           diff(old, [], vnode, [], 0, parent);
@@ -1990,8 +1975,8 @@
     
         if(newNode !== old) {
           // Root Element Changed During Hydration
-          this.$el = vnode.meta.el;
-          this.$el.__moon__ = this;
+          this.el = vnode.meta.el;
+          this.el.__moon__ = this;
         }
       }
     }
@@ -2006,17 +1991,17 @@
       // Old item to patch
       var old = null;
     
-      if(this.$dom.meta !== undefined) {
+      if(this.dom.meta !== undefined) {
         // If old virtual dom exists, patch against it
-        old = this.$dom;
+        old = this.dom;
       } else {
         // No virtual DOM, patch with actual DOM element, and setup virtual DOM
-        old = this.$el;
-        this.$dom = dom;
+        old = this.el;
+        this.dom = dom;
       }
     
       // Patch old and new
-      this.patch(old, dom, this.$el.parentNode);
+      this.patch(old, dom, this.el.parentNode);
     }
     
     /**
@@ -2024,9 +2009,9 @@
      */
     Moon.prototype.init = function() {
       log("======= Moon =======");
-      callHook(this, 'init');
+      callHook(this, "init");
     
-      var el = this.$options.el;
+      var el = this.options.el;
       if(el !== undefined) {
         this.mount(el);
       }
@@ -2122,17 +2107,16 @@
       MoonComponent.prototype.constructor = MoonComponent;
     
       MoonComponent.prototype.init = function() {
-        callHook(this, 'init');
+        callHook(this, "init");
     
-        var options = this.$options;
-        this.$destroyed = false;
-        defineProperty(this, "$props", options.props, []);
+        var options = this.options;
+        defineProperty(this, "props", options.props, []);
     
         var template = options.template;
-        this.$template = template;
+        this.template = template;
     
-        if(this.$render === noop) {
-          this.$render = Moon.compile(template);
+        if(this.compiledRender === noop) {
+          this.compiledRender = Moon.compile(template);
         }
       }
     

@@ -37,11 +37,11 @@ const error = function(msg) {
  * @param {Object} instance
  */
 const queueBuild = function(instance) {
-  if(instance.$queued === false) {
-    instance.$queued = true;
+  if(instance.queued === false) {
+    instance.queued = true;
     setTimeout(function() {
       instance.build();
-      instance.$queued = false;
+      instance.queued = false;
       callHook(instance, "updated");
     }, 0);
   }
@@ -56,8 +56,8 @@ const queueBuild = function(instance) {
  * @return {Object} resolved object
  */
 const resolveKeyPath = function(instance, obj, keypath, val) {
-  keypath = keypath.replace(hashRE, '.$1');
-  const path = keypath.split(".");
+  keypath = keypath.replace(hashRE, ".$1");
+  const path = keypath.split('.');
   let i = 0;
   for(; i < path.length - 1; i++) {
     const propName = path[i];
@@ -73,7 +73,7 @@ const resolveKeyPath = function(instance, obj, keypath, val) {
  * @param {String} name
  */
 const callHook = function(instance, name) {
-  const hook = instance.$hooks[name];
+  const hook = instance.hooks[name];
   if(hook !== undefined) {
     hook.call(instance);
   }

@@ -160,7 +160,7 @@ const generateNode = function(node, parent, state) {
     parent.deep = true;
 
     const slotName = node.props.name;
-    return `instance.$slots["${slotName === undefined ? "default" : slotName.value}"]`;
+    return `instance.slots["${slotName === undefined ? "default" : slotName.value}"]`;
   } else {
     let call = `m("${node.type}", `;
 

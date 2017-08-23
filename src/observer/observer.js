@@ -5,9 +5,6 @@ function Observer(instance) {
   // Computed Property Cache
   this.cache = {};
 
-  // Computed Property Setters
-  this.setters = {};
-
   // Set of events to clear cache when dependencies change
   this.clear = {};
 

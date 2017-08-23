@@ -48,7 +48,7 @@ const createElement = function(type, val, props, meta, children) {
     val: val,
     props: props,
     children: children,
-    meta: meta || defaultMetadata()
+    meta: meta
   };
 }
 
@@ -103,7 +103,7 @@ const m = function(tag, attrs, meta, children) {
     // Tag => #text
     // Attrs => meta
     // Meta => val
-    return createElement(TEXT_TYPE, meta, {attrs:{}}, attrs, []);
+    return createElement(TEXT_TYPE, meta, {attrs: {}}, attrs, []);
   } else if((component = components[tag]) !== undefined) {
     // Resolve Component
     if(component.options.functional === true) {
@@ -139,7 +139,7 @@ m.renderClass = function(classNames) {
     return classNames;
   }
 
-  let renderedClassNames = "";
+  let renderedClassNames = '';
   if(Array.isArray(classNames)) {
     // It's an array, so go through them all and generate a string
     for(let i = 0; i < classNames.length; i++) {
@@ -211,9 +211,9 @@ m.renderLoop = function(iteratable, item) {
  */
 const createComponentFromVNode = function(node, vnode, component) {
   const componentInstance = new component.CTor();
-  const props = componentInstance.$props;
-  const data = componentInstance.$data;
+  const props = componentInstance.props;
   const attrs = vnode.props.attrs;
+  let data = componentInstance.data;
 
   // Merge data with provided props
   for(let i = 0; i < props.length; i++) {
@@ -224,18 +224,18 @@ const createComponentFromVNode = function(node, vnode, component) {
   // Check for events
   const eventListeners = vnode.meta.eventListeners;
   if(eventListeners !== undefined) {
-    extend(componentInstance.$events, eventListeners);
+    extend(componentInstance.events, eventListeners);
   }
 
-  componentInstance.$slots = getSlots(vnode.children);
-  componentInstance.$el = node;
+  componentInstance.slots = getSlots(vnode.children);
+  componentInstance.el = node;
   componentInstance.build();
   callHook(componentInstance, "mounted");
 
   // Rehydrate
-  vnode.meta.el = componentInstance.$el;
+  vnode.meta.el = componentInstance.el;
 
-  return componentInstance.$el;
+  return componentInstance.el;
 }
 
 /**
@@ -327,8 +327,8 @@ const diffComponent = function(node, vnode) {
     let componentChanged = false;
 
     // Merge any properties that changed
-    const props = componentInstance.$props;
-    const data = componentInstance.$data;
+    const props = componentInstance.props;
+    const data = componentInstance.data;
     const attrs = vnode.props.attrs;
     for(let i = 0; i < props.length; i++) {
       let prop = props[i];
@@ -340,7 +340,7 @@ const diffComponent = function(node, vnode) {
 
     // If it has children, resolve any new slots
     if(vnode.children.length !== 0) {
-      componentInstance.$slots = getSlots(vnode.children);
+      componentInstance.slots = getSlots(vnode.children);
       componentChanged = true;
     }
 

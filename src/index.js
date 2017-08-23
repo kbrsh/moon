@@ -37,26 +37,26 @@ function Moon(options) {
     if(options === undefined) {
       options = {};
     }
-    this.$options = options;
+    this.options = options;
 
     // Readable name (component name or "root")
-    defineProperty(this, "$name", options.name, "root");
+    defineProperty(this, "name", options.name, "root");
 
     // Custom Data
     const data = options.data;
     if(data === undefined) {
-      this.$data = {};
+      this.data = {};
     } else if(typeof data === "function") {
-      this.$data = data();
+      this.data = data();
     } else {
-      this.$data = data;
+      this.data = data;
     }
 
     // Render function
-    defineProperty(this, "$render", options.render, noop);
+    defineProperty(this, "compiledRender", options.render, noop);
 
     // Hooks
-    defineProperty(this, "$hooks", options.hooks, {});
+    defineProperty(this, "hooks", options.hooks, {});
 
     // Custom Methods
     const methods = options.methods;
@@ -65,16 +65,16 @@ function Moon(options) {
     }
 
     // Events
-    this.$events = {};
+    this.events = {};
 
     // Virtual DOM
-    this.$dom = {};
+    this.dom = {};
 
     // Observer
-    this.$observer = new Observer(this);
+    this.observer = new Observer(this);
 
     // State of Queue
-    this.$queued = false;
+    this.queued = false;
 
     // Setup Computed Properties
     const computed = options.computed;

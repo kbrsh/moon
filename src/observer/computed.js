@@ -5,13 +5,16 @@
  */
 const initComputed = function(instance, computed) {
   let setComputedProperty = function(prop) {
-    const observer = instance.$observer;
+    const observer = instance.observer;
+    const option = computed[prop];
+    const getter = option.get;
+    const setter = option.set;
 
     // Flush Cache if Dependencies Change
     observer.observe(prop);
 
     // Add Getters
-    Object.defineProperty(instance.$data, prop, {
+    Object.defineProperty(instance.data, prop, {
       get: function() {
         // Property Cache
         let cache = null;
@@ -22,7 +25,7 @@ const initComputed = function(instance, computed) {
           observer.target = prop;
 
           // Invoke getter
-          cache = computed[prop].get.call(instance);
+          cache = getter.call(instance);
 
           // Stop Capturing Dependencies
           observer.target = null;
@@ -36,14 +39,8 @@ const initComputed = function(instance, computed) {
 
         return cache;
       },
-      set: noop
+      set: setter === undefined ? noop : setter
     });
-
-    // Add Setters
-    let setter = null;
-    if((setter = computed[prop].set) !== undefined) {
-      observer.setters[prop] = setter;
-    }
   }
 
   // Set All Computed Properties
