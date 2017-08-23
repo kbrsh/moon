@@ -86,7 +86,9 @@
     
             return cache;
           },
-          set: setter === undefined ? noop : setter
+          set: setter === undefined ? noop : function(val) {
+            setter.call(instance, val);
+          }
         });
       }
     
@@ -1886,7 +1888,7 @@
     
       // Get handlers and global handlers
       var handlers = this.events[eventName];
-      var globalHandlers = this.events["*"];
+      var globalHandlers = this.events['*'];
     
       // Counter
       var i = 0;

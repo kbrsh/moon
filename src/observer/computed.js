@@ -39,7 +39,9 @@ const initComputed = function(instance, computed) {
 
         return cache;
       },
-      set: setter === undefined ? noop : setter
+      set: setter === undefined ? noop : function(val) {
+        setter.call(instance, val);
+      }
     });
   }
 
