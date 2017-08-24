@@ -1485,11 +1485,15 @@
           }
     
           if((duringPropGenerate = specialDirective.duringPropGenerate) !== undefined) {
-            if(state.hasAttrs === false) {
-              state.hasAttrs = true;
-            }
+            var generated = duringPropGenerate(prop$1, node, state);
     
-            propsCode += duringPropGenerate(prop$1, node, state);
+            if(generated.length !== 0) {
+              if(state.hasAttrs === false) {
+                state.hasAttrs = true;
+              }
+              
+              propsCode += generated;
+            }
           }
     
           node.meta.shouldRender = true;
@@ -2314,11 +2318,21 @@
     
     specialDirectives["m-literal"] = {
       duringPropGenerate: function(prop, vnode, state) {
-        var propName = prop.meta.arg;
+        var modifiers = prop.meta.arg.split(".");
+    
+        var propName = modifiers.shift();
         var propValue = prop.value;
+    
         compileTemplateExpression(propValue, state.exclude, state.dependencies);
     
-        if(propName === "class") {
+        if(modifiers[0] === "dom") {
+          var dom = vnode.props.dom;
+          if(dom === undefined) {
+            vnode.props.dom = dom = {};
+          }
+          dom[propName] = propValue;
+          return "";
+        } else if(propName === "class") {
           // Detected class, use runtime class render helper
           return ("\"class\": m.renderClass(" + propValue + "), ");
         } else {

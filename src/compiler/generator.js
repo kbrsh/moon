@@ -41,11 +41,15 @@ const generateProps = function(node, parent, state) {
       }
 
       if((duringPropGenerate = specialDirective.duringPropGenerate) !== undefined) {
-        if(state.hasAttrs === false) {
-          state.hasAttrs = true;
-        }
+        const generated = duringPropGenerate(prop, node, state);
 
-        propsCode += duringPropGenerate(prop, node, state);
+        if(generated.length !== 0) {
+          if(state.hasAttrs === false) {
+            state.hasAttrs = true;
+          }
+          
+          propsCode += generated;
+        }
       }
 
       node.meta.shouldRender = true;

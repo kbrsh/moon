@@ -98,4 +98,24 @@ describe('Literal Directive', function() {
       });
     });
   });
+
+  describe("DOM Property", function() {
+    var literalDOM = createTestElement("literalDOM", '<span m-literal:domproperty.dom="[1, 2, 3]"></span>');
+    var span = literalDOM.firstChild;
+
+    var app = new Moon({
+      el: "#literalDOM"
+    });
+
+    it('should treat the value as a literal expression', function() {
+      return wait(function() {
+        expect(span.getAttribute("domproperty")).to.be["null"];
+        expect(span.domproperty).to.deep.equal([1, 2, 3]);
+      });
+    });
+
+    it('should not be present at runtime', function() {
+      expect(span.getAttribute("m-literal:domproperty.dom")).to.be['null'];
+    });
+  });
 });

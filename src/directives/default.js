@@ -181,11 +181,21 @@ specialDirectives["m-model"] = {
 
 specialDirectives["m-literal"] = {
   duringPropGenerate: function(prop, vnode, state) {
-    const propName = prop.meta.arg;
+    let modifiers = prop.meta.arg.split(".");
+
+    const propName = modifiers.shift();
     const propValue = prop.value;
+
     compileTemplateExpression(propValue, state.exclude, state.dependencies);
 
-    if(propName === "class") {
+    if(modifiers[0] === "dom") {
+      let dom = vnode.props.dom;
+      if(dom === undefined) {
+        vnode.props.dom = dom = {};
+      }
+      dom[propName] = propValue;
+      return "";
+    } else if(propName === "class") {
       // Detected class, use runtime class render helper
       return `"class": m.renderClass(${propValue}), `;
     } else {
