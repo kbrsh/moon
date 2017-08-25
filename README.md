@@ -32,11 +32,11 @@ Moon is a simple front end javascript library heavily inspired by [Vue](https://
 
 ### Another library?
 
-There have been a lot of libraries released. Moon has been being developed since late 2015. Most libraries are bloated, with a large API and file size, leading to applications becoming slower, and less mobile friendly.
+There have been a lot of Javascript libraries released lately. Moon has been being developed since late 2015. Most libraries are bloated, with a large API and file size, leading to applications becoming slower, and less mobile friendly.
 
-Moon differs from the existing solutions by providing a faster, yet compact library with a simple but powerful API. It uses a virtual DOM system similar to React, but includes advanced optimizations crafted specifically for Moon, similar to the Glimmer engine by the Ember team. In a variety of benchmarks, Moon has proven itself to be the fastest UI library out there.
+Moon differs from the existing solutions by providing a faster, yet compact library with a simple but powerful API. It uses a virtual DOM system similar to React, but includes advanced optimizations crafted specifically for Moon, similar to the Glimmer engine by the Ember team. In a variety of benchmarks, Moon has proven itself to be one of the fastest UI libraries out there.
 
-Still, you do **not have to** use Moon if you are happy with your current solution, or if you have already started. If you are creating something new or would like to use it for the performance gains and intuitive API, feel free to use Moon.
+Still, you do **not have to** use Moon if you are happy with your current solution, or if you have already started a project without it. If you are creating something new or would like to use it for the performance gains and intuitive API, feel free to use Moon.
 
 ### Usage
 
