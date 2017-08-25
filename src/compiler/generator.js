@@ -1,3 +1,7 @@
+const closeCall = function(code, add) {
+  return code.substring(0, code.length - 2) + add;
+}
+
 const generateProps = function(node, parent, state) {
   const props = node.props;
   node.props = {
@@ -37,7 +41,9 @@ const generateProps = function(node, parent, state) {
           afterGenerate: afterGenerate
         };
 
-        hasSpecialDirectivesAfter = true;
+        if(hasSpecialDirectivesAfter === false) {
+          hasSpecialDirectivesAfter = true;
+        }
       }
 
       if((duringPropGenerate = specialDirective.duringPropGenerate) !== undefined) {
@@ -47,15 +53,18 @@ const generateProps = function(node, parent, state) {
           if(state.hasAttrs === false) {
             state.hasAttrs = true;
           }
-          
+
           propsCode += generated;
         }
       }
 
       node.meta.shouldRender = true;
     } else if(name[0] === "m" && name[1] === "-") {
+      if(hasDirectives === false) {
+        hasDirectives = true;
+      }
+
       directiveProps.push(prop);
-      hasDirectives = true;
       node.meta.shouldRender = true;
     } else {
       const value = prop.value;
@@ -74,7 +83,7 @@ const generateProps = function(node, parent, state) {
   }
 
   if(state.hasAttrs === true) {
-    propsCode = propsCode.substring(0, propsCode.length - 2) + "}";
+    propsCode = closeCall(propsCode, "}");
     state.hasAttrs = false;
   } else {
     propsCode += "}";
@@ -93,7 +102,7 @@ const generateProps = function(node, parent, state) {
       propsCode += `"${directiveProp.name}": ${directivePropValue.length === 0 ? "\"\"" : directivePropValue}, `;
     }
 
-    propsCode = propsCode.substring(0, propsCode.length - 2) + "}";
+    propsCode = closeCall(propsCode, "}");
   }
 
   if(hasSpecialDirectivesAfter === true) {
@@ -108,7 +117,7 @@ const generateProps = function(node, parent, state) {
       propsCode += `"${domProp}": ${domProps[domProp]}, `;
     }
 
-    propsCode = propsCode.substring(0, propsCode.length - 2) + "}";
+    propsCode = closeCall(propsCode, "}");
   }
 
   propsCode += "}, ";
@@ -127,10 +136,10 @@ const generateEventlisteners = function(eventListeners) {
         eventListenersCode += `${handlers[i]}, `;
       }
 
-      eventListenersCode = eventListenersCode.substring(0, eventListenersCode.length - 2) + "], ";
+      eventListenersCode = closeCall(eventListenersCode, "], ");
     }
 
-    eventListenersCode = eventListenersCode.substring(0, eventListenersCode.length - 2) + "}, ";
+    eventListenersCode = closeCall(eventListenersCode, "}, ");
     return eventListenersCode;
 }
 
@@ -144,11 +153,11 @@ const generateMeta = function(meta) {
     }
   }
 
-  metaCode = metaCode.substring(0, metaCode.length - 2) + "}, ";
+  metaCode = closeCall(metaCode, "}, ");
   return metaCode;
 }
 
-const generateNode = function(node, parent, state) {
+const generateNode = function(node, parent, index, state) {
   if(typeof node === "string") {
     const compiled = compileTemplate(node, state.exclude, state.dependencies);
     let meta = defaultMetadata();
@@ -156,6 +165,8 @@ const generateNode = function(node, parent, state) {
     if(node !== compiled) {
       meta.shouldRender = true;
       parent.meta.shouldRender = true;
+    } else if(state.dynamic === true) {
+      meta.shouldRender = true;
     }
 
     return `m("#text", ${generateMeta(meta)}"${compiled}")`;
@@ -167,11 +178,12 @@ const generateNode = function(node, parent, state) {
     return `instance.slots["${slotName === undefined ? "default" : slotName.value}"]`;
   } else {
     let call = `m("${node.type}", `;
+    state.index = index;
 
     let meta = defaultMetadata();
     node.meta = meta;
 
-    if(node.custom === true) {
+    if(node.custom === true || state.dynamic === true) {
       meta.shouldRender = true;
     }
 
@@ -187,16 +199,15 @@ const generateNode = function(node, parent, state) {
     }
 
     let children = node.children;
-    const childrenLength = children.length;
     let childrenCode = "[";
 
-    if(childrenLength === 0) {
+    if(children.length === 0) {
       childrenCode += "]";
     } else {
       for(let i = 0; i < children.length; i++) {
-        childrenCode += `${generateNode(children[i], node, state)}, `;
+        childrenCode += `${generateNode(children[i], node, i, state)}, `;
       }
-      childrenCode = childrenCode.substring(0, childrenCode.length - 2) + "]";
+      childrenCode = closeCall(childrenCode, "]");
     }
 
     if(node.deep === true) {
@@ -216,7 +227,7 @@ const generateNode = function(node, parent, state) {
       let specialDirectiveAfter;
       for(let specialDirectiveKey in specialDirectivesAfter) {
         specialDirectiveAfter = specialDirectivesAfter[specialDirectiveKey];
-        call = specialDirectiveAfter.afterGenerate(specialDirectiveAfter.prop, call, node, state);
+        call = specialDirectiveAfter.afterGenerate(specialDirectiveAfter.prop, call, node, parent, state);
       }
     }
 
@@ -231,10 +242,12 @@ const generate = function(tree) {
     hasAttrs: false,
     specialDirectivesAfter: null,
     exclude: globals,
+    index: 0,
+    dynamic: false,
     dependencies: []
   };
 
-  const rootCode = generateNode(root, undefined, state);
+  const rootCode = generateNode(root, undefined, 0, state);
 
   const dependencies = state.dependencies;
   let dependenciesCode = "";

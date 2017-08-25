@@ -2,13 +2,65 @@
 
 const emptyVNode = `m("#text", ${generateMeta(defaultMetadata())}"")`;
 
+let ifState = {
+  elseNode: null,
+  previousElseNode: null,
+  elseIndex: 0,
+  previousElseIndex: 0
+}
+
 specialDirectives["m-if"] = {
-  afterGenerate: function(prop, code, vnode, state) {
+  beforeGenerate: function(prop, vnode, parentVNode, state) {
+    const children = parentVNode.children;
+    const childrenLength = children.length;
+    const index = state.index;
+    let previousChild = null;
+
+    if(index !== 0 && typeof (previousChild = children[index - 1]) !== "string" && previousChild.props.attrs["m-if"] !== undefined) {
+      state.dynamic = true;
+    } else if(index < (childrenLength - 1)) {
+      for(let nextIndex = index + 1; nextIndex < childrenLength; nextIndex++) {
+        let nextChild = children[nextIndex];
+        if(typeof nextChild !== "string") {
+          if(nextChild.props["m-if"] !== undefined) {
+            state.dynamic = true;
+          } else if(nextChild.props["m-else"] !== undefined) {
+            ifState.previousElseIndex = ifState.elseIndex;
+            ifState.elseIndex = nextIndex;
+            ifState.previousElseNode = ifState.elseNode;
+            ifState.elseNode = nextChild;
+            state.dynamic = true;
+          } else {
+            break;
+          }
+        }
+      }
+    }
+  },
+  afterGenerate: function(prop, code, vnode, parentVNode, state) {
     const value = prop.value;
+    const children = parentVNode.children;
+    let elseValue = emptyVNode;
+    let elseNode = null;
+
+    if((elseNode = ifState.elseNode) !== null) {
+      let elseIndex = ifState.elseIndex;
+      elseValue = generateNode(elseNode, parentVNode, elseIndex, state);
+      children.splice(elseIndex, 1);
+      ifState.elseIndex = ifState.previousElseIndex;
+      ifState.elseNode = ifState.previousElseNode;
+    }
+
+    state.dynamic = false;
     compileTemplateExpression(value, state.exclude, state.dependencies);
-    return `${value} ? ${code} : ${emptyVNode}`;
+
+    return `${value} ? ${code} : ${elseValue}`;
   }
 }
+
+specialDirectives["m-else"] = {
+
+};
 
 specialDirectives["m-for"] = {
   beforeGenerate: function(prop, vnode, parentVNode, state) {
@@ -33,7 +85,7 @@ specialDirectives["m-for"] = {
     meta.aliases = aliases;
     meta.exclude = exclude;
   },
-  afterGenerate: function(prop, code, vnode, state) {
+  afterGenerate: function(prop, code, vnode, parentVNode, state) {
     // Get meta
     const meta = prop.meta;
 

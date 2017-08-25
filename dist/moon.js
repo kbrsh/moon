@@ -1442,6 +1442,10 @@
       return;
     }
     
+    var closeCall = function(code, add) {
+      return code.substring(0, code.length - 2) + add;
+    }
+    
     var generateProps = function(node, parent, state) {
       var props = node.props;
       node.props = {
@@ -1481,7 +1485,9 @@
               afterGenerate: afterGenerate
             };
     
-            hasSpecialDirectivesAfter = true;
+            if(hasSpecialDirectivesAfter === false) {
+              hasSpecialDirectivesAfter = true;
+            }
           }
     
           if((duringPropGenerate = specialDirective.duringPropGenerate) !== undefined) {
@@ -1491,15 +1497,18 @@
               if(state.hasAttrs === false) {
                 state.hasAttrs = true;
               }
-              
+    
               propsCode += generated;
             }
           }
     
           node.meta.shouldRender = true;
         } else if(name$1[0] === "m" && name$1[1] === "-") {
+          if(hasDirectives === false) {
+            hasDirectives = true;
+          }
+    
           directiveProps.push(prop$1);
-          hasDirectives = true;
           node.meta.shouldRender = true;
         } else {
           var value = prop$1.value;
@@ -1518,7 +1527,7 @@
       }
     
       if(state.hasAttrs === true) {
-        propsCode = propsCode.substring(0, propsCode.length - 2) + "}";
+        propsCode = closeCall(propsCode, "}");
         state.hasAttrs = false;
       } else {
         propsCode += "}";
@@ -1537,7 +1546,7 @@
           propsCode += "\"" + (directiveProp.name) + "\": " + (directivePropValue.length === 0 ? "\"\"" : directivePropValue) + ", ";
         }
     
-        propsCode = propsCode.substring(0, propsCode.length - 2) + "}";
+        propsCode = closeCall(propsCode, "}");
       }
     
       if(hasSpecialDirectivesAfter === true) {
@@ -1552,7 +1561,7 @@
           propsCode += "\"" + domProp + "\": " + (domProps[domProp]) + ", ";
         }
     
-        propsCode = propsCode.substring(0, propsCode.length - 2) + "}";
+        propsCode = closeCall(propsCode, "}");
       }
     
       propsCode += "}, ";
@@ -1571,10 +1580,10 @@
             eventListenersCode += (handlers[i]) + ", ";
           }
     
-          eventListenersCode = eventListenersCode.substring(0, eventListenersCode.length - 2) + "], ";
+          eventListenersCode = closeCall(eventListenersCode, "], ");
         }
     
-        eventListenersCode = eventListenersCode.substring(0, eventListenersCode.length - 2) + "}, ";
+        eventListenersCode = closeCall(eventListenersCode, "}, ");
         return eventListenersCode;
     }
     
@@ -1588,11 +1597,11 @@
         }
       }
     
-      metaCode = metaCode.substring(0, metaCode.length - 2) + "}, ";
+      metaCode = closeCall(metaCode, "}, ");
       return metaCode;
     }
     
-    var generateNode = function(node, parent, state) {
+    var generateNode = function(node, parent, index, state) {
       if(typeof node === "string") {
         var compiled = compileTemplate(node, state.exclude, state.dependencies);
         var meta = defaultMetadata();
@@ -1600,6 +1609,8 @@
         if(node !== compiled) {
           meta.shouldRender = true;
           parent.meta.shouldRender = true;
+        } else if(state.dynamic === true) {
+          meta.shouldRender = true;
         }
     
         return ("m(\"#text\", " + (generateMeta(meta)) + "\"" + compiled + "\")");
@@ -1611,11 +1622,12 @@
         return ("instance.slots[\"" + (slotName === undefined ? "default" : slotName.value) + "\"]");
       } else {
         var call = "m(\"" + (node.type) + "\", ";
+        state.index = index;
     
         var meta$1 = defaultMetadata();
         node.meta = meta$1;
     
-        if(node.custom === true) {
+        if(node.custom === true || state.dynamic === true) {
           meta$1.shouldRender = true;
         }
     
@@ -1631,16 +1643,15 @@
         }
     
         var children = node.children;
-        var childrenLength = children.length;
         var childrenCode = "[";
     
-        if(childrenLength === 0) {
+        if(children.length === 0) {
           childrenCode += "]";
         } else {
           for(var i = 0; i < children.length; i++) {
-            childrenCode += (generateNode(children[i], node, state)) + ", ";
+            childrenCode += (generateNode(children[i], node, i, state)) + ", ";
           }
-          childrenCode = childrenCode.substring(0, childrenCode.length - 2) + "]";
+          childrenCode = closeCall(childrenCode, "]");
         }
     
         if(node.deep === true) {
@@ -1660,7 +1671,7 @@
           var specialDirectiveAfter;
           for(var specialDirectiveKey in specialDirectivesAfter) {
             specialDirectiveAfter = specialDirectivesAfter[specialDirectiveKey];
-            call = specialDirectiveAfter.afterGenerate(specialDirectiveAfter.prop, call, node, state);
+            call = specialDirectiveAfter.afterGenerate(specialDirectiveAfter.prop, call, node, parent, state);
           }
         }
     
@@ -1675,10 +1686,12 @@
         hasAttrs: false,
         specialDirectivesAfter: null,
         exclude: globals,
+        index: 0,
+        dynamic: false,
         dependencies: []
       };
     
-      var rootCode = generateNode(root, undefined, state);
+      var rootCode = generateNode(root, undefined, 0, state);
     
       var dependencies = state.dependencies;
       var dependenciesCode = "";
@@ -2139,13 +2152,65 @@
     
     var emptyVNode = "m(\"#text\", " + (generateMeta(defaultMetadata())) + "\"\")";
     
+    var ifState = {
+      elseNode: null,
+      previousElseNode: null,
+      elseIndex: 0,
+      previousElseIndex: 0
+    }
+    
     specialDirectives["m-if"] = {
-      afterGenerate: function(prop, code, vnode, state) {
+      beforeGenerate: function(prop, vnode, parentVNode, state) {
+        var children = parentVNode.children;
+        var childrenLength = children.length;
+        var index = state.index;
+        var previousChild = null;
+    
+        if(index !== 0 && typeof (previousChild = children[index - 1]) !== "string" && previousChild.props.attrs["m-if"] !== undefined) {
+          state.dynamic = true;
+        } else if(index < (childrenLength - 1)) {
+          for(var nextIndex = index + 1; nextIndex < childrenLength; nextIndex++) {
+            var nextChild = children[nextIndex];
+            if(typeof nextChild !== "string") {
+              if(nextChild.props["m-if"] !== undefined) {
+                state.dynamic = true;
+              } else if(nextChild.props["m-else"] !== undefined) {
+                ifState.previousElseIndex = ifState.elseIndex;
+                ifState.elseIndex = nextIndex;
+                ifState.previousElseNode = ifState.elseNode;
+                ifState.elseNode = nextChild;
+                state.dynamic = true;
+              } else {
+                break;
+              }
+            }
+          }
+        }
+      },
+      afterGenerate: function(prop, code, vnode, parentVNode, state) {
         var value = prop.value;
+        var children = parentVNode.children;
+        var elseValue = emptyVNode;
+        var elseNode = null;
+    
+        if((elseNode = ifState.elseNode) !== null) {
+          var elseIndex = ifState.elseIndex;
+          elseValue = generateNode(elseNode, parentVNode, elseIndex, state);
+          children.splice(elseIndex, 1);
+          ifState.elseIndex = ifState.previousElseIndex;
+          ifState.elseNode = ifState.previousElseNode;
+        }
+    
+        state.dynamic = false;
         compileTemplateExpression(value, state.exclude, state.dependencies);
-        return (value + " ? " + code + " : " + emptyVNode);
+    
+        return (value + " ? " + code + " : " + elseValue);
       }
     }
+    
+    specialDirectives["m-else"] = {
+    
+    };
     
     specialDirectives["m-for"] = {
       beforeGenerate: function(prop, vnode, parentVNode, state) {
@@ -2170,7 +2235,7 @@
         meta.aliases = aliases;
         meta.exclude = exclude;
       },
-      afterGenerate: function(prop, code, vnode, state) {
+      afterGenerate: function(prop, code, vnode, parentVNode, state) {
         // Get meta
         var meta = prop.meta;
     
