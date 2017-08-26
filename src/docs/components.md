@@ -258,7 +258,7 @@ var app4 = new Moon({
 
 When you have a component that needs to distribute content passed to it, it can get messy when attempting to achieve it with props. Instead, you can provide a component with HTML, and the component can distribute it accordingly.
 
-To do this, Moon has _slots_. A can have the `slot` element anywhere with an optional `name` attribute. When a new component instance is created, the content inside of it is distributed. Any elements without a `slot` attribute will be put into the default slot, and any elements with the `slot` attribute will be put inside their respective slot.
+To do this, Moon has _slots_. A component template can have the `slot` element anywhere with an optional `name` attribute. When a new component instance is created, the content inside of it is distributed. Any elements without a `slot` attribute will be put into the default slot, and any elements with the `slot` attribute will be put inside their respective slot.
 
 ```html
 <div id="app10">
