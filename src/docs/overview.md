@@ -8,7 +8,7 @@ Moon is a minimal, blazing fast library for building user interfaces. It combine
 
 For example, here is the minified + gzipped size for popular libraries compared to Moon (less is better):
 
-- Moon - 6kb
+- Moon - 7kb
 - Mithril - 8kb
 - Vue - 25.86kb
 - React + React DOM - 43kb
