@@ -2150,38 +2150,36 @@
     
     var emptyVNode = "m(\"#text\", {}, \"\")";
     
-    var ifState = {
-      elseNode: null,
-      previousElseNode: null,
-      elseIndex: 0,
-      previousElseIndex: 0
+    var ifDynamic = 0;
+    var ifStack = [];
+    
+    var setIfState = function(state) {
+      if(state.dynamic === false) {
+        state.dynamic = true;
+      } else {
+        ifDynamic++;
+      }
     }
     
     specialDirectives["m-if"] = {
       beforeGenerate: function(prop, vnode, parentVNode, state) {
         var children = parentVNode.children;
-        var childrenLength = children.length;
         var index = state.index;
-        var previousChild = null;
+        var child;
+        var attrs;
     
-        if(index !== 0 && typeof (previousChild = children[index - 1]) !== "string" && previousChild.props.attrs["m-if"] !== undefined) {
-          state.dynamic = true;
-        } else if(index < (childrenLength - 1)) {
-          for(var nextIndex = index + 1; nextIndex < childrenLength; nextIndex++) {
-            var nextChild = children[nextIndex];
-            if(typeof nextChild !== "string") {
-              if(nextChild.props["m-if"] !== undefined) {
-                state.dynamic = true;
-              } else if(nextChild.props["m-else"] !== undefined) {
-                ifState.previousElseIndex = ifState.elseIndex;
-                ifState.elseIndex = nextIndex;
-                ifState.previousElseNode = ifState.elseNode;
-                ifState.elseNode = nextChild;
-                state.dynamic = true;
-              } else {
-                break;
-              }
+        for(var i = index + 1; i < children.length; i++) {
+          child = children[i];
+          if(typeof child !== "string") {
+            attrs = child.props;
+            if(attrs["m-else"] !== undefined) {
+              ifStack.push([i, child]);
+              children.splice(i, 1);
+              setIfState(state);
+            } else if(attrs["m-if"] !== undefined) {
+              setIfState(state);
             }
+            break;
           }
         }
       },
@@ -2189,17 +2187,16 @@
         var value = prop.value;
         var children = parentVNode.children;
         var elseValue = emptyVNode;
-        var elseNode = null;
+        var elseNode = ifStack.pop();
     
-        if((elseNode = ifState.elseNode) !== null) {
-          var elseIndex = ifState.elseIndex;
-          elseValue = generateNode(elseNode, parentVNode, elseIndex, state);
-          children.splice(elseIndex, 1);
-          ifState.elseIndex = ifState.previousElseIndex;
-          ifState.elseNode = ifState.previousElseNode;
+        if(elseNode !== undefined) {
+          elseValue = generateNode(elseNode[1], parentVNode, elseNode[0], state);
         }
     
-        state.dynamic = false;
+        if((--ifDynamic) === 0) {
+          state.dynamic = false;
+        }
+    
         compileTemplateExpression(value, state.exclude, state.dependencies);
     
         return (value + " ? " + code + " : " + elseValue);
@@ -2317,7 +2314,7 @@
     
             if(radio === true) {
               var valueAttr = attrs.value;
-              var literalValueAttr = null;
+              var literalValueAttr;
               var valueAttrValue = "null";
               if(valueAttr !== undefined) {
                 valueAttrValue = "\"" + (compileTemplate(valueAttr.value, exclude, dependencies)) + "\"";
@@ -2335,8 +2332,8 @@
         // Compute getter base if dynamic
         var bracketIndex = keypathGetter.indexOf("[");
         var dotIndex = keypathGetter.indexOf(".");
-        var base = null;
-        var dynamicPath = null;
+        var base;
+        var dynamicPath;
         var dynamicIndex = -1;
     
         if(bracketIndex !== -1 || dotIndex !== -1) {

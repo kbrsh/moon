@@ -2,38 +2,36 @@
 
 const emptyVNode = `m("#text", {}, "")`;
 
-let ifState = {
-  elseNode: null,
-  previousElseNode: null,
-  elseIndex: 0,
-  previousElseIndex: 0
+let ifDynamic = 0;
+let ifStack = [];
+
+const setIfState = function(state) {
+  if(state.dynamic === false) {
+    state.dynamic = true;
+  } else {
+    ifDynamic++;
+  }
 }
 
 specialDirectives["m-if"] = {
   beforeGenerate: function(prop, vnode, parentVNode, state) {
     const children = parentVNode.children;
-    const childrenLength = children.length;
     const index = state.index;
-    let previousChild = null;
+    let child;
+    let attrs;
 
-    if(index !== 0 && typeof (previousChild = children[index - 1]) !== "string" && previousChild.props.attrs["m-if"] !== undefined) {
-      state.dynamic = true;
-    } else if(index < (childrenLength - 1)) {
-      for(let nextIndex = index + 1; nextIndex < childrenLength; nextIndex++) {
-        let nextChild = children[nextIndex];
-        if(typeof nextChild !== "string") {
-          if(nextChild.props["m-if"] !== undefined) {
-            state.dynamic = true;
-          } else if(nextChild.props["m-else"] !== undefined) {
-            ifState.previousElseIndex = ifState.elseIndex;
-            ifState.elseIndex = nextIndex;
-            ifState.previousElseNode = ifState.elseNode;
-            ifState.elseNode = nextChild;
-            state.dynamic = true;
-          } else {
-            break;
-          }
+    for(let i = index + 1; i < children.length; i++) {
+      child = children[i];
+      if(typeof child !== "string") {
+        attrs = child.props;
+        if(attrs["m-else"] !== undefined) {
+          ifStack.push([i, child]);
+          children.splice(i, 1);
+          setIfState(state);
+        } else if(attrs["m-if"] !== undefined) {
+          setIfState(state);
         }
+        break;
       }
     }
   },
@@ -41,17 +39,16 @@ specialDirectives["m-if"] = {
     const value = prop.value;
     const children = parentVNode.children;
     let elseValue = emptyVNode;
-    let elseNode = null;
+    let elseNode = ifStack.pop();
 
-    if((elseNode = ifState.elseNode) !== null) {
-      let elseIndex = ifState.elseIndex;
-      elseValue = generateNode(elseNode, parentVNode, elseIndex, state);
-      children.splice(elseIndex, 1);
-      ifState.elseIndex = ifState.previousElseIndex;
-      ifState.elseNode = ifState.previousElseNode;
+    if(elseNode !== undefined) {
+      elseValue = generateNode(elseNode[1], parentVNode, elseNode[0], state);
     }
 
-    state.dynamic = false;
+    if((--ifDynamic) === 0) {
+      state.dynamic = false;
+    }
+
     compileTemplateExpression(value, state.exclude, state.dependencies);
 
     return `${value} ? ${code} : ${elseValue}`;
@@ -169,7 +166,7 @@ specialDirectives["m-model"] = {
 
         if(radio === true) {
           let valueAttr = attrs.value;
-          let literalValueAttr = null;
+          let literalValueAttr;
           let valueAttrValue = "null";
           if(valueAttr !== undefined) {
             valueAttrValue = `"${compileTemplate(valueAttr.value, exclude, dependencies)}"`;
@@ -187,8 +184,8 @@ specialDirectives["m-model"] = {
     // Compute getter base if dynamic
     const bracketIndex = keypathGetter.indexOf("[");
     const dotIndex = keypathGetter.indexOf(".");
-    let base = null;
-    let dynamicPath = null;
+    let base;
+    let dynamicPath;
     let dynamicIndex = -1;
 
     if(bracketIndex !== -1 || dotIndex !== -1) {
