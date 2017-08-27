@@ -17,7 +17,7 @@ const initComputed = function(instance, computed) {
     Object.defineProperty(instance.data, prop, {
       get: function() {
         // Property Cache
-        let cache = null;
+        let cache;
 
         // If no cache, create it
         if(observer.cache[prop] === undefined) {
@@ -28,7 +28,7 @@ const initComputed = function(instance, computed) {
           cache = getter.call(instance);
 
           // Stop Capturing Dependencies
-          observer.target = null;
+          observer.target = undefined;
 
           // Store value in cache
           observer.cache[prop] = cache;

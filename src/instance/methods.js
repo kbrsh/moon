@@ -8,8 +8,9 @@
 Moon.prototype.get = function(key) {
   // Collect dependencies if currently collecting
   const observer = this.observer;
-  let target = null;
-  if((target = observer.target) !== null) {
+  let target = observer.target;
+
+  if(target !== undefined) {
     if(observer.map[key] === undefined) {
       observer.map[key] = [target];
     } else if(observer.map[key].indexOf(target) === -1) {
@@ -51,7 +52,7 @@ Moon.prototype.destroy = function() {
   this.off();
 
   // Remove reference to element
-  this.el = null;
+  this.el = undefined;
 
   // Queue
   this.queued = true;
@@ -232,7 +233,7 @@ Moon.prototype.build = function() {
   const dom = this.render();
 
   // Old item to patch
-  let old = null;
+  let old;
 
   if(this.dom.meta !== undefined) {
     // If old virtual dom exists, patch against it

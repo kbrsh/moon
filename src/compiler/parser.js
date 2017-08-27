@@ -48,7 +48,7 @@ const parseWalk = function(state) {
 
   if(token.type === "comment") {
     move();
-    return null;
+    return undefined;
   }
 
   // Start of new Tag
@@ -77,7 +77,7 @@ const parseWalk = function(state) {
       if("__ENV__" !== "production") {
         error(`Could not locate opening tag for the element "${node.type}"`);
       }
-      return null;
+      return undefined;
     } else if(token !== undefined) {
       // Check for custom tag
       if(HTML_ELEMENTS.indexOf(tagType) === -1) {
@@ -87,7 +87,7 @@ const parseWalk = function(state) {
       // Match all children
       while((token.type !== "tag") || ((token.type === "tag") && ((token.closeStart === undefined && token.closeEnd === undefined) || (token.value !== tagType)))) {
         const parsedChildState = parseWalk(state);
-        if(parsedChildState !== null) {
+        if(parsedChildState !== undefined) {
           node.children.push(parsedChildState);
         }
 

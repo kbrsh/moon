@@ -13,6 +13,20 @@ const setIfState = function(state) {
   }
 }
 
+const addEventListenerCodeToVNode = function(name, handler, vnode) {
+  const meta = vnode.meta;
+  let eventListeners = meta.eventListeners;
+  if(eventListeners === undefined) {
+    eventListeners = meta.eventListeners = {};
+  }
+  let eventHandlers = eventListeners[name];
+  if(eventHandlers === undefined) {
+    eventListeners[name] = [handler];
+  } else {
+    eventHandlers.push(handler);
+  }
+}
+
 specialDirectives["m-if"] = {
   beforeGenerate: function(prop, vnode, parentVNode, state) {
     const children = parentVNode.children;

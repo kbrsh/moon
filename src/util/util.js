@@ -101,7 +101,7 @@ const getSlots = function(children) {
     const child = children[i];
     const childProps = child.props.attrs;
     let slotName = "";
-    let slotValue = null;
+    let slotValue;
 
     if((slotName = childProps.slot) !== undefined) {
       slotValue = slots[slotName];

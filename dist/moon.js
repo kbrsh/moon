@@ -64,7 +64,7 @@
         Object.defineProperty(instance.data, prop, {
           get: function() {
             // Property Cache
-            var cache = null;
+            var cache;
     
             // If no cache, create it
             if(observer.cache[prop] === undefined) {
@@ -75,7 +75,7 @@
               cache = getter.call(instance);
     
               // Stop Capturing Dependencies
-              observer.target = null;
+              observer.target = undefined;
     
               // Store value in cache
               observer.cache[prop] = cache;
@@ -109,7 +109,7 @@
       this.clear = {};
     
       // Property Currently Being Observed for Dependencies
-      this.target = null;
+      this.target = undefined;
     
       // Dependency Map
       this.map = {};
@@ -125,15 +125,15 @@
     Observer.prototype.notify = function(key) {
       var self = this;
     
-      var depMap = null;
-      if((depMap = this.map[key]) !== undefined) {
+      var depMap = this.map[key];
+      if(depMap !== undefined) {
         for(var i = 0; i < depMap.length; i++) {
           self.notify(depMap[i]);
         }
       }
     
-      var clear = null;
-      if((clear = this.clear[key]) !== undefined) {
+      var clear = this.clear[key];
+      if(clear !== undefined) {
         clear();
       }
     }
@@ -242,7 +242,7 @@
         var child = children[i];
         var childProps = child.props.attrs;
         var slotName = "";
-        var slotValue = null;
+        var slotValue = (void 0);
     
         if((slotName = childProps.slot) !== undefined) {
           slotValue = slots[slotName];
@@ -312,8 +312,9 @@
      * @return {Object} Key-Value pairs of Attributes
      */
     var extractAttrs = function(node) {
+      var rawAttrs = node.attributes;
       var attrs = {};
-      for(var rawAttrs = node.attributes, i = rawAttrs.length; i--;) {
+      for(var i = 0; i < rawAttrs.length; i++) {
         attrs[rawAttrs[i].name] = rawAttrs[i].value;
       }
       return attrs;
@@ -359,7 +360,7 @@
     var createNodeFromVNode = function(vnode) {
       var type = vnode.type;
       var meta = vnode.meta;
-      var el = null;
+      var el;
     
       if(type === "#text") {
         // Create textnode
@@ -381,8 +382,8 @@
           }
         }
         // Add all event listeners
-        var eventListeners = null;
-        if((eventListeners = meta.eventListeners) !== undefined) {
+        var eventListeners = meta.eventListeners;
+        if(eventListeners !== undefined) {
           addEventListeners(el, eventListeners);
         }
       }
@@ -407,8 +408,8 @@
       parent.appendChild(node);
     
       // Check for Component
-      var component = null;
-      if((component = vnode.meta.component) !== undefined) {
+      var component = vnode.meta.component;
+      if(component !== undefined) {
         createComponentFromVNode(node, vnode, component);
       }
     }
@@ -420,8 +421,8 @@
      */
     var removeChild = function(node, parent) {
       // Check for Component
-      var componentInstance = null;
-      if((componentInstance = node.__moon__) !== undefined) {
+      var componentInstance = node.__moon__;
+      if(componentInstance !== undefined) {
         // Component was unmounted, destroy it here
         componentInstance.destroy();
       }
@@ -439,8 +440,8 @@
      */
     var replaceChild = function(oldNode, newNode, vnode, parent) {
       // Check for Component
-      var componentInstance = null;
-      if((componentInstance = oldNode.__moon__) !== undefined) {
+      var componentInstance = oldNode.__moon__;
+      if(componentInstance !== undefined) {
         // Component was unmounted, destroy it here
         componentInstance.destroy();
       }
@@ -449,8 +450,8 @@
       parent.replaceChild(newNode, oldNode);
     
       // Check for Component
-      var component = null;
-      if((component = vnode.meta.component) !== undefined) {
+      var component = vnode.meta.component;
+      if(component !== undefined) {
         createComponentFromVNode(newNode, vnode, component);
       }
     }
@@ -459,26 +460,6 @@
      * Text VNode/Node Type
      */
     var TEXT_TYPE = "#text";
-    
-    /**
-     * Adds an Event Listener to a VNode
-     * @param {String} name
-     * @param {String} handler
-     * @return {Object} vnode
-     */
-    var addEventListenerCodeToVNode = function(name, handler, vnode) {
-      var meta = vnode.meta;
-      var eventListeners = meta.eventListeners;
-      if(eventListeners === undefined) {
-        eventListeners = meta.eventListeners = {};
-      }
-      var eventHandlers = eventListeners[name];
-      if(eventHandlers === undefined) {
-        eventListeners[name] = [handler];
-      } else {
-        eventHandlers.push(handler);
-      }
-    }
     
     /**
      * Creates a Virtual DOM Node
@@ -543,7 +524,7 @@
      * @return {Object} Object usable in Virtual DOM (VNode)
      */
     var m = function(tag, attrs, meta, children) {
-      var component = null;
+      var component;
     
       if(tag === TEXT_TYPE) {
         // Text Node
@@ -612,7 +593,7 @@
      * @param {Function} item
      */
     m.renderLoop = function(iteratable, item) {
-      var items = null;
+      var items;
     
       if(Array.isArray(iteratable)) {
         items = new Array(iteratable.length);
@@ -736,19 +717,19 @@
       }
     
       // Execute any directives
-      var vnodeDirectives = null;
-      if((vnodeDirectives = props.directives) !== undefined) {
+      var vnodeDirectives = props.directives;
+      if(vnodeDirectives !== undefined) {
         for(var directive in vnodeDirectives) {
-          var directiveFn = null;
-          if((directiveFn = directives[directive]) !== undefined) {
+          var directiveFn = directives[directive];
+          if(directiveFn !== undefined) {
             directiveFn(node, vnodeDirectives[directive], vnode);
           }
         }
       }
     
       // Add/Update any DOM Props
-      var dom = null;
-      if((dom = props.dom) !== undefined) {
+      var dom = props.dom;
+      if(dom !== undefined) {
         for(var domProp in dom) {
           var domPropValue = dom[domProp];
           if(node[domProp] !== domPropValue) {
@@ -835,8 +816,8 @@
         diffProps(node, extractAttrs(node), vnode, props);
     
         // Add event listeners
-        var eventListeners = null;
-        if((eventListeners = meta.eventListeners) !== undefined) {
+        var eventListeners = meta.eventListeners;
+        if(eventListeners !== undefined) {
           addEventListeners(node, eventListeners);
         }
     
@@ -848,24 +829,24 @@
     
           var i = 0;
           var currentChildNode = node.firstChild;
-          var vchild = length !== 0 ? children[0] : null;
+          var vchild = length !== 0 ? children[0] : undefined;
           var nextSibling = null;
     
-          while(vchild !== null || currentChildNode !== null) {
+          while(vchild !== undefined || currentChildNode !== null) {
             nextSibling = null;
     
             if(currentChildNode === null) {
               appendChild(createNodeFromVNode(vchild), vchild, node);
             } else {
               nextSibling = currentChildNode.nextSibling;
-              if(vchild === null) {
+              if(vchild === undefined) {
                 removeChild(currentChildNode, node);
               } else {
                 hydrate(currentChildNode, vchild, node);
               }
             }
     
-            vchild = ++i < length ? children[i] : null;
+            vchild = ++i < length ? children[i] : undefined;
             currentChildNode = nextSibling;
           }
         }
@@ -911,8 +892,8 @@
           oldProps.attrs = props.attrs;
     
           // Diff event listeners
-          var eventListeners = null;
-          if((eventListeners = meta.eventListeners) !== undefined) {
+          var eventListeners = meta.eventListeners;
+          if(eventListeners !== undefined) {
             diffEventListeners(node, eventListeners, oldMeta.eventListeners);
           }
     
@@ -932,7 +913,7 @@
               }
               oldVNode.children = [];
             } else if(oldLength === 0) {
-              var childVnode = null;
+              var childVnode;
               for(var i = 0; i < newLength; i++) {
                 childVnode = children$1[i];
                 appendChild(createNodeFromVNode(childVnode), childVnode, node);
@@ -940,8 +921,8 @@
               oldVNode.children = children$1;
             } else {
               var totalLen = newLength > oldLength ? newLength : oldLength;
-              var oldChild = null;
-              var child = null;
+              var oldChild;
+              var child;
               for(var i$1 = 0; i$1 < totalLen; i$1++) {
                 if(i$1 >= newLength) {
                   // Remove extra child
@@ -1049,8 +1030,8 @@
     }
     
     var compileTemplateExpression = function(expr, exclude, dependencies) {
-      var reference = null;
-      var references = null;
+      var reference;
+      var references;
       while((references = expressionRE.exec(expr)) !== null) {
         reference = references[1];
         if(reference !== undefined && dependencies.indexOf(reference) === -1 && exclude.indexOf(reference) === -1) {
@@ -1368,7 +1349,7 @@
     
       if(token.type === "comment") {
         move();
-        return null;
+        return undefined;
       }
     
       // Start of new Tag
@@ -1397,7 +1378,7 @@
           if("development" !== "production") {
             error(("Could not locate opening tag for the element \"" + (node.type) + "\""));
           }
-          return null;
+          return undefined;
         } else if(token !== undefined) {
           // Check for custom tag
           if(HTML_ELEMENTS.indexOf(tagType) === -1) {
@@ -1407,7 +1388,7 @@
           // Match all children
           while((token.type !== "tag") || ((token.type === "tag") && ((token.closeStart === undefined && token.closeEnd === undefined) || (token.value !== tagType)))) {
             var parsedChildState = parseWalk(state);
-            if(parsedChildState !== null) {
+            if(parsedChildState !== undefined) {
               node.children.push(parsedChildState);
             }
     
@@ -1448,12 +1429,12 @@
       var hasSpecialDirectivesAfter = false;
       var specialDirectivesAfter = {};
     
-      var propKey = null;
-      var specialDirective = null;
+      var propKey;
+      var specialDirective;
     
       var propsCode = "{attrs: {";
     
-      var beforeGenerate = null;
+      var beforeGenerate;
       for(propKey in props) {
         var prop = props[propKey];
         var name = prop.name;
@@ -1462,14 +1443,16 @@
         }
       }
     
-      var afterGenerate = null;
-      var duringPropGenerate = null;
+      var afterGenerate;
+      var duringPropGenerate;
       for(propKey in props) {
         var prop$1 = props[propKey];
         var name$1 = prop$1.name;
     
-        if((specialDirective = specialDirectives[name$1]) !== undefined) {
-          if((afterGenerate = specialDirective.afterGenerate) !== undefined) {
+        specialDirective = specialDirectives[name$1]
+        if(specialDirective !== undefined) {
+          afterGenerate = specialDirective.afterGenerate;
+          if(afterGenerate !== undefined) {
             specialDirectivesAfter[name$1] = {
               prop: prop$1,
               afterGenerate: afterGenerate
@@ -1480,7 +1463,8 @@
             }
           }
     
-          if((duringPropGenerate = specialDirective.duringPropGenerate) !== undefined) {
+          duringPropGenerate = specialDirective.duringPropGenerate;
+          if(duringPropGenerate !== undefined) {
             var generated = duringPropGenerate(prop$1, node, state);
     
             if(generated.length !== 0) {
@@ -1526,8 +1510,8 @@
       if(hasDirectives === true) {
         propsCode += ", directives: {";
     
-        var directiveProp = null;
-        var directivePropValue = null;
+        var directiveProp;
+        var directivePropValue;
         for(var i = 0; i < directiveProps.length; i++) {
           directiveProp = directiveProps[i];
           directivePropValue = directiveProp.value;
@@ -1636,8 +1620,8 @@
         var propsCode = generateProps(node, parent, state);
         var specialDirectivesAfter = state.specialDirectivesAfter;
     
-        if(specialDirectivesAfter !== null) {
-          state.specialDirectivesAfter = null;
+        if(specialDirectivesAfter !== undefined) {
+          state.specialDirectivesAfter = undefined;
         }
     
         var children = node.children;
@@ -1665,7 +1649,7 @@
         call += childrenCode;
         call += ")";
     
-        if(specialDirectivesAfter !== null) {
+        if(specialDirectivesAfter !== undefined) {
           var specialDirectiveAfter;
           for(var specialDirectiveKey in specialDirectivesAfter) {
             specialDirectiveAfter = specialDirectivesAfter[specialDirectiveKey];
@@ -1682,7 +1666,7 @@
     
       var state = {
         hasAttrs: false,
-        specialDirectivesAfter: null,
+        specialDirectivesAfter: undefined,
         exclude: globals,
         index: 0,
         dynamic: false,
@@ -1782,8 +1766,9 @@
     Moon.prototype.get = function(key) {
       // Collect dependencies if currently collecting
       var observer = this.observer;
-      var target = null;
-      if((target = observer.target) !== null) {
+      var target = observer.target;
+    
+      if(target !== undefined) {
         if(observer.map[key] === undefined) {
           observer.map[key] = [target];
         } else if(observer.map[key].indexOf(target) === -1) {
@@ -1825,7 +1810,7 @@
       this.off();
     
       // Remove reference to element
-      this.el = null;
+      this.el = undefined;
     
       // Queue
       this.queued = true;
@@ -2006,7 +1991,7 @@
       var dom = this.render();
     
       // Old item to patch
-      var old = null;
+      var old;
     
       if(this.dom.meta !== undefined) {
         // If old virtual dom exists, patch against it
@@ -2158,6 +2143,20 @@
         state.dynamic = true;
       } else {
         ifDynamic++;
+      }
+    }
+    
+    var addEventListenerCodeToVNode = function(name, handler, vnode) {
+      var meta = vnode.meta;
+      var eventListeners = meta.eventListeners;
+      if(eventListeners === undefined) {
+        eventListeners = meta.eventListeners = {};
+      }
+      var eventHandlers = eventListeners[name];
+      if(eventHandlers === undefined) {
+        eventListeners[name] = [handler];
+      } else {
+        eventHandlers.push(handler);
       }
     }
     

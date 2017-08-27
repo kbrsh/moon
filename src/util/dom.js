@@ -4,8 +4,9 @@
  * @return {Object} Key-Value pairs of Attributes
  */
 const extractAttrs = function(node) {
+  let rawAttrs = node.attributes;
   let attrs = {};
-  for(var rawAttrs = node.attributes, i = rawAttrs.length; i--;) {
+  for(let i = 0; i < rawAttrs.length; i++) {
     attrs[rawAttrs[i].name] = rawAttrs[i].value;
   }
   return attrs;
@@ -51,7 +52,7 @@ const addEventListeners = function(node, eventListeners) {
 const createNodeFromVNode = function(vnode) {
   const type = vnode.type;
   let meta = vnode.meta;
-  let el = null;
+  let el;
 
   if(type === "#text") {
     // Create textnode
@@ -73,8 +74,8 @@ const createNodeFromVNode = function(vnode) {
       }
     }
     // Add all event listeners
-    let eventListeners = null;
-    if((eventListeners = meta.eventListeners) !== undefined) {
+    let eventListeners = meta.eventListeners;
+    if(eventListeners !== undefined) {
       addEventListeners(el, eventListeners);
     }
   }
@@ -99,8 +100,8 @@ const appendChild = function(node, vnode, parent) {
   parent.appendChild(node);
 
   // Check for Component
-  let component = null;
-  if((component = vnode.meta.component) !== undefined) {
+  let component = vnode.meta.component;
+  if(component !== undefined) {
     createComponentFromVNode(node, vnode, component);
   }
 }
@@ -112,8 +113,8 @@ const appendChild = function(node, vnode, parent) {
  */
 const removeChild = function(node, parent) {
   // Check for Component
-  let componentInstance = null;
-  if((componentInstance = node.__moon__) !== undefined) {
+  let componentInstance = node.__moon__;
+  if(componentInstance !== undefined) {
     // Component was unmounted, destroy it here
     componentInstance.destroy();
   }
@@ -131,8 +132,8 @@ const removeChild = function(node, parent) {
  */
 const replaceChild = function(oldNode, newNode, vnode, parent) {
   // Check for Component
-  let componentInstance = null;
-  if((componentInstance = oldNode.__moon__) !== undefined) {
+  let componentInstance = oldNode.__moon__;
+  if(componentInstance !== undefined) {
     // Component was unmounted, destroy it here
     componentInstance.destroy();
   }
@@ -141,8 +142,8 @@ const replaceChild = function(oldNode, newNode, vnode, parent) {
   parent.replaceChild(newNode, oldNode);
 
   // Check for Component
-  let component = null;
-  if((component = vnode.meta.component) !== undefined) {
+  let component = vnode.meta.component;
+  if(component !== undefined) {
     createComponentFromVNode(newNode, vnode, component);
   }
 }

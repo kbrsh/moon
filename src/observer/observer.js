@@ -9,7 +9,7 @@ function Observer(instance) {
   this.clear = {};
 
   // Property Currently Being Observed for Dependencies
-  this.target = null;
+  this.target = undefined;
 
   // Dependency Map
   this.map = {};
@@ -25,15 +25,15 @@ Observer.prototype.observe = function(key) {
 Observer.prototype.notify = function(key) {
   const self = this;
 
-  let depMap = null;
-  if((depMap = this.map[key]) !== undefined) {
+  let depMap = this.map[key];
+  if(depMap !== undefined) {
     for(let i = 0; i < depMap.length; i++) {
       self.notify(depMap[i]);
     }
   }
 
-  let clear = null;
-  if((clear = this.clear[key]) !== undefined) {
+  let clear = this.clear[key];
+  if(clear !== undefined) {
     clear();
   }
 }
