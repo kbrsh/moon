@@ -58,20 +58,20 @@ const generateProps = function(node, parent, state) {
         }
       }
 
-      node.meta.shouldRender = true;
+      node.meta.shouldRender = 1;
     } else if(name[0] === "m" && name[1] === "-") {
       if(hasDirectives === false) {
         hasDirectives = true;
       }
 
       directiveProps.push(prop);
-      node.meta.shouldRender = true;
+      node.meta.shouldRender = 1;
     } else {
       const value = prop.value;
       const compiled = compileTemplate(value, state.exclude, state.dependencies);
 
       if(value !== compiled) {
-        node.meta.shouldRender = true;
+        node.meta.shouldRender = 1;
       }
 
       if(state.hasAttrs === false) {
@@ -145,33 +145,41 @@ const generateEventlisteners = function(eventListeners) {
 
 const generateMeta = function(meta) {
   let metaCode = "{";
+  let hasMeta = false;
+
   for(let key in meta) {
     if(key === "eventListeners") {
       metaCode += generateEventlisteners(meta[key])
     } else {
       metaCode += `"${key}": ${meta[key]}, `;
     }
+    hasMeta = true;
   }
 
-  metaCode = closeCall(metaCode, "}, ");
+  if(hasMeta === true) {
+    metaCode = closeCall(metaCode, "}, ");
+  } else {
+    metaCode += "}, ";
+  }
+
   return metaCode;
 }
 
 const generateNode = function(node, parent, index, state) {
   if(typeof node === "string") {
     const compiled = compileTemplate(node, state.exclude, state.dependencies);
-    let meta = defaultMetadata();
+    let meta = {};
 
     if(node !== compiled) {
-      meta.shouldRender = true;
-      parent.meta.shouldRender = true;
+      meta.shouldRender = 1;
+      parent.meta.shouldRender = 1;
     } else if(state.dynamic === true) {
-      meta.shouldRender = true;
+      meta.shouldRender = 1;
     }
 
     return `m("#text", ${generateMeta(meta)}"${compiled}")`;
   } else if(node.type === "slot") {
-    parent.meta.shouldRender = true;
+    parent.meta.shouldRender = 1;
     parent.deep = true;
 
     const slotName = node.props.name;
@@ -180,11 +188,11 @@ const generateNode = function(node, parent, index, state) {
     let call = `m("${node.type}", `;
     state.index = index;
 
-    let meta = defaultMetadata();
+    let meta = {};
     node.meta = meta;
 
     if(node.custom === true || state.dynamic === true) {
-      meta.shouldRender = true;
+      meta.shouldRender = 1;
     }
 
     if(node.isSVG === true) {
@@ -214,8 +222,8 @@ const generateNode = function(node, parent, index, state) {
       childrenCode = `[].concat.apply([], ${childrenCode})`;
     }
 
-    if(meta.shouldRender === true && parent !== undefined) {
-      parent.meta.shouldRender = true;
+    if(meta.shouldRender === 1 && parent !== undefined) {
+      parent.meta.shouldRender = 1;
     }
 
     call += propsCode;

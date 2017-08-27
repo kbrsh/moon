@@ -5,7 +5,7 @@ describe("Functional Component", function() {
     Moon.component("functional-component", {
       functional: true,
       render: function(m, ctx) {
-        return m("h1", {attrs: {}}, {shouldRender: true}, []);
+        return m("h1", {attrs: {}}, {shouldRender: 1}, []);
       }
     });
 
@@ -25,8 +25,8 @@ describe("Functional Component", function() {
       functional: true,
       props: ["someprop"],
       render: function(m, ctx) {
-        return m("h1", {attrs: {}}, {shouldRender: true}, [
-          m("#text", {shouldRender: true}, ctx.data.someprop)
+        return m("h1", {attrs: {}}, {shouldRender: 1}, [
+          m("#text", {shouldRender: 1}, ctx.data.someprop)
         ]);
       }
     });
@@ -59,9 +59,9 @@ describe("Functional Component", function() {
     Moon.component("functional-component-slots", {
       functional: true,
       render: function(m, ctx) {
-        return m("div", {attrs: {}}, {shouldRender: true}, [
-          m("h1", {}, {shouldRender: true}, ctx.slots["default"]),
-          m("h1", {attrs: {}}, {shouldRender: true}, ctx.slots.named)
+        return m("div", {attrs: {}}, {shouldRender: 1}, [
+          m("h1", {}, {shouldRender: 1}, ctx.slots["default"]),
+          m("h1", {attrs: {}}, {shouldRender: 1}, ctx.slots.named)
         ]);
       }
     });

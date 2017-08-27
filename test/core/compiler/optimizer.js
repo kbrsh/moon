@@ -8,7 +8,7 @@ describe("Compiler Optimization", function() {
 
     var tree = app.render();
     var assertShouldRender = function(vnode) {
-      expect(vnode.meta.shouldRender).to.equal(false);
+      expect(vnode.meta.shouldRender).to.equal(undefined);
       for(var i = 0; i < vnode.children.length; i++) {
         assertShouldRender(vnode.children[i]);
       }
@@ -23,7 +23,7 @@ describe("Compiler Optimization", function() {
       el: "#unknownHTMLOptimization"
     });
 
-    expect(app.render().children[0].meta.shouldRender).to.equal(true);
+    expect(app.render().children[0].meta.shouldRender).to.equal(1);
   });
 
   it("should optimize an if statement", function() {
@@ -36,8 +36,8 @@ describe("Compiler Optimization", function() {
       }
     });
 
-    expect(app.render().children[0].meta.shouldRender).to.equal(true);
-    expect(app.render().children[0].children[0].meta.shouldRender).to.equal(false);
+    expect(app.render().children[0].meta.shouldRender).to.equal(1);
+    expect(app.render().children[0].children[0].meta.shouldRender).to.equal(undefined);
   });
 
   it("should deoptimize on if statements next to each other", function() {
@@ -50,13 +50,13 @@ describe("Compiler Optimization", function() {
       }
     });
 
-    expect(app.render().children[0].meta.shouldRender).to.equal(true);
-    expect(app.render().children[0].children[0].meta.shouldRender).to.equal(true);
+    expect(app.render().children[0].meta.shouldRender).to.equal(1);
+    expect(app.render().children[0].children[0].meta.shouldRender).to.equal(1);
 
     app.set("falseCondition", true);
 
-    expect(app.render().children[1].meta.shouldRender).to.equal(true);
-    expect(app.render().children[1].children[0].meta.shouldRender).to.equal(true);
+    expect(app.render().children[1].meta.shouldRender).to.equal(1);
+    expect(app.render().children[1].children[0].meta.shouldRender).to.equal(1);
   });
 
   it("should optimize on if statements with the same parent seperated by an element", function() {
@@ -69,11 +69,11 @@ describe("Compiler Optimization", function() {
       }
     });
 
-    expect(app.render().children[0].meta.shouldRender).to.equal(true);
-    expect(app.render().children[0].children[0].meta.shouldRender).to.equal(false);
+    expect(app.render().children[0].meta.shouldRender).to.equal(1);
+    expect(app.render().children[0].children[0].meta.shouldRender).to.equal(undefined);
 
-    expect(app.render().children[2].meta.shouldRender).to.equal(true);
-    expect(app.render().children[2].children[0].meta.shouldRender).to.equal(false);
+    expect(app.render().children[2].meta.shouldRender).to.equal(1);
+    expect(app.render().children[2].children[0].meta.shouldRender).to.equal(undefined);
   });
 
   it("should deoptimize on an if/else statement", function() {
@@ -86,12 +86,12 @@ describe("Compiler Optimization", function() {
       }
     });
 
-    expect(app.render().children[0].meta.shouldRender).to.equal(true);
-    expect(app.render().children[0].children[0].meta.shouldRender).to.equal(true);
+    expect(app.render().children[0].meta.shouldRender).to.equal(1);
+    expect(app.render().children[0].children[0].meta.shouldRender).to.equal(1);
 
     app.set("trueCondition", false);
 
-    expect(app.render().children[0].meta.shouldRender).to.equal(true);
-    expect(app.render().children[0].children[0].meta.shouldRender).to.equal(true);
+    expect(app.render().children[0].meta.shouldRender).to.equal(1);
+    expect(app.render().children[0].children[0].meta.shouldRender).to.equal(1);
   });
 });

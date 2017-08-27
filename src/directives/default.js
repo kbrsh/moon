@@ -1,6 +1,6 @@
 /* ======= Default Directives ======= */
 
-const emptyVNode = `m("#text", ${generateMeta(defaultMetadata())}"")`;
+const emptyVNode = `m("#text", {}, "")`;
 
 let ifState = {
   elseNode: null,

@@ -4,16 +4,6 @@
 const TEXT_TYPE = "#text";
 
 /**
- * Gives Default Metadata for a VNode
- * @return {Object} metadata
- */
-const defaultMetadata = function() {
-  return {
-    shouldRender: false
-  }
-}
-
-/**
  * Adds an Event Listener to a VNode
  * @param {String} name
  * @param {String} handler
@@ -443,7 +433,7 @@ const diff = function(oldVNode, oldChildren, vnode, children, index, parent) {
     // Different types, replace
     oldChildren[index] = vnode;
     replaceChild(oldMeta.el, createNodeFromVNode(vnode), vnode, parent);
-  } else if(meta.shouldRender === true) {
+  } else if(meta.shouldRender !== undefined) {
     if(vnode.type === TEXT_TYPE) {
       // Text, update if needed
       const val = vnode.val;
