@@ -738,8 +738,9 @@
           var directiveFn = directives[directive];
           if(directiveFn !== undefined) {
             directiveFn(node, vnodeDirectives[directive], vnode);
+          } else if("development" !== "production") {
+            error(("Could not find directive \"" + directive + "\""));
           }
-          // TODO: Warn about unknown directive
         }
       }
     
