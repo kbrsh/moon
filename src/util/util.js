@@ -80,46 +80,6 @@ const callHook = function(instance, name) {
 }
 
 /**
- * Extracts the Slots From Component Children
- * @param {Array} children
- * @return {Object} extracted slots
- */
-const getSlots = function(children) {
-  let slots = {};
-
-  // Setup default slots
-  let defaultSlotName = "default";
-  slots[defaultSlotName] = [];
-
-  // No Children Means No Slots
-  if(children.length === 0) {
-    return slots;
-  }
-
-  // Get rest of the slots
-  for(let i = 0; i < children.length; i++) {
-    const child = children[i];
-    const childProps = child.props.attrs;
-    let slotName = "";
-    let slotValue;
-
-    if((slotName = childProps.slot) !== undefined) {
-      slotValue = slots[slotName];
-      if(slotValue === undefined) {
-        slots[slotName] = [child];
-      } else {
-        slotValue.push(child);
-      }
-      delete childProps.slot;
-    } else {
-      slots[defaultSlotName].push(child);
-    }
-  }
-
-  return slots;
-}
-
-/**
  * Extends an Object with another Object's properties
  * @param {Object} parent
  * @param {Object} child

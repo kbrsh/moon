@@ -67,7 +67,7 @@ specialDirectives["m-if"] = {
 
     return `${value} ? ${code} : ${elseValue}`;
   }
-}
+};
 
 specialDirectives["m-else"] = {
 
@@ -106,7 +106,7 @@ specialDirectives["m-for"] = {
     // Use the renderLoop runtime helper
     return `m.renderLoop(${meta.iteratable}, function(${meta.aliases}) { return ${code}; })`;
   }
-}
+};
 
 specialDirectives["m-on"] = {
   beforeGenerate: function(prop, vnode, parentVNode, state) {
@@ -145,7 +145,7 @@ specialDirectives["m-on"] = {
     const code = `function(event) {${modifiersCode}instance.callMethod("${methodToCall}", [${params}])}`;
     addEventListenerCodeToVNode(eventType, code, vnode);
   }
-}
+};
 
 specialDirectives["m-model"] = {
   beforeGenerate: function(prop, vnode, parentVNode, state) {
@@ -278,12 +278,12 @@ specialDirectives["m-html"] = {
     compileTemplateExpression(value, state.exclude, state.dependencies);
     dom.innerHTML = `${value}`;
   }
-}
+};
 
 specialDirectives["m-mask"] = {
 
-}
+};
 
 directives["m-show"] = function(el, val, vnode) {
   el.style.display = (val ? '' : 'none');
-}
+};

@@ -180,7 +180,7 @@ const createFunctionalComponent = function(props, children, functionalComponent)
   // Call render function
   return options.render(m, {
     data: data,
-    slots: getSlots(children)
+    insert: children
   });
 }
 
@@ -211,7 +211,7 @@ const createComponentFromVNode = function(node, vnode, component) {
     extend(componentInstance.events, eventListeners);
   }
 
-  componentInstance.slots = getSlots(vnode.children);
+  componentInstance.insert = vnode.children;
   componentInstance.root = node;
   componentInstance.build();
   callHook(componentInstance, "mounted");
@@ -328,9 +328,9 @@ const diffComponent = function(node, vnode) {
     }
 
 
-    // If it has children, resolve any new slots
+    // If it has children, resolve insert
     if(vnode.children.length !== 0) {
-      componentInstance.slots = getSlots(vnode.children);
+      componentInstance.insert = vnode.children;
       componentChanged = true;
     }
 
@@ -441,7 +441,7 @@ const diff = function(oldVNode, vnode, index, parent, parentVNode) {
         oldMeta.node.textContent = value;
       }
     } else if(meta.component !== undefined) {
-      // Component, diff props and slots
+      // Component, diff props and insert
       diffComponent(oldMeta.node, vnode);
     } else {
       const node = oldMeta.node;

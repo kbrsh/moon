@@ -53,36 +53,36 @@ describe("Functional Component", function() {
     });
   });
 
-  describe("Slots", function() {
-    var functionalSlots = createTestElement("functionalSlots", '<functional-component-slots>Default Slot Content<span slot="named">Named Slot Content</span></functional-component-slots>');
+  describe("Insertion", function() {
+    var functionalInsertion = createTestElement("functionalInsertion", '<functional-component-insertion>Default Slot Content</functional-component-insertion>');
 
-    Moon.component("functional-component-slots", {
+    Moon.component("functional-component-insertion", {
       functional: true,
       render: function(m, ctx) {
         return m("div", {attrs: {}}, {shouldRender: 1}, [
-          m("h1", {}, {shouldRender: 1}, ctx.slots["default"]),
-          m("h1", {attrs: {}}, {shouldRender: 1}, ctx.slots.named)
+          m("h1", {}, {shouldRender: 1}, ctx.insert)
+          // m("h1", {attrs: {}}, {shouldRender: 1}, ctx.slots.named)
         ]);
       }
     });
 
     new Moon({
-      root: "#functionalSlots"
+      root: "#functionalInsertion"
     });
 
     var h1 = null,
       h1_2 = null;
 
-    it("should render the default slot", function() {
+    it("should render the default insertion", function() {
       return wait(function() {
-        h1 = functionalSlots.firstChild.firstChild;
+        h1 = functionalInsertion.firstChild.firstChild;
         expect(h1.innerHTML).to.equal("Default Slot Content");
       });
     });
 
-    it("should render a named slot", function() {
-      h1_2 = h1.nextSibling;
-      expect(h1_2.innerHTML).to.equal("<span>Named Slot Content</span>");
-    });
+    // it("should render a named slot", function() {
+    //   h1_2 = h1.nextSibling;
+    //   expect(h1_2.innerHTML).to.equal("<span>Named Slot Content</span>");
+    // });
   });
 });

@@ -8,6 +8,8 @@ const generateProps = function(node, parent, state) {
     attrs: props
   }
 
+  let hasAttrs = false;
+
   let hasDirectives = false;
   let directiveProps = [];
 
@@ -53,8 +55,8 @@ const generateProps = function(node, parent, state) {
         const generated = duringPropGenerate(prop, node, state);
 
         if(generated.length !== 0) {
-          if(state.hasAttrs === false) {
-            state.hasAttrs = true;
+          if(hasAttrs === false) {
+            hasAttrs = true;
           }
 
           propsCode += generated;
@@ -77,17 +79,16 @@ const generateProps = function(node, parent, state) {
         node.meta.shouldRender = 1;
       }
 
-      if(state.hasAttrs === false) {
-        state.hasAttrs = true;
+      if(hasAttrs === false) {
+        hasAttrs = true;
       }
 
       propsCode += `"${propKey}": "${compiled}", `;
     }
   }
 
-  if(state.hasAttrs === true) {
+  if(hasAttrs === true) {
     propsCode = closeCall(propsCode, "}");
-    state.hasAttrs = false;
   } else {
     propsCode += "}";
   }
@@ -181,12 +182,11 @@ const generateNode = function(node, parent, index, state) {
     }
 
     return `m("#text", ${generateMeta(meta)}"${compiled}")`;
-  } else if(node.type === "slot") {
+  } else if(node.type === "m-insert") {
     parent.meta.shouldRender = 1;
     parent.deep = true;
 
-    const slotName = node.props.name;
-    return `instance.slots["${slotName === undefined ? "default" : slotName.value}"]`;
+    return "instance.insert";
   } else {
     let call = `m("${node.type}", `;
     state.index = index;
@@ -250,7 +250,6 @@ const generate = function(tree) {
   let root = tree.children[0];
 
   let state = {
-    hasAttrs: false,
     specialDirectivesAfter: undefined,
     exclude: globals,
     index: 0,

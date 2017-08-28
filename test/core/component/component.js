@@ -88,43 +88,43 @@ describe("Component", function() {
     });
   });
 
-  describe("Slots", function() {
-    it("should render the default slot", function() {
-      var defaultSlot = createTestElement("componentDefaultSlot", "<component-default-slot>Hello Moon!</component-default-slot>");
+  describe("Insertion", function() {
+    it("should render the default insertion", function() {
+      var defaultInsertion = createTestElement("componentDefaultInsertion", "<component-default-insertion>Hello Moon!</component-default-insertion>");
 
-      Moon.component("component-default-slot", {
-        template: "<h1><slot></slot></h1>"
+      Moon.component("component-default-insertion", {
+        template: "<h1><m-insert></m-insert></h1>"
       });
 
       new Moon({
-        root: "#componentDefaultSlot"
+        root: "#componentDefaultInsertion"
       });
 
       return wait(function() {
-        expect(defaultSlot.firstChild.nodeName.toLowerCase()).to.equal("h1");
-        expect(defaultSlot.firstChild.innerHTML).to.equal("Hello Moon!");
+        expect(defaultInsertion.firstChild.nodeName.toLowerCase()).to.equal("h1");
+        expect(defaultInsertion.firstChild.innerHTML).to.equal("Hello Moon!");
       });
     });
 
-    it("should render a named slot", function() {
-      var namedSlot = createTestElement("componentNamedSlot", "<component-named-slot><span slot='named'>Hello Moon!</span></component-named-slot>");
-
-      Moon.component("component-named-slot", {
-        template: "<h1><slot name='named'></slot></h1>"
-      });
-
-      new Moon({
-        root: "#componentNamedSlot"
-      });
-
-      return wait(function() {
-        var h1 = namedSlot.firstChild;
-        var span = h1.firstChild;
-        expect(h1.nodeName.toLowerCase()).to.equal("h1");
-        expect(span.nodeName.toLowerCase()).to.equal("span");
-        expect(span.innerHTML).to.equal("Hello Moon!");
-      });
-    });
+    // it("should render a named slot", function() {
+    //   var namedSlot = createTestElement("componentNamedSlot", "<component-named-slot><span slot='named'>Hello Moon!</span></component-named-slot>");
+    //
+    //   Moon.component("component-named-slot", {
+    //     template: "<h1><slot name='named'></slot></h1>"
+    //   });
+    //
+    //   new Moon({
+    //     root: "#componentNamedSlot"
+    //   });
+    //
+    //   return wait(function() {
+    //     var h1 = namedSlot.firstChild;
+    //     var span = h1.firstChild;
+    //     expect(h1.nodeName.toLowerCase()).to.equal("h1");
+    //     expect(span.nodeName.toLowerCase()).to.equal("span");
+    //     expect(span.innerHTML).to.equal("Hello Moon!");
+    //   });
+    // });
   });
 
   describe("Events from Children", function() {

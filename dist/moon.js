@@ -221,46 +221,6 @@
     }
     
     /**
-     * Extracts the Slots From Component Children
-     * @param {Array} children
-     * @return {Object} extracted slots
-     */
-    var getSlots = function(children) {
-      var slots = {};
-    
-      // Setup default slots
-      var defaultSlotName = "default";
-      slots[defaultSlotName] = [];
-    
-      // No Children Means No Slots
-      if(children.length === 0) {
-        return slots;
-      }
-    
-      // Get rest of the slots
-      for(var i = 0; i < children.length; i++) {
-        var child = children[i];
-        var childProps = child.props.attrs;
-        var slotName = "";
-        var slotValue = (void 0);
-    
-        if((slotName = childProps.slot) !== undefined) {
-          slotValue = slots[slotName];
-          if(slotValue === undefined) {
-            slots[slotName] = [child];
-          } else {
-            slotValue.push(child);
-          }
-          delete childProps.slot;
-        } else {
-          slots[defaultSlotName].push(child);
-        }
-      }
-    
-      return slots;
-    }
-    
-    /**
      * Extends an Object with another Object's properties
      * @param {Object} parent
      * @param {Object} child
@@ -639,7 +599,7 @@
       // Call render function
       return options.render(m, {
         data: data,
-        slots: getSlots(children)
+        insert: children
       });
     }
     
@@ -670,7 +630,7 @@
         extend(componentInstance.events, eventListeners);
       }
     
-      componentInstance.slots = getSlots(vnode.children);
+      componentInstance.insert = vnode.children;
       componentInstance.root = node;
       componentInstance.build();
       callHook(componentInstance, "mounted");
@@ -787,9 +747,9 @@
         }
     
     
-        // If it has children, resolve any new slots
+        // If it has children, resolve insert
         if(vnode.children.length !== 0) {
-          componentInstance.slots = getSlots(vnode.children);
+          componentInstance.insert = vnode.children;
           componentChanged = true;
         }
     
@@ -900,7 +860,7 @@
             oldMeta.node.textContent = value;
           }
         } else if(meta.component !== undefined) {
-          // Component, diff props and slots
+          // Component, diff props and insert
           diffComponent(oldMeta.node, vnode);
         } else {
           var node = oldMeta.node;
@@ -1442,6 +1402,8 @@
         attrs: props
       }
     
+      var hasAttrs = false;
+    
       var hasDirectives = false;
       var directiveProps = [];
     
@@ -1487,8 +1449,8 @@
             var generated = duringPropGenerate(prop$1, node, state);
     
             if(generated.length !== 0) {
-              if(state.hasAttrs === false) {
-                state.hasAttrs = true;
+              if(hasAttrs === false) {
+                hasAttrs = true;
               }
     
               propsCode += generated;
@@ -1511,17 +1473,16 @@
             node.meta.shouldRender = 1;
           }
     
-          if(state.hasAttrs === false) {
-            state.hasAttrs = true;
+          if(hasAttrs === false) {
+            hasAttrs = true;
           }
     
           propsCode += "\"" + propKey + "\": \"" + compiled + "\", ";
         }
       }
     
-      if(state.hasAttrs === true) {
+      if(hasAttrs === true) {
         propsCode = closeCall(propsCode, "}");
-        state.hasAttrs = false;
       } else {
         propsCode += "}";
       }
@@ -1615,12 +1576,11 @@
         }
     
         return ("m(\"#text\", " + (generateMeta(meta)) + "\"" + compiled + "\")");
-      } else if(node.type === "slot") {
+      } else if(node.type === "m-insert") {
         parent.meta.shouldRender = 1;
         parent.deep = true;
     
-        var slotName = node.props.name;
-        return ("instance.slots[\"" + (slotName === undefined ? "default" : slotName.value) + "\"]");
+        return "instance.insert";
       } else {
         var call = "m(\"" + (node.type) + "\", ";
         state.index = index;
@@ -1684,7 +1644,6 @@
       var root = tree.children[0];
     
       var state = {
-        hasAttrs: false,
         specialDirectivesAfter: undefined,
         exclude: globals,
         index: 0,
@@ -2221,7 +2180,7 @@
     
         return (value + " ? " + code + " : " + elseValue);
       }
-    }
+    };
     
     specialDirectives["m-else"] = {
     
@@ -2260,7 +2219,7 @@
         // Use the renderLoop runtime helper
         return ("m.renderLoop(" + (meta.iteratable) + ", function(" + (meta.aliases) + ") { return " + code + "; })");
       }
-    }
+    };
     
     specialDirectives["m-on"] = {
       beforeGenerate: function(prop, vnode, parentVNode, state) {
@@ -2299,7 +2258,7 @@
         var code = "function(event) {" + modifiersCode + "instance.callMethod(\"" + methodToCall + "\", [" + params + "])}";
         addEventListenerCodeToVNode(eventType, code, vnode);
       }
-    }
+    };
     
     specialDirectives["m-model"] = {
       beforeGenerate: function(prop, vnode, parentVNode, state) {
@@ -2432,15 +2391,15 @@
         compileTemplateExpression(value, state.exclude, state.dependencies);
         dom.innerHTML = "" + value;
       }
-    }
+    };
     
     specialDirectives["m-mask"] = {
     
-    }
+    };
     
     directives["m-show"] = function(el, val, vnode) {
       el.style.display = (val ? '' : 'none');
-    }
+    };
     
     
     return Moon;
