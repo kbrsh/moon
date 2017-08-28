@@ -1,5 +1,5 @@
 var app = new Moon({
-  el: '#app',
+  root: '#app',
   data: {
     databases: []
   }
