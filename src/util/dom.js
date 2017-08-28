@@ -52,41 +52,42 @@ const addEventListeners = function(node, eventListeners) {
 const createNodeFromVNode = function(vnode) {
   const type = vnode.type;
   let meta = vnode.meta;
-  let el;
+  let node;
 
   if(type === "#text") {
     // Create textnode
-    el = document.createTextNode(vnode.val);
+    node = document.createTextNode(vnode.value);
   } else {
     let children = vnode.children;
-    el = meta.isSVG ? document.createElementNS("http://www.w3.org/2000/svg", type) : document.createElement(type);
+    node = meta.isSVG === 1 ? document.createElementNS("http://www.w3.org/2000/svg", type) : document.createElement(type);
 
     // Optimization: VNode only has one child that is text, and create it here
     let firstChild = children[0];
     if(children.length === 1 && firstChild.type === "#text") {
-      el.textContent = firstChild.val;
-      firstChild.meta.el = el.firstChild;
+      node.textContent = firstChild.value;
+      firstChild.meta.node = node.firstChild;
     } else {
       // Add all children
       for(let i = 0; i < children.length; i++) {
         const vchild = children[i];
-        appendChild(createNodeFromVNode(vchild), vchild, el);
+        appendChild(createNodeFromVNode(vchild), vchild, node);
       }
     }
+
     // Add all event listeners
     let eventListeners = meta.eventListeners;
     if(eventListeners !== undefined) {
-      addEventListeners(el, eventListeners);
+      addEventListeners(node, eventListeners);
     }
+
+    // Setup Props
+    diffProps(node, {}, vnode, vnode.props);
   }
 
-  // Setup Props
-  diffProps(el, {}, vnode, vnode.props);
-
   // Hydrate
-  vnode.meta.el = el;
+  vnode.meta.node = node;
 
-  return el;
+  return node;
 }
 
 /**

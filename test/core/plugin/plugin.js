@@ -5,7 +5,7 @@ describe('Plugin', function() {
     init: function(Moon) {
       Moon.directive('empty', function(el, val, vdom) {
         el.innerHTML = "";
-        vdom.children[0].val = "";
+        vdom.children[0].value = "";
       });
     }
   }

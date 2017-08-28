@@ -199,7 +199,7 @@ const generateNode = function(node, parent, index, state) {
     }
 
     if(node.isSVG === true) {
-      meta.isSVG = true;
+      meta.isSVG = 1;
     }
 
     const propsCode = generateProps(node, parent, state);

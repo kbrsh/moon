@@ -203,14 +203,14 @@ Moon.prototype.patch = function(old, vnode, parent) {
       // Root element changed during diff
       // replace root element
       const newRoot = createNodeFromVNode(vnode);
-      replaceChild(old.meta.el, newRoot, vnode, parent);
+      replaceChild(old.meta.node, newRoot, vnode, parent);
 
       // Update Bound Instance
       newRoot.__moon__ = this;
       this.root = newRoot;
     } else {
       // Diff
-      diff(old, [], vnode, [], 0, parent);
+      diff(old, vnode, 0, parent, {});
     }
 
   } else if(old instanceof Node) {
@@ -219,7 +219,7 @@ Moon.prototype.patch = function(old, vnode, parent) {
 
     if(newNode !== old) {
       // Root Element Changed During Hydration
-      this.root = vnode.meta.el;
+      this.root = vnode.meta.node;
       this.root.__moon__ = this;
     }
   }

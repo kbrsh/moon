@@ -360,41 +360,42 @@
     var createNodeFromVNode = function(vnode) {
       var type = vnode.type;
       var meta = vnode.meta;
-      var el;
+      var node;
     
       if(type === "#text") {
         // Create textnode
-        el = document.createTextNode(vnode.val);
+        node = document.createTextNode(vnode.value);
       } else {
         var children = vnode.children;
-        el = meta.isSVG ? document.createElementNS("http://www.w3.org/2000/svg", type) : document.createElement(type);
+        node = meta.isSVG === 1 ? document.createElementNS("http://www.w3.org/2000/svg", type) : document.createElement(type);
     
         // Optimization: VNode only has one child that is text, and create it here
         var firstChild = children[0];
         if(children.length === 1 && firstChild.type === "#text") {
-          el.textContent = firstChild.val;
-          firstChild.meta.el = el.firstChild;
+          node.textContent = firstChild.value;
+          firstChild.meta.node = node.firstChild;
         } else {
           // Add all children
           for(var i = 0; i < children.length; i++) {
             var vchild = children[i];
-            appendChild(createNodeFromVNode(vchild), vchild, el);
+            appendChild(createNodeFromVNode(vchild), vchild, node);
           }
         }
+    
         // Add all event listeners
         var eventListeners = meta.eventListeners;
         if(eventListeners !== undefined) {
-          addEventListeners(el, eventListeners);
+          addEventListeners(node, eventListeners);
         }
+    
+        // Setup Props
+        diffProps(node, {}, vnode, vnode.props);
       }
     
-      // Setup Props
-      diffProps(el, {}, vnode, vnode.props);
-    
       // Hydrate
-      vnode.meta.el = el;
+      vnode.meta.node = node;
     
-      return el;
+      return node;
     }
     
     /**
@@ -464,84 +465,61 @@
     /**
      * Creates a Virtual DOM Node
      * @param {String} type
-     * @param {String} val
      * @param {Object} props
      * @param {Object} meta
      * @param {Array} children
      * @return {Object} Virtual DOM Node
      */
-    var createElement = function(type, val, props, meta, children) {
+    var createElement = function(type, props, meta, children) {
       return {
         type: type,
-        val: val,
         props: props,
-        children: children,
+        meta: meta,
+        children: children
+      };
+    }
+    
+    /**
+     * Creates a Virtual DOM Text Node
+     * @param {String} value
+     * @param {Object} meta
+     * @return {Object} Virtual DOM Text Node
+     */
+    var createTextElement = function(value, meta) {
+      return {
+        type: TEXT_TYPE,
+        value: value,
         meta: meta
       };
     }
     
     /**
-     * Creates a Functional Component
-     * @param {Object} props
-     * @param {Array} children
-     * @param {Object} functionalComponent
-     * @return {Object} Virtual DOM Node
-     */
-    var createFunctionalComponent = function(props, children, functionalComponent) {
-      var options = functionalComponent.options;
-      var attrs = props.attrs;
-      var data = {};
-      var getData = options.data;
-    
-      if(getData !== undefined) {
-        data = getData();
-      }
-    
-      // Merge data with provided props
-      var propNames = options.props;
-      if(propNames === undefined) {
-        data = attrs;
-      } else {
-        for(var i = 0; i < propNames.length; i++) {
-          var prop = propNames[i];
-          data[prop] = attrs[prop];
-        }
-      }
-    
-      // Call render function
-      return options.render(m, {
-        data: data,
-        slots: getSlots(children)
-      });
-    }
-    
-    /**
      * Compiles Arguments to a VNode
-     * @param {String} tag
+     * @param {String} type
      * @param {Object} attrs
      * @param {Object} meta
      * @param {Object|String} children
      * @return {Object} Object usable in Virtual DOM (VNode)
      */
-    var m = function(tag, attrs, meta, children) {
+    var m = function(type, props, meta, children) {
       var component;
     
-      if(tag === TEXT_TYPE) {
+      if(type === TEXT_TYPE) {
         // Text Node
-        // Tag => #text
-        // Attrs => meta
-        // Meta => val
-        return createElement(TEXT_TYPE, meta, {attrs: {}}, attrs, []);
-      } else if((component = components[tag]) !== undefined) {
+        // Type => #text
+        // Meta => props
+        // Value => meta
+        return createTextElement(meta, props);
+      } else if((component = components[type]) !== undefined) {
         // Resolve Component
         if(component.options.functional === true) {
-          return createFunctionalComponent(attrs, children, component);
+          return createFunctionalComponent(props, children, component);
         } else {
           meta.component = component;
         }
       }
     
-      return createElement(tag, "", attrs, meta, children);
+      return createElement(type, props, meta, children);
     
       // In the end, we have a VNode structure like:
       // {
@@ -631,6 +609,41 @@
      }
     
     /**
+     * Creates a Functional Component
+     * @param {Object} props
+     * @param {Array} children
+     * @param {Object} functionalComponent
+     * @return {Object} Virtual DOM Node
+     */
+    var createFunctionalComponent = function(props, children, functionalComponent) {
+      var options = functionalComponent.options;
+      var attrs = props.attrs;
+      var data = {};
+      var getData = options.data;
+    
+      if(getData !== undefined) {
+        data = getData();
+      }
+    
+      // Merge data with provided props
+      var propNames = options.props;
+      if(propNames === undefined) {
+        data = attrs;
+      } else {
+        for(var i = 0; i < propNames.length; i++) {
+          var prop = propNames[i];
+          data[prop] = attrs[prop];
+        }
+      }
+    
+      // Call render function
+      return options.render(m, {
+        data: data,
+        slots: getSlots(children)
+      });
+    }
+    
+    /**
      * Mounts a Component To The DOM
      * @param {Object} node
      * @param {Object} vnode
@@ -663,7 +676,7 @@
       callHook(componentInstance, "mounted");
     
       // Rehydrate
-      vnode.meta.el = componentInstance.root;
+      vnode.meta.node = componentInstance.root;
     
       return componentInstance.root;
     }
@@ -726,6 +739,7 @@
           if(directiveFn !== undefined) {
             directiveFn(node, vnodeDirectives[directive], vnode);
           }
+          // TODO: Warn about unknown directive
         }
       }
     
@@ -803,19 +817,19 @@
         return newNode;
       } else if(vnode.type === TEXT_TYPE) {
         // Both are text nodes, update if needed
-        if(node.textContent !== vnode.val) {
-          node.textContent = vnode.val;
+        if(node.textContent !== vnode.value) {
+          node.textContent = vnode.value;
         }
     
         // Hydrate
-        meta.el = node;
+        meta.node = node;
       } else if(meta.component !== undefined) {
         // Component
         diffComponent(node, vnode);
         return node;
       } else {
         // Hydrate
-        meta.el = node;
+        meta.node = node;
     
         // Diff props
         var props = vnode.props;
@@ -827,9 +841,9 @@
           addEventListeners(node, eventListeners);
         }
     
-        // Ensure innerHTML wasn't changed
+        // Ensure innerHTML and textContent weren't changed
         var domProps = props.dom;
-        if(domProps === undefined || domProps.innerHTML === undefined) {
+        if(domProps === undefined || (domProps.innerHTML === undefined && domProps.textContent === undefined)) {
           var children = vnode.children;
           var length = children.length;
     
@@ -863,33 +877,32 @@
     /**
      * Diffs VNodes, and applies Changes
      * @param {Object} oldVNode
-     * @param {Array} oldChildren
      * @param {Object} vnode
-     * @param {Array} children
      * @param {Number} index
      * @param {Object} parent
+     * @param {Object} parentVNode
      */
-    var diff = function(oldVNode, oldChildren, vnode, children, index, parent) {
+    var diff = function(oldVNode, vnode, index, parent, parentVNode) {
       var oldMeta = oldVNode.meta;
       var meta = vnode.meta;
     
       if(oldVNode.type !== vnode.type) {
         // Different types, replace
-        oldChildren[index] = vnode;
-        replaceChild(oldMeta.el, createNodeFromVNode(vnode), vnode, parent);
+        parentVNode.children[index] = vnode;
+        replaceChild(oldMeta.node, createNodeFromVNode(vnode), vnode, parent);
       } else if(meta.shouldRender !== undefined) {
         if(vnode.type === TEXT_TYPE) {
           // Text, update if needed
-          var val = vnode.val;
-          if(oldVNode.val !== val) {
-            oldVNode.val = val;
-            oldMeta.el.textContent = val;
+          var value = vnode.value;
+          if(oldVNode.value !== value) {
+            oldVNode.value = value;
+            oldMeta.node.textContent = value;
           }
         } else if(meta.component !== undefined) {
           // Component, diff props and slots
-          diffComponent(oldMeta.el, vnode);
+          diffComponent(oldMeta.node, vnode);
         } else {
-          var node = oldMeta.el;
+          var node = oldMeta.node;
     
           // Diff props
           var oldProps = oldVNode.props;
@@ -905,12 +918,12 @@
     
           // Ensure innerHTML wasn't changed
           var domProps = props.dom;
-          if(domProps === undefined || domProps.innerHTML === undefined) {
+          if(domProps === undefined || (domProps.innerHTML === undefined && domProps.textContent === undefined)) {
             // Diff children
-            var children$1 = vnode.children;
-            var oldChildren$1 = oldVNode.children;
-            var newLength = children$1.length;
-            var oldLength = oldChildren$1.length;
+            var children = vnode.children;
+            var oldChildren = oldVNode.children;
+            var newLength = children.length;
+            var oldLength = oldChildren.length;
     
             if(newLength === 0 && oldLength !== 0) {
               var firstChild = null;
@@ -919,32 +932,31 @@
               }
               oldVNode.children = [];
             } else if(oldLength === 0) {
-              var childVnode;
               for(var i = 0; i < newLength; i++) {
-                childVnode = children$1[i];
-                appendChild(createNodeFromVNode(childVnode), childVnode, node);
+                var child = children[i];
+                appendChild(createNodeFromVNode(child), child, node);
               }
-              oldVNode.children = children$1;
+              oldVNode.children = children;
             } else {
               var totalLen = newLength > oldLength ? newLength : oldLength;
               var oldChild;
-              var child;
+              var child$1;
               for(var i$1 = 0; i$1 < totalLen; i$1++) {
                 if(i$1 >= newLength) {
                   // Remove extra child
-                  removeChild(oldChildren$1.pop().meta.el, node);
+                  removeChild(oldChildren.pop().meta.el, node);
                 } else if(i$1 >= oldLength) {
                   // Add extra child
-                  child = children$1[i$1];
-                  appendChild(createNodeFromVNode(child), child, node);
-                  oldChildren$1.push(child);
+                  child$1 = children[i$1];
+                  appendChild(createNodeFromVNode(child$1), child$1, node);
+                  oldChildren.push(child$1);
                 } else {
                   // Diff child if they don't have the same reference
-                  oldChild = oldChildren$1[i$1];
-                  child = children$1[i$1];
+                  oldChild = oldChildren[i$1];
+                  child$1 = children[i$1];
     
-                  if(oldChild !== child) {
-                    diff(oldChild, oldChildren$1, child, children$1, i$1, node);
+                  if(oldChild !== child$1) {
+                    diff(oldChild, child$1, i$1, node, oldVNode);
                   }
                 }
               }
@@ -1620,7 +1632,7 @@
         }
     
         if(node.isSVG === true) {
-          meta$1.isSVG = true;
+          meta$1.isSVG = 1;
         }
     
         var propsCode = generateProps(node, parent, state);
@@ -1970,14 +1982,14 @@
           // Root element changed during diff
           // replace root element
           var newRoot = createNodeFromVNode(vnode);
-          replaceChild(old.meta.el, newRoot, vnode, parent);
+          replaceChild(old.meta.node, newRoot, vnode, parent);
     
           // Update Bound Instance
           newRoot.__moon__ = this;
           this.root = newRoot;
         } else {
           // Diff
-          diff(old, [], vnode, [], 0, parent);
+          diff(old, vnode, 0, parent, {});
         }
     
       } else if(old instanceof Node) {
@@ -1986,7 +1998,7 @@
     
         if(newNode !== old) {
           // Root Element Changed During Hydration
-          this.root = vnode.meta.el;
+          this.root = vnode.meta.node;
           this.root.__moon__ = this;
         }
       }

@@ -33,7 +33,7 @@ describe("Compiler", function() {
       root: "#compilerSelfClosingNoSlash",
       template: "<div><self-closing>hi</div>"
     });
-    expect(app.dom.children[0].children[0].val).to.equal("hi");
+    expect(app.dom.children[0].children[0].value).to.equal("hi");
   });
 
   it("should ignore just closing elements", function() {
@@ -94,6 +94,6 @@ describe("Compiler", function() {
     var app = new Moon({
       root: "#compilerSVG"
     });
-    expect(app.render().children[0].meta.isSVG).to.equal(true);
+    expect(app.render().children[0].meta.isSVG).to.equal(1);
   });
 });

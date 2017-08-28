@@ -9,8 +9,10 @@ describe("Compiler Optimization", function() {
     var tree = app.render();
     var assertShouldRender = function(vnode) {
       expect(vnode.meta.shouldRender).to.equal(undefined);
-      for(var i = 0; i < vnode.children.length; i++) {
-        assertShouldRender(vnode.children[i]);
+      if(vnode.children !== undefined) {
+        for(var i = 0; i < vnode.children.length; i++) {
+          assertShouldRender(vnode.children[i]);
+        }
       }
     }
     assertShouldRender(tree);

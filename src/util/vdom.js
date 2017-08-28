@@ -6,84 +6,61 @@ const TEXT_TYPE = "#text";
 /**
  * Creates a Virtual DOM Node
  * @param {String} type
- * @param {String} val
  * @param {Object} props
  * @param {Object} meta
  * @param {Array} children
  * @return {Object} Virtual DOM Node
  */
-const createElement = function(type, val, props, meta, children) {
+const createElement = function(type, props, meta, children) {
   return {
     type: type,
-    val: val,
     props: props,
-    children: children,
+    meta: meta,
+    children: children
+  };
+}
+
+/**
+ * Creates a Virtual DOM Text Node
+ * @param {String} value
+ * @param {Object} meta
+ * @return {Object} Virtual DOM Text Node
+ */
+const createTextElement = function(value, meta) {
+  return {
+    type: TEXT_TYPE,
+    value: value,
     meta: meta
   };
 }
 
 /**
- * Creates a Functional Component
- * @param {Object} props
- * @param {Array} children
- * @param {Object} functionalComponent
- * @return {Object} Virtual DOM Node
- */
-const createFunctionalComponent = function(props, children, functionalComponent) {
-  const options = functionalComponent.options;
-  const attrs = props.attrs;
-  let data = {};
-  let getData = options.data;
-
-  if(getData !== undefined) {
-    data = getData();
-  }
-
-  // Merge data with provided props
-  const propNames = options.props;
-  if(propNames === undefined) {
-    data = attrs;
-  } else {
-    for(let i = 0; i < propNames.length; i++) {
-      const prop = propNames[i];
-      data[prop] = attrs[prop];
-    }
-  }
-
-  // Call render function
-  return options.render(m, {
-    data: data,
-    slots: getSlots(children)
-  });
-}
-
-/**
  * Compiles Arguments to a VNode
- * @param {String} tag
+ * @param {String} type
  * @param {Object} attrs
  * @param {Object} meta
  * @param {Object|String} children
  * @return {Object} Object usable in Virtual DOM (VNode)
  */
-const m = function(tag, attrs, meta, children) {
+const m = function(type, props, meta, children) {
   let component;
 
-  if(tag === TEXT_TYPE) {
+  if(type === TEXT_TYPE) {
     // Text Node
-    // Tag => #text
-    // Attrs => meta
-    // Meta => val
-    return createElement(TEXT_TYPE, meta, {attrs: {}}, attrs, []);
-  } else if((component = components[tag]) !== undefined) {
+    // Type => #text
+    // Meta => props
+    // Value => meta
+    return createTextElement(meta, props);
+  } else if((component = components[type]) !== undefined) {
     // Resolve Component
     if(component.options.functional === true) {
-      return createFunctionalComponent(attrs, children, component);
+      return createFunctionalComponent(props, children, component);
     } else {
       meta.component = component;
     }
   }
 
-  return createElement(tag, "", attrs, meta, children);
+  return createElement(type, props, meta, children);
 
   // In the end, we have a VNode structure like:
   // {
@@ -173,6 +150,41 @@ m.renderLoop = function(iteratable, item) {
  }
 
 /**
+ * Creates a Functional Component
+ * @param {Object} props
+ * @param {Array} children
+ * @param {Object} functionalComponent
+ * @return {Object} Virtual DOM Node
+ */
+const createFunctionalComponent = function(props, children, functionalComponent) {
+  const options = functionalComponent.options;
+  const attrs = props.attrs;
+  let data = {};
+  let getData = options.data;
+
+  if(getData !== undefined) {
+    data = getData();
+  }
+
+  // Merge data with provided props
+  const propNames = options.props;
+  if(propNames === undefined) {
+    data = attrs;
+  } else {
+    for(let i = 0; i < propNames.length; i++) {
+      const prop = propNames[i];
+      data[prop] = attrs[prop];
+    }
+  }
+
+  // Call render function
+  return options.render(m, {
+    data: data,
+    slots: getSlots(children)
+  });
+}
+
+/**
  * Mounts a Component To The DOM
  * @param {Object} node
  * @param {Object} vnode
@@ -205,7 +217,7 @@ const createComponentFromVNode = function(node, vnode, component) {
   callHook(componentInstance, "mounted");
 
   // Rehydrate
-  vnode.meta.el = componentInstance.root;
+  vnode.meta.node = componentInstance.root;
 
   return componentInstance.root;
 }
@@ -263,11 +275,12 @@ const diffProps = function(node, nodeProps, vnode, props) {
   // Execute any directives
   let vnodeDirectives = props.directives;
   if(vnodeDirectives !== undefined) {
-    for(const directive in vnodeDirectives) {
+    for(let directive in vnodeDirectives) {
       let directiveFn = directives[directive];
       if(directiveFn !== undefined) {
         directiveFn(node, vnodeDirectives[directive], vnode);
       }
+      // TODO: Warn about unknown directive
     }
   }
 
@@ -345,19 +358,19 @@ const hydrate = function(node, vnode, parent) {
     return newNode;
   } else if(vnode.type === TEXT_TYPE) {
     // Both are text nodes, update if needed
-    if(node.textContent !== vnode.val) {
-      node.textContent = vnode.val;
+    if(node.textContent !== vnode.value) {
+      node.textContent = vnode.value;
     }
 
     // Hydrate
-    meta.el = node;
+    meta.node = node;
   } else if(meta.component !== undefined) {
     // Component
     diffComponent(node, vnode);
     return node;
   } else {
     // Hydrate
-    meta.el = node;
+    meta.node = node;
 
     // Diff props
     let props = vnode.props;
@@ -369,9 +382,9 @@ const hydrate = function(node, vnode, parent) {
       addEventListeners(node, eventListeners);
     }
 
-    // Ensure innerHTML wasn't changed
+    // Ensure innerHTML and textContent weren't changed
     const domProps = props.dom;
-    if(domProps === undefined || domProps.innerHTML === undefined) {
+    if(domProps === undefined || (domProps.innerHTML === undefined && domProps.textContent === undefined)) {
       const children = vnode.children;
       const length = children.length;
 
@@ -405,33 +418,32 @@ const hydrate = function(node, vnode, parent) {
 /**
  * Diffs VNodes, and applies Changes
  * @param {Object} oldVNode
- * @param {Array} oldChildren
  * @param {Object} vnode
- * @param {Array} children
  * @param {Number} index
  * @param {Object} parent
+ * @param {Object} parentVNode
  */
-const diff = function(oldVNode, oldChildren, vnode, children, index, parent) {
+const diff = function(oldVNode, vnode, index, parent, parentVNode) {
   let oldMeta = oldVNode.meta;
   let meta = vnode.meta;
 
   if(oldVNode.type !== vnode.type) {
     // Different types, replace
-    oldChildren[index] = vnode;
-    replaceChild(oldMeta.el, createNodeFromVNode(vnode), vnode, parent);
+    parentVNode.children[index] = vnode;
+    replaceChild(oldMeta.node, createNodeFromVNode(vnode), vnode, parent);
   } else if(meta.shouldRender !== undefined) {
     if(vnode.type === TEXT_TYPE) {
       // Text, update if needed
-      const val = vnode.val;
-      if(oldVNode.val !== val) {
-        oldVNode.val = val;
-        oldMeta.el.textContent = val;
+      const value = vnode.value;
+      if(oldVNode.value !== value) {
+        oldVNode.value = value;
+        oldMeta.node.textContent = value;
       }
     } else if(meta.component !== undefined) {
       // Component, diff props and slots
-      diffComponent(oldMeta.el, vnode);
+      diffComponent(oldMeta.node, vnode);
     } else {
-      const node = oldMeta.el;
+      const node = oldMeta.node;
 
       // Diff props
       let oldProps = oldVNode.props;
@@ -447,12 +459,12 @@ const diff = function(oldVNode, oldChildren, vnode, children, index, parent) {
 
       // Ensure innerHTML wasn't changed
       const domProps = props.dom;
-      if(domProps === undefined || domProps.innerHTML === undefined) {
+      if(domProps === undefined || (domProps.innerHTML === undefined && domProps.textContent === undefined)) {
         // Diff children
         const children = vnode.children;
         const oldChildren = oldVNode.children;
-        let newLength = children.length;
-        let oldLength = oldChildren.length;
+        const newLength = children.length;
+        const oldLength = oldChildren.length;
 
         if(newLength === 0 && oldLength !== 0) {
           let firstChild = null;
@@ -461,10 +473,9 @@ const diff = function(oldVNode, oldChildren, vnode, children, index, parent) {
           }
           oldVNode.children = [];
         } else if(oldLength === 0) {
-          let childVnode;
           for(let i = 0; i < newLength; i++) {
-            childVnode = children[i];
-            appendChild(createNodeFromVNode(childVnode), childVnode, node);
+            let child = children[i];
+            appendChild(createNodeFromVNode(child), child, node);
           }
           oldVNode.children = children;
         } else {
@@ -486,7 +497,7 @@ const diff = function(oldVNode, oldChildren, vnode, children, index, parent) {
               child = children[i];
 
               if(oldChild !== child) {
-                diff(oldChild, oldChildren, child, children, i, node);
+                diff(oldChild, child, i, node, oldVNode);
               }
             }
           }
