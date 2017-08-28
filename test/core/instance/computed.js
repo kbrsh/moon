@@ -2,7 +2,7 @@ describe('Computed', function() {
   var computed = createTestElement("computed", '<p>{{msg}}</p><p>{{reversed}}</p>');
 
   var app = new Moon({
-    el: "#computed",
+    root: "#computed",
     data: {
       msg: "Message"
     },

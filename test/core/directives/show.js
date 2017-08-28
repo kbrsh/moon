@@ -2,7 +2,7 @@ describe('Show Directive', function() {
   var show = createTestElement("show", '<p m-show="condition">Condition True</p>');
 
   var app = new Moon({
-    el: "#show",
+    root: "#show",
     data: {
       condition: true
     }

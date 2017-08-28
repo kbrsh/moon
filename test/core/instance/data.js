@@ -4,14 +4,14 @@ describe('Data', function() {
   var data3 = createTestElement("data3", '{{msg.obj.nested}}');
 
   var dataApp = new Moon({
-    el: "#data",
+    root: "#data",
     data: {
       msg: "Hello Moon!"
     }
   });
 
   var dataApp2 = new Moon({
-    el: "#data2",
+    root: "#data2",
     data: {
       msg: {
         obj: {
@@ -22,7 +22,7 @@ describe('Data', function() {
   });
 
   var dataApp3 = new Moon({
-    el: "#data3",
+    root: "#data3",
     data: {
       msg: {
         obj: {

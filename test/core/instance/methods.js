@@ -2,7 +2,7 @@ describe('Methods', function() {
   var method = createTestElement("method", '{{count}}');
 
   var app = new Moon({
-    el: "#method",
+    root: "#method",
     data: {
       count: 0
     },

@@ -5,7 +5,7 @@ describe('Model Directive', function() {
     var input = p.nextSibling;
 
     var app = new Moon({
-      el: "#model",
+      root: "#model",
       data: {
         msg: "Hello Moon!"
       }
@@ -49,7 +49,7 @@ describe('Model Directive', function() {
     var input = p.nextSibling;
 
     var app = new Moon({
-      el: "#modelDynamic",
+      root: "#modelDynamic",
       data: {
         arr: ["Random", "Hello Moon!"],
         index: 1
@@ -93,7 +93,7 @@ describe('Model Directive', function() {
     var input = p.nextSibling;
 
     var app = new Moon({
-      el: "#modelCheckbox",
+      root: "#modelCheckbox",
       data: {
         checked: true
       }
@@ -138,7 +138,7 @@ describe('Model Directive', function() {
     var input3 = input2.nextSibling;
 
     var app = new Moon({
-      el: "#modelRadio",
+      root: "#modelRadio",
       data: {
         current: "Bar"
       }

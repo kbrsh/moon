@@ -4,7 +4,7 @@ describe('For Directive', function() {
     var ul = forEl.firstChild;
 
     var app = new Moon({
-      el: "#for",
+      root: "#for",
       data: {
         items: [1, 2, 3, 4, 5]
       }
@@ -41,7 +41,7 @@ describe('For Directive', function() {
     var ul = forEl.firstChild;
 
     var app = new Moon({
-      el: "#forIndex",
+      root: "#forIndex",
       data: {
         items: [1, 2, 3, 4, 5]
       }
@@ -89,7 +89,7 @@ describe('For Directive', function() {
     var ul = forObjectEl.firstChild;
 
     var app = new Moon({
-      el: "#forObject",
+      root: "#forObject",
       data: {
         items: {foo: 1, bar: "str", baz: true}
       }
@@ -124,7 +124,7 @@ describe('For Directive', function() {
     var ul = forObjectIndexEl.firstChild;
 
     var app = new Moon({
-      el: "#forObjectIndex",
+      root: "#forObjectIndex",
       data: {
         items: {foo: 1, bar: "str", baz: true}
       }
@@ -166,7 +166,7 @@ describe('For Directive', function() {
     var ul = forRangeEl.firstChild;
 
     var app = new Moon({
-      el: "#forRange",
+      root: "#forRange",
       data: {
         range: 3
       }
@@ -199,7 +199,7 @@ describe('For Directive', function() {
     var ul = forRangeIndexEl.firstChild;
 
     var app = new Moon({
-      el: "#forRangeIndex",
+      root: "#forRangeIndex",
       data: {
         range: 3
       }

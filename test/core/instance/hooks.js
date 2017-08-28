@@ -19,7 +19,7 @@ describe("Mounted Hook", function() {
 
     var run = false;
     var app = new Moon({
-      el: "#mountedHook",
+      root: "#mountedHook",
       hooks: {
         mounted: function() {
           run = true;
@@ -36,7 +36,7 @@ describe("Updated Hook", function() {
 
     var run = false;
     var app = new Moon({
-      el: "#updatedHook",
+      root: "#updatedHook",
       hooks: {
         updated: function() {
           run = true;
@@ -55,7 +55,7 @@ describe("Destroyed Hook", function() {
 
     var run = false;
     var app = new Moon({
-      el: "#destroyedHook",
+      root: "#destroyedHook",
       hooks: {
         destroyed: function() {
           run = true;

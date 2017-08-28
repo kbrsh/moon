@@ -4,7 +4,7 @@ describe('Literal Directive', function() {
     var span = literal.firstChild;
 
     var app = new Moon({
-      el: "#literal",
+      root: "#literal",
       data: {
         num: 1
       }
@@ -27,7 +27,7 @@ describe('Literal Directive', function() {
       var span = literalClass.firstChild;
 
       var app = new Moon({
-        el: "#literalClass"
+        root: "#literalClass"
       });
 
       it('should be able to handle an array of classes', function() {
@@ -46,7 +46,7 @@ describe('Literal Directive', function() {
       var span = literalConditionalClass.firstChild;
 
       var app = new Moon({
-        el: "#literalConditionalClass",
+        root: "#literalConditionalClass",
         data: {
           trueVal: true,
           falseVal: false
@@ -70,7 +70,7 @@ describe('Literal Directive', function() {
     var span = literalBooleanValue.firstChild;
 
     var app = new Moon({
-      el: "#literalBooleanValue",
+      root: "#literalBooleanValue",
       data: {
         condition: true
       }
@@ -104,7 +104,7 @@ describe('Literal Directive', function() {
     var span = literalDOM.firstChild;
 
     var app = new Moon({
-      el: "#literalDOM"
+      root: "#literalDOM"
     });
 
     it('should treat the value as a literal expression', function() {

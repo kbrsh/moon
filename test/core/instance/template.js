@@ -2,7 +2,7 @@ describe('Template', function() {
   var template = createTestElement("template", '');
 
   var app = new Moon({
-    el: "#template",
+    root: "#template",
     template: "<div id='template'>{{msg}}</div>",
     data: {
       msg: "Hello Moon!"

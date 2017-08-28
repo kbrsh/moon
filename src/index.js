@@ -39,8 +39,11 @@ function Moon(options) {
     }
     this.options = options;
 
-    // Readable name (component name or "root")
+    // Readable name/id
     defineProperty(this, "name", options.name, "root");
+
+    // DOM Node to Mount
+    this.root = undefined;
 
     // Custom Data
     const data = options.data;

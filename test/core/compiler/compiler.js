@@ -2,7 +2,7 @@ describe("Compiler", function() {
   it("should compile whitespace in mustaches", function() {
     var el = createTestElement("compilerMustacheWhitespace", '{{  msg   }}');
     var app = new Moon({
-      el: "#compilerMustacheWhitespace",
+      root: "#compilerMustacheWhitespace",
       data: {
         msg: "Hello Moon!"
       }
@@ -13,7 +13,7 @@ describe("Compiler", function() {
   it("should not compile comments", function() {
     var el = createTestElement("compilerComment", '<!-- comment -->');
     var compilerCommentApp = new Moon({
-      el: "#compilerComment"
+      root: "#compilerComment"
     });
     expect(el.innerHTML).to.equal("");
   });
@@ -21,7 +21,7 @@ describe("Compiler", function() {
   it("should compile self closing elements", function() {
     var el = createTestElement("compilerSelfClosing", '<self-closing/>');
     var app = new Moon({
-      el: "#compilerSelfClosing",
+      root: "#compilerSelfClosing",
       template: "<div><self-closing/></div>"
     });
     expect(app.dom.children[0].type).to.equal("self-closing");
@@ -30,7 +30,7 @@ describe("Compiler", function() {
   it("should compile self closing elements without a slash and consume children", function() {
     var el = createTestElement("compilerSelfClosingNoSlash", '');
     var app = new Moon({
-      el: "#compilerSelfClosingNoSlash",
+      root: "#compilerSelfClosingNoSlash",
       template: "<div><self-closing>hi</div>"
     });
     expect(app.dom.children[0].children[0].val).to.equal("hi");
@@ -39,7 +39,7 @@ describe("Compiler", function() {
   it("should ignore just closing elements", function() {
     var el = createTestElement("compilerJustClosing", '');
     var app = new Moon({
-      el: "#compilerJustClosing",
+      root: "#compilerJustClosing",
       template: "<div></h1></div>"
     });
     expect(app.dom.children[0]).to.equal(undefined);
@@ -48,7 +48,7 @@ describe("Compiler", function() {
   it("should ignore just closing custom elements", function() {
     var el = createTestElement("compilerJustClosingCustom", '');
     var app = new Moon({
-      el: "#compilerJustClosingCustom",
+      root: "#compilerJustClosingCustom",
       template: "<div></custom></div>"
     });
     expect(app.dom.children[0]).to.equal(undefined);
@@ -57,7 +57,7 @@ describe("Compiler", function() {
   it("should compile only text", function() {
     var el = createTestElement("compilerOnlyText", '');
     var compilerCommentApp = new Moon({
-      el: "#compilerOnlyText",
+      root: "#compilerOnlyText",
       template: "<div>text</div>"
     });
     expect(el.innerHTML).to.equal("text");
@@ -66,7 +66,7 @@ describe("Compiler", function() {
   it("should compile double quotes in text", function() {
     var el = createTestElement("compilerDoubleQuote", '"Hello Moon!"');
     var compilerCommentApp = new Moon({
-      el: "#compilerDoubleQuote"
+      root: "#compilerDoubleQuote"
     });
     expect(el.innerHTML).to.equal('"Hello Moon!"');
   });
@@ -74,7 +74,7 @@ describe("Compiler", function() {
   it("should compile an unclosed comment", function() {
     var el = createTestElement("compilerUnclosedComment", '');
     var compilerCommentApp = new Moon({
-      el: "#compilerUnclosedComment",
+      root: "#compilerUnclosedComment",
       template: "<div><!-- unclosed</div>"
     });
     expect(el.innerHTML).to.equal("");
@@ -83,7 +83,7 @@ describe("Compiler", function() {
   it("should compile an unclosed tag", function() {
     var el = createTestElement("compilerUnclosedTag", '');
     var compilerUnclosedTagApp = new Moon({
-      el: "#compilerUnclosedTag",
+      root: "#compilerUnclosedTag",
       template: "<div><h1>Moon</div>"
     });
     expect(el.firstChild.textContent).to.equal("Moon");
@@ -92,7 +92,7 @@ describe("Compiler", function() {
   it("should compile and mark SVG elements", function() {
     var el = createTestElement("compilerSVG", '<svg></svg>');
     var app = new Moon({
-      el: "#compilerSVG"
+      root: "#compilerSVG"
     });
     expect(app.render().children[0].meta.isSVG).to.equal(true);
   });

@@ -3,7 +3,7 @@ describe('Mask Directive', function() {
   var span = mask.firstChild;
 
   new Moon({
-    el: "#mask",
+    root: "#mask",
     data: {
       msg: "Hello Moon!"
     }

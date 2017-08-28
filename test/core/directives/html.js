@@ -3,7 +3,7 @@ describe('HTML Directive', function() {
   var span = html.firstChild;
 
   var app = new Moon({
-    el: "#html",
+    root: "#html",
     data: {
       html: "<strong>Hello Moon!</strong>"
     }

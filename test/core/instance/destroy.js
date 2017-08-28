@@ -2,7 +2,7 @@ describe('Destroy', function() {
   var destroyEl = createTestElement("destroy", '{{msg}}');
 
   var app = new Moon({
-    el: "#destroy",
+    root: "#destroy",
     data: {
       msg: "Hello Moon!"
     }

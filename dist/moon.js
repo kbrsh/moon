@@ -639,14 +639,16 @@
      */
     var createComponentFromVNode = function(node, vnode, component) {
       var componentInstance = new component.CTor();
-      var props = componentInstance.props;
+      var props = componentInstance.options.props;
       var attrs = vnode.props.attrs;
       var data = componentInstance.data;
     
       // Merge data with provided props
-      for(var i = 0; i < props.length; i++) {
-        var prop = props[i];
-        data[prop] = attrs[prop];
+      if(props !== undefined) {
+        for(var i = 0; i < props.length; i++) {
+          var prop = props[i];
+          data[prop] = attrs[prop];
+        }
       }
     
       // Check for events
@@ -656,14 +658,14 @@
       }
     
       componentInstance.slots = getSlots(vnode.children);
-      componentInstance.el = node;
+      componentInstance.root = node;
       componentInstance.build();
       callHook(componentInstance, "mounted");
     
       // Rehydrate
-      vnode.meta.el = componentInstance.el;
+      vnode.meta.el = componentInstance.root;
     
-      return componentInstance.el;
+      return componentInstance.root;
     }
     
     /**
@@ -755,16 +757,20 @@
         var componentChanged = false;
     
         // Merge any properties that changed
-        var props = componentInstance.props;
+        var props = componentInstance.options.props;
         var data = componentInstance.data;
         var attrs = vnode.props.attrs;
-        for(var i = 0; i < props.length; i++) {
-          var prop = props[i];
-          if(data[prop] !== attrs[prop]) {
-            data[prop] = attrs[prop];
-            componentChanged = true;
+    
+        if(props !== undefined) {
+          for(var i = 0; i < props.length; i++) {
+            var prop = props[i];
+            if(data[prop] !== attrs[prop]) {
+              data[prop] = attrs[prop];
+              componentChanged = true;
+            }
           }
         }
+    
     
         // If it has children, resolve any new slots
         if(vnode.children.length !== 0) {
@@ -1709,8 +1715,11 @@
         }
         this.options = options;
     
-        // Readable name (component name or "root")
+        // Readable name/id
         defineProperty(this, "name", options.name, "root");
+    
+        // DOM Node to Mount
+        this.root = undefined;
     
         // Custom Data
         var data = options.data;
@@ -1810,7 +1819,7 @@
       this.off();
     
       // Remove reference to element
-      this.el = undefined;
+      this.root = undefined;
     
       // Queue
       this.queued = true;
@@ -1910,22 +1919,22 @@
     
     /**
      * Mounts Moon Element
-     * @param {String|Object} el
+     * @param {String|Object} root
      */
-    Moon.prototype.mount = function(el) {
+    Moon.prototype.mount = function(root) {
       // Get element from the DOM
-      this.el = typeof el === "string" ? document.querySelector(el) : el;
+      this.root = typeof root === "string" ? document.querySelector(root) : root;
     
-      if("development" !== "production" && this.el === null) {
+      if("development" !== "production" && this.root === null) {
         // Element not found
-        error("Element " + this.options.el + " not found");
+        error("Element " + this.options.root + " not found");
       }
     
       // Sync Element and Moon instance
-      this.el.__moon__ = this;
+      this.root.__moon__ = this;
     
       // Setup template as provided `template` or outerHTML of the Element
-      defineProperty(this, "template", this.options.template, this.el.outerHTML);
+      defineProperty(this, "template", this.options.template, this.root.outerHTML);
     
       // Setup render Function
       if(this.compiledRender === noop) {
@@ -1965,7 +1974,7 @@
     
           // Update Bound Instance
           newRoot.__moon__ = this;
-          this.el = newRoot;
+          this.root = newRoot;
         } else {
           // Diff
           diff(old, [], vnode, [], 0, parent);
@@ -1977,8 +1986,8 @@
     
         if(newNode !== old) {
           // Root Element Changed During Hydration
-          this.el = vnode.meta.el;
-          this.el.__moon__ = this;
+          this.root = vnode.meta.el;
+          this.root.__moon__ = this;
         }
       }
     }
@@ -1998,12 +2007,12 @@
         old = this.dom;
       } else {
         // No virtual DOM, patch with actual DOM element, and setup virtual DOM
-        old = this.el;
+        old = this.root;
         this.dom = dom;
       }
     
       // Patch old and new
-      this.patch(old, dom, this.el.parentNode);
+      this.patch(old, dom, this.root.parentNode);
     }
     
     /**
@@ -2013,9 +2022,9 @@
       log("======= Moon =======");
       callHook(this, "init");
     
-      var el = this.options.el;
-      if(el !== undefined) {
-        this.mount(el);
+      var root = this.options.root;
+      if(root !== undefined) {
+        this.mount(root);
       }
     }
     
@@ -2109,10 +2118,7 @@
       MoonComponent.prototype.constructor = MoonComponent;
     
       MoonComponent.prototype.init = function() {
-        callHook(this, "init");
-    
         var options = this.options;
-        defineProperty(this, "props", options.props, []);
     
         var template = options.template;
         this.template = template;
@@ -2120,6 +2126,8 @@
         if(this.compiledRender === noop) {
           this.compiledRender = Moon.compile(template);
         }
+    
+        callHook(this, "init");
       }
     
       components[name] = {

@@ -12,7 +12,7 @@ describe("Component", function() {
     });
 
     new Moon({
-      el: "#component"
+      root: "#component"
     });
 
     return wait(function() {
@@ -40,7 +40,7 @@ describe("Component", function() {
     });
 
     new Moon({
-      el: "#componentData"
+      root: "#componentData"
     });
 
     it("should render data from within the component state", function() {
@@ -68,7 +68,7 @@ describe("Component", function() {
     });
 
     var app = new Moon({
-      el: "#componentProps",
+      root: "#componentProps",
       data: {
         msg: "Hello Moon!"
       }
@@ -97,7 +97,7 @@ describe("Component", function() {
       });
 
       new Moon({
-        el: "#componentDefaultSlot"
+        root: "#componentDefaultSlot"
       });
 
       return wait(function() {
@@ -114,7 +114,7 @@ describe("Component", function() {
       });
 
       new Moon({
-        el: "#componentNamedSlot"
+        root: "#componentNamedSlot"
       });
 
       return wait(function() {
@@ -150,7 +150,7 @@ describe("Component", function() {
       });
 
       new Moon({
-        el: "#childEvent",
+        root: "#childEvent",
         data: {
           total: 0
         },
@@ -166,7 +166,7 @@ describe("Component", function() {
         button = h1.nextSibling;
 
         button.click();
-        
+
         Moon.nextTick(function() {
           expect(p.innerHTML).to.equal("1");
           expect(h1.innerHTML).to.equal("1");

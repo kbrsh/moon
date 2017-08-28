@@ -10,7 +10,7 @@ describe("Functional Component", function() {
     });
 
     new Moon({
-      el: "#functional"
+      root: "#functional"
     });
 
     return wait(function() {
@@ -32,7 +32,7 @@ describe("Functional Component", function() {
     });
 
     var app = new Moon({
-      el: "#functionalProps",
+      root: "#functionalProps",
       data: {
         parentMsg: "Hello Moon!"
       }
@@ -67,7 +67,7 @@ describe("Functional Component", function() {
     });
 
     new Moon({
-      el: "#functionalSlots"
+      root: "#functionalSlots"
     });
 
     var h1 = null,

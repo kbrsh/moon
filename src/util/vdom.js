@@ -181,14 +181,16 @@ m.renderLoop = function(iteratable, item) {
  */
 const createComponentFromVNode = function(node, vnode, component) {
   const componentInstance = new component.CTor();
-  const props = componentInstance.props;
+  const props = componentInstance.options.props;
   const attrs = vnode.props.attrs;
   let data = componentInstance.data;
 
   // Merge data with provided props
-  for(let i = 0; i < props.length; i++) {
-    const prop = props[i];
-    data[prop] = attrs[prop];
+  if(props !== undefined) {
+    for(let i = 0; i < props.length; i++) {
+      const prop = props[i];
+      data[prop] = attrs[prop];
+    }
   }
 
   // Check for events
@@ -198,14 +200,14 @@ const createComponentFromVNode = function(node, vnode, component) {
   }
 
   componentInstance.slots = getSlots(vnode.children);
-  componentInstance.el = node;
+  componentInstance.root = node;
   componentInstance.build();
   callHook(componentInstance, "mounted");
 
   // Rehydrate
-  vnode.meta.el = componentInstance.el;
+  vnode.meta.el = componentInstance.root;
 
-  return componentInstance.el;
+  return componentInstance.root;
 }
 
 /**
@@ -297,16 +299,20 @@ const diffComponent = function(node, vnode) {
     let componentChanged = false;
 
     // Merge any properties that changed
-    const props = componentInstance.props;
+    const props = componentInstance.options.props;
     const data = componentInstance.data;
     const attrs = vnode.props.attrs;
-    for(let i = 0; i < props.length; i++) {
-      let prop = props[i];
-      if(data[prop] !== attrs[prop]) {
-        data[prop] = attrs[prop];
-        componentChanged = true;
+
+    if(props !== undefined) {
+      for(let i = 0; i < props.length; i++) {
+        const prop = props[i];
+        if(data[prop] !== attrs[prop]) {
+          data[prop] = attrs[prop];
+          componentChanged = true;
+        }
       }
     }
+
 
     // If it has children, resolve any new slots
     if(vnode.children.length !== 0) {

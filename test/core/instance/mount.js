@@ -3,7 +3,7 @@ describe('Mount', function() {
     var mountSelector = createTestElement("mountSelector", '{{msg}}');
 
     new Moon({
-      el: "#mountSelector",
+      root: "#mountSelector",
       data: {
         msg: "Hello Moon!"
       }
@@ -18,7 +18,7 @@ describe('Mount', function() {
     var mountElement = createTestElement("mountElement", '{{msg}}');
 
     new Moon({
-      el: mountElement,
+      root: mountElement,
       data: {
         msg: "Hello Moon!"
       }

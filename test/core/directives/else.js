@@ -2,7 +2,7 @@ describe('Else Directive', function() {
   var elseEl = createTestElement("else", '<p m-if="condition">Condition True</p><p m-else>Condition False</p>');
 
   var app = new Moon({
-    el: "#else",
+    root: "#else",
     data: {
       condition: true
     }

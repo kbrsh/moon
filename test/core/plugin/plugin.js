@@ -13,7 +13,7 @@ describe('Plugin', function() {
   Moon.use(emptyPlugin);
 
   var app = new Moon({
-    el: "#plugin",
+    root: "#plugin",
     data: {
       msg: "Hello Moon!"
     }

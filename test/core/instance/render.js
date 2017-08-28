@@ -2,7 +2,7 @@ describe('Custom Render', function() {
     var render = createTestElement("render", '');
 
     var app = new Moon({
-      el: "#render",
+      root: "#render",
       render: function(m) {
         return m('div', {attrs: {id: "render"}}, {shouldRender: true}, [m("#text", {shouldRender: true}, this.get('msg'))])
       },

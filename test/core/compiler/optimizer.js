@@ -3,7 +3,7 @@ describe("Compiler Optimization", function() {
     createTestElement("staticOptimization", "<h1><h2><h3><h4><h5><h6>Static</h6></h5></h4></h3></h2></h1>");
 
     var app = new Moon({
-      el: "#staticOptimization"
+      root: "#staticOptimization"
     });
 
     var tree = app.render();
@@ -20,7 +20,7 @@ describe("Compiler Optimization", function() {
     createTestElement("unknownHTMLOptimization", "<custom></custom>");
 
     var app = new Moon({
-      el: "#unknownHTMLOptimization"
+      root: "#unknownHTMLOptimization"
     });
 
     expect(app.render().children[0].meta.shouldRender).to.equal(1);
@@ -30,7 +30,7 @@ describe("Compiler Optimization", function() {
     createTestElement("ifOptimization", "<div m-if='trueCondition'>True</div>");
 
     var app = new Moon({
-      el: "#ifOptimization",
+      root: "#ifOptimization",
       data: {
         trueCondition: true
       }
@@ -44,7 +44,7 @@ describe("Compiler Optimization", function() {
     createTestElement("ifNextOptimization", "<div m-if='true'>True</div><div m-if='falseCondition'>False</div>");
 
     var app = new Moon({
-      el: "#ifNextOptimization",
+      root: "#ifNextOptimization",
       data: {
         falseCondition: false
       }
@@ -63,7 +63,7 @@ describe("Compiler Optimization", function() {
     var l = createTestElement("ifSeperatedOptimization", "<div m-if='trueCondition'>True</div><h1>In the Middle.</h1><div m-if='trueCondition'>True</div>");
 
     var app = new Moon({
-      el: "#ifSeperatedOptimization",
+      root: "#ifSeperatedOptimization",
       data: {
         trueCondition: true
       }
@@ -80,7 +80,7 @@ describe("Compiler Optimization", function() {
     createTestElement("ifElseOptimization", "<div m-if='trueCondition'>True</div><div m-else>False</div>");
 
     var app = new Moon({
-      el: "#ifElseOptimization",
+      root: "#ifElseOptimization",
       data: {
         trueCondition: true
       }

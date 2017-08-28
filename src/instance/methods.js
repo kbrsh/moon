@@ -52,7 +52,7 @@ Moon.prototype.destroy = function() {
   this.off();
 
   // Remove reference to element
-  this.el = undefined;
+  this.root = undefined;
 
   // Queue
   this.queued = true;
@@ -152,22 +152,22 @@ Moon.prototype.emit = function(eventName, customMeta) {
 
 /**
  * Mounts Moon Element
- * @param {String|Object} el
+ * @param {String|Object} root
  */
-Moon.prototype.mount = function(el) {
+Moon.prototype.mount = function(root) {
   // Get element from the DOM
-  this.el = typeof el === "string" ? document.querySelector(el) : el;
+  this.root = typeof root === "string" ? document.querySelector(root) : root;
 
-  if("__ENV__" !== "production" && this.el === null) {
+  if("__ENV__" !== "production" && this.root === null) {
     // Element not found
-    error("Element " + this.options.el + " not found");
+    error("Element " + this.options.root + " not found");
   }
 
   // Sync Element and Moon instance
-  this.el.__moon__ = this;
+  this.root.__moon__ = this;
 
   // Setup template as provided `template` or outerHTML of the Element
-  defineProperty(this, "template", this.options.template, this.el.outerHTML);
+  defineProperty(this, "template", this.options.template, this.root.outerHTML);
 
   // Setup render Function
   if(this.compiledRender === noop) {
@@ -207,7 +207,7 @@ Moon.prototype.patch = function(old, vnode, parent) {
 
       // Update Bound Instance
       newRoot.__moon__ = this;
-      this.el = newRoot;
+      this.root = newRoot;
     } else {
       // Diff
       diff(old, [], vnode, [], 0, parent);
@@ -219,8 +219,8 @@ Moon.prototype.patch = function(old, vnode, parent) {
 
     if(newNode !== old) {
       // Root Element Changed During Hydration
-      this.el = vnode.meta.el;
-      this.el.__moon__ = this;
+      this.root = vnode.meta.el;
+      this.root.__moon__ = this;
     }
   }
 }
@@ -240,12 +240,12 @@ Moon.prototype.build = function() {
     old = this.dom;
   } else {
     // No virtual DOM, patch with actual DOM element, and setup virtual DOM
-    old = this.el;
+    old = this.root;
     this.dom = dom;
   }
 
   // Patch old and new
-  this.patch(old, dom, this.el.parentNode);
+  this.patch(old, dom, this.root.parentNode);
 }
 
 /**
@@ -255,8 +255,8 @@ Moon.prototype.init = function() {
   log("======= Moon =======");
   callHook(this, "init");
 
-  const el = this.options.el;
-  if(el !== undefined) {
-    this.mount(el);
+  const root = this.options.root;
+  if(root !== undefined) {
+    this.mount(root);
   }
 }

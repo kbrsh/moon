@@ -2,7 +2,7 @@ describe('If Directive', function() {
   var ifEl = createTestElement("if", '<p m-if="condition">Condition True</p>');
 
   var app = new Moon({
-    el: "#if",
+    root: "#if",
     data: {
       condition: true
     }

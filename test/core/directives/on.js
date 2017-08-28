@@ -13,7 +13,7 @@ describe('On Directive', function() {
   });
 
   var app = new Moon({
-    el: "#on",
+    root: "#on",
     data: {
       count: 0
     },

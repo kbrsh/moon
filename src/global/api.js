@@ -87,10 +87,7 @@ Moon.component = function(name, options) {
   MoonComponent.prototype.constructor = MoonComponent;
 
   MoonComponent.prototype.init = function() {
-    callHook(this, "init");
-
     const options = this.options;
-    defineProperty(this, "props", options.props, []);
 
     const template = options.template;
     this.template = template;
@@ -98,6 +95,8 @@ Moon.component = function(name, options) {
     if(this.compiledRender === noop) {
       this.compiledRender = Moon.compile(template);
     }
+
+    callHook(this, "init");
   }
 
   components[name] = {

@@ -6,7 +6,7 @@ describe('Custom Directive', function() {
   });
 
   new Moon({
-    el: "#customDirective"
+    root: "#customDirective"
   });
 
   it('should execute', function() {
