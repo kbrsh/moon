@@ -70,10 +70,12 @@ p {
 }
 
 #search {
-  height: 7px;
+  height: 30px;
   width: 140px;
   border: 1px solid #a8a8a8;
-  padding: 10px 0px 10px 35px;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-left: 35px;
   color: #a8a8a8;
   background: #111111 url('../img/search.svg') 10px center no-repeat;
   border-radius: 100px;

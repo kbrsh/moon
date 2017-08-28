@@ -153,10 +153,13 @@ body.close .post {
 #search {
   margin-left: auto;
   margin-right: auto;
-  height: 7px;
-  width: 150px;
+  height: 30px;
+  width: 140px;
   border: 1px solid #a8a8a8;
-  padding: 10px 0px 10px 35px;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-left: 35px;
+  color: #a8a8a8;
   background: #f5f5f5 url('../img/search.svg') 10px center no-repeat;
   border-radius: 100px;
 }
