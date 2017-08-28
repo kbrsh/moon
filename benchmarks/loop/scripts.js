@@ -8,7 +8,7 @@ var add = function(num) {
 
 console.time('init');
 var app = new Moon({
-  el: "#app",
+  root: "#app",
   data: {
     items: items
   },
