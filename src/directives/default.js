@@ -31,13 +31,11 @@ specialDirectives["m-if"] = {
   beforeGenerate: function(prop, vnode, parentVNode, state) {
     const children = parentVNode.children;
     const index = state.index;
-    let child;
-    let attrs;
 
     for(let i = index + 1; i < children.length; i++) {
-      child = children[i];
+      let child = children[i];
       if(typeof child !== "string") {
-        attrs = child.props;
+        let attrs = child.props;
         if(attrs["m-else"] !== undefined) {
           ifStack.push([i, child]);
           children.splice(i, 1);
@@ -159,14 +157,11 @@ specialDirectives["m-model"] = {
     // Get dependencies
     let dependencies = state.dependencies;
 
-    // Add dependencies for the getter and setter
-    compileTemplateExpression(value, exclude, dependencies);
-
     // Setup default event type, keypath to set, value of setter, DOM property to change, and value of DOM property
     let eventType = "input";
     let domGetter = "value";
-    let domSetter = value;
-    let keypathGetter = value;
+    let domSetter = compileTemplate(value, exclude, dependencies);
+    let keypathGetter = domSetter;
     let keypathSetter = `event.target.${domGetter}`;
 
     // If input type is checkbox, listen on 'change' and change the 'checked' DOM property
@@ -187,44 +182,12 @@ specialDirectives["m-model"] = {
           } else if((literalValueAttr = attrs["m-literal:value"])) {
             valueAttrValue = `${compileTemplate(literalValueAttr.value, exclude, dependencies)}`;
           }
-          domSetter = `${domSetter} === ${valueAttrValue}`;
+          domSetter += `=== ${valueAttrValue}`;
           keypathSetter = valueAttrValue;
         } else {
           keypathSetter = `event.target.${domGetter}`;
         }
       }
-    }
-
-    // Compute getter base if dynamic
-    const bracketIndex = keypathGetter.indexOf("[");
-    const dotIndex = keypathGetter.indexOf(".");
-    let base;
-    let dynamicPath;
-    let dynamicIndex = -1;
-
-    if(bracketIndex !== -1 || dotIndex !== -1) {
-      // Dynamic keypath found,
-      // Extract base and dynamic path
-      if(bracketIndex === -1) {
-        dynamicIndex = dotIndex;
-      } else if(dotIndex === -1) {
-        dynamicIndex = bracketIndex;
-      } else if(bracketIndex < dotIndex) {
-        dynamicIndex = bracketIndex;
-      } else {
-        dynamicIndex = dotIndex;
-      }
-      base = value.substring(0, dynamicIndex);
-      dynamicPath = value.substring(dynamicIndex);
-
-      // Replace string references with actual references
-      keypathGetter = base + dynamicPath.replace(expressionRE, function(match, reference) {
-        if(reference !== undefined) {
-          return `" + ${reference} + "`;
-        } else {
-          return match;
-        }
-      });
     }
 
     // Generate the listener

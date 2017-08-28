@@ -96,11 +96,9 @@ const generateProps = function(node, parent, state) {
   if(hasDirectives === true) {
     propsCode += ", directives: {";
 
-    let directiveProp;
-    let directivePropValue;
     for(let i = 0; i < directiveProps.length; i++) {
-      directiveProp = directiveProps[i];
-      directivePropValue = directiveProp.value;
+      let directiveProp = directiveProps[i];
+      let directivePropValue = directiveProp.value;
 
       compileTemplateExpression(directivePropValue, state.exclude, state.dependencies);
       propsCode += `"${directiveProp.name}": ${directivePropValue.length === 0 ? "\"\"" : directivePropValue}, `;
@@ -235,9 +233,8 @@ const generateNode = function(node, parent, index, state) {
     call += ")";
 
     if(specialDirectivesAfter !== undefined) {
-      let specialDirectiveAfter;
       for(let specialDirectiveKey in specialDirectivesAfter) {
-        specialDirectiveAfter = specialDirectivesAfter[specialDirectiveKey];
+        let specialDirectiveAfter = specialDirectivesAfter[specialDirectiveKey];
         call = specialDirectiveAfter.afterGenerate(specialDirectiveAfter.prop, call, node, parent, state);
       }
     }

@@ -78,10 +78,9 @@ const compileTemplateState = function(state) {
 }
 
 const compileTemplateExpression = function(expr, exclude, dependencies) {
-  let reference;
   let references;
   while((references = expressionRE.exec(expr)) !== null) {
-    reference = references[1];
+    let reference = references[1];
     if(reference !== undefined && dependencies.indexOf(reference) === -1 && exclude.indexOf(reference) === -1) {
       dependencies.push(reference);
     }
