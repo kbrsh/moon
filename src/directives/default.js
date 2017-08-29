@@ -157,11 +157,14 @@ specialDirectives["m-model"] = {
     // Get dependencies
     let dependencies = state.dependencies;
 
+    // Add dependencies
+    compileTemplateExpression(value, exclude, dependencies);
+
     // Setup default event type, keypath to set, value of setter, DOM property to change, and value of DOM property
     let eventType = "input";
     let domGetter = "value";
-    let domSetter = compileTemplate(value, exclude, dependencies);
-    let keypathGetter = domSetter;
+    let domSetter = value;
+    let keypathGetter = value;
     let keypathSetter = `event.target.${domGetter}`;
 
     // If input type is checkbox, listen on 'change' and change the 'checked' DOM property

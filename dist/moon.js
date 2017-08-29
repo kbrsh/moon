@@ -1009,10 +1009,9 @@
     }
     
     var compileTemplateExpression = function(expr, exclude, dependencies) {
-      var reference;
       var references;
       while((references = expressionRE.exec(expr)) !== null) {
-        reference = references[1];
+        var reference = references[1];
         if(reference !== undefined && dependencies.indexOf(reference) === -1 && exclude.indexOf(reference) === -1) {
           dependencies.push(reference);
         }
@@ -1490,11 +1489,9 @@
       if(hasDirectives === true) {
         propsCode += ", directives: {";
     
-        var directiveProp;
-        var directivePropValue;
         for(var i = 0; i < directiveProps.length; i++) {
-          directiveProp = directiveProps[i];
-          directivePropValue = directiveProp.value;
+          var directiveProp = directiveProps[i];
+          var directivePropValue = directiveProp.value;
     
           compileTemplateExpression(directivePropValue, state.exclude, state.dependencies);
           propsCode += "\"" + (directiveProp.name) + "\": " + (directivePropValue.length === 0 ? "\"\"" : directivePropValue) + ", ";
@@ -1629,9 +1626,8 @@
         call += ")";
     
         if(specialDirectivesAfter !== undefined) {
-          var specialDirectiveAfter;
           for(var specialDirectiveKey in specialDirectivesAfter) {
-            specialDirectiveAfter = specialDirectivesAfter[specialDirectiveKey];
+            var specialDirectiveAfter = specialDirectivesAfter[specialDirectiveKey];
             call = specialDirectiveAfter.afterGenerate(specialDirectiveAfter.prop, call, node, parent, state);
           }
         }
@@ -2144,13 +2140,11 @@
       beforeGenerate: function(prop, vnode, parentVNode, state) {
         var children = parentVNode.children;
         var index = state.index;
-        var child;
-        var attrs;
     
         for(var i = index + 1; i < children.length; i++) {
-          child = children[i];
+          var child = children[i];
           if(typeof child !== "string") {
-            attrs = child.props;
+            var attrs = child.props;
             if(attrs["m-else"] !== undefined) {
               ifStack.push([i, child]);
               children.splice(i, 1);
@@ -2272,7 +2266,7 @@
         // Get dependencies
         var dependencies = state.dependencies;
     
-        // Add dependencies for the getter and setter
+        // Add dependencies
         compileTemplateExpression(value, exclude, dependencies);
     
         // Setup default event type, keypath to set, value of setter, DOM property to change, and value of DOM property
@@ -2300,44 +2294,12 @@
               } else if((literalValueAttr = attrs["m-literal:value"])) {
                 valueAttrValue = "" + (compileTemplate(literalValueAttr.value, exclude, dependencies));
               }
-              domSetter = domSetter + " === " + valueAttrValue;
+              domSetter += "=== " + valueAttrValue;
               keypathSetter = valueAttrValue;
             } else {
               keypathSetter = "event.target." + domGetter;
             }
           }
-        }
-    
-        // Compute getter base if dynamic
-        var bracketIndex = keypathGetter.indexOf("[");
-        var dotIndex = keypathGetter.indexOf(".");
-        var base;
-        var dynamicPath;
-        var dynamicIndex = -1;
-    
-        if(bracketIndex !== -1 || dotIndex !== -1) {
-          // Dynamic keypath found,
-          // Extract base and dynamic path
-          if(bracketIndex === -1) {
-            dynamicIndex = dotIndex;
-          } else if(dotIndex === -1) {
-            dynamicIndex = bracketIndex;
-          } else if(bracketIndex < dotIndex) {
-            dynamicIndex = bracketIndex;
-          } else {
-            dynamicIndex = dotIndex;
-          }
-          base = value.substring(0, dynamicIndex);
-          dynamicPath = value.substring(dynamicIndex);
-    
-          // Replace string references with actual references
-          keypathGetter = base + dynamicPath.replace(expressionRE, function(match, reference) {
-            if(reference !== undefined) {
-              return ("\" + " + reference + " + \"");
-            } else {
-              return match;
-            }
-          });
         }
     
         // Generate the listener
