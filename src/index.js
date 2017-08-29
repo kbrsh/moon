@@ -77,7 +77,7 @@ function Moon(options) {
     this.observer = new Observer(this);
 
     // State of Queue
-    this.queued = false;
+    this.queued = true;
 
     // Setup Computed Properties
     const computed = options.computed;

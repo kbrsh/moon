@@ -189,13 +189,11 @@ const createFunctionalComponent = function(props, children, functionalComponent)
  * @param {Object} node
  * @param {Object} vnode
  * @param {Object} component
- * @return {Object} DOM Node
  */
 const createComponentFromVNode = function(node, vnode, component) {
-  const componentInstance = new component.CTor();
-  const props = componentInstance.options.props;
+  const props = component.options.props;
   const attrs = vnode.props.attrs;
-  let data = componentInstance.data;
+  let data = {};
 
   // Merge data with provided props
   if(props !== undefined) {
@@ -205,21 +203,22 @@ const createComponentFromVNode = function(node, vnode, component) {
     }
   }
 
+  const componentInstance = new component.CTor({
+    props: data,
+    insert: vnode.children
+  });
+
   // Check for events
   const eventListeners = vnode.meta.eventListeners;
   if(eventListeners !== undefined) {
     extend(componentInstance.events, eventListeners);
   }
 
-  componentInstance.insert = vnode.children;
-  componentInstance.root = node;
-  componentInstance.build();
-  callHook(componentInstance, "mounted");
+  // Mount
+  componentInstance.mount(node);
 
   // Rehydrate
   vnode.meta.node = componentInstance.root;
-
-  return componentInstance.root;
 }
 
 /**
@@ -301,7 +300,6 @@ const diffProps = function(node, nodeProps, vnode, props) {
  * Diffs a Component
  * @param {Object} node
  * @param {Object} vnode
- * @return {Object} adjusted node only if it was replaced
  */
 const diffComponent = function(node, vnode) {
   if(node.__moon__ === undefined) {
@@ -347,16 +345,13 @@ const diffComponent = function(node, vnode) {
  * @param {Object} node
  * @param {Object} vnode
  * @param {Object} parent
- * @return {Object} adjusted node
  */
 const hydrate = function(node, vnode, parent) {
-  const nodeName = node !== null ? node.nodeName.toLowerCase() : null;
+  const nodeName = node.nodeName.toLowerCase();
   let meta = vnode.meta;
 
   if(nodeName !== vnode.type) {
-    const newNode = createNodeFromVNode(vnode);
-    replaceChild(node, newNode, vnode, parent);
-    return newNode;
+    replaceChild(node, createNodeFromVNode(vnode), vnode, parent);
   } else if(vnode.type === TEXT_TYPE) {
     // Both are text nodes, update if needed
     if(node.textContent !== vnode.value) {
@@ -368,7 +363,6 @@ const hydrate = function(node, vnode, parent) {
   } else if(meta.component !== undefined) {
     // Component
     diffComponent(node, vnode);
-    return node;
   } else {
     // Hydrate
     meta.node = node;
@@ -412,7 +406,6 @@ const hydrate = function(node, vnode, parent) {
         currentChildNode = nextSibling;
       }
     }
-    return node;
   }
 }
 

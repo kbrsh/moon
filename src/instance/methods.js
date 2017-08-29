@@ -52,6 +52,7 @@ Moon.prototype.destroy = function() {
   this.off();
 
   // Remove reference to element
+  delete this.root.__moon__;
   this.root = undefined;
 
   // Queue
@@ -174,6 +175,9 @@ Moon.prototype.mount = function(root) {
     this.compiledRender = Moon.compile(this.template);
   }
 
+  // Remove queued state
+  this.queued = false;
+
   // Run First Build
   this.build();
 
@@ -201,9 +205,11 @@ Moon.prototype.patch = function(old, vnode, parent) {
     // If it is a VNode, then diff
     if(vnode.type !== old.type) {
       // Root element changed during diff
-      // replace root element
+      const oldRoot = old.meta.node;
+
+      // Replace root element
       const newRoot = createNodeFromVNode(vnode);
-      replaceChild(old.meta.node, newRoot, vnode, parent);
+      parent.replaceChild(newRoot, oldRoot);
 
       // Update Bound Instance
       newRoot.__moon__ = this;
@@ -215,12 +221,16 @@ Moon.prototype.patch = function(old, vnode, parent) {
 
   } else if(old instanceof Node) {
     // Hydrate
-    const newNode = hydrate(old, vnode, parent);
+    if(old.nodeName.toLowerCase() !== vnode.type) {
+      // Root element changed, replace it
+      const newRoot = createNodeFromVNode(vnode);
+      parent.replaceChild(newRoot, old);
 
-    if(newNode !== old) {
-      // Root Element Changed During Hydration
-      this.root = vnode.meta.node;
-      this.root.__moon__ = this;
+      // Update bound instance
+      newRoot.__moon__ = this;
+      this.root = newRoot;
+    } else {
+      hydrate(old, vnode, parent);
     }
   }
 }

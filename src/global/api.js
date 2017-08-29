@@ -79,8 +79,21 @@ Moon.component = function(name, options) {
     error("In components, data must be a function returning an object");
   }
 
-  function MoonComponent() {
-    Moon.call(this, options);
+  function MoonComponent(componentOptions) {
+    Moon.apply(this, [options]);
+
+    if(componentOptions === undefined) {
+      this.insert = [];
+    } else {
+      const props = componentOptions.props;
+      this.insert = componentOptions.insert;
+
+      if(props !== undefined) {
+        for(let prop in props) {
+          this.data[prop] = props[prop];
+        }
+      }
+    }
   }
 
   MoonComponent.prototype = Object.create(Parent.prototype);

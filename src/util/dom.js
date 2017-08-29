@@ -97,7 +97,7 @@ const createNodeFromVNode = function(vnode) {
  * @param {Object} parent
  */
 const appendChild = function(node, vnode, parent) {
-  // Remove the node
+  // Append the node
   parent.appendChild(node);
 
   // Check for Component
@@ -139,7 +139,7 @@ const replaceChild = function(oldNode, newNode, vnode, parent) {
     componentInstance.destroy();
   }
 
-  // Replace It
+  // Replace the node
   parent.replaceChild(newNode, oldNode);
 
   // Check for Component

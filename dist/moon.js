@@ -365,7 +365,7 @@
      * @param {Object} parent
      */
     var appendChild = function(node, vnode, parent) {
-      // Remove the node
+      // Append the node
       parent.appendChild(node);
     
       // Check for Component
@@ -407,7 +407,7 @@
         componentInstance.destroy();
       }
     
-      // Replace It
+      // Replace the node
       parent.replaceChild(newNode, oldNode);
     
       // Check for Component
@@ -608,13 +608,11 @@
      * @param {Object} node
      * @param {Object} vnode
      * @param {Object} component
-     * @return {Object} DOM Node
      */
     var createComponentFromVNode = function(node, vnode, component) {
-      var componentInstance = new component.CTor();
-      var props = componentInstance.options.props;
+      var props = component.options.props;
       var attrs = vnode.props.attrs;
-      var data = componentInstance.data;
+      var data = {};
     
       // Merge data with provided props
       if(props !== undefined) {
@@ -624,21 +622,22 @@
         }
       }
     
+      var componentInstance = new component.CTor({
+        props: data,
+        insert: vnode.children
+      });
+    
       // Check for events
       var eventListeners = vnode.meta.eventListeners;
       if(eventListeners !== undefined) {
         extend(componentInstance.events, eventListeners);
       }
     
-      componentInstance.insert = vnode.children;
-      componentInstance.root = node;
-      componentInstance.build();
-      callHook(componentInstance, "mounted");
+      // Mount
+      componentInstance.mount(node);
     
       // Rehydrate
       vnode.meta.node = componentInstance.root;
-    
-      return componentInstance.root;
     }
     
     /**
@@ -720,7 +719,6 @@
      * Diffs a Component
      * @param {Object} node
      * @param {Object} vnode
-     * @return {Object} adjusted node only if it was replaced
      */
     var diffComponent = function(node, vnode) {
       if(node.__moon__ === undefined) {
@@ -766,16 +764,13 @@
      * @param {Object} node
      * @param {Object} vnode
      * @param {Object} parent
-     * @return {Object} adjusted node
      */
     var hydrate = function(node, vnode, parent) {
-      var nodeName = node !== null ? node.nodeName.toLowerCase() : null;
+      var nodeName = node.nodeName.toLowerCase();
       var meta = vnode.meta;
     
       if(nodeName !== vnode.type) {
-        var newNode = createNodeFromVNode(vnode);
-        replaceChild(node, newNode, vnode, parent);
-        return newNode;
+        replaceChild(node, createNodeFromVNode(vnode), vnode, parent);
       } else if(vnode.type === TEXT_TYPE) {
         // Both are text nodes, update if needed
         if(node.textContent !== vnode.value) {
@@ -787,7 +782,6 @@
       } else if(meta.component !== undefined) {
         // Component
         diffComponent(node, vnode);
-        return node;
       } else {
         // Hydrate
         meta.node = node;
@@ -831,7 +825,6 @@
             currentChildNode = nextSibling;
           }
         }
-        return node;
       }
     }
     
@@ -1721,7 +1714,7 @@
         this.observer = new Observer(this);
     
         // State of Queue
-        this.queued = false;
+        this.queued = true;
     
         // Setup Computed Properties
         var computed = options.computed;
@@ -1787,6 +1780,7 @@
       this.off();
     
       // Remove reference to element
+      delete this.root.__moon__;
       this.root = undefined;
     
       // Queue
@@ -1909,6 +1903,9 @@
         this.compiledRender = Moon.compile(this.template);
       }
     
+      // Remove queued state
+      this.queued = false;
+    
       // Run First Build
       this.build();
     
@@ -1936,9 +1933,11 @@
         // If it is a VNode, then diff
         if(vnode.type !== old.type) {
           // Root element changed during diff
-          // replace root element
+          var oldRoot = old.meta.node;
+    
+          // Replace root element
           var newRoot = createNodeFromVNode(vnode);
-          replaceChild(old.meta.node, newRoot, vnode, parent);
+          parent.replaceChild(newRoot, oldRoot);
     
           // Update Bound Instance
           newRoot.__moon__ = this;
@@ -1950,12 +1949,16 @@
     
       } else if(old instanceof Node) {
         // Hydrate
-        var newNode = hydrate(old, vnode, parent);
+        if(old.nodeName.toLowerCase() !== vnode.type) {
+          // Root element changed, replace it
+          var newRoot$1 = createNodeFromVNode(vnode);
+          parent.replaceChild(newRoot$1, old);
     
-        if(newNode !== old) {
-          // Root Element Changed During Hydration
-          this.root = vnode.meta.node;
-          this.root.__moon__ = this;
+          // Update bound instance
+          newRoot$1.__moon__ = this;
+          this.root = newRoot$1;
+        } else {
+          hydrate(old, vnode, parent);
         }
       }
     }
@@ -2078,8 +2081,23 @@
         error("In components, data must be a function returning an object");
       }
     
-      function MoonComponent() {
-        Moon.call(this, options);
+      function MoonComponent(componentOptions) {
+        var this$1 = this;
+    
+        Moon.apply(this, [options]);
+    
+        if(componentOptions === undefined) {
+          this.insert = [];
+        } else {
+          var props = componentOptions.props;
+          this.insert = componentOptions.insert;
+    
+          if(props !== undefined) {
+            for(var prop in props) {
+              this$1.data[prop] = props[prop];
+            }
+          }
+        }
       }
     
       MoonComponent.prototype = Object.create(Parent.prototype);
