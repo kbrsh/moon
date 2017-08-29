@@ -57,9 +57,6 @@
         var getter = option.get;
         var setter = option.set;
     
-        // Flush Cache if Dependencies Change
-        observer.observe(prop);
-    
         // Add Getters
         Object.defineProperty(instance.data, prop, {
           get: function() {
@@ -105,9 +102,6 @@
       // Computed Property Cache
       this.cache = {};
     
-      // Set of events to clear cache when dependencies change
-      this.clear = {};
-    
       // Property Currently Being Observed for Dependencies
       this.target = undefined;
     
@@ -115,33 +109,25 @@
       this.map = {};
     }
     
-    Observer.prototype.observe = function(key) {
-      var self = this;
-      this.clear[key] = function() {
-        self.cache[key] = undefined;
-      }
-    }
-    
     Observer.prototype.notify = function(key) {
-      var self = this;
+      var this$1 = this;
     
-      var depMap = this.map[key];
-      if(depMap !== undefined) {
-        for(var i = 0; i < depMap.length; i++) {
-          self.notify(depMap[i]);
+      var map = this.map[key];
+      if(map !== undefined) {
+        for(var i = 0; i < map.length; i++) {
+          this$1.notify(map[i]);
         }
       }
     
-      var clear = this.clear[key];
-      if(clear !== undefined) {
-        clear();
+      var cache = this.cache;
+      if(cache[key] !== undefined) {
+        cache[key] = undefined;
       }
     }
     
     
     /* ======= Global Utilities ======= */
     
-    var hashRE = /\[(\w+)\]/g;
     var escapeRE = /(?:(?:&(?:lt|gt|quot|amp);)|"|\\|\n)/g;
     var escapeMap = {
       "&lt;": "<",
@@ -186,26 +172,6 @@
           callHook(instance, "updated");
         }, 0);
       }
-    }
-    
-    /**
-     * Resolves an Object Keypath and Sets it
-     * @param {Object} instance
-     * @param {Object} obj
-     * @param {String} keypath
-     * @param {String} val
-     * @return {Object} resolved object
-     */
-    var resolveKeyPath = function(instance, obj, keypath, val) {
-      keypath = keypath.replace(hashRE, ".$1");
-      var path = keypath.split('.');
-      var i = 0;
-      for(; i < path.length - 1; i++) {
-        var propName = path[i];
-        obj = obj[propName];
-      }
-      obj[path[i]] = val;
-      return path[0];
     }
     
     /**
@@ -1737,18 +1703,19 @@
     Moon.prototype.get = function(key) {
       // Collect dependencies if currently collecting
       var observer = this.observer;
+      var map = observer.map;
       var target = observer.target;
     
       if(target !== undefined) {
-        if(observer.map[key] === undefined) {
-          observer.map[key] = [target];
-        } else if(observer.map[key].indexOf(target) === -1) {
-          observer.map[key].push(target);
+        if(map[key] === undefined) {
+          map[key] = [target];
+        } else if(map[key].indexOf(target) === -1) {
+          map[key].push(target);
         }
       }
     
-      // Return value found
-      if("development" !== "production" && !(key in this.data)) {
+      // Return value
+      if("development" !== "production" && this.data.hasOwnProperty(key) === false) {
         error(("The item \"" + key + "\" was not defined but was referenced"));
       }
       return this.data[key];
@@ -1756,18 +1723,30 @@
     
     /**
      * Sets Value in Data
-     * @param {String} key
-     * @param {Any} val
+     * @param {String|Object} key
+     * @param {Any} value
      */
-    Moon.prototype.set = function(key, val) {
+    Moon.prototype.set = function(key, value) {
       // Get observer
       var observer = this.observer;
     
-      // Get base of keypath
-      var base = resolveKeyPath(this, this.data, key, val);
+      if(typeof key === "object") {
+        // Shallow merge
+        var data = this.data;
+        for(var prop in key) {
+          // Set value
+          data[prop] = key[prop];
     
-      // Notify observer of change
-      observer.notify(base);
+          // Notify observer of change
+          observer.notify(prop);
+        }
+      } else {
+        // Set value
+        this.data[key] = value;
+    
+        // Notify observer of change
+        observer.notify(key);
+      }
     
       // Queue a build
       queueBuild(this);

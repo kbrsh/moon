@@ -1,6 +1,5 @@
 /* ======= Global Utilities ======= */
 
-const hashRE = /\[(\w+)\]/g;
 const escapeRE = /(?:(?:&(?:lt|gt|quot|amp);)|"|\\|\n)/g;
 const escapeMap = {
   "&lt;": "<",
@@ -45,26 +44,6 @@ const queueBuild = function(instance) {
       callHook(instance, "updated");
     }, 0);
   }
-}
-
-/**
- * Resolves an Object Keypath and Sets it
- * @param {Object} instance
- * @param {Object} obj
- * @param {String} keypath
- * @param {String} val
- * @return {Object} resolved object
- */
-const resolveKeyPath = function(instance, obj, keypath, val) {
-  keypath = keypath.replace(hashRE, ".$1");
-  const path = keypath.split('.');
-  let i = 0;
-  for(; i < path.length - 1; i++) {
-    const propName = path[i];
-    obj = obj[propName];
-  }
-  obj[path[i]] = val;
-  return path[0];
 }
 
 /**

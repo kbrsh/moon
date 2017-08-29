@@ -46,14 +46,18 @@ describe('Data', function() {
   });
 
   it('when setting new property', function() {
-    dataApp3.set('msg.obj.nested', 'Nested Value');
+    var newMsg = dataApp3.get("msg");
+    newMsg.obj.nested = "Nested Value";
+    dataApp3.set("msg", newMsg);
     return wait(function() {
       expect(data3.innerHTML).to.equal("Nested Value");
     });
   });
 
-  it('when setting new data property', function() {
-    dataApp3.set("msg.obj.nested", "New Nested");
+  it('when updating new data property', function() {
+    var newMsg = dataApp3.get("msg");
+    newMsg.obj.nested = "New Nested";
+    dataApp3.set("msg", newMsg);
     return wait(function() {
       expect(data3.innerHTML).to.equal("New Nested");
     });

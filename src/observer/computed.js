@@ -10,9 +10,6 @@ const initComputed = function(instance, computed) {
     const getter = option.get;
     const setter = option.set;
 
-    // Flush Cache if Dependencies Change
-    observer.observe(prop);
-
     // Add Getters
     Object.defineProperty(instance.data, prop, {
       get: function() {

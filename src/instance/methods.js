@@ -8,18 +8,19 @@
 Moon.prototype.get = function(key) {
   // Collect dependencies if currently collecting
   const observer = this.observer;
+  let map = observer.map;
   let target = observer.target;
 
   if(target !== undefined) {
-    if(observer.map[key] === undefined) {
-      observer.map[key] = [target];
-    } else if(observer.map[key].indexOf(target) === -1) {
-      observer.map[key].push(target);
+    if(map[key] === undefined) {
+      map[key] = [target];
+    } else if(map[key].indexOf(target) === -1) {
+      map[key].push(target);
     }
   }
 
-  // Return value found
-  if("__ENV__" !== "production" && !(key in this.data)) {
+  // Return value
+  if("__ENV__" !== "production" && this.data.hasOwnProperty(key) === false) {
     error(`The item "${key}" was not defined but was referenced`);
   }
   return this.data[key];
@@ -27,18 +28,30 @@ Moon.prototype.get = function(key) {
 
 /**
  * Sets Value in Data
- * @param {String} key
- * @param {Any} val
+ * @param {String|Object} key
+ * @param {Any} value
  */
-Moon.prototype.set = function(key, val) {
+Moon.prototype.set = function(key, value) {
   // Get observer
   const observer = this.observer;
 
-  // Get base of keypath
-  const base = resolveKeyPath(this, this.data, key, val);
+  if(typeof key === "object") {
+    // Shallow merge
+    let data = this.data;
+    for(let prop in key) {
+      // Set value
+      data[prop] = key[prop];
 
-  // Notify observer of change
-  observer.notify(base);
+      // Notify observer of change
+      observer.notify(prop);
+    }
+  } else {
+    // Set value
+    this.data[key] = value;
+
+    // Notify observer of change
+    observer.notify(key);
+  }
 
   // Queue a build
   queueBuild(this);
