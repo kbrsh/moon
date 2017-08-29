@@ -893,7 +893,7 @@
     var closeRE = /\s*\}\}/;
     var whitespaceRE = /\s/;
     var expressionRE = /"[^"]*"|'[^']*'|\.\w*[a-zA-Z$_]\w*|\w*[a-zA-Z$_]\w*:|(\w*[a-zA-Z$_]\w*)/g;
-    var globals = ["true", "false", "undefined", "null", "NaN", "typeof", "in"];
+    var globals = ["true", "false", "undefined", "null", "NaN", "typeof", "in", "event"];
     
     /**
      * Compiles a Template
@@ -1355,7 +1355,7 @@
       return code.substring(0, code.length - 2) + add;
     }
     
-    var generateProps = function(node, parent, state) {
+    var generateProps = function(node, parent, specialDirectivesAfter, state) {
       var props = node.props;
       node.props = {
         attrs: props
@@ -1365,9 +1365,6 @@
     
       var hasDirectives = false;
       var directiveProps = [];
-    
-      var hasSpecialDirectivesAfter = false;
-      var specialDirectivesAfter = {};
     
       var propKey;
       var specialDirective;
@@ -1397,15 +1394,11 @@
               prop: prop$1,
               afterGenerate: afterGenerate
             };
-    
-            if(hasSpecialDirectivesAfter === false) {
-              hasSpecialDirectivesAfter = true;
-            }
           }
     
           duringPropGenerate = specialDirective.duringPropGenerate;
           if(duringPropGenerate !== undefined) {
-            var generated = duringPropGenerate(prop$1, node, state);
+            var generated = duringPropGenerate(prop$1, node, parent, state);
     
             if(generated.length !== 0) {
               if(hasAttrs === false) {
@@ -1458,10 +1451,6 @@
         }
     
         propsCode = closeCall(propsCode, "}");
-      }
-    
-      if(hasSpecialDirectivesAfter === true) {
-        state.specialDirectivesAfter = specialDirectivesAfter;
       }
     
       var domProps = node.props.dom;
@@ -1553,12 +1542,8 @@
           meta$1.isSVG = 1;
         }
     
-        var propsCode = generateProps(node, parent, state);
-        var specialDirectivesAfter = state.specialDirectivesAfter;
-    
-        if(specialDirectivesAfter !== undefined) {
-          state.specialDirectivesAfter = undefined;
-        }
+        var specialDirectivesAfter = {};
+        var propsCode = generateProps(node, parent, specialDirectivesAfter, state);
     
         var children = node.children;
         var childrenCode = "[";
@@ -1585,11 +1570,9 @@
         call += childrenCode;
         call += ")";
     
-        if(specialDirectivesAfter !== undefined) {
-          for(var specialDirectiveKey in specialDirectivesAfter) {
-            var specialDirectiveAfter = specialDirectivesAfter[specialDirectiveKey];
-            call = specialDirectiveAfter.afterGenerate(specialDirectiveAfter.prop, call, node, parent, state);
-          }
+        for(var specialDirectiveKey in specialDirectivesAfter) {
+          var specialDirectiveAfter = specialDirectivesAfter[specialDirectiveKey];
+          call = specialDirectiveAfter.afterGenerate(specialDirectiveAfter.prop, call, node, parent, state);
         }
     
         return call;
@@ -1600,10 +1583,9 @@
       var root = tree.children[0];
     
       var state = {
-        specialDirectivesAfter: undefined,
-        exclude: globals,
         index: 0,
         dynamic: false,
+        exclude: globals,
         dependencies: []
       };
     
@@ -2111,6 +2093,7 @@
     
     var ifDynamic = 0;
     var ifStack = [];
+    var forStack = [];
     
     var setIfState = function(state) {
       if(state.dynamic === false) {
@@ -2192,24 +2175,19 @@
         // Iteratable
         var iteratable = parts[1];
         var exclude = state.exclude;
+        forStack.push([iteratable, aliases, exclude]);
         state.exclude = exclude.concat(aliases.split(","));
         compileTemplateExpression(iteratable, exclude, state.dependencies);
-    
-        // Save for further generation
-        var meta = prop.meta;
-        meta.iteratable = iteratable;
-        meta.aliases = aliases;
-        meta.exclude = exclude;
       },
       afterGenerate: function(prop, code, vnode, parentVNode, state) {
-        // Get meta
-        var meta = prop.meta;
+        // Get node with information about parameters
+        var node = forStack.pop();
     
         // Restore globals to exclude
-        state.exclude = meta.exclude;
+        state.exclude = node[2];
     
         // Use the renderLoop runtime helper
-        return ("m.renderLoop(" + (meta.iteratable) + ", function(" + (meta.aliases) + ") { return " + code + "; })");
+        return ("m.renderLoop(" + (node[0]) + ", function(" + (node[1]) + ") { return " + code + "; })");
       }
     };
     
@@ -2231,7 +2209,7 @@
           var paramEnd = methodToCall.lastIndexOf(")");
           params = methodToCall.substring(paramStart + 1, paramEnd);
           methodToCall = methodToCall.substring(0, paramStart);
-          compileTemplateExpression(params, state.exclude.concat(["event"]), state.dependencies);
+          compileTemplateExpression(params, state.exclude, state.dependencies);
         }
     
         // Generate any modifiers
@@ -2316,7 +2294,7 @@
     };
     
     specialDirectives["m-literal"] = {
-      duringPropGenerate: function(prop, vnode, state) {
+      duringPropGenerate: function(prop, vnode, parent, state) {
         var modifiers = prop.meta.arg.split(".");
     
         var propName = modifiers.shift();

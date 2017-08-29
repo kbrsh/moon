@@ -2,7 +2,7 @@ const closeCall = function(code, add) {
   return code.substring(0, code.length - 2) + add;
 }
 
-const generateProps = function(node, parent, state) {
+const generateProps = function(node, parent, specialDirectivesAfter, state) {
   const props = node.props;
   node.props = {
     attrs: props
@@ -12,9 +12,6 @@ const generateProps = function(node, parent, state) {
 
   let hasDirectives = false;
   let directiveProps = [];
-
-  let hasSpecialDirectivesAfter = false;
-  let specialDirectivesAfter = {};
 
   let propKey;
   let specialDirective;
@@ -44,15 +41,11 @@ const generateProps = function(node, parent, state) {
           prop: prop,
           afterGenerate: afterGenerate
         };
-
-        if(hasSpecialDirectivesAfter === false) {
-          hasSpecialDirectivesAfter = true;
-        }
       }
 
       duringPropGenerate = specialDirective.duringPropGenerate;
       if(duringPropGenerate !== undefined) {
-        const generated = duringPropGenerate(prop, node, state);
+        const generated = duringPropGenerate(prop, node, parent, state);
 
         if(generated.length !== 0) {
           if(hasAttrs === false) {
@@ -101,14 +94,10 @@ const generateProps = function(node, parent, state) {
       let directivePropValue = directiveProp.value;
 
       compileTemplateExpression(directivePropValue, state.exclude, state.dependencies);
-      propsCode += `"${directiveProp.name}": ${directivePropValue.length === 0 ? "\"\"" : directivePropValue}, `;
+      propsCode += `"${directiveProp.name}": ${directivePropValue.length === 0 ? `""` : directivePropValue}, `;
     }
 
     propsCode = closeCall(propsCode, "}");
-  }
-
-  if(hasSpecialDirectivesAfter === true) {
-    state.specialDirectivesAfter = specialDirectivesAfter;
   }
 
   let domProps = node.props.dom;
@@ -200,12 +189,8 @@ const generateNode = function(node, parent, index, state) {
       meta.isSVG = 1;
     }
 
-    const propsCode = generateProps(node, parent, state);
-    let specialDirectivesAfter = state.specialDirectivesAfter;
-
-    if(specialDirectivesAfter !== undefined) {
-      state.specialDirectivesAfter = undefined;
-    }
+    let specialDirectivesAfter = {};
+    const propsCode = generateProps(node, parent, specialDirectivesAfter, state);
 
     let children = node.children;
     let childrenCode = "[";
@@ -232,11 +217,9 @@ const generateNode = function(node, parent, index, state) {
     call += childrenCode;
     call += ")";
 
-    if(specialDirectivesAfter !== undefined) {
-      for(let specialDirectiveKey in specialDirectivesAfter) {
-        let specialDirectiveAfter = specialDirectivesAfter[specialDirectiveKey];
-        call = specialDirectiveAfter.afterGenerate(specialDirectiveAfter.prop, call, node, parent, state);
-      }
+    for(let specialDirectiveKey in specialDirectivesAfter) {
+      let specialDirectiveAfter = specialDirectivesAfter[specialDirectiveKey];
+      call = specialDirectiveAfter.afterGenerate(specialDirectiveAfter.prop, call, node, parent, state);
     }
 
     return call;
@@ -247,10 +230,9 @@ const generate = function(tree) {
   let root = tree.children[0];
 
   let state = {
-    specialDirectivesAfter: undefined,
-    exclude: globals,
     index: 0,
     dynamic: false,
+    exclude: globals,
     dependencies: []
   };
 

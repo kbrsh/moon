@@ -4,6 +4,7 @@ const emptyVNode = `m("#text", {}, "")`;
 
 let ifDynamic = 0;
 let ifStack = [];
+let forStack = [];
 
 const setIfState = function(state) {
   if(state.dynamic === false) {
@@ -85,24 +86,19 @@ specialDirectives["m-for"] = {
     // Iteratable
     const iteratable = parts[1];
     const exclude = state.exclude;
+    forStack.push([iteratable, aliases, exclude]);
     state.exclude = exclude.concat(aliases.split(","));
     compileTemplateExpression(iteratable, exclude, state.dependencies);
-
-    // Save for further generation
-    let meta = prop.meta;
-    meta.iteratable = iteratable;
-    meta.aliases = aliases;
-    meta.exclude = exclude;
   },
   afterGenerate: function(prop, code, vnode, parentVNode, state) {
-    // Get meta
-    const meta = prop.meta;
+    // Get node with information about parameters
+    const node = forStack.pop();
 
     // Restore globals to exclude
-    state.exclude = meta.exclude;
+    state.exclude = node[2];
 
     // Use the renderLoop runtime helper
-    return `m.renderLoop(${meta.iteratable}, function(${meta.aliases}) { return ${code}; })`;
+    return `m.renderLoop(${node[0]}, function(${node[1]}) { return ${code}; })`;
   }
 };
 
@@ -124,7 +120,7 @@ specialDirectives["m-on"] = {
       const paramEnd = methodToCall.lastIndexOf(")");
       params = methodToCall.substring(paramStart + 1, paramEnd);
       methodToCall = methodToCall.substring(0, paramStart);
-      compileTemplateExpression(params, state.exclude.concat(["event"]), state.dependencies);
+      compileTemplateExpression(params, state.exclude, state.dependencies);
     }
 
     // Generate any modifiers
@@ -209,7 +205,7 @@ specialDirectives["m-model"] = {
 };
 
 specialDirectives["m-literal"] = {
-  duringPropGenerate: function(prop, vnode, state) {
+  duringPropGenerate: function(prop, vnode, parent, state) {
     let modifiers = prop.meta.arg.split(".");
 
     const propName = modifiers.shift();
