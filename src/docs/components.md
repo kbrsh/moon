@@ -23,7 +23,7 @@ Once this component is registered, you can use it in your HTML like:
 For example:
 
 ```html
-<div id="app">
+<div id="app1">
   <my-component></my-component>
 </div>
 ```
