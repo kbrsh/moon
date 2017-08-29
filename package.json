@@ -5,9 +5,9 @@
   "description": "Moon's Website",
   "main": "soldfile.js",
   "devDependencies": {
-    "ejs": "^2.5.6",
+    "ejs": "^2.5.7",
     "moonjs": "latest",
-    "sold": "latest"
+    "sold": "^0.2.4"
   },
   "scripts": {
     "build": "sold"

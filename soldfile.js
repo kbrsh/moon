@@ -1,4 +1,5 @@
-var Sold = require("sold")
+var Sold = require("sold");
+
 Sold(__dirname)
   .data({
     // version: require("moonjs").version
