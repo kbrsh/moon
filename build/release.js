@@ -9,7 +9,7 @@ tags = tags.slice(-2);
 let commits = exec(`git log --pretty=oneline ${tags[0]}...${tags[1]}`).toString().split("\n");
 commits.pop();
 
-let code = "", i = 0, commit, commitEntry, hash, category, patches = [], features = [], performance = [], breaking = [];
+let code = "", i = 0, commit, commitEntry, hash, category, patches = [], features = [], performance = [], docs = [], refactor = [], breaking = [];
 
 for(; i < commits.length; i++) {
 	commit = commits[i];
@@ -32,7 +32,7 @@ for(; i < commits.length; i++) {
 		message: commit,
 		body: body
 	}
-	
+
 	switch(category) {
 		case "fix":
 			patches.push(commitEntry);
@@ -42,6 +42,12 @@ for(; i < commits.length; i++) {
 			break;
 		case "perf":
 			performance.push(commitEntry);
+			break;
+		case "docs":
+			docs.push(commitEntry);
+			break;
+		case "refactor":
+			refactor.push(commitEntry);
 			break;
 		case "breaking":
 			breaking.push(commitEntry);
@@ -81,6 +87,8 @@ generateCategory("Breaking Changes", breaking);
 generateCategory("Features", features);
 generateCategory("Patches", patches);
 generateCategory("Performance", performance);
+generateCategory("Refactoring", refactor);
+generateCategory("Documentation", docs);
 
 const releaseNotePath = path.resolve("./RELEASE_NOTE");
 fs.writeFileSync(releaseNotePath, code);
