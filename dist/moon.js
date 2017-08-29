@@ -768,6 +768,7 @@
     var hydrate = function(node, vnode, parent) {
       var nodeName = node.nodeName.toLowerCase();
       var meta = vnode.meta;
+      var component;
     
       if(nodeName !== vnode.type) {
         replaceChild(node, createNodeFromVNode(vnode), vnode, parent);
@@ -779,9 +780,9 @@
     
         // Hydrate
         meta.node = node;
-      } else if(meta.component !== undefined) {
+      } else if((component = meta.component) !== undefined) {
         // Component
-        diffComponent(node, vnode);
+        createComponentFromVNode(node, vnode, component);
       } else {
         // Hydrate
         meta.node = node;

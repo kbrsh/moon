@@ -349,6 +349,7 @@ const diffComponent = function(node, vnode) {
 const hydrate = function(node, vnode, parent) {
   const nodeName = node.nodeName.toLowerCase();
   let meta = vnode.meta;
+  let component;
 
   if(nodeName !== vnode.type) {
     replaceChild(node, createNodeFromVNode(vnode), vnode, parent);
@@ -360,9 +361,9 @@ const hydrate = function(node, vnode, parent) {
 
     // Hydrate
     meta.node = node;
-  } else if(meta.component !== undefined) {
+  } else if((component = meta.component) !== undefined) {
     // Component
-    diffComponent(node, vnode);
+    createComponentFromVNode(node, vnode, component);
   } else {
     // Hydrate
     meta.node = node;
