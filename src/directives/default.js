@@ -28,6 +28,14 @@ const addEventListenerCodeToVNode = function(name, handler, vnode) {
   }
 }
 
+const addDomPropertyCodeToVNode = function(name, code, vnode) {
+  let dom = vnode.props.dom;
+  if(dom === undefined) {
+    vnode.props.dom = dom = {};
+  }
+  dom[name] = code;
+}
+
 specialDirectives["m-if"] = {
   beforeGenerate: function(prop, vnode, parentVNode, state) {
     const children = parentVNode.children;
@@ -196,11 +204,7 @@ specialDirectives["m-model"] = {
     addEventListenerCodeToVNode(eventType, code, vnode);
 
     // Setup a query used to get the value, and set the corresponding dom property
-    let dom = vnode.props.dom;
-    if(dom === undefined) {
-      vnode.props.dom = dom = {};
-    }
-    dom[domGetter] = domSetter;
+    addDomPropertyCodeToVNode(domGetter, domSetter, vnode);
   }
 };
 
@@ -214,11 +218,7 @@ specialDirectives["m-literal"] = {
     compileTemplateExpression(propValue, state.exclude, state.dependencies);
 
     if(modifiers[0] === "dom") {
-      let dom = vnode.props.dom;
-      if(dom === undefined) {
-        vnode.props.dom = dom = {};
-      }
-      dom[propName] = propValue;
+      addDomPropertyCodeToVNode(propName, propValue, vnode);
       return "";
     } else if(propName === "class") {
       // Detected class, use runtime class render helper
@@ -227,18 +227,6 @@ specialDirectives["m-literal"] = {
       // Default literal attribute
       return `"${propName}": ${propValue}, `;
     }
-  }
-};
-
-specialDirectives["m-html"] = {
-  beforeGenerate: function(prop, vnode, parentVNode, state) {
-    const value = prop.value;
-    let dom = vnode.props.dom;
-    if(dom === undefined) {
-      vnode.props.dom = dom = {};
-    }
-    compileTemplateExpression(value, state.exclude, state.dependencies);
-    dom.innerHTML = `${value}`;
   }
 };
 
