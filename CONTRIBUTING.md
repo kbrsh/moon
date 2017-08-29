@@ -45,9 +45,12 @@ body text with additional information if needed
 
 Categories you can use are:
 
+* `breaking` - Indicates a breaking change
 * `feat` - Indicates adding a feature
 * `fix` - Indicates fixing a bug
 * `perf` - Indicates improving performance
+* `refactor` - Indicates refactoring of code
+* `docs` - Indicates updating documentation
 
 Information about issues fixed should include any issues fixed as a result of the commit, and should follow a format of:
 
