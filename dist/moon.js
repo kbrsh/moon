@@ -2145,7 +2145,6 @@
       },
       afterGenerate: function(prop, code, vnode, parentVNode, state) {
         var value = prop.value;
-        var children = parentVNode.children;
         var elseValue = emptyVNode;
         var elseNode = ifStack.pop();
     

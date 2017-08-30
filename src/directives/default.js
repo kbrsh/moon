@@ -58,7 +58,6 @@ specialDirectives["m-if"] = {
   },
   afterGenerate: function(prop, code, vnode, parentVNode, state) {
     const value = prop.value;
-    const children = parentVNode.children;
     let elseValue = emptyVNode;
     let elseNode = ifStack.pop();
 
