@@ -15,25 +15,23 @@ const compileTemplate = function(template, exclude, dependencies) {
   let state = {
     current: 0,
     template: template,
-    output: "",
     exclude: exclude,
     dependencies: dependencies
   };
 
-  compileTemplateState(state);
-
-  return state.output;
+  return compileTemplateState(state);
 }
 
 const compileTemplateState = function(state) {
   const template = state.template;
   const length = template.length;
+  let output = "";
   while(state.current < length) {
     // Match Text Between Templates
     const value = scanTemplateStateUntil(state, openRE);
 
     if(value.length !== 0) {
-      state.output += escapeString(value);
+      output += value;
     }
 
     // If we've reached the end, there are no more templates
@@ -66,7 +64,7 @@ const compileTemplateState = function(state) {
       name = `" + ${name} + "`;
 
       // Generate code
-      state.output += name;
+      output += name;
     }
 
     // Consume whitespace
@@ -75,6 +73,8 @@ const compileTemplateState = function(state) {
     // Exit closing delimiter
     state.current += 2;
   }
+
+  return output;
 }
 
 const compileTemplateExpression = function(expr, exclude, dependencies) {
@@ -92,11 +92,11 @@ const compileTemplateExpression = function(expr, exclude, dependencies) {
 const scanTemplateStateUntil = function(state, re) {
   const template = state.template;
   const tail = template.substring(state.current);
-  const idx = tail.search(re);
+  const index = tail.search(re);
 
   let match = "";
 
-  switch(idx) {
+  switch(index) {
     case -1:
       match = tail;
       break;
@@ -104,7 +104,7 @@ const scanTemplateStateUntil = function(state, re) {
       match = '';
       break;
     default:
-      match = tail.substring(0, idx);
+      match = tail.substring(0, index);
   }
 
   state.current += match.length;

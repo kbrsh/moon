@@ -42,7 +42,7 @@ const lexText = function(state) {
     // Only Text
     state.tokens.push({
       type: "text",
-      value: input.slice(current)
+      value: escapeString(input.slice(current))
     });
     state.current = input.length;
     return;
@@ -51,7 +51,7 @@ const lexText = function(state) {
     endOfText += current;
     state.tokens.push({
       type: "text",
-      value: input.slice(current, endOfText)
+      value: escapeString(input.slice(current, endOfText))
     });
     state.current = endOfText;
   }

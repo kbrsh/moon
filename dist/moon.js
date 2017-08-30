@@ -899,25 +899,23 @@
       var state = {
         current: 0,
         template: template,
-        output: "",
         exclude: exclude,
         dependencies: dependencies
       };
     
-      compileTemplateState(state);
-    
-      return state.output;
+      return compileTemplateState(state);
     }
     
     var compileTemplateState = function(state) {
       var template = state.template;
       var length = template.length;
+      var output = "";
       while(state.current < length) {
         // Match Text Between Templates
         var value = scanTemplateStateUntil(state, openRE);
     
         if(value.length !== 0) {
-          state.output += escapeString(value);
+          output += value;
         }
     
         // If we've reached the end, there are no more templates
@@ -950,7 +948,7 @@
           name = "\" + " + name + " + \"";
     
           // Generate code
-          state.output += name;
+          output += name;
         }
     
         // Consume whitespace
@@ -959,6 +957,8 @@
         // Exit closing delimiter
         state.current += 2;
       }
+    
+      return output;
     }
     
     var compileTemplateExpression = function(expr, exclude, dependencies) {
@@ -976,11 +976,11 @@
     var scanTemplateStateUntil = function(state, re) {
       var template = state.template;
       var tail = template.substring(state.current);
-      var idx = tail.search(re);
+      var index = tail.search(re);
     
       var match = "";
     
-      switch(idx) {
+      switch(index) {
         case -1:
           match = tail;
           break;
@@ -988,7 +988,7 @@
           match = '';
           break;
         default:
-          match = tail.substring(0, idx);
+          match = tail.substring(0, index);
       }
     
       state.current += match.length;
@@ -1048,7 +1048,7 @@
         // Only Text
         state.tokens.push({
           type: "text",
-          value: input.slice(current)
+          value: escapeString(input.slice(current))
         });
         state.current = input.length;
         return;
@@ -1057,7 +1057,7 @@
         endOfText += current;
         state.tokens.push({
           type: "text",
-          value: input.slice(current, endOfText)
+          value: escapeString(input.slice(current, endOfText))
         });
         state.current = endOfText;
       }
