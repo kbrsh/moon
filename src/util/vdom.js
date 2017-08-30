@@ -254,7 +254,7 @@ const diffProps = function(node, nodeProps, vnode, props) {
     const vnodePropValue = vnodeProps[vnodePropName];
     const nodePropValue = nodeProps[vnodePropName];
 
-    if((vnodePropValue !== undefined && vnodePropValue !== false && vnodePropValue !== null) && ((nodePropValue === undefined || nodePropValue === false || nodePropValue === null) || vnodePropValue !== nodePropValue)) {
+    if((vnodePropValue !== false) && (nodePropValue === undefined || vnodePropValue !== nodePropValue)) {
       if(vnodePropName.length === 10 && vnodePropName === "xlink:href") {
         node.setAttributeNS('http://www.w3.org/1999/xlink', "href", vnodePropValue);
       } else {
@@ -266,7 +266,7 @@ const diffProps = function(node, nodeProps, vnode, props) {
   // Diff Node Props with VNode Props
   for(let nodePropName in nodeProps) {
     const vnodePropValue = vnodeProps[nodePropName];
-    if(vnodePropValue === undefined || vnodePropValue === false || vnodePropValue === null) {
+    if(vnodePropValue === undefined || vnodePropValue === false) {
       node.removeAttribute(nodePropName);
     }
   }

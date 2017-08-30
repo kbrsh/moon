@@ -627,7 +627,7 @@
         var vnodePropValue = vnodeProps[vnodePropName];
         var nodePropValue = nodeProps[vnodePropName];
     
-        if((vnodePropValue !== undefined && vnodePropValue !== false && vnodePropValue !== null) && ((nodePropValue === undefined || nodePropValue === false || nodePropValue === null) || vnodePropValue !== nodePropValue)) {
+        if((vnodePropValue !== false) && (nodePropValue === undefined || vnodePropValue !== nodePropValue)) {
           if(vnodePropName.length === 10 && vnodePropName === "xlink:href") {
             node.setAttributeNS('http://www.w3.org/1999/xlink', "href", vnodePropValue);
           } else {
@@ -639,7 +639,7 @@
       // Diff Node Props with VNode Props
       for(var nodePropName in nodeProps) {
         var vnodePropValue$1 = vnodeProps[nodePropName];
-        if(vnodePropValue$1 === undefined || vnodePropValue$1 === false || vnodePropValue$1 === null) {
+        if(vnodePropValue$1 === undefined || vnodePropValue$1 === false) {
           node.removeAttribute(nodePropName);
         }
       }
