@@ -87,95 +87,95 @@ describe('Model Directive', function() {
   //   });
   // });
 
-  describe("Checkbox", function() {
-    var modelCheckbox = createTestElement("modelCheckbox", '<p>{{checked}}</p><input type="checkbox" m-model="checked"/>');
-    var p = modelCheckbox.firstChild;
-    var input = p.nextSibling;
-
-    var app = new Moon({
-      root: "#modelCheckbox",
-      data: {
-        checked: true
-      }
-    });
-
-    it('should have value when initialized', function() {
-      return wait(function() {
-        expect(p.innerHTML).to.equal('true');
-        expect(input.checked).to.equal(true);
-      });
-    });
-
-    it('should update value from data', function() {
-      app.set("checked", false);
-
-      return wait(function() {
-        expect(p.innerHTML).to.equal('false');
-        expect(input.checked).to.equal(false);
-      });
-    });
-
-    it('should update value from input', function() {
-      var changeEvent = new CustomEvent('change');
-      input.checked = true;
-      input.dispatchEvent(changeEvent);
-
-      return wait(function() {
-        expect(p.innerHTML).to.equal('true');
-      });
-    });
-
-    it('should not be present at runtime', function() {
-      expect(input.getAttribute("m-model")).to.be['null'];
-    });
-  });
-
-  describe("Radio", function() {
-    var modelRadio = createTestElement("modelRadio", '<p>{{current}}</p><input type="radio" name="item" m-model="current" value="Foo"/><input type="radio" name="item" m-model="current" value="Bar"/><input type="radio" name="item" m-model="current" value="Baz"/>');
-    var p = modelRadio.firstChild;
-    var input1 = p.nextSibling;
-    var input2 = input1.nextSibling;
-    var input3 = input2.nextSibling;
-
-    var app = new Moon({
-      root: "#modelRadio",
-      data: {
-        current: "Bar"
-      }
-    });
-
-    it('should have value when initialized', function() {
-      return wait(function() {
-        expect(p.innerHTML).to.equal('Bar');
-        expect(input2.checked).to.equal(true);
-      });
-    });
-
-    it('should update value from data', function() {
-      app.set("current", "Foo");
-
-      return wait(function() {
-        expect(p.innerHTML).to.equal('Foo');
-        expect(input1.checked).to.equal(true);
-      });
-    });
-
-    it('should update value from input', function() {
-      var changeEvent = new CustomEvent('change');
-      input1.checked = false;
-      input2.checked = false;
-      input3.checked = true;
-      input3.dispatchEvent(changeEvent);
-
-      return wait(function() {
-        expect(p.innerHTML).to.equal('Baz');
-      });
-    });
-
-    it('should not be present at runtime', function() {
-      expect(input1.getAttribute("m-model")).to.be['null'];
-      expect(input2.getAttribute("m-model")).to.be['null'];
-      expect(input3.getAttribute("m-model")).to.be['null'];
-    });
-  });
+  // describe("Checkbox", function() {
+  //   var modelCheckbox = createTestElement("modelCheckbox", '<p>{{checked}}</p><input type="checkbox" m-model="checked"/>');
+  //   var p = modelCheckbox.firstChild;
+  //   var input = p.nextSibling;
+  //
+  //   var app = new Moon({
+  //     root: "#modelCheckbox",
+  //     data: {
+  //       checked: true
+  //     }
+  //   });
+  //
+  //   it('should have value when initialized', function() {
+  //     return wait(function() {
+  //       expect(p.innerHTML).to.equal('true');
+  //       expect(input.checked).to.equal(true);
+  //     });
+  //   });
+  //
+  //   it('should update value from data', function() {
+  //     app.set("checked", false);
+  //
+  //     return wait(function() {
+  //       expect(p.innerHTML).to.equal('false');
+  //       expect(input.checked).to.equal(false);
+  //     });
+  //   });
+  //
+  //   it('should update value from input', function() {
+  //     var changeEvent = new CustomEvent('change');
+  //     input.checked = true;
+  //     input.dispatchEvent(changeEvent);
+  //
+  //     return wait(function() {
+  //       expect(p.innerHTML).to.equal('true');
+  //     });
+  //   });
+  //
+  //   it('should not be present at runtime', function() {
+  //     expect(input.getAttribute("m-model")).to.be['null'];
+  //   });
+  // });
+  //
+  // describe("Radio", function() {
+  //   var modelRadio = createTestElement("modelRadio", '<p>{{current}}</p><input type="radio" name="item" m-model="current" value="Foo"/><input type="radio" name="item" m-model="current" value="Bar"/><input type="radio" name="item" m-model="current" value="Baz"/>');
+  //   var p = modelRadio.firstChild;
+  //   var input1 = p.nextSibling;
+  //   var input2 = input1.nextSibling;
+  //   var input3 = input2.nextSibling;
+  //
+  //   var app = new Moon({
+  //     root: "#modelRadio",
+  //     data: {
+  //       current: "Bar"
+  //     }
+  //   });
+  //
+  //   it('should have value when initialized', function() {
+  //     return wait(function() {
+  //       expect(p.innerHTML).to.equal('Bar');
+  //       expect(input2.checked).to.equal(true);
+  //     });
+  //   });
+  //
+  //   it('should update value from data', function() {
+  //     app.set("current", "Foo");
+  //
+  //     return wait(function() {
+  //       expect(p.innerHTML).to.equal('Foo');
+  //       expect(input1.checked).to.equal(true);
+  //     });
+  //   });
+  //
+  //   it('should update value from input', function() {
+  //     var changeEvent = new CustomEvent('change');
+  //     input1.checked = false;
+  //     input2.checked = false;
+  //     input3.checked = true;
+  //     input3.dispatchEvent(changeEvent);
+  //
+  //     return wait(function() {
+  //       expect(p.innerHTML).to.equal('Baz');
+  //     });
+  //   });
+  //
+  //   it('should not be present at runtime', function() {
+  //     expect(input1.getAttribute("m-model")).to.be['null'];
+  //     expect(input2.getAttribute("m-model")).to.be['null'];
+  //     expect(input3.getAttribute("m-model")).to.be['null'];
+  //   });
+  // });
 });

@@ -1234,7 +1234,7 @@
     
       while(state.current < tokens.length) {
         var child = parseWalk(state);
-        if(child) {
+        if(child !== undefined) {
           root.children.push(child);
         }
       }
@@ -1332,7 +1332,7 @@
       }
     
       move();
-      return;
+      return undefined;
     }
     
     var closeCall = function(code, add) {

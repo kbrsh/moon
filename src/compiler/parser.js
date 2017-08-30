@@ -11,7 +11,7 @@ const parse = function(tokens) {
 
   while(state.current < tokens.length) {
     const child = parseWalk(state);
-    if(child) {
+    if(child !== undefined) {
       root.children.push(child);
     }
   }
@@ -109,5 +109,5 @@ const parseWalk = function(state) {
   }
 
   move();
-  return;
+  return undefined;
 }
