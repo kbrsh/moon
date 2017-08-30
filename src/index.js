@@ -4,15 +4,6 @@
 let directives = {};
 let specialDirectives = {};
 let components = {};
-let eventModifiersCode = {
-  stop: 'event.stopPropagation();',
-  prevent: 'event.preventDefault();',
-  ctrl: 'if(event.ctrlKey === false) {return null;};',
-  shift: 'if(event.shiftKey === false) {return null;};',
-  alt: 'if(event.altKey === false) {return null;};',
-  enter: 'if(event.keyCode !== 13) {return null;};'
-};
-let eventModifiers = {};
 
 /* ======= Observer ======= */
 //=require observer/methods.js

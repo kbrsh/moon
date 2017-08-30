@@ -15,15 +15,6 @@
     var directives = {};
     var specialDirectives = {};
     var components = {};
-    var eventModifiersCode = {
-      stop: 'event.stopPropagation();',
-      prevent: 'event.preventDefault();',
-      ctrl: 'if(event.ctrlKey === false) {return null;};',
-      shift: 'if(event.shiftKey === false) {return null;};',
-      alt: 'if(event.altKey === false) {return null;};',
-      enter: 'if(event.keyCode !== 13) {return null;};'
-    };
-    var eventModifiers = {};
     
     /* ======= Observer ======= */
     /**
@@ -961,9 +952,9 @@
       return output;
     }
     
-    var compileTemplateExpression = function(expr, exclude, dependencies) {
+    var compileTemplateExpression = function(expression, exclude, dependencies) {
       var references;
-      while((references = expressionRE.exec(expr)) !== null) {
+      while((references = expressionRE.exec(expression)) !== null) {
         var reference = references[1];
         if(reference !== undefined && dependencies.indexOf(reference) === -1 && exclude.indexOf(reference) === -1) {
           dependencies.push(reference);
@@ -1589,10 +1580,10 @@
     
       for(var i = 0; i < dependencies.length; i++) {
         var dependency = dependencies[i];
-        dependenciesCode += "var " + dependency + " = instance.get(\"" + dependency + "\"); ";
+        dependenciesCode += "var " + dependency + " = instance.get(\"" + dependency + "\");";
       }
     
-      var code = "var instance = this; " + dependenciesCode + "return " + rootCode + ";";
+      var code = "var instance = this;" + dependenciesCode + "return " + rootCode + ";";
     
       try {
         return new Function("m", code);
@@ -1958,6 +1949,23 @@
     /* ======= Global API ======= */
     
     /**
+     * Code for default Event Modifiers
+     */
+    var eventModifiersCode = {
+      stop: 'event.stopPropagation();',
+      prevent: 'event.preventDefault();',
+      ctrl: 'if(event.ctrlKey === false) {return null;};',
+      shift: 'if(event.shiftKey === false) {return null;};',
+      alt: 'if(event.altKey === false) {return null;};',
+      enter: 'if(event.keyCode !== 13) {return null;};'
+    };
+    
+    /**
+     * Event Modifiers Added
+     */
+    var eventModifiers = {};
+    
+    /**
      * Configuration of Moon
      */
     Moon.config = {
@@ -2088,6 +2096,7 @@
     /* ======= Default Directives ======= */
     
     var emptyNode = "m(\"#text\", {}, \"\")";
+    var hashRE = /\.|\[/;
     
     var ifDynamic = 0;
     var ifStack = [];
@@ -2230,67 +2239,43 @@
         }
     
         // Generate event listener code and install handler
-        var code = "function(event) {" + modifiersCode + "instance.callMethod(\"" + methodToCall + "\", [" + params + "])}";
+        var code = "function(event) {" + modifiersCode + "instance.callMethod(\"" + methodToCall + "\", [" + params + "]);}";
         addEventListenerCodeToNode(eventType, code, node);
       }
     };
     
     specialDirectives["m-model"] = {
       beforeGenerate: function(prop, node, parentNode, state) {
-        // Get attributes
-        var value = prop.value;
-        var attrs = node.props.attrs;
-    
-        // Get exclusions
-        var exclude = state.exclude;
-    
-        // Get dependencies
         var dependencies = state.dependencies;
+        var exclude = state.exclude;
+        var value = prop.value;
     
-        // Add dependencies
         compileTemplateExpression(value, exclude, dependencies);
     
-        // Setup default event type, keypath to set, value of setter, DOM property to change, and value of DOM property
-        var eventType = "input";
-        var domGetter = "value";
-        var domSetter = value;
-        var keypathGetter = value;
-        var keypathSetter = "event.target." + domGetter;
-    
-        // If input type is checkbox, listen on 'change' and change the 'checked' DOM property
-        var type = attrs.type;
-        if(type !== undefined) {
-          type = type.value;
-          var radio = false;
-          if(type === "checkbox" || (type === "radio" && (radio = true))) {
-            eventType = "change";
-            domGetter = "checked";
-    
-            if(radio === true) {
-              var valueAttr = attrs.value;
-              var literalValueAttr;
-              var valueAttrValue = "null";
-              if(valueAttr !== undefined) {
-                valueAttrValue = "\"" + (compileTemplate(valueAttr.value, exclude, dependencies)) + "\"";
-              } else if((literalValueAttr = attrs["m-literal:value"])) {
-                valueAttrValue = compileTemplate(literalValueAttr.value, exclude, dependencies);
-              }
-              domSetter += "=== " + valueAttrValue;
-              keypathSetter = valueAttrValue;
-            } else {
-              keypathSetter = "event.target." + domGetter;
-            }
-          }
+        var dynamicIndex = value.search(hashRE);
+        var base;
+        var properties;
+        if(dynamicIndex !== -1) {
+          base = value.substring(0, dynamicIndex);
+          properties = value.substring(dynamicIndex);
+          value = "instance.get(\"" + base + "\")" + properties;
         }
     
-        // Generate the listener
-        var code = "function(event) {instance.set(\"" + keypathGetter + "\", " + keypathSetter + ")}";
+        var eventType = "input";
+        var instanceKey = value;
+        var instanceValue = "event.target.value";
+        var domKey = "value";
+        var domValue = value;
+        var code = "";
     
-        // Push the listener to it's event listeners
+        if(dynamicIndex === -1) {
+          code = "function(event) {instance.set(\"" + instanceKey + "\", " + instanceValue + ");}";
+        } else {
+          code = "function(event) {var modelValue = instance.get(\"" + base + "\");modelValue" + properties + " = " + instanceValue + ";instance.set(\"" + base + "\", modelValue);}";
+        }
+    
         addEventListenerCodeToNode(eventType, code, node);
-    
-        // Setup a query used to get the value, and set the corresponding dom property
-        addDomPropertyCodeToNode(domGetter, domSetter, node);
+        addDomPropertyCodeToNode(domKey, domValue, node);
       }
     };
     

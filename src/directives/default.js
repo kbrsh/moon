@@ -1,6 +1,7 @@
 /* ======= Default Directives ======= */
 
 const emptyNode = `m("#text", {}, "")`;
+const hashRE = /\.|\[/;
 
 let ifDynamic = 0;
 let ifStack = [];
@@ -143,67 +144,43 @@ specialDirectives["m-on"] = {
     }
 
     // Generate event listener code and install handler
-    const code = `function(event) {${modifiersCode}instance.callMethod("${methodToCall}", [${params}])}`;
+    const code = `function(event) {${modifiersCode}instance.callMethod("${methodToCall}", [${params}]);}`;
     addEventListenerCodeToNode(eventType, code, node);
   }
 };
 
 specialDirectives["m-model"] = {
   beforeGenerate: function(prop, node, parentNode, state) {
-    // Get attributes
-    const value = prop.value;
-    const attrs = node.props.attrs;
-
-    // Get exclusions
+    const dependencies = state.dependencies;
     const exclude = state.exclude;
+    let value = prop.value;
 
-    // Get dependencies
-    let dependencies = state.dependencies;
-
-    // Add dependencies
     compileTemplateExpression(value, exclude, dependencies);
 
-    // Setup default event type, keypath to set, value of setter, DOM property to change, and value of DOM property
-    let eventType = "input";
-    let domGetter = "value";
-    let domSetter = value;
-    let keypathGetter = value;
-    let keypathSetter = `event.target.${domGetter}`;
-
-    // If input type is checkbox, listen on 'change' and change the 'checked' DOM property
-    let type = attrs.type;
-    if(type !== undefined) {
-      type = type.value;
-      let radio = false;
-      if(type === "checkbox" || (type === "radio" && (radio = true))) {
-        eventType = "change";
-        domGetter = "checked";
-
-        if(radio === true) {
-          let valueAttr = attrs.value;
-          let literalValueAttr;
-          let valueAttrValue = "null";
-          if(valueAttr !== undefined) {
-            valueAttrValue = `"${compileTemplate(valueAttr.value, exclude, dependencies)}"`;
-          } else if((literalValueAttr = attrs["m-literal:value"])) {
-            valueAttrValue = compileTemplate(literalValueAttr.value, exclude, dependencies);
-          }
-          domSetter += `=== ${valueAttrValue}`;
-          keypathSetter = valueAttrValue;
-        } else {
-          keypathSetter = `event.target.${domGetter}`;
-        }
-      }
+    const dynamicIndex = value.search(hashRE);
+    let base;
+    let properties;
+    if(dynamicIndex !== -1) {
+      base = value.substring(0, dynamicIndex);
+      properties = value.substring(dynamicIndex);
+      value = `instance.get("${base}")${properties}`;
     }
 
-    // Generate the listener
-    const code = `function(event) {instance.set("${keypathGetter}", ${keypathSetter})}`;
+    let eventType = "input";
+    let instanceKey = value;
+    let instanceValue = "event.target.value";
+    let domKey = "value";
+    let domValue = value;
+    let code = "";
 
-    // Push the listener to it's event listeners
+    if(dynamicIndex === -1) {
+      code = `function(event) {instance.set("${instanceKey}", ${instanceValue});}`;
+    } else {
+      code = `function(event) {var modelValue = instance.get("${base}");modelValue${properties} = ${instanceValue};instance.set("${base}", modelValue);}`;
+    }
+
     addEventListenerCodeToNode(eventType, code, node);
-
-    // Setup a query used to get the value, and set the corresponding dom property
-    addDomPropertyCodeToNode(domGetter, domSetter, node);
+    addDomPropertyCodeToNode(domKey, domValue, node);
   }
 };
 
