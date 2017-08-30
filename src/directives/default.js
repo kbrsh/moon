@@ -1,6 +1,6 @@
 /* ======= Default Directives ======= */
 
-const emptyVNode = `m("#text", {}, "")`;
+const emptyNode = `m("#text", {}, "")`;
 
 let ifDynamic = 0;
 let ifStack = [];
@@ -14,8 +14,8 @@ const setIfState = function(state) {
   }
 }
 
-const addEventListenerCodeToVNode = function(name, handler, vnode) {
-  const meta = vnode.meta;
+const addEventListenerCodeToNode = function(name, handler, node) {
+  const meta = node.meta;
   let eventListeners = meta.eventListeners;
   if(eventListeners === undefined) {
     eventListeners = meta.eventListeners = {};
@@ -28,17 +28,17 @@ const addEventListenerCodeToVNode = function(name, handler, vnode) {
   }
 }
 
-const addDomPropertyCodeToVNode = function(name, code, vnode) {
-  let dom = vnode.props.dom;
+const addDomPropertyCodeToNode = function(name, code, node) {
+  let dom = node.props.dom;
   if(dom === undefined) {
-    vnode.props.dom = dom = {};
+    node.props.dom = dom = {};
   }
   dom[name] = code;
 }
 
 specialDirectives["m-if"] = {
-  beforeGenerate: function(prop, vnode, parentVNode, state) {
-    const children = parentVNode.children;
+  beforeGenerate: function(prop, node, parentNode, state) {
+    const children = parentNode.children;
     const index = state.index;
 
     for(let i = index + 1; i < children.length; i++) {
@@ -56,13 +56,13 @@ specialDirectives["m-if"] = {
       }
     }
   },
-  afterGenerate: function(prop, code, vnode, parentVNode, state) {
+  afterGenerate: function(prop, code, node, parentNode, state) {
     const value = prop.value;
-    let elseValue = emptyVNode;
+    let elseValue = emptyNode;
     let elseNode = ifStack.pop();
 
     if(elseNode !== undefined) {
-      elseValue = generateNode(elseNode[1], parentVNode, elseNode[0], state);
+      elseValue = generateNode(elseNode[1], parentNode, elseNode[0], state);
     }
 
     if((--ifDynamic) === 0) {
@@ -80,9 +80,9 @@ specialDirectives["m-else"] = {
 };
 
 specialDirectives["m-for"] = {
-  beforeGenerate: function(prop, vnode, parentVNode, state) {
+  beforeGenerate: function(prop, node, parentNode, state) {
     // Setup Deep Flag to Flatten Array
-    parentVNode.deep = true;
+    parentNode.deep = true;
 
     // Parts
     const parts = prop.value.split(" in ");
@@ -97,20 +97,20 @@ specialDirectives["m-for"] = {
     state.exclude = exclude.concat(aliases.split(","));
     compileTemplateExpression(iteratable, exclude, state.dependencies);
   },
-  afterGenerate: function(prop, code, vnode, parentVNode, state) {
+  afterGenerate: function(prop, code, node, parentNode, state) {
     // Get node with information about parameters
-    const node = forStack.pop();
+    const paramInformation = forStack.pop();
 
     // Restore globals to exclude
-    state.exclude = node[2];
+    state.exclude = paramInformation[2];
 
     // Use the renderLoop runtime helper
-    return `m.renderLoop(${node[0]}, function(${node[1]}) { return ${code}; })`;
+    return `m.renderLoop(${paramInformation[0]}, function(${paramInformation[1]}) { return ${code}; })`;
   }
 };
 
 specialDirectives["m-on"] = {
-  beforeGenerate: function(prop, vnode, parentVNode, state) {
+  beforeGenerate: function(prop, node, parentNode, state) {
     // Get list of modifiers
     let modifiers = prop.meta.arg.split(".");
     const eventType = modifiers.shift();
@@ -144,15 +144,15 @@ specialDirectives["m-on"] = {
 
     // Generate event listener code and install handler
     const code = `function(event) {${modifiersCode}instance.callMethod("${methodToCall}", [${params}])}`;
-    addEventListenerCodeToVNode(eventType, code, vnode);
+    addEventListenerCodeToNode(eventType, code, node);
   }
 };
 
 specialDirectives["m-model"] = {
-  beforeGenerate: function(prop, vnode, parentVNode, state) {
+  beforeGenerate: function(prop, node, parentNode, state) {
     // Get attributes
     const value = prop.value;
-    const attrs = vnode.props.attrs;
+    const attrs = node.props.attrs;
 
     // Get exclusions
     const exclude = state.exclude;
@@ -200,15 +200,15 @@ specialDirectives["m-model"] = {
     const code = `function(event) {instance.set("${keypathGetter}", ${keypathSetter})}`;
 
     // Push the listener to it's event listeners
-    addEventListenerCodeToVNode(eventType, code, vnode);
+    addEventListenerCodeToNode(eventType, code, node);
 
     // Setup a query used to get the value, and set the corresponding dom property
-    addDomPropertyCodeToVNode(domGetter, domSetter, vnode);
+    addDomPropertyCodeToNode(domGetter, domSetter, node);
   }
 };
 
 specialDirectives["m-literal"] = {
-  duringPropGenerate: function(prop, vnode, parent, state) {
+  duringPropGenerate: function(prop, node, parentNode, state) {
     let modifiers = prop.meta.arg.split(".");
 
     const propName = modifiers.shift();
@@ -217,7 +217,7 @@ specialDirectives["m-literal"] = {
     compileTemplateExpression(propValue, state.exclude, state.dependencies);
 
     if(modifiers[0] === "dom") {
-      addDomPropertyCodeToVNode(propName, propValue, vnode);
+      addDomPropertyCodeToNode(propName, propValue, node);
       return "";
     } else if(propName === "class") {
       // Detected class, use runtime class render helper
@@ -233,6 +233,6 @@ specialDirectives["m-mask"] = {
 
 };
 
-directives["m-show"] = function(el, val, vnode) {
+directives["m-show"] = function(el, val, node) {
   el.style.display = (val ? '' : 'none');
 };
