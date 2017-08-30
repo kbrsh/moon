@@ -35,6 +35,9 @@
       var data = instance.data;
     
       var initMethod = function(methodName, method) {
+        if("development" !== "production" && data.hasOwnProperty(methodName) === true) {
+          error(("Method \"" + methodName + "\" has the same key as a data property and will overwrite it"));
+        }
         data[methodName] = function() {
           return method.apply(instance, arguments);
         }
