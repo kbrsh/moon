@@ -85,6 +85,7 @@ Moon.component = function(name, options) {
     if(componentOptions === undefined) {
       this.insert = [];
     } else {
+      const root = componentOptions.root;
       const props = componentOptions.props;
       this.insert = componentOptions.insert;
 
@@ -92,6 +93,10 @@ Moon.component = function(name, options) {
         for(let prop in props) {
           this.data[prop] = props[prop];
         }
+      }
+
+      if(root !== undefined) {
+        this.mount(root);
       }
     }
   }

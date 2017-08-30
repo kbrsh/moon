@@ -1,7 +1,29 @@
 describe("Component", function() {
+  var componentConstructor = Moon.component("const", {template: "<div>Hello Moon!</div>"});
+
   it("should create a constructor", function() {
-    var componentConstructor = Moon.component("const", {template: "<div></div>"});
     expect(new componentConstructor()).to.be.an.instanceof(Moon);
+  });
+
+  it("should create a constructor that can mount to an element", function() {
+    var root = createTestElement("componentConstructorMount", "");
+    new componentConstructor({
+      root: root
+    });
+
+    return wait(function() {
+      expect(root.firstChild.textContent).to.equal("Hello Moon!");
+    });
+  });
+
+  it("should create a constructor that can mount to an element manually", function() {
+    var root = createTestElement("componentConstructorMountManual", "");
+    var instance = new componentConstructor();
+    instance.mount(root);
+
+    return wait(function() {
+      expect(root.firstChild.textContent).to.equal("Hello Moon!");
+    });
   });
 
   it("should render HTML", function() {

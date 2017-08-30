@@ -2044,6 +2044,7 @@
         if(componentOptions === undefined) {
           this.insert = [];
         } else {
+          var root = componentOptions.root;
           var props = componentOptions.props;
           this.insert = componentOptions.insert;
     
@@ -2051,6 +2052,10 @@
             for(var prop in props) {
               this$1.data[prop] = props[prop];
             }
+          }
+    
+          if(root !== undefined) {
+            this.mount(root);
           }
         }
       }
