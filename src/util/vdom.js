@@ -255,7 +255,7 @@ const diffProps = function(node, nodeProps, vnode, props) {
     const nodePropValue = nodeProps[vnodePropName];
 
     if((vnodePropValue !== false) && (nodePropValue === undefined || vnodePropValue !== nodePropValue)) {
-      if(vnodePropName.length === 10 && vnodePropName === "xlink:href") {
+      if(vnodePropName === "xlink:href") {
         node.setAttributeNS('http://www.w3.org/1999/xlink', "href", vnodePropValue);
       } else {
         node.setAttribute(vnodePropName, vnodePropValue === true ? '' : vnodePropValue);
