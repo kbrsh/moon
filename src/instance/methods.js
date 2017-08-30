@@ -21,7 +21,7 @@ Moon.prototype.get = function(key) {
 
   // Return value
   if("__ENV__" !== "production" && this.data.hasOwnProperty(key) === false) {
-    error(`The item "${key}" was not defined but was referenced`);
+    error(`The item "${key}" was referenced but not defined`);
   }
   return this.data[key];
 }
