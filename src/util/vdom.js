@@ -370,7 +370,12 @@ const hydrate = function(node, vnode, parent) {
 
     // Diff props
     let props = vnode.props;
-    diffProps(node, extractAttrs(node), vnode, props);
+    let rawNodeAttrs = node.attributes;
+    let nodeAttrs = {};
+    for(let i = 0; i < rawNodeAttrs.length; i++) {
+      nodeAttrs[rawNodeAttrs[i].name] = rawNodeAttrs[i].value;
+    }
+    diffProps(node, nodeAttrs, vnode, props);
 
     // Add event listeners
     let eventListeners = meta.eventListeners;

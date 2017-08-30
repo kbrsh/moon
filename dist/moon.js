@@ -236,21 +236,6 @@
     }
     
     /**
-     * Converts attributes into key-value pairs
-     * @param {Node} node
-     * @return {Object} Key-Value pairs of Attributes
-     */
-    var extractAttrs = function(node) {
-      var rawAttrs = node.attributes;
-      var attrs = {};
-      for(var i = 0; i < rawAttrs.length; i++) {
-        attrs[rawAttrs[i].name] = rawAttrs[i].value;
-      }
-      return attrs;
-    }
-    
-    
-    /**
      * Adds An Event Handler to a Type of Listener
      * @param {Object} node
      * @param {String} type
@@ -758,7 +743,12 @@
     
         // Diff props
         var props = vnode.props;
-        diffProps(node, extractAttrs(node), vnode, props);
+        var rawNodeAttrs = node.attributes;
+        var nodeAttrs = {};
+        for(var i = 0; i < rawNodeAttrs.length; i++) {
+          nodeAttrs[rawNodeAttrs[i].name] = rawNodeAttrs[i].value;
+        }
+        diffProps(node, nodeAttrs, vnode, props);
     
         // Add event listeners
         var eventListeners = meta.eventListeners;
@@ -772,7 +762,7 @@
           var children = vnode.children;
           var length = children.length;
     
-          var i = 0;
+          var i$1 = 0;
           var currentChildNode = node.firstChild;
           var vchild = length !== 0 ? children[0] : undefined;
           var nextSibling = null;
@@ -791,7 +781,7 @@
               }
             }
     
-            vchild = ++i < length ? children[i] : undefined;
+            vchild = ++i$1 < length ? children[i$1] : undefined;
             currentChildNode = nextSibling;
           }
         }

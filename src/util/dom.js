@@ -1,19 +1,4 @@
 /**
- * Converts attributes into key-value pairs
- * @param {Node} node
- * @return {Object} Key-Value pairs of Attributes
- */
-const extractAttrs = function(node) {
-  let rawAttrs = node.attributes;
-  let attrs = {};
-  for(let i = 0; i < rawAttrs.length; i++) {
-    attrs[rawAttrs[i].name] = rawAttrs[i].value;
-  }
-  return attrs;
-}
-
-
-/**
  * Adds An Event Handler to a Type of Listener
  * @param {Object} node
  * @param {String} type
