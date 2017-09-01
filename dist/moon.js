@@ -580,7 +580,15 @@
       // Check for events
       var eventListeners = vnode.meta.eventListeners;
       if(eventListeners !== undefined) {
-        extend(componentInstance.events, eventListeners);
+        var events = componentInstance.events;
+        var handlers;
+        for(var eventType in eventListeners) {
+          if((handlers = events[eventType]) === undefined) {
+            events[eventType] = eventListeners[eventType];
+          } else {
+            events[eventType] = handlers.concat(eventListeners[eventType]);
+          }
+        }
       }
     
       // Mount

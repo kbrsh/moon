@@ -216,7 +216,15 @@ const createComponentFromVNode = function(node, vnode, component) {
   // Check for events
   const eventListeners = vnode.meta.eventListeners;
   if(eventListeners !== undefined) {
-    extend(componentInstance.events, eventListeners);
+    let events = componentInstance.events;
+    let handlers;
+    for(let eventType in eventListeners) {
+      if((handlers = events[eventType]) === undefined) {
+        events[eventType] = eventListeners[eventType];
+      } else {
+        events[eventType] = handlers.concat(eventListeners[eventType]);
+      }
+    }
   }
 
   // Mount
