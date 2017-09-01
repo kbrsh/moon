@@ -198,4 +198,63 @@ describe("Component", function() {
       });
     });
   });
+
+  describe("Events from Children With Existing Events", function() {
+    it("should listen to events from child components with existing events", function() {
+      var childEventExisting = createTestElement("childEventExisting", "<p>{{total}}</p><counter-existing m-on:increment='incrementTotal'></counter-existing>");
+      var p = childEventExisting.firstChild;
+      var h1 = null;
+      var button = null;
+      var eventCalled = false;
+
+      var counter = Moon.component("counter-existing", {
+        template: "<div><h1>{{count}}</h1><button m-on:click='increment'>Increment</button></div>",
+        data: function() {
+          return {
+            count: 0
+          }
+        },
+        methods: {
+          increment: function() {
+            this.set("count", this.get("count") + 1);
+            this.emit("increment");
+          }
+        },
+        hooks: {
+          init: function() {
+            this.on("increment", function() {
+              eventCalled = true;
+            });
+          }
+        }
+      });
+
+      new Moon({
+        root: "#childEventExisting",
+        data: {
+          total: 0
+        },
+        methods: {
+          incrementTotal: function() {
+            this.set("total", this.get("total") + 1);
+          }
+        }
+      });
+
+      return wait(function(done) {
+        h1 = p.nextSibling.firstChild;
+        button = h1.nextSibling;
+
+        button.click();
+
+        Moon.nextTick(function() {
+          expect(eventCalled).to.be['true'];
+          expect(p.innerHTML).to.equal("1");
+          expect(h1.innerHTML).to.equal("1");
+
+          done();
+        });
+      });
+    });
+  });
 });
