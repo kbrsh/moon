@@ -440,6 +440,11 @@
     };
     
     /**
+     * Empty Text Node
+     */
+    m.emptyVNode = m("#text", {}, "");
+    
+    /**
      * Renders a Class in Array/Object Form
      * @param {Array|Object|String} classNames
      * @return {String} renderedClassNames
@@ -1176,7 +1181,8 @@
         var attrValue = {
           name: attrName,
           value: "",
-          meta: {}
+          arg: undefined,
+          data: {}
         }
     
         if(noValue === true) {
@@ -1210,7 +1216,7 @@
         if(argIndex !== -1) {
           var splitAttrName = attrName.split(":");
           attrValue.name = splitAttrName[0];
-          attrValue.meta.arg = splitAttrName[1];
+          attrValue.arg = splitAttrName[1];
         }
     
         // Setup the Value
@@ -1345,6 +1351,8 @@
         attrs: props
       }
     
+      var dynamic = false;
+    
       var hasAttrs = false;
     
       var hasDirectives = false;
@@ -1385,36 +1393,31 @@
             var generated = duringPropGenerate(prop$1, node, parent, state);
     
             if(generated.length !== 0) {
-              if(hasAttrs === false) {
-                hasAttrs = true;
-              }
-    
+              hasAttrs = true;
               propsCode += generated;
             }
           }
     
-          node.meta.shouldRender = 1;
+          dynamic = true;
         } else if(name$1[0] === "m" && name$1[1] === "-") {
-          if(hasDirectives === false) {
-            hasDirectives = true;
-          }
-    
+          hasDirectives = true;
+          dynamic = true;
           directiveProps.push(prop$1);
-          node.meta.shouldRender = 1;
         } else {
           var value = prop$1.value;
           var compiled = compileTemplate(value, state.exclude, state.dependencies);
     
           if(value !== compiled) {
-            node.meta.shouldRender = 1;
+            dynamic = true;
           }
     
-          if(hasAttrs === false) {
-            hasAttrs = true;
-          }
-    
+          hasAttrs = true;
           propsCode += "\"" + propKey + "\": \"" + compiled + "\", ";
         }
+      }
+    
+      if(state.static === false && dynamic === true) {
+        node.meta.shouldRender = 1;
       }
     
       if(hasAttrs === true) {
@@ -1498,16 +1501,21 @@
         var compiled = compileTemplate(node, state.exclude, state.dependencies);
         var meta = {};
     
-        if(node !== compiled) {
-          meta.shouldRender = 1;
-          parent.meta.shouldRender = 1;
-        } else if(state.dynamic === true) {
-          meta.shouldRender = 1;
+        if(state.static === false) {
+          if(node !== compiled) {
+            meta.shouldRender = 1;
+            parent.meta.shouldRender = 1;
+          } else if(state.dynamic === true) {
+            meta.shouldRender = 1;
+          }
         }
     
         return ("m(\"#text\", " + (generateMeta(meta)) + "\"" + compiled + "\")");
       } else if(node.type === "m-insert") {
-        parent.meta.shouldRender = 1;
+        if(state.static === false) {
+          parent.meta.shouldRender = 1;
+        }
+    
         parent.deep = true;
     
         return "instance.insert";
@@ -1518,7 +1526,7 @@
         var meta$1 = {};
         node.meta = meta$1;
     
-        if(node.custom === true || state.dynamic === true) {
+        if((state.static === false) && (node.custom === true || state.dynamic === true)) {
           meta$1.shouldRender = 1;
         }
     
@@ -1569,6 +1577,7 @@
       var state = {
         index: 0,
         dynamic: false,
+        static: false,
         exclude: globals,
         dependencies: []
       };
@@ -2095,20 +2104,7 @@
     
     /* ======= Default Directives ======= */
     
-    var emptyNode = "m(\"#text\", {}, \"\")";
     var hashRE = /\.|\[/;
-    
-    var ifDynamic = 0;
-    var ifStack = [];
-    var forStack = [];
-    
-    var setIfState = function(state) {
-      if(state.dynamic === false) {
-        state.dynamic = true;
-      } else {
-        ifDynamic++;
-      }
-    }
     
     var addEventListenerCodeToNode = function(name, handler, node) {
       var meta = node.meta;
@@ -2140,32 +2136,49 @@
         for(var i = index + 1; i < children.length; i++) {
           var child = children[i];
           if(typeof child !== "string") {
+            var data = prop.data;
             var attrs = child.props;
+            var ifChild = (void 0);
+            var elseNode = (void 0);
+    
             if(attrs["m-else"] !== undefined) {
-              ifStack.push([i, child]);
+              data.elseNode = [i, child];
               children.splice(i, 1);
-              setIfState(state);
-            } else if(attrs["m-if"] !== undefined) {
-              setIfState(state);
+    
+              if(state.dynamic === false) {
+                state.dynamic = true;
+                data.ifSetDynamic = true;
+              }
+            } else if((ifChild = attrs["m-if"]) !== undefined) {
+              if(state.dynamic === false) {
+                if(data.ifSetDynamic === true) {
+                  delete data.ifSetDynamic;
+                }
+                
+                state.dynamic = true;
+                ifChild.data.ifSetDynamic = true;
+              }
             }
+    
             break;
           }
         }
       },
       afterGenerate: function(prop, code, node, parentNode, state) {
         var value = prop.value;
-        var elseValue = emptyNode;
-        var elseNode = ifStack.pop();
+        var data = prop.data;
+        var elseValue = "m.emptyVNode";
+        var elseNode = data.elseNode;
+    
+        compileTemplateExpression(value, state.exclude, state.dependencies);
     
         if(elseNode !== undefined) {
           elseValue = generateNode(elseNode[1], parentNode, elseNode[0], state);
         }
     
-        if((--ifDynamic) === 0) {
+        if(data.ifSetDynamic === true) {
           state.dynamic = false;
         }
-    
-        compileTemplateExpression(value, state.exclude, state.dependencies);
     
         return (value + " ? " + code + " : " + elseValue);
       }
@@ -2189,26 +2202,26 @@
         // Iteratable
         var iteratable = parts[1];
         var exclude = state.exclude;
-        forStack.push([iteratable, aliases, exclude]);
+        prop.data.forInfo = [iteratable, aliases, exclude];
         state.exclude = exclude.concat(aliases.split(","));
         compileTemplateExpression(iteratable, exclude, state.dependencies);
       },
       afterGenerate: function(prop, code, node, parentNode, state) {
-        // Get node with information about parameters
-        var paramInformation = forStack.pop();
+        // Get information about parameters
+        var forInfo = prop.data.forInfo;
     
         // Restore globals to exclude
-        state.exclude = paramInformation[2];
+        state.exclude = forInfo[2];
     
         // Use the renderLoop runtime helper
-        return ("m.renderLoop(" + (paramInformation[0]) + ", function(" + (paramInformation[1]) + ") { return " + code + "; })");
+        return ("m.renderLoop(" + (forInfo[0]) + ", function(" + (forInfo[1]) + ") { return " + code + "; })");
       }
     };
     
     specialDirectives["m-on"] = {
       beforeGenerate: function(prop, node, parentNode, state) {
         // Get list of modifiers
-        var modifiers = prop.meta.arg.split(".");
+        var modifiers = prop.arg.split(".");
         var eventType = modifiers.shift();
     
         // Get method to call
@@ -2281,7 +2294,7 @@
     
     specialDirectives["m-literal"] = {
       duringPropGenerate: function(prop, node, parentNode, state) {
-        var modifiers = prop.meta.arg.split(".");
+        var modifiers = prop.arg.split(".");
     
         var propName = modifiers.shift();
         var propValue = prop.value;
@@ -2298,6 +2311,22 @@
           // Default literal attribute
           return ("\"" + propName + "\": " + propValue + ", ");
         }
+      }
+    };
+    
+    specialDirectives["m-static"] = {
+      beforeGenerate: function(prop, node, parentNode, state) {
+        if(state.static === false) {
+          prop.data.staticSet = true;
+          state.static = true;
+        }
+      },
+      afterGenerate: function(prop, code, node, parentNode, state) {
+        if(prop.data.staticSet === true) {
+          state.static = false;
+        }
+    
+        return code;
       }
     };
     

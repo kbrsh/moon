@@ -27,4 +27,19 @@ describe('If Directive', function() {
       expect(ifEl.firstChild.getAttribute("m-if")).to.be['null'];
     });
   });
+
+  describe("Nested", function() {
+    var ifNestedEl = createTestElement("ifNested", '<p m-if="condition">Condition True</p>');
+
+    var app = new Moon({
+      root: "#ifNested",
+      data: {
+        condition: true,
+        condition2: true,
+        condition3: true
+      }
+    });
+
+    
+  });
 });

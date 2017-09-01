@@ -179,7 +179,8 @@ const lexAttributes = function(tagToken, state) {
     let attrValue = {
       name: attrName,
       value: "",
-      meta: {}
+      arg: undefined,
+      data: {}
     }
 
     if(noValue === true) {
@@ -213,7 +214,7 @@ const lexAttributes = function(tagToken, state) {
     if(argIndex !== -1) {
       const splitAttrName = attrName.split(":");
       attrValue.name = splitAttrName[0];
-      attrValue.meta.arg = splitAttrName[1];
+      attrValue.arg = splitAttrName[1];
     }
 
     // Setup the Value

@@ -1,19 +1,6 @@
 /* ======= Default Directives ======= */
 
-const emptyNode = `m("#text", {}, "")`;
 const hashRE = /\.|\[/;
-
-let ifDynamic = 0;
-let ifStack = [];
-let forStack = [];
-
-const setIfState = function(state) {
-  if(state.dynamic === false) {
-    state.dynamic = true;
-  } else {
-    ifDynamic++;
-  }
-}
 
 const addEventListenerCodeToNode = function(name, handler, node) {
   const meta = node.meta;
@@ -45,32 +32,49 @@ specialDirectives["m-if"] = {
     for(let i = index + 1; i < children.length; i++) {
       let child = children[i];
       if(typeof child !== "string") {
+        let data = prop.data;
         let attrs = child.props;
+        let ifChild;
+        let elseNode;
+
         if(attrs["m-else"] !== undefined) {
-          ifStack.push([i, child]);
+          data.elseNode = [i, child];
           children.splice(i, 1);
-          setIfState(state);
-        } else if(attrs["m-if"] !== undefined) {
-          setIfState(state);
+
+          if(state.dynamic === false) {
+            state.dynamic = true;
+            data.ifSetDynamic = true;
+          }
+        } else if((ifChild = attrs["m-if"]) !== undefined) {
+          if(state.dynamic === false) {
+            if(data.ifSetDynamic === true) {
+              delete data.ifSetDynamic;
+            }
+            
+            state.dynamic = true;
+            ifChild.data.ifSetDynamic = true;
+          }
         }
+
         break;
       }
     }
   },
   afterGenerate: function(prop, code, node, parentNode, state) {
     const value = prop.value;
-    let elseValue = emptyNode;
-    let elseNode = ifStack.pop();
+    const data = prop.data;
+    let elseValue = "m.emptyVNode";
+    let elseNode = data.elseNode;
+
+    compileTemplateExpression(value, state.exclude, state.dependencies);
 
     if(elseNode !== undefined) {
       elseValue = generateNode(elseNode[1], parentNode, elseNode[0], state);
     }
 
-    if((--ifDynamic) === 0) {
+    if(data.ifSetDynamic === true) {
       state.dynamic = false;
     }
-
-    compileTemplateExpression(value, state.exclude, state.dependencies);
 
     return `${value} ? ${code} : ${elseValue}`;
   }
@@ -94,26 +98,26 @@ specialDirectives["m-for"] = {
     // Iteratable
     const iteratable = parts[1];
     const exclude = state.exclude;
-    forStack.push([iteratable, aliases, exclude]);
+    prop.data.forInfo = [iteratable, aliases, exclude];
     state.exclude = exclude.concat(aliases.split(","));
     compileTemplateExpression(iteratable, exclude, state.dependencies);
   },
   afterGenerate: function(prop, code, node, parentNode, state) {
-    // Get node with information about parameters
-    const paramInformation = forStack.pop();
+    // Get information about parameters
+    const forInfo = prop.data.forInfo;
 
     // Restore globals to exclude
-    state.exclude = paramInformation[2];
+    state.exclude = forInfo[2];
 
     // Use the renderLoop runtime helper
-    return `m.renderLoop(${paramInformation[0]}, function(${paramInformation[1]}) { return ${code}; })`;
+    return `m.renderLoop(${forInfo[0]}, function(${forInfo[1]}) { return ${code}; })`;
   }
 };
 
 specialDirectives["m-on"] = {
   beforeGenerate: function(prop, node, parentNode, state) {
     // Get list of modifiers
-    let modifiers = prop.meta.arg.split(".");
+    let modifiers = prop.arg.split(".");
     const eventType = modifiers.shift();
 
     // Get method to call
@@ -186,7 +190,7 @@ specialDirectives["m-model"] = {
 
 specialDirectives["m-literal"] = {
   duringPropGenerate: function(prop, node, parentNode, state) {
-    let modifiers = prop.meta.arg.split(".");
+    let modifiers = prop.arg.split(".");
 
     const propName = modifiers.shift();
     const propValue = prop.value;
@@ -203,6 +207,22 @@ specialDirectives["m-literal"] = {
       // Default literal attribute
       return `"${propName}": ${propValue}, `;
     }
+  }
+};
+
+specialDirectives["m-static"] = {
+  beforeGenerate: function(prop, node, parentNode, state) {
+    if(state.static === false) {
+      prop.data.staticSet = true;
+      state.static = true;
+    }
+  },
+  afterGenerate: function(prop, code, node, parentNode, state) {
+    if(prop.data.staticSet === true) {
+      state.static = false;
+    }
+
+    return code;
   }
 };
 

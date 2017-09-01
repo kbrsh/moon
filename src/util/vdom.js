@@ -76,6 +76,11 @@ const m = function(type, props, meta, children) {
 };
 
 /**
+ * Empty Text Node
+ */
+m.emptyVNode = m("#text", {}, "");
+
+/**
  * Renders a Class in Array/Object Form
  * @param {Array|Object|String} classNames
  * @return {String} renderedClassNames

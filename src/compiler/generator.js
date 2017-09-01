@@ -8,6 +8,8 @@ const generateProps = function(node, parent, specialDirectivesAfter, state) {
     attrs: props
   }
 
+  let dynamic = false;
+
   let hasAttrs = false;
 
   let hasDirectives = false;
@@ -48,36 +50,31 @@ const generateProps = function(node, parent, specialDirectivesAfter, state) {
         const generated = duringPropGenerate(prop, node, parent, state);
 
         if(generated.length !== 0) {
-          if(hasAttrs === false) {
-            hasAttrs = true;
-          }
-
+          hasAttrs = true;
           propsCode += generated;
         }
       }
 
-      node.meta.shouldRender = 1;
+      dynamic = true;
     } else if(name[0] === "m" && name[1] === "-") {
-      if(hasDirectives === false) {
-        hasDirectives = true;
-      }
-
+      hasDirectives = true;
+      dynamic = true;
       directiveProps.push(prop);
-      node.meta.shouldRender = 1;
     } else {
       const value = prop.value;
       const compiled = compileTemplate(value, state.exclude, state.dependencies);
 
       if(value !== compiled) {
-        node.meta.shouldRender = 1;
+        dynamic = true;
       }
 
-      if(hasAttrs === false) {
-        hasAttrs = true;
-      }
-
+      hasAttrs = true;
       propsCode += `"${propKey}": "${compiled}", `;
     }
+  }
+
+  if(state.static === false && dynamic === true) {
+    node.meta.shouldRender = 1;
   }
 
   if(hasAttrs === true) {
@@ -161,16 +158,21 @@ const generateNode = function(node, parent, index, state) {
     const compiled = compileTemplate(node, state.exclude, state.dependencies);
     let meta = {};
 
-    if(node !== compiled) {
-      meta.shouldRender = 1;
-      parent.meta.shouldRender = 1;
-    } else if(state.dynamic === true) {
-      meta.shouldRender = 1;
+    if(state.static === false) {
+      if(node !== compiled) {
+        meta.shouldRender = 1;
+        parent.meta.shouldRender = 1;
+      } else if(state.dynamic === true) {
+        meta.shouldRender = 1;
+      }
     }
 
     return `m("#text", ${generateMeta(meta)}"${compiled}")`;
   } else if(node.type === "m-insert") {
-    parent.meta.shouldRender = 1;
+    if(state.static === false) {
+      parent.meta.shouldRender = 1;
+    }
+
     parent.deep = true;
 
     return "instance.insert";
@@ -181,7 +183,7 @@ const generateNode = function(node, parent, index, state) {
     let meta = {};
     node.meta = meta;
 
-    if(node.custom === true || state.dynamic === true) {
+    if((state.static === false) && (node.custom === true || state.dynamic === true)) {
       meta.shouldRender = 1;
     }
 
@@ -232,6 +234,7 @@ const generate = function(tree) {
   let state = {
     index: 0,
     dynamic: false,
+    static: false,
     exclude: globals,
     dependencies: []
   };
