@@ -2,6 +2,15 @@
 
 const hashRE = /\.|\[/;
 
+const eventModifiersCode = {
+  stop: 'event.stopPropagation();',
+  prevent: 'event.preventDefault();',
+  ctrl: 'if(event.ctrlKey === false) {return null;};',
+  shift: 'if(event.shiftKey === false) {return null;};',
+  alt: 'if(event.altKey === false) {return null;};',
+  enter: 'if(event.keyCode !== 13) {return null;};'
+};
+
 const addEventListenerCodeToNode = function(name, handler, node) {
   const meta = node.meta;
   let eventListeners = meta.eventListeners;
@@ -50,7 +59,7 @@ specialDirectives["m-if"] = {
             if(data.ifSetDynamic === true) {
               delete data.ifSetDynamic;
             }
-            
+
             state.dynamic = true;
             ifChild.data.ifSetDynamic = true;
           }
@@ -140,10 +149,10 @@ specialDirectives["m-on"] = {
     for(let i = 0; i < modifiers.length; i++) {
       const modifier = modifiers[i];
       const eventModifierCode = eventModifiersCode[modifier];
-      if(eventModifierCode === undefined) {
-        modifiersCode += `if(m.renderEventModifier(event.keyCode, "${modifier}") === false) {return null;};`
-      } else {
+      if(eventModifierCode !== undefined) {
         modifiersCode += eventModifierCode;
+      } else if("__ENV__" !== "production") {
+        error(`Event modifier "${modifier}" not found`);
       }
     }
 

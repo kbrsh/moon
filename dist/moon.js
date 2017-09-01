@@ -1958,30 +1958,10 @@
     /* ======= Global API ======= */
     
     /**
-     * Code for default Event Modifiers
-     */
-    var eventModifiersCode = {
-      stop: 'event.stopPropagation();',
-      prevent: 'event.preventDefault();',
-      ctrl: 'if(event.ctrlKey === false) {return null;};',
-      shift: 'if(event.shiftKey === false) {return null;};',
-      alt: 'if(event.altKey === false) {return null;};',
-      enter: 'if(event.keyCode !== 13) {return null;};'
-    };
-    
-    /**
-     * Event Modifiers Added
-     */
-    var eventModifiers = {};
-    
-    /**
      * Configuration of Moon
      */
     Moon.config = {
-      silent: ("development" === "production") || (typeof console === 'undefined'),
-      keyCodes: function(keyCodes) {
-        extend(eventModifiers, keyCodes);
-      }
+      silent: ("development" === "production") || (typeof console === 'undefined')
     }
     
     /**
@@ -2106,6 +2086,15 @@
     
     var hashRE = /\.|\[/;
     
+    var eventModifiersCode = {
+      stop: 'event.stopPropagation();',
+      prevent: 'event.preventDefault();',
+      ctrl: 'if(event.ctrlKey === false) {return null;};',
+      shift: 'if(event.shiftKey === false) {return null;};',
+      alt: 'if(event.altKey === false) {return null;};',
+      enter: 'if(event.keyCode !== 13) {return null;};'
+    };
+    
     var addEventListenerCodeToNode = function(name, handler, node) {
       var meta = node.meta;
       var eventListeners = meta.eventListeners;
@@ -2154,7 +2143,7 @@
                 if(data.ifSetDynamic === true) {
                   delete data.ifSetDynamic;
                 }
-                
+    
                 state.dynamic = true;
                 ifChild.data.ifSetDynamic = true;
               }
@@ -2244,10 +2233,10 @@
         for(var i = 0; i < modifiers.length; i++) {
           var modifier = modifiers[i];
           var eventModifierCode = eventModifiersCode[modifier];
-          if(eventModifierCode === undefined) {
-            modifiersCode += "if(m.renderEventModifier(event.keyCode, \"" + modifier + "\") === false) {return null;};"
-          } else {
+          if(eventModifierCode !== undefined) {
             modifiersCode += eventModifierCode;
+          } else if("development" !== "production") {
+            error(("Event modifier \"" + modifier + "\" not found"));
           }
         }
     

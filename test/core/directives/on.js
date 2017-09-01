@@ -1,16 +1,12 @@
 describe('On Directive', function() {
-  var on = createTestElement("on", '<p>{{count}}</p><button m-on:click="increment">Increment</button><a href="https://kabir.ml" m-on:click.prevent="modifier">Link</a><button m-on:click.m="keycode"></button><button m-on:click="changeCustomIgnored(true)"></button>');
+  var on = createTestElement("on", '<p>{{count}}</p><button m-on:click="increment">Increment</button><a href="https://kabir.ml" m-on:click.prevent="modifier">Link</a><button m-on:click="changeCustomIgnored(true)"></button>');
   var p = on.firstChild;
   var button = p.nextSibling;
   var a = button.nextSibling;
-  var buttonKeycode = a.nextSibling;
-  var customIgnoredButton = buttonKeycode.nextSibling
+  var customIgnoredButton = a.nextSibling
   var customIgnoredParameters = false;
 
-  var evt, modifier_active, keycode;
-  Moon.config.keyCodes({
-    m: 77
-  });
+  var evt, modifier_active;
 
   var app = new Moon({
     root: "#on",
@@ -24,9 +20,6 @@ describe('On Directive', function() {
       },
       modifier: function(e) {
         modifier_active = true;
-      },
-      keycode: function() {
-        keycode = true;
       },
       changeCustomIgnored: function(condition) {
         customIgnoredParameters = condition;
@@ -61,17 +54,6 @@ describe('On Directive', function() {
     });
   });
 
-  it('should use custom keycodes', function() {
-    var e = document.createEvent('HTMLEvents');
-    e.initEvent("click", false, true);
-    e.keyCode = 77;
-    buttonKeycode.dispatchEvent(e);
-
-    return wait(function() {
-      expect(keycode).to.be['true'];
-    });
-  });
-
   it('should call with ignored custom parameters', function() {
     customIgnoredButton.click();
     return wait(function() {
@@ -82,6 +64,5 @@ describe('On Directive', function() {
   it('should not be present at runtime', function() {
     expect(button.getAttribute("m-on")).to.be['null'];
     expect(a.getAttribute("m-on")).to.be['null'];
-    expect(buttonKeycode.getAttribute("m-on")).to.be['null'];
   });
 });

@@ -1,30 +1,10 @@
 /* ======= Global API ======= */
 
 /**
- * Code for default Event Modifiers
- */
-const eventModifiersCode = {
-  stop: 'event.stopPropagation();',
-  prevent: 'event.preventDefault();',
-  ctrl: 'if(event.ctrlKey === false) {return null;};',
-  shift: 'if(event.shiftKey === false) {return null;};',
-  alt: 'if(event.altKey === false) {return null;};',
-  enter: 'if(event.keyCode !== 13) {return null;};'
-};
-
-/**
- * Event Modifiers Added
- */
-let eventModifiers = {};
-
-/**
  * Configuration of Moon
  */
 Moon.config = {
-  silent: ("__ENV__" === "production") || (typeof console === 'undefined'),
-  keyCodes: function(keyCodes) {
-    extend(eventModifiers, keyCodes);
-  }
+  silent: ("__ENV__" === "production") || (typeof console === 'undefined')
 }
 
 /**
