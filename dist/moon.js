@@ -1817,7 +1817,7 @@
       var globalHandlers = this.events['*'];
     
       // Counter
-      var i = 0;
+      var i;
     
       // Call all handlers for the event name
       if(handlers !== undefined) {
