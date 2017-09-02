@@ -54,8 +54,6 @@ const generateProps = function(node, parent, specialDirectivesAfter, state) {
           propsCode += generated;
         }
       }
-
-      dynamic = true;
     } else if(name[0] === "m" && name[1] === "-") {
       hasDirectives = true;
       dynamic = true;

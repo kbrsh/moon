@@ -966,15 +966,19 @@
     }
     
     var compileTemplateExpression = function(expression, exclude, dependencies) {
+      var dynamic = false;
       var references;
       while((references = expressionRE.exec(expression)) !== null) {
         var reference = references[1];
-        if(reference !== undefined && dependencies.indexOf(reference) === -1 && exclude.indexOf(reference) === -1) {
-          dependencies.push(reference);
+        if(reference !== undefined && dependencies.indexOf(reference) === -1) {
+          if(exclude.indexOf(reference) === -1) {
+            dependencies.push(reference);
+          }
+          dynamic = true;
         }
       }
     
-      return dependencies;
+      return dynamic;
     }
     
     var scanTemplateStateUntil = function(state, re) {
@@ -1405,8 +1409,6 @@
               propsCode += generated;
             }
           }
-    
-          dynamic = true;
         } else if(name$1[0] === "m" && name$1[1] === "-") {
           hasDirectives = true;
           dynamic = true;
@@ -2149,6 +2151,8 @@
             break;
           }
         }
+    
+        node.meta.shouldRender = 1;
       },
       afterGenerate: function(prop, code, node, parentNode, state) {
         var value = prop.value;
@@ -2169,10 +2173,6 @@
       }
     };
     
-    specialDirectives["m-else"] = {
-    
-    };
-    
     specialDirectives["m-for"] = {
       beforeGenerate: function(prop, node, parentNode, state) {
         // Setup Deep Flag to Flatten Array
@@ -2189,7 +2189,9 @@
         var exclude = state.exclude;
         prop.data.forInfo = [iteratable, aliases, exclude];
         state.exclude = exclude.concat(aliases.split(","));
-        compileTemplateExpression(iteratable, exclude, state.dependencies);
+        compileTemplateExpression(iteratable, exclude, state.dependencies)
+    
+        node.meta.shouldRender = 1;
       },
       afterGenerate: function(prop, code, node, parentNode, state) {
         // Get information about parameters
@@ -2221,7 +2223,10 @@
           var paramEnd = methodToCall.lastIndexOf(")");
           params = methodToCall.substring(paramStart + 1, paramEnd);
           methodToCall = methodToCall.substring(0, paramStart);
-          compileTemplateExpression(params, state.exclude, state.dependencies);
+    
+          if(compileTemplateExpression(params, state.exclude, state.dependencies) === true) {
+            node.meta.shouldRender = 1;
+          }
         }
     
         // Generate any modifiers
@@ -2272,6 +2277,7 @@
           code = "function(event) {var modelValue = instance.get(\"" + base + "\");modelValue" + properties + " = " + instanceValue + ";instance.set(\"" + base + "\", modelValue);}";
         }
     
+        node.meta.shouldRender = 1;
         addEventListenerCodeToNode(eventType, code, node);
         addDomPropertyCodeToNode(domKey, domValue, node);
       }
@@ -2284,7 +2290,9 @@
         var propName = modifiers.shift();
         var propValue = prop.value;
     
-        compileTemplateExpression(propValue, state.exclude, state.dependencies);
+        if(compileTemplateExpression(propValue, state.exclude, state.dependencies)) {
+          node.meta.shouldRender = 1;
+        }
     
         if(modifiers[0] === "dom") {
           addDomPropertyCodeToNode(propName, propValue, node);

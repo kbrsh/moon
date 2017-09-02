@@ -78,15 +78,19 @@ const compileTemplateState = function(state) {
 }
 
 const compileTemplateExpression = function(expression, exclude, dependencies) {
+  let dynamic = false;
   let references;
   while((references = expressionRE.exec(expression)) !== null) {
     let reference = references[1];
-    if(reference !== undefined && dependencies.indexOf(reference) === -1 && exclude.indexOf(reference) === -1) {
-      dependencies.push(reference);
+    if(reference !== undefined && dependencies.indexOf(reference) === -1) {
+      if(exclude.indexOf(reference) === -1) {
+        dependencies.push(reference);
+      }
+      dynamic = true;
     }
   }
 
-  return dependencies;
+  return dynamic;
 }
 
 const scanTemplateStateUntil = function(state, re) {

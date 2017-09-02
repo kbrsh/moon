@@ -57,6 +57,8 @@ specialDirectives["m-if"] = {
         break;
       }
     }
+
+    node.meta.shouldRender = 1;
   },
   afterGenerate: function(prop, code, node, parentNode, state) {
     const value = prop.value;
@@ -77,10 +79,6 @@ specialDirectives["m-if"] = {
   }
 };
 
-specialDirectives["m-else"] = {
-
-};
-
 specialDirectives["m-for"] = {
   beforeGenerate: function(prop, node, parentNode, state) {
     // Setup Deep Flag to Flatten Array
@@ -97,7 +95,9 @@ specialDirectives["m-for"] = {
     const exclude = state.exclude;
     prop.data.forInfo = [iteratable, aliases, exclude];
     state.exclude = exclude.concat(aliases.split(","));
-    compileTemplateExpression(iteratable, exclude, state.dependencies);
+    compileTemplateExpression(iteratable, exclude, state.dependencies)
+
+    node.meta.shouldRender = 1;
   },
   afterGenerate: function(prop, code, node, parentNode, state) {
     // Get information about parameters
@@ -129,7 +129,10 @@ specialDirectives["m-on"] = {
       const paramEnd = methodToCall.lastIndexOf(")");
       params = methodToCall.substring(paramStart + 1, paramEnd);
       methodToCall = methodToCall.substring(0, paramStart);
-      compileTemplateExpression(params, state.exclude, state.dependencies);
+
+      if(compileTemplateExpression(params, state.exclude, state.dependencies) === true) {
+        node.meta.shouldRender = 1;
+      }
     }
 
     // Generate any modifiers
@@ -180,6 +183,7 @@ specialDirectives["m-model"] = {
       code = `function(event) {var modelValue = instance.get("${base}");modelValue${properties} = ${instanceValue};instance.set("${base}", modelValue);}`;
     }
 
+    node.meta.shouldRender = 1;
     addEventListenerCodeToNode(eventType, code, node);
     addDomPropertyCodeToNode(domKey, domValue, node);
   }
@@ -192,7 +196,9 @@ specialDirectives["m-literal"] = {
     const propName = modifiers.shift();
     const propValue = prop.value;
 
-    compileTemplateExpression(propValue, state.exclude, state.dependencies);
+    if(compileTemplateExpression(propValue, state.exclude, state.dependencies)) {
+      node.meta.shouldRender = 1;
+    }
 
     if(modifiers[0] === "dom") {
       addDomPropertyCodeToNode(propName, propValue, node);
