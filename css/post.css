@@ -102,12 +102,12 @@ code {
 }
 
 .sidebar-nav a {
-  color: #2e2e2e;
+  color: #4a4a4a;
   letter-spacing: 0.3px;
   text-decoration: none;
   font-size: 2rem;
   display: block;
-  font-weight: 200;
+  font-weight: 300;
 }
 
 .sidebar-nav a.sidebar-link-active {
@@ -135,7 +135,7 @@ body.close .post {
 #sidebar-toggle span {
   height: 2px;
   width: 100%;
-  background-color: #1ed6e2;
+  background-color: #4c47f9;
   position: absolute;
 }
 
