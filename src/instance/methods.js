@@ -143,7 +143,7 @@ Moon.prototype.emit = function(eventName, customMeta) {
   meta.type = eventName;
 
   // Get handlers and global handlers
-  let handlers = this.events[eventName];
+  let handlers = [].concat(this.events[eventName]);
   let globalHandlers = this.events['*'];
 
   // Counter
