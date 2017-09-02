@@ -241,7 +241,7 @@ const createComponentFromVNode = function(node, vnode, component) {
  * @param {Object} oldEventListeners
  */
 const diffEventListeners = function(node, eventListeners, oldEventListeners) {
-  for(const type in eventListeners) {
+  for(let type in eventListeners) {
     const oldEventListener = oldEventListeners[type];
     if(oldEventListener === undefined) {
       addEventHandler(node, type, eventListeners);

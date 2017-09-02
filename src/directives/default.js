@@ -44,7 +44,6 @@ specialDirectives["m-if"] = {
         let data = prop.data;
         let attrs = child.props;
         let ifChild;
-        let elseNode;
 
         if(attrs["m-else"] !== undefined) {
           data.elseNode = [i, child];
