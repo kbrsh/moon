@@ -632,7 +632,7 @@
         var nodePropValue = nodeProps[vnodePropName];
     
         if((vnodePropValue !== false) && (nodePropValue === undefined || vnodePropValue !== nodePropValue)) {
-          if(vnodePropName.length === 10 && vnodePropName === "xlink:href") {
+          if(vnodePropName === "xlink:href") {
             node.setAttributeNS('http://www.w3.org/1999/xlink', "href", vnodePropValue);
           } else {
             node.setAttribute(vnodePropName, vnodePropValue === true ? '' : vnodePropValue);
@@ -2135,8 +2135,6 @@
           if(typeof child !== "string") {
             var data = prop.data;
             var attrs = child.props;
-            var ifChild = (void 0);
-            var elseNode = (void 0);
     
             if(attrs["m-else"] !== undefined) {
               data.elseNode = [i, child];
@@ -2145,15 +2143,6 @@
               if(state.dynamic === false) {
                 state.dynamic = true;
                 data.ifSetDynamic = true;
-              }
-            } else if((ifChild = attrs["m-if"]) !== undefined) {
-              if(state.dynamic === false) {
-                if(data.ifSetDynamic === true) {
-                  delete data.ifSetDynamic;
-                }
-    
-                state.dynamic = true;
-                ifChild.data.ifSetDynamic = true;
               }
             }
     
@@ -2171,10 +2160,9 @@
     
         if(elseNode !== undefined) {
           elseValue = generateNode(elseNode[1], parentNode, elseNode[0], state);
-        }
-    
-        if(data.ifSetDynamic === true) {
-          state.dynamic = false;
+          if(data.ifSetDynamic === true) {
+            state.dynamic = false;
+          }
         }
     
         return (value + " ? " + code + " : " + elseValue);

@@ -43,7 +43,6 @@ specialDirectives["m-if"] = {
       if(typeof child !== "string") {
         let data = prop.data;
         let attrs = child.props;
-        let ifChild;
 
         if(attrs["m-else"] !== undefined) {
           data.elseNode = [i, child];
@@ -52,15 +51,6 @@ specialDirectives["m-if"] = {
           if(state.dynamic === false) {
             state.dynamic = true;
             data.ifSetDynamic = true;
-          }
-        } else if((ifChild = attrs["m-if"]) !== undefined) {
-          if(state.dynamic === false) {
-            if(data.ifSetDynamic === true) {
-              delete data.ifSetDynamic;
-            }
-
-            state.dynamic = true;
-            ifChild.data.ifSetDynamic = true;
           }
         }
 
@@ -78,10 +68,9 @@ specialDirectives["m-if"] = {
 
     if(elseNode !== undefined) {
       elseValue = generateNode(elseNode[1], parentNode, elseNode[0], state);
-    }
-
-    if(data.ifSetDynamic === true) {
-      state.dynamic = false;
+      if(data.ifSetDynamic === true) {
+        state.dynamic = false;
+      }
     }
 
     return `${value} ? ${code} : ${elseValue}`;

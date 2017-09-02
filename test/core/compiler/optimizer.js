@@ -42,7 +42,7 @@ describe("Compiler Optimization", function() {
     expect(app.render().children[0].children[0].meta.shouldRender).to.equal(undefined);
   });
 
-  it("should deoptimize on if statements next to each other", function() {
+  it("should optimize on if statements next to each other", function() {
     createTestElement("ifNextOptimization", "<div m-if='true'>True</div><div m-if='falseCondition'>False</div>");
 
     var app = new Moon({
@@ -53,12 +53,12 @@ describe("Compiler Optimization", function() {
     });
 
     expect(app.render().children[0].meta.shouldRender).to.equal(1);
-    expect(app.render().children[0].children[0].meta.shouldRender).to.equal(1);
+    expect(app.render().children[0].children[0].meta.shouldRender).to.equal(undefined);
 
     app.set("falseCondition", true);
 
     expect(app.render().children[1].meta.shouldRender).to.equal(1);
-    expect(app.render().children[1].children[0].meta.shouldRender).to.equal(1);
+    expect(app.render().children[1].children[0].meta.shouldRender).to.equal(undefined);
   });
 
   it("should optimize on if statements with the same parent seperated by an element", function() {
