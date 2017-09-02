@@ -1,11 +1,11 @@
-describe('Model Directive', function() {
+describe('Bind Directive', function() {
   describe("Static Text Input", function() {
-    var model = createTestElement("model", '<p>{{msg}}</p><input type="text" m-model="msg"/>');
-    var p = model.firstChild;
+    var bind = createTestElement("bind", '<p>{{msg}}</p><input type="text" m-bind="msg"/>');
+    var p = bind.firstChild;
     var input = p.nextSibling;
 
     var app = new Moon({
-      root: "#model",
+      root: "#bind",
       data: {
         msg: "Hello Moon!"
       }
@@ -43,49 +43,51 @@ describe('Model Directive', function() {
   });
 
 
-  // describe("Dynamic Text Input", function() {
-  //   var modelDynamic = createTestElement("modelDynamic", '<p>{{arr[index]}}</p><input type="text" m-model="arr[index]"/>');
-  //   var p = modelDynamic.firstChild;
-  //   var input = p.nextSibling;
-  //
-  //   var app = new Moon({
-  //     root: "#modelDynamic",
-  //     data: {
-  //       arr: ["Random", "Hello Moon!"],
-  //       index: 1
-  //     }
-  //   });
-  //
-  //   it('should have value when initialized', function() {
-  //     return wait(function() {
-  //       expect(p.innerHTML).to.equal('Hello Moon!');
-  //       expect(input.value).to.equal('Hello Moon!');
-  //     });
-  //   });
-  //
-  //   it('should update value from data', function() {
-  //     app.set("arr[1]", "ChangedData");
-  //
-  //     return wait(function() {
-  //       expect(input.value).to.equal('ChangedData');
-  //       expect(p.innerHTML).to.equal('ChangedData');
-  //     });
-  //   });
-  //
-  //   it('should update value from input', function() {
-  //     var inputEvent = new CustomEvent('input');
-  //     input.value = "Changed";
-  //     input.dispatchEvent(inputEvent);
-  //
-  //     return wait(function() {
-  //       expect(p.innerHTML).to.equal('Changed');
-  //     });
-  //   });
-  //
-  //   it('should not be present at runtime', function() {
-  //     expect(input.getAttribute("m-model")).to.be['null'];
-  //   });
-  // });
+  describe("Dynamic Text Input", function() {
+    var bindDynamic = createTestElement("bindDynamic", '<p>{{arr[index]}}</p><input type="text" m-bind="arr[index]"/>');
+    var p = bindDynamic.firstChild;
+    var input = p.nextSibling;
+
+    var app = new Moon({
+      root: "#bindDynamic",
+      data: {
+        arr: ["Random", "Hello Moon!"],
+        index: 1
+      }
+    });
+
+    it('should have value when initialized', function() {
+      return wait(function() {
+        expect(p.innerHTML).to.equal('Hello Moon!');
+        expect(input.value).to.equal('Hello Moon!');
+      });
+    });
+
+    it('should update value from data', function() {
+      var arr = app.get("arr");
+      arr[1] = "ChangedData";
+      app.set("arr", arr);
+
+      return wait(function() {
+        expect(input.value).to.equal('ChangedData');
+        expect(p.innerHTML).to.equal('ChangedData');
+      });
+    });
+
+    it('should update value from input', function() {
+      var inputEvent = new CustomEvent('input');
+      input.value = "Changed";
+      input.dispatchEvent(inputEvent);
+
+      return wait(function() {
+        expect(p.innerHTML).to.equal('Changed');
+      });
+    });
+
+    it('should not be present at runtime', function() {
+      expect(input.getAttribute("m-model")).to.be['null'];
+    });
+  });
 
   // describe("Checkbox", function() {
   //   var modelCheckbox = createTestElement("modelCheckbox", '<p>{{checked}}</p><input type="checkbox" m-model="checked"/>');

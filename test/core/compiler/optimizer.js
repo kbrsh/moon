@@ -170,19 +170,19 @@ describe("Compiler Optimization", function() {
     });
   });
 
-  describe("Model Directive", function() {
-    createTestElement("modelOptimizationStatic", "<input m-model='msg'/>");
-    createTestElement("modelOptimizationDynamic", "<input m-model='msg[index]'/>");
+  describe("Bind Directive", function() {
+    createTestElement("bindOptimizationStatic", "<input m-bind='msg'/>");
+    createTestElement("bindOptimizationDynamic", "<input m-bind='msg[index]'/>");
 
     var staticApp = new Moon({
-      root: "#modelOptimizationStatic",
+      root: "#bindOptimizationStatic",
       data: {
         msg: "Hello Moon!"
       }
     });
 
     var dynamicApp = new Moon({
-      root: "#modelOptimizationDynamic",
+      root: "#bindOptimizationDynamic",
       data: {
         msg: ["Hello Moon!"],
         index: 0

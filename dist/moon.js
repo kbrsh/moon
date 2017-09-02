@@ -2247,7 +2247,7 @@
       }
     };
     
-    specialDirectives["m-model"] = {
+    specialDirectives["m-bind"] = {
       beforeGenerate: function(prop, node, parentNode, state) {
         var dependencies = state.dependencies;
         var exclude = state.exclude;
@@ -2274,7 +2274,7 @@
         if(dynamicIndex === -1) {
           code = "function(event) {instance.set(\"" + instanceKey + "\", " + instanceValue + ");}";
         } else {
-          code = "function(event) {var modelValue = instance.get(\"" + base + "\");modelValue" + properties + " = " + instanceValue + ";instance.set(\"" + base + "\", modelValue);}";
+          code = "function(event) {var boundValue = instance.get(\"" + base + "\");boundValue" + properties + " = " + instanceValue + ";instance.set(\"" + base + "\", boundValue);}";
         }
     
         node.meta.shouldRender = 1;
