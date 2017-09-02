@@ -63,7 +63,7 @@ Moon.directive = function(name, action) {
  * @param {String} name
  * @param {Object} options
  */
-Moon.component = function(name, options) {
+Moon.extend = function(name, options) {
   let Parent = this;
 
   if(options.name !== undefined) {

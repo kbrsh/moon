@@ -1,5 +1,5 @@
 describe("Component", function() {
-  var componentConstructor = Moon.component("const", {template: "<div>Hello Moon!</div>"});
+  var componentConstructor = Moon.extend("const", {template: "<div>Hello Moon!</div>"});
 
   it("should create a constructor", function() {
     expect(new componentConstructor()).to.be.an.instanceof(Moon);
@@ -29,7 +29,7 @@ describe("Component", function() {
   it("should render HTML", function() {
     var component = createTestElement("component", "<component></component>");
 
-    Moon.component("component", {
+    Moon.extend("component", {
       template: "<h1>Hello Moon!</h1>"
     });
 
@@ -47,7 +47,7 @@ describe("Component", function() {
     var h1 = null;
     var button = null;
 
-    Moon.component("component-data", {
+    Moon.extend("component-data", {
       template: "<div><h1>{{msg}}</h1><button m-on:click='change'></button></div>",
       data: function() {
         return {
@@ -84,7 +84,7 @@ describe("Component", function() {
   describe("Props", function() {
     var componentProps = createTestElement("componentProps", "<component-props msg='{{msg}}'></component-props>");
 
-    Moon.component("component-props", {
+    Moon.extend("component-props", {
       template: "<h1>{{msg}}</h1>",
       props: ["msg"]
     });
@@ -114,7 +114,7 @@ describe("Component", function() {
     it("should render the default insertion", function() {
       var defaultInsertion = createTestElement("componentDefaultInsertion", "<component-default-insertion>Hello Moon!</component-default-insertion>");
 
-      Moon.component("component-default-insertion", {
+      Moon.extend("component-default-insertion", {
         template: "<h1><m-insert></m-insert></h1>"
       });
 
@@ -131,7 +131,7 @@ describe("Component", function() {
     // it("should render a named slot", function() {
     //   var namedSlot = createTestElement("componentNamedSlot", "<component-named-slot><span slot='named'>Hello Moon!</span></component-named-slot>");
     //
-    //   Moon.component("component-named-slot", {
+    //   Moon.extend("component-named-slot", {
     //     template: "<h1><slot name='named'></slot></h1>"
     //   });
     //
@@ -156,7 +156,7 @@ describe("Component", function() {
       var h1 = null;
       var button = null;
 
-      var counter = Moon.component("counter", {
+      var counter = Moon.extend("counter", {
         template: "<div><h1>{{count}}</h1><button m-on:click='increment'>Increment</button></div>",
         data: function() {
           return {
@@ -207,7 +207,7 @@ describe("Component", function() {
       var button = null;
       var eventCalled = false;
 
-      var counter = Moon.component("counter-existing", {
+      var counter = Moon.extend("counter-existing", {
         template: "<div><h1>{{count}}</h1><button m-on:click='increment'>Increment</button></div>",
         data: function() {
           return {

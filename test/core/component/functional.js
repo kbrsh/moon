@@ -2,7 +2,7 @@ describe("Functional Component", function() {
   it("should render HTML", function() {
     var functional = createTestElement("functional", "<functional-component></functional-component>");
 
-    Moon.component("functional-component", {
+    Moon.extend("functional-component", {
       functional: true,
       render: function(m, ctx) {
         return m("h1", {attrs: {}}, {shouldRender: 1}, []);
@@ -21,7 +21,7 @@ describe("Functional Component", function() {
   describe("Props", function() {
     var functionalProps = createTestElement("functionalProps", "<functional-component-props someprop='{{parentMsg}}'></functional-component-props>");
 
-    Moon.component("functional-component-props", {
+    Moon.extend("functional-component-props", {
       functional: true,
       props: ["someprop"],
       render: function(m, ctx) {
@@ -56,7 +56,7 @@ describe("Functional Component", function() {
   describe("Insertion", function() {
     var functionalInsertion = createTestElement("functionalInsertion", '<functional-component-insertion>Default Slot Content</functional-component-insertion>');
 
-    Moon.component("functional-component-insertion", {
+    Moon.extend("functional-component-insertion", {
       functional: true,
       render: function(m, ctx) {
         return m("div", {attrs: {}}, {shouldRender: 1}, [
