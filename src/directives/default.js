@@ -3,12 +3,12 @@
 const hashRE = /\.|\[/;
 
 const eventModifiersCode = {
-  stop: 'event.stopPropagation();',
-  prevent: 'event.preventDefault();',
-  ctrl: 'if(event.ctrlKey === false) {return null;};',
-  shift: 'if(event.shiftKey === false) {return null;};',
-  alt: 'if(event.altKey === false) {return null;};',
-  enter: 'if(event.keyCode !== 13) {return null;};'
+  stop: "event.stopPropagation();",
+  prevent: "event.preventDefault();",
+  ctrl: "if(event.ctrlKey === false) {return null;};",
+  shift: "if(event.shiftKey === false) {return null;};",
+  alt: "if(event.altKey === false) {return null;};",
+  enter: "if(event.keyCode !== 13) {return null;};"
 };
 
 const addEventListenerCodeToNode = function(name, handler, node) {
@@ -228,5 +228,5 @@ specialDirectives["m-mask"] = {
 };
 
 directives["m-show"] = function(el, val, node) {
-  el.style.display = (val ? '' : 'none');
+  el.style.display = (val ? '' : "none");
 };

@@ -4,13 +4,13 @@
  * Configuration of Moon
  */
 Moon.config = {
-  silent: ("__ENV__" === "production") || (typeof console === 'undefined')
+  silent: ("__ENV__" === "production") || (typeof console === "undefined")
 }
 
 /**
  * Version of Moon
  */
-Moon.version = '__VERSION__';
+Moon.version = "__VERSION__";
 
 /**
  * Moon Utilities

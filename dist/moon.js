@@ -633,7 +633,7 @@
     
         if((vnodePropValue !== false) && (nodePropValue === undefined || vnodePropValue !== nodePropValue)) {
           if(vnodePropName === "xlink:href") {
-            node.setAttributeNS('http://www.w3.org/1999/xlink', "href", vnodePropValue);
+            node.setAttributeNS("http://www.w3.org/1999/xlink", "href", vnodePropValue);
           } else {
             node.setAttribute(vnodePropName, vnodePropValue === true ? '' : vnodePropValue);
           }
@@ -1969,13 +1969,13 @@
      * Configuration of Moon
      */
     Moon.config = {
-      silent: ("development" === "production") || (typeof console === 'undefined')
+      silent: ("development" === "production") || (typeof console === "undefined")
     }
     
     /**
      * Version of Moon
      */
-    Moon.version = '0.11.0';
+    Moon.version = "0.11.0";
     
     /**
      * Moon Utilities
@@ -2095,12 +2095,12 @@
     var hashRE = /\.|\[/;
     
     var eventModifiersCode = {
-      stop: 'event.stopPropagation();',
-      prevent: 'event.preventDefault();',
-      ctrl: 'if(event.ctrlKey === false) {return null;};',
-      shift: 'if(event.shiftKey === false) {return null;};',
-      alt: 'if(event.altKey === false) {return null;};',
-      enter: 'if(event.keyCode !== 13) {return null;};'
+      stop: "event.stopPropagation();",
+      prevent: "event.preventDefault();",
+      ctrl: "if(event.ctrlKey === false) {return null;};",
+      shift: "if(event.shiftKey === false) {return null;};",
+      alt: "if(event.altKey === false) {return null;};",
+      enter: "if(event.keyCode !== 13) {return null;};"
     };
     
     var addEventListenerCodeToNode = function(name, handler, node) {
@@ -2320,7 +2320,7 @@
     };
     
     directives["m-show"] = function(el, val, node) {
-      el.style.display = (val ? '' : 'none');
+      el.style.display = (val ? '' : "none");
     };
     
     
