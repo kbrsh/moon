@@ -2,9 +2,7 @@
 title: Overview
 ---
 
-#### What is Moon?
-
-Moon is a minimal, blazing fast library for building user interfaces. It combines the positive aspects of popular libraries into one small package. It's super lightweight, and includes advanced optimizations to ensure fast render times. The API is small and intuitive, while still remaining powerful.
+Moon is a minimal, blazing fast library for building user interfaces. It combines the positive aspects of popular libraries into one small package. It's super lightweight, and includes advanced optimizations to ensure fast render times. The API is small and intuitive, while still remaining powerful. Moon is compatible with IE9+.
 
 For example, here is the minified + gzipped size for popular libraries compared to Moon (less is better):
 
@@ -24,19 +22,15 @@ Update performance (more is better):
 - React - 49 repaints/sec
 - Angular - 47 repaints/sec
 
-As you can see, Moon is blazing fast compared to other popular libraries.
-
-Moon can also support IE9+ without any polyfills.
-
 #### Another library?
 
-Yes, there have been a **lot** of front end libraries released, and many people prefer different aspects about each of these libraries. For example, React provides the ability to use JSX and uses a virtual DOM, Angular provides easy to use directives, and Ember provides a nice templating engine built in.
+Yes, there have been a **lot** of front end libraries released lately, and many people prefer different parts about each of these libraries. For example, React provides the ability to use JSX and uses a virtual DOM, Angular provides easy to use directives, and Ember provides a nice templating engine built in.
 
-Moon aims to combine all of the good features of these libraries into a single, lightweight package, while providing improved performance.
+Moon aims to combine the best parts of these libraries into a single, lightweight package, while providing improved performance.
 
 #### Reactive Data
 
-With Moon, all of your data is kept in sync with the DOM, while in React or JQuery, this was a tedious task that had to be done manually.
+With Moon, all of your data is kept in sync with the DOM, while in JQuery, this was a tedious task that had to be done manually.
 
 Moon, on the other hand, has a lightweight templating engine built in, it lets you interpolate data with a simple `{{mustache}}` template. You can uses these templates anywhere in your app, including attributes!
 
@@ -91,13 +85,13 @@ If you'd like to see the DOM after an update is queued, you can use `Moon.nextTi
 
 ```js
 Moon.nextTick(function() {
-  // manipulate the DOM
+  // DOM is updated
 });
 ```
 
 #### Directives
 
-Angular provided a lot of helpful directives that could perform a variety of tasks. Moon has directives built in as well, and can be used to conditionally render items, to render lists, to attach event listeners, to skip updating, and more!
+Angular provided a lot of helpful directives that could perform a variety of tasks. Moon has directives as well, and can be used to conditionally render items, to render lists, to attach event listeners, to do two way data binding, and to give hints to the compiler. Directives always have a prefix of `m-`.
 
 Let's look at a practical example: What if you need to display a "Profile" link if a user is signed in? How would you update if the user signed out?
 
@@ -128,11 +122,9 @@ var app2 = new Moon({
 });
 </script>
 
-Now, if you detected the user has signed out, the `m-if` directive will handle this, try it yourself!
+Now, if you detected the user has signed out, the app will update, try it yourself!
 
 Type `app2.set('signedIn', false)` in the console, and watch the DOM being updated!
-
-Directives always have a prefix of `m-`.
 
 #### Components
 
