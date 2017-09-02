@@ -38,7 +38,7 @@ describe('Bind Directive', function() {
     });
 
     it('should not be present at runtime', function() {
-      expect(input.getAttribute("m-model")).to.be['null'];
+      expect(input.getAttribute("m-bind")).to.be['null'];
     });
   });
 
@@ -85,17 +85,17 @@ describe('Bind Directive', function() {
     });
 
     it('should not be present at runtime', function() {
-      expect(input.getAttribute("m-model")).to.be['null'];
+      expect(input.getAttribute("m-bind")).to.be['null'];
     });
   });
 
   // describe("Checkbox", function() {
-  //   var modelCheckbox = createTestElement("modelCheckbox", '<p>{{checked}}</p><input type="checkbox" m-model="checked"/>');
-  //   var p = modelCheckbox.firstChild;
+  //   var bindCheckbox = createTestElement("bindCheckbox", '<p>{{checked}}</p><input type="checkbox" m-bind="checked"/>');
+  //   var p = bindCheckbox.firstChild;
   //   var input = p.nextSibling;
   //
   //   var app = new Moon({
-  //     root: "#modelCheckbox",
+  //     root: "#bindCheckbox",
   //     data: {
   //       checked: true
   //     }
@@ -128,19 +128,19 @@ describe('Bind Directive', function() {
   //   });
   //
   //   it('should not be present at runtime', function() {
-  //     expect(input.getAttribute("m-model")).to.be['null'];
+  //     expect(input.getAttribute("m-bind")).to.be['null'];
   //   });
   // });
   //
   // describe("Radio", function() {
-  //   var modelRadio = createTestElement("modelRadio", '<p>{{current}}</p><input type="radio" name="item" m-model="current" value="Foo"/><input type="radio" name="item" m-model="current" value="Bar"/><input type="radio" name="item" m-model="current" value="Baz"/>');
-  //   var p = modelRadio.firstChild;
+  //   var bindRadio = createTestElement("bindRadio", '<p>{{current}}</p><input type="radio" name="item" m-bind="current" value="Foo"/><input type="radio" name="item" m-bind="current" value="Bar"/><input type="radio" name="item" m-bind="current" value="Baz"/>');
+  //   var p = bindRadio.firstChild;
   //   var input1 = p.nextSibling;
   //   var input2 = input1.nextSibling;
   //   var input3 = input2.nextSibling;
   //
   //   var app = new Moon({
-  //     root: "#modelRadio",
+  //     root: "#bindRadio",
   //     data: {
   //       current: "Bar"
   //     }
@@ -175,9 +175,9 @@ describe('Bind Directive', function() {
   //   });
   //
   //   it('should not be present at runtime', function() {
-  //     expect(input1.getAttribute("m-model")).to.be['null'];
-  //     expect(input2.getAttribute("m-model")).to.be['null'];
-  //     expect(input3.getAttribute("m-model")).to.be['null'];
+  //     expect(input1.getAttribute("m-bind")).to.be['null'];
+  //     expect(input2.getAttribute("m-bind")).to.be['null'];
+  //     expect(input3.getAttribute("m-bind")).to.be['null'];
   //   });
   // });
 });
