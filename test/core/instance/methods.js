@@ -1,5 +1,5 @@
-describe('Methods', function() {
-  var method = createTestElement("method", '{{count}}');
+describe("Methods", function() {
+  var method = createTestElement("method", "{{count}}");
 
   var app = new Moon({
     root: "#method",
@@ -8,22 +8,22 @@ describe('Methods', function() {
     },
     methods: {
       increment: function() {
-        this.set('count', this.get('count') + 1);
+        this.set("count", this.get("count") + 1);
       }
     }
   });
 
-  it('when calling a method', function() {
-    app.callMethod('increment');
+  it("when calling a method", function() {
+    app.get("increment")();
     return wait(function() {
-      expect(app.get('count')).to.equal(1);
+      expect(app.get("count")).to.equal(1);
     });
   });
 
-  it('should update DOM', function() {
-    app.callMethod('increment');
+  it("should update DOM", function() {
+    app.get("increment")();
     return wait(function() {
-      expect(method.innerHTML).to.equal('2');
+      expect(method.innerHTML).to.equal("2");
     });
   });
 });

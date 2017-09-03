@@ -135,18 +135,18 @@ describe("Compiler Optimization", function() {
   });
 
   describe("On Directive", function() {
-    createTestElement("onOptimizationStatic", "<button m-on:click='staticMethod'>Click Me</button>");
-    createTestElement("onOptimizationDynamic", "<button m-on:click='dynamicMethod(prop)'>Click Me</button>");
+    createTestElement("onOptimization", "<button m-on:click='staticMethod'>Click Me</button>");
+    createTestElement("onOptimizationParameters", "<button m-on:click='dynamicMethod(prop)'>Click Me</button>");
 
-    var staticApp = new Moon({
-      root: "#onOptimizationStatic",
+    var methodApp = new Moon({
+      root: "#onOptimization",
       methods: {
         staticMethod: function() {}
       }
     });
 
-    var dynamicApp = new Moon({
-      root: "#onOptimizationDynamic",
+    var paramApp = new Moon({
+      root: "#onOptimizationParameters",
       data: {
         prop: "Dynamic"
       },
@@ -155,15 +155,15 @@ describe("Compiler Optimization", function() {
       }
     });
 
-    it("should optimize a static method", function() {
-      var tree = staticApp.render();
-      expect(tree.meta.shouldRender).to.equal(undefined);
-      expect(tree.children[0].meta.shouldRender).to.equal(undefined);
+    it("should deoptimize a method", function() {
+      var tree = methodApp.render();
+      expect(tree.meta.shouldRender).to.equal(1);
+      expect(tree.children[0].meta.shouldRender).to.equal(1);
       expect(tree.children[0].children[0].meta.shouldRender).to.equal(undefined);
     });
 
-    it("should deoptimize a dynamic method", function() {
-      var tree = dynamicApp.render();
+    it("should deoptimize a method with parameters", function() {
+      var tree = paramApp.render();
       expect(tree.meta.shouldRender).to.equal(1);
       expect(tree.children[0].meta.shouldRender).to.equal(1);
       expect(tree.children[0].children[0].meta.shouldRender).to.equal(undefined);

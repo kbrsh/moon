@@ -1760,19 +1760,6 @@
       callHook(this, "destroyed");
     }
     
-    /**
-     * Calls a method
-     * @param {String} method
-     * @return {Any} output of method
-     */
-    Moon.prototype.callMethod = function(method, args) {
-      // Get arguments
-      args = args || [];
-    
-      // Call method in context of instance
-      return this.data[method].apply(this, args);
-    }
-    
     // Event Emitter, adapted from https://github.com/kbrsh/voke
     
     /**
@@ -2216,23 +2203,14 @@
         var modifiers = prop.arg.split(".");
         var eventType = modifiers.shift();
     
-        // Get method to call
-        var methodToCall = prop.value;
-    
-        // Default parameters
-        var params = "event";
-    
-        // Compile given parameters
-        var paramStart = methodToCall.indexOf("(");
-        if(paramStart !== -1) {
-          var paramEnd = methodToCall.lastIndexOf(")");
-          params = methodToCall.substring(paramStart + 1, paramEnd);
-          methodToCall = methodToCall.substring(0, paramStart);
-    
-          if(compileTemplateExpression(params, state.exclude, state.dependencies) === true) {
-            node.meta.shouldRender = 1;
-          }
+        // Get method code
+        var methodCode = prop.value;
+        if(methodCode.indexOf("(") === -1) {
+          methodCode += "(event)";
         }
+    
+        // Compile method code
+        compileTemplateExpression(methodCode, state.exclude, state.dependencies)
     
         // Generate any modifiers
         var modifiersCode = "";
@@ -2246,8 +2224,11 @@
           }
         }
     
+        // Mark as dynamic
+        node.meta.shouldRender = 1;
+    
         // Generate event listener code and install handler
-        var code = "function(event) {" + modifiersCode + "instance.callMethod(\"" + methodToCall + "\", [" + params + "]);}";
+        var code = "function(event) {" + modifiersCode + methodCode + ";}";
         addEventListenerCodeToNode(eventType, code, node);
       }
     };
