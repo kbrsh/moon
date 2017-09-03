@@ -262,7 +262,7 @@
      * @param {Object} vnode
      * @return {Object} DOM Node
      */
-    var createNodeFromVNode = function(vnode) {
+    var createNode = function(vnode) {
       var type = vnode.type;
       var meta = vnode.meta;
       var node;
@@ -274,17 +274,10 @@
         var children = vnode.children;
         node = meta.isSVG === 1 ? document.createElementNS("http://www.w3.org/2000/svg", type) : document.createElement(type);
     
-        // Optimization: VNode only has one child that is text, and create it here
-        var firstChild = children[0];
-        if(children.length === 1 && firstChild.type === "#text") {
-          node.textContent = firstChild.value;
-          firstChild.meta.node = node.firstChild;
-        } else {
-          // Add all children
-          for(var i = 0; i < children.length; i++) {
-            var vchild = children[i];
-            appendChild(createNodeFromVNode(vchild), vchild, node);
-          }
+        // Add all children
+        for(var i = 0; i < children.length; i++) {
+          var vchild = children[i];
+          appendChild(vchild, node);
         }
     
         // Add all event listeners
@@ -305,18 +298,28 @@
     
     /**
      * Appends a Child, Ensuring Components are Mounted
-     * @param {Object} node
      * @param {Object} vnode
      * @param {Object} parent
      */
-    var appendChild = function(node, vnode, parent) {
-      // Append the node
-      parent.appendChild(node);
-    
-      // Check for Component
+    var appendChild = function(vnode, parent) {
+      // New Component
       var component = vnode.meta.component;
-      if(component !== undefined) {
-        createComponentFromVNode(node, vnode, component);
+    
+      if(component === undefined) {
+        // Create node
+        var node = createNode(vnode);
+    
+        // Append node
+        parent.appendChild(node);
+      } else {
+        // Create node
+        var node$1 = document.createElement(vnode.type);
+    
+        // Append node
+        parent.appendChild(node$1);
+    
+        // Create Component
+        createComponent(node$1, vnode, component);
       }
     }
     
@@ -326,10 +329,10 @@
      * @param {Object} parent
      */
     var removeChild = function(node, parent) {
-      // Check for Component
+      // Check for Existing Component
       var componentInstance = node.__moon__;
       if(componentInstance !== undefined) {
-        // Component was unmounted, destroy it here
+        // Destroy existing component
         componentInstance.destroy();
       }
     
@@ -339,26 +342,28 @@
     
     /**
      * Replaces a Child, Ensuring Components are Unmounted/Mounted
-     * @param {Object} oldNode
-     * @param {Object} newNode
+     * @param {Object} node
      * @param {Object} vnode
      * @param {Object} parent
      */
-    var replaceChild = function(oldNode, newNode, vnode, parent) {
-      // Check for Component
-      var componentInstance = oldNode.__moon__;
+    var replaceChild = function(node, vnode, parent) {
+      // Check for Existing Component
+      var componentInstance = node.__moon__;
       if(componentInstance !== undefined) {
-        // Component was unmounted, destroy it here
+        // Destroy existing component
         componentInstance.destroy();
       }
     
-      // Replace the node
-      parent.replaceChild(newNode, oldNode);
-    
-      // Check for Component
+      // New Component
       var component = vnode.meta.component;
-      if(component !== undefined) {
-        createComponentFromVNode(newNode, vnode, component);
+      if(component === undefined) {
+        // Create node
+        var newNode = createNode(vnode);
+    
+        // Replace the node
+        parent.replaceChild(newNode, node);
+      } else {
+        createComponent(node, vnode, component);
       }
     }
     
@@ -375,7 +380,7 @@
      * @param {Array} children
      * @return {Object} Virtual DOM Node
      */
-    var createElement = function(type, props, meta, children) {
+    var createVNode = function(type, props, meta, children) {
       return {
         type: type,
         props: props,
@@ -390,7 +395,7 @@
      * @param {Object} meta
      * @return {Object} Virtual DOM Text Node
      */
-    var createTextElement = function(value, meta) {
+    var createTextVNode = function(value, meta) {
       return {
         type: TEXT_TYPE,
         value: value,
@@ -414,7 +419,7 @@
         // Type => #text
         // Meta => props
         // Value => meta
-        return createTextElement(meta, props);
+        return createTextVNode(meta, props);
       } else if((component = components[type]) !== undefined) {
         // Resolve Component
         if(component.options.functional === true) {
@@ -424,7 +429,7 @@
         }
       }
     
-      return createElement(type, props, meta, children);
+      return createVNode(type, props, meta, children);
     
       // In the end, we have a VNode structure like:
       // {
@@ -559,7 +564,7 @@
      * @param {Object} vnode
      * @param {Object} component
      */
-    var createComponentFromVNode = function(node, vnode, component) {
+    var createComponent = function(node, vnode, component) {
       var props = component.options.props;
       var attrs = vnode.props.attrs;
       var data = {};
@@ -572,6 +577,7 @@
         }
       }
     
+      // Create instance
       var componentInstance = new component.CTor({
         props: data,
         insert: vnode.children
@@ -681,7 +687,7 @@
     var diffComponent = function(node, vnode) {
       if(node.__moon__ === undefined) {
         // Not mounted, create a new instance and mount it here
-        createComponentFromVNode(node, vnode, vnode.meta.component);
+        createComponent(node, vnode, vnode.meta.component);
       } else {
         // Mounted already, need to update
         var componentInstance = node.__moon__;
@@ -729,7 +735,7 @@
       var component;
     
       if(nodeName !== vnode.type) {
-        replaceChild(node, createNodeFromVNode(vnode), vnode, parent);
+        replaceChild(node, vnode, parent);
       } else if(vnode.type === TEXT_TYPE) {
         // Both are text nodes, update if needed
         if(node.textContent !== vnode.value) {
@@ -740,7 +746,7 @@
         meta.node = node;
       } else if((component = meta.component) !== undefined) {
         // Component
-        createComponentFromVNode(node, vnode, component);
+        createComponent(node, vnode, component);
       } else {
         // Hydrate
         meta.node = node;
@@ -768,24 +774,24 @@
     
           var i$1 = 0;
           var currentChildNode = node.firstChild;
-          var vchild = length !== 0 ? children[0] : undefined;
-          var nextSibling = null;
+          var child = length !== 0 ? children[0] : undefined;
+          var nextSibling;
     
-          while(vchild !== undefined || currentChildNode !== null) {
+          while(child !== undefined || currentChildNode !== null) {
             nextSibling = null;
     
             if(currentChildNode === null) {
-              appendChild(createNodeFromVNode(vchild), vchild, node);
+              appendChild(child, node);
             } else {
               nextSibling = currentChildNode.nextSibling;
-              if(vchild === undefined) {
+              if(child === undefined) {
                 removeChild(currentChildNode, node);
               } else {
-                hydrate(currentChildNode, vchild, node);
+                hydrate(currentChildNode, child, node);
               }
             }
     
-            vchild = ++i$1 < length ? children[i$1] : undefined;
+            child = ++i$1 < length ? children[i$1] : undefined;
             currentChildNode = nextSibling;
           }
         }
@@ -807,7 +813,7 @@
       if(oldVNode.type !== vnode.type) {
         // Different types, replace
         parentVNode.children[index] = vnode;
-        replaceChild(oldMeta.node, createNodeFromVNode(vnode), vnode, parent);
+        replaceChild(oldMeta.node, vnode, parent);
       } else if(meta.shouldRender !== undefined) {
         if(vnode.type === TEXT_TYPE) {
           // Text, update if needed
@@ -851,30 +857,29 @@
               oldVNode.children = [];
             } else if(oldLength === 0) {
               for(var i = 0; i < newLength; i++) {
-                var child = children[i];
-                appendChild(createNodeFromVNode(child), child, node);
+                appendChild(children[i], node);
               }
               oldVNode.children = children;
             } else {
               var totalLen = newLength > oldLength ? newLength : oldLength;
               var oldChild;
-              var child$1;
+              var child;
               for(var i$1 = 0; i$1 < totalLen; i$1++) {
                 if(i$1 >= newLength) {
                   // Remove extra child
                   removeChild(oldChildren.pop().meta.el, node);
                 } else if(i$1 >= oldLength) {
                   // Add extra child
-                  child$1 = children[i$1];
-                  appendChild(createNodeFromVNode(child$1), child$1, node);
-                  oldChildren.push(child$1);
+                  child = children[i$1];
+                  appendChild(child, node);
+                  oldChildren.push(child);
                 } else {
                   // Diff child if they don't have the same reference
                   oldChild = oldChildren[i$1];
-                  child$1 = children[i$1];
+                  child = children[i$1];
     
-                  if(oldChild !== child$1) {
-                    diff(oldChild, child$1, i$1, node, oldVNode);
+                  if(oldChild !== child) {
+                    diff(oldChild, child, i$1, node, oldVNode);
                   }
                 }
               }
@@ -1901,7 +1906,7 @@
           var oldRoot = old.meta.node;
     
           // Replace root element
-          var newRoot = createNodeFromVNode(vnode);
+          var newRoot = createNode(vnode);
           parent.replaceChild(newRoot, oldRoot);
     
           // Update Bound Instance
@@ -1916,7 +1921,7 @@
         // Hydrate
         if(old.nodeName.toLowerCase() !== vnode.type) {
           // Root element changed, replace it
-          var newRoot$1 = createNodeFromVNode(vnode);
+          var newRoot$1 = createNode(vnode);
           parent.replaceChild(newRoot$1, old);
     
           // Update bound instance

@@ -42,6 +42,42 @@ describe("Component", function() {
     });
   });
 
+  describe("Mounting", function() {
+    it("should mount when replaced", function() {
+      var mountComponentReplace = createTestElement("mountComponentReplace", "<h1>Test</h1><component m-if='condition'>Hello Moon!</component>");
+      var h1 = mountComponentReplace.firstChild;
+      var app = new Moon({
+        root: "#mountComponentReplace",
+        data: {
+          condition: false
+        }
+      });
+
+      app.set("condition", true);
+      return wait(function() {
+        expect(h1.nextSibling.nodeName.toLowerCase()).to.equal("h1");
+        expect(h1.nextSibling.textContent).to.equal("Hello Moon!");
+      });
+    });
+
+    it("should mount when appended", function() {
+      var mountComponentAppend = createTestElement("mountComponentAppend", "<h1>Test</h1><div m-if='condition'><component>Hello Moon!</component></div>");
+      var h1 = mountComponentAppend.firstChild;
+      var app = new Moon({
+        root: "#mountComponentAppend",
+        data: {
+          condition: false
+        }
+      });
+
+      app.set("condition", true);
+      return wait(function() {
+        expect(h1.nextSibling.firstChild.nodeName.toLowerCase()).to.equal("h1");
+        expect(h1.nextSibling.firstChild.textContent).to.equal("Hello Moon!");
+      });
+    });
+  });
+
   describe("Data", function() {
     var componentData = createTestElement("componentData", "<component-data></component-data>");
     var h1 = null;

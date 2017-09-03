@@ -11,7 +11,7 @@ const TEXT_TYPE = "#text";
  * @param {Array} children
  * @return {Object} Virtual DOM Node
  */
-const createElement = function(type, props, meta, children) {
+const createVNode = function(type, props, meta, children) {
   return {
     type: type,
     props: props,
@@ -26,7 +26,7 @@ const createElement = function(type, props, meta, children) {
  * @param {Object} meta
  * @return {Object} Virtual DOM Text Node
  */
-const createTextElement = function(value, meta) {
+const createTextVNode = function(value, meta) {
   return {
     type: TEXT_TYPE,
     value: value,
@@ -50,7 +50,7 @@ const m = function(type, props, meta, children) {
     // Type => #text
     // Meta => props
     // Value => meta
-    return createTextElement(meta, props);
+    return createTextVNode(meta, props);
   } else if((component = components[type]) !== undefined) {
     // Resolve Component
     if(component.options.functional === true) {
@@ -60,7 +60,7 @@ const m = function(type, props, meta, children) {
     }
   }
 
-  return createElement(type, props, meta, children);
+  return createVNode(type, props, meta, children);
 
   // In the end, we have a VNode structure like:
   // {
@@ -195,7 +195,7 @@ const createFunctionalComponent = function(props, children, functionalComponent)
  * @param {Object} vnode
  * @param {Object} component
  */
-const createComponentFromVNode = function(node, vnode, component) {
+const createComponent = function(node, vnode, component) {
   const props = component.options.props;
   const attrs = vnode.props.attrs;
   let data = {};
@@ -208,6 +208,7 @@ const createComponentFromVNode = function(node, vnode, component) {
     }
   }
 
+  // Create instance
   const componentInstance = new component.CTor({
     props: data,
     insert: vnode.children
@@ -317,7 +318,7 @@ const diffProps = function(node, nodeProps, vnode, props) {
 const diffComponent = function(node, vnode) {
   if(node.__moon__ === undefined) {
     // Not mounted, create a new instance and mount it here
-    createComponentFromVNode(node, vnode, vnode.meta.component);
+    createComponent(node, vnode, vnode.meta.component);
   } else {
     // Mounted already, need to update
     let componentInstance = node.__moon__;
@@ -365,7 +366,7 @@ const hydrate = function(node, vnode, parent) {
   let component;
 
   if(nodeName !== vnode.type) {
-    replaceChild(node, createNodeFromVNode(vnode), vnode, parent);
+    replaceChild(node, vnode, parent);
   } else if(vnode.type === TEXT_TYPE) {
     // Both are text nodes, update if needed
     if(node.textContent !== vnode.value) {
@@ -376,7 +377,7 @@ const hydrate = function(node, vnode, parent) {
     meta.node = node;
   } else if((component = meta.component) !== undefined) {
     // Component
-    createComponentFromVNode(node, vnode, component);
+    createComponent(node, vnode, component);
   } else {
     // Hydrate
     meta.node = node;
@@ -404,24 +405,24 @@ const hydrate = function(node, vnode, parent) {
 
       let i = 0;
       let currentChildNode = node.firstChild;
-      let vchild = length !== 0 ? children[0] : undefined;
-      let nextSibling = null;
+      let child = length !== 0 ? children[0] : undefined;
+      let nextSibling;
 
-      while(vchild !== undefined || currentChildNode !== null) {
+      while(child !== undefined || currentChildNode !== null) {
         nextSibling = null;
 
         if(currentChildNode === null) {
-          appendChild(createNodeFromVNode(vchild), vchild, node);
+          appendChild(child, node);
         } else {
           nextSibling = currentChildNode.nextSibling;
-          if(vchild === undefined) {
+          if(child === undefined) {
             removeChild(currentChildNode, node);
           } else {
-            hydrate(currentChildNode, vchild, node);
+            hydrate(currentChildNode, child, node);
           }
         }
 
-        vchild = ++i < length ? children[i] : undefined;
+        child = ++i < length ? children[i] : undefined;
         currentChildNode = nextSibling;
       }
     }
@@ -443,7 +444,7 @@ const diff = function(oldVNode, vnode, index, parent, parentVNode) {
   if(oldVNode.type !== vnode.type) {
     // Different types, replace
     parentVNode.children[index] = vnode;
-    replaceChild(oldMeta.node, createNodeFromVNode(vnode), vnode, parent);
+    replaceChild(oldMeta.node, vnode, parent);
   } else if(meta.shouldRender !== undefined) {
     if(vnode.type === TEXT_TYPE) {
       // Text, update if needed
@@ -487,8 +488,7 @@ const diff = function(oldVNode, vnode, index, parent, parentVNode) {
           oldVNode.children = [];
         } else if(oldLength === 0) {
           for(let i = 0; i < newLength; i++) {
-            let child = children[i];
-            appendChild(createNodeFromVNode(child), child, node);
+            appendChild(children[i], node);
           }
           oldVNode.children = children;
         } else {
@@ -502,7 +502,7 @@ const diff = function(oldVNode, vnode, index, parent, parentVNode) {
             } else if(i >= oldLength) {
               // Add extra child
               child = children[i];
-              appendChild(createNodeFromVNode(child), child, node);
+              appendChild(child, node);
               oldChildren.push(child);
             } else {
               // Diff child if they don't have the same reference

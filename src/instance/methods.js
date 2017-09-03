@@ -221,7 +221,7 @@ Moon.prototype.patch = function(old, vnode, parent) {
       const oldRoot = old.meta.node;
 
       // Replace root element
-      const newRoot = createNodeFromVNode(vnode);
+      const newRoot = createNode(vnode);
       parent.replaceChild(newRoot, oldRoot);
 
       // Update Bound Instance
@@ -236,7 +236,7 @@ Moon.prototype.patch = function(old, vnode, parent) {
     // Hydrate
     if(old.nodeName.toLowerCase() !== vnode.type) {
       // Root element changed, replace it
-      const newRoot = createNodeFromVNode(vnode);
+      const newRoot = createNode(vnode);
       parent.replaceChild(newRoot, old);
 
       // Update bound instance

@@ -34,7 +34,7 @@ const addEventListeners = function(node, eventListeners) {
  * @param {Object} vnode
  * @return {Object} DOM Node
  */
-const createNodeFromVNode = function(vnode) {
+const createNode = function(vnode) {
   const type = vnode.type;
   let meta = vnode.meta;
   let node;
@@ -46,17 +46,10 @@ const createNodeFromVNode = function(vnode) {
     let children = vnode.children;
     node = meta.isSVG === 1 ? document.createElementNS("http://www.w3.org/2000/svg", type) : document.createElement(type);
 
-    // Optimization: VNode only has one child that is text, and create it here
-    let firstChild = children[0];
-    if(children.length === 1 && firstChild.type === "#text") {
-      node.textContent = firstChild.value;
-      firstChild.meta.node = node.firstChild;
-    } else {
-      // Add all children
-      for(let i = 0; i < children.length; i++) {
-        const vchild = children[i];
-        appendChild(createNodeFromVNode(vchild), vchild, node);
-      }
+    // Add all children
+    for(let i = 0; i < children.length; i++) {
+      const vchild = children[i];
+      appendChild(vchild, node);
     }
 
     // Add all event listeners
@@ -77,18 +70,28 @@ const createNodeFromVNode = function(vnode) {
 
 /**
  * Appends a Child, Ensuring Components are Mounted
- * @param {Object} node
  * @param {Object} vnode
  * @param {Object} parent
  */
-const appendChild = function(node, vnode, parent) {
-  // Append the node
-  parent.appendChild(node);
-
-  // Check for Component
+const appendChild = function(vnode, parent) {
+  // New Component
   let component = vnode.meta.component;
-  if(component !== undefined) {
-    createComponentFromVNode(node, vnode, component);
+
+  if(component === undefined) {
+    // Create node
+    const node = createNode(vnode);
+
+    // Append node
+    parent.appendChild(node);
+  } else {
+    // Create node
+    const node = document.createElement(vnode.type);
+
+    // Append node
+    parent.appendChild(node);
+
+    // Create Component
+    createComponent(node, vnode, component);
   }
 }
 
@@ -98,10 +101,10 @@ const appendChild = function(node, vnode, parent) {
  * @param {Object} parent
  */
 const removeChild = function(node, parent) {
-  // Check for Component
+  // Check for Existing Component
   let componentInstance = node.__moon__;
   if(componentInstance !== undefined) {
-    // Component was unmounted, destroy it here
+    // Destroy existing component
     componentInstance.destroy();
   }
 
@@ -111,25 +114,27 @@ const removeChild = function(node, parent) {
 
 /**
  * Replaces a Child, Ensuring Components are Unmounted/Mounted
- * @param {Object} oldNode
- * @param {Object} newNode
+ * @param {Object} node
  * @param {Object} vnode
  * @param {Object} parent
  */
-const replaceChild = function(oldNode, newNode, vnode, parent) {
-  // Check for Component
-  let componentInstance = oldNode.__moon__;
+const replaceChild = function(node, vnode, parent) {
+  // Check for Existing Component
+  let componentInstance = node.__moon__;
   if(componentInstance !== undefined) {
-    // Component was unmounted, destroy it here
+    // Destroy existing component
     componentInstance.destroy();
   }
 
-  // Replace the node
-  parent.replaceChild(newNode, oldNode);
-
-  // Check for Component
+  // New Component
   let component = vnode.meta.component;
-  if(component !== undefined) {
-    createComponentFromVNode(newNode, vnode, component);
+  if(component === undefined) {
+    // Create node
+    const newNode = createNode(vnode);
+
+    // Replace the node
+    parent.replaceChild(newNode, node);
+  } else {
+    createComponent(node, vnode, component);
   }
 }
