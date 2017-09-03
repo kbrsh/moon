@@ -24,6 +24,9 @@ let components = {};
 function Moon(options) {
     /* ======= Initial Values ======= */
 
+    if("__ENV__" !== "production" && !(this instanceof Moon)) {
+      error("Moon should be called with the `new` keyword and then you get a beautiful Moon instance")
+    }
     // Options
     if(options === undefined) {
       options = {};
