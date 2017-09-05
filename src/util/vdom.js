@@ -498,7 +498,7 @@ const diff = function(oldVNode, vnode, index, parent, parentVNode) {
           for(let i = 0; i < totalLen; i++) {
             if(i >= newLength) {
               // Remove extra child
-              removeChild(oldChildren.pop().meta.el, node);
+              removeChild(oldChildren.pop().meta.node, node);
             } else if(i >= oldLength) {
               // Add extra child
               child = children[i];
