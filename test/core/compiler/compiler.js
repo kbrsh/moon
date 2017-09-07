@@ -94,6 +94,6 @@ describe("Compiler", function() {
     var app = new Moon({
       root: "#compilerSVG"
     });
-    expect(app.render().children[0].meta.isSVG).to.equal(1);
+    expect(app.render().children[0].meta.SVG).to.equal(1);
   });
 });

@@ -15,6 +15,7 @@ let components = {};
 //=require util/vdom.js
 
 /* ======= Compiler ======= */
+//=require compiler/constants.js
 //=require compiler/template.js
 //=require compiler/lexer.js
 //=require compiler/parser.js
@@ -31,7 +32,7 @@ function Moon(options) {
     this.options = options;
 
     // Readable name/id
-    defineProperty(this, "name", options.name, "root");
+    defineProperty(this, "name", options.name, "Root");
 
     // DOM Node to Mount
     this.root = undefined;
@@ -65,7 +66,7 @@ function Moon(options) {
     this.dom = {};
 
     // Observer
-    this.observer = new Observer(this);
+    this.observer = new Observer();
 
     // State of Queue
     this.queued = true;

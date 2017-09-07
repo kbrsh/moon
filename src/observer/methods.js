@@ -1,5 +1,5 @@
 /**
- * Sets Up Methods
+ * Initializes Methods
  * @param {Object} instance
  * @param {Array} methods
  */
@@ -15,7 +15,7 @@ const initMethods = function(instance, methods) {
     }
   }
 
-  for(const method in methods) {
+  for(let method in methods) {
     initMethod(method, methods[method]);
   }
 }

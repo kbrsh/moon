@@ -1,6 +1,10 @@
 (function(root, factory) {
   /* ======= Global Moon ======= */
-  (typeof module === "object" && module.exports) ? module.exports = factory() : root.Moon = factory();
+  if(typeof module === "undefined") {
+    root.Moon = factory();
+  } else {
+    module.exports = factory();
+  }
 }(this, function() {
     //=require ../dist/moon.js
     return Moon;

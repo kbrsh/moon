@@ -1,85 +1,7 @@
-const openRE = /\{\{/;
-const closeRE = /\s*\}\}/;
-const whitespaceRE = /\s/;
-const expressionRE = /"[^"]*"|'[^']*'|\.\w*[a-zA-Z$_]\w*|\w*[a-zA-Z$_]\w*:|(\w*[a-zA-Z$_]\w*)/g;
-const globals = ["true", "false", "undefined", "null", "NaN", "typeof", "in", "event"];
-
-/**
- * Compiles a Template
- * @param {String} template
- * @param {Array} exclude
- * @param {Array} dependencies
- * @return {String} compiled template
- */
-const compileTemplate = function(template, exclude, dependencies) {
-  let state = {
-    current: 0,
-    template: template,
-    exclude: exclude,
-    dependencies: dependencies
-  };
-
-  return compileTemplateState(state);
-}
-
-const compileTemplateState = function(state) {
-  const template = state.template;
-  const length = template.length;
-  let output = "";
-  while(state.current < length) {
-    // Match Text Between Templates
-    const value = scanTemplateStateUntil(state, openRE);
-
-    if(value.length !== 0) {
-      output += value;
-    }
-
-    // If we've reached the end, there are no more templates
-    if(state.current === length) {
-      break;
-    }
-
-    // Exit Opening Delimiter
-    state.current += 2;
-
-    // Consume whitespace
-    scanTemplateStateForWhitespace(state);
-
-    // Get the value of the expression
-    let name = scanTemplateStateUntil(state, closeRE);
-
-    // If we've reached the end, the tag was unclosed
-    if(state.current === length) {
-      if("__ENV__" !== "production") {
-        error(`Expected closing delimiter "}}" after "${name}"`);
-      }
-      break;
-    }
-
-    if(name.length !== 0) {
-      // Extract Variable References
-      compileTemplateExpression(name, state.exclude, state.dependencies);
-
-      // Add quotes
-      name = `" + ${name} + "`;
-
-      // Generate code
-      output += name;
-    }
-
-    // Consume whitespace
-    scanTemplateStateForWhitespace(state);
-
-    // Exit closing delimiter
-    state.current += 2;
-  }
-
-  return output;
-}
-
 const compileTemplateExpression = function(expression, exclude, dependencies) {
   let dynamic = false;
   let references;
+
   while((references = expressionRE.exec(expression)) !== null) {
     let reference = references[1];
     if(reference !== undefined && dependencies.indexOf(reference) === -1) {
@@ -93,33 +15,42 @@ const compileTemplateExpression = function(expression, exclude, dependencies) {
   return dynamic;
 }
 
-const scanTemplateStateUntil = function(state, re) {
-  const template = state.template;
-  const tail = template.substring(state.current);
-  const index = tail.search(re);
+const compileTemplate = function(template, exclude, dependencies) {
+  const length = template.length;
+  let current = 0;
+  let output = '';
 
-  let match = "";
+  while(current < length) {
+    // Match text
+    const textTail = template.substring(current);
+    const textMatch = textTail.match(openRE);
 
-  switch(index) {
-    case -1:
-      match = tail;
+    if(textMatch === null) {
+      output += textTail;
       break;
-    case 0:
-      match = '';
-      break;
-    default:
-      match = tail.substring(0, index);
+    } else {
+      const textIndex = textMatch.index;
+      output += textTail.substring(0, textIndex);
+      current += textIndex;
+    }
+
+    // Exit opening delimiter
+    current += textMatch[0].length;
+
+    // Get name, and exit closing delimiter
+    const nameTail = template.substring(current);
+    const nameMatch = nameTail.match(closeRE);
+
+    if("__ENV__" !== "production" && nameMatch === null) {
+      error(`Expected closing delimiter after "${nameTail}"`);
+    } else {
+      const nameIndex = nameMatch.index;
+      const name = nameTail.substring(0, nameIndex);
+      compileTemplateExpression(name, exclude, dependencies);
+      output += `" + (${name}) + "`;
+      current += name.length + nameMatch[0].length;
+    }
   }
 
-  state.current += match.length;
-
-  return match;
-}
-
-const scanTemplateStateForWhitespace = function(state) {
-  const template = state.template;
-  let char = template[state.current];
-  while(whitespaceRE.test(char) === true) {
-    char = template[++state.current];
-  }
+  return output;
 }

@@ -83,14 +83,14 @@ Moon.prototype.destroy = function() {
  * @param {Function} handler
  */
 Moon.prototype.on = function(eventName, handler) {
-  // Get list of handlers
-  let handlers = this.events[eventName];
+  let events = this.events;
+  let handlers = events[eventName];
 
   if(handlers === undefined) {
-    // If no handlers, create them
-    this.events[eventName] = [handler];
+    // Create handler
+    events[eventName] = [handler];
   } else {
-    // If there are already handlers, add it to the list of them
+    // Add handler
     handlers.push(handler);
   }
 }
@@ -125,13 +125,20 @@ Moon.prototype.off = function(eventName, handler) {
  * @param {Object} customMeta
  */
 Moon.prototype.emit = function(eventName, customMeta) {
+  // Events
+  const events = this.events;
+
   // Setup metadata to pass to event
-  let meta = customMeta || {};
+  let meta = {};
+  if(customMeta !== undefined) {
+    meta = customMeta;
+  }
+
   meta.type = eventName;
 
   // Get handlers and global handlers
-  let handlers = this.events[eventName];
-  let globalHandlers = this.events['*'];
+  let handlers = events[eventName];
+  let globalHandlers = events['*'];
 
   // Counter
   let i;
@@ -155,20 +162,19 @@ Moon.prototype.emit = function(eventName, customMeta) {
  * Mounts Moon Element
  * @param {String|Object} root
  */
-Moon.prototype.mount = function(root) {
+Moon.prototype.mount = function(rootOption) {
   // Get element from the DOM
-  this.root = typeof root === "string" ? document.querySelector(root) : root;
-
-  if("__ENV__" !== "production" && this.root === null) {
+  let root = this.root = typeof rootOption === "string" ? document.querySelector(rootOption) : rootOption;
+  if("__ENV__" !== "production" && root === null) {
     // Element not found
     error("Element " + this.options.root + " not found");
   }
 
   // Sync Element and Moon instance
-  this.root.__moon__ = this;
+  root.__moon__ = this;
 
-  // Setup template as provided `template` or outerHTML of the Element
-  defineProperty(this, "template", this.options.template, this.root.outerHTML);
+  // Setup template as provided `template` or outerHTML of the node
+  defineProperty(this, "template", this.options.template, root.outerHTML);
 
   // Setup render Function
   if(this.compiledRender === noop) {
@@ -178,7 +184,7 @@ Moon.prototype.mount = function(root) {
   // Remove queued state
   this.queued = false;
 
-  // Run First Build
+  // Build
   this.build();
 
   // Call mounted hook
@@ -190,72 +196,42 @@ Moon.prototype.mount = function(root) {
  * @return {Object} Virtual DOM
  */
 Moon.prototype.render = function() {
-  // Call render function
   return this.compiledRender(m);
 }
 
 /**
- * Diff then Patches Nodes With Data
- * @param {Object} old
- * @param {Object} vnode
- * @param {Object} parent
- */
-Moon.prototype.patch = function(old, vnode, parent) {
-  if(old.meta !== undefined) {
-    // If it is a VNode, then diff
-    if(vnode.type !== old.type) {
-      // Root element changed during diff
-      const oldRoot = old.meta.node;
-
-      // Replace root element
-      const newRoot = createNode(vnode);
-      parent.replaceChild(newRoot, oldRoot);
-
-      // Update Bound Instance
-      newRoot.__moon__ = this;
-      this.root = newRoot;
-    } else {
-      // Diff
-      diff(old, vnode, 0, parent, {});
-    }
-
-  } else if(old instanceof Node) {
-    // Hydrate
-    if(old.nodeName.toLowerCase() !== vnode.type) {
-      // Root element changed, replace it
-      const newRoot = createNode(vnode);
-      parent.replaceChild(newRoot, old);
-
-      // Update bound instance
-      newRoot.__moon__ = this;
-      this.root = newRoot;
-    } else {
-      hydrate(old, vnode, parent);
-    }
-  }
-}
-
-/**
- * Render and Patches the DOM With Data
+ * Renders and Patches the DOM
  */
 Moon.prototype.build = function() {
-  // Get new virtual DOM
+  const root = this.root;
   const dom = this.render();
+  let old = this.dom;
 
-  // Old item to patch
-  let old;
+  if(old.meta === undefined) {
+    // Hydrate
+    if(root.nodeName.toLowerCase() === dom.type) {
+      hydrate(root, dom, root.parentNode);
+    } else {
+      const newRoot = createNode(dom);
+      root.parentNode.replaceChild(newRoot, root);
 
-  if(this.dom.meta !== undefined) {
-    // If old virtual dom exists, patch against it
-    old = this.dom;
-  } else {
-    // No virtual DOM, patch with actual DOM element, and setup virtual DOM
-    old = this.root;
+      newRoot.__moon__ = this;
+      this.root = newRoot;
+    }
+
     this.dom = dom;
-  }
+  } else {
+    // Diff
+    if(dom.type === old.type) {
+      diff(old, dom, 0, root.parentNode, {});
+    } else {
+      const newRoot = createNode(dom);
+      root.parentNode.replaceChild(newRoot, root);
 
-  // Patch old and new
-  this.patch(old, dom, this.root.parentNode);
+      newRoot.__moon__ = this;
+      this.root = newRoot;
+    }
+  }
 }
 
 /**

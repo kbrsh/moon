@@ -1,11 +1,8 @@
-function Observer(instance) {
-  // Associated Moon Instance
-  this.instance = instance;
-
-  // Computed Property Cache
+function Observer() {
+  // Computed property cache
   this.cache = {};
 
-  // Property Currently Being Observed for Dependencies
+  // Property currently being observed
   this.target = undefined;
 
   // Dependency Map

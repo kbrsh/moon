@@ -1,16 +1,5 @@
 /* ======= Global Utilities ======= */
 
-const escapeRE = /(?:(?:&(?:lt|gt|quot|amp);)|"|\\|\n)/g;
-const escapeMap = {
-  "&lt;": "<",
-  "&gt;": ">",
-  "&quot;": "\\\"",
-  "&amp;": "&",
-  "\\": "\\\\",
-  "\"": "\\\"",
-  "\n": "\\n"
-}
-
 /**
  * Logs a Message
  * @param {String} msg
@@ -59,20 +48,6 @@ const callHook = function(instance, name) {
 }
 
 /**
- * Extends an Object with another Object's properties
- * @param {Object} parent
- * @param {Object} child
- * @return {Object} Extended Parent
- */
-const extend = function(parent, child) {
-  for(let key in child) {
-    parent[key] = child[key];
-  }
-
-  return parent;
-}
-
-/**
  * Defines a Property on an Object or a Default Value
  * @param {Object} obj
  * @param {String} prop
@@ -88,17 +63,7 @@ const defineProperty = function(obj, prop, value, def) {
 }
 
 /**
- * Escapes a String
- * @param {String} str
- */
-const escapeString = function(str) {
-  return str.replace(escapeRE, function(match) {
-    return escapeMap[match];
-  });
-}
-
-/**
- * Does No Operation
+ * No Operation
  */
 const noop = function() {
 

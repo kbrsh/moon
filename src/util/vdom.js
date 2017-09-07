@@ -1,9 +1,4 @@
 /**
- * Text VNode/Node Type
- */
-const TEXT_TYPE = "#text";
-
-/**
  * Creates a Virtual DOM Node
  * @param {String} type
  * @param {Object} props
@@ -28,7 +23,7 @@ const createVNode = function(type, props, meta, children) {
  */
 const createTextVNode = function(value, meta) {
   return {
-    type: TEXT_TYPE,
+    type: "#text",
     value: value,
     meta: meta
   };
@@ -45,7 +40,7 @@ const createTextVNode = function(value, meta) {
 const m = function(type, props, meta, children) {
   let component;
 
-  if(type === TEXT_TYPE) {
+  if(type === "#text") {
     // Text Node
     // Type => #text
     // Meta => props
@@ -62,7 +57,7 @@ const m = function(type, props, meta, children) {
 
   return createVNode(type, props, meta, children);
 
-  // In the end, we have a VNode structure like:
+  // VNode Structure
   // {
   //  type: 'h1', <= nodename
   //  props: {
@@ -78,7 +73,7 @@ const m = function(type, props, meta, children) {
 /**
  * Empty Text Node
  */
-m.emptyVNode = m("#text", {}, "");
+m.emptyVNode = m("#text", {}, '');
 
 /**
  * Renders a Class in Array/Object Form
@@ -87,28 +82,26 @@ m.emptyVNode = m("#text", {}, "");
  */
 m.renderClass = function(classNames) {
   if(typeof classNames === "string") {
-    // If they are a string, no need for any more processing
     return classNames;
-  }
-
-  let renderedClassNames = '';
-  if(Array.isArray(classNames)) {
-    // It's an array, so go through them all and generate a string
-    for(let i = 0; i < classNames.length; i++) {
-      renderedClassNames += `${m.renderClass(classNames[i])} `;
-    }
-  } else if(typeof classNames === "object") {
-    // It's an object, so to through and render them to a string if the corresponding condition is truthy
-    for(let className in classNames) {
-      if(classNames[className]) {
-        renderedClassNames += `${className} `;
+  } else {
+    let renderedClassNames = '';
+    if(Array.isArray(classNames)) {
+      // It's an array, so go through them all and generate a string
+      for(let i = 0; i < classNames.length; i++) {
+        renderedClassNames += ` ${m.renderClass(classNames[i])}`;
+      }
+    } else if(typeof classNames === "object") {
+      // It's an object, so to through and render them to a string if the corresponding condition is truthy
+      for(let className in classNames) {
+        if(classNames[className]) {
+          renderedClassNames += ` ${className}`;
+        }
       }
     }
-  }
 
-  // Remove trailing space and return
-  renderedClassNames = renderedClassNames.slice(0, -1);
-  return renderedClassNames;
+    renderedClassNames = renderedClassNames.substring(1);
+    return renderedClassNames;
+  }
 }
 
 /**
@@ -120,23 +113,18 @@ m.renderLoop = function(iteratable, item) {
   let items;
 
   if(Array.isArray(iteratable)) {
-    items = new Array(iteratable.length);
-
-    // Iterate through the array
-    for(let i = 0; i < iteratable.length; i++) {
+    const length = iteratable.length;
+    items = new Array(length);
+    for(let i = 0; i < length; i++) {
       items[i] = item(iteratable[i], i);
     }
   } else if(typeof iteratable === "object") {
     items = [];
-
-    // Iterate through the object
     for(let key in iteratable) {
       items.push(item(iteratable[key], key));
     }
   } else if(typeof iteratable === "number") {
     items = new Array(iteratable);
-
-    // Repeat a certain amount of times
     for(let i = 0; i < iteratable; i++) {
       items[i] = item(i + 1, i);
     }
@@ -144,15 +132,6 @@ m.renderLoop = function(iteratable, item) {
 
   return items;
 }
-
-/**
- * Renders an Event Modifier
- * @param {Number} keyCode
- * @param {String} modifier
- */
- m.renderEventModifier = function(keyCode, modifier) {
-  return keyCode === eventModifiers[modifier];
- }
 
 /**
  * Creates a Functional Component
@@ -223,7 +202,7 @@ const createComponent = function(node, vnode, component) {
       if((handlers = events[eventType]) === undefined) {
         events[eventType] = eventListeners[eventType];
       } else {
-        events[eventType] = handlers.concat(eventListeners[eventType]);
+        events[eventType] = eventListeners[eventType].concat(handlers);
       }
     }
   }
@@ -233,23 +212,6 @@ const createComponent = function(node, vnode, component) {
 
   // Rehydrate
   vnode.meta.node = componentInstance.root;
-}
-
-/**
- * Diffs Event Listeners of Two VNodes
- * @param {Object} node
- * @param {Object} eventListeners
- * @param {Object} oldEventListeners
- */
-const diffEventListeners = function(node, eventListeners, oldEventListeners) {
-  for(let type in eventListeners) {
-    const oldEventListener = oldEventListeners[type];
-    if(oldEventListener === undefined) {
-      addEventHandler(node, type, eventListeners);
-    } else {
-      oldEventListeners[type].handlers = eventListeners[type];
-    }
-  }
 }
 
 /**
@@ -288,12 +250,12 @@ const diffProps = function(node, nodeProps, vnode, props) {
   // Execute any directives
   let vnodeDirectives = props.directives;
   if(vnodeDirectives !== undefined) {
-    for(let directive in vnodeDirectives) {
-      let directiveFn = directives[directive];
-      if(directiveFn !== undefined) {
-        directiveFn(node, vnodeDirectives[directive], vnode);
+    for(let directiveName in vnodeDirectives) {
+      let directive = directives[directiveName];
+      if(directive !== undefined) {
+        directive(node, vnodeDirectives[directiveName], vnode);
       } else if("__ENV__" !== "production") {
-        error(`Could not find directive "${directive}"`);
+        error(`Could not find directive "${directiveName}"`);
       }
     }
   }
@@ -367,7 +329,7 @@ const hydrate = function(node, vnode, parent) {
 
   if(nodeName !== vnode.type) {
     replaceChild(node, vnode, parent);
-  } else if(vnode.type === TEXT_TYPE) {
+  } else if(vnode.type === "#text") {
     // Both are text nodes, update if needed
     if(node.textContent !== vnode.value) {
       node.textContent = vnode.value;
@@ -405,23 +367,21 @@ const hydrate = function(node, vnode, parent) {
 
       let i = 0;
       let currentChildNode = node.firstChild;
-      let child = length !== 0 ? children[0] : undefined;
-      let nextSibling;
+      let child = length === 0 ? undefined : children[0];
+      let nextSibling = null;
 
       while(child !== undefined || currentChildNode !== null) {
-        nextSibling = null;
-
         if(currentChildNode === null) {
-          appendChild(child, node);
+          nextSibling = null;
+          appendChild(children[i], node);
         } else {
           nextSibling = currentChildNode.nextSibling;
-          if(child === undefined) {
+          if(i >= length) {
             removeChild(currentChildNode, node);
           } else {
-            hydrate(currentChildNode, child, node);
+            hydrate(currentChildNode, children[i], node);
           }
         }
-
         child = ++i < length ? children[i] : undefined;
         currentChildNode = nextSibling;
       }
@@ -445,8 +405,8 @@ const diff = function(oldVNode, vnode, index, parent, parentVNode) {
     // Different types, replace
     parentVNode.children[index] = vnode;
     replaceChild(oldMeta.node, vnode, parent);
-  } else if(meta.shouldRender !== undefined) {
-    if(vnode.type === TEXT_TYPE) {
+  } else if(meta.dynamic !== undefined) {
+    if(vnode.type === "#text") {
       // Text, update if needed
       const value = vnode.value;
       if(oldVNode.value !== value) {
@@ -468,10 +428,13 @@ const diff = function(oldVNode, vnode, index, parent, parentVNode) {
       // Diff event listeners
       let eventListeners = meta.eventListeners;
       if(eventListeners !== undefined) {
-        diffEventListeners(node, eventListeners, oldMeta.eventListeners);
+        let oldEventListeners = oldMeta.eventListeners;
+        for(let type in eventListeners) {
+          oldEventListeners[type].handlers = eventListeners[type];
+        }
       }
 
-      // Ensure innerHTML wasn't changed
+      // Ensure innerHTML and textContent weren't changed
       const domProps = props.dom;
       if(domProps === undefined || (domProps.innerHTML === undefined && domProps.textContent === undefined)) {
         // Diff children
@@ -480,8 +443,8 @@ const diff = function(oldVNode, vnode, index, parent, parentVNode) {
         const newLength = children.length;
         const oldLength = oldChildren.length;
 
-        if(newLength === 0 && oldLength !== 0) {
-          let firstChild = null;
+        if(newLength === 0) {
+          let firstChild;
           while((firstChild = node.firstChild) !== null) {
             removeChild(firstChild, node);
           }

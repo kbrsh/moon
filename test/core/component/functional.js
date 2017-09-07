@@ -5,7 +5,7 @@ describe("Functional Component", function() {
     Moon.extend("functional-component", {
       functional: true,
       render: function(m, ctx) {
-        return m("h1", {attrs: {}}, {shouldRender: 1}, []);
+        return m("h1", {attrs: {}}, {dynamic: 1}, []);
       }
     });
 
@@ -25,8 +25,8 @@ describe("Functional Component", function() {
       functional: true,
       props: ["someprop"],
       render: function(m, ctx) {
-        return m("h1", {attrs: {}}, {shouldRender: 1}, [
-          m("#text", {shouldRender: 1}, ctx.data.someprop)
+        return m("h1", {attrs: {}}, {dynamic: 1}, [
+          m("#text", {dynamic: 1}, ctx.data.someprop)
         ]);
       }
     });
@@ -59,9 +59,9 @@ describe("Functional Component", function() {
     Moon.extend("functional-component-insertion", {
       functional: true,
       render: function(m, ctx) {
-        return m("div", {attrs: {}}, {shouldRender: 1}, [
-          m("h1", {}, {shouldRender: 1}, ctx.insert)
-          // m("h1", {attrs: {}}, {shouldRender: 1}, ctx.slots.named)
+        return m("div", {attrs: {}}, {dynamic: 1}, [
+          m("h1", {}, {dynamic: 1}, ctx.insert)
+          // m("h1", {attrs: {}}, {dynamic: 1}, ctx.slots.named)
         ]);
       }
     });

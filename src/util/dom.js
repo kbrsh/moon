@@ -6,17 +6,17 @@
  */
 const addEventHandler = function(node, type, eventListeners) {
   // Create handle function
-  const handle = function(evt) {
+  const handle = function(event) {
     const handlers = handle.handlers;
     for(let i = 0; i < handlers.length; i++) {
-      handlers[i](evt);
+      handlers[i](event);
     }
   }
 
   // Add handlers to handle
   handle.handlers = eventListeners[type];
 
-  // Add handler to vnode
+  // Add handler to VNode
   eventListeners[type] = handle;
 
   // Add event listener
@@ -44,12 +44,11 @@ const createNode = function(vnode) {
     node = document.createTextNode(vnode.value);
   } else {
     let children = vnode.children;
-    node = meta.isSVG === 1 ? document.createElementNS("http://www.w3.org/2000/svg", type) : document.createElement(type);
+    node = meta.SVG === 1 ? document.createElementNS("http://www.w3.org/2000/svg", type) : document.createElement(type);
 
-    // Add all children
+    // Append all children
     for(let i = 0; i < children.length; i++) {
-      const vchild = children[i];
-      appendChild(vchild, node);
+      appendChild(children[i], node);
     }
 
     // Add all event listeners
@@ -76,7 +75,6 @@ const createNode = function(vnode) {
 const appendChild = function(vnode, parent) {
   // New Component
   let component = vnode.meta.component;
-
   if(component === undefined) {
     // Create node
     const node = createNode(vnode);

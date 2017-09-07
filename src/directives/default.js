@@ -17,6 +17,7 @@ const addEventListenerCodeToNode = function(name, handler, node) {
   if(eventListeners === undefined) {
     eventListeners = meta.eventListeners = {};
   }
+
   let eventHandlers = eventListeners[name];
   if(eventHandlers === undefined) {
     eventListeners[name] = [handler];
@@ -30,6 +31,7 @@ const addDomPropertyCodeToNode = function(name, code, node) {
   if(dom === undefined) {
     node.props.dom = dom = {};
   }
+
   dom[name] = code;
 }
 
@@ -58,7 +60,7 @@ specialDirectives["m-if"] = {
       }
     }
 
-    node.meta.shouldRender = 1;
+    node.meta.dynamic = 1;
   },
   afterGenerate: function(prop, code, node, parentNode, state) {
     const value = prop.value;
@@ -90,14 +92,15 @@ specialDirectives["m-for"] = {
     // Aliases
     const aliases = parts[0];
 
-    // Iteratable
+    // Save information
     const iteratable = parts[1];
     const exclude = state.exclude;
     prop.data.forInfo = [iteratable, aliases, exclude];
-    state.exclude = exclude.concat(aliases.split(","));
-    compileTemplateExpression(iteratable, exclude, state.dependencies)
+    state.exclude = exclude.concat(aliases.split(','));
+    compileTemplateExpression(iteratable, exclude, state.dependencies);
 
-    node.meta.shouldRender = 1;
+    // Mark as dynamic
+    node.meta.dynamic = 1;
   },
   afterGenerate: function(prop, code, node, parentNode, state) {
     // Get information about parameters
@@ -107,19 +110,19 @@ specialDirectives["m-for"] = {
     state.exclude = forInfo[2];
 
     // Use the renderLoop runtime helper
-    return `m.renderLoop(${forInfo[0]}, function(${forInfo[1]}) { return ${code}; })`;
+    return `m.renderLoop(${forInfo[0]}, function(${forInfo[1]}) {return ${code};})`;
   }
 };
 
 specialDirectives["m-on"] = {
   beforeGenerate: function(prop, node, parentNode, state) {
     // Get list of modifiers
-    let modifiers = prop.arg.split(".");
+    let modifiers = prop.arg.split('.');
     const eventType = modifiers.shift();
 
     // Get method code
     let methodCode = prop.value;
-    if(methodCode.indexOf("(") === -1) {
+    if(methodCode.indexOf('(') === -1) {
       methodCode += "(event)";
     }
 
@@ -127,7 +130,7 @@ specialDirectives["m-on"] = {
     compileTemplateExpression(methodCode, state.exclude, state.dependencies)
 
     // Generate any modifiers
-    let modifiersCode = "";
+    let modifiersCode = '';
     for(let i = 0; i < modifiers.length; i++) {
       const modifier = modifiers[i];
       const eventModifierCode = eventModifiersCode[modifier];
@@ -139,7 +142,7 @@ specialDirectives["m-on"] = {
     }
 
     // Mark as dynamic
-    node.meta.shouldRender = 1;
+    node.meta.dynamic = 1;
 
     // Generate event listener code and install handler
     const code = `function(event) {${modifiersCode}${methodCode};}`;
@@ -149,11 +152,9 @@ specialDirectives["m-on"] = {
 
 specialDirectives["m-bind"] = {
   beforeGenerate: function(prop, node, parentNode, state) {
-    const dependencies = state.dependencies;
-    const exclude = state.exclude;
     let value = prop.value;
 
-    compileTemplateExpression(value, exclude, dependencies);
+    compileTemplateExpression(value, state.exclude, state.dependencies);
 
     const dynamicIndex = value.search(hashRE);
     let base;
@@ -169,7 +170,7 @@ specialDirectives["m-bind"] = {
     let instanceValue = "event.target.value";
     let domKey = "value";
     let domValue = value;
-    let code = "";
+    let code = '';
 
     if(dynamicIndex === -1) {
       code = `function(event) {instance.set("${instanceKey}", ${instanceValue});}`;
@@ -177,7 +178,7 @@ specialDirectives["m-bind"] = {
       code = `function(event) {var boundValue = instance.get("${base}");boundValue${properties} = ${instanceValue};instance.set("${base}", boundValue);}`;
     }
 
-    node.meta.shouldRender = 1;
+    node.meta.dynamic = 1;
     addEventListenerCodeToNode(eventType, code, node);
     addDomPropertyCodeToNode(domKey, domValue, node);
   }
@@ -185,23 +186,23 @@ specialDirectives["m-bind"] = {
 
 specialDirectives["m-literal"] = {
   duringPropGenerate: function(prop, node, parentNode, state) {
-    let modifiers = prop.arg.split(".");
-
+    let modifiers = prop.arg.split('.');
     const propName = modifiers.shift();
     const propValue = prop.value;
 
     if(compileTemplateExpression(propValue, state.exclude, state.dependencies)) {
-      node.meta.shouldRender = 1;
+      node.meta.dynamic = 1;
     }
 
     if(modifiers[0] === "dom") {
+      // Literal DOM property
       addDomPropertyCodeToNode(propName, propValue, node);
-      return "";
+      return '';
     } else if(propName === "class") {
-      // Detected class, use runtime class render helper
+      // Detect class at runtime
       return `"class": m.renderClass(${propValue}), `;
     } else {
-      // Default literal attribute
+      // Literal attribute
       return `"${propName}": ${propValue}, `;
     }
   }

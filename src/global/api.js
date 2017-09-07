@@ -17,9 +17,8 @@ Moon.version = "__VERSION__";
  */
 Moon.util = {
   noop: noop,
-  error: error,
   log: log,
-  extend: extend,
+  error: error,
   m: m
 }
 
@@ -64,8 +63,6 @@ Moon.directive = function(name, action) {
  * @param {Object} options
  */
 Moon.extend = function(name, options) {
-  let Parent = this;
-
   if(options.name !== undefined) {
     name = options.name;
   } else {
@@ -87,8 +84,9 @@ Moon.extend = function(name, options) {
       this.insert = componentOptions.insert;
 
       if(props !== undefined) {
+        let data = this.data;
         for(let prop in props) {
-          this.data[prop] = props[prop];
+          data[prop] = props[prop];
         }
       }
 
@@ -98,7 +96,7 @@ Moon.extend = function(name, options) {
     }
   }
 
-  MoonComponent.prototype = Object.create(Parent.prototype);
+  MoonComponent.prototype = Object.create(this.prototype);
   MoonComponent.prototype.constructor = MoonComponent;
 
   MoonComponent.prototype.init = function() {

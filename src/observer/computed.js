@@ -4,33 +4,32 @@
  * @param {Object} computed
  */
 const initComputed = function(instance, computed) {
-  let setComputedProperty = function(prop) {
+  const setComputedProperty = function(prop) {
     const observer = instance.observer;
     const option = computed[prop];
     const getter = option.get;
     const setter = option.set;
 
-    // Add Getters
+    // Add getter/setter
     Object.defineProperty(instance.data, prop, {
       get: function() {
         // Property Cache
         let cache;
 
-        // If no cache, create it
         if(observer.cache[prop] === undefined) {
-          // Capture Dependencies
+          // Capture dependencies
           observer.target = prop;
 
           // Invoke getter
           cache = getter.call(instance);
 
-          // Stop Capturing Dependencies
+          // Stop capturing dependencies
           observer.target = undefined;
 
           // Store value in cache
           observer.cache[prop] = cache;
         } else {
-          // Cache found, use it
+          // Use cached value
           cache = observer.cache[prop];
         }
 
@@ -42,7 +41,7 @@ const initComputed = function(instance, computed) {
     });
   }
 
-  // Set All Computed Properties
+  // Set all computed properties
   for(let propName in computed) {
     setComputedProperty(propName);
   }
