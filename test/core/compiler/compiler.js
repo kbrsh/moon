@@ -92,7 +92,8 @@ describe("Compiler", function() {
   it("should compile and mark SVG elements", function() {
     var el = createTestElement("compilerSVG", '<svg></svg>');
     var app = new Moon({
-      root: "#compilerSVG"
+      root: "#compilerSVG",
+      template: `<div id="compilerSVG"><svg></svg></div>`
     });
     expect(app.render().children[0].meta.SVG).to.equal(1);
   });
