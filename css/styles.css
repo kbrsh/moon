@@ -1,6 +1,7 @@
 body {
   background: #111111;
   color: #f5f5f5;
+  font-family: -apple-system, BlinkMacSystemFont, Avenir, "Avenir Next", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -55,14 +56,13 @@ p {
 }
 
 #nav a {
-  font-family: "Inconsolata", monospace;
   color: #a8a8a8;
   text-decoration: none;
   transition: all 0.2s ease;
 }
 
 #nav a:hover {
-  color: #6e6d6d;
+  color: #4c47f9;
 }
 
 .algolia-autocomplete {
@@ -95,7 +95,6 @@ p {
 
 .cta:hover {
   color: #f5f5f5;
-  background: #3f39fc;
   padding: 1.7rem 5.3rem;
 }
 
@@ -106,7 +105,7 @@ p {
 
 @media screen and (max-width: 768px) {
   #hero h1 {
-    font-size: 4rem;
+    font-size: 4.5rem;
   }
 
   #hero h3 {
