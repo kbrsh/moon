@@ -1070,7 +1070,7 @@
             elements.pop();
             lastIndex--;
           } else {
-            var type = token.value.toLowerCase();
+            var type = token.value;
             var node = {
               type: type,
               props: token.attributes,
@@ -1078,7 +1078,7 @@
             };
             elements[lastIndex].children.push(node);
     
-            if(token.closeEnd === false || VOID_ELEMENTS.indexOf(type) === -1) {
+            if(token.closeEnd === false && VOID_ELEMENTS.indexOf(type) === -1) {
               if(SVG_ELEMENTS.indexOf(type) !== -1) {
                 node.SVG = true;
               } else if(HTML_ELEMENTS.indexOf(type) === -1) {
