@@ -1,14 +1,21 @@
 const compileTemplateExpression = function(expression, exclude, dependencies) {
+  let props = dependencies.props;
+  let methods = dependencies.methods;
   let dynamic = false;
-  let references;
+  let info;
 
-  while((references = expressionRE.exec(expression)) !== null) {
-    let reference = references[1];
-    if(reference !== undefined && dependencies.indexOf(reference) === -1) {
-      if(exclude.indexOf(reference) === -1) {
-        dependencies.push(reference);
+  while((info = expressionRE.exec(expression)) !== null) {
+    let match = info[0];
+    let name = info[1];
+    if(name !== undefined && exclude.indexOf(name) === -1) {
+      if(match[match.length - 1] === "(") {
+        if(methods.indexOf(name) === -1) {
+          methods.push(name);
+        }
+      } else if(props.indexOf(name) === -1) {
+        props.push(name);
+        dynamic = true;
       }
-      dynamic = true;
     }
   }
 
@@ -37,18 +44,18 @@ const compileTemplate = function(template, exclude, dependencies) {
     // Exit opening delimiter
     current += textMatch[0].length;
 
-    // Get name, and exit closing delimiter
-    const nameTail = template.substring(current);
-    const nameMatch = nameTail.match(closeRE);
+    // Get expression, and exit closing delimiter
+    const expressionTail = template.substring(current);
+    const expressionMatch = expressionTail.match(closeRE);
 
-    if("__ENV__" !== "production" && nameMatch === null) {
-      error(`Expected closing delimiter after "${nameTail}"`);
+    if("__ENV__" !== "production" && expressionMatch === null) {
+      error(`Expected closing delimiter after "${expressionTail}"`);
     } else {
-      const nameIndex = nameMatch.index;
-      const name = nameTail.substring(0, nameIndex);
-      compileTemplateExpression(name, exclude, dependencies);
-      output += `" + (${name}) + "`;
-      current += name.length + nameMatch[0].length;
+      const expressionIndex = expressionMatch.index;
+      const expression = expressionTail.substring(0, expressionIndex);
+      compileTemplateExpression(expression, exclude, dependencies);
+      output += `" + (${expression}) + "`;
+      current += expression.length + expressionMatch[0].length;
     }
   }
 

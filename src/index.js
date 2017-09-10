@@ -5,14 +5,15 @@ let directives = {};
 let specialDirectives = {};
 let components = {};
 
+/* ======= Utilities ======= */
+//=require util/util.js
+//=require util/dom.js
+//=require util/vdom.js
+
 /* ======= Observer ======= */
 //=require observer/methods.js
 //=require observer/computed.js
 //=require observer/observer.js
-
-//=require util/util.js
-//=require util/dom.js
-//=require util/vdom.js
 
 /* ======= Compiler ======= */
 //=require compiler/constants.js
@@ -31,13 +32,13 @@ function Moon(options) {
     }
     this.options = options;
 
-    // Readable name/id
+    // Name/ID
     defineProperty(this, "name", options.name, "Root");
 
-    // DOM Node to Mount
+    // Root DOM Node
     this.root = undefined;
 
-    // Custom Data
+    // Data
     const data = options.data;
     if(data === undefined) {
       this.data = {};
@@ -47,17 +48,18 @@ function Moon(options) {
       this.data = data;
     }
 
-    // Render function
+    // Methods
+    const methods = options.methods;
+    this.methods = {};
+    if(methods !== undefined) {
+      initMethods(this, methods);
+    }
+
+    // Compiled render function
     defineProperty(this, "compiledRender", options.render, noop);
 
     // Hooks
     defineProperty(this, "hooks", options.hooks, {});
-
-    // Custom Methods
-    const methods = options.methods;
-    if(methods !== undefined) {
-      initMethods(this, methods);
-    }
 
     // Events
     this.events = {};
@@ -68,21 +70,24 @@ function Moon(options) {
     // Observer
     this.observer = new Observer();
 
-    // State of Queue
+    // Queued state
     this.queued = true;
 
-    // Setup Computed Properties
+    // Initialize computed properties
     const computed = options.computed;
     if(computed !== undefined) {
       initComputed(this, computed);
     }
 
-    /* ======= Initialize 🎉 ======= */
+    // Initialize
     this.init();
 }
 
+/* ======= Instance Methods ======= */
 //=require instance/methods.js
 
+/* ======= Global API ======= */
 //=require global/api.js
 
+/* ======= Default Directives ======= */
 //=require directives/default.js

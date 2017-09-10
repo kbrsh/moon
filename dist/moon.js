@@ -20,108 +20,7 @@
     var specialDirectives = {};
     var components = {};
     
-    /* ======= Observer ======= */
-    /**
-     * Initializes Methods
-     * @param {Object} instance
-     * @param {Array} methods
-     */
-    var initMethods = function(instance, methods) {
-      var data = instance.data;
-    
-      var initMethod = function(methodName, method) {
-        if("development" !== "production" && data.hasOwnProperty(methodName) === true) {
-          error(("Method \"" + methodName + "\" has the same key as a data property and will overwrite it"));
-        }
-        data[methodName] = function() {
-          return method.apply(instance, arguments);
-        }
-      }
-    
-      for(var method in methods) {
-        initMethod(method, methods[method]);
-      }
-    }
-    
-    /**
-     * Makes Computed Properties for an Instance
-     * @param {Object} instance
-     * @param {Object} computed
-     */
-    var initComputed = function(instance, computed) {
-      var setComputedProperty = function(prop) {
-        var observer = instance.observer;
-        var option = computed[prop];
-        var getter = option.get;
-        var setter = option.set;
-    
-        // Add getter/setter
-        Object.defineProperty(instance.data, prop, {
-          get: function() {
-            // Property Cache
-            var cache;
-    
-            if(observer.cache[prop] === undefined) {
-              // Capture dependencies
-              observer.target = prop;
-    
-              // Invoke getter
-              cache = getter.call(instance);
-    
-              // Stop capturing dependencies
-              observer.target = undefined;
-    
-              // Store value in cache
-              observer.cache[prop] = cache;
-            } else {
-              // Use cached value
-              cache = observer.cache[prop];
-            }
-    
-            return cache;
-          },
-          set: setter === undefined ? noop : function(val) {
-            setter.call(instance, val);
-          }
-        });
-      }
-    
-      // Set all computed properties
-      for(var propName in computed) {
-        setComputedProperty(propName);
-      }
-    }
-    
-    function Observer() {
-      // Computed property cache
-      this.cache = {};
-    
-      // Property currently being observed
-      this.target = undefined;
-    
-      // Dependency Map
-      this.map = {};
-    }
-    
-    Observer.prototype.notify = function(key) {
-      var this$1 = this;
-    
-      var map = this.map[key];
-      if(map !== undefined) {
-        for(var i = 0; i < map.length; i++) {
-          this$1.notify(map[i]);
-        }
-      }
-    
-      var cache = this.cache;
-      if(cache[key] !== undefined) {
-        cache[key] = undefined;
-      }
-    }
-    
-    
-    /* ======= Global Utilities ======= */
-    
+    /* ======= Utilities ======= */
     /**
      * Logs a Message
      * @param {String} msg
@@ -816,6 +715,96 @@
     }
     
     
+    /* ======= Observer ======= */
+    var initMethods = function(instance, methods) {
+      var instanceMethods = instance.methods;
+    
+      var initMethod = function(methodName, method) {
+        // Change context of method
+        instanceMethods[methodName] = function() {
+          return method.apply(instance, arguments);
+        }
+      }
+    
+      for(var method in methods) {
+        initMethod(method, methods[method]);
+      }
+    }
+    
+    var initComputed = function(instance, computed) {
+      var setComputedProperty = function(prop) {
+        var observer = instance.observer;
+        var option = computed[prop];
+        var getter = option.get;
+        var setter = option.set;
+    
+        // Add getter/setter
+        Object.defineProperty(instance.data, prop, {
+          get: function() {
+            // Property Cache
+            var cache;
+    
+            if(observer.cache[prop] === undefined) {
+              // Capture dependencies
+              observer.target = prop;
+    
+              // Invoke getter
+              cache = getter.call(instance);
+    
+              // Stop capturing dependencies
+              observer.target = undefined;
+    
+              // Store value in cache
+              observer.cache[prop] = cache;
+            } else {
+              // Use cached value
+              cache = observer.cache[prop];
+            }
+    
+            return cache;
+          },
+          set: setter === undefined ? noop : function(val) {
+            setter.call(instance, val);
+          }
+        });
+      }
+    
+      // Set all computed properties
+      for(var propName in computed) {
+        setComputedProperty(propName);
+      }
+    }
+    
+    function Observer() {
+      // Property currently being observed
+      this.target = undefined;
+      
+      // Computed property cache
+      this.cache = {};
+    
+      // Dependency Map
+      this.map = {};
+    }
+    
+    Observer.prototype.notify = function(key) {
+      var this$1 = this;
+    
+      // Notify all dependent keys
+      var map = this.map[key];
+      if(map !== undefined) {
+        for(var i = 0; i < map.length; i++) {
+          this$1.notify(map[i]);
+        }
+      }
+    
+      // Clear cache for key
+      var cache = this.cache;
+      if(cache[key] !== undefined) {
+        cache[key] = undefined;
+      }
+    }
+    
+    
     /* ======= Compiler ======= */
     // Opening delimiter
     var openRE = /\{\{\s*/;
@@ -833,7 +822,7 @@
     var tagOrCommentStartRE = /<\/?(?:[A-Za-z]+\w*)|<!--/;
     
     // Dynamic expressions
-    var expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
+    var expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)(?:\s*\()?/g;
     
     // HTML Escapes
     var escapeRE = /(?:(?:&(?:lt|gt|quot|amp);)|"|\\|\n)/g;
@@ -856,16 +845,23 @@
     var SVG_ELEMENTS = ["animate", "circle", "clippath", "cursor", "defs", "desc", "ellipse", "filter", "font-face", "foreignObject", "g", "glyph", "image", "line", "marker", "mask", "missing-glyph", "path", "pattern", "polygon", "polyline", "rect", "svg", "switch", "symbol", "text", "textpath", "tspan", "use", "view"];
     
     var compileTemplateExpression = function(expression, exclude, dependencies) {
+      var props = dependencies.props;
+      var methods = dependencies.methods;
       var dynamic = false;
-      var references;
+      var info;
     
-      while((references = expressionRE.exec(expression)) !== null) {
-        var reference = references[1];
-        if(reference !== undefined && dependencies.indexOf(reference) === -1) {
-          if(exclude.indexOf(reference) === -1) {
-            dependencies.push(reference);
+      while((info = expressionRE.exec(expression)) !== null) {
+        var match = info[0];
+        var name = info[1];
+        if(name !== undefined && exclude.indexOf(name) === -1) {
+          if(match[match.length - 1] === "(") {
+            if(methods.indexOf(name) === -1) {
+              methods.push(name);
+            }
+          } else if(props.indexOf(name) === -1) {
+            props.push(name);
+            dynamic = true;
           }
-          dynamic = true;
         }
       }
     
@@ -894,18 +890,18 @@
         // Exit opening delimiter
         current += textMatch[0].length;
     
-        // Get name, and exit closing delimiter
-        var nameTail = template.substring(current);
-        var nameMatch = nameTail.match(closeRE);
+        // Get expression, and exit closing delimiter
+        var expressionTail = template.substring(current);
+        var expressionMatch = expressionTail.match(closeRE);
     
-        if("development" !== "production" && nameMatch === null) {
-          error(("Expected closing delimiter after \"" + nameTail + "\""));
+        if("development" !== "production" && expressionMatch === null) {
+          error(("Expected closing delimiter after \"" + expressionTail + "\""));
         } else {
-          var nameIndex = nameMatch.index;
-          var name = nameTail.substring(0, nameIndex);
-          compileTemplateExpression(name, exclude, dependencies);
-          output += "\" + (" + name + ") + \"";
-          current += name.length + nameMatch[0].length;
+          var expressionIndex = expressionMatch.index;
+          var expression = expressionTail.substring(0, expressionIndex);
+          compileTemplateExpression(expression, exclude, dependencies);
+          output += "\" + (" + expression + ") + \"";
+          current += expression.length + expressionMatch[0].length;
         }
       }
     
@@ -933,7 +929,7 @@
           } else {
             // Tag
             var tagToken = {
-              type: "tag",
+              type: "Tag",
               value: ''
             }
     
@@ -1037,7 +1033,7 @@
           }
           if(text.replace(whitespaceRE, '').length !== 0) {
             tokens.push({
-              type: "text",
+              type: "Text",
               value: text.replace(escapeRE, function(match) {
                 return escapeMap[match];
               })
@@ -1060,9 +1056,9 @@
     
       for(var i = 0; i < tokens.length; i++) {
         var token = tokens[i];
-        if(token.type === "text") {
+        if(token.type === "Text") {
           elements[lastIndex].children.push(token.value);
-        } else if(token.type === "tag") {
+        } else if(token.type === "Tag") {
           if(token.closeStart === true) {
             if("development" !== "production" && token.value !== elements[lastIndex].type) {
               error(("The element \"" + (elements[lastIndex].type) + "\" was left unclosed"));
@@ -1115,7 +1111,7 @@
       var propKey;
       var specialDirective;
     
-      var propsCode = "{attrs: {";
+      var propsCode = "{\"attrs\": {";
     
       var beforeGenerate;
       for(propKey in props) {
@@ -1179,7 +1175,7 @@
       }
     
       if(hasDirectives === true) {
-        propsCode += ", directives: {";
+        propsCode += ", \"directives\": {";
     
         for(var i = 0; i < directiveProps.length; i++) {
           var directiveProp = directiveProps[i];
@@ -1194,7 +1190,7 @@
     
       var domProps = node.props.dom;
       if(domProps !== undefined) {
-        propsCode += ", dom: {";
+        propsCode += ", \"dom\": {";
     
         for(var domProp in domProps) {
           propsCode += "\"" + domProp + "\": " + (domProps[domProp]) + ", ";
@@ -1329,17 +1325,28 @@
         dynamic: false,
         static: false,
         exclude: globals,
-        dependencies: []
+        dependencies: {
+          props: [],
+          methods: []
+        }
       };
     
       var treeCode = generateNode(tree, undefined, 0, state);
     
       var dependencies = state.dependencies;
+      var props = dependencies.props;
+      var methods = dependencies.methods;
       var dependenciesCode = '';
+      var i = 0;
     
-      for(var i = 0; i < dependencies.length; i++) {
-        var dependency = dependencies[i];
-        dependenciesCode += "var " + dependency + " = instance.get(\"" + dependency + "\");";
+      for(; i < props.length; i++) {
+        var propName = props[i];
+        dependenciesCode += "var " + propName + " = instance.get(\"" + propName + "\");";
+      }
+    
+      for(i = 0; i < methods.length; i++) {
+        var methodName = methods[i];
+        dependenciesCode += "var " + methodName + " = instance.methods[\"" + methodName + "\"];";
       }
     
       var code = "var instance = this;" + dependenciesCode + "return " + treeCode + ";";
@@ -1368,13 +1375,13 @@
         }
         this.options = options;
     
-        // Readable name/id
+        // Name/ID
         defineProperty(this, "name", options.name, "Root");
     
-        // DOM Node to Mount
+        // Root DOM Node
         this.root = undefined;
     
-        // Custom Data
+        // Data
         var data = options.data;
         if(data === undefined) {
           this.data = {};
@@ -1384,17 +1391,18 @@
           this.data = data;
         }
     
-        // Render function
+        // Methods
+        var methods = options.methods;
+        this.methods = {};
+        if(methods !== undefined) {
+          initMethods(this, methods);
+        }
+    
+        // Compiled render function
         defineProperty(this, "compiledRender", options.render, noop);
     
         // Hooks
         defineProperty(this, "hooks", options.hooks, {});
-    
-        // Custom Methods
-        var methods = options.methods;
-        if(methods !== undefined) {
-          initMethods(this, methods);
-        }
     
         // Events
         this.events = {};
@@ -1405,21 +1413,20 @@
         // Observer
         this.observer = new Observer();
     
-        // State of Queue
+        // Queued state
         this.queued = true;
     
-        // Setup Computed Properties
+        // Initialize computed properties
         var computed = options.computed;
         if(computed !== undefined) {
           initComputed(this, computed);
         }
     
-        /* ======= Initialize 🎉 ======= */
+        // Initialize
         this.init();
     }
     
     /* ======= Instance Methods ======= */
-    
     /**
      * Gets Value in Data
      * @param {String} key
@@ -1669,7 +1676,6 @@
     
     
     /* ======= Global API ======= */
-    
     /**
      * Configuration of Moon
      */
@@ -1792,7 +1798,6 @@
     
     
     /* ======= Default Directives ======= */
-    
     var hashRE = /\.|\[/;
     
     var eventModifiersCode = {
@@ -1920,7 +1925,9 @@
         }
     
         // Compile method code
-        compileTemplateExpression(methodCode, state.exclude, state.dependencies)
+        if(compileTemplateExpression(methodCode, state.exclude, state.dependencies) === true) {
+          node.meta.dynamic = 1;
+        }
     
         // Generate any modifiers
         var modifiersCode = '';
@@ -1933,9 +1940,6 @@
             error(("Event modifier \"" + modifier + "\" not found"));
           }
         }
-    
-        // Mark as dynamic
-        node.meta.dynamic = 1;
     
         // Generate event listener code and install handler
         var code = "function(event) {" + modifiersCode + methodCode + ";}";
@@ -1983,7 +1987,7 @@
         var propName = modifiers.shift();
         var propValue = prop.value;
     
-        if(compileTemplateExpression(propValue, state.exclude, state.dependencies)) {
+        if(compileTemplateExpression(propValue, state.exclude, state.dependencies) === true) {
           node.meta.dynamic = 1;
         }
     

@@ -9,9 +9,9 @@ const parse = function(tokens) {
 
   for(let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
-    if(token.type === "text") {
+    if(token.type === "Text") {
       elements[lastIndex].children.push(token.value);
-    } else if(token.type === "tag") {
+    } else if(token.type === "Tag") {
       if(token.closeStart === true) {
         if("__ENV__" !== "production" && token.value !== elements[lastIndex].type) {
           error(`The element "${elements[lastIndex].type}" was left unclosed`);

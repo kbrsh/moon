@@ -1,5 +1,3 @@
-/* ======= Instance Methods ======= */
-
 /**
  * Gets Value in Data
  * @param {String} key

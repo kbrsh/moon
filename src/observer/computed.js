@@ -1,8 +1,3 @@
-/**
- * Makes Computed Properties for an Instance
- * @param {Object} instance
- * @param {Object} computed
- */
 const initComputed = function(instance, computed) {
   const setComputedProperty = function(prop) {
     const observer = instance.observer;

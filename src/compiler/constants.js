@@ -14,7 +14,7 @@ const whitespaceRE = /[\s\n]/g;
 const tagOrCommentStartRE = /<\/?(?:[A-Za-z]+\w*)|<!--/;
 
 // Dynamic expressions
-const expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
+const expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)(?:\s*\()?/g;
 
 // HTML Escapes
 const escapeRE = /(?:(?:&(?:lt|gt|quot|amp);)|"|\\|\n)/g;

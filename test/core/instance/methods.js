@@ -14,14 +14,14 @@ describe("Methods", function() {
   });
 
   it("when calling a method", function() {
-    app.get("increment")();
+    app.methods.increment();
     return wait(function() {
       expect(app.get("count")).to.equal(1);
     });
   });
 
   it("should update DOM", function() {
-    app.get("increment")();
+    app.methods.increment();
     return wait(function() {
       expect(method.innerHTML).to.equal("2");
     });

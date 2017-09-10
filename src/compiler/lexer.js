@@ -19,7 +19,7 @@ const lex = function(template) {
       } else {
         // Tag
         let tagToken = {
-          type: "tag",
+          type: "Tag",
           value: ''
         }
 
@@ -123,7 +123,7 @@ const lex = function(template) {
       }
       if(text.replace(whitespaceRE, '').length !== 0) {
         tokens.push({
-          type: "text",
+          type: "Text",
           value: text.replace(escapeRE, function(match) {
             return escapeMap[match];
           })

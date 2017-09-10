@@ -1,5 +1,3 @@
-/* ======= Global Utilities ======= */
-
 /**
  * Logs a Message
  * @param {String} msg

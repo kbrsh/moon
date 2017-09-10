@@ -18,7 +18,7 @@ const generateProps = function(node, parent, specialDirectivesAfter, state) {
   let propKey;
   let specialDirective;
 
-  let propsCode = "{attrs: {";
+  let propsCode = "{\"attrs\": {";
 
   let beforeGenerate;
   for(propKey in props) {
@@ -82,7 +82,7 @@ const generateProps = function(node, parent, specialDirectivesAfter, state) {
   }
 
   if(hasDirectives === true) {
-    propsCode += ", directives: {";
+    propsCode += ", \"directives\": {";
 
     for(let i = 0; i < directiveProps.length; i++) {
       let directiveProp = directiveProps[i];
@@ -97,7 +97,7 @@ const generateProps = function(node, parent, specialDirectivesAfter, state) {
 
   let domProps = node.props.dom;
   if(domProps !== undefined) {
-    propsCode += ", dom: {";
+    propsCode += ", \"dom\": {";
 
     for(let domProp in domProps) {
       propsCode += `"${domProp}": ${domProps[domProp]}, `;
@@ -232,17 +232,28 @@ const generate = function(tree) {
     dynamic: false,
     static: false,
     exclude: globals,
-    dependencies: []
+    dependencies: {
+      props: [],
+      methods: []
+    }
   };
 
   const treeCode = generateNode(tree, undefined, 0, state);
 
   const dependencies = state.dependencies;
+  const props = dependencies.props;
+  const methods = dependencies.methods;
   let dependenciesCode = '';
+  let i = 0;
 
-  for(let i = 0; i < dependencies.length; i++) {
-    const dependency = dependencies[i];
-    dependenciesCode += `var ${dependency} = instance.get("${dependency}");`;
+  for(; i < props.length; i++) {
+    const propName = props[i];
+    dependenciesCode += `var ${propName} = instance.get("${propName}");`;
+  }
+
+  for(i = 0; i < methods.length; i++) {
+    const methodName = methods[i];
+    dependenciesCode += `var ${methodName} = instance.methods["${methodName}"];`;
   }
 
   const code = `var instance = this;${dependenciesCode}return ${treeCode};`;

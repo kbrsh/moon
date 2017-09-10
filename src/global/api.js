@@ -1,5 +1,3 @@
-/* ======= Global API ======= */
-
 /**
  * Configuration of Moon
  */

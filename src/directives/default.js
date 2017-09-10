@@ -1,5 +1,3 @@
-/* ======= Default Directives ======= */
-
 const hashRE = /\.|\[/;
 
 const eventModifiersCode = {
@@ -127,7 +125,9 @@ specialDirectives["m-on"] = {
     }
 
     // Compile method code
-    compileTemplateExpression(methodCode, state.exclude, state.dependencies)
+    if(compileTemplateExpression(methodCode, state.exclude, state.dependencies) === true) {
+      node.meta.dynamic = 1;
+    }
 
     // Generate any modifiers
     let modifiersCode = '';
@@ -140,9 +140,6 @@ specialDirectives["m-on"] = {
         error(`Event modifier "${modifier}" not found`);
       }
     }
-
-    // Mark as dynamic
-    node.meta.dynamic = 1;
 
     // Generate event listener code and install handler
     const code = `function(event) {${modifiersCode}${methodCode};}`;
@@ -190,7 +187,7 @@ specialDirectives["m-literal"] = {
     const propName = modifiers.shift();
     const propValue = prop.value;
 
-    if(compileTemplateExpression(propValue, state.exclude, state.dependencies)) {
+    if(compileTemplateExpression(propValue, state.exclude, state.dependencies) === true) {
       node.meta.dynamic = 1;
     }
 
