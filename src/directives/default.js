@@ -1,14 +1,5 @@
 const hashRE = /\.|\[/;
 
-const eventModifiersCode = {
-  stop: "event.stopPropagation();",
-  prevent: "event.preventDefault();",
-  ctrl: "if(event.ctrlKey === false) {return null;};",
-  shift: "if(event.shiftKey === false) {return null;};",
-  alt: "if(event.altKey === false) {return null;};",
-  enter: "if(event.keyCode !== 13) {return null;};"
-};
-
 const addEventListenerCodeToNode = function(name, handler, node) {
   const meta = node.meta;
   let eventListeners = meta.eventListeners;
@@ -114,9 +105,8 @@ specialDirectives["m-for"] = {
 
 specialDirectives["m-on"] = {
   beforeGenerate: function(prop, node, parentNode, state) {
-    // Get list of modifiers
-    let modifiers = prop.arg.split('.');
-    const eventType = modifiers.shift();
+    // Get event type
+    const eventType = prop.arg;
 
     // Get method code
     let methodCode = prop.value;
@@ -129,21 +119,8 @@ specialDirectives["m-on"] = {
       node.meta.dynamic = 1;
     }
 
-    // Generate any modifiers
-    let modifiersCode = '';
-    for(let i = 0; i < modifiers.length; i++) {
-      const modifier = modifiers[i];
-      const eventModifierCode = eventModifiersCode[modifier];
-      if(eventModifierCode !== undefined) {
-        modifiersCode += eventModifierCode;
-      } else if("__ENV__" !== "production") {
-        error(`Event modifier "${modifier}" not found`);
-      }
-    }
-
     // Generate event listener code and install handler
-    const code = `function(event) {${modifiersCode}${methodCode};}`;
-    addEventListenerCodeToNode(eventType, code, node);
+    addEventListenerCodeToNode(eventType, `function(event) {${methodCode};}`, node);
   }
 };
 

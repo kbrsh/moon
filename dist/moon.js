@@ -1800,15 +1800,6 @@
     /* ======= Default Directives ======= */
     var hashRE = /\.|\[/;
     
-    var eventModifiersCode = {
-      stop: "event.stopPropagation();",
-      prevent: "event.preventDefault();",
-      ctrl: "if(event.ctrlKey === false) {return null;};",
-      shift: "if(event.shiftKey === false) {return null;};",
-      alt: "if(event.altKey === false) {return null;};",
-      enter: "if(event.keyCode !== 13) {return null;};"
-    };
-    
     var addEventListenerCodeToNode = function(name, handler, node) {
       var meta = node.meta;
       var eventListeners = meta.eventListeners;
@@ -1914,9 +1905,8 @@
     
     specialDirectives["m-on"] = {
       beforeGenerate: function(prop, node, parentNode, state) {
-        // Get list of modifiers
-        var modifiers = prop.arg.split('.');
-        var eventType = modifiers.shift();
+        // Get event type
+        var eventType = prop.arg;
     
         // Get method code
         var methodCode = prop.value;
@@ -1929,21 +1919,8 @@
           node.meta.dynamic = 1;
         }
     
-        // Generate any modifiers
-        var modifiersCode = '';
-        for(var i = 0; i < modifiers.length; i++) {
-          var modifier = modifiers[i];
-          var eventModifierCode = eventModifiersCode[modifier];
-          if(eventModifierCode !== undefined) {
-            modifiersCode += eventModifierCode;
-          } else if("development" !== "production") {
-            error(("Event modifier \"" + modifier + "\" not found"));
-          }
-        }
-    
         // Generate event listener code and install handler
-        var code = "function(event) {" + modifiersCode + methodCode + ";}";
-        addEventListenerCodeToNode(eventType, code, node);
+        addEventListenerCodeToNode(eventType, ("function(event) {" + methodCode + ";}"), node);
       }
     };
     

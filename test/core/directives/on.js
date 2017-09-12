@@ -1,12 +1,11 @@
 describe('On Directive', function() {
-  var on = createTestElement("on", '<p>{{count}}</p><button m-on:click="increment">Increment</button><a href="https://kabir.ml" m-on:click.prevent="modifier">Link</a><button m-on:click="changeCustomIgnored(true)"></button>');
+  var on = createTestElement("on", '<p>{{count}}</p><button m-on:click="increment">Increment</button><button m-on:click="changeCustomIgnored(true)"></button>');
   var p = on.firstChild;
   var button = p.nextSibling;
-  var a = button.nextSibling;
-  var customIgnoredButton = a.nextSibling
+  var customIgnoredButton = button.nextSibling
   var customIgnoredParameters = false;
 
-  var evt, modifier_active;
+  var evt;
 
   var app = new Moon({
     root: "#on",
@@ -17,9 +16,6 @@ describe('On Directive', function() {
       increment: function(e) {
         this.set('count', this.get('count') + 1);
         evt = e;
-      },
-      modifier: function(e) {
-        modifier_active = true;
       },
       changeCustomIgnored: function(condition) {
         customIgnoredParameters = condition;
@@ -46,14 +42,6 @@ describe('On Directive', function() {
     expect(evt.target.tagName).to.equal('BUTTON');
   });
 
-  it('should use modifiers', function() {
-    a.click();
-
-    return wait(function() {
-      expect(modifier_active).to.be['true'];
-    });
-  });
-
   it('should call with ignored custom parameters', function() {
     customIgnoredButton.click();
     return wait(function() {
@@ -63,6 +51,5 @@ describe('On Directive', function() {
 
   it('should not be present at runtime', function() {
     expect(button.getAttribute("m-on")).to.be['null'];
-    expect(a.getAttribute("m-on")).to.be['null'];
   });
 });
