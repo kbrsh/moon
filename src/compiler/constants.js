@@ -1,3 +1,6 @@
+// Concatenation Symbol
+const concatenationSymbol = " + ";
+
 // Opening delimiter
 const openRE = /\{\{\s*/;
 

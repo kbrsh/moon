@@ -806,6 +806,9 @@
     
     
     /* ======= Compiler ======= */
+    // Concatenation Symbol
+    var concatenationSymbol = " + ";
+    
     // Opening delimiter
     var openRE = /\{\{\s*/;
     
@@ -871,6 +874,7 @@
     var compileTemplate = function(template, exclude, dependencies) {
       var length = template.length;
       var current = 0;
+      var dynamic = false;
       var output = '';
     
       while(current < length) {
@@ -879,12 +883,21 @@
         var textMatch = textTail.match(openRE);
     
         if(textMatch === null) {
-          output += textTail;
+          output += "\"" + textTail + "\"";
           break;
         } else {
           var textIndex = textMatch.index;
-          output += textTail.substring(0, textIndex);
-          current += textIndex;
+          if(textIndex !== 0) {
+            output += "\"" + (textTail.substring(0, textIndex)) + "\"";
+            current += textIndex;
+          }
+    
+          dynamic = true;
+        }
+    
+        // Concatenate if not at the start
+        if(current !== 0) {
+          output += concatenationSymbol;
         }
     
         // Exit opening delimiter
@@ -900,12 +913,20 @@
           var expressionIndex = expressionMatch.index;
           var expression = expressionTail.substring(0, expressionIndex);
           compileTemplateExpression(expression, exclude, dependencies);
-          output += "\" + (" + expression + ") + \"";
+          output += "(" + expression + ")";
           current += expression.length + expressionMatch[0].length;
+    
+          // Concatenate if not at end
+          if(current !== length) {
+            output += concatenationSymbol;
+          }
         }
       }
     
-      return output;
+      return {
+        output: output,
+        dynamic: dynamic
+      };
     }
     
     var lex = function(template) {
@@ -1155,12 +1176,12 @@
           var value = prop$1.value;
           var compiled = compileTemplate(value, state.exclude, state.dependencies);
     
-          if(value !== compiled) {
+          if(compiled.dynamic === true) {
             dynamic = true;
           }
     
           hasAttrs = true;
-          propsCode += "\"" + propKey + "\": \"" + compiled + "\", ";
+          propsCode += "\"" + propKey + "\": " + (compiled.output) + ", ";
         }
       }
     
@@ -1250,7 +1271,7 @@
         var meta = {};
     
         if(state.static === false) {
-          if(node !== compiled) {
+          if(compiled.dynamic === true) {
             meta.dynamic = 1;
             parent.meta.dynamic = 1;
           } else if(state.dynamic === true) {
@@ -1258,7 +1279,7 @@
           }
         }
     
-        return ("m(\"#text\", " + (generateMeta(meta)) + "\"" + compiled + "\")");
+        return ("m(\"#text\", " + (generateMeta(meta)) + (compiled.output) + ")");
       } else if(node.type === "m-insert") {
         if(state.static === false) {
           parent.meta.dynamic = 1;

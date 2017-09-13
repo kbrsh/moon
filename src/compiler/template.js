@@ -25,6 +25,7 @@ const compileTemplateExpression = function(expression, exclude, dependencies) {
 const compileTemplate = function(template, exclude, dependencies) {
   const length = template.length;
   let current = 0;
+  let dynamic = false;
   let output = '';
 
   while(current < length) {
@@ -33,12 +34,21 @@ const compileTemplate = function(template, exclude, dependencies) {
     const textMatch = textTail.match(openRE);
 
     if(textMatch === null) {
-      output += textTail;
+      output += `"${textTail}"`;
       break;
     } else {
       const textIndex = textMatch.index;
-      output += textTail.substring(0, textIndex);
-      current += textIndex;
+      if(textIndex !== 0) {
+        output += `"${textTail.substring(0, textIndex)}"`;
+        current += textIndex;
+      }
+
+      dynamic = true;
+    }
+
+    // Concatenate if not at the start
+    if(current !== 0) {
+      output += concatenationSymbol;
     }
 
     // Exit opening delimiter
@@ -54,10 +64,18 @@ const compileTemplate = function(template, exclude, dependencies) {
       const expressionIndex = expressionMatch.index;
       const expression = expressionTail.substring(0, expressionIndex);
       compileTemplateExpression(expression, exclude, dependencies);
-      output += `" + (${expression}) + "`;
+      output += `(${expression})`;
       current += expression.length + expressionMatch[0].length;
+
+      // Concatenate if not at end
+      if(current !== length) {
+        output += concatenationSymbol;
+      }
     }
   }
 
-  return output;
+  return {
+    output: output,
+    dynamic: dynamic
+  };
 }

@@ -62,12 +62,12 @@ const generateProps = function(node, parent, specialDirectivesAfter, state) {
       const value = prop.value;
       const compiled = compileTemplate(value, state.exclude, state.dependencies);
 
-      if(value !== compiled) {
+      if(compiled.dynamic === true) {
         dynamic = true;
       }
 
       hasAttrs = true;
-      propsCode += `"${propKey}": "${compiled}", `;
+      propsCode += `"${propKey}": ${compiled.output}, `;
     }
   }
 
@@ -157,7 +157,7 @@ const generateNode = function(node, parent, index, state) {
     let meta = {};
 
     if(state.static === false) {
-      if(node !== compiled) {
+      if(compiled.dynamic === true) {
         meta.dynamic = 1;
         parent.meta.dynamic = 1;
       } else if(state.dynamic === true) {
@@ -165,7 +165,7 @@ const generateNode = function(node, parent, index, state) {
       }
     }
 
-    return `m("#text", ${generateMeta(meta)}"${compiled}")`;
+    return `m("#text", ${generateMeta(meta)}${compiled.output})`;
   } else if(node.type === "m-insert") {
     if(state.static === false) {
       parent.meta.dynamic = 1;
