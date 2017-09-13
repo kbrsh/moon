@@ -3,10 +3,7 @@ const closeCall = function(code, add) {
 }
 
 const generateProps = function(node, parent, specialDirectivesAfter, state) {
-  const props = node.props;
-  node.props = {
-    attrs: props
-  }
+  const props = node.props.attrs;
 
   let dynamic = false;
 
@@ -15,14 +12,14 @@ const generateProps = function(node, parent, specialDirectivesAfter, state) {
   let hasDirectives = false;
   let directiveProps = [];
 
-  let propKey;
+  let propName;
   let specialDirective;
 
   let propsCode = "{\"attrs\": {";
 
   let beforeGenerate;
-  for(propKey in props) {
-    const prop = props[propKey];
+  for(propName in props) {
+    const prop = props[propName];
     const name = prop.name;
     if((specialDirective = specialDirectives[name]) !== undefined && (beforeGenerate = specialDirective.beforeGenerate) !== undefined) {
       beforeGenerate(prop, node, parent, state);
@@ -31,8 +28,8 @@ const generateProps = function(node, parent, specialDirectivesAfter, state) {
 
   let afterGenerate;
   let duringPropGenerate;
-  for(propKey in props) {
-    const prop = props[propKey];
+  for(propName in props) {
+    const prop = props[propName];
     const name = prop.name;
 
     specialDirective = specialDirectives[name];
@@ -67,7 +64,7 @@ const generateProps = function(node, parent, specialDirectivesAfter, state) {
       }
 
       hasAttrs = true;
-      propsCode += `"${propKey}": ${compiled.output}, `;
+      propsCode += `"${propName}": ${compiled.output}, `;
     }
   }
 
@@ -99,8 +96,8 @@ const generateProps = function(node, parent, specialDirectivesAfter, state) {
   if(domProps !== undefined) {
     propsCode += ", \"dom\": {";
 
-    for(let domProp in domProps) {
-      propsCode += `"${domProp}": ${domProps[domProp]}, `;
+    for(let domPropName in domProps) {
+      propsCode += `"${domPropName}": ${domProps[domPropName]}, `;
     }
 
     propsCode = closeCall(propsCode, '}');
@@ -135,7 +132,7 @@ const generateMeta = function(meta) {
 
   for(let key in meta) {
     if(key === "eventListeners") {
-      metaCode += generateEventlisteners(meta[key])
+      metaCode += generateEventlisteners(meta[key]);
     } else {
       metaCode += `"${key}": ${meta[key]}, `;
     }
@@ -157,11 +154,9 @@ const generateNode = function(node, parent, index, state) {
     let meta = {};
 
     if(state.static === false) {
-      if(compiled.dynamic === true) {
+      if(compiled.dynamic === true || state.dynamic === true) {
         meta.dynamic = 1;
         parent.meta.dynamic = 1;
-      } else if(state.dynamic === true) {
-        meta.dynamic = 1;
       }
     }
 
@@ -217,8 +212,8 @@ const generateNode = function(node, parent, index, state) {
     call += childrenCode;
     call += ')';
 
-    for(let specialDirectiveKey in specialDirectivesAfter) {
-      let specialDirectiveAfter = specialDirectivesAfter[specialDirectiveKey];
+    for(let specialDirectiveName in specialDirectivesAfter) {
+      let specialDirectiveAfter = specialDirectivesAfter[specialDirectiveName];
       call = specialDirectiveAfter.afterGenerate(specialDirectiveAfter.prop, call, node, parent, state);
     }
 
@@ -239,7 +234,6 @@ const generate = function(tree) {
   };
 
   const treeCode = generateNode(tree, undefined, 0, state);
-
   const dependencies = state.dependencies;
   const props = dependencies.props;
   const methods = dependencies.methods;

@@ -33,7 +33,7 @@ specialDirectives["m-if"] = {
       let child = children[i];
       if(typeof child !== "string") {
         let data = prop.data;
-        let attrs = child.props;
+        let attrs = child.props.attrs;
 
         if(attrs["m-else"] !== undefined) {
           data.elseNode = [i, child];

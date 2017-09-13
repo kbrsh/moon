@@ -916,7 +916,7 @@
           output += "(" + expression + ")";
           current += expression.length + expressionMatch[0].length;
     
-          // Concatenate if not at end
+          // Concatenate if not at the end
           if(current !== length) {
             output += concatenationSymbol;
           }
@@ -1090,7 +1090,9 @@
             var type = token.value;
             var node = {
               type: type,
-              props: token.attributes,
+              props: {
+                attrs: token.attributes
+              },
               children: []
             };
             elements[lastIndex].children.push(node);
@@ -1117,10 +1119,7 @@
     }
     
     var generateProps = function(node, parent, specialDirectivesAfter, state) {
-      var props = node.props;
-      node.props = {
-        attrs: props
-      }
+      var props = node.props.attrs;
     
       var dynamic = false;
     
@@ -1129,14 +1128,14 @@
       var hasDirectives = false;
       var directiveProps = [];
     
-      var propKey;
+      var propName;
       var specialDirective;
     
       var propsCode = "{\"attrs\": {";
     
       var beforeGenerate;
-      for(propKey in props) {
-        var prop = props[propKey];
+      for(propName in props) {
+        var prop = props[propName];
         var name = prop.name;
         if((specialDirective = specialDirectives[name]) !== undefined && (beforeGenerate = specialDirective.beforeGenerate) !== undefined) {
           beforeGenerate(prop, node, parent, state);
@@ -1145,8 +1144,8 @@
     
       var afterGenerate;
       var duringPropGenerate;
-      for(propKey in props) {
-        var prop$1 = props[propKey];
+      for(propName in props) {
+        var prop$1 = props[propName];
         var name$1 = prop$1.name;
     
         specialDirective = specialDirectives[name$1];
@@ -1181,7 +1180,7 @@
           }
     
           hasAttrs = true;
-          propsCode += "\"" + propKey + "\": " + (compiled.output) + ", ";
+          propsCode += "\"" + propName + "\": " + (compiled.output) + ", ";
         }
       }
     
@@ -1213,8 +1212,8 @@
       if(domProps !== undefined) {
         propsCode += ", \"dom\": {";
     
-        for(var domProp in domProps) {
-          propsCode += "\"" + domProp + "\": " + (domProps[domProp]) + ", ";
+        for(var domPropName in domProps) {
+          propsCode += "\"" + domPropName + "\": " + (domProps[domPropName]) + ", ";
         }
     
         propsCode = closeCall(propsCode, '}');
@@ -1249,7 +1248,7 @@
     
       for(var key in meta) {
         if(key === "eventListeners") {
-          metaCode += generateEventlisteners(meta[key])
+          metaCode += generateEventlisteners(meta[key]);
         } else {
           metaCode += "\"" + key + "\": " + (meta[key]) + ", ";
         }
@@ -1271,11 +1270,9 @@
         var meta = {};
     
         if(state.static === false) {
-          if(compiled.dynamic === true) {
+          if(compiled.dynamic === true || state.dynamic === true) {
             meta.dynamic = 1;
             parent.meta.dynamic = 1;
-          } else if(state.dynamic === true) {
-            meta.dynamic = 1;
           }
         }
     
@@ -1331,8 +1328,8 @@
         call += childrenCode;
         call += ')';
     
-        for(var specialDirectiveKey in specialDirectivesAfter) {
-          var specialDirectiveAfter = specialDirectivesAfter[specialDirectiveKey];
+        for(var specialDirectiveName in specialDirectivesAfter) {
+          var specialDirectiveAfter = specialDirectivesAfter[specialDirectiveName];
           call = specialDirectiveAfter.afterGenerate(specialDirectiveAfter.prop, call, node, parent, state);
         }
     
@@ -1353,7 +1350,6 @@
       };
     
       var treeCode = generateNode(tree, undefined, 0, state);
-    
       var dependencies = state.dependencies;
       var props = dependencies.props;
       var methods = dependencies.methods;
@@ -1854,7 +1850,7 @@
           var child = children[i];
           if(typeof child !== "string") {
             var data = prop.data;
-            var attrs = child.props;
+            var attrs = child.props.attrs;
     
             if(attrs["m-else"] !== undefined) {
               data.elseNode = [i, child];

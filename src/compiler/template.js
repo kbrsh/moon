@@ -67,7 +67,7 @@ const compileTemplate = function(template, exclude, dependencies) {
       output += `(${expression})`;
       current += expression.length + expressionMatch[0].length;
 
-      // Concatenate if not at end
+      // Concatenate if not at the end
       if(current !== length) {
         output += concatenationSymbol;
       }

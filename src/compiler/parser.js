@@ -22,7 +22,9 @@ const parse = function(tokens) {
         const type = token.value;
         let node = {
           type: type,
-          props: token.attributes,
+          props: {
+            attrs: token.attributes
+          },
           children: []
         };
         elements[lastIndex].children.push(node);
