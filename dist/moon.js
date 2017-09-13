@@ -1078,15 +1078,19 @@
       for(var i = 0; i < tokens.length; i++) {
         var token = tokens[i];
         if(token.type === "Text") {
+          // Push text to currently pending element
           elements[lastIndex].children.push(token.value);
         } else if(token.type === "Tag") {
+          // Tag found
           if(token.closeStart === true) {
             if("development" !== "production" && token.value !== elements[lastIndex].type) {
               error(("The element \"" + (elements[lastIndex].type) + "\" was left unclosed"));
             }
+            // Closing tag found, close current element
             elements.pop();
             lastIndex--;
           } else {
+            // Opening tag found, create element
             var type = token.value;
             var node = {
               type: type,
