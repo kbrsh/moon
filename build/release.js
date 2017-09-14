@@ -6,30 +6,44 @@ let tags = exec("git tag --sort=committerdate").toString().split("\n");
 tags.pop();
 tags = tags.slice(-2);
 
-let commits = exec(`git log --pretty=oneline ${tags[0]}...${tags[1]}`).toString().split("\n");
+let commits = exec(`git log --pretty=format:"%H%n%B%n%n%n~~~COMMIT~~~%n%n%n" ${tags[0]}...${tags[1]}`).toString().split("\n\n\n~~~COMMIT~~~\n\n\n");
 commits.pop();
 
-let code = "", i = 0, commit, commitEntry, hash, category, patches = [], features = [], performance = [], docs = [], refactor = [], breaking = [];
+let log = "";
+let i = 0;
+let commit;
+let commitEntry;
+let hash;
+let category;
+let patches = [];
+let features = [];
+let performance = [];
+let docs = [];
+let refactor = [];
+let breaking = [];
 
 for(; i < commits.length; i++) {
-	commit = commits[i];
-	commit = commit.split(" ");
+	commit = commits[i].split("\n");
+	commit.shift();
+	commit.pop();
 	hash = commit.shift();
-	commit = commit.join(" ").split(":");
-
+	commit = commit.join("\n").split(":");
 	category = commit.shift();
-
 	commit = commit.join(":").split("\n");
 
 	let body;
-	if(commit[1]) {
-		body = commit[1];
-		commit = commit[0];
+	if(commit.length > 1) {
+		let commitSubject = commit.shift();
+		body = commit.map((item) => `    ${item}`).join("\n");
+		if(body.trim().length === 0) {
+			body = undefined;
+		}
+		commit = commitSubject;
 	}
 
 	commitEntry = {
 		hash: hash,
-		message: commit,
+		subject: commit,
 		body: body
 	}
 
@@ -55,30 +69,31 @@ for(; i < commits.length; i++) {
 	}
 }
 
-let entry, first = true;
+let entry;
+let first = true;
 
 const generateCategory = (header, entries) => {
 	if(entries.length > 0) {
-		if(first === false) {
-			code += `\n\n### ${header}\n\n`;
-		} else {
-			code += `### ${header}\n\n`;
+		if(first === true) {
+			log += `## ${header}\n\n`;
 			first = false;
+		} else {
+			log += `\n\n## ${header}\n\n`;
 		}
 
 		for(i = 0; i < entries.length - 1; i++) {
 			entry = entries[i];
-			code += `*${entry.message} - ${entry.hash}\n`;
+			log += `* ${entry.hash}${entry.subject}\n`;
 
 			if(entry.body !== undefined) {
-				code += `\n${entry.body}\n`;
+				log += `${entry.body}\n`;
 			}
 		}
 
 		entry = entries[i];
-		code += `*${entry.message} - ${entry.hash}`;
+		log += `* ${entry.hash}${entry.subject}`;
 		if(entry.body !== undefined) {
-			code += `\n${entry.body}`;
+			log += `\n${entry.body}`;
 		}
 	}
 }
@@ -91,7 +106,7 @@ generateCategory("Refactoring", refactor);
 generateCategory("Documentation", docs);
 
 const releaseNotePath = path.resolve("./RELEASE_NOTE");
-fs.writeFileSync(releaseNotePath, code);
+fs.writeFileSync(releaseNotePath, log);
 exec(`cat ./RELEASE_NOTE | pbcopy`);
 fs.unlinkSync(releaseNotePath);
-exec(`open https://github.com/KingPixil/moon/releases/edit/${tags[1]}`);
+exec(`open https://github.com/kbrsh/moon/releases/edit/${tags[1]}`);
