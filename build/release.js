@@ -15,12 +15,12 @@ let commit;
 let commitEntry;
 let hash;
 let category;
-let patches = [];
-let features = [];
-let performance = [];
-let docs = [];
-let refactor = [];
 let breaking = [];
+let features = [];
+let patches = [];
+let performance = [];
+let refactor = [];
+let docs = [];
 
 for(; i < commits.length; i++) {
 	commit = commits[i].split("\n");
