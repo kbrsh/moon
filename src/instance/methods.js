@@ -164,7 +164,6 @@ Moon.prototype.mount = function(rootOption) {
   // Get element from the DOM
   let root = this.root = typeof rootOption === "string" ? document.querySelector(rootOption) : rootOption;
   if("__ENV__" !== "production" && root === null) {
-    // Element not found
     error("Element " + this.options.root + " not found");
   }
 

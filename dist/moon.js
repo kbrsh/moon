@@ -418,28 +418,21 @@
         }
       }
     
-      // Create instance
-      var componentInstance = new component.CTor({
+      // Create component options
+      var componentOptions = {
+        root: node,
         props: data,
         insert: vnode.children
-      });
+      };
     
       // Check for events
       var eventListeners = vnode.meta.eventListeners;
       if(eventListeners !== undefined) {
-        var events = componentInstance.events;
-        var handlers;
-        for(var eventType in eventListeners) {
-          if((handlers = events[eventType]) === undefined) {
-            events[eventType] = eventListeners[eventType];
-          } else {
-            events[eventType] = eventListeners[eventType].concat(handlers);
-          }
-        }
+        componentOptions.events = eventListeners;
       }
     
-      // Mount
-      componentInstance.mount(node);
+      // Initialize and mount instance
+      var componentInstance = new component.CTor(componentOptions);
     
       // Rehydrate
       vnode.meta.node = componentInstance.root;
@@ -1388,63 +1381,63 @@
     
     
     function Moon(options) {
-        /* ======= Initial Values ======= */
+      /* ======= Initial Values ======= */
     
-        // Options
-        if(options === undefined) {
-          options = {};
-        }
-        this.options = options;
+      // Options
+      if(options === undefined) {
+        options = {};
+      }
+      this.options = options;
     
-        // Name/ID
-        defineProperty(this, "name", options.name, "Root");
+      // Name/ID
+      defineProperty(this, "name", options.name, "Root");
     
-        // Root DOM Node
-        this.root = undefined;
+      // Root DOM Node
+      this.root = undefined;
     
-        // Data
-        var data = options.data;
-        if(data === undefined) {
-          this.data = {};
-        } else if(typeof data === "function") {
-          this.data = data();
-        } else {
-          this.data = data;
-        }
+      // Data
+      var data = options.data;
+      if(data === undefined) {
+        this.data = {};
+      } else if(typeof data === "function") {
+        this.data = data();
+      } else {
+        this.data = data;
+      }
     
-        // Methods
-        var methods = options.methods;
-        this.methods = {};
-        if(methods !== undefined) {
-          initMethods(this, methods);
-        }
+      // Methods
+      var methods = options.methods;
+      this.methods = {};
+      if(methods !== undefined) {
+        initMethods(this, methods);
+      }
     
-        // Compiled render function
-        defineProperty(this, "compiledRender", options.render, noop);
+      // Compiled render function
+      defineProperty(this, "compiledRender", options.render, noop);
     
-        // Hooks
-        defineProperty(this, "hooks", options.hooks, {});
+      // Hooks
+      defineProperty(this, "hooks", options.hooks, {});
     
-        // Events
-        this.events = {};
+      // Events
+      this.events = {};
     
-        // Virtual DOM
-        this.dom = {};
+      // Virtual DOM
+      this.dom = {};
     
-        // Observer
-        this.observer = new Observer();
+      // Observer
+      this.observer = new Observer();
     
-        // Queued state
-        this.queued = true;
+      // Queued state
+      this.queued = true;
     
-        // Initialize computed properties
-        var computed = options.computed;
-        if(computed !== undefined) {
-          initComputed(this, computed);
-        }
+      // Initialize computed properties
+      var computed = options.computed;
+      if(computed !== undefined) {
+        initComputed(this, computed);
+      }
     
-        // Initialize
-        this.init();
+      // Initialize
+      this.init();
     }
     
     /* ======= Instance Methods ======= */
@@ -1614,7 +1607,6 @@
       // Get element from the DOM
       var root = this.root = typeof rootOption === "string" ? document.querySelector(rootOption) : rootOption;
       if("development" !== "production" && root === null) {
-        // Element not found
         error("Element " + this.options.root + " not found");
       }
     
@@ -1760,10 +1752,11 @@
      * @param {Object} options
      */
     Moon.extend = function(name, options) {
-      if(options.name !== undefined) {
-        name = options.name;
-      } else {
+      var optionsName = options.name;
+      if(optionsName === undefined) {
         options.name = name;
+      } else {
+        name = optionsName;
       }
     
       if(options.data !== undefined && typeof options.data !== "function") {
@@ -1771,13 +1764,23 @@
       }
     
       function MoonComponent(componentOptions) {
+        this.componentOptions = componentOptions;
         Moon.apply(this, [options]);
+      }
     
+      MoonComponent.prototype = Object.create(this.prototype);
+      MoonComponent.prototype.constructor = MoonComponent;
+    
+      MoonComponent.prototype.init = function() {
+        var componentOptions = this.componentOptions;
+        var root;
+        
         if(componentOptions === undefined) {
           this.insert = [];
         } else {
-          var root = componentOptions.root;
+          root = componentOptions.root;
           var props = componentOptions.props;
+          var events = componentOptions.events;
           this.insert = componentOptions.insert;
     
           if(props !== undefined) {
@@ -1787,26 +1790,15 @@
             }
           }
     
-          if(root !== undefined) {
-            this.mount(root);
+          if(events !== undefined) {
+            this.events = events;
           }
-        }
-      }
-    
-      MoonComponent.prototype = Object.create(this.prototype);
-      MoonComponent.prototype.constructor = MoonComponent;
-    
-      MoonComponent.prototype.init = function() {
-        var options = this.options;
-    
-        var template = options.template;
-        this.template = template;
-    
-        if(this.compiledRender === noop) {
-          this.compiledRender = Moon.compile(template);
         }
     
         callHook(this, "init");
+        if(root !== undefined) {
+          this.mount(root);
+        }
       }
     
       components[name] = {

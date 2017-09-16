@@ -61,10 +61,11 @@ Moon.directive = function(name, action) {
  * @param {Object} options
  */
 Moon.extend = function(name, options) {
-  if(options.name !== undefined) {
-    name = options.name;
-  } else {
+  const optionsName = options.name;
+  if(optionsName === undefined) {
     options.name = name;
+  } else {
+    name = optionsName;
   }
 
   if(options.data !== undefined && typeof options.data !== "function") {
@@ -72,13 +73,23 @@ Moon.extend = function(name, options) {
   }
 
   function MoonComponent(componentOptions) {
+    this.componentOptions = componentOptions;
     Moon.apply(this, [options]);
+  }
 
+  MoonComponent.prototype = Object.create(this.prototype);
+  MoonComponent.prototype.constructor = MoonComponent;
+
+  MoonComponent.prototype.init = function() {
+    const componentOptions = this.componentOptions;
+    let root;
+    
     if(componentOptions === undefined) {
       this.insert = [];
     } else {
-      const root = componentOptions.root;
+      root = componentOptions.root;
       const props = componentOptions.props;
+      const events = componentOptions.events;
       this.insert = componentOptions.insert;
 
       if(props !== undefined) {
@@ -88,26 +99,15 @@ Moon.extend = function(name, options) {
         }
       }
 
-      if(root !== undefined) {
-        this.mount(root);
+      if(events !== undefined) {
+        this.events = events;
       }
-    }
-  }
-
-  MoonComponent.prototype = Object.create(this.prototype);
-  MoonComponent.prototype.constructor = MoonComponent;
-
-  MoonComponent.prototype.init = function() {
-    const options = this.options;
-
-    const template = options.template;
-    this.template = template;
-
-    if(this.compiledRender === noop) {
-      this.compiledRender = Moon.compile(template);
     }
 
     callHook(this, "init");
+    if(root !== undefined) {
+      this.mount(root);
+    }
   }
 
   components[name] = {

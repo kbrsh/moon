@@ -187,28 +187,21 @@ const createComponent = function(node, vnode, component) {
     }
   }
 
-  // Create instance
-  const componentInstance = new component.CTor({
+  // Create component options
+  let componentOptions = {
+    root: node,
     props: data,
     insert: vnode.children
-  });
+  };
 
   // Check for events
   const eventListeners = vnode.meta.eventListeners;
   if(eventListeners !== undefined) {
-    let events = componentInstance.events;
-    let handlers;
-    for(let eventType in eventListeners) {
-      if((handlers = events[eventType]) === undefined) {
-        events[eventType] = eventListeners[eventType];
-      } else {
-        events[eventType] = eventListeners[eventType].concat(handlers);
-      }
-    }
+    componentOptions.events = eventListeners;
   }
 
-  // Mount
-  componentInstance.mount(node);
+  // Initialize and mount instance
+  const componentInstance = new component.CTor(componentOptions);
 
   // Rehydrate
   vnode.meta.node = componentInstance.root;

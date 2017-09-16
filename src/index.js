@@ -24,63 +24,63 @@ let components = {};
 //=require compiler/compiler.js
 
 function Moon(options) {
-    /* ======= Initial Values ======= */
+  /* ======= Initial Values ======= */
 
-    // Options
-    if(options === undefined) {
-      options = {};
-    }
-    this.options = options;
+  // Options
+  if(options === undefined) {
+    options = {};
+  }
+  this.options = options;
 
-    // Name/ID
-    defineProperty(this, "name", options.name, "Root");
+  // Name/ID
+  defineProperty(this, "name", options.name, "Root");
 
-    // Root DOM Node
-    this.root = undefined;
+  // Root DOM Node
+  this.root = undefined;
 
-    // Data
-    const data = options.data;
-    if(data === undefined) {
-      this.data = {};
-    } else if(typeof data === "function") {
-      this.data = data();
-    } else {
-      this.data = data;
-    }
+  // Data
+  const data = options.data;
+  if(data === undefined) {
+    this.data = {};
+  } else if(typeof data === "function") {
+    this.data = data();
+  } else {
+    this.data = data;
+  }
 
-    // Methods
-    const methods = options.methods;
-    this.methods = {};
-    if(methods !== undefined) {
-      initMethods(this, methods);
-    }
+  // Methods
+  const methods = options.methods;
+  this.methods = {};
+  if(methods !== undefined) {
+    initMethods(this, methods);
+  }
 
-    // Compiled render function
-    defineProperty(this, "compiledRender", options.render, noop);
+  // Compiled render function
+  defineProperty(this, "compiledRender", options.render, noop);
 
-    // Hooks
-    defineProperty(this, "hooks", options.hooks, {});
+  // Hooks
+  defineProperty(this, "hooks", options.hooks, {});
 
-    // Events
-    this.events = {};
+  // Events
+  this.events = {};
 
-    // Virtual DOM
-    this.dom = {};
+  // Virtual DOM
+  this.dom = {};
 
-    // Observer
-    this.observer = new Observer();
+  // Observer
+  this.observer = new Observer();
 
-    // Queued state
-    this.queued = true;
+  // Queued state
+  this.queued = true;
 
-    // Initialize computed properties
-    const computed = options.computed;
-    if(computed !== undefined) {
-      initComputed(this, computed);
-    }
+  // Initialize computed properties
+  const computed = options.computed;
+  if(computed !== undefined) {
+    initComputed(this, computed);
+  }
 
-    // Initialize
-    this.init();
+  // Initialize
+  this.init();
 }
 
 /* ======= Instance Methods ======= */
