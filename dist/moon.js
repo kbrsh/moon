@@ -439,6 +439,50 @@
     }
     
     /**
+     * Diffs a Component
+     * @param {Object} node
+     * @param {Object} vnode
+     */
+    var diffComponent = function(node, vnode) {
+      if(node.__moon__ === undefined) {
+        // Not mounted, create a new instance and mount it here
+        createComponent(node, vnode, vnode.meta.component);
+      } else {
+        // Mounted already, need to update
+        var componentInstance = node.__moon__;
+        var componentChanged = false;
+    
+        // Merge any properties that changed
+        var props = componentInstance.options.props;
+        var data = componentInstance.data;
+        var attrs = vnode.props.attrs;
+    
+        if(props !== undefined) {
+          for(var i = 0; i < props.length; i++) {
+            var prop = props[i];
+            if(data[prop] !== attrs[prop]) {
+              data[prop] = attrs[prop];
+              componentChanged = true;
+            }
+          }
+        }
+    
+    
+        // If it has children, resolve insert
+        if(vnode.children.length !== 0) {
+          componentInstance.insert = vnode.children;
+          componentChanged = true;
+        }
+    
+        // If any changes were detected, build the component
+        if(componentChanged === true) {
+          componentInstance.build();
+          callHook(componentInstance, "updated");
+        }
+      }
+    }
+    
+    /**
      * Diffs Props of Node and a VNode, and apply Changes
      * @param {Object} node
      * @param {Object} nodeProps
@@ -492,50 +536,6 @@
           if(node[domProp] !== domPropValue) {
             node[domProp] = domPropValue;
           }
-        }
-      }
-    }
-    
-    /**
-     * Diffs a Component
-     * @param {Object} node
-     * @param {Object} vnode
-     */
-    var diffComponent = function(node, vnode) {
-      if(node.__moon__ === undefined) {
-        // Not mounted, create a new instance and mount it here
-        createComponent(node, vnode, vnode.meta.component);
-      } else {
-        // Mounted already, need to update
-        var componentInstance = node.__moon__;
-        var componentChanged = false;
-    
-        // Merge any properties that changed
-        var props = componentInstance.options.props;
-        var data = componentInstance.data;
-        var attrs = vnode.props.attrs;
-    
-        if(props !== undefined) {
-          for(var i = 0; i < props.length; i++) {
-            var prop = props[i];
-            if(data[prop] !== attrs[prop]) {
-              data[prop] = attrs[prop];
-              componentChanged = true;
-            }
-          }
-        }
-    
-    
-        // If it has children, resolve insert
-        if(vnode.children.length !== 0) {
-          componentInstance.insert = vnode.children;
-          componentChanged = true;
-        }
-    
-        // If any changes were detected, build the component
-        if(componentChanged === true) {
-          componentInstance.build();
-          callHook(componentInstance, "updated");
         }
       }
     }
@@ -618,17 +618,17 @@
      * @param {Object} oldVNode
      * @param {Object} vnode
      * @param {Number} index
-     * @param {Object} parent
+     * @param {Object} parentNode
      * @param {Object} parentVNode
      */
-    var diff = function(oldVNode, vnode, index, parent, parentVNode) {
+    var diff = function(oldVNode, vnode, index, parentNode, parentVNode) {
       var oldMeta = oldVNode.meta;
       var meta = vnode.meta;
     
       if(oldVNode.type !== vnode.type) {
         // Different types, replace
         parentVNode.children[index] = vnode;
-        replaceChild(oldMeta.node, vnode, parent);
+        replaceChild(oldMeta.node, vnode, parentNode);
       } else if(meta.dynamic !== undefined) {
         if(vnode.type === "#text") {
           // Text, update if needed
@@ -644,10 +644,9 @@
           var node = oldMeta.node;
     
           // Diff props
-          var oldProps = oldVNode.props;
           var props = vnode.props;
-          diffProps(node, oldProps.attrs, vnode, props);
-          oldProps.attrs = props.attrs;
+          diffProps(node, oldVNode.props.attrs, vnode, props);
+          oldVNode.props = props;
     
           // Diff event listeners
           var eventListeners = meta.eventListeners;
@@ -658,47 +657,43 @@
             }
           }
     
-          // Ensure innerHTML and textContent weren't changed
-          var domProps = props.dom;
-          if(domProps === undefined || (domProps.innerHTML === undefined && domProps.textContent === undefined)) {
-            // Diff children
-            var children = vnode.children;
-            var oldChildren = oldVNode.children;
-            var newLength = children.length;
-            var oldLength = oldChildren.length;
+          // Diff children
+          var children = vnode.children;
+          var oldChildren = oldVNode.children;
+          var newLength = children.length;
+          var oldLength = oldChildren.length;
     
-            if(newLength === 0) {
-              var firstChild;
-              while((firstChild = node.firstChild) !== null) {
-                removeChild(firstChild, node);
-              }
-              oldVNode.children = [];
-            } else if(oldLength === 0) {
-              for(var i = 0; i < newLength; i++) {
-                appendChild(children[i], node);
-              }
-              oldVNode.children = children;
-            } else {
-              var totalLen = newLength > oldLength ? newLength : oldLength;
-              var oldChild;
-              var child;
-              for(var i$1 = 0; i$1 < totalLen; i$1++) {
-                if(i$1 >= newLength) {
-                  // Remove extra child
-                  removeChild(oldChildren.pop().meta.node, node);
-                } else if(i$1 >= oldLength) {
-                  // Add extra child
-                  child = children[i$1];
-                  appendChild(child, node);
-                  oldChildren.push(child);
-                } else {
-                  // Diff child if they don't have the same reference
-                  oldChild = oldChildren[i$1];
-                  child = children[i$1];
+          if(newLength === 0) {
+            var firstChild;
+            while((firstChild = node.firstChild) !== null) {
+              removeChild(firstChild, node);
+            }
+            oldVNode.children = [];
+          } else if(oldLength === 0) {
+            for(var i = 0; i < newLength; i++) {
+              appendChild(children[i], node);
+            }
+            oldVNode.children = children;
+          } else {
+            var totalLength = newLength > oldLength ? newLength : oldLength;
+            var oldChild;
+            var child;
+            for(var i$1 = 0; i$1 < totalLength; i$1++) {
+              if(i$1 >= newLength) {
+                // Remove extra child
+                removeChild(oldChildren.pop().meta.node, node);
+              } else if(i$1 >= oldLength) {
+                // Add extra child
+                child = children[i$1];
+                appendChild(child, node);
+                oldChildren[i$1] = child;
+              } else {
+                // Diff child if they don't have the same reference
+                oldChild = oldChildren[i$1];
+                child = children[i$1];
     
-                  if(oldChild !== child) {
-                    diff(oldChild, child, i$1, node, oldVNode);
-                  }
+                if(oldChild !== child) {
+                  diff(oldChild, child, i$1, node, oldVNode);
                 }
               }
             }
