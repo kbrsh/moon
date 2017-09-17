@@ -529,10 +529,10 @@
       }
     
       // Add/Update any DOM Props
-      var dom = props.dom;
-      if(dom !== undefined) {
-        for(var domProp in dom) {
-          var domPropValue = dom[domProp];
+      var domProps = props.dom;
+      if(domProps !== undefined) {
+        for(var domProp in domProps) {
+          var domPropValue = domProps[domProp];
           if(node[domProp] !== domPropValue) {
             node[domProp] = domPropValue;
           }

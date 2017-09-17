@@ -298,10 +298,10 @@ const diffProps = function(node, nodeProps, vnode, props) {
   }
 
   // Add/Update any DOM Props
-  let dom = props.dom;
-  if(dom !== undefined) {
-    for(let domProp in dom) {
-      const domPropValue = dom[domProp];
+  const domProps = props.dom;
+  if(domProps !== undefined) {
+    for(let domProp in domProps) {
+      const domPropValue = domProps[domProp];
       if(node[domProp] !== domPropValue) {
         node[domProp] = domPropValue;
       }
