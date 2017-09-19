@@ -4,10 +4,10 @@ Hey! I'm super glad you're interested in contributing to Moon. Helpful contribut
 
 Please ensure you have understood the guidelines before contributing, it helps keep the code organized.
 
-* [Development Setup](https://github.com/KingPixil/moon/blob/master/CONTRIBUTING.md#development-setup)
-* [Development](https://github.com/KingPixil/moon/blob/master/CONTRIBUTING.md#development)
-* [Submitting an Issue](https://github.com/KingPixil/moon/blob/master/CONTRIBUTING.md#submitting-an-issue)
-* [Submitting a Pull Request](https://github.com/KingPixil/moon/blob/master/CONTRIBUTING.md#submitting-a-pull-request)
+* [Development Setup](https://github.com/kbrsh/moon/blob/master/CONTRIBUTING.md#development-setup)
+* [Development](https://github.com/kbrsh/moon/blob/master/CONTRIBUTING.md#development)
+* [Submitting an Issue](https://github.com/kbrsh/moon/blob/master/CONTRIBUTING.md#submitting-an-issue)
+* [Submitting a Pull Request](https://github.com/kbrsh/moon/blob/master/CONTRIBUTING.md#submitting-a-pull-request)
 
 ### Development Setup
 
