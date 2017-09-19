@@ -1,5 +1,7 @@
 language: node_js
-script: sh ./build/travis.sh
+script:
+  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then sh ./build/build.sh; fi'
+  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then sh ./build/pr.sh; fi'
 node_js:
   - "node"
 after_success:

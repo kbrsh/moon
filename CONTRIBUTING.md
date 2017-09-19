@@ -76,7 +76,8 @@ Be sure to put the number of the issue you fixed.
   * `moon.min.js` - production (minified + no warnings) version of moon
 * `build` - scripts for automating certain build tasks
   * `release.js` - generates release notes and copies them to the clipboard
-  * `travis.sh` - script for Travis CI to run for every push to Git or a PR
+  * `build.sh` - script for Travis CI to run for every push to Git
+  * `pr.sh` - script for Travis CI to run for every PR
 * `test` - files for testing
   * `test` - folder with actual test definitions
     * `core` - all core tests
