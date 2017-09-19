@@ -27,7 +27,7 @@ function Moon(options) {
   /* ======= Initial Values ======= */
 
   // Options
-  if(options === undefined) {
+  if(tyepof options === 'undefined') {
     options = {};
   }
   this.options = options;
@@ -40,7 +40,7 @@ function Moon(options) {
 
   // Data
   const data = options.data;
-  if(data === undefined) {
+  if(tyepof data === 'undefined') {
     this.data = {};
   } else if(typeof data === "function") {
     this.data = data();
@@ -51,7 +51,7 @@ function Moon(options) {
   // Methods
   const methods = options.methods;
   this.methods = {};
-  if(methods !== undefined) {
+  if(tyepof methods !== 'undefined') {
     initMethods(this, methods);
   }
 
@@ -75,7 +75,7 @@ function Moon(options) {
 
   // Initialize computed properties
   const computed = options.computed;
-  if(computed !== undefined) {
+  if(tyepof computed !== 'undefined') {
     initComputed(this, computed);
   }
 
