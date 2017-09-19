@@ -1619,8 +1619,19 @@
       // Remove queued state
       this.queued = false;
     
-      // Build
-      this.build();
+      // Hydrate
+      var dom = this.render();
+      if(root.nodeName.toLowerCase() === dom.type) {
+        hydrate(root, dom, root.parentNode);
+      } else {
+        var newRoot = createNode(dom);
+        root.parentNode.replaceChild(newRoot, root);
+    
+        newRoot.__moon__ = this;
+        this.root = newRoot;
+      }
+    
+      this.dom = dom;
     
       // Call mounted hook
       callHook(this, "mounted");
@@ -1642,30 +1653,15 @@
       var dom = this.render();
       var old = this.dom;
     
-      if(old.meta === undefined) {
-        // Hydrate
-        if(root.nodeName.toLowerCase() === dom.type) {
-          hydrate(root, dom, root.parentNode);
-        } else {
-          var newRoot = createNode(dom);
-          root.parentNode.replaceChild(newRoot, root);
-    
-          newRoot.__moon__ = this;
-          this.root = newRoot;
-        }
-    
-        this.dom = dom;
+      // Diff
+      if(dom.type === old.type) {
+        diff(old, dom, 0, root.parentNode, {});
       } else {
-        // Diff
-        if(dom.type === old.type) {
-          diff(old, dom, 0, root.parentNode, {});
-        } else {
-          var newRoot$1 = createNode(dom);
-          root.parentNode.replaceChild(newRoot$1, root);
+        var newRoot = createNode(dom);
+        root.parentNode.replaceChild(newRoot, root);
     
-          newRoot$1.__moon__ = this;
-          this.root = newRoot$1;
-        }
+        newRoot.__moon__ = this;
+        this.root = newRoot;
       }
     }
     
@@ -1987,6 +1983,12 @@
           // Literal attribute
           return ("\"" + propName + "\": " + propValue + ", ");
         }
+      }
+    };
+    
+    specialDirectives["m-transition"] = {
+      beforeGenerate: function(prop, node, parentNode, state) {
+        node.meta.transition = (prop.value) + "-transition";
       }
     };
     

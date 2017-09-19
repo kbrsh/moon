@@ -181,8 +181,19 @@ Moon.prototype.mount = function(rootOption) {
   // Remove queued state
   this.queued = false;
 
-  // Build
-  this.build();
+  // Hydrate
+  const dom = this.render();
+  if(root.nodeName.toLowerCase() === dom.type) {
+    hydrate(root, dom, root.parentNode);
+  } else {
+    const newRoot = createNode(dom);
+    root.parentNode.replaceChild(newRoot, root);
+
+    newRoot.__moon__ = this;
+    this.root = newRoot;
+  }
+
+  this.dom = dom;
 
   // Call mounted hook
   callHook(this, "mounted");
@@ -204,30 +215,15 @@ Moon.prototype.build = function() {
   const dom = this.render();
   let old = this.dom;
 
-  if(old.meta === undefined) {
-    // Hydrate
-    if(root.nodeName.toLowerCase() === dom.type) {
-      hydrate(root, dom, root.parentNode);
-    } else {
-      const newRoot = createNode(dom);
-      root.parentNode.replaceChild(newRoot, root);
-
-      newRoot.__moon__ = this;
-      this.root = newRoot;
-    }
-
-    this.dom = dom;
+  // Diff
+  if(dom.type === old.type) {
+    diff(old, dom, 0, root.parentNode, {});
   } else {
-    // Diff
-    if(dom.type === old.type) {
-      diff(old, dom, 0, root.parentNode, {});
-    } else {
-      const newRoot = createNode(dom);
-      root.parentNode.replaceChild(newRoot, root);
+    const newRoot = createNode(dom);
+    root.parentNode.replaceChild(newRoot, root);
 
-      newRoot.__moon__ = this;
-      this.root = newRoot;
-    }
+    newRoot.__moon__ = this;
+    this.root = newRoot;
   }
 }
 
