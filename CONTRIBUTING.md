@@ -68,7 +68,7 @@ Be sure to put the number of the issue you fixed.
   * `global` - code for the global API
   * `instance` - code for instance methods
   * `observer` - code for the dependency tracking system, and changing the context of methods
-  * `util` - code for utilities used throughout the codebase
+  * `util` - code for utilities used throughout the codebase (logs, virtual DOM, DOM operations, and other general utilities)
   * `index.js` - code that defines the Moon constructor and normalizes all options
   * `wrapper.js` - code that exports Moon correctly depending on the environment
 * `dist` - distribution files
