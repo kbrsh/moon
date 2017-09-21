@@ -28,48 +28,52 @@ const compileTemplate = function(template, exclude, dependencies) {
   let dynamic = false;
   let output = '';
 
-  while(current < length) {
-    // Match text
-    const textTail = template.substring(current);
-    const textMatch = textTail.match(openRE);
+  if(length === 0) {
+    output = "\"\"";
+  } else {
+    while(current < length) {
+      // Match text
+      const textTail = template.substring(current);
+      const textMatch = textTail.match(openRE);
 
-    if(textMatch === null) {
-      output += `"${textTail}"`;
-      break;
-    } else {
-      const textIndex = textMatch.index;
-      if(textIndex !== 0) {
-        output += `"${textTail.substring(0, textIndex)}"`;
-        current += textIndex;
+      if(textMatch === null) {
+        output += `"${textTail}"`;
+        break;
+      } else {
+        const textIndex = textMatch.index;
+        if(textIndex !== 0) {
+          output += `"${textTail.substring(0, textIndex)}"`;
+          current += textIndex;
+        }
+
+        dynamic = true;
       }
 
-      dynamic = true;
-    }
-
-    // Concatenate if not at the start
-    if(current !== 0) {
-      output += concatenationSymbol;
-    }
-
-    // Exit opening delimiter
-    current += textMatch[0].length;
-
-    // Get expression, and exit closing delimiter
-    const expressionTail = template.substring(current);
-    const expressionMatch = expressionTail.match(closeRE);
-
-    if("__ENV__" !== "production" && expressionMatch === null) {
-      error(`Expected closing delimiter after "${expressionTail}"`);
-    } else {
-      const expressionIndex = expressionMatch.index;
-      const expression = expressionTail.substring(0, expressionIndex);
-      compileTemplateExpression(expression, exclude, dependencies);
-      output += `(${expression})`;
-      current += expression.length + expressionMatch[0].length;
-
-      // Concatenate if not at the end
-      if(current !== length) {
+      // Concatenate if not at the start
+      if(current !== 0) {
         output += concatenationSymbol;
+      }
+
+      // Exit opening delimiter
+      current += textMatch[0].length;
+
+      // Get expression, and exit closing delimiter
+      const expressionTail = template.substring(current);
+      const expressionMatch = expressionTail.match(closeRE);
+
+      if("__ENV__" !== "production" && expressionMatch === null) {
+        error(`Expected closing delimiter after "${expressionTail}"`);
+      } else {
+        const expressionIndex = expressionMatch.index;
+        const expression = expressionTail.substring(0, expressionIndex);
+        compileTemplateExpression(expression, exclude, dependencies);
+        output += `(${expression})`;
+        current += expression.length + expressionMatch[0].length;
+
+        // Concatenate if not at the end
+        if(current !== length) {
+          output += concatenationSymbol;
+        }
       }
     }
   }
