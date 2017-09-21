@@ -1172,7 +1172,7 @@
           }
     
           hasAttrs = true;
-          propsCode += "\"" + propName + "\": " + (compiled.output) + ", ";
+          propsCode += "\"" + propName + "\": " + (compiled.output.length !== 0 ? compiled.output : "\"\"") + ", ";
         }
       }
     
@@ -1983,12 +1983,6 @@
           // Literal attribute
           return ("\"" + propName + "\": " + propValue + ", ");
         }
-      }
-    };
-    
-    specialDirectives["m-transition"] = {
-      beforeGenerate: function(prop, node, parentNode, state) {
-        node.meta.transition = (prop.value) + "-transition";
       }
     };
     

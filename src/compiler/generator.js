@@ -64,7 +64,7 @@ const generateProps = function(node, parent, specialDirectivesAfter, state) {
       }
 
       hasAttrs = true;
-      propsCode += `"${propName}": ${compiled.output}, `;
+      propsCode += `"${propName}": ${compiled.output.length !== 0 ? compiled.output : "\"\""}, `;
     }
   }
 
