@@ -33,6 +33,7 @@ const parse = function(tokens) {
         };
         elements[lastIndex].children.push(node);
 
+        // Add to stack if element is a non void element
         if(token.closeEnd === false && VOID_ELEMENTS.indexOf(type) === -1) {
           if(SVG_ELEMENTS.indexOf(type) !== -1) {
             node.SVG = true;
