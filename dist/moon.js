@@ -164,19 +164,19 @@
         return classNames;
       } else {
         var renderedClassNames = '';
-        var delimiter = '';
+        var separator = '';
         if(Array.isArray(classNames)) {
           // It's an array concatenate them
           for(var i = 0; i < classNames.length; i++) {
-            renderedClassNames += delimiter + m.renderClass(classNames[i]);
-            delimiter = ' ';
+            renderedClassNames += separator + m.renderClass(classNames[i]);
+            separator = ' ';
           }
         } else if(typeof classNames === "object") {
           // Object of classnames, concatenate if value is true
           for(var className in classNames) {
             if(classNames[className] === true) {
-              renderedClassNames += delimiter + className;
-              delimiter = ' ';
+              renderedClassNames += separator + className;
+              separator = ' ';
             }
           }
         }
