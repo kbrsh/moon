@@ -1,14 +1,9 @@
 const initMethods = function(instance, methods) {
   let instanceMethods = instance.methods;
-
-  const initMethod = function(methodName, method) {
+  for(let methodName in methods) {
     // Change context of method
     instanceMethods[methodName] = function() {
-      return method.apply(instance, arguments);
+      return methods[methodName].apply(instance, arguments);
     }
-  }
-
-  for(let method in methods) {
-    initMethod(method, methods[method]);
   }
 }

@@ -8,7 +8,7 @@ describe("Compiler Optimization", function() {
 
     var tree = app.render();
     var assertStatic = function(vnode) {
-      expect(vnode.meta.dynamic).to.equal(undefined);
+      expect(vnode.data.dynamic).to.equal(undefined);
       if(vnode.children !== undefined) {
         for(var i = 0; i < vnode.children.length; i++) {
           assertStatic(vnode.children[i]);
@@ -18,14 +18,14 @@ describe("Compiler Optimization", function() {
     assertStatic(tree);
   });
 
-  it("should deoptimize on unknown HTML", function() {
+  it("should optimize on unknown HTML", function() {
     createTestElement("unknownHTMLOptimization", "<custom></custom>");
 
     var app = new Moon({
       root: "#unknownHTMLOptimization"
     });
 
-    expect(app.render().children[0].meta.dynamic).to.equal(1);
+    expect(app.render().children[0].data.dynamic).to.equal(undefined);
   });
 
   describe("If/Else Directives", function() {
@@ -39,8 +39,8 @@ describe("Compiler Optimization", function() {
         }
       });
 
-      expect(app.render().children[0].meta.dynamic).to.equal(1);
-      expect(app.render().children[0].children[0].meta.dynamic).to.equal(undefined);
+      expect(app.render().children[0].data.dynamic).to.equal(1);
+      expect(app.render().children[0].children[0].data.dynamic).to.equal(undefined);
     });
 
     it("should optimize on if statements next to each other", function() {
@@ -53,13 +53,13 @@ describe("Compiler Optimization", function() {
         }
       });
 
-      expect(app.render().children[0].meta.dynamic).to.equal(1);
-      expect(app.render().children[0].children[0].meta.dynamic).to.equal(undefined);
+      expect(app.render().children[0].data.dynamic).to.equal(1);
+      expect(app.render().children[0].children[0].data.dynamic).to.equal(undefined);
 
       app.set("falseCondition", true);
 
-      expect(app.render().children[1].meta.dynamic).to.equal(1);
-      expect(app.render().children[1].children[0].meta.dynamic).to.equal(undefined);
+      expect(app.render().children[1].data.dynamic).to.equal(1);
+      expect(app.render().children[1].children[0].data.dynamic).to.equal(undefined);
     });
 
     it("should optimize on if statements with the same parent seperated by an element", function() {
@@ -72,11 +72,11 @@ describe("Compiler Optimization", function() {
         }
       });
 
-      expect(app.render().children[0].meta.dynamic).to.equal(1);
-      expect(app.render().children[0].children[0].meta.dynamic).to.equal(undefined);
+      expect(app.render().children[0].data.dynamic).to.equal(1);
+      expect(app.render().children[0].children[0].data.dynamic).to.equal(undefined);
 
-      expect(app.render().children[2].meta.dynamic).to.equal(1);
-      expect(app.render().children[2].children[0].meta.dynamic).to.equal(undefined);
+      expect(app.render().children[2].data.dynamic).to.equal(1);
+      expect(app.render().children[2].children[0].data.dynamic).to.equal(undefined);
     });
 
     it("should deoptimize on an if/else statement", function() {
@@ -89,13 +89,13 @@ describe("Compiler Optimization", function() {
         }
       });
 
-      expect(app.render().children[0].meta.dynamic).to.equal(1);
-      expect(app.render().children[0].children[0].meta.dynamic).to.equal(1);
+      expect(app.render().children[0].data.dynamic).to.equal(1);
+      expect(app.render().children[0].children[0].data.dynamic).to.equal(1);
 
       app.set("trueCondition", false);
 
-      expect(app.render().children[0].meta.dynamic).to.equal(1);
-      expect(app.render().children[0].children[0].meta.dynamic).to.equal(1);
+      expect(app.render().children[0].data.dynamic).to.equal(1);
+      expect(app.render().children[0].children[0].data.dynamic).to.equal(1);
     });
   });
 
@@ -119,18 +119,18 @@ describe("Compiler Optimization", function() {
 
     it("should optimize a static element", function() {
       var tree = staticApp.render();
-      expect(tree.meta.dynamic).to.equal(1);
-      expect(tree.children[0].meta.dynamic).to.equal(1);
-      expect(tree.children[0].children[0].meta.dynamic).to.equal(1);
-      expect(tree.children[0].children[0].children[0].meta.dynamic).to.equal(undefined);
+      expect(tree.data.dynamic).to.equal(1);
+      expect(tree.children[0].data.dynamic).to.equal(1);
+      expect(tree.children[0].children[0].data.dynamic).to.equal(1);
+      expect(tree.children[0].children[0].children[0].data.dynamic).to.equal(undefined);
     });
 
     it("should deoptimize a dynamic element", function() {
       var tree = dynamicApp.render();
-      expect(tree.meta.dynamic).to.equal(1);
-      expect(tree.children[0].meta.dynamic).to.equal(1);
-      expect(tree.children[0].children[0].meta.dynamic).to.equal(1);
-      expect(tree.children[0].children[0].children[0].meta.dynamic).to.equal(1);
+      expect(tree.data.dynamic).to.equal(1);
+      expect(tree.children[0].data.dynamic).to.equal(1);
+      expect(tree.children[0].children[0].data.dynamic).to.equal(1);
+      expect(tree.children[0].children[0].children[0].data.dynamic).to.equal(1);
     });
   });
 
@@ -165,23 +165,23 @@ describe("Compiler Optimization", function() {
 
     it("should optimize a method", function() {
       var tree = methodApp.render();
-      expect(tree.meta.dynamic).to.equal(undefined);
-      expect(tree.children[0].meta.dynamic).to.equal(undefined);
-      expect(tree.children[0].children[0].meta.dynamic).to.equal(undefined);
+      expect(tree.data.dynamic).to.equal(undefined);
+      expect(tree.children[0].data.dynamic).to.equal(undefined);
+      expect(tree.children[0].children[0].data.dynamic).to.equal(undefined);
     });
 
     it("should optimize a method with static parameters", function() {
       var tree = staticParamApp.render();
-      expect(tree.meta.dynamic).to.equal(undefined);
-      expect(tree.children[0].meta.dynamic).to.equal(undefined);
-      expect(tree.children[0].children[0].meta.dynamic).to.equal(undefined);
+      expect(tree.data.dynamic).to.equal(undefined);
+      expect(tree.children[0].data.dynamic).to.equal(undefined);
+      expect(tree.children[0].children[0].data.dynamic).to.equal(undefined);
     });
 
     it("should deoptimize a method with dynamic parameters", function() {
       var tree = paramApp.render();
-      expect(tree.meta.dynamic).to.equal(1);
-      expect(tree.children[0].meta.dynamic).to.equal(1);
-      expect(tree.children[0].children[0].meta.dynamic).to.equal(undefined);
+      expect(tree.data.dynamic).to.equal(1);
+      expect(tree.children[0].data.dynamic).to.equal(1);
+      expect(tree.children[0].children[0].data.dynamic).to.equal(undefined);
     });
   });
 
@@ -206,14 +206,14 @@ describe("Compiler Optimization", function() {
 
     it("should deoptimize a static model", function() {
       var tree = staticApp.render();
-      expect(tree.meta.dynamic).to.equal(1);
-      expect(tree.children[0].meta.dynamic).to.equal(1);
+      expect(tree.data.dynamic).to.equal(1);
+      expect(tree.children[0].data.dynamic).to.equal(1);
     });
 
     it("should deoptimize a dynamic model", function() {
       var tree = dynamicApp.render();
-      expect(tree.meta.dynamic).to.equal(1);
-      expect(tree.children[0].meta.dynamic).to.equal(1);
+      expect(tree.data.dynamic).to.equal(1);
+      expect(tree.children[0].data.dynamic).to.equal(1);
     });
   });
 
@@ -234,16 +234,16 @@ describe("Compiler Optimization", function() {
 
     it("should deoptimize a static model", function() {
       var tree = staticApp.render();
-      expect(tree.meta.dynamic).to.equal(undefined);
-      expect(tree.children[0].meta.dynamic).to.equal(undefined);
-      expect(tree.children[0].children[0].meta.dynamic).to.equal(undefined);
+      expect(tree.data.dynamic).to.equal(undefined);
+      expect(tree.children[0].data.dynamic).to.equal(undefined);
+      expect(tree.children[0].children[0].data.dynamic).to.equal(undefined);
     });
 
     it("should deoptimize a dynamic model", function() {
       var tree = dynamicApp.render();
-      expect(tree.meta.dynamic).to.equal(1);
-      expect(tree.children[0].meta.dynamic).to.equal(1);
-      expect(tree.children[0].children[0].meta.dynamic).to.equal(undefined);
+      expect(tree.data.dynamic).to.equal(1);
+      expect(tree.children[0].data.dynamic).to.equal(1);
+      expect(tree.children[0].children[0].data.dynamic).to.equal(undefined);
     });
   });
 });

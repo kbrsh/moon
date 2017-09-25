@@ -95,6 +95,6 @@ describe("Compiler", function() {
       root: "#compilerSVG",
       template: '<div id="compilerSVG"><svg></svg></div>'
     });
-    expect(app.render().children[0].meta.SVG).to.equal(1);
+    expect(app.render().children[0].data.SVG).to.equal(1);
   });
 });

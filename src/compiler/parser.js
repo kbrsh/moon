@@ -37,8 +37,6 @@ const parse = function(tokens) {
         if(token.closeEnd === false && VOID_ELEMENTS.indexOf(type) === -1) {
           if(SVG_ELEMENTS.indexOf(type) !== -1) {
             node.SVG = true;
-          } else if(HTML_ELEMENTS.indexOf(type) === -1) {
-            node.custom = true;
           }
 
           elements.push(node);

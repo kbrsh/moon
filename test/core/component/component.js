@@ -2,7 +2,7 @@ describe("Component", function() {
   var componentConstructor = Moon.extend("const", {template: "<div>Hello Moon!</div>"});
 
   it("should create a constructor", function() {
-    expect(new componentConstructor()).to.be.an.instanceof(Moon);
+    expect(new componentConstructor({})).to.be.an.instanceof(Moon);
   });
 
   it("should create a constructor that can mount to an element", function() {
@@ -18,7 +18,7 @@ describe("Component", function() {
 
   it("should create a constructor that can mount to an element manually", function() {
     var root = createTestElement("componentConstructorMountManual", "");
-    var instance = new componentConstructor();
+    var instance = new componentConstructor({});
     instance.mount(root);
 
     return wait(function() {

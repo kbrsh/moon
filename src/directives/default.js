@@ -1,17 +1,19 @@
 const hashRE = /\.|\[/;
 
-const addEventListenerCodeToNode = function(name, handler, node) {
-  const meta = node.meta;
-  let eventListeners = meta.eventListeners;
-  if(eventListeners === undefined) {
-    eventListeners = meta.eventListeners = {};
-  }
+const addEventCodeToNode = function(eventType, handler, node) {
+  const data = node.data;
+  let events = data.events;
 
-  let eventHandlers = eventListeners[name];
-  if(eventHandlers === undefined) {
-    eventListeners[name] = [handler];
+  if(events === undefined) {
+    events = data.events = {};
+    events[eventType] = [handler];
   } else {
-    eventHandlers.push(handler);
+    let eventHandlers = events[eventType];
+    if(eventHandlers === undefined) {
+      events[eventType] = [handler];
+    } else {
+      eventHandlers.push(handler);
+    }
   }
 }
 
@@ -49,7 +51,7 @@ specialDirectives["m-if"] = {
       }
     }
 
-    node.meta.dynamic = 1;
+    node.data.dynamic = 1;
   },
   afterGenerate: function(prop, code, node, parentNode, state) {
     const value = prop.value;
@@ -89,7 +91,7 @@ specialDirectives["m-for"] = {
     compileTemplateExpression(iteratable, exclude, state.dependencies);
 
     // Mark as dynamic
-    node.meta.dynamic = 1;
+    node.data.dynamic = 1;
   },
   afterGenerate: function(prop, code, node, parentNode, state) {
     // Get information about parameters
@@ -116,11 +118,11 @@ specialDirectives["m-on"] = {
 
     // Compile method code
     if(compileTemplateExpression(methodCode, state.exclude, state.dependencies) === true) {
-      node.meta.dynamic = 1;
+      node.data.dynamic = 1;
     }
 
     // Generate event listener code and install handler
-    addEventListenerCodeToNode(eventType, `function(event) {${methodCode};}`, node);
+    addEventCodeToNode(eventType, `function(event) {${methodCode};}`, node);
   }
 };
 
@@ -152,8 +154,8 @@ specialDirectives["m-bind"] = {
       code = `function(event) {var boundValue = instance.get("${base}");boundValue${properties} = ${instanceValue};instance.set("${base}", boundValue);}`;
     }
 
-    node.meta.dynamic = 1;
-    addEventListenerCodeToNode(eventType, code, node);
+    node.data.dynamic = 1;
+    addEventCodeToNode(eventType, code, node);
     addDomPropertyCodeToNode(domKey, domValue, node);
   }
 };
@@ -165,7 +167,7 @@ specialDirectives["m-literal"] = {
     const propValue = prop.value;
 
     if(compileTemplateExpression(propValue, state.exclude, state.dependencies) === true) {
-      node.meta.dynamic = 1;
+      node.data.dynamic = 1;
     }
 
     if(modifiers[0] === "dom") {

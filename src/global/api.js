@@ -61,12 +61,7 @@ Moon.directive = function(name, action) {
  * @param {Object} options
  */
 Moon.extend = function(name, options) {
-  const optionsName = options.name;
-  if(optionsName === undefined) {
-    options.name = name;
-  } else {
-    name = optionsName;
-  }
+  options.name = name;
 
   if(options.data !== undefined && typeof options.data !== "function") {
     error("In components, data must be a function returning an object");
@@ -77,34 +72,24 @@ Moon.extend = function(name, options) {
     Moon.apply(this, [options]);
   }
 
-  MoonComponent.prototype = Object.create(this.prototype);
+  MoonComponent.prototype = Object.create(Moon.prototype);
   MoonComponent.prototype.constructor = MoonComponent;
 
   MoonComponent.prototype.init = function() {
     const componentOptions = this.componentOptions;
-    let root;
-    
-    if(componentOptions === undefined) {
-      this.insert = [];
-    } else {
-      root = componentOptions.root;
-      const props = componentOptions.props;
-      const events = componentOptions.events;
-      this.insert = componentOptions.insert;
+    const props = componentOptions.props;
+    let data = this.data;
 
-      if(props !== undefined) {
-        let data = this.data;
-        for(let prop in props) {
-          data[prop] = props[prop];
-        }
-      }
-
-      if(events !== undefined) {
-        this.events = events;
-      }
+    for(let prop in props) {
+      data[prop] = props[prop];
     }
 
+    this.events = componentOptions.events;
+    this.insert = componentOptions.insert;
+
     callHook(this, "init");
+
+    let root = componentOptions.root;
     if(root !== undefined) {
       this.mount(root);
     }

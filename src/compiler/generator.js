@@ -69,7 +69,7 @@ const generateProps = function(node, parent, specialDirectivesAfter, state) {
   }
 
   if(state.static === false && dynamic === true) {
-    node.meta.dynamic = 1;
+    node.data.dynamic = 1;
   }
 
   if(hasAttrs === true) {
@@ -108,62 +108,62 @@ const generateProps = function(node, parent, specialDirectivesAfter, state) {
   return propsCode;
 }
 
-const generateEventlisteners = function(eventListeners) {
-  let eventListenersCode = "\"eventListeners\": {";
+const generateEvents = function(events) {
+  let eventsCode = "\"events\": {";
 
-  for(let type in eventListeners) {
-    let handlers = eventListeners[type];
-    eventListenersCode += `"${type}": [`;
+  for(let eventType in events) {
+    let handlers = events[eventType];
+    eventsCode += `"${eventType}": [`;
 
     for(let i = 0; i < handlers.length; i++) {
-      eventListenersCode += `${handlers[i]}, `;
+      eventsCode += `${handlers[i]}, `;
     }
 
-    eventListenersCode = closeCall(eventListenersCode, "], ");
+    eventsCode = closeCall(eventsCode, "], ");
   }
 
-  eventListenersCode = closeCall(eventListenersCode, "}, ");
-  return eventListenersCode;
+  eventsCode = closeCall(eventsCode, "}, ");
+  return eventsCode;
 }
 
-const generateMeta = function(meta) {
-  let metaCode = '{';
-  let hasMeta = false;
+const generateData = function(data) {
+  let dataCode = '{';
+  let hasData = false;
 
-  for(let key in meta) {
-    if(key === "eventListeners") {
-      metaCode += generateEventlisteners(meta[key]);
+  for(let key in data) {
+    if(key === "events") {
+      dataCode += generateEvents(data[key]);
     } else {
-      metaCode += `"${key}": ${meta[key]}, `;
+      dataCode += `"${key}": ${data[key]}, `;
     }
-    hasMeta = true;
+    hasData = true;
   }
 
-  if(hasMeta === true) {
-    metaCode = closeCall(metaCode, "}, ");
+  if(hasData === true) {
+    dataCode = closeCall(dataCode, "}, ");
   } else {
-    metaCode += "}, ";
+    dataCode += "}, ";
   }
 
-  return metaCode;
+  return dataCode;
 }
 
 const generateNode = function(node, parent, index, state) {
   if(typeof node === "string") {
     const compiled = compileTemplate(node, state.exclude, state.dependencies);
-    let meta = {};
+    let data = {};
 
     if(state.static === false) {
       if(compiled.dynamic === true || state.dynamic === true) {
-        meta.dynamic = 1;
-        parent.meta.dynamic = 1;
+        data.dynamic = 1;
+        parent.data.dynamic = 1;
       }
     }
 
-    return `m("#text", ${generateMeta(meta)}${compiled.output})`;
+    return `m("#text", ${generateData(data)}${compiled.output})`;
   } else if(node.type === "m-insert") {
     if(state.static === false) {
-      parent.meta.dynamic = 1;
+      parent.data.dynamic = 1;
     }
 
     parent.deep = true;
@@ -173,15 +173,15 @@ const generateNode = function(node, parent, index, state) {
     let call = `m("${node.type}", `;
     state.index = index;
 
-    let meta = {};
-    node.meta = meta;
+    let data = {};
+    node.data = data;
 
-    if((state.static === false) && (node.custom === true || state.dynamic === true)) {
-      meta.dynamic = 1;
+    if(state.static === false && state.dynamic === true) {
+      data.dynamic = 1;
     }
 
     if(node.SVG === true) {
-      meta.SVG = 1;
+      data.SVG = 1;
     }
 
     let specialDirectivesAfter = {};
@@ -203,12 +203,12 @@ const generateNode = function(node, parent, index, state) {
       childrenCode = `[].concat.apply([], ${childrenCode})`;
     }
 
-    if(meta.dynamic === 1 && parent !== undefined) {
-      parent.meta.dynamic = 1;
+    if(data.dynamic === 1 && parent !== undefined) {
+      parent.data.dynamic = 1;
     }
 
     call += propsCode;
-    call += generateMeta(meta);
+    call += generateData(data);
     call += childrenCode;
     call += ')';
 

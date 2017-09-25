@@ -1,42 +1,27 @@
-/**
- * Adds An Event Handler to a Type of Listener
- * @param {Object} node
- * @param {String} type
- * @param {Object} eventListeners
- */
-const addEventHandler = function(node, type, eventListeners) {
-  // Create handle function
-  const handle = function(event) {
-    const handlers = handle.handlers;
-    for(let i = 0; i < handlers.length; i++) {
-      handlers[i](event);
+const addEvents = function(node, events) {
+  for(let eventType in events) {
+    // Create handle function
+    const handle = function(event) {
+      const handlers = handle.handlers;
+      for(let i = 0; i < handlers.length; i++) {
+        handlers[i](event);
+      }
     }
-  }
 
-  // Add handlers to handle
-  handle.handlers = eventListeners[type];
+    // Add handlers to handle
+    handle.handlers = events[eventType];
 
-  // Add handler to VNode
-  eventListeners[type] = handle;
+    // Add handler to VNode
+    events[eventType] = handle;
 
-  // Add event listener
-  node.addEventListener(type, handle);
-}
-
-const addEventListeners = function(node, eventListeners) {
-  for(let type in eventListeners) {
-    addEventHandler(node, type, eventListeners);
+    // Add event listener
+    node.addEventListener(eventType, handle);
   }
 }
 
-/**
- * Creates DOM Node from VNode
- * @param {Object} vnode
- * @return {Object} DOM Node
- */
 const createNode = function(vnode) {
   const type = vnode.type;
-  let meta = vnode.meta;
+  let data = vnode.data;
   let node;
 
   if(type === "#text") {
@@ -44,7 +29,7 @@ const createNode = function(vnode) {
     node = document.createTextNode(vnode.value);
   } else {
     let children = vnode.children;
-    node = meta.SVG === 1 ? document.createElementNS("http://www.w3.org/2000/svg", type) : document.createElement(type);
+    node = data.SVG === 1 ? document.createElementNS("http://www.w3.org/2000/svg", type) : document.createElement(type);
 
     // Append all children
     for(let i = 0; i < children.length; i++) {
@@ -52,87 +37,29 @@ const createNode = function(vnode) {
     }
 
     // Add all event listeners
-    let eventListeners = meta.eventListeners;
-    if(eventListeners !== undefined) {
-      addEventListeners(node, eventListeners);
+    const events = data.events;
+    if(events !== undefined) {
+      addEvents(node, events);
     }
 
-    // Setup Props
-    diffProps(node, {}, vnode, vnode.props);
+    // Add Props
+    patchProps(node, {}, vnode, vnode.props);
   }
 
   // Hydrate
-  vnode.meta.node = node;
+  data.node = node;
 
   return node;
 }
 
-/**
- * Appends a Child, Ensuring Components are Mounted
- * @param {Object} vnode
- * @param {Object} parent
- */
 const appendChild = function(vnode, parent) {
-  // New Component
-  let component = vnode.meta.component;
+  const component = vnode.data.component;
+
   if(component === undefined) {
-    // Create node
-    const node = createNode(vnode);
-
-    // Append node
-    parent.appendChild(node);
+    parent.appendChild(createNode(vnode));
   } else {
-    // Create node
-    const node = document.createElement(vnode.type);
-
-    // Append node
-    parent.appendChild(node);
-
-    // Create Component
-    createComponent(node, vnode, component);
-  }
-}
-
-/**
- * Removes a Child, Ensuring Components are Unmounted
- * @param {Object} node
- * @param {Object} parent
- */
-const removeChild = function(node, parent) {
-  // Check for Existing Component
-  let componentInstance = node.__moon__;
-  if(componentInstance !== undefined) {
-    // Destroy existing component
-    componentInstance.destroy();
-  }
-
-  // Remove the Node
-  parent.removeChild(node);
-}
-
-/**
- * Replaces a Child, Ensuring Components are Unmounted/Mounted
- * @param {Object} node
- * @param {Object} vnode
- * @param {Object} parent
- */
-const replaceChild = function(node, vnode, parent) {
-  // Check for Existing Component
-  let componentInstance = node.__moon__;
-  if(componentInstance !== undefined) {
-    // Destroy existing component
-    componentInstance.destroy();
-  }
-
-  // New Component
-  let component = vnode.meta.component;
-  if(component === undefined) {
-    // Create node
-    const newNode = createNode(vnode);
-
-    // Replace the node
-    parent.replaceChild(newNode, node);
-  } else {
-    createComponent(node, vnode, component);
+    const root = document.createElement(vnode.type);
+    parent.appendChild(root);
+    createComponent(root, vnode, component);
   }
 }

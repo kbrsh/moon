@@ -21,30 +21,18 @@
     var components = {};
     
     /* ======= Utilities ======= */
-    /**
-     * Logs a Message
-     * @param {String} msg
-     */
     var log = function(msg) {
       if(Moon.config.silent === false) {
         console.log(msg);
       }
     }
     
-    /**
-     * Throws an Error
-     * @param {String} msg
-     */
     var error = function(msg) {
       if(Moon.config.silent === false) {
         console.error("[Moon] ERROR: " + msg);
       }
     }
     
-    /**
-     * Adds DOM Updates to Queue
-     * @param {Object} instance
-     */
     var queueBuild = function(instance) {
       if(instance.queued === false) {
         instance.queued = true;
@@ -56,11 +44,6 @@
       }
     }
     
-    /**
-     * Calls a Hook
-     * @param {Object} instance
-     * @param {String} name
-     */
     var callHook = function(instance, name) {
       var hook = instance.hooks[name];
       if(hook !== undefined) {
@@ -68,13 +51,6 @@
       }
     }
     
-    /**
-     * Defines a Property on an Object or a Default Value
-     * @param {Object} obj
-     * @param {String} prop
-     * @param {Any} value
-     * @param {Any} def
-     */
     var defineProperty = function(obj, prop, value, def) {
       if(value === undefined) {
         obj[prop] = def;
@@ -83,52 +59,36 @@
       }
     }
     
-    /**
-     * No Operation
-     */
     var noop = function() {
-    
+      
     }
     
-    /**
-     * Adds An Event Handler to a Type of Listener
-     * @param {Object} node
-     * @param {String} type
-     * @param {Object} eventListeners
-     */
-    var addEventHandler = function(node, type, eventListeners) {
-      // Create handle function
-      var handle = function(event) {
-        var handlers = handle.handlers;
-        for(var i = 0; i < handlers.length; i++) {
-          handlers[i](event);
+    var addEvents = function(node, events) {
+      var loop = function ( eventType ) {
+        // Create handle function
+        var handle = function(event) {
+          var handlers = handle.handlers;
+          for(var i = 0; i < handlers.length; i++) {
+            handlers[i](event);
+          }
         }
-      }
     
-      // Add handlers to handle
-      handle.handlers = eventListeners[type];
+        // Add handlers to handle
+        handle.handlers = events[eventType];
     
-      // Add handler to VNode
-      eventListeners[type] = handle;
+        // Add handler to VNode
+        events[eventType] = handle;
     
-      // Add event listener
-      node.addEventListener(type, handle);
+        // Add event listener
+        node.addEventListener(eventType, handle);
+      };
+    
+      for(var eventType in events) loop( eventType );
     }
     
-    var addEventListeners = function(node, eventListeners) {
-      for(var type in eventListeners) {
-        addEventHandler(node, type, eventListeners);
-      }
-    }
-    
-    /**
-     * Creates DOM Node from VNode
-     * @param {Object} vnode
-     * @return {Object} DOM Node
-     */
     var createNode = function(vnode) {
       var type = vnode.type;
-      var meta = vnode.meta;
+      var data = vnode.data;
       var node;
     
       if(type === "#text") {
@@ -136,7 +96,7 @@
         node = document.createTextNode(vnode.value);
       } else {
         var children = vnode.children;
-        node = meta.SVG === 1 ? document.createElementNS("http://www.w3.org/2000/svg", type) : document.createElement(type);
+        node = data.SVG === 1 ? document.createElementNS("http://www.w3.org/2000/svg", type) : document.createElement(type);
     
         // Append all children
         for(var i = 0; i < children.length; i++) {
@@ -144,217 +104,105 @@
         }
     
         // Add all event listeners
-        var eventListeners = meta.eventListeners;
-        if(eventListeners !== undefined) {
-          addEventListeners(node, eventListeners);
+        var events = data.events;
+        if(events !== undefined) {
+          addEvents(node, events);
         }
     
-        // Setup Props
-        diffProps(node, {}, vnode, vnode.props);
+        // Add Props
+        patchProps(node, {}, vnode, vnode.props);
       }
     
       // Hydrate
-      vnode.meta.node = node;
+      data.node = node;
     
       return node;
     }
     
-    /**
-     * Appends a Child, Ensuring Components are Mounted
-     * @param {Object} vnode
-     * @param {Object} parent
-     */
     var appendChild = function(vnode, parent) {
-      // New Component
-      var component = vnode.meta.component;
+      var component = vnode.data.component;
+    
       if(component === undefined) {
-        // Create node
-        var node = createNode(vnode);
-    
-        // Append node
-        parent.appendChild(node);
+        parent.appendChild(createNode(vnode));
       } else {
-        // Create node
-        var node$1 = document.createElement(vnode.type);
-    
-        // Append node
-        parent.appendChild(node$1);
-    
-        // Create Component
-        createComponent(node$1, vnode, component);
+        var root = document.createElement(vnode.type);
+        parent.appendChild(root);
+        createComponent(root, vnode, component);
       }
     }
     
-    /**
-     * Removes a Child, Ensuring Components are Unmounted
-     * @param {Object} node
-     * @param {Object} parent
-     */
-    var removeChild = function(node, parent) {
-      // Check for Existing Component
-      var componentInstance = node.__moon__;
-      if(componentInstance !== undefined) {
-        // Destroy existing component
-        componentInstance.destroy();
-      }
-    
-      // Remove the Node
-      parent.removeChild(node);
-    }
-    
-    /**
-     * Replaces a Child, Ensuring Components are Unmounted/Mounted
-     * @param {Object} node
-     * @param {Object} vnode
-     * @param {Object} parent
-     */
-    var replaceChild = function(node, vnode, parent) {
-      // Check for Existing Component
-      var componentInstance = node.__moon__;
-      if(componentInstance !== undefined) {
-        // Destroy existing component
-        componentInstance.destroy();
-      }
-    
-      // New Component
-      var component = vnode.meta.component;
-      if(component === undefined) {
-        // Create node
-        var newNode = createNode(vnode);
-    
-        // Replace the node
-        parent.replaceChild(newNode, node);
-      } else {
-        createComponent(node, vnode, component);
-      }
-    }
-    
-    /**
-     * Creates a Virtual DOM Node
-     * @param {String} type
-     * @param {Object} props
-     * @param {Object} meta
-     * @param {Array} children
-     * @return {Object} Virtual DOM Node
-     */
-    var createVNode = function(type, props, meta, children) {
-      return {
-        type: type,
-        props: props,
-        meta: meta,
-        children: children
-      };
-    }
-    
-    /**
-     * Creates a Virtual DOM Text Node
-     * @param {String} value
-     * @param {Object} meta
-     * @return {Object} Virtual DOM Text Node
-     */
-    var createTextVNode = function(value, meta) {
-      return {
-        type: "#text",
-        value: value,
-        meta: meta
-      };
-    }
-    
-    /**
-     * Compiles Arguments to a VNode
-     * @param {String} type
-     * @param {Object} attrs
-     * @param {Object} meta
-     * @param {Object|String} children
-     * @return {Object} Object usable in Virtual DOM (VNode)
-     */
-    var m = function(type, props, meta, children) {
-      var component;
-    
+    var m = function(type, props, data, children) {
       if(type === "#text") {
-        // Text Node
-        // Type => #text
-        // Meta => props
-        // Value => meta
-        return createTextVNode(meta, props);
-      } else if((component = components[type]) !== undefined) {
-        // Resolve Component
-        if(component.options.functional === true) {
-          return createFunctionalComponent(props, children, component);
-        } else {
-          meta.component = component;
+        // Text virtual node
+        return {
+          type: type,
+          value: data,
+          data: props
+        };
+      } else {
+        var component = components[type];
+        if(component !== undefined) {
+          // Component
+          data.component = component;
         }
+    
+        // Virtual node
+        return {
+          type: type,
+          props: props,
+          data: data,
+          children: children
+        };
       }
-    
-      return createVNode(type, props, meta, children);
-    
-      // VNode Structure
-      // {
-      //  type: 'h1', <= nodename
-      //  props: {
-      //    attrs: {'id': 'someId'}, <= regular attributes
-      //    dom: {'textContent': 'some text content'} <= only for DOM properties added by directives,
-      //    directives: {'m-mask': ''} <= any directives
-      //  },
-      //  meta: {}, <= metadata used internally
-      //  children: [], <= any child nodes
-      // }
     };
     
-    /**
-     * Empty Text Node
-     */
     m.emptyVNode = m("#text", {}, '');
     
-    /**
-     * Renders a Class in Array/Object Form
-     * @param {Array|Object|String} classNames
-     * @return {String} renderedClassNames
-     */
     m.renderClass = function(classNames) {
       if(typeof classNames === "string") {
+        // String class names are already processed
         return classNames;
       } else {
         var renderedClassNames = '';
+        var delimiter = '';
         if(Array.isArray(classNames)) {
-          // It's an array, so go through them all and generate a string
+          // It's an array concatenate them
           for(var i = 0; i < classNames.length; i++) {
-            renderedClassNames += " " + (m.renderClass(classNames[i]));
+            renderedClassNames += delimiter + m.renderClass(classNames[i]);
+            delimiter = ' ';
           }
         } else if(typeof classNames === "object") {
-          // It's an object, so to through and render them to a string if the corresponding condition is truthy
+          // Object of classnames, concatenate if value is true
           for(var className in classNames) {
-            if(classNames[className]) {
-              renderedClassNames += " " + className;
+            if(classNames[className] === true) {
+              renderedClassNames += delimiter + className;
+              delimiter = ' ';
             }
           }
         }
     
-        renderedClassNames = renderedClassNames.substring(1);
         return renderedClassNames;
       }
     }
     
-    /**
-     * Renders "m-for" Directive Array
-     * @param {Array|Object|Number} iteratable
-     * @param {Function} item
-     */
     m.renderLoop = function(iteratable, item) {
       var items;
     
       if(Array.isArray(iteratable)) {
+        // Render array
         var length = iteratable.length;
         items = new Array(length);
         for(var i = 0; i < length; i++) {
           items[i] = item(iteratable[i], i);
         }
       } else if(typeof iteratable === "object") {
+        // Render object
         items = [];
         for(var key in iteratable) {
           items.push(item(iteratable[key], key));
         }
       } else if(typeof iteratable === "number") {
+        // Render range
         items = new Array(iteratable);
         for(var i$1 = 0; i$1 < iteratable; i$1++) {
           items[i$1] = item(i$1 + 1, i$1);
@@ -364,132 +212,44 @@
       return items;
     }
     
-    /**
-     * Creates a Functional Component
-     * @param {Object} props
-     * @param {Array} children
-     * @param {Object} functionalComponent
-     * @return {Object} Virtual DOM Node
-     */
-    var createFunctionalComponent = function(props, children, functionalComponent) {
-      var options = functionalComponent.options;
-      var attrs = props.attrs;
-      var data = {};
-      var getData = options.data;
-    
-      if(getData !== undefined) {
-        data = getData();
-      }
-    
-      // Merge data with provided props
-      var propNames = options.props;
-      if(propNames === undefined) {
-        data = attrs;
-      } else {
-        for(var i = 0; i < propNames.length; i++) {
-          var prop = propNames[i];
-          data[prop] = attrs[prop];
-        }
-      }
-    
-      // Call render function
-      return options.render(m, {
-        data: data,
-        insert: children
-      });
-    }
-    
-    /**
-     * Mounts a Component To The DOM
-     * @param {Object} node
-     * @param {Object} vnode
-     * @param {Object} component
-     */
     var createComponent = function(node, vnode, component) {
       var props = component.options.props;
       var attrs = vnode.props.attrs;
-      var data = {};
+      var componentProps = {};
     
-      // Merge data with provided props
+      // Get component props
       if(props !== undefined) {
         for(var i = 0; i < props.length; i++) {
-          var prop = props[i];
-          data[prop] = attrs[prop];
+          var propName = props[i];
+          componentProps[propName] = attrs[propName];
         }
       }
     
       // Create component options
       var componentOptions = {
         root: node,
-        props: data,
+        props: componentProps,
         insert: vnode.children
       };
     
       // Check for events
-      var eventListeners = vnode.meta.eventListeners;
-      if(eventListeners !== undefined) {
-        componentOptions.events = eventListeners;
+      var events = vnode.data.events;
+      if(events === undefined) {
+        componentOptions.events = {};
+      } else {
+        componentOptions.events = events;
       }
     
       // Initialize and mount instance
       var componentInstance = new component.CTor(componentOptions);
     
-      // Rehydrate
-      vnode.meta.node = componentInstance.root;
+      // Update data
+      var data = vnode.data;
+      data.component = componentInstance;
+      data.node = componentInstance.root;
     }
     
-    /**
-     * Diffs a Component
-     * @param {Object} node
-     * @param {Object} vnode
-     */
-    var diffComponent = function(node, vnode) {
-      if(node.__moon__ === undefined) {
-        // Not mounted, create a new instance and mount it here
-        createComponent(node, vnode, vnode.meta.component);
-      } else {
-        // Mounted already, need to update
-        var componentInstance = node.__moon__;
-        var componentChanged = false;
-    
-        // Merge any properties that changed
-        var props = componentInstance.options.props;
-        var data = componentInstance.data;
-        var attrs = vnode.props.attrs;
-    
-        if(props !== undefined) {
-          for(var i = 0; i < props.length; i++) {
-            var prop = props[i];
-            if(data[prop] !== attrs[prop]) {
-              data[prop] = attrs[prop];
-              componentChanged = true;
-            }
-          }
-        }
-    
-    
-        // If it has children, resolve insert
-        if(vnode.children.length !== 0) {
-          componentInstance.insert = vnode.children;
-          componentChanged = true;
-        }
-    
-        // If any changes were detected, build the component
-        if(componentChanged === true) {
-          componentInstance.build();
-          callHook(componentInstance, "updated");
-        }
-      }
-    }
-    
-    /**
-     * Diffs Props of Node and a VNode, and apply Changes
-     * @param {Object} node
-     * @param {Object} nodeProps
-     * @param {Object} vnode
-     * @param {Object} props
-     */
-    var diffProps = function(node, nodeProps, vnode, props) {
+    var patchProps = function(node, nodeProps, vnode, props) {
       // Get VNode Attributes
       var vnodeProps = props.attrs;
     
@@ -531,171 +291,200 @@
       // Add/Update any DOM Props
       var domProps = props.dom;
       if(domProps !== undefined) {
-        for(var domProp in domProps) {
-          var domPropValue = domProps[domProp];
-          if(node[domProp] !== domPropValue) {
-            node[domProp] = domPropValue;
-          }
+        for(var domPropName in domProps) {
+          node[domPropName] = domProps[domPropName];
         }
       }
     }
     
-    /**
-     * Hydrates Node and a VNode
-     * @param {Object} node
-     * @param {Object} vnode
-     * @param {Object} parent
-     */
-    var hydrate = function(node, vnode, parent) {
-      var nodeName = node.nodeName.toLowerCase();
-      var meta = vnode.meta;
-      var component;
-    
-      if(nodeName !== vnode.type) {
-        replaceChild(node, vnode, parent);
-      } else if(vnode.type === "#text") {
-        // Both are text nodes, update if needed
-        if(node.textContent !== vnode.value) {
-          node.textContent = vnode.value;
-        }
-    
-        // Hydrate
-        meta.node = node;
-      } else if((component = meta.component) !== undefined) {
-        // Component
-        createComponent(node, vnode, component);
-      } else {
-        // Hydrate
-        meta.node = node;
-    
-        // Diff props
-        var props = vnode.props;
-        var rawNodeAttrs = node.attributes;
-        var nodeAttrs = {};
-        for(var i = 0; i < rawNodeAttrs.length; i++) {
-          nodeAttrs[rawNodeAttrs[i].name] = rawNodeAttrs[i].value;
-        }
-        diffProps(node, nodeAttrs, vnode, props);
-    
-        // Add event listeners
-        var eventListeners = meta.eventListeners;
-        if(eventListeners !== undefined) {
-          addEventListeners(node, eventListeners);
-        }
-    
-        // Ensure innerHTML and textContent weren't changed
-        var domProps = props.dom;
-        if(domProps === undefined || (domProps.innerHTML === undefined && domProps.textContent === undefined)) {
-          var children = vnode.children;
-          var length = children.length;
-    
-          var i$1 = 0;
-          var currentChildNode = node.firstChild;
-          var child = length === 0 ? undefined : children[0];
-          var nextSibling = null;
-    
-          while(child !== undefined || currentChildNode !== null) {
-            if(currentChildNode === null) {
-              nextSibling = null;
-              appendChild(children[i$1], node);
-            } else {
-              nextSibling = currentChildNode.nextSibling;
-              if(i$1 >= length) {
-                removeChild(currentChildNode, node);
-              } else {
-                hydrate(currentChildNode, children[i$1], node);
-              }
-            }
-            child = ++i$1 < length ? children[i$1] : undefined;
-            currentChildNode = nextSibling;
-          }
-        }
+    var patchEvents = function(newEvents, oldEvents) {
+      // Update event handlers
+      for(var eventType in newEvents) {
+        oldEvents[eventType].handlers = newEvents[eventType];
       }
     }
     
-    /**
-     * Diffs VNodes, and applies Changes
-     * @param {Object} oldVNode
-     * @param {Object} vnode
-     * @param {Number} index
-     * @param {Object} parentNode
-     * @param {Object} parentVNode
-     */
-    var diff = function(oldVNode, vnode, index, parentNode, parentVNode) {
-      var oldMeta = oldVNode.meta;
-      var meta = vnode.meta;
+    var hydrate = function(node, vnode) {
+      var data = vnode.data;
     
-      if(oldVNode.type !== vnode.type) {
-        // Different types, replace
-        parentVNode.children[index] = vnode;
-        replaceChild(oldMeta.node, vnode, parentNode);
-      } else if(meta.dynamic !== undefined) {
-        if(vnode.type === "#text") {
-          // Text, update if needed
-          var value = vnode.value;
-          if(oldVNode.value !== value) {
-            oldVNode.value = value;
-            oldMeta.node.textContent = value;
-          }
-        } else if(meta.component !== undefined) {
-          // Component, diff props and insert
-          diffComponent(oldMeta.node, vnode);
-        } else {
-          var node = oldMeta.node;
+      // Add reference to node
+      data.node = node;
     
-          // Diff props
-          var props = vnode.props;
-          diffProps(node, oldVNode.props.attrs, vnode, props);
-          oldVNode.props = props;
+      // Patch props
+      var props = vnode.props;
+      var nodeAttrs = node.attributes;
+      var oldAttrs = {};
+      for(var i = 0; i < nodeAttrs.length; i++) {
+        var nodeAttr = nodeAttrs[i];
+        oldAttrs[nodeAttr.name] = nodeAttr.value;
+      }
+      patchProps(node, oldAttrs, vnode, props);
     
-          // Diff event listeners
-          var eventListeners = meta.eventListeners;
-          if(eventListeners !== undefined) {
-            var oldEventListeners = oldMeta.eventListeners;
-            for(var type in eventListeners) {
-              oldEventListeners[type].handlers = eventListeners[type];
-            }
-          }
+      // Add events
+      var events = data.events;
+      if(events !== undefined) {
+        addEvents(node, events);
+      }
     
-          // Diff children
-          var children = vnode.children;
-          var oldChildren = oldVNode.children;
-          var newLength = children.length;
-          var oldLength = oldChildren.length;
+      // Hydrate children
+      var domProps = props.dom;
+      if((domProps === undefined) || (domProps.innerHTML === undefined && domProps.textContent === undefined)) {
+        var children = vnode.children;
+        var childrenLength = children.length;
     
-          if(newLength === 0) {
-            var firstChild;
-            while((firstChild = node.firstChild) !== null) {
-              removeChild(firstChild, node);
-            }
-            oldVNode.children = [];
-          } else if(oldLength === 0) {
-            for(var i = 0; i < newLength; i++) {
-              appendChild(children[i], node);
-            }
-            oldVNode.children = children;
+        var i$1 = 0;
+    
+        var childVNode = i$1 === childrenLength ? undefined : children[i$1];
+        var childNode = node.firstChild;
+    
+        while(childVNode !== undefined || childNode !== null) {
+          if(childNode === null) {
+            // Node doesn't exist, create and append a node
+            appendChild(childVNode, node);
           } else {
-            var totalLength = newLength > oldLength ? newLength : oldLength;
-            var oldChild;
-            var child;
-            for(var i$1 = 0; i$1 < totalLength; i$1++) {
-              if(i$1 >= newLength) {
-                // Remove extra child
-                removeChild(oldChildren.pop().meta.node, node);
-              } else if(i$1 >= oldLength) {
-                // Add extra child
-                child = children[i$1];
-                appendChild(child, node);
-                oldChildren[i$1] = child;
-              } else {
-                // Diff child if they don't have the same reference
-                oldChild = oldChildren[i$1];
-                child = children[i$1];
+            var nextSibling = childNode.nextSibling;
     
-                if(oldChild !== child) {
-                  diff(oldChild, child, i$1, node, oldVNode);
+            if(childVNode === undefined) {
+              // No VNode, remove the node
+              node.removeChild(childNode);
+            } else {
+              var component = childVNode.data.component;
+              if(component !== undefined) {
+                // Create a component
+                createComponent(childNode, childVNode, component);
+              } else {
+                var type = childVNode.type;
+                if(childNode.nodeName.toLowerCase() !== type) {
+                  // Different types, replace nodes
+                  node.replaceChild(createNode(childVNode), childNode);
+                } else if(type === "#text") {
+                  // Text node, update
+                  childNode.textContent = childVNode.value;
+                  childVNode.data.node = childNode;
+                } else {
+                  // Hydrate
+                  hydrate(childNode, childVNode);
                 }
               }
+            }
+    
+            childNode = nextSibling;
+          }
+    
+          childVNode = ++i$1 < childrenLength ? children[i$1] : undefined;
+        }
+      }
+    }
+    
+    var patch = function(newVNode, oldVNode) {
+      var oldData = oldVNode.data;
+      var node = oldData.node;
+    
+      // Patch props
+      var newProps = newVNode.props;
+      patchProps(node, oldVNode.props.attrs, newVNode, newProps);
+      oldVNode.props = newProps;
+    
+      // Patch events
+      var newEvents = newVNode.data.events;
+      if(newEvents !== undefined) {
+        patchEvents(newEvents, oldData.events);
+      }
+    
+      // Patch children
+      var newChildren = newVNode.children;
+      var oldChildren = oldVNode.children;
+    
+      var newLength = newChildren.length;
+      var oldLength = oldChildren.length;
+      var totalLength = newLength > oldLength ? newLength : oldLength;
+    
+      for(var i = 0; i < totalLength; i++) {
+        if(i >= newLength) {
+          // Past length of new children, remove child
+          var oldChild = oldChildren.pop();
+          var oldChildData = oldChild.data;
+          var oldComponentInstance = oldChildData.component;
+    
+          if(oldComponentInstance !== undefined) {
+            oldComponentInstance.destroy();
+          }
+    
+          node.removeChild(oldChildData.node);
+        } else if(i >= oldLength) {
+          // Past length of old children, append child
+          appendChild((oldChildren[i] = newChildren[i]), node);
+        } else {
+          var newChild = newChildren[i];
+          var oldChild$1 = oldChildren[i];
+    
+          var newType = newChild.type;
+          if(newType !== oldChild$1.type) {
+            // Types are different, replace child
+            var oldChildData$1 = oldChild$1.data;
+            var oldComponentInstance$1 = oldChildData$1.component;
+    
+            if(oldComponentInstance$1 !== undefined) {
+              oldComponentInstance$1.destroy();
+            }
+    
+            var newComponent = newChild.data.component;
+            if(newComponent === undefined) {
+              node.replaceChild(createNode(newChild), oldChildData$1.node);
+            } else {
+              createComponent(oldChildData$1.node, newChild, newComponent);
+            }
+    
+            oldChildren[i] = newChild;
+          } else if(newChild !== oldChild$1) {
+            var oldChildData$2 = oldChild$1.data;
+            var componentInstance = oldChildData$2.component;
+            if(componentInstance !== undefined) {
+              // Component found
+              var componentChanged = false;
+    
+              var componentProps = componentInstance.options.props;
+              if(componentProps !== undefined) {
+                // Update component props
+                var newChildAttrs = newChild.props.attrs;
+                var componentObserver = componentInstance.observer;
+                var componentData = componentInstance.data;
+    
+                for(var j = 0; j < componentProps.length; j++) {
+                  var componentPropName = componentProps[j];
+                  componentData[componentPropName] = newChildAttrs[componentPropName];
+                  componentObserver.notify(componentPropName);
+                }
+    
+                componentChanged = true;
+              }
+    
+              // Patch component events
+              var newChildEvents = newChild.data.events;
+              if(newChildEvents !== undefined) {
+                patchEvents(newChildEvents, oldChildData$2.events);
+              }
+    
+              // Add insert
+              var newChildChildren = newChild.children;
+              if(newChildChildren.length !== 0) {
+                componentInstance.insert = newChildChildren;
+                componentChanged = true;
+              }
+    
+              // Build component if changed
+              if(componentChanged === true) {
+                componentInstance.build();
+                callHook(componentInstance, "updated");
+              }
+            } else if(newType === "#text") {
+              // Text node, update value
+              var newValue = newChild.value;
+              oldChildData$2.node.textContent = newValue;
+              oldChild$1.value = newValue;
+            } else {
+              // Patch children
+              patch(newChild, oldChild$1);
             }
           }
         }
@@ -706,35 +495,34 @@
     /* ======= Observer ======= */
     var initMethods = function(instance, methods) {
       var instanceMethods = instance.methods;
-    
-      var initMethod = function(methodName, method) {
+      var loop = function ( methodName ) {
         // Change context of method
         instanceMethods[methodName] = function() {
-          return method.apply(instance, arguments);
+          return methods[methodName].apply(instance, arguments);
         }
-      }
+      };
     
-      for(var method in methods) {
-        initMethod(method, methods[method]);
-      }
+      for(var methodName in methods) loop( methodName );
     }
     
     var initComputed = function(instance, computed) {
-      var setComputedProperty = function(prop) {
-        var observer = instance.observer;
-        var option = computed[prop];
+      // Set all computed properties
+      var data = instance.data;
+      var observer = instance.observer;
+      var loop = function ( propName ) {
+        var option = computed[propName];
         var getter = option.get;
         var setter = option.set;
     
         // Add getter/setter
-        Object.defineProperty(instance.data, prop, {
+        Object.defineProperty(data, propName, {
           get: function() {
             // Property Cache
             var cache;
     
-            if(observer.cache[prop] === undefined) {
+            if(observer.cache[propName] === undefined) {
               // Capture dependencies
-              observer.target = prop;
+              observer.target = propName;
     
               // Invoke getter
               cache = getter.call(instance);
@@ -743,10 +531,10 @@
               observer.target = undefined;
     
               // Store value in cache
-              observer.cache[prop] = cache;
+              observer.cache[propName] = cache;
             } else {
               // Use cached value
-              cache = observer.cache[prop];
+              cache = observer.cache[propName];
             }
     
             return cache;
@@ -755,12 +543,9 @@
             setter.call(instance, val);
           }
         });
-      }
+      };
     
-      // Set all computed properties
-      for(var propName in computed) {
-        setComputedProperty(propName);
-      }
+      for(var propName in computed) loop( propName );
     }
     
     function Observer() {
@@ -830,8 +615,7 @@
     // Global Variables/Keywords
     var globals = ["true", "false", "undefined", "null", "NaN", "typeof", "in", "event"];
     
-    // HTML, Void, and SVG Elements
-    var HTML_ELEMENTS = ["a", "abbr", "address", "article", "aside", "audio", "b", "bdi", "bdo", "blockquote", "button", "canvas", "caption", "cite", "code", "col", "colgroup", "content", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "div", "dl", "dt", "element", "em", "fieldset", "figcaption", "figure", "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6", "header", "hgroup", "i", "iframe", "ins", "kbd", "label", "legend", "li", "main", "map", "mark", "menu", "menuitem", "meter", "nav", "object", "ol", "optgroup", "option", "output", "p", "picture", "pre", "progress", "q", "rp", "rt", "rtc", "ruby", "s", "samp", "section", "select", "shadow", "small", "span", "strong", "sub", "summary", "sup", "table", "tbody", "td", "template", "textarea", "tfoot", "th", "thead", "time", "tr", "u", "ul", "var", "video"];
+    // Void and SVG Elements
     var VOID_ELEMENTS = ["area", "base", "br", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"];
     var SVG_ELEMENTS = ["animate", "circle", "clippath", "cursor", "defs", "desc", "ellipse", "filter", "font-face", "foreignObject", "g", "glyph", "image", "line", "marker", "mask", "missing-glyph", "path", "pattern", "polygon", "polyline", "rect", "svg", "switch", "symbol", "text", "textpath", "tspan", "use", "view"];
     
@@ -865,48 +649,52 @@
       var dynamic = false;
       var output = '';
     
-      while(current < length) {
-        // Match text
-        var textTail = template.substring(current);
-        var textMatch = textTail.match(openRE);
+      if(length === 0) {
+        output = "\"\"";
+      } else {
+        while(current < length) {
+          // Match text
+          var textTail = template.substring(current);
+          var textMatch = textTail.match(openRE);
     
-        if(textMatch === null) {
-          output += "\"" + textTail + "\"";
-          break;
-        } else {
-          var textIndex = textMatch.index;
-          if(textIndex !== 0) {
-            output += "\"" + (textTail.substring(0, textIndex)) + "\"";
-            current += textIndex;
+          if(textMatch === null) {
+            output += "\"" + textTail + "\"";
+            break;
+          } else {
+            var textIndex = textMatch.index;
+            if(textIndex !== 0) {
+              output += "\"" + (textTail.substring(0, textIndex)) + "\"";
+              current += textIndex;
+            }
+    
+            dynamic = true;
           }
     
-          dynamic = true;
-        }
-    
-        // Concatenate if not at the start
-        if(current !== 0) {
-          output += concatenationSymbol;
-        }
-    
-        // Exit opening delimiter
-        current += textMatch[0].length;
-    
-        // Get expression, and exit closing delimiter
-        var expressionTail = template.substring(current);
-        var expressionMatch = expressionTail.match(closeRE);
-    
-        if("development" !== "production" && expressionMatch === null) {
-          error(("Expected closing delimiter after \"" + expressionTail + "\""));
-        } else {
-          var expressionIndex = expressionMatch.index;
-          var expression = expressionTail.substring(0, expressionIndex);
-          compileTemplateExpression(expression, exclude, dependencies);
-          output += "(" + expression + ")";
-          current += expression.length + expressionMatch[0].length;
-    
-          // Concatenate if not at the end
-          if(current !== length) {
+          // Concatenate if not at the start
+          if(current !== 0) {
             output += concatenationSymbol;
+          }
+    
+          // Exit opening delimiter
+          current += textMatch[0].length;
+    
+          // Get expression, and exit closing delimiter
+          var expressionTail = template.substring(current);
+          var expressionMatch = expressionTail.match(closeRE);
+    
+          if("development" !== "production" && expressionMatch === null) {
+            error(("Expected closing delimiter after \"" + expressionTail + "\""));
+          } else {
+            var expressionIndex = expressionMatch.index;
+            var expression = expressionTail.substring(0, expressionIndex);
+            compileTemplateExpression(expression, exclude, dependencies);
+            output += "(" + expression + ")";
+            current += expression.length + expressionMatch[0].length;
+    
+            // Concatenate if not at the end
+            if(current !== length) {
+              output += concatenationSymbol;
+            }
           }
         }
       }
@@ -1089,11 +877,10 @@
             };
             elements[lastIndex].children.push(node);
     
+            // Add to stack if element is a non void element
             if(token.closeEnd === false && VOID_ELEMENTS.indexOf(type) === -1) {
               if(SVG_ELEMENTS.indexOf(type) !== -1) {
                 node.SVG = true;
-              } else if(HTML_ELEMENTS.indexOf(type) === -1) {
-                node.custom = true;
               }
     
               elements.push(node);
@@ -1177,7 +964,7 @@
       }
     
       if(state.static === false && dynamic === true) {
-        node.meta.dynamic = 1;
+        node.data.dynamic = 1;
       }
     
       if(hasAttrs === true) {
@@ -1216,62 +1003,62 @@
       return propsCode;
     }
     
-    var generateEventlisteners = function(eventListeners) {
-      var eventListenersCode = "\"eventListeners\": {";
+    var generateEvents = function(events) {
+      var eventsCode = "\"events\": {";
     
-      for(var type in eventListeners) {
-        var handlers = eventListeners[type];
-        eventListenersCode += "\"" + type + "\": [";
+      for(var eventType in events) {
+        var handlers = events[eventType];
+        eventsCode += "\"" + eventType + "\": [";
     
         for(var i = 0; i < handlers.length; i++) {
-          eventListenersCode += (handlers[i]) + ", ";
+          eventsCode += (handlers[i]) + ", ";
         }
     
-        eventListenersCode = closeCall(eventListenersCode, "], ");
+        eventsCode = closeCall(eventsCode, "], ");
       }
     
-      eventListenersCode = closeCall(eventListenersCode, "}, ");
-      return eventListenersCode;
+      eventsCode = closeCall(eventsCode, "}, ");
+      return eventsCode;
     }
     
-    var generateMeta = function(meta) {
-      var metaCode = '{';
-      var hasMeta = false;
+    var generateData = function(data) {
+      var dataCode = '{';
+      var hasData = false;
     
-      for(var key in meta) {
-        if(key === "eventListeners") {
-          metaCode += generateEventlisteners(meta[key]);
+      for(var key in data) {
+        if(key === "events") {
+          dataCode += generateEvents(data[key]);
         } else {
-          metaCode += "\"" + key + "\": " + (meta[key]) + ", ";
+          dataCode += "\"" + key + "\": " + (data[key]) + ", ";
         }
-        hasMeta = true;
+        hasData = true;
       }
     
-      if(hasMeta === true) {
-        metaCode = closeCall(metaCode, "}, ");
+      if(hasData === true) {
+        dataCode = closeCall(dataCode, "}, ");
       } else {
-        metaCode += "}, ";
+        dataCode += "}, ";
       }
     
-      return metaCode;
+      return dataCode;
     }
     
     var generateNode = function(node, parent, index, state) {
       if(typeof node === "string") {
         var compiled = compileTemplate(node, state.exclude, state.dependencies);
-        var meta = {};
+        var data = {};
     
         if(state.static === false) {
           if(compiled.dynamic === true || state.dynamic === true) {
-            meta.dynamic = 1;
-            parent.meta.dynamic = 1;
+            data.dynamic = 1;
+            parent.data.dynamic = 1;
           }
         }
     
-        return ("m(\"#text\", " + (generateMeta(meta)) + (compiled.output) + ")");
+        return ("m(\"#text\", " + (generateData(data)) + (compiled.output) + ")");
       } else if(node.type === "m-insert") {
         if(state.static === false) {
-          parent.meta.dynamic = 1;
+          parent.data.dynamic = 1;
         }
     
         parent.deep = true;
@@ -1281,15 +1068,15 @@
         var call = "m(\"" + (node.type) + "\", ";
         state.index = index;
     
-        var meta$1 = {};
-        node.meta = meta$1;
+        var data$1 = {};
+        node.data = data$1;
     
-        if((state.static === false) && (node.custom === true || state.dynamic === true)) {
-          meta$1.dynamic = 1;
+        if(state.static === false && state.dynamic === true) {
+          data$1.dynamic = 1;
         }
     
         if(node.SVG === true) {
-          meta$1.SVG = 1;
+          data$1.SVG = 1;
         }
     
         var specialDirectivesAfter = {};
@@ -1311,12 +1098,12 @@
           childrenCode = "[].concat.apply([], " + childrenCode + ")";
         }
     
-        if(meta$1.dynamic === 1 && parent !== undefined) {
-          parent.meta.dynamic = 1;
+        if(data$1.dynamic === 1 && parent !== undefined) {
+          parent.data.dynamic = 1;
         }
     
         call += propsCode;
-        call += generateMeta(meta$1);
+        call += generateData(data$1);
         call += childrenCode;
         call += ')';
     
@@ -1436,11 +1223,6 @@
     }
     
     /* ======= Instance Methods ======= */
-    /**
-     * Gets Value in Data
-     * @param {String} key
-     * @return {String} Value of key in data
-     */
     Moon.prototype.get = function(key) {
       // Collect dependencies if currently collecting
       var observer = this.observer;
@@ -1462,11 +1244,6 @@
       return this.data[key];
     }
     
-    /**
-     * Sets Value in Data
-     * @param {String|Object} key
-     * @param {Any} value
-     */
     Moon.prototype.set = function(key, value) {
       // Get observer
       var observer = this.observer;
@@ -1493,15 +1270,11 @@
       queueBuild(this);
     }
     
-    /**
-     * Destroys Moon Instance
-     */
     Moon.prototype.destroy = function() {
       // Remove event listeners
       this.off();
     
       // Remove reference to element
-      delete this.root.__moon__;
       this.root = undefined;
     
       // Queue
@@ -1513,11 +1286,6 @@
     
     // Event Emitter, adapted from https://github.com/kbrsh/voke
     
-    /**
-     * Attaches an Event Listener
-     * @param {String} eventName
-     * @param {Function} handler
-     */
     Moon.prototype.on = function(eventName, handler) {
       var events = this.events;
       var handlers = events[eventName];
@@ -1531,11 +1299,6 @@
       }
     }
     
-    /**
-     * Removes an Event Listener
-     * @param {String} eventName
-     * @param {Function} handler
-     */
     Moon.prototype.off = function(eventName, handler) {
       if(eventName === undefined) {
         // No event name provided, remove all events
@@ -1555,11 +1318,6 @@
       }
     }
     
-    /**
-     * Emits an Event
-     * @param {String} eventName
-     * @param {Object} customMeta
-     */
     Moon.prototype.emit = function(eventName, customMeta) {
       // Events
       var events = this.events;
@@ -1594,19 +1352,12 @@
       }
     }
     
-    /**
-     * Mounts Moon Element
-     * @param {String|Object} root
-     */
     Moon.prototype.mount = function(rootOption) {
-      // Get element from the DOM
+      // Get root from the DOM
       var root = this.root = typeof rootOption === "string" ? document.querySelector(rootOption) : rootOption;
       if("development" !== "production" && root === null) {
         error("Element " + this.options.root + " not found");
       }
-    
-      // Sync Element and Moon instance
-      root.__moon__ = this;
     
       // Setup template as provided `template` or outerHTML of the node
       defineProperty(this, "template", this.options.template, root.outerHTML);
@@ -1622,12 +1373,10 @@
       // Hydrate
       var dom = this.render();
       if(root.nodeName.toLowerCase() === dom.type) {
-        hydrate(root, dom, root.parentNode);
+        hydrate(root, dom);
       } else {
         var newRoot = createNode(dom);
         root.parentNode.replaceChild(newRoot, root);
-    
-        newRoot.__moon__ = this;
         this.root = newRoot;
       }
     
@@ -1637,37 +1386,26 @@
       callHook(this, "mounted");
     }
     
-    /**
-     * Renders Virtual DOM
-     * @return {Object} Virtual DOM
-     */
     Moon.prototype.render = function() {
       return this.compiledRender(m);
     }
     
-    /**
-     * Renders and Patches the DOM
-     */
     Moon.prototype.build = function() {
       var root = this.root;
       var dom = this.render();
       var old = this.dom;
     
-      // Diff
       if(dom.type === old.type) {
-        diff(old, dom, 0, root.parentNode, {});
+        if(dom !== old) {
+          patch(dom, old);
+        }
       } else {
         var newRoot = createNode(dom);
         root.parentNode.replaceChild(newRoot, root);
-    
-        newRoot.__moon__ = this;
         this.root = newRoot;
       }
     }
     
-    /**
-     * Initializes Moon
-     */
     Moon.prototype.init = function() {
       log("======= Moon =======");
       callHook(this, "init");
@@ -1743,12 +1481,7 @@
      * @param {Object} options
      */
     Moon.extend = function(name, options) {
-      var optionsName = options.name;
-      if(optionsName === undefined) {
-        options.name = name;
-      } else {
-        name = optionsName;
-      }
+      options.name = name;
     
       if(options.data !== undefined && typeof options.data !== "function") {
         error("In components, data must be a function returning an object");
@@ -1759,34 +1492,24 @@
         Moon.apply(this, [options]);
       }
     
-      MoonComponent.prototype = Object.create(this.prototype);
+      MoonComponent.prototype = Object.create(Moon.prototype);
       MoonComponent.prototype.constructor = MoonComponent;
     
       MoonComponent.prototype.init = function() {
         var componentOptions = this.componentOptions;
-        var root;
-        
-        if(componentOptions === undefined) {
-          this.insert = [];
-        } else {
-          root = componentOptions.root;
-          var props = componentOptions.props;
-          var events = componentOptions.events;
-          this.insert = componentOptions.insert;
+        var props = componentOptions.props;
+        var data = this.data;
     
-          if(props !== undefined) {
-            var data = this.data;
-            for(var prop in props) {
-              data[prop] = props[prop];
-            }
-          }
-    
-          if(events !== undefined) {
-            this.events = events;
-          }
+        for(var prop in props) {
+          data[prop] = props[prop];
         }
     
+        this.events = componentOptions.events;
+        this.insert = componentOptions.insert;
+    
         callHook(this, "init");
+    
+        var root = componentOptions.root;
         if(root !== undefined) {
           this.mount(root);
         }
@@ -1804,18 +1527,20 @@
     /* ======= Default Directives ======= */
     var hashRE = /\.|\[/;
     
-    var addEventListenerCodeToNode = function(name, handler, node) {
-      var meta = node.meta;
-      var eventListeners = meta.eventListeners;
-      if(eventListeners === undefined) {
-        eventListeners = meta.eventListeners = {};
-      }
+    var addEventCodeToNode = function(eventType, handler, node) {
+      var data = node.data;
+      var events = data.events;
     
-      var eventHandlers = eventListeners[name];
-      if(eventHandlers === undefined) {
-        eventListeners[name] = [handler];
+      if(events === undefined) {
+        events = data.events = {};
+        events[eventType] = [handler];
       } else {
-        eventHandlers.push(handler);
+        var eventHandlers = events[eventType];
+        if(eventHandlers === undefined) {
+          events[eventType] = [handler];
+        } else {
+          eventHandlers.push(handler);
+        }
       }
     }
     
@@ -1853,7 +1578,7 @@
           }
         }
     
-        node.meta.dynamic = 1;
+        node.data.dynamic = 1;
       },
       afterGenerate: function(prop, code, node, parentNode, state) {
         var value = prop.value;
@@ -1893,7 +1618,7 @@
         compileTemplateExpression(iteratable, exclude, state.dependencies);
     
         // Mark as dynamic
-        node.meta.dynamic = 1;
+        node.data.dynamic = 1;
       },
       afterGenerate: function(prop, code, node, parentNode, state) {
         // Get information about parameters
@@ -1920,11 +1645,11 @@
     
         // Compile method code
         if(compileTemplateExpression(methodCode, state.exclude, state.dependencies) === true) {
-          node.meta.dynamic = 1;
+          node.data.dynamic = 1;
         }
     
         // Generate event listener code and install handler
-        addEventListenerCodeToNode(eventType, ("function(event) {" + methodCode + ";}"), node);
+        addEventCodeToNode(eventType, ("function(event) {" + methodCode + ";}"), node);
       }
     };
     
@@ -1956,8 +1681,8 @@
           code = "function(event) {var boundValue = instance.get(\"" + base + "\");boundValue" + properties + " = " + instanceValue + ";instance.set(\"" + base + "\", boundValue);}";
         }
     
-        node.meta.dynamic = 1;
-        addEventListenerCodeToNode(eventType, code, node);
+        node.data.dynamic = 1;
+        addEventCodeToNode(eventType, code, node);
         addDomPropertyCodeToNode(domKey, domValue, node);
       }
     };
@@ -1969,7 +1694,7 @@
         var propValue = prop.value;
     
         if(compileTemplateExpression(propValue, state.exclude, state.dependencies) === true) {
-          node.meta.dynamic = 1;
+          node.data.dynamic = 1;
         }
     
         if(modifiers[0] === "dom") {
@@ -1983,12 +1708,6 @@
           // Literal attribute
           return ("\"" + propName + "\": " + propValue + ", ");
         }
-      }
-    };
-    
-    specialDirectives["m-transition"] = {
-      beforeGenerate: function(prop, node, parentNode, state) {
-        node.meta.transition = (prop.value) + "-transition";
       }
     };
     

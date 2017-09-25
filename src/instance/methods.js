@@ -1,8 +1,3 @@
-/**
- * Gets Value in Data
- * @param {String} key
- * @return {String} Value of key in data
- */
 Moon.prototype.get = function(key) {
   // Collect dependencies if currently collecting
   const observer = this.observer;
@@ -24,11 +19,6 @@ Moon.prototype.get = function(key) {
   return this.data[key];
 }
 
-/**
- * Sets Value in Data
- * @param {String|Object} key
- * @param {Any} value
- */
 Moon.prototype.set = function(key, value) {
   // Get observer
   const observer = this.observer;
@@ -55,15 +45,11 @@ Moon.prototype.set = function(key, value) {
   queueBuild(this);
 }
 
-/**
- * Destroys Moon Instance
- */
 Moon.prototype.destroy = function() {
   // Remove event listeners
   this.off();
 
   // Remove reference to element
-  delete this.root.__moon__;
   this.root = undefined;
 
   // Queue
@@ -75,11 +61,6 @@ Moon.prototype.destroy = function() {
 
 // Event Emitter, adapted from https://github.com/kbrsh/voke
 
-/**
- * Attaches an Event Listener
- * @param {String} eventName
- * @param {Function} handler
- */
 Moon.prototype.on = function(eventName, handler) {
   let events = this.events;
   let handlers = events[eventName];
@@ -93,11 +74,6 @@ Moon.prototype.on = function(eventName, handler) {
   }
 }
 
-/**
- * Removes an Event Listener
- * @param {String} eventName
- * @param {Function} handler
- */
 Moon.prototype.off = function(eventName, handler) {
   if(eventName === undefined) {
     // No event name provided, remove all events
@@ -117,11 +93,6 @@ Moon.prototype.off = function(eventName, handler) {
   }
 }
 
-/**
- * Emits an Event
- * @param {String} eventName
- * @param {Object} customMeta
- */
 Moon.prototype.emit = function(eventName, customMeta) {
   // Events
   const events = this.events;
@@ -156,19 +127,12 @@ Moon.prototype.emit = function(eventName, customMeta) {
   }
 }
 
-/**
- * Mounts Moon Element
- * @param {String|Object} root
- */
 Moon.prototype.mount = function(rootOption) {
-  // Get element from the DOM
+  // Get root from the DOM
   let root = this.root = typeof rootOption === "string" ? document.querySelector(rootOption) : rootOption;
   if("__ENV__" !== "production" && root === null) {
     error("Element " + this.options.root + " not found");
   }
-
-  // Sync Element and Moon instance
-  root.__moon__ = this;
 
   // Setup template as provided `template` or outerHTML of the node
   defineProperty(this, "template", this.options.template, root.outerHTML);
@@ -184,12 +148,10 @@ Moon.prototype.mount = function(rootOption) {
   // Hydrate
   const dom = this.render();
   if(root.nodeName.toLowerCase() === dom.type) {
-    hydrate(root, dom, root.parentNode);
+    hydrate(root, dom);
   } else {
     const newRoot = createNode(dom);
     root.parentNode.replaceChild(newRoot, root);
-
-    newRoot.__moon__ = this;
     this.root = newRoot;
   }
 
@@ -199,37 +161,26 @@ Moon.prototype.mount = function(rootOption) {
   callHook(this, "mounted");
 }
 
-/**
- * Renders Virtual DOM
- * @return {Object} Virtual DOM
- */
 Moon.prototype.render = function() {
   return this.compiledRender(m);
 }
 
-/**
- * Renders and Patches the DOM
- */
 Moon.prototype.build = function() {
   const root = this.root;
   const dom = this.render();
   let old = this.dom;
 
-  // Diff
   if(dom.type === old.type) {
-    diff(old, dom, 0, root.parentNode, {});
+    if(dom !== old) {
+      patch(dom, old);
+    }
   } else {
     const newRoot = createNode(dom);
     root.parentNode.replaceChild(newRoot, root);
-
-    newRoot.__moon__ = this;
     this.root = newRoot;
   }
 }
 
-/**
- * Initializes Moon
- */
 Moon.prototype.init = function() {
   log("======= Moon =======");
   callHook(this, "init");
