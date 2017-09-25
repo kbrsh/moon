@@ -1286,29 +1286,29 @@
     
     // Event Emitter, adapted from https://github.com/kbrsh/voke
     
-    Moon.prototype.on = function(eventName, handler) {
+    Moon.prototype.on = function(eventType, handler) {
       var events = this.events;
-      var handlers = events[eventName];
+      var handlers = events[eventType];
     
       if(handlers === undefined) {
         // Create handler
-        events[eventName] = [handler];
+        events[eventType] = [handler];
       } else {
         // Add handler
         handlers.push(handler);
       }
     }
     
-    Moon.prototype.off = function(eventName, handler) {
-      if(eventName === undefined) {
+    Moon.prototype.off = function(eventType, handler) {
+      if(eventType === undefined) {
         // No event name provided, remove all events
         this.events = {};
       } else if(handler === undefined) {
         // No handler provided, remove all handlers for the event name
-        this.events[eventName] = [];
+        this.events[eventType] = [];
       } else {
         // Get handlers from event name
-        var handlers = this.events[eventName];
+        var handlers = this.events[eventType];
     
         // Get index of the handler to remove
         var index = handlers.indexOf(handler);
@@ -1318,20 +1318,12 @@
       }
     }
     
-    Moon.prototype.emit = function(eventName, customMeta) {
+    Moon.prototype.emit = function(eventType, data) {
       // Events
       var events = this.events;
     
-      // Setup metadata to pass to event
-      var meta = {};
-      if(customMeta !== undefined) {
-        meta = customMeta;
-      }
-    
-      meta.type = eventName;
-    
       // Get handlers and global handlers
-      var handlers = events[eventName];
+      var handlers = events[eventType];
       var globalHandlers = events['*'];
     
       // Counter
@@ -1340,14 +1332,14 @@
       // Call all handlers for the event name
       if(handlers !== undefined) {
         for(i = 0; i < handlers.length; i++) {
-          handlers[i](meta);
+          handlers[i](data);
         }
       }
     
       if(globalHandlers !== undefined) {
         // Call all of the global handlers if present
         for(i = 0; i < globalHandlers.length; i++) {
-          globalHandlers[i](meta);
+          globalHandlers[i](eventType, data);
         }
       }
     }
