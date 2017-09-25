@@ -24,9 +24,15 @@ if(document.getElementById("moon-els")) {
   document.body.appendChild(moon_els);
 }
 
+// Expect utility
 var expect = chai.expect;
 
-Moon.config.silent = true;
+// Stop logs
+console.log = console.error = Moon.util.noop;
+
+// Cover errors
+Moon.util.log("Test");
+Moon.util.error("Test");
 
 var createTestElement = function(id, html) {
   var el = document.createElement("div");

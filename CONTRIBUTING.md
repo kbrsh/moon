@@ -82,7 +82,7 @@ Be sure to put the number of the issue you fixed.
   * `test` - folder with actual test definitions
     * `core` - all core tests
   * `index.html` - HTML file for Mocha/Chai Phantom browser tests
-  * `log.js` - file that logs the browser test URL
+  * `log.js` - file that logs extra information about test results
 * `benchmarks` - benchmarks for measuring performance
   * `dbmon` - DBMonster benchmark code
   * `loop` - Loop benchmark code
