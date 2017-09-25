@@ -1418,21 +1418,12 @@
     
     
     /* ======= Global API ======= */
-    /**
-     * Configuration of Moon
-     */
     Moon.config = {
       silent: ("development" === "production") || (typeof console === "undefined")
     }
     
-    /**
-     * Version of Moon
-     */
     Moon.version = "0.11.0";
     
-    /**
-     * Moon Utilities
-     */
     Moon.util = {
       noop: noop,
       log: log,
@@ -1440,46 +1431,22 @@
       m: m
     }
     
-    /**
-     * Runs an external Plugin
-     * @param {Object} plugin
-     * @param {Object} options
-     */
     Moon.use = function(plugin, options) {
       plugin.init(Moon, options);
     }
     
-    /**
-     * Compiles HTML to a Render Function
-     * @param {String} template
-     * @return {Function} render function
-     */
     Moon.compile = function(template) {
       return compile(template);
     }
     
-    /**
-     * Runs a Task After Update Queue
-     * @param {Function} task
-     */
     Moon.nextTick = function(task) {
       setTimeout(task, 0);
     }
     
-    /**
-     * Creates a Directive
-     * @param {String} name
-     * @param {Function} action
-     */
     Moon.directive = function(name, action) {
       directives["m-" + name] = action;
     }
     
-    /**
-     * Creates a Component
-     * @param {String} name
-     * @param {Object} options
-     */
     Moon.extend = function(name, options) {
       options.name = name;
     

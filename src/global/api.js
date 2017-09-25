@@ -1,18 +1,9 @@
-/**
- * Configuration of Moon
- */
 Moon.config = {
   silent: ("__ENV__" === "production") || (typeof console === "undefined")
 }
 
-/**
- * Version of Moon
- */
 Moon.version = "__VERSION__";
 
-/**
- * Moon Utilities
- */
 Moon.util = {
   noop: noop,
   log: log,
@@ -20,46 +11,22 @@ Moon.util = {
   m: m
 }
 
-/**
- * Runs an external Plugin
- * @param {Object} plugin
- * @param {Object} options
- */
 Moon.use = function(plugin, options) {
   plugin.init(Moon, options);
 }
 
-/**
- * Compiles HTML to a Render Function
- * @param {String} template
- * @return {Function} render function
- */
 Moon.compile = function(template) {
   return compile(template);
 }
 
-/**
- * Runs a Task After Update Queue
- * @param {Function} task
- */
 Moon.nextTick = function(task) {
   setTimeout(task, 0);
 }
 
-/**
- * Creates a Directive
- * @param {String} name
- * @param {Function} action
- */
 Moon.directive = function(name, action) {
   directives["m-" + name] = action;
 }
 
-/**
- * Creates a Component
- * @param {String} name
- * @param {Object} options
- */
 Moon.extend = function(name, options) {
   options.name = name;
 
