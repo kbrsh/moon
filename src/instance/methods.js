@@ -158,18 +158,11 @@ Moon.prototype.render = function() {
 }
 
 Moon.prototype.build = function() {
-  const root = this.root;
   const dom = this.render();
   let old = this.dom;
 
-  if(dom.type === old.type) {
-    if(dom !== old) {
-      patch(dom, old);
-    }
-  } else {
-    const newRoot = createNode(dom);
-    root.parentNode.replaceChild(newRoot, root);
-    this.root = newRoot;
+  if(dom !== old) {
+    patch(dom, old);
   }
 }
 
