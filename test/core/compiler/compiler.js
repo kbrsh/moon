@@ -90,11 +90,14 @@ describe("Compiler", function() {
   });
 
   it("should compile and mark SVG elements", function() {
-    var el = createTestElement("compilerSVG", '<svg></svg>');
+    var el = createTestElement("compilerSVG", '');
     var app = new Moon({
       root: "#compilerSVG",
-      template: '<div id="compilerSVG"><svg></svg></div>'
+      template: '<div id="compilerSVG"><svg><defs><g id="TestLink"><circle/></g></defs><use xlink:href="#TestLink"></use></svg></div>'
     });
+
+    var use = el.firstChild.firstChild.nextSibling;
+    expect(use.getAttribute("xlink:href") || use.getAttribute("href")).to.equal("#TestLink");
     expect(app.render().children[0].data.SVG).to.equal(1);
   });
 });
