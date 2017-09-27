@@ -10,11 +10,22 @@ describe("Compiler", function() {
     expect(el.innerHTML).to.equal("Hello Moon!");
   });
 
-  it("should compile unclosed mustaches", function() {
+  it("should compile unclosed templates", function() {
     createTestElement("compilerTemplateUnclosed", '{{msg');
     new Moon({
       root: "#compilerTemplateUnclosed"
     });
+  });
+
+  it("should not compile invalid expressions", function() {
+    var fail = false;
+    console.error = function() {
+      fail = true;
+      console.error = noop;
+    }
+
+    Moon.compile("<div>{{ #invalid }}</div>");
+    expect(fail).to.be["true"];
   });
 
   it("should not compile comments", function() {
