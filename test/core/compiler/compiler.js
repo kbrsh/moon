@@ -1,13 +1,20 @@
 describe("Compiler", function() {
-  it("should compile whitespace in mustaches", function() {
-    var el = createTestElement("compilerMustacheWhitespace", '{{  msg   }}');
+  it("should compile whitespace in templates", function() {
+    var el = createTestElement("compilerTemplateWhitespace", '{{  msg   }}');
     var app = new Moon({
-      root: "#compilerMustacheWhitespace",
+      root: "#compilerTemplateWhitespace",
       data: {
         msg: "Hello Moon!"
       }
     });
     expect(el.innerHTML).to.equal("Hello Moon!");
+  });
+
+  it("should compile unclosed mustaches", function() {
+    createTestElement("compilerTemplateUnclosed", '{{msg');
+    new Moon({
+      root: "#compilerTemplateUnclosed",
+    });
   });
 
   it("should not compile comments", function() {
