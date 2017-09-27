@@ -16,7 +16,7 @@ describe('For Directive', function() {
       });
     });
 
-    it('should update a list', function() {
+    it('should update a list when adding items', function() {
       var items = app.get("items");
       items.push(6);
       app.set("items", items);
@@ -26,13 +26,22 @@ describe('For Directive', function() {
       });
     });
 
+    it('should update a list when removing items', function() {
+      var items = app.get("items");
+      items.pop();
+      items.pop();
+      items.pop();
+      app.set("items", items);
+
+      return wait(function() {
+        expect(ul.childNodes.length).to.equal(3);
+      });
+    });
+
     it('should not be present at runtime', function() {
       expect(ul.childNodes[0].getAttribute("m-for")).to.be['null'];
       expect(ul.childNodes[1].getAttribute("m-for")).to.be['null'];
       expect(ul.childNodes[2].getAttribute("m-for")).to.be['null'];
-      expect(ul.childNodes[3].getAttribute("m-for")).to.be['null'];
-      expect(ul.childNodes[4].getAttribute("m-for")).to.be['null'];
-      expect(ul.childNodes[5].getAttribute("m-for")).to.be['null'];
     });
   });
 
