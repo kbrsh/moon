@@ -44,6 +44,16 @@ describe("Events", function() {
       expect(bus.events.evt1.length).to.equal(1);
     });
 
+    it("should be able to remove all handlers for a type", function() {
+      bus.on("evtAll", noop);
+      bus.on("evtAll", noop);
+
+      expect(bus.events.evtAll.length).to.equal(2);
+
+      bus.off("evtAll");
+      expect(bus.events.evtAll).to.deep.equal([]);
+    });
+
     it("should be able to remove all handlers", function() {
       bus.off();
       expect(bus.events).to.deep.equal({});

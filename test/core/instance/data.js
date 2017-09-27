@@ -1,7 +1,8 @@
-describe('Data', function() {
-  var data = createTestElement("data", '{{msg}}');
-  var data2 = createTestElement("data2", '{{msg.obj.nested}}');
-  var data3 = createTestElement("data3", '{{msg.obj.nested}}');
+describe("Data", function() {
+  var data = createTestElement("data", "{{msg}}");
+  var data2 = createTestElement("data2", "{{msg.obj.nested}}");
+  var data3 = createTestElement("data3", "{{msg.obj.nested}}");
+  var dataUndefined = createTestElement("dataUndefined", "{{msg}}");
 
   var dataApp = new Moon({
     root: "#data",
@@ -32,20 +33,33 @@ describe('Data', function() {
     }
   });
 
-  it('when initializing', function() {
+  var fail = false;
+  console.error = function() {
+    fail = true;
+    console.error = noop;
+  }
+  var dataAppUndefined = new Moon({
+    root: "#dataUndefined"
+  });
+
+  it("when initializing", function() {
     return wait(function() {
       expect(data.innerHTML).to.equal("Hello Moon!");
     });
   });
 
-  it('when setting', function() {
-    dataApp.set('msg', 'New Value');
+  it("when initializing with an undefined reference", function() {
+    expect(fail).to.be["true"];
+  });
+
+  it("when setting", function() {
+    dataApp.set("msg", "New Value");
     return wait(function() {
       expect(data.innerHTML).to.equal("New Value");
     });
   });
 
-  it('when setting new property', function() {
+  it("when setting new property", function() {
     dataApp3.set({
       msg: {
         obj: {
@@ -58,7 +72,7 @@ describe('Data', function() {
     });
   });
 
-  it('when updating new data property', function() {
+  it("when updating new data property", function() {
     dataApp3.set({
       msg: {
         obj: {
@@ -71,7 +85,7 @@ describe('Data', function() {
     });
   });
 
-  it('when getting', function() {
-    expect(dataApp.get('msg')).to.equal("New Value");
+  it("when getting", function() {
+    expect(dataApp.get("msg")).to.equal("New Value");
   });
 });
