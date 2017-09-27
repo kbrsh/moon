@@ -13,7 +13,7 @@ describe("Compiler", function() {
   it("should compile unclosed mustaches", function() {
     createTestElement("compilerTemplateUnclosed", '{{msg');
     new Moon({
-      root: "#compilerTemplateUnclosed",
+      root: "#compilerTemplateUnclosed"
     });
   });
 
@@ -94,6 +94,14 @@ describe("Compiler", function() {
       template: "<div><h1>Moon</div>"
     });
     expect(el.firstChild.textContent).to.equal("Moon");
+  });
+
+  it("should compile attributes with no value", function() {
+    var el = createTestElement("compilerEmptyAttributes", '<div test></div>');
+    new Moon({
+      root: "#compilerEmptyAttributes"
+    });
+    expect(el.firstChild.getAttribute("test")).to.equal("");
   });
 
   it("should compile and mark SVG elements", function() {
