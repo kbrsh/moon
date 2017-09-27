@@ -44,7 +44,7 @@ describe("Component", function() {
 
   describe("Mounting", function() {
     it("should mount when replaced", function() {
-      var mountComponentReplace = createTestElement("mountComponentReplace", "<h1>Test</h1><component m-if='condition'>Hello Moon!</component>");
+      var mountComponentReplace = createTestElement("mountComponentReplace", "<h1>Test</h1><component m-if='condition'></component>");
       var h1 = mountComponentReplace.firstChild;
       var app = new Moon({
         root: "#mountComponentReplace",
@@ -61,7 +61,7 @@ describe("Component", function() {
     });
 
     it("should mount when appended", function() {
-      var mountComponentAppend = createTestElement("mountComponentAppend", "<h1>Test</h1><div m-if='condition'><component>Hello Moon!</component></div>");
+      var mountComponentAppend = createTestElement("mountComponentAppend", "<h1>Test</h1><div m-if='condition'><component></component></div>");
       var h1 = mountComponentAppend.firstChild;
       var app = new Moon({
         root: "#mountComponentAppend",
@@ -74,6 +74,62 @@ describe("Component", function() {
       return wait(function() {
         expect(h1.nextSibling.firstChild.nodeName.toLowerCase()).to.equal("h1");
         expect(h1.nextSibling.firstChild.textContent).to.equal("Hello Moon!");
+      });
+    });
+  });
+
+  describe("Destroy", function() {
+    it("should destroy when being replaced", function() {
+      var destroyComponentReplace = createTestElement("destroyComponentReplace", "<component-destroy-replace m-if='condition'></component-destroy-replace>");
+      var destroyed = false;
+
+      Moon.extend("component-destroy-replace", {
+        template: "<h1>Hello Moon!</h1>",
+        hooks: {
+          destroyed: function() {
+            destroyed = true;
+          }
+        }
+      });
+
+      var app = new Moon({
+        root: "#destroyComponentReplace",
+        data: {
+          condition: true
+        }
+      });
+
+      app.set("condition", false);
+      return wait(function() {
+        expect(destroyComponentReplace.firstChild.nodeName.toLowerCase()).to.equal("#text");
+        expect(destroyed).to.be["true"];
+      });
+    });
+
+    it("should destroy when being removed", function() {
+      var destroyComponentRemove = createTestElement("destroyComponentRemove", "<component-destroy-remove m-for='number in range'></component-destroy-remove>");
+      var destroyed = false;
+
+      Moon.extend("component-destroy-remove", {
+        template: "<h1>Hello Moon!</h1>",
+        hooks: {
+          destroyed: function() {
+            destroyed = true;
+          }
+        }
+      });
+
+      var app = new Moon({
+        root: "#destroyComponentRemove",
+        data: {
+          range: 1
+        }
+      });
+
+      app.set("range", 0);
+      return wait(function() {
+        expect(destroyComponentRemove.firstChild).to.be["null"];
+        expect(destroyed).to.be["true"];
       });
     });
   });
@@ -162,6 +218,10 @@ describe("Component", function() {
         expect(defaultInsertion.firstChild.nodeName.toLowerCase()).to.equal("h1");
         expect(defaultInsertion.firstChild.innerHTML).to.equal("Hello Moon!");
       });
+    });
+
+    it("should update the default insertion", function() {
+
     });
 
     // it("should render a named slot", function() {
