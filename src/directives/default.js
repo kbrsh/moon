@@ -38,6 +38,8 @@ specialDirectives["m-if"] = {
         let attrs = child.props.attrs;
 
         if(attrs["m-else"] !== undefined) {
+          delete attrs["m-else"];
+
           data.elseNode = [i, child];
           children.splice(i, 1);
 
