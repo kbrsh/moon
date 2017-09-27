@@ -28,7 +28,7 @@ if(document.getElementById("moon-els")) {
 var expect = chai.expect;
 
 // Stop logs
-console.log = console.error = Moon.util.noop;
+// console.log = console.error = Moon.util.noop;
 
 // Cover errors
 Moon.util.log("Test");

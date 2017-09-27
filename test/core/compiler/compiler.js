@@ -31,9 +31,9 @@ describe("Compiler", function() {
     var el = createTestElement("compilerSelfClosingNoSlash", '');
     var app = new Moon({
       root: "#compilerSelfClosingNoSlash",
-      template: "<div><self-closing>hi</div>"
+      template: "<div><self-closing>Foo</div>"
     });
-    expect(app.dom.children[0].children[0].value).to.equal("hi");
+    expect(app.dom.children[0].children[0].value).to.equal("Foo");
   });
 
   it("should ignore just closing elements", function() {
