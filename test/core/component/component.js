@@ -42,6 +42,23 @@ describe("Component", function() {
     });
   });
 
+  it("should error when data is not a function", function() {
+    var fail = false;
+    console.error = function() {
+      fail = true;
+      console.error = noop;
+    }
+
+    Moon.extend("data-function-fail", {
+      template: "<h1>Hello Moon!</h1>",
+      data: {}
+    });
+
+    return wait(function() {
+      expect(fail).to.be["true"];
+    });
+  });
+
   describe("Mounting", function() {
     it("should mount when replaced", function() {
       var mountComponentReplace = createTestElement("mountComponentReplace", "<h1>Test</h1><component m-if='condition'></component>");

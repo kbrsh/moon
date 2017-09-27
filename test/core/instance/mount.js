@@ -1,6 +1,6 @@
-describe('Mount', function() {
-  it('when mounted on a selector', function() {
-    var mountSelector = createTestElement("mountSelector", '{{msg}}');
+describe("Mount", function() {
+  it("when mounted on a selector", function() {
+    var mountSelector = createTestElement("mountSelector", "{{msg}}");
 
     new Moon({
       root: "#mountSelector",
@@ -14,8 +14,8 @@ describe('Mount', function() {
     });
   });
 
-  it('when mounted on an element', function() {
-    var mountElement = createTestElement("mountElement", '{{msg}}');
+  it("when mounted on an element", function() {
+    var mountElement = createTestElement("mountElement", "{{msg}}");
 
     new Moon({
       root: mountElement,
