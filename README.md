@@ -15,7 +15,7 @@
 
 - :tada: Small file size (7kb minified + gzip)
 - :zap: Blazing fast performance
-- :rocket: Intuitive, easy-to-learn API
+- :rocket: Intuitive API
 - :gem: Powerful directives
 - :hammer: Compose with Components
 
