@@ -219,17 +219,20 @@ describe("Component", function() {
   });
 
   describe("Insertion", function() {
+    Moon.extend("component-default-insertion", {
+      template: "<h1><m-insert></m-insert></h1>"
+    });
+
+    var defaultInsertion = createTestElement("componentDefaultInsertion", "<component-default-insertion>{{msg}}</component-default-insertion>");
+
+    var app = new Moon({
+      root: "#componentDefaultInsertion",
+      data: {
+        msg: "Hello Moon!"
+      }
+    });
+
     it("should render the default insertion", function() {
-      var defaultInsertion = createTestElement("componentDefaultInsertion", "<component-default-insertion>Hello Moon!</component-default-insertion>");
-
-      Moon.extend("component-default-insertion", {
-        template: "<h1><m-insert></m-insert></h1>"
-      });
-
-      new Moon({
-        root: "#componentDefaultInsertion"
-      });
-
       return wait(function() {
         expect(defaultInsertion.firstChild.nodeName.toLowerCase()).to.equal("h1");
         expect(defaultInsertion.firstChild.innerHTML).to.equal("Hello Moon!");
@@ -237,7 +240,11 @@ describe("Component", function() {
     });
 
     it("should update the default insertion", function() {
-
+      app.set("msg", "Changed");
+      return wait(function() {
+        expect(defaultInsertion.firstChild.nodeName.toLowerCase()).to.equal("h1");
+        expect(defaultInsertion.firstChild.innerHTML).to.equal("Changed");
+      });
     });
 
     // it("should render a named slot", function() {
@@ -360,7 +367,7 @@ describe("Component", function() {
         button.click();
 
         Moon.nextTick(function() {
-          expect(eventCalled).to.be['true'];
+          expect(eventCalled).to.be["true"];
           expect(p.innerHTML).to.equal("1");
           expect(h1.innerHTML).to.equal("1");
 
