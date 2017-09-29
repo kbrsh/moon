@@ -27,6 +27,17 @@ describe("Compiler", function() {
     expect(fail).to.be["true"];
   });
 
+  it("should not compile only text", function() {
+    var fail = false;
+    captureError(function() {
+      fail = true;
+    });
+
+    Moon.compile("Only Text");
+
+    expect(fail).to.be["true"];
+  });
+
   it("should not compile comments", function() {
     var el = createTestElement("compilerComment", '<!-- comment -->');
     var compilerCommentApp = new Moon({

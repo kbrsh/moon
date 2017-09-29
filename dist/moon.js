@@ -890,6 +890,9 @@
         }
       }
     
+      if("development" !== "production" && typeof root.children[0] === "string") {
+        error("The root element cannot be text");
+      }
       return root.children[0];
     }
     
