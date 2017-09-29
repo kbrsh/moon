@@ -43,6 +43,13 @@ var createTestElement = function(id, html) {
   return el;
 }
 
+var captureError = function(fn) {
+  console.error = function() {
+    fn();
+    console.error = noop;
+  }
+}
+
 var wait = function(cb) {
   return new Promise(function(resolve, reject) {
     Moon.nextTick(function() {

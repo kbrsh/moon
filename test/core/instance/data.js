@@ -34,10 +34,9 @@ describe("Data", function() {
   });
 
   var fail = false;
-  console.error = function() {
+  captureError(function() {
     fail = true;
-    console.error = noop;
-  }
+  });
   var dataAppUndefined = new Moon({
     root: "#dataUndefined"
   });

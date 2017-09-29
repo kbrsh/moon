@@ -19,10 +19,9 @@ describe("Compiler", function() {
 
   it("should not compile invalid expressions", function() {
     var fail = false;
-    console.error = function() {
+    captureError(function() {
       fail = true;
-      console.error = noop;
-    }
+    });
 
     Moon.compile("<div>{{ #invalid }}</div>");
     expect(fail).to.be["true"];

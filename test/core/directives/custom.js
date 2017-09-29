@@ -9,13 +9,27 @@ describe('Custom Directive', function() {
     root: "#customDirective"
   });
 
-  it('should execute', function() {
+  it("should execute", function() {
     return wait(function() {
       expect(customDirective.firstChild.innerHTML).to.equal("4");
     });
   });
 
-  it('should not be present at runtime', function() {
+  it("should error on unknown directives", function() {
+    var fail = false;
+    captureError(function() {
+      fail = true;
+    });
+
+    var customDirectiveError = createTestElement("customDirectiveError", "<div m-unknown></div>");
+    new Moon({
+      root: "#customDirectiveError"
+    });
+
+    expect(fail).to.be["true"];
+  });
+
+  it("should not be present at runtime", function() {
     expect(customDirective.firstChild.getAttribute("m-square")).to.be['null'];
   });
 });

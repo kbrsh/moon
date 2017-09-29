@@ -44,10 +44,9 @@ describe("Component", function() {
 
   it("should error when data is not a function", function() {
     var fail = false;
-    console.error = function() {
+    captureError(function() {
       fail = true;
-      console.error = noop;
-    }
+    });
 
     Moon.extend("data-function-fail", {
       template: "<h1>Hello Moon!</h1>",
