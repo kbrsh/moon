@@ -1,0 +1,32 @@
+body {
+  background-color: #f5f5f5;
+}
+
+.container {
+  position: relative;
+  min-height: 100vh;
+  padding: 3rem;
+  background-color: #eeeeee;
+}
+
+.container ul {
+  margin-bottom: 10rem;
+  list-style-type: circle;
+}
+
+.bottom {
+  position: fixed;
+  display: flex;
+  flex-direction: row;
+  bottom: 0;
+  left: 50%;
+  max-width: 960px;
+  width: 80%;
+  padding: 3rem;
+  transform: translateX(-50%);
+}
+
+.bottom button {
+  margin-bottom: 0;
+  margin-left: 1rem;
+}
