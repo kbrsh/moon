@@ -1,5 +1,5 @@
 describe("Computed", function() {
-  var computed = createTestElement("computed", "<p>{{msg}}</p><p>{{reversed}}</p>");
+  var computed = createTestElement("computed", "<p>{{msg}}</p><p>{{reversed}}</p><p>{{truncated}}</p>");
   var called = false;
 
   var app = new Moon({
@@ -14,6 +14,12 @@ describe("Computed", function() {
           called = true;
           return this.get("msg").split("").reverse().join("");
         }
+      },
+      truncated: {
+        get: function() {
+          called = true;
+          return this.get("msg").substring(0, 3) + "...";
+        }
       }
     }
   });
@@ -21,6 +27,7 @@ describe("Computed", function() {
   it("should compute at initial render", function() {
     return wait(function() {
       expect(computed.childNodes[1].textContent).to.equal("egasseM");
+      expect(computed.childNodes[2].textContent).to.equal("Mes...");
     });
   });
 
@@ -28,6 +35,7 @@ describe("Computed", function() {
     app.set("msg", "New");
     return wait(function() {
       expect(computed.childNodes[1].textContent).to.equal("weN");
+      expect(computed.childNodes[2].textContent).to.equal("New...");
     });
   });
 
@@ -38,6 +46,7 @@ describe("Computed", function() {
     return wait(function() {
       expect(called).to.be["false"];
       expect(computed.childNodes[1].textContent).to.equal("weN");
+      expect(computed.childNodes[2].textContent).to.equal("New...");
     });
   });
 });
