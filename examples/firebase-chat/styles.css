@@ -30,3 +30,7 @@ body {
   margin-bottom: 0;
   margin-left: 1rem;
 }
+
+[m-mask] {
+  display: none;
+}
