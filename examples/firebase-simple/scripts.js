@@ -10,7 +10,6 @@ firebase.initializeApp({
 
 var fbDb = firebase.database();
 
-/* This is using Moon.js v0.11 */
 var app = new Moon({
   el: '#app',
   data: {
