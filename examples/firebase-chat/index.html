@@ -1,34 +1,31 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Moon Examples | Firebase Chat">
-  <meta name="author" content="Kabir Shah &amp; Linus">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Moon Examples | Firebase Chat">
+    <meta name="author" content="Kabir Shah &amp; Linus">
 
-  <title>Moon | Firebase Chat</title>
+    <title>Moon | Firebase Chat</title>
 
-  <link href="../../css/lib/wing.min.css" rel="stylesheet" />
-  <link href="./styles.css" rel="stylesheet" />
-</head>
-<body>
-
-  <div id="app" m-mask>
-    <div class="container">
-      <ul>
-        <li m-for="message in messages">{{message}}</li>
-      </ul>
-      <div class="bottom center">
-        <input type="text" placeholder="Message" m-model="newMessage" m-on:keyup.enter="addMessage"/>
-        <button m-on:click="addMessage">Add</button>
+    <link href="../../css/lib/wing.min.css" rel="stylesheet" />
+    <link href="./styles.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="app" m-mask>
+      <div class="container">
+        <ul>
+          <li m-for="message in messages">{{message}}</li>
+        </ul>
+        <div class="bottom center">
+          <input type="text" placeholder="Message" m-model="newMessage" m-on:keyup.enter="addMessage"/>
+          <button m-on:click="addMessage">Add</button>
+        </div>
       </div>
     </div>
-  </div>
-
-  <script src="../../dist/moon.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/4.3.1/firebase.js"></script>
-  <script src="scripts.js"></script>
-
-</body>
+    <script src="../../dist/moon.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.3.1/firebase.js"></script>
+    <script src="scripts.js"></script>
+  </body>
 </html>
