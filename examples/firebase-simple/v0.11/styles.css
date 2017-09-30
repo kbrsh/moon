@@ -1,0 +1,45 @@
+*, *:before, *:after {
+  box-sizing: border-box;
+  text-rendering: optimizeLegibility;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+}
+
+
+/* App */
+.content {
+  min-height: 100vh;
+  position: relative;
+}
+
+.content ul {
+  list-style-type: circle;
+  margin: 0;
+  padding: 1.5rem 1.5rem 5.25rem 2.5rem;
+}
+
+.bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bottom input {
+  margin: 0;
+  border: 1px solid #d0d0d0;
+}
+
+.bottom input:hover { border: 1px solid #ababab; }
+.bottom input:focus { border: 1px solid #111111; }
+
+.bottom button {
+  cursor: pointer;
+  font-size: 1.7rem;
+  font-weight: 600;
+  margin: 0 0 0 1.5rem;
+}
