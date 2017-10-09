@@ -1,4 +1,6 @@
-const compileTemplateExpression = function(expression, exclude, dependencies) {
+const compileTemplateExpression = function(expression, state) {
+  let dependencies = state.dependencies;
+  let exclude = state.exclude;
   let props = dependencies.props;
   let methods = dependencies.methods;
   let dynamic = false;
@@ -12,8 +14,11 @@ const compileTemplateExpression = function(expression, exclude, dependencies) {
         if(methods.indexOf(name) === -1) {
           methods.push(name);
         }
-      } else if(props.indexOf(name) === -1) {
-        props.push(name);
+      } else {
+        if(props.indexOf(name) === -1) {
+          props.push(name);
+        }
+        
         dynamic = true;
       }
     }
@@ -22,7 +27,7 @@ const compileTemplateExpression = function(expression, exclude, dependencies) {
   return dynamic;
 }
 
-const compileTemplate = function(template, exclude, dependencies) {
+const compileTemplate = function(template, state) {
   const length = template.length;
   let current = 0;
   let dynamic = false;
@@ -37,17 +42,20 @@ const compileTemplate = function(template, exclude, dependencies) {
       const textMatch = textTail.match(openRE);
 
       if(textMatch === null) {
+        // Only static text
         output += `"${textTail}"`;
         break;
-      } else {
-        const textIndex = textMatch.index;
-        if(textIndex !== 0) {
-          output += `"${textTail.substring(0, textIndex)}"`;
-          current += textIndex;
-        }
-
-        dynamic = true;
       }
+
+      const textIndex = textMatch.index;
+      if(textIndex !== 0) {
+        // Add static text and move to template expression
+        output += `"${textTail.substring(0, textIndex)}"`;
+        current += textIndex;
+      }
+
+      // Mark as dynamic
+      dynamic = true;
 
       // Concatenate if not at the start
       if(current !== 0) {
@@ -64,9 +72,10 @@ const compileTemplate = function(template, exclude, dependencies) {
       if("__ENV__" !== "production" && expressionMatch === null) {
         error(`Expected closing delimiter after "${expressionTail}"`);
       } else {
+        // Add expression
         const expressionIndex = expressionMatch.index;
         const expression = expressionTail.substring(0, expressionIndex);
-        compileTemplateExpression(expression, exclude, dependencies);
+        compileTemplateExpression(expression, state);
         output += `(${expression})`;
         current += expression.length + expressionMatch[0].length;
 

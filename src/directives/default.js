@@ -1,86 +1,94 @@
 const hashRE = /\.|\[/;
 
-const addEventCodeToNode = function(eventType, handler, node) {
+const addEventToNode = function(eventType, eventHandler, node) {
   const data = node.data;
   let events = data.events;
 
   if(events === undefined) {
     events = data.events = {};
-    events[eventType] = [handler];
+    events[eventType] = [eventHandler];
   } else {
     let eventHandlers = events[eventType];
     if(eventHandlers === undefined) {
-      events[eventType] = [handler];
+      events[eventType] = [eventHandler];
     } else {
-      eventHandlers.push(handler);
+      eventHandlers.push(eventHandler);
     }
   }
 }
 
-const addDomPropertyCodeToNode = function(name, code, node) {
+const addDomPropertyToNode = function(domPropName, domPropValue, node) {
   let dom = node.props.dom;
   if(dom === undefined) {
     node.props.dom = dom = {};
   }
 
-  dom[name] = code;
+  dom[domPropName] = domPropValue;
 }
 
 specialDirectives["m-if"] = {
-  beforeGenerate: function(prop, node, parentNode, state) {
+  before: function(attr, node, parentNode, state) {
     const children = parentNode.children;
-    const index = state.index;
+    const nextIndex = node.index + 1;
+    const nextChild = children[nextIndex];
+    let dynamic = compileTemplateExpression(attr.value, state);
+    let data = attr.data;
 
-    for(let i = index + 1; i < children.length; i++) {
-      let child = children[i];
-      if(typeof child !== "string") {
-        let data = prop.data;
-        let attrs = child.props.attrs;
-
-        if(attrs["m-else"] !== undefined) {
-          delete attrs["m-else"];
-
-          data.elseNode = [i, child];
-          children.splice(i, 1);
-
-          if(state.dynamic === false) {
-            state.dynamic = true;
-            data.ifSetDynamic = true;
-          }
-        }
-
-        break;
+    if(nextChild !== undefined) {
+      let nextChildAttrs = nextChild.props.attrs;
+      if(nextChildAttrs["m-else"] !== undefined) {
+        delete nextChildAttrs["m-else"];
+        data.elseNode = generateNode(nextChild, parentNode, state);
+        children.splice(nextIndex, 1);
       }
     }
 
-    node.data.dynamic = 1;
-  },
-  afterGenerate: function(prop, code, node, parentNode, state) {
-    const value = prop.value;
-    const data = prop.data;
-    let elseValue = "m.emptyVNode";
-    let elseNode = data.elseNode;
+    if(dynamic === true) {
+      const attrs = node.props.attrs;
+      const ifAttr = attrs["m-if"];
+      delete attrs["m-if"];
+      data.ifNode = generateNode(node, parentNode, state);
+      node.children = [];
+      attrs["m-if"] = ifAttr;
+    }
 
-    compileTemplateExpression(value, state.exclude, state.dependencies);
+    return dynamic;
+  },
+  after: function(attr, output, node, parentNode, state) {
+    const data = attr.data;
+    const ifNode = data.ifNode;
+    const elseNode = data.elseNode;
+    let ifValue = output;
+    let elseValue = "m.emptyVNode";
+    let staticNodes = state.staticNodes;
+
+    if(ifNode !== undefined) {
+      if(ifNode.dynamic === true) {
+        ifValue = ifNode.output;
+      } else {
+        ifValue = generateStaticNode(ifNode.output, staticNodes);
+      }
+    }
 
     if(elseNode !== undefined) {
-      elseValue = generateNode(elseNode[1], parentNode, elseNode[0], state);
-      if(data.ifSetDynamic === true) {
-        state.dynamic = false;
+      if(elseNode.dynamic === true) {
+        elseValue = elseNode.output;
+      } else {
+        elseValue = generateStaticNode(elseNode.output, staticNodes);
       }
     }
 
-    return `${value} ? ${code} : ${elseValue}`;
+    return `${attr.value} ? ${ifValue} : ${elseValue}`;
   }
 };
 
 specialDirectives["m-for"] = {
-  beforeGenerate: function(prop, node, parentNode, state) {
-    // Setup Deep Flag to Flatten Array
+  before: function(attr, node, parentNode, state) {
+    // Flatten children
     parentNode.deep = true;
 
     // Parts
-    const parts = prop.value.split(" in ");
+    const parts = attr.value.split(" in ");
 
     // Aliases
     const aliases = parts[0];
@@ -88,51 +96,45 @@ specialDirectives["m-for"] = {
     // Save information
     const iteratable = parts[1];
     const exclude = state.exclude;
-    prop.data.forInfo = [iteratable, aliases, exclude];
+    attr.data.forInfo = [iteratable, aliases, exclude];
     state.exclude = exclude.concat(aliases.split(','));
-    compileTemplateExpression(iteratable, exclude, state.dependencies);
 
-    // Mark as dynamic
-    node.data.dynamic = 1;
+    return compileTemplateExpression(iteratable, state);
   },
-  afterGenerate: function(prop, code, node, parentNode, state) {
+  after: function(attr, output, node, parentNode, state) {
     // Get information about parameters
-    const forInfo = prop.data.forInfo;
+    const forInfo = attr.data.forInfo;
 
     // Restore globals to exclude
     state.exclude = forInfo[2];
 
     // Use the renderLoop runtime helper
-    return `m.renderLoop(${forInfo[0]}, function(${forInfo[1]}) {return ${code};})`;
+    return `m.renderLoop(${forInfo[0]}, function(${forInfo[1]}) {return ${output};})`;
   }
 };
 
 specialDirectives["m-on"] = {
-  beforeGenerate: function(prop, node, parentNode, state) {
+  before: function(attr, node, parentNode, state) {
     // Get event type
-    const eventType = prop.arg;
+    const eventType = attr.argument;
 
-    // Get method code
-    let methodCode = prop.value;
-    if(methodCode.indexOf('(') === -1) {
-      methodCode += "(event)";
+    // Get method call
+    let methodCall = attr.value;
+    if(methodCall.indexOf('(') === -1) {
+      methodCall += "(event)";
     }
 
-    // Compile method code
-    if(compileTemplateExpression(methodCode, state.exclude, state.dependencies) === true) {
-      node.data.dynamic = 1;
-    }
+    // Add event handler
+    addEventToNode(eventType, `function(event) {${methodCall};}`, node);
 
-    // Generate event listener code and install handler
-    addEventCodeToNode(eventType, `function(event) {${methodCode};}`, node);
+    // Compile method call
+    return compileTemplateExpression(methodCall, state);
   }
 };
 
 specialDirectives["m-bind"] = {
-  beforeGenerate: function(prop, node, parentNode, state) {
-    let value = prop.value;
-
-    compileTemplateExpression(value, state.exclude, state.dependencies);
+  before: function(attr, node, parentNode, state) {
+    let value = attr.value;
 
     const dynamicIndex = value.search(hashRE);
     let base;
@@ -148,64 +150,46 @@ specialDirectives["m-bind"] = {
     let instanceValue = "event.target.value";
     let domKey = "value";
     let domValue = value;
-    let code = '';
+    let eventHandler = '';
 
     if(dynamicIndex === -1) {
-      code = `function(event) {instance.set("${instanceKey}", ${instanceValue});}`;
+      eventHandler = `function(event) {instance.set("${instanceKey}", ${instanceValue});}`;
     } else {
-      code = `function(event) {var boundValue = instance.get("${base}");boundValue${properties} = ${instanceValue};instance.set("${base}", boundValue);}`;
+      eventHandler = `function(event) {var boundValue = instance.get("${base}");boundValue${properties} = ${instanceValue};instance.set("${base}", boundValue);}`;
     }
 
-    node.data.dynamic = 1;
-    addEventCodeToNode(eventType, code, node);
-    addDomPropertyCodeToNode(domKey, domValue, node);
+    addEventToNode(eventType, eventHandler, node);
+    addDomPropertyToNode(domKey, domValue, node);
+
+    return compileTemplateExpression(value, state);
   }
 };
 
 specialDirectives["m-literal"] = {
-  duringPropGenerate: function(prop, node, parentNode, state) {
-    let modifiers = prop.arg.split('.');
-    const propName = modifiers.shift();
-    const propValue = prop.value;
-
-    if(compileTemplateExpression(propValue, state.exclude, state.dependencies) === true) {
-      node.data.dynamic = 1;
-    }
+  during: function(attr, node, parentNode, state) {
+    let modifiers = attr.argument.split('.');
+    const attrName = modifiers.shift();
+    const attrValue = attr.value;
+    let output = undefined;
 
     if(modifiers[0] === "dom") {
       // Literal DOM property
-      addDomPropertyCodeToNode(propName, propValue, node);
-      return '';
-    } else if(propName === "class") {
-      // Detect class at runtime
-      return `"class": m.renderClass(${propValue}), `;
+      addDomPropertyToNode(attrName, attrValue, node);
+    } else if(attrName === "class") {
+      // Render class at runtime
+      output = `"class": m.renderClass(${attrValue})`;
     } else {
       // Literal attribute
-      return `"${propName}": ${propValue}, `;
-    }
-  }
-};
-
-specialDirectives["m-static"] = {
-  beforeGenerate: function(prop, node, parentNode, state) {
-    if(state.static === false) {
-      prop.data.staticSet = true;
-      state.static = true;
-    }
-  },
-  afterGenerate: function(prop, code, node, parentNode, state) {
-    if(prop.data.staticSet === true) {
-      state.static = false;
+      output = `"${attrName}": ${attrValue}`;
     }
 
-    return code;
+    return {
+      output: output,
+      dynamic: compileTemplateExpression(attrValue, state)
+    }
   }
 };
 
 specialDirectives["m-mask"] = {
 
-};
-
-directives["m-show"] = function(el, val, node) {
-  el.style.display = (val ? '' : "none");
 };

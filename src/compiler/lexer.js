@@ -82,14 +82,14 @@ const lex = function(template) {
             let attrToken = {
               name: attrName,
               value: attrValue,
-              arg: undefined,
+              argument: undefined,
               data: {}
             }
 
             const splitAttrName = attrName.split(':');
             if(splitAttrName.length === 2) {
               attrToken.name = splitAttrName[0];
-              attrToken.arg = splitAttrName[1];
+              attrToken.argument = splitAttrName[1];
             }
 
             attributes[attrName] = attrToken;

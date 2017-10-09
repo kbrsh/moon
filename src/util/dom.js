@@ -43,7 +43,7 @@ const createNode = function(vnode) {
     }
 
     // Add Props
-    patchProps(node, {}, vnode, vnode.props);
+    patchProps(node, undefined, vnode, vnode.props);
   }
 
   // Hydrate

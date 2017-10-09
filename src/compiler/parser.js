@@ -11,7 +11,10 @@ const parse = function(tokens) {
     const token = tokens[i];
     if(token.type === "Text") {
       // Push text to currently pending element
-      elements[lastIndex].children.push(token.value);
+      elements[lastIndex].children.push({
+        type: "#text",
+        value: token.value
+      });
     } else if(token.type === "Tag") {
       // Tag found
       if(token.closeStart === true) {
@@ -24,21 +27,22 @@ const parse = function(tokens) {
       } else {
         // Opening tag found, create element
         const type = token.value;
+        const lastChildren = elements[lastIndex].children;
+        const index = lastChildren.length;
+
         let node = {
           type: type,
+          index: index,
           props: {
             attrs: token.attributes
           },
           children: []
         };
-        elements[lastIndex].children.push(node);
+
+        lastChildren[index] = node;
 
         // Add to stack if element is a non void element
         if(token.closeEnd === false && VOID_ELEMENTS.indexOf(type) === -1) {
-          if(SVG_ELEMENTS.indexOf(type) !== -1) {
-            node.SVG = true;
-          }
-
           elements.push(node);
           lastIndex++;
         }
@@ -46,7 +50,7 @@ const parse = function(tokens) {
     }
   }
 
-  if("__ENV__" !== "production" && typeof root.children[0] === "string") {
+  if("__ENV__" !== "production" && root.children[0].type === "#text") {
     error("The root element cannot be text");
   }
   return root.children[0];

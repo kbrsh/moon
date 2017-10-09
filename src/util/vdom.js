@@ -3,8 +3,8 @@ const m = function(type, props, data, children) {
     // Text virtual node
     return {
       type: type,
-      value: data,
-      data: props
+      value: props,
+      data: {}
     };
   } else {
     let component = components[type];
@@ -23,7 +23,24 @@ const m = function(type, props, data, children) {
   }
 };
 
-m.emptyVNode = m("#text", {}, '');
+m.emptyVNode = m("#text", '');
+
+m.flatten = function(children) {
+  for(let i = 0; i < children.length; ) {
+    let child = children[i];
+    if(Array.isArray(child) === true) {
+      const childLength = child.length;
+      child.unshift(i, 1);
+      children.splice.apply(children, child);
+      child.slice(2, 0);
+      i += childLength;
+    } else {
+      i++;
+    }
+  }
+
+  return children;
+}
 
 m.renderClass = function(classNames) {
   if(typeof classNames === "string") {
@@ -32,7 +49,7 @@ m.renderClass = function(classNames) {
   } else {
     let renderedClassNames = '';
     let separator = '';
-    if(Array.isArray(classNames)) {
+    if(Array.isArray(classNames) === true) {
       // It's an array concatenate them
       for(let i = 0; i < classNames.length; i++) {
         renderedClassNames += separator + m.renderClass(classNames[i]);
@@ -85,7 +102,7 @@ const createComponent = function(node, vnode, component) {
   let componentProps = {};
 
   // Get component props
-  if(props !== undefined) {
+  if(props !== undefined && attrs !== undefined) {
     for(let i = 0; i < props.length; i++) {
       const propName = props[i];
       componentProps[propName] = attrs[propName];
@@ -116,29 +133,42 @@ const createComponent = function(node, vnode, component) {
   data.node = componentInstance.root;
 }
 
-const patchProps = function(node, nodeProps, vnode, props) {
+const patchProps = function(node, nodeAttrs, vnode, props) {
   // Get VNode Attributes
-  const vnodeProps = props.attrs;
+  const vnodeAttrs = props.attrs;
 
-  // Diff VNode Props with Node Props
-  for(let vnodePropName in vnodeProps) {
-    const vnodePropValue = vnodeProps[vnodePropName];
-    const nodePropValue = nodeProps[vnodePropName];
-
-    if((vnodePropValue !== false) && (nodePropValue === undefined || vnodePropValue !== nodePropValue)) {
-      if(vnodePropName === "xlink:href") {
-        node.setAttributeNS("http://www.w3.org/1999/xlink", "href", vnodePropValue);
-      } else {
-        node.setAttribute(vnodePropName, vnodePropValue === true ? '' : vnodePropValue);
+  if(vnodeAttrs === undefined) {
+    if(nodeAttrs !== undefined) {
+      // Remove all
+      for(let nodeAttrName in nodeAttrs) {
+        node.removeAttribute(nodeAttrName);
       }
     }
-  }
+  } else {
+    if(nodeAttrs === undefined) {
+      // Add all
+      for(let vnodeAttrName in vnodeAttrs) {
+        const vnodeAttrValue = vnodeAttrs[vnodeAttrName];
+        node.setAttribute(vnodeAttrName, vnodeAttrValue === true ? '' : vnodeAttrValue);
+      }
+    } else {
+      // Add
+      for(let vnodeAttrName in vnodeAttrs) {
+        const vnodeAttrValue = vnodeAttrs[vnodeAttrName];
+        const nodeAttrValue = nodeAttrs[vnodeAttrName];
 
-  // Diff Node Props with VNode Props
-  for(let nodePropName in nodeProps) {
-    const vnodePropValue = vnodeProps[nodePropName];
-    if(vnodePropValue === undefined || vnodePropValue === false) {
-      node.removeAttribute(nodePropName);
+        if((vnodeAttrValue !== false) && (nodeAttrValue === undefined || vnodeAttrValue !== nodeAttrValue)) {
+          node.setAttribute(vnodeAttrName, vnodeAttrValue === true ? '' : vnodeAttrValue);
+        }
+      }
+
+      // Remove
+      for(let nodeAttrName in nodeAttrs) {
+        const vnodeAttrValue = vnodeAttrs[nodeAttrName];
+        if(vnodeAttrValue === undefined || vnodeAttrValue === false) {
+          node.removeAttribute(nodeAttrName);
+        }
+      }
     }
   }
 
