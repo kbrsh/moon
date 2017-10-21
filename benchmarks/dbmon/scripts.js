@@ -9,13 +9,11 @@ perfMonitor.startFPSMonitor();
 perfMonitor.startMemMonitor();
 perfMonitor.initProfiler("render");
 
-function run() {
-  app.set("databases", ENV.generateData().toArray());
+var run = function() {
   perfMonitor.startProfile("render");
-  Moon.nextTick(function() {
-    perfMonitor.endProfile("render");
-    renderRate.ping();
-  });
+  app.set("databases", ENV.generateData().toArray());
+  perfMonitor.endProfile("render");
+  renderRate.ping();
   setTimeout(run, ENV.timeout);
 }
 
