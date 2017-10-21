@@ -175,17 +175,20 @@ specialDirectives["m-literal"] = {
     if(modifiers[0] === "dom") {
       // Literal DOM property
       addDomPropertyToNode(attrName, attrValue, node);
-    } else if(attrName === "class") {
-      // Render class at runtime
-      output = `"class": m.renderClass(${attrValue})`;
+      return output;
     } else {
-      // Literal attribute
-      output = `"${attrName}": ${attrValue}`;
-    }
+      if(attrName === "class") {
+        // Render class at runtime
+        output = `"class": m.renderClass(${attrValue})`;
+      } else {
+        // Literal attribute
+        output = `"${attrName}": ${attrValue}`;
+      }
 
-    return {
-      output: output,
-      dynamic: compileTemplateExpression(attrValue, state)
+      return {
+        output: output,
+        dynamic: compileTemplateExpression(attrValue, state)
+      }
     }
   }
 };

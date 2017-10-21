@@ -1011,14 +1011,12 @@
             if(during !== undefined) {
               // During generation
               var duringProp = during(attr, node, parentNode, state);
-              var duringPropOutput = duringProp.output;
+              if(duringProp !== undefined) {
+                if(duringProp.dynamic === true) {
+                  dynamic = true;
+                }
     
-              if(duringProp.dynamic === true) {
-                dynamic = true;
-              }
-    
-              if(duringPropOutput !== undefined) {
-                generateAttrs.push(duringPropOutput);
+                generateAttrs.push(duringProp.output);
               }
             }
           } else if(attrName[0] === 'm' && attrName[1] === '-') {
@@ -1755,17 +1753,20 @@
         if(modifiers[0] === "dom") {
           // Literal DOM property
           addDomPropertyToNode(attrName, attrValue, node);
-        } else if(attrName === "class") {
-          // Render class at runtime
-          output = "\"class\": m.renderClass(" + attrValue + ")";
+          return output;
         } else {
-          // Literal attribute
-          output = "\"" + attrName + "\": " + attrValue;
-        }
+          if(attrName === "class") {
+            // Render class at runtime
+            output = "\"class\": m.renderClass(" + attrValue + ")";
+          } else {
+            // Literal attribute
+            output = "\"" + attrName + "\": " + attrValue;
+          }
     
-        return {
-          output: output,
-          dynamic: compileTemplateExpression(attrValue, state)
+          return {
+            output: output,
+            dynamic: compileTemplateExpression(attrValue, state)
+          }
         }
       }
     };

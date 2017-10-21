@@ -70,14 +70,12 @@ const generateNode = function(node, parentNode, state) {
         if(during !== undefined) {
           // During generation
           const duringProp = during(attr, node, parentNode, state);
-          const duringPropOutput = duringProp.output;
+          if(duringProp !== undefined) {
+            if(duringProp.dynamic === true) {
+              dynamic = true;
+            }
 
-          if(duringProp.dynamic === true) {
-            dynamic = true;
-          }
-
-          if(duringPropOutput !== undefined) {
-            generateAttrs.push(duringPropOutput);
+            generateAttrs.push(duringProp.output);
           }
         }
       } else if(attrName[0] === 'm' && attrName[1] === '-') {
