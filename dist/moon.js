@@ -643,7 +643,7 @@
     }
     
     // Global Variables/Keywords
-    var globals = ["instance", "staticNodes", "event", "true", "false", "undefined", "null", "NaN", "typeof", "in"];
+    var globals = ["instance", "staticNodes", "true", "false", "undefined", "null", "NaN", "typeof", "in"];
     
     // Void and SVG Elements
     var VOID_ELEMENTS = ["area", "base", "br", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"];
@@ -651,9 +651,12 @@
     
     var compileTemplateExpression = function(expression, state) {
       var dependencies = state.dependencies;
-      var exclude = state.exclude;
       var props = dependencies.props;
       var methods = dependencies.methods;
+    
+      var exclude = state.exclude;
+      var locals = state.locals;
+    
       var dynamic = false;
       var info;
     
@@ -666,10 +669,10 @@
               methods.push(name);
             }
           } else {
-            if(props.indexOf(name) === -1) {
+            if(locals.indexOf(name) === -1 && props.indexOf(name) === -1) {
               props.push(name);
             }
-            
+    
             dynamic = true;
           }
         }
@@ -1202,11 +1205,12 @@
     var generate = function(tree) {
       var state = {
         staticNodes: [],
-        exclude: globals,
         dependencies: {
           props: [],
           methods: []
-        }
+        },
+        exclude: globals,
+        locals: []
       };
     
       var treeOutput = generateNode(tree, undefined, state);
@@ -1673,9 +1677,9 @@
     
         // Save information
         var iteratable = parts[1];
-        var exclude = state.exclude;
-        attr.data.forInfo = [iteratable, aliases, exclude];
-        state.exclude = exclude.concat(aliases.split(','));
+        var locals = state.locals;
+        attr.data.forInfo = [iteratable, aliases, locals];
+        state.locals = locals.concat(aliases.split(','));
     
         return compileTemplateExpression(iteratable, state);
       },
@@ -1683,8 +1687,8 @@
         // Get information about parameters
         var forInfo = attr.data.forInfo;
     
-        // Restore globals to exclude
-        state.exclude = forInfo[2];
+        // Restore locals
+        state.locals = forInfo[2];
     
         // Use the renderLoop runtime helper
         return ("m.renderLoop(" + (forInfo[0]) + ", function(" + (forInfo[1]) + ") {return " + output + ";})");
@@ -1693,20 +1697,22 @@
     
     specialDirectives["m-on"] = {
       before: function(attr, node, parentNode, state) {
-        // Get event type
-        var eventType = attr.argument;
+        var exclude = state.exclude;
     
         // Get method call
         var methodCall = attr.value;
         if(methodCall.indexOf('(') === -1) {
-          methodCall += "(event)";
+          methodCall += "()";
         }
     
         // Add event handler
-        addEventToNode(eventType, ("function(event) {" + methodCall + ";}"), node);
+        addEventToNode(attr.argument, ("function(event) {" + methodCall + ";}"), node);
     
         // Compile method call
-        return compileTemplateExpression(methodCall, state);
+        exclude.push("event");
+        var dynamic = compileTemplateExpression(methodCall, state);
+        exclude.pop();
+        return dynamic;
       }
     };
     

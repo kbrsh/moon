@@ -1,5 +1,5 @@
-describe('On Directive', function() {
-  var on = createTestElement("on", '<p>{{count}}</p><button m-on:click="increment">Increment</button><button m-on:click="changeCustomIgnored(true)"></button>');
+describe("On Directive", function() {
+  var on = createTestElement("on", '<p>{{count}}</p><button m-on:click="increment">Increment</button><button m-on:click="changeCustomIgnored(true, event)"></button>');
   var p = on.firstChild;
   var button = p.nextSibling;
   var customIgnoredButton = button.nextSibling
@@ -13,43 +13,43 @@ describe('On Directive', function() {
       count: 0
     },
     methods: {
-      increment: function(e) {
-        this.set('count', this.get('count') + 1);
-        evt = e;
+      increment: function() {
+        this.set("count", this.get("count") + 1);
       },
-      changeCustomIgnored: function(condition) {
+      changeCustomIgnored: function(condition, e) {
         customIgnoredParameters = condition;
+        evt = e;
       }
     }
   });
 
-  it('should call a method', function() {
+  it("should call a method", function() {
     button.click();
 
     return wait(function() {
-      expect(app.get('count')).to.equal(1);
+      expect(app.get("count")).to.equal(1);
     });
   });
 
-  it('should update DOM', function() {
+  it("should update DOM", function() {
     button.click();
     return wait(function() {
-      expect(p.innerHTML).to.equal('2');
+      expect(p.innerHTML).to.equal("2");
     });
   });
 
-  it('should pass an event object', function() {
-    expect(evt.target.tagName).to.equal('BUTTON');
-  });
-
-  it('should call with ignored custom parameters', function() {
+  it("should call with ignored custom parameters", function() {
     customIgnoredButton.click();
     return wait(function() {
-      expect(customIgnoredParameters).to.be['true'];
+      expect(customIgnoredParameters).to.be["true"];
     });
   });
 
-  it('should not be present at runtime', function() {
-    expect(button.getAttribute("m-on")).to.be['null'];
+  it("should pass an event object", function() {
+    expect(evt.target.tagName).to.equal("BUTTON");
+  });
+
+  it("should not be present at runtime", function() {
+    expect(button.getAttribute("m-on")).to.be["null"];
   });
 });

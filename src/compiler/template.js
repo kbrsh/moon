@@ -1,8 +1,11 @@
 const compileTemplateExpression = function(expression, state) {
-  let dependencies = state.dependencies;
-  let exclude = state.exclude;
+  const dependencies = state.dependencies;
   let props = dependencies.props;
   let methods = dependencies.methods;
+
+  const exclude = state.exclude;
+  const locals = state.locals;
+
   let dynamic = false;
   let info;
 
@@ -15,10 +18,10 @@ const compileTemplateExpression = function(expression, state) {
           methods.push(name);
         }
       } else {
-        if(props.indexOf(name) === -1) {
+        if(locals.indexOf(name) === -1 && props.indexOf(name) === -1) {
           props.push(name);
         }
-        
+
         dynamic = true;
       }
     }

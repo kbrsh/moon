@@ -95,9 +95,9 @@ specialDirectives["m-for"] = {
 
     // Save information
     const iteratable = parts[1];
-    const exclude = state.exclude;
-    attr.data.forInfo = [iteratable, aliases, exclude];
-    state.exclude = exclude.concat(aliases.split(','));
+    const locals = state.locals;
+    attr.data.forInfo = [iteratable, aliases, locals];
+    state.locals = locals.concat(aliases.split(','));
 
     return compileTemplateExpression(iteratable, state);
   },
@@ -105,8 +105,8 @@ specialDirectives["m-for"] = {
     // Get information about parameters
     const forInfo = attr.data.forInfo;
 
-    // Restore globals to exclude
-    state.exclude = forInfo[2];
+    // Restore locals
+    state.locals = forInfo[2];
 
     // Use the renderLoop runtime helper
     return `m.renderLoop(${forInfo[0]}, function(${forInfo[1]}) {return ${output};})`;
@@ -115,20 +115,22 @@ specialDirectives["m-for"] = {
 
 specialDirectives["m-on"] = {
   before: function(attr, node, parentNode, state) {
-    // Get event type
-    const eventType = attr.argument;
+    let exclude = state.exclude;
 
     // Get method call
     let methodCall = attr.value;
     if(methodCall.indexOf('(') === -1) {
-      methodCall += "(event)";
+      methodCall += "()";
     }
 
     // Add event handler
-    addEventToNode(eventType, `function(event) {${methodCall};}`, node);
+    addEventToNode(attr.argument, `function(event) {${methodCall};}`, node);
 
     // Compile method call
-    return compileTemplateExpression(methodCall, state);
+    exclude.push("event");
+    const dynamic = compileTemplateExpression(methodCall, state);
+    exclude.pop();
+    return dynamic;
   }
 };
 

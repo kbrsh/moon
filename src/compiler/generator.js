@@ -261,11 +261,12 @@ const generateNode = function(node, parentNode, state) {
 const generate = function(tree) {
   let state = {
     staticNodes: [],
-    exclude: globals,
     dependencies: {
       props: [],
       methods: []
-    }
+    },
+    exclude: globals,
+    locals: []
   };
 
   let treeOutput = generateNode(tree, undefined, state);
