@@ -1012,10 +1012,12 @@
               // During generation
               var duringProp = during(attr, node, parentNode, state);
               var duringPropOutput = duringProp.output;
+    
+              if(duringProp.dynamic === true) {
+                dynamic = true;
+              }
+    
               if(duringPropOutput !== undefined) {
-                if(duringProp.dynamic === true) {
-                  dynamic = true;
-                }
                 generateAttrs.push(duringPropOutput);
               }
             }
@@ -1171,7 +1173,7 @@
         for(i = 0; i < generatedChildren.length; i++) {
           var generatedChild$1 = generatedChildren[i];
           if(dynamic === true && generatedChild$1.dynamic === false) {
-            childrenOutput += "" + separator + (generateStaticNode(generatedChild$1.output, staticNodes));
+            childrenOutput += separator + generateStaticNode(generatedChild$1.output, staticNodes);
           } else {
             childrenOutput += separator + generatedChild$1.output;
           }

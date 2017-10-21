@@ -71,10 +71,12 @@ const generateNode = function(node, parentNode, state) {
           // During generation
           const duringProp = during(attr, node, parentNode, state);
           const duringPropOutput = duringProp.output;
+
+          if(duringProp.dynamic === true) {
+            dynamic = true;
+          }
+
           if(duringPropOutput !== undefined) {
-            if(duringProp.dynamic === true) {
-              dynamic = true;
-            }
             generateAttrs.push(duringPropOutput);
           }
         }
@@ -230,7 +232,7 @@ const generateNode = function(node, parentNode, state) {
     for(i = 0; i < generatedChildren.length; i++) {
       const generatedChild = generatedChildren[i];
       if(dynamic === true && generatedChild.dynamic === false) {
-        childrenOutput += `${separator}${generateStaticNode(generatedChild.output, staticNodes)}`;
+        childrenOutput += separator + generateStaticNode(generatedChild.output, staticNodes);
       } else {
         childrenOutput += separator + generatedChild.output;
       }
