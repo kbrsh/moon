@@ -1,13 +1,16 @@
 var items = [];
+var total = 0;
+var currentBench = "";
 
 var add = function(num) {
-  for(var i = items.length ? items.length - 1 : 0, num = items.length - 1 + num; i < num; i++) {
-    items.push("item - " + i);
+  for(var i = 1; i <= num; i++) {
+    items.push("item -" + ((total++) + i));
   }
 }
 
-console.time('init');
-var app = new Moon({
+console.time("init");
+
+new Moon({
   root: "#app",
   data: {
     items: items
@@ -15,19 +18,13 @@ var app = new Moon({
   methods: {
     add: function() {
       add(1000);
-      console.time('add 1000');
-      this.set('items', items);
-      Moon.nextTick(function() {
-        console.timeEnd('add 1000');
-      });
+      console.time((currentBench = "add 1000"));
+      this.set("items", items);
     },
     addLot: function() {
       add(10000);
-      console.time('add 10000');
-      this.set('items', items);
-      Moon.nextTick(function() {
-        console.timeEnd('add 10000');
-      });
+      console.time((currentBench = "add 10000"));
+      this.set("items", items);
     },
     swap: function() {
       var i1 = Math.floor(Math.random()*items.length);
@@ -35,36 +32,31 @@ var app = new Moon({
       var tmp = items[i1];
       items[i1] = items[i2];
       items[i2] = tmp;
-      console.time('swap');
-      this.set('items', items);
-      Moon.nextTick(function() {
-        console.timeEnd('swap');
-      });
+      console.time((currentBench = "swap"));
+      this.set("items", items);
     },
     remove: function() {
       items.splice(Math.floor(Math.random()*items.length), 1);
-      console.time('remove');
-      this.set('items', items);
-      Moon.nextTick(function() {
-        console.timeEnd('remove');
-      });
+      console.time((currentBench = "remove"));
+      this.set("items", items);
     },
     clear: function() {
       items = [];
-      console.time('clear');
-      this.set('items', items);
-      Moon.nextTick(function() {
-        console.timeEnd('clear');
-      });
+      console.time((currentBench = "clear"));
+      this.set("items", items);
     },
     reverse: function() {
       items = items.reverse();
-      console.time('reverse');
-      this.set('items', items);
-      Moon.nextTick(function() {
-        console.timeEnd('reverse');
-      });
+      console.time((currentBench = "reverse"));
+      this.set("items", items);
+    }
+  },
+  hooks: {
+    init() {
+      console.timeEnd("init");
+    },
+    updated() {
+      console.timeEnd(currentBench);
     }
   }
-})
-console.timeEnd('init')
+});
