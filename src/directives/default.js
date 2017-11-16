@@ -59,7 +59,7 @@ specialDirectives["m-if"] = {
     const ifNode = data.ifNode;
     const elseNode = data.elseNode;
     let ifValue = output;
-    let elseValue = "m.emptyVNode";
+    let elseValue;
     let staticNodes = state.staticNodes;
 
     if(ifNode !== undefined) {
@@ -70,7 +70,9 @@ specialDirectives["m-if"] = {
       }
     }
 
-    if(elseNode !== undefined) {
+    if(elseNode === undefined) {
+      elseValue = generateStaticNode("m(\"#text\", '')", staticNodes);
+    } else {
       if(elseNode.dynamic === true) {
         elseValue = elseNode.output;
       } else {

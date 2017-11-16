@@ -23,8 +23,6 @@ const m = function(type, props, data, children) {
   }
 };
 
-m.emptyVNode = m("#text", '');
-
 m.flatten = function(children) {
   for(let i = 0; i < children.length; ) {
     let child = children[i];

@@ -156,8 +156,6 @@
       }
     };
     
-    m.emptyVNode = m("#text", '');
-    
     m.flatten = function(children) {
       for(var i = 0; i < children.length; ) {
         var child = children[i];
@@ -1641,7 +1639,7 @@
         var ifNode = data.ifNode;
         var elseNode = data.elseNode;
         var ifValue = output;
-        var elseValue = "m.emptyVNode";
+        var elseValue;
         var staticNodes = state.staticNodes;
     
         if(ifNode !== undefined) {
@@ -1652,7 +1650,9 @@
           }
         }
     
-        if(elseNode !== undefined) {
+        if(elseNode === undefined) {
+          elseValue = generateStaticNode("m(\"#text\", '')", staticNodes);
+        } else {
           if(elseNode.dynamic === true) {
             elseValue = elseNode.output;
           } else {
