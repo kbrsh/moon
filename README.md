@@ -43,13 +43,9 @@ Still, you do **not have to** use Moon if you are happy with your current soluti
 
 See [the website.](http://moonjs.ga)
 
-### Contributing
+### How to Contribute?
 
 Check the [CONTRIBUTING](/CONTRIBUTING.md) file for more information about this project and how to help.
-
-### Support
-
-Support Moon [on Patreon](https://patreon.com/kbrsh) to help sustain the development of the project. The maker of the project works on open source for free. If you or your company depend on this project, then it makes sense to donate to ensure that the project is maintained. 
 
 ### License
 

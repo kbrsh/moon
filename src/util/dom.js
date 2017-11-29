@@ -22,12 +22,9 @@ const addEvents = function(node, events) {
 const createNode = function(vnode) {
   const type = vnode.type;
   let data = vnode.data;
-  const existingNode = data.node;
   let node;
 
-  if(existingNode !== undefined) {
-    node = existingNode;
-  } else if(type === "#text") {
+  if(type === "#text") {
     // Create textnode
     node = document.createTextNode(vnode.value);
   } else {
