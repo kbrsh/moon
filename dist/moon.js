@@ -89,9 +89,12 @@
     var createNode = function(vnode) {
       var type = vnode.type;
       var data = vnode.data;
+      var existingNode = data.node;
       var node;
     
-      if(type === "#text") {
+      if(existingNode !== undefined) {
+        node = existingNode;
+      } else if(type === "#text") {
         // Create textnode
         node = document.createTextNode(vnode.value);
       } else {
