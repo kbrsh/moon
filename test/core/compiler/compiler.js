@@ -10,6 +10,14 @@ describe("Compiler", function() {
     expect(el.innerHTML).to.equal("Hello Moon!");
   });
 
+  it("should compile escaped HTML codes", function() {
+    var el = createTestElement("compilerEscaped", "&nbsp; &amp; &lt; &gt;");
+    new Moon({
+      root: "#compilerEscaped"
+    });
+    expect(el.textContent).to.equal("  & < >");
+  });
+
   it("should compile unclosed templates", function() {
     createTestElement("compilerTemplateUnclosed", '{{msg');
     new Moon({
