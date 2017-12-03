@@ -178,8 +178,8 @@ const patchChildren = function(newChildren, oldChildren, parentNode) {
       const newChild = newChildren[i];
       const oldChild = oldChildren[i];
 
-      const newType = newChild.type;
-      if(newType !== oldChild.type) {
+      const newChildType = newChild.type;
+      if(newChildType !== oldChild.type) {
         // Types are different, replace child
         replaceVNode(newChild, oldChild, parentNode);
         oldChildren[i] = newChild;
@@ -224,7 +224,7 @@ const patchChildren = function(newChildren, oldChildren, parentNode) {
             oldChildComponentInstance.build();
             callHook(oldChildComponentInstance, "updated");
           }
-        } else if(newType === "#text") {
+        } else if(newChildType === "#text") {
           // Text node, update value
           const newChildValue = newChild.value;
           oldChildData.node.textContent = newChildValue;
@@ -239,36 +239,36 @@ const patchChildren = function(newChildren, oldChildren, parentNode) {
 }
 
 const hydrate = function(node, vnode) {
-  let data = vnode.data;
+  let vnodeData = vnode.data;
 
   // Add reference to node
-  data.node = node;
+  vnodeData.node = node;
 
   // Patch props
-  const props = vnode.props;
-  const nodeAttrs = node.attributes;
-  let oldAttrs = {};
-  for(let i = 0; i < nodeAttrs.length; i++) {
-    const nodeAttr = nodeAttrs[i];
-    oldAttrs[nodeAttr.name] = nodeAttr.value;
+  const vnodeProps = vnode.props;
+  const nodeAttributes = node.attributes;
+  let nodeAttrs = {};
+  for(let i = 0; i < nodeAttributes.length; i++) {
+    const nodeAttribute = nodeAttributes[i];
+    nodeAttrs[nodeAttribute.name] = nodeAttribute.value;
   }
-  patchProps(node, oldAttrs, vnode, props);
+  patchProps(node, nodeAttrs, vnode, vnodeProps);
 
   // Add events
-  const events = data.events;
-  if(events !== undefined) {
-    addEvents(node, events);
+  const vnodeEvents = vnodeData.events;
+  if(vnodeEvents !== undefined) {
+    addEvents(node, vnodeEvents);
   }
 
   // Hydrate children
-  const domProps = props.dom;
-  if((domProps === undefined) || (domProps.innerHTML === undefined && domProps.textContent === undefined)) {
-    const children = vnode.children;
-    const childrenLength = children.length;
+  const vnodeDomProps = vnodeProps.dom;
+  if((vnodeDomProps === undefined) || (vnodeDomProps.innerHTML === undefined && vnodeDomProps.textContent === undefined)) {
+    const vnodeChildren = vnode.children;
+    const vnodeChildrenLength = vnodeChildren.length;
 
     let i = 0;
 
-    let childVNode = i === childrenLength ? undefined : children[i];
+    let childVNode = i === vnodeChildrenLength ? undefined : vnodeChildren[i];
     let childNode = node.firstChild;
 
     while(childVNode !== undefined || childNode !== null) {
@@ -282,16 +282,16 @@ const hydrate = function(node, vnode) {
           // No VNode, remove the node
           removeNode(childNode, node);
         } else {
-          const component = childVNode.data.component;
-          if(component !== undefined) {
+          const childVNodeComponent = childVNode.data.component;
+          if(childVNodeComponent !== undefined) {
             // Create a component
-            createComponent(childNode, childVNode, component);
+            createComponent(childNode, childVNode, childVNodeComponent);
           } else {
-            const type = childVNode.type;
-            if(childNode.nodeName.toLowerCase() !== type) {
+            const childVNodeType = childVNode.type;
+            if(childNode.nodeName.toLowerCase() !== childVNodeType) {
               // Different types, replace nodes
               replaceNode(createNode(childVNode), childNode, node);
-            } else if(type === "#text") {
+            } else if(childVNodeType === "#text") {
               // Text node, update
               childNode.textContent = childVNode.value;
               childVNode.data.node = childNode;
@@ -305,26 +305,26 @@ const hydrate = function(node, vnode) {
         childNode = nextSibling;
       }
 
-      childVNode = ++i < childrenLength ? children[i] : undefined;
+      childVNode = ++i < vnodeChildrenLength ? vnodeChildren[i] : undefined;
     }
   }
 }
 
 const patch = function(newVNode, oldVNode) {
-  let oldData = oldVNode.data;
-  const node = oldData.node;
+  const oldVNodeData = oldVNode.data;
+  const oldVNodeNode = oldVNodeData.node;
 
   // Patch props
-  const newProps = newVNode.props;
-  patchProps(node, oldVNode.props.attrs, newVNode, newProps);
-  oldVNode.props = newProps;
+  const newVNodeProps = newVNode.props;
+  patchProps(oldVNodeNode, oldVNode.props.attrs, newVNode, newVNodeProps);
+  oldVNode.props = newVNodeProps;
 
   // Patch events
-  const newEvents = newVNode.data.events;
-  if(newEvents !== undefined) {
-    patchEvents(newEvents, oldData.events);
+  const newVNodeEvents = newVNode.data.events;
+  if(newVNodeEvents !== undefined) {
+    patchEvents(newVNodeEvents, oldVNodeData.events);
   }
 
   // Patch children
-  patchChildren(newVNode.children, oldVNode.children, node);
+  patchChildren(newVNode.children, oldVNode.children, oldVNodeNode);
 }

@@ -387,8 +387,8 @@
           var newChild = newChildren[i];
           var oldChild = oldChildren[i];
     
-          var newType = newChild.type;
-          if(newType !== oldChild.type) {
+          var newChildType = newChild.type;
+          if(newChildType !== oldChild.type) {
             // Types are different, replace child
             replaceVNode(newChild, oldChild, parentNode);
             oldChildren[i] = newChild;
@@ -433,7 +433,7 @@
                 oldChildComponentInstance.build();
                 callHook(oldChildComponentInstance, "updated");
               }
-            } else if(newType === "#text") {
+            } else if(newChildType === "#text") {
               // Text node, update value
               var newChildValue = newChild.value;
               oldChildData.node.textContent = newChildValue;
@@ -448,36 +448,36 @@
     }
     
     var hydrate = function(node, vnode) {
-      var data = vnode.data;
+      var vnodeData = vnode.data;
     
       // Add reference to node
-      data.node = node;
+      vnodeData.node = node;
     
       // Patch props
-      var props = vnode.props;
-      var nodeAttrs = node.attributes;
-      var oldAttrs = {};
-      for(var i = 0; i < nodeAttrs.length; i++) {
-        var nodeAttr = nodeAttrs[i];
-        oldAttrs[nodeAttr.name] = nodeAttr.value;
+      var vnodeProps = vnode.props;
+      var nodeAttributes = node.attributes;
+      var nodeAttrs = {};
+      for(var i = 0; i < nodeAttributes.length; i++) {
+        var nodeAttribute = nodeAttributes[i];
+        nodeAttrs[nodeAttribute.name] = nodeAttribute.value;
       }
-      patchProps(node, oldAttrs, vnode, props);
+      patchProps(node, nodeAttrs, vnode, vnodeProps);
     
       // Add events
-      var events = data.events;
-      if(events !== undefined) {
-        addEvents(node, events);
+      var vnodeEvents = vnodeData.events;
+      if(vnodeEvents !== undefined) {
+        addEvents(node, vnodeEvents);
       }
     
       // Hydrate children
-      var domProps = props.dom;
-      if((domProps === undefined) || (domProps.innerHTML === undefined && domProps.textContent === undefined)) {
-        var children = vnode.children;
-        var childrenLength = children.length;
+      var vnodeDomProps = vnodeProps.dom;
+      if((vnodeDomProps === undefined) || (vnodeDomProps.innerHTML === undefined && vnodeDomProps.textContent === undefined)) {
+        var vnodeChildren = vnode.children;
+        var vnodeChildrenLength = vnodeChildren.length;
     
         var i$1 = 0;
     
-        var childVNode = i$1 === childrenLength ? undefined : children[i$1];
+        var childVNode = i$1 === vnodeChildrenLength ? undefined : vnodeChildren[i$1];
         var childNode = node.firstChild;
     
         while(childVNode !== undefined || childNode !== null) {
@@ -491,16 +491,16 @@
               // No VNode, remove the node
               removeNode(childNode, node);
             } else {
-              var component = childVNode.data.component;
-              if(component !== undefined) {
+              var childVNodeComponent = childVNode.data.component;
+              if(childVNodeComponent !== undefined) {
                 // Create a component
-                createComponent(childNode, childVNode, component);
+                createComponent(childNode, childVNode, childVNodeComponent);
               } else {
-                var type = childVNode.type;
-                if(childNode.nodeName.toLowerCase() !== type) {
+                var childVNodeType = childVNode.type;
+                if(childNode.nodeName.toLowerCase() !== childVNodeType) {
                   // Different types, replace nodes
                   replaceNode(createNode(childVNode), childNode, node);
-                } else if(type === "#text") {
+                } else if(childVNodeType === "#text") {
                   // Text node, update
                   childNode.textContent = childVNode.value;
                   childVNode.data.node = childNode;
@@ -514,28 +514,28 @@
             childNode = nextSibling;
           }
     
-          childVNode = ++i$1 < childrenLength ? children[i$1] : undefined;
+          childVNode = ++i$1 < vnodeChildrenLength ? vnodeChildren[i$1] : undefined;
         }
       }
     }
     
     var patch = function(newVNode, oldVNode) {
-      var oldData = oldVNode.data;
-      var node = oldData.node;
+      var oldVNodeData = oldVNode.data;
+      var oldVNodeNode = oldVNodeData.node;
     
       // Patch props
-      var newProps = newVNode.props;
-      patchProps(node, oldVNode.props.attrs, newVNode, newProps);
-      oldVNode.props = newProps;
+      var newVNodeProps = newVNode.props;
+      patchProps(oldVNodeNode, oldVNode.props.attrs, newVNode, newVNodeProps);
+      oldVNode.props = newVNodeProps;
     
       // Patch events
-      var newEvents = newVNode.data.events;
-      if(newEvents !== undefined) {
-        patchEvents(newEvents, oldData.events);
+      var newVNodeEvents = newVNode.data.events;
+      if(newVNodeEvents !== undefined) {
+        patchEvents(newVNodeEvents, oldVNodeData.events);
       }
     
       // Patch children
-      patchChildren(newVNode.children, oldVNode.children, node);
+      patchChildren(newVNode.children, oldVNode.children, oldVNodeNode);
     }
     
     
