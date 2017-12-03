@@ -143,7 +143,7 @@ Moon.prototype.mount = function(rootOption) {
     hydrate(root, dom);
   } else {
     const newRoot = createNode(dom);
-    root.parentNode.replaceChild(newRoot, root);
+    replaceNode(newRoot, root, root.parentNode);
     this.root = newRoot;
   }
 

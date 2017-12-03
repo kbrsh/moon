@@ -1,18 +1,18 @@
-'use strict';
+"use strict";
 
 // Gulp
-const gulp = require('gulp');
+const gulp = require("gulp");
 
 // Javascript transpiler
-const buble = require('buble');
+const buble = require("buble");
 
 // Javascript minifier
-const uglifyJS = require('uglify-js');
-const composer = require('gulp-uglify/composer');
+const uglifyJS = require("uglify-js");
+const composer = require("gulp-uglify/composer");
 const uglify = composer(uglifyJS, console);
 
 // Replacer to replace keywords
-const replace = require('gulp-replace');
+const replace = require("gulp-replace");
 
 // Utility to include files
 const include = require("gulp-include");
@@ -30,10 +30,10 @@ const size = require("gulp-size");
 const Transform = require("stream").Transform;
 
 // Karma server
-const Server = require('karma').Server;
+const Server = require("karma").Server;
 
 // Package information
-const pkg = require('./package.json');
+const pkg = require("./package.json");
 
 // Header comment
 const comment = `/**
@@ -69,8 +69,8 @@ const gulpBuble = function(options) {
 };
 
 // Build Moon
-gulp.task('transpile', function() {
-  return gulp.src(['./src/index.js'])
+gulp.task("transpile", function() {
+  return gulp.src(["./src/index.js"])
     .pipe(include())
     .pipe(gulpBuble({
       namedFunctionExpressions: false,
@@ -98,52 +98,52 @@ gulp.task('transpile', function() {
         unicodeRegExp: false
       }
     }))
-    .pipe(concat('moon.js'))
-    .pipe(gulp.dest('./dist/'));
+    .pipe(concat("moon.js"))
+    .pipe(gulp.dest("./dist/"));
 });
 
-gulp.task('build', ['transpile'], function() {
-  return gulp.src(['./src/wrapper.js'])
+gulp.task("build", ["transpile"], function() {
+  return gulp.src(["./src/wrapper.js"])
     .pipe(include())
-    .pipe(concat('moon.js'))
-    .pipe(header(comment + '\n'))
-    .pipe(replace('__VERSION__', pkg.version))
-    .pipe(replace('__ENV__', "development"))
+    .pipe(concat("moon.js"))
+    .pipe(header(comment + "\n"))
+    .pipe(replace("__VERSION__", pkg.version))
+    .pipe(replace("__ENV__", "development"))
     .pipe(size())
-    .pipe(gulp.dest('./dist/'));
+    .pipe(gulp.dest("./dist/"));
 });
 
 // Build minified (compressed) version of Moon
-gulp.task('minify', ['build'], function() {
-  return gulp.src(['./dist/moon.js'])
-    .pipe(replace('"development"', '"production"'))
+gulp.task("minify", ["build"], function() {
+  return gulp.src(["./dist/moon.js"])
+    .pipe(replace("\"development\"", "\"production\""))
     .pipe(uglify())
     .pipe(header(comment))
     .pipe(size())
     .pipe(size({
       gzip: true
     }))
-    .pipe(concat('moon.min.js'))
-    .pipe(gulp.dest('./dist/'));
+    .pipe(concat("moon.min.js"))
+    .pipe(gulp.dest("./dist/"));
 });
 
 // Run Tests
-gulp.task('test', function(done) {
+gulp.task("test", function(done) {
     console.log("[Moon] Running Tests...");
     console.log("[Moon] Version: " + require("./dist/moon.min.js").version);
     new Server({
-      configFile: __dirname + '/test/karma.conf.js',
+      configFile: __dirname + "/test/karma.conf.js",
       singleRun: true
     }, done).start();
 });
 
 // Saucelabs
-gulp.task('test-saucelabs', function(done) {
+gulp.task("test-saucelabs", function(done) {
   new Server({
-    configFile: __dirname + '/test/karma.sauce.conf.js',
+    configFile: __dirname + "/test/karma.sauce.conf.js",
     singleRun: true
   }, done).start();
 });
 
 // Default task
-gulp.task('default', ['build', 'minify']);
+gulp.task("default", ["build", "minify"]);

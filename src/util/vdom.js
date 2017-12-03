@@ -94,43 +94,6 @@ m.renderLoop = function(iteratable, item) {
   return items;
 }
 
-const createComponent = function(node, vnode, component) {
-  const props = component.options.props;
-  const attrs = vnode.props.attrs;
-  let componentProps = {};
-
-  // Get component props
-  if(props !== undefined && attrs !== undefined) {
-    for(let i = 0; i < props.length; i++) {
-      const propName = props[i];
-      componentProps[propName] = attrs[propName];
-    }
-  }
-
-  // Create component options
-  let componentOptions = {
-    root: node,
-    props: componentProps,
-    insert: vnode.children
-  };
-
-  // Check for events
-  const events = vnode.data.events;
-  if(events === undefined) {
-    componentOptions.events = {};
-  } else {
-    componentOptions.events = events;
-  }
-
-  // Initialize and mount instance
-  const componentInstance = new component.CTor(componentOptions);
-
-  // Update data
-  const data = vnode.data;
-  data.component = componentInstance;
-  data.node = componentInstance.root;
-}
-
 const patchProps = function(node, nodeAttrs, vnode, props) {
   // Get VNode Attributes
   const vnodeAttrs = props.attrs;
@@ -199,6 +162,82 @@ const patchEvents = function(newEvents, oldEvents) {
   }
 }
 
+const patchChildren = function(newChildren, oldChildren, parentNode) {
+  const newLength = newChildren.length;
+  const oldLength = oldChildren.length;
+  const totalLength = newLength > oldLength ? newLength : oldLength;
+
+  for(let i = 0; i < totalLength; i++) {
+    if(i >= newLength) {
+      // Past length of new children, remove child
+      removeVNode(oldChildren.pop(), parentNode);
+    } else if(i >= oldLength) {
+      // Past length of old children, append child
+      appendVNode((oldChildren[i] = newChildren[i]), parentNode);
+    } else {
+      const newChild = newChildren[i];
+      const oldChild = oldChildren[i];
+
+      const newType = newChild.type;
+      if(newType !== oldChild.type) {
+        // Types are different, replace child
+        replaceVNode(newChild, oldChild, parentNode);
+        oldChildren[i] = newChild;
+      } else if(newChild !== oldChild) {
+        const oldChildData = oldChild.data;
+        const oldChildComponentInstance = oldChildData.component;
+        if(oldChildComponentInstance !== undefined) {
+          // Component found
+          let componentChanged = false;
+
+          const oldChildComponentInstanceProps = oldChildComponentInstance.options.props;
+          if(oldChildComponentInstanceProps !== undefined) {
+            // Update component props
+            const newChildAttrs = newChild.props.attrs;
+            const oldChildComponentInstanceObserver = oldChildComponentInstance.observer;
+            let oldChildComponentInstanceData = oldChildComponentInstance.data;
+
+            for(let j = 0; j < oldChildComponentInstanceProps.length; j++) {
+              const oldChildComponentInstancePropName = oldChildComponentInstanceProps[j];
+              oldChildComponentInstanceData[oldChildComponentInstancePropName] = newChildAttrs[oldChildComponentInstancePropName];
+              oldChildComponentInstanceObserver.notify(oldChildComponentInstancePropName);
+            }
+
+            componentChanged = true;
+          }
+
+          // Patch component events
+          const newChildEvents = newChild.data.events;
+          if(newChildEvents !== undefined) {
+            patchEvents(newChildEvents, oldChildData.events);
+          }
+
+          // Add insert
+          const newChildChildren = newChild.children;
+          if(newChildChildren.length !== 0) {
+            oldChildComponentInstance.insert = newChildChildren;
+            componentChanged = true;
+          }
+
+          // Build component if changed
+          if(componentChanged === true) {
+            oldChildComponentInstance.build();
+            callHook(oldChildComponentInstance, "updated");
+          }
+        } else if(newType === "#text") {
+          // Text node, update value
+          const newChildValue = newChild.value;
+          oldChildData.node.textContent = newChildValue;
+          oldChild.value = newChildValue;
+        } else {
+          // Patch children
+          patch(newChild, oldChild);
+        }
+      }
+    }
+  }
+}
+
 const hydrate = function(node, vnode) {
   let data = vnode.data;
 
@@ -235,13 +274,13 @@ const hydrate = function(node, vnode) {
     while(childVNode !== undefined || childNode !== null) {
       if(childNode === null) {
         // Node doesn't exist, create and append a node
-        appendChild(childVNode, node);
+        appendVNode(childVNode, node);
       } else {
         let nextSibling = childNode.nextSibling;
 
         if(childVNode === undefined) {
           // No VNode, remove the node
-          node.removeChild(childNode);
+          removeNode(childNode, node);
         } else {
           const component = childVNode.data.component;
           if(component !== undefined) {
@@ -251,7 +290,7 @@ const hydrate = function(node, vnode) {
             const type = childVNode.type;
             if(childNode.nodeName.toLowerCase() !== type) {
               // Different types, replace nodes
-              node.replaceChild(createNode(childVNode), childNode);
+              replaceNode(createNode(childVNode), childNode, node);
             } else if(type === "#text") {
               // Text node, update
               childNode.textContent = childVNode.value;
@@ -287,101 +326,5 @@ const patch = function(newVNode, oldVNode) {
   }
 
   // Patch children
-  const newChildren = newVNode.children;
-  const oldChildren = oldVNode.children;
-
-  const newLength = newChildren.length;
-  const oldLength = oldChildren.length;
-  const totalLength = newLength > oldLength ? newLength : oldLength;
-
-  for(let i = 0; i < totalLength; i++) {
-    if(i >= newLength) {
-      // Past length of new children, remove child
-      const oldChild = oldChildren.pop();
-      const oldChildData = oldChild.data;
-      const oldComponentInstance = oldChildData.component;
-
-      if(oldComponentInstance !== undefined) {
-        oldComponentInstance.destroy();
-      }
-
-      node.removeChild(oldChildData.node);
-    } else if(i >= oldLength) {
-      // Past length of old children, append child
-      appendChild((oldChildren[i] = newChildren[i]), node);
-    } else {
-      const newChild = newChildren[i];
-      const oldChild = oldChildren[i];
-
-      const newType = newChild.type;
-      if(newType !== oldChild.type) {
-        // Types are different, replace child
-        const oldChildData = oldChild.data;
-        const oldComponentInstance = oldChildData.component;
-
-        if(oldComponentInstance !== undefined) {
-          oldComponentInstance.destroy();
-        }
-
-        const newComponent = newChild.data.component;
-        if(newComponent === undefined) {
-          node.replaceChild(createNode(newChild), oldChildData.node);
-        } else {
-          createComponent(oldChildData.node, newChild, newComponent);
-        }
-
-        oldChildren[i] = newChild;
-      } else if(newChild !== oldChild) {
-        const oldChildData = oldChild.data;
-        const componentInstance = oldChildData.component;
-        if(componentInstance !== undefined) {
-          // Component found
-          let componentChanged = false;
-
-          const componentProps = componentInstance.options.props;
-          if(componentProps !== undefined) {
-            // Update component props
-            const newChildAttrs = newChild.props.attrs;
-            const componentObserver = componentInstance.observer;
-            let componentData = componentInstance.data;
-
-            for(let j = 0; j < componentProps.length; j++) {
-              const componentPropName = componentProps[j];
-              componentData[componentPropName] = newChildAttrs[componentPropName];
-              componentObserver.notify(componentPropName);
-            }
-
-            componentChanged = true;
-          }
-
-          // Patch component events
-          const newChildEvents = newChild.data.events;
-          if(newChildEvents !== undefined) {
-            patchEvents(newChildEvents, oldChildData.events);
-          }
-
-          // Add insert
-          const newChildChildren = newChild.children;
-          if(newChildChildren.length !== 0) {
-            componentInstance.insert = newChildChildren;
-            componentChanged = true;
-          }
-
-          // Build component if changed
-          if(componentChanged === true) {
-            componentInstance.build();
-            callHook(componentInstance, "updated");
-          }
-        } else if(newType === "#text") {
-          // Text node, update value
-          const newValue = newChild.value;
-          oldChildData.node.textContent = newValue;
-          oldChild.value = newValue;
-        } else {
-          // Patch children
-          patch(newChild, oldChild);
-        }
-      }
-    }
-  }
+  patchChildren(newVNode.children, oldVNode.children, node);
 }

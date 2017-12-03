@@ -100,7 +100,7 @@
     
         // Append all children
         for(var i = 0; i < children.length; i++) {
-          appendChild(children[i], node);
+          appendVNode(children[i], node);
         }
     
         // Add all event listeners
@@ -119,15 +119,91 @@
       return node;
     }
     
-    var appendChild = function(vnode, parent) {
-      var component = vnode.data.component;
+    var createComponent = function(node, vnode, component) {
+      var props = component.options.props;
+      var attrs = vnode.props.attrs;
+      var componentProps = {};
     
-      if(component === undefined) {
-        parent.appendChild(createNode(vnode));
+      // Get component props
+      if(props !== undefined && attrs !== undefined) {
+        for(var i = 0; i < props.length; i++) {
+          var propName = props[i];
+          componentProps[propName] = attrs[propName];
+        }
+      }
+    
+      // Create component options
+      var componentOptions = {
+        root: node,
+        props: componentProps,
+        insert: vnode.children
+      };
+    
+      // Check for events
+      var events = vnode.data.events;
+      if(events === undefined) {
+        componentOptions.events = {};
+      } else {
+        componentOptions.events = events;
+      }
+    
+      // Initialize and mount instance
+      var componentInstance = new component.CTor(componentOptions);
+    
+      // Update data
+      var data = vnode.data;
+      data.component = componentInstance;
+      data.node = componentInstance.root;
+    }
+    
+    var appendNode = function(node, parentNode) {
+      parentNode.appendChild(node);
+    }
+    
+    var appendVNode = function(vnode, parentNode) {
+      var vnodeComponent = vnode.data.component;
+    
+      if(vnodeComponent === undefined) {
+        appendNode(createNode(vnode), parentNode);
       } else {
         var root = document.createElement(vnode.type);
-        parent.appendChild(root);
-        createComponent(root, vnode, component);
+        appendNode(root, parentNode);
+        createComponent(root, vnode, vnodeComponent);
+      }
+    }
+    
+    var removeNode = function(node, parentNode) {
+      parentNode.removeChild(node);
+    }
+    
+    var removeVNode = function(vnode, parentNode) {
+      var vnodeData = vnode.data;
+      var vnodeComponentInstance = vnodeData.component;
+    
+      if(vnodeComponentInstance !== undefined) {
+        vnodeComponentInstance.destroy();
+      }
+    
+      removeNode(vnodeData.node, parentNode);
+    }
+    
+    var replaceNode = function(newNode, oldNode, parentNode) {
+      parentNode.replaceChild(newNode, oldNode);
+    }
+    
+    var replaceVNode = function(newVNode, oldVNode, parentNode) {
+      var oldVNodeData = oldVNode.data;
+      var oldVNodeComponentInstance = oldVNodeData.component;
+    
+      if(oldVNodeComponentInstance !== undefined) {
+        oldVNodeComponentInstance.destroy();
+      }
+    
+      var newVNodeComponent = newVNode.data.component;
+      if(newVNodeComponent === undefined) {
+        replaceNode(createNode(newVNode), oldVNodeData.node, parentNode);
+      } else {
+        createComponent(oldVNodeData.node, newVNode, newVNodeComponent);
       }
     }
     
@@ -227,43 +303,6 @@
       return items;
     }
     
-    var createComponent = function(node, vnode, component) {
-      var props = component.options.props;
-      var attrs = vnode.props.attrs;
-      var componentProps = {};
-    
-      // Get component props
-      if(props !== undefined && attrs !== undefined) {
-        for(var i = 0; i < props.length; i++) {
-          var propName = props[i];
-          componentProps[propName] = attrs[propName];
-        }
-      }
-    
-      // Create component options
-      var componentOptions = {
-        root: node,
-        props: componentProps,
-        insert: vnode.children
-      };
-    
-      // Check for events
-      var events = vnode.data.events;
-      if(events === undefined) {
-        componentOptions.events = {};
-      } else {
-        componentOptions.events = events;
-      }
-    
-      // Initialize and mount instance
-      var componentInstance = new component.CTor(componentOptions);
-    
-      // Update data
-      var data = vnode.data;
-      data.component = componentInstance;
-      data.node = componentInstance.root;
-    }
-    
     var patchProps = function(node, nodeAttrs, vnode, props) {
       // Get VNode Attributes
       var vnodeAttrs = props.attrs;
@@ -332,6 +371,82 @@
       }
     }
     
+    var patchChildren = function(newChildren, oldChildren, parentNode) {
+      var newLength = newChildren.length;
+      var oldLength = oldChildren.length;
+      var totalLength = newLength > oldLength ? newLength : oldLength;
+    
+      for(var i = 0; i < totalLength; i++) {
+        if(i >= newLength) {
+          // Past length of new children, remove child
+          removeVNode(oldChildren.pop(), parentNode);
+        } else if(i >= oldLength) {
+          // Past length of old children, append child
+          appendVNode((oldChildren[i] = newChildren[i]), parentNode);
+        } else {
+          var newChild = newChildren[i];
+          var oldChild = oldChildren[i];
+    
+          var newType = newChild.type;
+          if(newType !== oldChild.type) {
+            // Types are different, replace child
+            replaceVNode(newChild, oldChild, parentNode);
+            oldChildren[i] = newChild;
+          } else if(newChild !== oldChild) {
+            var oldChildData = oldChild.data;
+            var oldChildComponentInstance = oldChildData.component;
+            if(oldChildComponentInstance !== undefined) {
+              // Component found
+              var componentChanged = false;
+    
+              var oldChildComponentInstanceProps = oldChildComponentInstance.options.props;
+              if(oldChildComponentInstanceProps !== undefined) {
+                // Update component props
+                var newChildAttrs = newChild.props.attrs;
+                var oldChildComponentInstanceObserver = oldChildComponentInstance.observer;
+                var oldChildComponentInstanceData = oldChildComponentInstance.data;
+    
+                for(var j = 0; j < oldChildComponentInstanceProps.length; j++) {
+                  var oldChildComponentInstancePropName = oldChildComponentInstanceProps[j];
+                  oldChildComponentInstanceData[oldChildComponentInstancePropName] = newChildAttrs[oldChildComponentInstancePropName];
+                  oldChildComponentInstanceObserver.notify(oldChildComponentInstancePropName);
+                }
+    
+                componentChanged = true;
+              }
+    
+              // Patch component events
+              var newChildEvents = newChild.data.events;
+              if(newChildEvents !== undefined) {
+                patchEvents(newChildEvents, oldChildData.events);
+              }
+    
+              // Add insert
+              var newChildChildren = newChild.children;
+              if(newChildChildren.length !== 0) {
+                oldChildComponentInstance.insert = newChildChildren;
+                componentChanged = true;
+              }
+    
+              // Build component if changed
+              if(componentChanged === true) {
+                oldChildComponentInstance.build();
+                callHook(oldChildComponentInstance, "updated");
+              }
+            } else if(newType === "#text") {
+              // Text node, update value
+              var newChildValue = newChild.value;
+              oldChildData.node.textContent = newChildValue;
+              oldChild.value = newChildValue;
+            } else {
+              // Patch children
+              patch(newChild, oldChild);
+            }
+          }
+        }
+      }
+    }
+    
     var hydrate = function(node, vnode) {
       var data = vnode.data;
     
@@ -368,13 +483,13 @@
         while(childVNode !== undefined || childNode !== null) {
           if(childNode === null) {
             // Node doesn't exist, create and append a node
-            appendChild(childVNode, node);
+            appendVNode(childVNode, node);
           } else {
             var nextSibling = childNode.nextSibling;
     
             if(childVNode === undefined) {
               // No VNode, remove the node
-              node.removeChild(childNode);
+              removeNode(childNode, node);
             } else {
               var component = childVNode.data.component;
               if(component !== undefined) {
@@ -384,7 +499,7 @@
                 var type = childVNode.type;
                 if(childNode.nodeName.toLowerCase() !== type) {
                   // Different types, replace nodes
-                  node.replaceChild(createNode(childVNode), childNode);
+                  replaceNode(createNode(childVNode), childNode, node);
                 } else if(type === "#text") {
                   // Text node, update
                   childNode.textContent = childVNode.value;
@@ -420,103 +535,7 @@
       }
     
       // Patch children
-      var newChildren = newVNode.children;
-      var oldChildren = oldVNode.children;
-    
-      var newLength = newChildren.length;
-      var oldLength = oldChildren.length;
-      var totalLength = newLength > oldLength ? newLength : oldLength;
-    
-      for(var i = 0; i < totalLength; i++) {
-        if(i >= newLength) {
-          // Past length of new children, remove child
-          var oldChild = oldChildren.pop();
-          var oldChildData = oldChild.data;
-          var oldComponentInstance = oldChildData.component;
-    
-          if(oldComponentInstance !== undefined) {
-            oldComponentInstance.destroy();
-          }
-    
-          node.removeChild(oldChildData.node);
-        } else if(i >= oldLength) {
-          // Past length of old children, append child
-          appendChild((oldChildren[i] = newChildren[i]), node);
-        } else {
-          var newChild = newChildren[i];
-          var oldChild$1 = oldChildren[i];
-    
-          var newType = newChild.type;
-          if(newType !== oldChild$1.type) {
-            // Types are different, replace child
-            var oldChildData$1 = oldChild$1.data;
-            var oldComponentInstance$1 = oldChildData$1.component;
-    
-            if(oldComponentInstance$1 !== undefined) {
-              oldComponentInstance$1.destroy();
-            }
-    
-            var newComponent = newChild.data.component;
-            if(newComponent === undefined) {
-              node.replaceChild(createNode(newChild), oldChildData$1.node);
-            } else {
-              createComponent(oldChildData$1.node, newChild, newComponent);
-            }
-    
-            oldChildren[i] = newChild;
-          } else if(newChild !== oldChild$1) {
-            var oldChildData$2 = oldChild$1.data;
-            var componentInstance = oldChildData$2.component;
-            if(componentInstance !== undefined) {
-              // Component found
-              var componentChanged = false;
-    
-              var componentProps = componentInstance.options.props;
-              if(componentProps !== undefined) {
-                // Update component props
-                var newChildAttrs = newChild.props.attrs;
-                var componentObserver = componentInstance.observer;
-                var componentData = componentInstance.data;
-    
-                for(var j = 0; j < componentProps.length; j++) {
-                  var componentPropName = componentProps[j];
-                  componentData[componentPropName] = newChildAttrs[componentPropName];
-                  componentObserver.notify(componentPropName);
-                }
-    
-                componentChanged = true;
-              }
-    
-              // Patch component events
-              var newChildEvents = newChild.data.events;
-              if(newChildEvents !== undefined) {
-                patchEvents(newChildEvents, oldChildData$2.events);
-              }
-    
-              // Add insert
-              var newChildChildren = newChild.children;
-              if(newChildChildren.length !== 0) {
-                componentInstance.insert = newChildChildren;
-                componentChanged = true;
-              }
-    
-              // Build component if changed
-              if(componentChanged === true) {
-                componentInstance.build();
-                callHook(componentInstance, "updated");
-              }
-            } else if(newType === "#text") {
-              // Text node, update value
-              var newValue = newChild.value;
-              oldChildData$2.node.textContent = newValue;
-              oldChild$1.value = newValue;
-            } else {
-              // Patch children
-              patch(newChild, oldChild$1);
-            }
-          }
-        }
-      }
+      patchChildren(newVNode.children, oldVNode.children, node);
     }
     
     
@@ -1470,7 +1489,7 @@
         hydrate(root, dom);
       } else {
         var newRoot = createNode(dom);
-        root.parentNode.replaceChild(newRoot, root);
+        replaceNode(newRoot, root, root.parentNode);
         this.root = newRoot;
       }
     
