@@ -21,7 +21,7 @@
 
 ### What is it?
 
-Moon is a simple front end JavaScript library heavily inspired by [Vue](https://vuejs.org). The library is fast, flexible, and easy to learn. Check out the [Medium Article](https://hackernoon.com/introducing-moon-1d44a99635f0) for more information on why I made this.
+Moon is a simple front-end JavaScript library heavily inspired by [Vue](https://vuejs.org). The library is fast, flexible, and easy to learn. Check out the [Medium Article](https://hackernoon.com/introducing-moon-1d44a99635f0) for more information on why I made this.
 
 ### Extras
 
