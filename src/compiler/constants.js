@@ -38,3 +38,8 @@ const globals = ["instance", "staticNodes", "true", "false", "undefined", "null"
 // Void and SVG Elements
 const VOID_ELEMENTS = ["area", "base", "br", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"];
 const SVG_ELEMENTS = ["animate", "circle", "clippath", "cursor", "defs", "desc", "ellipse", "filter", "font-face", "foreignObject", "g", "glyph", "image", "line", "marker", "mask", "missing-glyph", "path", "pattern", "polygon", "polyline", "rect", "svg", "switch", "symbol", "text", "textpath", "tspan", "use", "view"];
+
+// Trim Whitespace
+const trimWhitespace = function(value) {
+  return value.replace(whitespaceRE, '');
+}

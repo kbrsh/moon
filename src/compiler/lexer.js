@@ -121,7 +121,7 @@ const lex = function(template) {
         text = textTail.substring(0, endOfText);
         current += endOfText;
       }
-      if(text.replace(whitespaceRE, '').length !== 0) {
+      if(trimWhitespace(text).length !== 0) {
         tokens.push({
           type: "Text",
           value: text.replace(escapeRE, function(match) {

@@ -93,7 +93,7 @@ specialDirectives["m-for"] = {
     const parts = attr.value.split(" in ");
 
     // Aliases
-    const aliases = parts[0];
+    const aliases = trimWhitespace(parts[0]);
 
     // Save information
     const iteratable = parts[1];

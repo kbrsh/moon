@@ -667,6 +667,11 @@
     var VOID_ELEMENTS = ["area", "base", "br", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"];
     var SVG_ELEMENTS = ["animate", "circle", "clippath", "cursor", "defs", "desc", "ellipse", "filter", "font-face", "foreignObject", "g", "glyph", "image", "line", "marker", "mask", "missing-glyph", "path", "pattern", "polygon", "polyline", "rect", "svg", "switch", "symbol", "text", "textpath", "tspan", "use", "view"];
     
+    // Trim Whitespace
+    var trimWhitespace = function(value) {
+      return value.replace(whitespaceRE, '');
+    }
+    
     var compileTemplateExpression = function(expression, state) {
       var dependencies = state.dependencies;
       var props = dependencies.props;
@@ -888,7 +893,7 @@
             text = textTail.substring(0, endOfText);
             current += endOfText;
           }
-          if(text.replace(whitespaceRE, '').length !== 0) {
+          if(trimWhitespace(text).length !== 0) {
             tokens.push({
               type: "Text",
               value: text.replace(escapeRE, function(match) {
@@ -1693,7 +1698,7 @@
         var parts = attr.value.split(" in ");
     
         // Aliases
-        var aliases = parts[0];
+        var aliases = trimWhitespace(parts[0]);
     
         // Save information
         var iteratable = parts[1];
