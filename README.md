@@ -26,7 +26,7 @@ Moon is a simple front end JavaScript library heavily inspired by [Vue](https://
 ### Extras
 
 * ✨ [moon-cli](https://github.com/kbrsh/moon-cli) - scaffold a feature rich Moon project
-* 🚩 [moon-router](https://github.com/kbrsh/moon-router) - fast router plugin for components
+* 🚩 [moon-router](https://github.com/kbrsh/moon-router) - fast component router
 * 📋 [monx](https://github.com/kbrsh/monx) - clean state management
 * 🌎 [moon-ssr](https://github.com/kbrsh/moon-ssr) - universal server-side rendering
 * 📊 [moon-bars](https://kbrsh.github.io/moon-bars) - beautiful bar graph component
@@ -49,7 +49,7 @@ Check the [CONTRIBUTING](/CONTRIBUTING.md) file for more information about this 
 
 ### Support
 
-Support Moon [on Patreon](https://patreon.com/kbrsh) to help sustain the development of the project. The maker of the project works on open source for free. If you or your company depend on this project, then it makes sense to donate to ensure that the project is maintained. 
+Support Moon [on Patreon](https://patreon.com/kbrsh) to help sustain the development of the project. The maker of the project works on open source for free. If you or your company depend on this project, then it makes sense to donate to ensure that the project is maintained.
 
 ### License
 
