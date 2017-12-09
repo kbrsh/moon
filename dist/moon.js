@@ -439,7 +439,7 @@
               oldChildData.node.textContent = newChildValue;
               oldChild.value = newChildValue;
             } else {
-              // Patch children
+              // Patch child
               patch(newChild, oldChild);
             }
           }

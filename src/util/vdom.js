@@ -230,7 +230,7 @@ const patchChildren = function(newChildren, oldChildren, parentNode) {
           oldChildData.node.textContent = newChildValue;
           oldChild.value = newChildValue;
         } else {
-          // Patch children
+          // Patch child
           patch(newChild, oldChild);
         }
       }
