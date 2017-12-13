@@ -37,7 +37,7 @@ There have been a lot of JavaScript libraries released lately. Moon has been dev
 
 Moon differs from the existing solutions by providing a faster, yet compact library with a simple but powerful API. It uses a compiler that uses advanced optimizations to create performant functions for creating virtual DOM trees. The virtual DOM engine uses these trees to efficiently update the DOM. In a variety of benchmarks, Moon has proven itself to be one of the fastest UI libraries out there.
 
-Still, you do **not have to** use Moon if you are happy with your current solution, or if you have already started a project without it. If you are creating something new or would like to use it for the performance gains and intuitive API, feel free to use Moon.
+Still, you do not have to use Moon if you are happy with your current solution, or if you have already started a project without it. Feel free to use it if you are creating something new, need performance gains, like the intuitive API, or are simply curious.
 
 ### Usage
 
