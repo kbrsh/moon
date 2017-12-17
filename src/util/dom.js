@@ -29,7 +29,7 @@ const createNode = function(vnode) {
     node = document.createTextNode(vnode.value);
   } else {
     let children = vnode.children;
-    node = data.SVG === 1 ? document.createElementNS("http://www.w3.org/2000/svg", type) : document.createElement(type);
+    node = (data.flags & FLAG_SVG) === FLAG_SVG ? document.createElementNS("http://www.w3.org/2000/svg", type) : document.createElement(type);
 
     // Append all children
     for(let i = 0; i < children.length; i++) {

@@ -140,6 +140,6 @@ describe("Compiler", function() {
       template: '<div id="compilerSVG"><svg><defs><g id="TestLink"><circle/></g></defs></svg></div>'
     });
 
-    expect(app.render().children[0].data.SVG).to.equal(1);
+    expect(app.render().children[0].data.flags & 1).to.equal(1);
   });
 });

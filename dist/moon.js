@@ -96,7 +96,7 @@
         node = document.createTextNode(vnode.value);
       } else {
         var children = vnode.children;
-        node = data.SVG === 1 ? document.createElementNS("http://www.w3.org/2000/svg", type) : document.createElement(type);
+        node = (data.flags & FLAG_SVG) === FLAG_SVG ? document.createElementNS("http://www.w3.org/2000/svg", type) : document.createElement(type);
     
         // Append all children
         for(var i = 0; i < children.length; i++) {
@@ -669,6 +669,9 @@
     var VOID_ELEMENTS = ["area", "base", "br", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"];
     var SVG_ELEMENTS = ["animate", "circle", "clippath", "cursor", "defs", "desc", "ellipse", "filter", "font-face", "foreignObject", "g", "glyph", "image", "line", "marker", "mask", "missing-glyph", "path", "pattern", "polygon", "polyline", "rect", "svg", "switch", "symbol", "text", "textpath", "tspan", "use", "view"];
     
+    // Data Flags
+    var FLAG_SVG = 1;
+    
     // Trim Whitespace
     var trimWhitespace = function(value) {
       return value.replace(whitespaceRE, '');
@@ -996,7 +999,7 @@
     
         // Mark SVG elements
         if(SVG_ELEMENTS.indexOf(type) !== -1) {
-          data.SVG = 1;
+          data.flags = data.flags | FLAG_SVG;
         }
     
         // Generate props

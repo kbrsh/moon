@@ -27,7 +27,7 @@ const generateNode = function(node, parentNode, state) {
 
     // Mark SVG elements
     if(SVG_ELEMENTS.indexOf(type) !== -1) {
-      data.SVG = 1;
+      data.flags = data.flags | FLAG_SVG;
     }
 
     // Generate props
