@@ -178,60 +178,62 @@ const patchChildren = function(newChildren, oldChildren, parentNode) {
       const newChild = newChildren[i];
       const oldChild = oldChildren[i];
 
-      const newChildType = newChild.type;
-      if(newChildType !== oldChild.type) {
-        // Types are different, replace child
-        replaceVNode(newChild, oldChild, parentNode);
-        oldChildren[i] = newChild;
-      } else if(newChild !== oldChild) {
-        const oldChildData = oldChild.data;
-        const oldChildComponentInstance = oldChildData.component;
-        if(oldChildComponentInstance !== undefined) {
-          // Component found
-          let componentChanged = false;
+      if(newChild !== oldChild) {
+        const newChildType = newChild.type;
+        if(newChildType !== oldChild.type) {
+          // Types are different, replace child
+          replaceVNode(newChild, oldChild, parentNode);
+          oldChildren[i] = newChild;
+        } else {
+          const oldChildData = oldChild.data;
+          const oldChildComponentInstance = oldChildData.component;
+          if(oldChildComponentInstance !== undefined) {
+            // Component found
+            let componentChanged = false;
 
-          const oldChildComponentInstanceProps = oldChildComponentInstance.options.props;
-          if(oldChildComponentInstanceProps !== undefined) {
-            // Update component props
-            const newChildAttrs = newChild.props.attrs;
-            const oldChildComponentInstanceObserver = oldChildComponentInstance.observer;
-            let oldChildComponentInstanceData = oldChildComponentInstance.data;
+            const oldChildComponentInstanceProps = oldChildComponentInstance.options.props;
+            if(oldChildComponentInstanceProps !== undefined) {
+              // Update component props
+              const newChildAttrs = newChild.props.attrs;
+              const oldChildComponentInstanceObserver = oldChildComponentInstance.observer;
+              let oldChildComponentInstanceData = oldChildComponentInstance.data;
 
-            for(let j = 0; j < oldChildComponentInstanceProps.length; j++) {
-              const oldChildComponentInstancePropName = oldChildComponentInstanceProps[j];
-              oldChildComponentInstanceData[oldChildComponentInstancePropName] = newChildAttrs[oldChildComponentInstancePropName];
-              oldChildComponentInstanceObserver.notify(oldChildComponentInstancePropName);
+              for(let j = 0; j < oldChildComponentInstanceProps.length; j++) {
+                const oldChildComponentInstancePropName = oldChildComponentInstanceProps[j];
+                oldChildComponentInstanceData[oldChildComponentInstancePropName] = newChildAttrs[oldChildComponentInstancePropName];
+                oldChildComponentInstanceObserver.notify(oldChildComponentInstancePropName);
+              }
+
+              componentChanged = true;
             }
 
-            componentChanged = true;
-          }
+            // Patch component events
+            const newChildEvents = newChild.data.events;
+            if(newChildEvents !== undefined) {
+              patchEvents(newChildEvents, oldChildData.events);
+            }
 
-          // Patch component events
-          const newChildEvents = newChild.data.events;
-          if(newChildEvents !== undefined) {
-            patchEvents(newChildEvents, oldChildData.events);
-          }
+            // Add insert
+            const newChildChildren = newChild.children;
+            if(newChildChildren.length !== 0) {
+              oldChildComponentInstance.insert = newChildChildren;
+              componentChanged = true;
+            }
 
-          // Add insert
-          const newChildChildren = newChild.children;
-          if(newChildChildren.length !== 0) {
-            oldChildComponentInstance.insert = newChildChildren;
-            componentChanged = true;
+            // Build component if changed
+            if(componentChanged === true) {
+              oldChildComponentInstance.build();
+              callHook(oldChildComponentInstance, "updated");
+            }
+          } else if(newChildType === "#text") {
+            // Text node, update value
+            const newChildValue = newChild.value;
+            oldChildData.node.textContent = newChildValue;
+            oldChild.value = newChildValue;
+          } else {
+            // Patch child
+            patch(newChild, oldChild);
           }
-
-          // Build component if changed
-          if(componentChanged === true) {
-            oldChildComponentInstance.build();
-            callHook(oldChildComponentInstance, "updated");
-          }
-        } else if(newChildType === "#text") {
-          // Text node, update value
-          const newChildValue = newChild.value;
-          oldChildData.node.textContent = newChildValue;
-          oldChild.value = newChildValue;
-        } else {
-          // Patch child
-          patch(newChild, oldChild);
         }
       }
     }

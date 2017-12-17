@@ -387,60 +387,62 @@
           var newChild = newChildren[i];
           var oldChild = oldChildren[i];
     
-          var newChildType = newChild.type;
-          if(newChildType !== oldChild.type) {
-            // Types are different, replace child
-            replaceVNode(newChild, oldChild, parentNode);
-            oldChildren[i] = newChild;
-          } else if(newChild !== oldChild) {
-            var oldChildData = oldChild.data;
-            var oldChildComponentInstance = oldChildData.component;
-            if(oldChildComponentInstance !== undefined) {
-              // Component found
-              var componentChanged = false;
+          if(newChild !== oldChild) {
+            var newChildType = newChild.type;
+            if(newChildType !== oldChild.type) {
+              // Types are different, replace child
+              replaceVNode(newChild, oldChild, parentNode);
+              oldChildren[i] = newChild;
+            } else {
+              var oldChildData = oldChild.data;
+              var oldChildComponentInstance = oldChildData.component;
+              if(oldChildComponentInstance !== undefined) {
+                // Component found
+                var componentChanged = false;
     
-              var oldChildComponentInstanceProps = oldChildComponentInstance.options.props;
-              if(oldChildComponentInstanceProps !== undefined) {
-                // Update component props
-                var newChildAttrs = newChild.props.attrs;
-                var oldChildComponentInstanceObserver = oldChildComponentInstance.observer;
-                var oldChildComponentInstanceData = oldChildComponentInstance.data;
+                var oldChildComponentInstanceProps = oldChildComponentInstance.options.props;
+                if(oldChildComponentInstanceProps !== undefined) {
+                  // Update component props
+                  var newChildAttrs = newChild.props.attrs;
+                  var oldChildComponentInstanceObserver = oldChildComponentInstance.observer;
+                  var oldChildComponentInstanceData = oldChildComponentInstance.data;
     
-                for(var j = 0; j < oldChildComponentInstanceProps.length; j++) {
-                  var oldChildComponentInstancePropName = oldChildComponentInstanceProps[j];
-                  oldChildComponentInstanceData[oldChildComponentInstancePropName] = newChildAttrs[oldChildComponentInstancePropName];
-                  oldChildComponentInstanceObserver.notify(oldChildComponentInstancePropName);
+                  for(var j = 0; j < oldChildComponentInstanceProps.length; j++) {
+                    var oldChildComponentInstancePropName = oldChildComponentInstanceProps[j];
+                    oldChildComponentInstanceData[oldChildComponentInstancePropName] = newChildAttrs[oldChildComponentInstancePropName];
+                    oldChildComponentInstanceObserver.notify(oldChildComponentInstancePropName);
+                  }
+    
+                  componentChanged = true;
                 }
     
-                componentChanged = true;
-              }
+                // Patch component events
+                var newChildEvents = newChild.data.events;
+                if(newChildEvents !== undefined) {
+                  patchEvents(newChildEvents, oldChildData.events);
+                }
     
-              // Patch component events
-              var newChildEvents = newChild.data.events;
-              if(newChildEvents !== undefined) {
-                patchEvents(newChildEvents, oldChildData.events);
-              }
+                // Add insert
+                var newChildChildren = newChild.children;
+                if(newChildChildren.length !== 0) {
+                  oldChildComponentInstance.insert = newChildChildren;
+                  componentChanged = true;
+                }
     
-              // Add insert
-              var newChildChildren = newChild.children;
-              if(newChildChildren.length !== 0) {
-                oldChildComponentInstance.insert = newChildChildren;
-                componentChanged = true;
+                // Build component if changed
+                if(componentChanged === true) {
+                  oldChildComponentInstance.build();
+                  callHook(oldChildComponentInstance, "updated");
+                }
+              } else if(newChildType === "#text") {
+                // Text node, update value
+                var newChildValue = newChild.value;
+                oldChildData.node.textContent = newChildValue;
+                oldChild.value = newChildValue;
+              } else {
+                // Patch child
+                patch(newChild, oldChild);
               }
-    
-              // Build component if changed
-              if(componentChanged === true) {
-                oldChildComponentInstance.build();
-                callHook(oldChildComponentInstance, "updated");
-              }
-            } else if(newChildType === "#text") {
-              // Text node, update value
-              var newChildValue = newChild.value;
-              oldChildData.node.textContent = newChildValue;
-              oldChild.value = newChildValue;
-            } else {
-              // Patch child
-              patch(newChild, oldChild);
             }
           }
         }
