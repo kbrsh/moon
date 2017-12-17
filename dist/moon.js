@@ -671,6 +671,7 @@
     
     // Data Flags
     var FLAG_SVG = 1;
+    var FLAG_STATIC = 1 << 1;
     
     // Trim Whitespace
     var trimWhitespace = function(value) {
@@ -970,6 +971,15 @@
       return root.children[0];
     }
     
+    var generateNodeFlag = function(data, flag) {
+      var flags = data.flags;
+      if(flags === undefined) {
+        data.flags = flag;
+      } else {
+        data.flags = flags | flag;
+      }
+    }
+    
     var generateStaticNode = function(nodeOutput, staticNodes) {
       var staticNodesLength = staticNodes.length;
       staticNodes[staticNodesLength] = nodeOutput;
@@ -999,7 +1009,7 @@
     
         // Mark SVG elements
         if(SVG_ELEMENTS.indexOf(type) !== -1) {
-          data.flags = data.flags | FLAG_SVG;
+          generateNodeFlag(data, FLAG_SVG);
         }
     
         // Generate props

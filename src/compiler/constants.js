@@ -41,6 +41,7 @@ const SVG_ELEMENTS = ["animate", "circle", "clippath", "cursor", "defs", "desc",
 
 // Data Flags
 const FLAG_SVG = 1;
+const FLAG_STATIC = 1 << 1;
 
 // Trim Whitespace
 const trimWhitespace = function(value) {

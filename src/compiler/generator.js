@@ -1,3 +1,12 @@
+const generateNodeFlag = function(data, flag) {
+  const flags = data.flags;
+  if(flags === undefined) {
+    data.flags = flag;
+  } else {
+    data.flags = flags | flag;
+  }
+}
+
 const generateStaticNode = function(nodeOutput, staticNodes) {
   const staticNodesLength = staticNodes.length;
   staticNodes[staticNodesLength] = nodeOutput;
@@ -27,7 +36,7 @@ const generateNode = function(node, parentNode, state) {
 
     // Mark SVG elements
     if(SVG_ELEMENTS.indexOf(type) !== -1) {
-      data.flags = data.flags | FLAG_SVG;
+      generateNodeFlag(data, FLAG_SVG);
     }
 
     // Generate props
