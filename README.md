@@ -33,7 +33,7 @@ Moon is a simple front end JavaScript library heavily inspired by [Vue](https://
 
 ### Another library?
 
-There have been a lot of JavaScript libraries released lately. Moon has been developed since late 2015. Most libraries are bloated, with a large API and file size, leading to applications becoming slower, and less mobile friendly.
+There have been a lot of JavaScript libraries released lately. Moon has been developed since late 2015. Most libraries are bloated, with a complex API and large file size, leading to applications becoming slower, and less mobile friendly.
 
 Moon differs from the existing solutions by providing a faster, yet compact library with a simple but powerful API. It uses a compiler that uses advanced optimizations to create performant functions for generating virtual DOM trees. The virtual DOM engine uses these trees to efficiently update the DOM. In a variety of benchmarks, Moon has proven itself to be one of the fastest UI libraries out there.
 
