@@ -650,11 +650,11 @@
     var expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)(?:\s*\()?/g;
     
     // HTML Escapes
-    var escapeRE = /(?:(?:&(?:lt|gt|amp|nbsp|quot);)|"|\\|\n)/g;
+    var escapeRE = /(?:(?:&(?:amp|gt|lt|nbsp|quot);)|"|\\|\n)/g;
     var escapeMap = {
-      "&lt;": '<',
-      "&gt;": '>',
       "&amp;": '&',
+      "&gt;": '>',
+      "&lt;": '<',
       "&nbsp;": ' ',
       "&quot;": "\\\"",
       '\\': "\\\\",

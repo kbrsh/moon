@@ -20,11 +20,11 @@ const tagOrCommentStartRE = /<\/?(?:[A-Za-z]+\w*)|<!--/;
 const expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)(?:\s*\()?/g;
 
 // HTML Escapes
-const escapeRE = /(?:(?:&(?:lt|gt|amp|nbsp|quot);)|"|\\|\n)/g;
+const escapeRE = /(?:(?:&(?:amp|gt|lt|nbsp|quot);)|"|\\|\n)/g;
 const escapeMap = {
-  "&lt;": '<',
-  "&gt;": '>',
   "&amp;": '&',
+  "&gt;": '>',
+  "&lt;": '<',
   "&nbsp;": ' ',
   "&quot;": "\\\"",
   '\\': "\\\\",
