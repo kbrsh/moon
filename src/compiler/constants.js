@@ -40,8 +40,8 @@ const VOID_ELEMENTS = ["area", "base", "br", "command", "embed", "hr", "img", "i
 const SVG_ELEMENTS = ["animate", "circle", "clippath", "cursor", "defs", "desc", "ellipse", "filter", "font-face", "foreignObject", "g", "glyph", "image", "line", "marker", "mask", "missing-glyph", "path", "pattern", "polygon", "polyline", "rect", "svg", "switch", "symbol", "text", "textpath", "tspan", "use", "view"];
 
 // Data Flags
-const FLAG_SVG = 1;
-const FLAG_STATIC = 1 << 1;
+const FLAG_STATIC = 1;
+const FLAG_SVG = 1 << 1;
 
 // Trim Whitespace
 const trimWhitespace = function(value) {
