@@ -13,6 +13,9 @@ const parse = function(tokens) {
       // Push text to currently pending element
       elements[lastIndex].children.push({
         type: "#text",
+        data: {
+          flags: 0
+        },
         value: token.value
       });
     } else if(token.type === "Tag") {
@@ -33,8 +36,9 @@ const parse = function(tokens) {
         let node = {
           type: type,
           index: index,
-          props: {
-            attrs: token.attributes
+          props: token.attributes,
+          data: {
+            flags: 0
           },
           children: []
         };

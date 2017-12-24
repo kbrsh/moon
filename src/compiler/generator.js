@@ -1,250 +1,237 @@
-const generateNodeFlag = function(data, flag) {
-  const flags = data.flags;
-  if(flags === undefined) {
-    data.flags = flag;
-  } else {
-    data.flags = flags | flag;
-  }
-}
-
 const generateStaticNode = function(nodeOutput, staticNodes) {
   const staticNodesLength = staticNodes.length;
   staticNodes[staticNodesLength] = nodeOutput;
   return `staticNodes[${staticNodesLength}]`;
 }
 
-const generateNode = function(node, parentNode, state) {
+const generateData = function(data) {
+  let dataOutput = '{';
+  let separator = '';
+
+  // Events
+  let events = data.events;
+  let eventHandlerSeparator = '';
+  if(events !== undefined) {
+    dataOutput += "events: {";
+
+    for(let eventType in events) {
+      dataOutput += `${separator}"${eventType}": [`;
+
+      let handlers = events[eventType];
+      for(let i = 0; i < handlers.length; i++) {
+        dataOutput += eventHandlerSeparator + handlers[i];
+        eventHandlerSeparator = ", ";
+      }
+
+      separator = ", ";
+      eventHandlerSeparator = '';
+      dataOutput += ']';
+    }
+
+    dataOutput += '}';
+    delete data.events;
+  }
+
+  // Flags
+  if(data.flags === 0) {
+    delete data.flags;
+  }
+
+  for(let key in data) {
+    dataOutput += `${separator}${key}: ${data[key]}`;
+    separator = ", ";
+  }
+
+  return dataOutput + '}';
+}
+
+const generateProps = function(type, props) {
+  let propOutput = type + ": {";
+  let separator = '';
+
+  for(let i = 0; i < props.length; i++) {
+    const prop = props[i];
+    let propValue = prop.value;
+
+    if(propValue.length === 0) {
+      propValue = "\"\"";
+    }
+
+    propOutput += `${separator}"${prop.name}": ${propValue}`;
+    separator = ", ";
+  }
+
+  return propOutput + '}';
+}
+
+const generateNodeState = function(node, parentNode, state) {
   const type = node.type;
   if(type === "#text") {
-    // Text node
-    const compiled = compileTemplate(node.value, state);
-    return {
-      output: `m("#text", ${compiled.output})`,
-      dynamic: compiled.dynamic
-    };
+    // Text
+    const compiledText = compileTemplate(node.value, state);
+    node.value = compiledText.output;
+    return compiledText.dynamic;
   } else if(type === "m-insert") {
+    // Insert
     parentNode.deep = true;
-    return {
-      output: "instance.insert",
-      dynamic: true
-    };
+    return true;
   } else {
-    let callOutput = `m("${type}", {`;
+    const locals = state.locals;
     let dynamic = false;
-    let separator = '';
-    let data = node.data = {};
+    let data = node.data;
 
-    // Mark SVG elements
+    // SVG flag
     if(SVG_ELEMENTS.indexOf(type) !== -1) {
-      generateNodeFlag(data, FLAG_SVG);
+      data.flags = data.flags | FLAG_SVG;
     }
 
-    // Generate props
+    // Props
     const props = node.props;
-    const attrs = props.attrs;
-    let generateAttrs = [];
-    let generateDirectives = [];
-    let specialDirective;
-    let specialDirectivesAfter = [];
-    let attrName;
-    let attr;
-    let i;
+    const propsLength = props.length;
+    let propStateAttrs = [];
+    let propStateDirectives = [];
+    let propStateSpecialDirectivesAfter = [];
+    node.props = {
+      attrs: propStateAttrs,
+      dom: [],
+      directives: propStateDirectives,
+      specialDirectivesAfter: propStateSpecialDirectivesAfter
+    };
 
-    // Invoke special directives to generate before
-    let before;
-    for(attrName in attrs) {
-      attr = attrs[attrName];
-      if((specialDirective = specialDirectives[attr.name]) !== undefined && (before = specialDirective.before) !== undefined) {
-        if(before(attr, node, parentNode, state) === true) {
-          dynamic = true;
-        }
-      }
-    }
+    // Before/After special directives
+    for(let i = 0; i < propsLength; i++) {
+      const prop = props[i];
+      const specialDirective = specialDirectives[prop.name];
 
-    // Process other attributes
-    for(attrName in attrs) {
-      attr = attrs[attrName];
-      specialDirective = specialDirectives[attr.name];
       if(specialDirective !== undefined) {
-        const after = specialDirective.after;
-        if(after !== undefined) {
-          // After generation
-          specialDirectivesAfter.push({
-            attr: attr,
-            after: after
+        const specialDirectiveAfter = specialDirective.after;
+        if(specialDirectiveAfter !== undefined) {
+          propStateSpecialDirectivesAfter.push({
+            prop: prop,
+            after: specialDirectiveAfter
           });
         }
 
-        const during = specialDirective.during;
-        if(during !== undefined) {
-          // During generation
-          const duringProp = during(attr, node, parentNode, state);
-          if(duringProp !== undefined) {
-            if(duringProp.dynamic === true) {
-              dynamic = true;
-            }
-
-            generateAttrs.push(duringProp.output);
-          }
-        }
-      } else if(attrName[0] === 'm' && attrName[1] === '-') {
-        // Directive
-        generateDirectives.push(attr);
-      } else {
-        // Attribute
-        generateAttrs.push(attr);
-      }
-    }
-
-    // Generate attributes
-    const generateAttrsLength = generateAttrs.length;
-    let existingPropType = false;
-    if(generateAttrsLength !== 0) {
-      // Add attributes object
-      callOutput += "attrs: {";
-
-      for(i = 0; i < generateAttrsLength; i++) {
-        // Generate attribute name and value
-        attr = generateAttrs[i];
-
-        if(typeof attr === "string") {
-          // During generation literal property
-          callOutput += separator + attr;
-        } else {
-          // Normal property
-          const compiledAttr = compileTemplate(attr.value, state);
-          if(compiledAttr.dynamic === true) {
+        const specialDirectiveBefore = specialDirective.before;
+        if(specialDirectiveBefore !== undefined) {
+          if(specialDirectiveBefore(prop, node, parentNode, state) === true) {
             dynamic = true;
           }
-          callOutput += `${separator}"${attr.name}": ${compiledAttr.output}`;
         }
-
-        separator = ", ";
       }
-
-      // Close attributes object
-      separator = '';
-      callOutput += '}';
-      existingPropType = true;
     }
 
-    // Generate directives
-    const generateDirectivesLength = generateDirectives.length;
-    if(generateDirectivesLength !== 0) {
-      // Add directives object to props
-      if(existingPropType === true) {
-        callOutput += ", directives: {";
+    // Attributes
+    for(let i = 0; i < propsLength; i++) {
+      const prop = props[i];
+      const propName = prop.name;
+      const specialDirective = specialDirectives[propName];
+
+      if(specialDirective !== undefined) {
+        // During special directive
+        const specialDirectiveDuring = specialDirective.during;
+        if(specialDirectiveDuring !== undefined) {
+          if(specialDirectiveDuring(prop, node, parentNode, state) === true) {
+            dynamic = true;
+          }
+
+          propStateAttrs.push(prop);
+        }
+      } else if(propName[0] === 'm' && propName[1] === '-') {
+        // Directive
+        if(compileTemplateExpression(prop.value, state) === true) {
+          dynamic = true;
+        }
+
+        propStateDirectives.push(prop);
       } else {
-        callOutput += "directives: {";
-        existingPropType = true;
-      }
+        // Attribute
+        const compiledProp = compileTemplate(prop.value, state);
 
-      for(i = 0; i < generateDirectivesLength; i++) {
-        // Generate directive name and value
-        attr = generateDirectives[i];
-
-        let directiveValue = attr.value;
-        if(directiveValue.length === 0) {
-          directiveValue = "\"\"";
-        } else if(compileTemplateExpression(directiveValue, state) === true) {
+        if(compiledProp.dynamic === true) {
           dynamic = true;
         }
 
-        callOutput += `${separator}"${attr.name}": ${directiveValue}`;
-        separator = ", ";
+        prop.value = compiledProp.output;
+        propStateAttrs.push(prop);
       }
-
-      // Close directives object
-      separator = '';
-      callOutput += '}';
     }
 
-    const domProps = props.dom;
-    if(domProps !== undefined) {
-      // Add dom object to props
-      callOutput += existingPropType === true ? ", dom: {" : "dom: {";
-
-      for(let domPropName in domProps) {
-        // Generate dom property name and value
-        const domPropValue = domProps[domPropName];
-        if(compileTemplateExpression(domPropValue, state) === true) {
-          dynamic = true;
-        }
-        callOutput += `${separator}"${domPropName}": ${domPropValue}`;
-        separator = ", ";
-      }
-
-      // Close dom object
-      separator = '';
-      callOutput += '}';
-    }
-
-    // Close props object, start data object
-    callOutput += "}, {";
-
-    let events = data["events"];
-    let eventHandlerSeparator = '';
-    if(events !== undefined) {
-      // Add events object to data
-      callOutput += "events: {";
-
-      for(let eventType in events) {
-        // Add event type and open handlers array
-        callOutput += `${separator}"${eventType}": [`;
-
-        let handlers = events[eventType];
-        for(i = 0; i < handlers.length; i++) {
-          // Add handler
-          callOutput += eventHandlerSeparator + handlers[i];
-          eventHandlerSeparator = ", ";
-        }
-
-        // Close event type
-        separator = ", ";
-        eventHandlerSeparator = '';
-        callOutput += ']';
-      }
-
-      // Close events object
-      callOutput += '}';
-      delete data["events"];
-    }
-
-    for(let key in data) {
-      // Generate data key and value
-      callOutput += `${separator}${key}: ${data[key]}`;
-      separator = ", ";
-    }
-
-    // Close data
-    callOutput += "}, ";
-
-    // Generate children
+    // Children
     const children = node.children;
-    let generatedChildren = [];
-    let childrenOutput = '';
-    separator = '';
-    for(i = 0; i < children.length; i++) {
-      // Generate child node
-      const generatedChild = generateNode(children[i], node, state);
+    let childStates = [];
 
-      if(generatedChild.dynamic === true) {
+    for(let i = 0; i < children.length; i++) {
+      const childState = generateNodeState(children[i], node, state);
+
+      if(childState === true) {
         dynamic = true;
       }
 
-      generatedChildren.push(generatedChild);
+      childStates.push(childState);
     }
 
-    let staticNodes = state.staticNodes;
-    for(i = 0; i < generatedChildren.length; i++) {
-      const generatedChild = generatedChildren[i];
-      if(dynamic === true && generatedChild.dynamic === false) {
-        childrenOutput += separator + generateStaticNode(generatedChild.output, staticNodes);
-      } else {
-        childrenOutput += separator + generatedChild.output;
+    for(let i = 0; i < children.length; i++) {
+      if(dynamic === true && childStates[i] === false) {
+        const childData = children[i].data;
+        childData.flags = childData.flags | FLAG_STATIC;
       }
+    }
 
-      separator = ", ";
+    // Restore locals
+    state.locals = locals;
+
+    return dynamic;
+  }
+}
+
+const generateNode = function(node, parentNode, state) {
+  const type = node.type;
+  let data = node.data;
+  let callOutput;
+
+  if(type === "#text") {
+    // Text
+    callOutput = `m("#text", ${generateData(data)}, ${node.value})`;
+  } else if(type === "m-insert") {
+    callOutput = "instance.insert";
+  } else {
+    callOutput = `m("${type}", {`;
+
+    // Props
+    const propState = node.props;
+    let propSeparator = '';
+
+    // Attributes
+    const propStateAttrs = propState.attrs;
+    if(propStateAttrs.length !== 0) {
+      callOutput += generateProps("attrs", propStateAttrs);
+      propSeparator = ", ";
+    }
+
+    // Directives
+    const propStateDirectives = propState.directives;
+    if(propStateDirectives.length !== 0) {
+      callOutput += generateProps(propSeparator + "directives", propStateDirectives);
+      propSeparator = ", ";
+    }
+
+    // DOM Props
+    const propStateDom = propState.dom;
+    if(propStateDom.length !== 0) {
+      callOutput += generateProps(propSeparator + "dom", propStateDom);
+    }
+
+    // Data
+    callOutput += "}, " + generateData(data) + ", ";
+
+    // Children
+    let childrenOutput = '';
+    let childrenSeparator = '';
+    const children = node.children;
+    for(let i = 0; i < children.length; i++) {
+      childrenOutput += childrenSeparator + generateNode(children[i], node, state);
+      childrenSeparator = ", ";
     }
 
     // Close children and call
@@ -255,15 +242,18 @@ const generateNode = function(node, parentNode, state) {
     }
 
     // Process special directives
-    for(i = 0; i < specialDirectivesAfter.length; i++) {
-      const specialDirectiveAfter = specialDirectivesAfter[i];
-      callOutput = specialDirectiveAfter.after(specialDirectiveAfter.attr, callOutput, node, parentNode, state);
+    const propStateSpecialDirectivesAfter = propState.specialDirectivesAfter;
+    for(let i = 0; i < propStateSpecialDirectivesAfter.length; i++) {
+      const propStateSpecialDirectiveAfter = propStateSpecialDirectivesAfter[i];
+      callOutput = propStateSpecialDirectiveAfter.after(propStateSpecialDirectiveAfter.prop, callOutput, node, parentNode, state);
     }
+  }
 
-    return {
-      output: callOutput,
-      dynamic: dynamic
-    };
+  // Output
+  if((data.flags & FLAG_STATIC) === FLAG_STATIC) {
+    return generateStaticNode(callOutput, state.staticNodes);
+  } else {
+    return callOutput;
   }
 }
 
@@ -278,7 +268,12 @@ const generate = function(tree) {
     locals: []
   };
 
-  let treeOutput = generateNode(tree, undefined, state);
+  if(generateNodeState(tree, undefined, state) === false) {
+    const treeData = tree.data;
+    treeData.flags = treeData.flags | FLAG_STATIC;
+  }
+
+  const treeOutput = generateNode(tree, undefined, state);
 
   const dependencies = state.dependencies;
   const props = dependencies.props;
@@ -290,13 +285,6 @@ const generate = function(tree) {
 
   let i = 0;
   let separator = '';
-
-  if(treeOutput.dynamic === true) {
-    treeOutput = treeOutput.output;
-  } else {
-    staticNodes[0] = treeOutput.output;
-    treeOutput = `staticNodes[0]`;
-  }
 
   // Generate data prop dependencies
   for(; i < props.length; i++) {

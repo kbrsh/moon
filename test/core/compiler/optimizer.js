@@ -30,7 +30,7 @@ describe("Compiler Optimization", function() {
         }
       });
 
-      expect(app.render().children[0]).to.equal(app.render().children[0]);
+      expect(app.render().children[0]).to.not.equal(app.render().children[0]);
       expect(app.render().children[0].children[0]).to.equal(app.render().children[0].children[0]);
     });
 
@@ -44,12 +44,12 @@ describe("Compiler Optimization", function() {
         }
       });
 
-      expect(app.render().children[0]).to.equal(app.render().children[0]);
+      expect(app.render().children[0]).to.not.equal(app.render().children[0]);
       expect(app.render().children[0].children[0]).to.equal(app.render().children[0].children[0]);
 
       app.set("falseCondition", true);
 
-      expect(app.render().children[1]).to.equal(app.render().children[1]);
+      expect(app.render().children[1]).to.not.equal(app.render().children[1]);
       expect(app.render().children[1].children[0]).to.equal(app.render().children[1].children[0]);
     });
 
@@ -63,10 +63,10 @@ describe("Compiler Optimization", function() {
         }
       });
 
-      expect(app.render().children[0]).to.equal(app.render().children[0]);
+      expect(app.render().children[0]).to.not.equal(app.render().children[0]);
       expect(app.render().children[0].children[0]).to.equal(app.render().children[0].children[0]);
 
-      expect(app.render().children[2]).to.equal(app.render().children[2]);
+      expect(app.render().children[2]).to.not.equal(app.render().children[2]);
       expect(app.render().children[2].children[0]).to.equal(app.render().children[2].children[0]);
     });
 
@@ -80,11 +80,13 @@ describe("Compiler Optimization", function() {
         }
       });
 
-      expect(app.render().children[0]).to.equal(app.render().children[0]);
+      expect(app.render().children[0]).to.not.equal(app.render().children[0]);
+      expect(app.render().children[0].children[0]).to.equal(app.render().children[0].children[0]);
 
       app.set("trueCondition", false);
 
-      expect(app.render().children[0]).to.equal(app.render().children[0]);
+      expect(app.render().children[0]).to.not.equal(app.render().children[0]);
+      expect(app.render().children[0].children[0]).to.equal(app.render().children[0].children[0]);
     });
   });
 

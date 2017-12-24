@@ -3,8 +3,8 @@ const m = function(type, props, data, children) {
     // Text virtual node
     return {
       type: type,
-      value: props,
-      data: {}
+      data: props,
+      value: data
     };
   } else {
     let component = components[type];

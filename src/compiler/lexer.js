@@ -24,7 +24,7 @@ const lex = function(template) {
         }
 
         let tagType = '';
-        let attributes = {};
+        let attributes = [];
 
         let closeStart = false;
         let closeEnd = false;
@@ -79,20 +79,13 @@ const lex = function(template) {
               }
             }
 
-            let attrToken = {
-              name: attrName,
+            attrName = attrName.split(':');
+            attributes.push({
+              name: attrName[0],
               value: attrValue,
-              argument: undefined,
+              argument: attrName[1],
               data: {}
-            }
-
-            const splitAttrName = attrName.split(':');
-            if(splitAttrName.length === 2) {
-              attrToken.name = splitAttrName[0];
-              attrToken.argument = splitAttrName[1];
-            }
-
-            attributes[attrName] = attrToken;
+            });
           }
         }
 

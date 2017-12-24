@@ -18,115 +18,98 @@ const addEventToNode = function(eventType, eventHandler, node) {
 }
 
 const addDomPropertyToNode = function(domPropName, domPropValue, node) {
-  let dom = node.props.dom;
-  if(dom === undefined) {
-    node.props.dom = dom = {};
-  }
-
-  dom[domPropName] = domPropValue;
+  node.props.dom.push({
+    name: domPropName,
+    value: domPropValue
+  });
 }
 
 specialDirectives["m-if"] = {
-  before: function(attr, node, parentNode, state) {
+  before: function(prop, node, parentNode, state) {
     const children = parentNode.children;
     const nextIndex = node.index + 1;
     const nextChild = children[nextIndex];
-    let dynamic = compileTemplateExpression(attr.value, state);
-    let data = attr.data;
+    compileTemplateExpression(prop.value, state);
 
     if(nextChild !== undefined) {
-      let nextChildAttrs = nextChild.props.attrs;
-      if(nextChildAttrs["m-else"] !== undefined) {
-        delete nextChildAttrs["m-else"];
-        data.elseNode = generateNode(nextChild, parentNode, state);
-        children.splice(nextIndex, 1);
+      let nextChildProps = nextChild.props;
+      for(let i = 0; i < nextChildProps.length; i++) {
+        const nextChildProp = nextChildProps[i];
+        if(nextChildProp.name === "m-else") {
+          nextChildProps.splice(i, 1);
+
+          if(generateNodeState(nextChild, parentNode, state) === false) {
+            let nextChildChildren = nextChild.children;
+            for(let j = 0; j < nextChildChildren.length; j++) {
+              const nextChildChildData = nextChildChildren[j].data;
+              nextChildChildData.flags = nextChildChildData.flags | FLAG_STATIC;
+            }
+          }
+
+          prop.data.elseOutput = generateNode(nextChild, parentNode, state);
+          children.splice(nextIndex, 1);
+          break;
+        }
       }
     }
 
-    if(dynamic === true) {
-      const attrs = node.props.attrs;
-      const ifAttr = attrs["m-if"];
-      delete attrs["m-if"];
-      data.ifNode = generateNode(node, parentNode, state);
-      node.children = [];
-      attrs["m-if"] = ifAttr;
-    }
-
-    return dynamic;
+    return true;
   },
-  after: function(attr, output, node, parentNode, state) {
-    const data = attr.data;
-    const ifNode = data.ifNode;
-    const elseNode = data.elseNode;
-    let ifValue = output;
-    let elseValue;
-    let staticNodes = state.staticNodes;
+  after: function(prop, output, node, parentNode, state) {
+    let elseOutput = prop.data.elseOutput;
 
-    if(ifNode !== undefined) {
-      if(ifNode.dynamic === true) {
-        ifValue = ifNode.output;
-      } else {
-        ifValue = generateStaticNode(ifNode.output, staticNodes);
-      }
+    if(elseOutput === undefined) {
+      elseOutput = generateStaticNode(`m("#text", {flags: ${FLAG_STATIC}}, '')`, state.staticNodes);
     }
 
-    if(elseNode === undefined) {
-      elseValue = generateStaticNode("m(\"#text\", '')", staticNodes);
-    } else {
-      if(elseNode.dynamic === true) {
-        elseValue = elseNode.output;
-      } else {
-        elseValue = generateStaticNode(elseNode.output, staticNodes);
-      }
-    }
-
-    return `${attr.value} ? ${ifValue} : ${elseValue}`;
+    return `${prop.value} ? ${output} : ${elseOutput}`;
   }
 };
 
 specialDirectives["m-for"] = {
-  before: function(attr, node, parentNode, state) {
+  before: function(prop, node, parentNode, state) {
     // Flatten children
     parentNode.deep = true;
 
     // Parts
-    const parts = attr.value.split(" in ");
+    const parts = prop.value.split(" in ");
 
     // Aliases
     const aliases = trimWhitespace(parts[0]);
 
     // Save information
     const iteratable = parts[1];
-    const locals = state.locals;
-    attr.data.forInfo = [iteratable, aliases, locals];
-    state.locals = locals.concat(aliases.split(','));
+    const propData = prop.data;
+    propData.forIteratable = iteratable;
+    propData.forAliases = aliases;
+    state.locals = state.locals.concat(aliases.split(','));
 
-    return compileTemplateExpression(iteratable, state);
+    // Compile iteratable
+    compileTemplateExpression(iteratable, state);
+
+    return true;
   },
-  after: function(attr, output, node, parentNode, state) {
+  after: function(prop, output, node, parentNode, state) {
     // Get information about parameters
-    const forInfo = attr.data.forInfo;
-
-    // Restore locals
-    state.locals = forInfo[2];
+    const propData = prop.data;
 
     // Use the renderLoop runtime helper
-    return `m.renderLoop(${forInfo[0]}, function(${forInfo[1]}) {return ${output};})`;
+    return `m.renderLoop(${propData.forIteratable}, function(${propData.forAliases}) {return ${output};})`;
   }
 };
 
 specialDirectives["m-on"] = {
-  before: function(attr, node, parentNode, state) {
+  before: function(prop, node, parentNode, state) {
     let exclude = state.exclude;
 
     // Get method call
-    let methodCall = attr.value;
+    let methodCall = prop.value;
     if(methodCall.indexOf('(') === -1) {
       methodCall += "()";
     }
 
     // Add event handler
-    addEventToNode(attr.argument, `function(event) {${methodCall};}`, node);
+    addEventToNode(prop.argument, `function(event) {${methodCall};}`, node);
 
     // Compile method call
     exclude.push("event");
@@ -137,8 +120,8 @@ specialDirectives["m-on"] = {
 };
 
 specialDirectives["m-bind"] = {
-  before: function(attr, node, parentNode, state) {
-    let value = attr.value;
+  before: function(prop, node, parentNode, state) {
+    let value = prop.value;
 
     const dynamicIndex = value.search(hashRE);
     let base;
@@ -169,31 +152,24 @@ specialDirectives["m-bind"] = {
   }
 };
 
+specialDirectives["m-dom"] = {
+  before: function(prop, node, parentNode, state) {
+    const propValue = prop.value;
+    addDomPropertyToNode(prop.argument, propValue, node);
+    return compileTemplateExpression(propValue, state);
+  }
+};
+
 specialDirectives["m-literal"] = {
-  during: function(attr, node, parentNode, state) {
-    let modifiers = attr.argument.split('.');
-    const attrName = modifiers.shift();
-    const attrValue = attr.value;
-    let output = undefined;
+  during: function(prop, node, parentNode, state) {
+    const argument = prop.argument;
+    prop.name = argument;
 
-    if(modifiers[0] === "dom") {
-      // Literal DOM property
-      addDomPropertyToNode(attrName, attrValue, node);
-      return output;
-    } else {
-      if(attrName === "class") {
-        // Render class at runtime
-        output = `"class": m.renderClass(${attrValue})`;
-      } else {
-        // Literal attribute
-        output = `"${attrName}": ${attrValue}`;
-      }
-
-      return {
-        output: output,
-        dynamic: compileTemplateExpression(attrValue, state)
-      }
+    if(argument === "class") {
+      prop.value = `m.renderClass(${prop.value})`;
     }
+
+    return compileTemplateExpression(prop.value, state);
   }
 };
 

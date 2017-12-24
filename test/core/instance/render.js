@@ -4,7 +4,7 @@ describe("Custom Render", function() {
   var app = new Moon({
     root: "#render",
     render: function(m) {
-      return m("div", {attrs: {id: "render"}}, {}, [m("#text", this.get('msg'))])
+      return m("div", {attrs: {id: "render"}}, {}, [m("#text", {}, this.get('msg'))])
     },
     data: {
       msg: "Hello Moon!"

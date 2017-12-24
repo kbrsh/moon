@@ -212,8 +212,8 @@
         // Text virtual node
         return {
           type: type,
-          value: props,
-          data: {}
+          data: props,
+          value: data
         };
       } else {
         var component = components[type];
@@ -663,15 +663,15 @@
     }
     
     // Global Variables/Keywords
-    var globals = ["instance", "staticNodes", "true", "false", "undefined", "null", "NaN", "typeof", "in"];
+    var globals = ["NaN", "false", "in", "instance", "m", "null", "staticNodes", "true", "typeof", "undefined"];
     
     // Void and SVG Elements
     var VOID_ELEMENTS = ["area", "base", "br", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"];
     var SVG_ELEMENTS = ["animate", "circle", "clippath", "cursor", "defs", "desc", "ellipse", "filter", "font-face", "foreignObject", "g", "glyph", "image", "line", "marker", "mask", "missing-glyph", "path", "pattern", "polygon", "polyline", "rect", "svg", "switch", "symbol", "text", "textpath", "tspan", "use", "view"];
     
     // Data Flags
-    var FLAG_SVG = 1;
-    var FLAG_STATIC = 1 << 1;
+    var FLAG_STATIC = 1;
+    var FLAG_SVG = 1 << 1;
     
     // Trim Whitespace
     var trimWhitespace = function(value) {
@@ -802,7 +802,7 @@
             }
     
             var tagType = '';
-            var attributes = {};
+            var attributes = [];
     
             var closeStart = false;
             var closeEnd = false;
@@ -857,20 +857,13 @@
                   }
                 }
     
-                var attrToken = {
-                  name: attrName,
+                attrName = attrName.split(':');
+                attributes.push({
+                  name: attrName[0],
                   value: attrValue,
-                  argument: undefined,
+                  argument: attrName[1],
                   data: {}
-                }
-    
-                var splitAttrName = attrName.split(':');
-                if(splitAttrName.length === 2) {
-                  attrToken.name = splitAttrName[0];
-                  attrToken.argument = splitAttrName[1];
-                }
-    
-                attributes[attrName] = attrToken;
+                });
               }
             }
     
@@ -928,6 +921,9 @@
           // Push text to currently pending element
           elements[lastIndex].children.push({
             type: "#text",
+            data: {
+              flags: 0
+            },
             value: token.value
           });
         } else if(token.type === "Tag") {
@@ -948,8 +944,9 @@
             var node = {
               type: type,
               index: index,
-              props: {
-                attrs: token.attributes
+              props: token.attributes,
+              data: {
+                flags: 0
               },
               children: []
             };
@@ -971,253 +968,240 @@
       return root.children[0];
     }
     
-    var generateNodeFlag = function(data, flag) {
-      var flags = data.flags;
-      if(flags === undefined) {
-        data.flags = flag;
-      } else {
-        data.flags = flags | flag;
-      }
-    }
-    
     var generateStaticNode = function(nodeOutput, staticNodes) {
       var staticNodesLength = staticNodes.length;
       staticNodes[staticNodesLength] = nodeOutput;
       return ("staticNodes[" + staticNodesLength + "]");
     }
     
-    var generateNode = function(node, parentNode, state) {
+    var generateData = function(data) {
+      var dataOutput = '{';
+      var separator = '';
+    
+      // Events
+      var events = data.events;
+      var eventHandlerSeparator = '';
+      if(events !== undefined) {
+        dataOutput += "events: {";
+    
+        for(var eventType in events) {
+          dataOutput += separator + "\"" + eventType + "\": [";
+    
+          var handlers = events[eventType];
+          for(var i = 0; i < handlers.length; i++) {
+            dataOutput += eventHandlerSeparator + handlers[i];
+            eventHandlerSeparator = ", ";
+          }
+    
+          separator = ", ";
+          eventHandlerSeparator = '';
+          dataOutput += ']';
+        }
+    
+        dataOutput += '}';
+        delete data.events;
+      }
+    
+      // Flags
+      if(data.flags === 0) {
+        delete data.flags;
+      }
+    
+      for(var key in data) {
+        dataOutput += "" + separator + key + ": " + (data[key]);
+        separator = ", ";
+      }
+    
+      return dataOutput + '}';
+    }
+    
+    var generateProps = function(type, props) {
+      var propOutput = type + ": {";
+      var separator = '';
+    
+      for(var i = 0; i < props.length; i++) {
+        var prop = props[i];
+        var propValue = prop.value;
+    
+        if(propValue.length === 0) {
+          propValue = "\"\"";
+        }
+    
+        propOutput += separator + "\"" + (prop.name) + "\": " + propValue;
+        separator = ", ";
+      }
+    
+      return propOutput + '}';
+    }
+    
+    var generateNodeState = function(node, parentNode, state) {
       var type = node.type;
       if(type === "#text") {
-        // Text node
-        var compiled = compileTemplate(node.value, state);
-        return {
-          output: ("m(\"#text\", " + (compiled.output) + ")"),
-          dynamic: compiled.dynamic
-        };
+        // Text
+        var compiledText = compileTemplate(node.value, state);
+        node.value = compiledText.output;
+        return compiledText.dynamic;
       } else if(type === "m-insert") {
+        // Insert
         parentNode.deep = true;
-        return {
-          output: "instance.insert",
-          dynamic: true
-        };
+        return true;
       } else {
-        var callOutput = "m(\"" + type + "\", {";
+        var locals = state.locals;
         var dynamic = false;
-        var separator = '';
-        var data = node.data = {};
+        var data = node.data;
     
-        // Mark SVG elements
+        // SVG flag
         if(SVG_ELEMENTS.indexOf(type) !== -1) {
-          generateNodeFlag(data, FLAG_SVG);
+          data.flags = data.flags | FLAG_SVG;
         }
     
-        // Generate props
+        // Props
         var props = node.props;
-        var attrs = props.attrs;
-        var generateAttrs = [];
-        var generateDirectives = [];
-        var specialDirective;
-        var specialDirectivesAfter = [];
-        var attrName;
-        var attr;
-        var i;
+        var propsLength = props.length;
+        var propStateAttrs = [];
+        var propStateDirectives = [];
+        var propStateSpecialDirectivesAfter = [];
+        node.props = {
+          attrs: propStateAttrs,
+          dom: [],
+          directives: propStateDirectives,
+          specialDirectivesAfter: propStateSpecialDirectivesAfter
+        };
     
-        // Invoke special directives to generate before
-        var before;
-        for(attrName in attrs) {
-          attr = attrs[attrName];
-          if((specialDirective = specialDirectives[attr.name]) !== undefined && (before = specialDirective.before) !== undefined) {
-            if(before(attr, node, parentNode, state) === true) {
-              dynamic = true;
-            }
-          }
-        }
+        // Before/After special directives
+        for(var i = 0; i < propsLength; i++) {
+          var prop = props[i];
+          var specialDirective = specialDirectives[prop.name];
     
-        // Process other attributes
-        for(attrName in attrs) {
-          attr = attrs[attrName];
-          specialDirective = specialDirectives[attr.name];
           if(specialDirective !== undefined) {
-            var after = specialDirective.after;
-            if(after !== undefined) {
-              // After generation
-              specialDirectivesAfter.push({
-                attr: attr,
-                after: after
+            var specialDirectiveAfter = specialDirective.after;
+            if(specialDirectiveAfter !== undefined) {
+              propStateSpecialDirectivesAfter.push({
+                prop: prop,
+                after: specialDirectiveAfter
               });
             }
     
-            var during = specialDirective.during;
-            if(during !== undefined) {
-              // During generation
-              var duringProp = during(attr, node, parentNode, state);
-              if(duringProp !== undefined) {
-                if(duringProp.dynamic === true) {
-                  dynamic = true;
-                }
-    
-                generateAttrs.push(duringProp.output);
-              }
-            }
-          } else if(attrName[0] === 'm' && attrName[1] === '-') {
-            // Directive
-            generateDirectives.push(attr);
-          } else {
-            // Attribute
-            generateAttrs.push(attr);
-          }
-        }
-    
-        // Generate attributes
-        var generateAttrsLength = generateAttrs.length;
-        var existingPropType = false;
-        if(generateAttrsLength !== 0) {
-          // Add attributes object
-          callOutput += "attrs: {";
-    
-          for(i = 0; i < generateAttrsLength; i++) {
-            // Generate attribute name and value
-            attr = generateAttrs[i];
-    
-            if(typeof attr === "string") {
-              // During generation literal property
-              callOutput += separator + attr;
-            } else {
-              // Normal property
-              var compiledAttr = compileTemplate(attr.value, state);
-              if(compiledAttr.dynamic === true) {
+            var specialDirectiveBefore = specialDirective.before;
+            if(specialDirectiveBefore !== undefined) {
+              if(specialDirectiveBefore(prop, node, parentNode, state) === true) {
                 dynamic = true;
               }
-              callOutput += separator + "\"" + (attr.name) + "\": " + (compiledAttr.output);
             }
-    
-            separator = ", ";
           }
-    
-          // Close attributes object
-          separator = '';
-          callOutput += '}';
-          existingPropType = true;
         }
     
-        // Generate directives
-        var generateDirectivesLength = generateDirectives.length;
-        if(generateDirectivesLength !== 0) {
-          // Add directives object to props
-          if(existingPropType === true) {
-            callOutput += ", directives: {";
+        // Attributes
+        for(var i$1 = 0; i$1 < propsLength; i$1++) {
+          var prop$1 = props[i$1];
+          var propName = prop$1.name;
+          var specialDirective$1 = specialDirectives[propName];
+    
+          if(specialDirective$1 !== undefined) {
+            // During special directive
+            var specialDirectiveDuring = specialDirective$1.during;
+            if(specialDirectiveDuring !== undefined) {
+              if(specialDirectiveDuring(prop$1, node, parentNode, state) === true) {
+                dynamic = true;
+              }
+    
+              propStateAttrs.push(prop$1);
+            }
+          } else if(propName[0] === 'm' && propName[1] === '-') {
+            // Directive
+            if(compileTemplateExpression(prop$1.value, state) === true) {
+              dynamic = true;
+            }
+    
+            propStateDirectives.push(prop$1);
           } else {
-            callOutput += "directives: {";
-            existingPropType = true;
-          }
+            // Attribute
+            var compiledProp = compileTemplate(prop$1.value, state);
     
-          for(i = 0; i < generateDirectivesLength; i++) {
-            // Generate directive name and value
-            attr = generateDirectives[i];
-    
-            var directiveValue = attr.value;
-            if(directiveValue.length === 0) {
-              directiveValue = "\"\"";
-            } else if(compileTemplateExpression(directiveValue, state) === true) {
+            if(compiledProp.dynamic === true) {
               dynamic = true;
             }
     
-            callOutput += separator + "\"" + (attr.name) + "\": " + directiveValue;
-            separator = ", ";
+            prop$1.value = compiledProp.output;
+            propStateAttrs.push(prop$1);
           }
-    
-          // Close directives object
-          separator = '';
-          callOutput += '}';
         }
     
-        var domProps = props.dom;
-        if(domProps !== undefined) {
-          // Add dom object to props
-          callOutput += existingPropType === true ? ", dom: {" : "dom: {";
-    
-          for(var domPropName in domProps) {
-            // Generate dom property name and value
-            var domPropValue = domProps[domPropName];
-            if(compileTemplateExpression(domPropValue, state) === true) {
-              dynamic = true;
-            }
-            callOutput += separator + "\"" + domPropName + "\": " + domPropValue;
-            separator = ", ";
-          }
-    
-          // Close dom object
-          separator = '';
-          callOutput += '}';
-        }
-    
-        // Close props object, start data object
-        callOutput += "}, {";
-    
-        var events = data["events"];
-        var eventHandlerSeparator = '';
-        if(events !== undefined) {
-          // Add events object to data
-          callOutput += "events: {";
-    
-          for(var eventType in events) {
-            // Add event type and open handlers array
-            callOutput += separator + "\"" + eventType + "\": [";
-    
-            var handlers = events[eventType];
-            for(i = 0; i < handlers.length; i++) {
-              // Add handler
-              callOutput += eventHandlerSeparator + handlers[i];
-              eventHandlerSeparator = ", ";
-            }
-    
-            // Close event type
-            separator = ", ";
-            eventHandlerSeparator = '';
-            callOutput += ']';
-          }
-    
-          // Close events object
-          callOutput += '}';
-          delete data["events"];
-        }
-    
-        for(var key in data) {
-          // Generate data key and value
-          callOutput += "" + separator + key + ": " + (data[key]);
-          separator = ", ";
-        }
-    
-        // Close data
-        callOutput += "}, ";
-    
-        // Generate children
+        // Children
         var children = node.children;
-        var generatedChildren = [];
-        var childrenOutput = '';
-        separator = '';
-        for(i = 0; i < children.length; i++) {
-          // Generate child node
-          var generatedChild = generateNode(children[i], node, state);
+        var childStates = [];
     
-          if(generatedChild.dynamic === true) {
+        for(var i$2 = 0; i$2 < children.length; i$2++) {
+          var childState = generateNodeState(children[i$2], node, state);
+    
+          if(childState === true) {
             dynamic = true;
           }
     
-          generatedChildren.push(generatedChild);
+          childStates.push(childState);
         }
     
-        var staticNodes = state.staticNodes;
-        for(i = 0; i < generatedChildren.length; i++) {
-          var generatedChild$1 = generatedChildren[i];
-          if(dynamic === true && generatedChild$1.dynamic === false) {
-            childrenOutput += separator + generateStaticNode(generatedChild$1.output, staticNodes);
-          } else {
-            childrenOutput += separator + generatedChild$1.output;
+        for(var i$3 = 0; i$3 < children.length; i$3++) {
+          if(dynamic === true && childStates[i$3] === false) {
+            var childData = children[i$3].data;
+            childData.flags = childData.flags | FLAG_STATIC;
           }
+        }
     
-          separator = ", ";
+        // Restore locals
+        state.locals = locals;
+    
+        return dynamic;
+      }
+    }
+    
+    var generateNode = function(node, parentNode, state) {
+      var type = node.type;
+      var data = node.data;
+      var callOutput;
+    
+      if(type === "#text") {
+        // Text
+        callOutput = "m(\"#text\", " + (generateData(data)) + ", " + (node.value) + ")";
+      } else if(type === "m-insert") {
+        callOutput = "instance.insert";
+      } else {
+        callOutput = "m(\"" + type + "\", {";
+    
+        // Props
+        var propState = node.props;
+        var propSeparator = '';
+    
+        // Attributes
+        var propStateAttrs = propState.attrs;
+        if(propStateAttrs.length !== 0) {
+          callOutput += generateProps("attrs", propStateAttrs);
+          propSeparator = ", ";
+        }
+    
+        // Directives
+        var propStateDirectives = propState.directives;
+        if(propStateDirectives.length !== 0) {
+          callOutput += generateProps(propSeparator + "directives", propStateDirectives);
+          propSeparator = ", ";
+        }
+    
+        // DOM Props
+        var propStateDom = propState.dom;
+        if(propStateDom.length !== 0) {
+          callOutput += generateProps(propSeparator + "dom", propStateDom);
+        }
+    
+        // Data
+        callOutput += "}, " + generateData(data) + ", ";
+    
+        // Children
+        var childrenOutput = '';
+        var childrenSeparator = '';
+        var children = node.children;
+        for(var i = 0; i < children.length; i++) {
+          childrenOutput += childrenSeparator + generateNode(children[i], node, state);
+          childrenSeparator = ", ";
         }
     
         // Close children and call
@@ -1228,15 +1212,18 @@
         }
     
         // Process special directives
-        for(i = 0; i < specialDirectivesAfter.length; i++) {
-          var specialDirectiveAfter = specialDirectivesAfter[i];
-          callOutput = specialDirectiveAfter.after(specialDirectiveAfter.attr, callOutput, node, parentNode, state);
+        var propStateSpecialDirectivesAfter = propState.specialDirectivesAfter;
+        for(var i$1 = 0; i$1 < propStateSpecialDirectivesAfter.length; i$1++) {
+          var propStateSpecialDirectiveAfter = propStateSpecialDirectivesAfter[i$1];
+          callOutput = propStateSpecialDirectiveAfter.after(propStateSpecialDirectiveAfter.prop, callOutput, node, parentNode, state);
         }
+      }
     
-        return {
-          output: callOutput,
-          dynamic: dynamic
-        };
+      // Output
+      if((data.flags & FLAG_STATIC) === FLAG_STATIC) {
+        return generateStaticNode(callOutput, state.staticNodes);
+      } else {
+        return callOutput;
       }
     }
     
@@ -1251,6 +1238,11 @@
         locals: []
       };
     
+      if(generateNodeState(tree, undefined, state) === false) {
+        var treeData = tree.data;
+        treeData.flags = treeData.flags | FLAG_STATIC;
+      }
+    
       var treeOutput = generateNode(tree, undefined, state);
     
       var dependencies = state.dependencies;
@@ -1263,13 +1255,6 @@
     
       var i = 0;
       var separator = '';
-    
-      if(treeOutput.dynamic === true) {
-        treeOutput = treeOutput.output;
-      } else {
-        staticNodes[0] = treeOutput.output;
-        treeOutput = "staticNodes[0]";
-      }
     
       // Generate data prop dependencies
       for(; i < props.length; i++) {
@@ -1638,115 +1623,98 @@
     }
     
     var addDomPropertyToNode = function(domPropName, domPropValue, node) {
-      var dom = node.props.dom;
-      if(dom === undefined) {
-        node.props.dom = dom = {};
-      }
-    
-      dom[domPropName] = domPropValue;
+      node.props.dom.push({
+        name: domPropName,
+        value: domPropValue
+      });
     }
     
     specialDirectives["m-if"] = {
-      before: function(attr, node, parentNode, state) {
+      before: function(prop, node, parentNode, state) {
         var children = parentNode.children;
         var nextIndex = node.index + 1;
         var nextChild = children[nextIndex];
-        var dynamic = compileTemplateExpression(attr.value, state);
-        var data = attr.data;
+        compileTemplateExpression(prop.value, state);
     
         if(nextChild !== undefined) {
-          var nextChildAttrs = nextChild.props.attrs;
-          if(nextChildAttrs["m-else"] !== undefined) {
-            delete nextChildAttrs["m-else"];
-            data.elseNode = generateNode(nextChild, parentNode, state);
-            children.splice(nextIndex, 1);
+          var nextChildProps = nextChild.props;
+          for(var i = 0; i < nextChildProps.length; i++) {
+            var nextChildProp = nextChildProps[i];
+            if(nextChildProp.name === "m-else") {
+              nextChildProps.splice(i, 1);
+    
+              if(generateNodeState(nextChild, parentNode, state) === false) {
+                var nextChildChildren = nextChild.children;
+                for(var j = 0; j < nextChildChildren.length; j++) {
+                  var nextChildChildData = nextChildChildren[j].data;
+                  nextChildChildData.flags = nextChildChildData.flags | FLAG_STATIC;
+                }
+              }
+    
+              prop.data.elseOutput = generateNode(nextChild, parentNode, state);
+              children.splice(nextIndex, 1);
+              break;
+            }
           }
         }
     
-        if(dynamic === true) {
-          var attrs = node.props.attrs;
-          var ifAttr = attrs["m-if"];
-          delete attrs["m-if"];
-          data.ifNode = generateNode(node, parentNode, state);
-          node.children = [];
-          attrs["m-if"] = ifAttr;
-        }
-    
-        return dynamic;
+        return true;
       },
-      after: function(attr, output, node, parentNode, state) {
-        var data = attr.data;
-        var ifNode = data.ifNode;
-        var elseNode = data.elseNode;
-        var ifValue = output;
-        var elseValue;
-        var staticNodes = state.staticNodes;
+      after: function(prop, output, node, parentNode, state) {
+        var elseOutput = prop.data.elseOutput;
     
-        if(ifNode !== undefined) {
-          if(ifNode.dynamic === true) {
-            ifValue = ifNode.output;
-          } else {
-            ifValue = generateStaticNode(ifNode.output, staticNodes);
-          }
+        if(elseOutput === undefined) {
+          elseOutput = generateStaticNode(("m(\"#text\", {flags: " + FLAG_STATIC + "}, '')"), state.staticNodes);
         }
     
-        if(elseNode === undefined) {
-          elseValue = generateStaticNode("m(\"#text\", '')", staticNodes);
-        } else {
-          if(elseNode.dynamic === true) {
-            elseValue = elseNode.output;
-          } else {
-            elseValue = generateStaticNode(elseNode.output, staticNodes);
-          }
-        }
-    
-        return ((attr.value) + " ? " + ifValue + " : " + elseValue);
+        return ((prop.value) + " ? " + output + " : " + elseOutput);
       }
     };
     
     specialDirectives["m-for"] = {
-      before: function(attr, node, parentNode, state) {
+      before: function(prop, node, parentNode, state) {
         // Flatten children
         parentNode.deep = true;
     
         // Parts
-        var parts = attr.value.split(" in ");
+        var parts = prop.value.split(" in ");
     
         // Aliases
         var aliases = trimWhitespace(parts[0]);
     
         // Save information
         var iteratable = parts[1];
-        var locals = state.locals;
-        attr.data.forInfo = [iteratable, aliases, locals];
-        state.locals = locals.concat(aliases.split(','));
+        var propData = prop.data;
+        propData.forIteratable = iteratable;
+        propData.forAliases = aliases;
+        state.locals = state.locals.concat(aliases.split(','));
     
-        return compileTemplateExpression(iteratable, state);
+        // Compile iteratable
+        compileTemplateExpression(iteratable, state);
+    
+        return true;
       },
-      after: function(attr, output, node, parentNode, state) {
+      after: function(prop, output, node, parentNode, state) {
         // Get information about parameters
-        var forInfo = attr.data.forInfo;
-    
-        // Restore locals
-        state.locals = forInfo[2];
+        var propData = prop.data;
     
         // Use the renderLoop runtime helper
-        return ("m.renderLoop(" + (forInfo[0]) + ", function(" + (forInfo[1]) + ") {return " + output + ";})");
+        return ("m.renderLoop(" + (propData.forIteratable) + ", function(" + (propData.forAliases) + ") {return " + output + ";})");
       }
     };
     
     specialDirectives["m-on"] = {
-      before: function(attr, node, parentNode, state) {
+      before: function(prop, node, parentNode, state) {
         var exclude = state.exclude;
     
         // Get method call
-        var methodCall = attr.value;
+        var methodCall = prop.value;
         if(methodCall.indexOf('(') === -1) {
           methodCall += "()";
         }
     
         // Add event handler
-        addEventToNode(attr.argument, ("function(event) {" + methodCall + ";}"), node);
+        addEventToNode(prop.argument, ("function(event) {" + methodCall + ";}"), node);
     
         // Compile method call
         exclude.push("event");
@@ -1757,8 +1725,8 @@
     };
     
     specialDirectives["m-bind"] = {
-      before: function(attr, node, parentNode, state) {
-        var value = attr.value;
+      before: function(prop, node, parentNode, state) {
+        var value = prop.value;
     
         var dynamicIndex = value.search(hashRE);
         var base;
@@ -1789,31 +1757,24 @@
       }
     };
     
+    specialDirectives["m-dom"] = {
+      before: function(prop, node, parentNode, state) {
+        var propValue = prop.value;
+        addDomPropertyToNode(prop.argument, propValue, node);
+        return compileTemplateExpression(propValue, state);
+      }
+    };
+    
     specialDirectives["m-literal"] = {
-      during: function(attr, node, parentNode, state) {
-        var modifiers = attr.argument.split('.');
-        var attrName = modifiers.shift();
-        var attrValue = attr.value;
-        var output = undefined;
+      during: function(prop, node, parentNode, state) {
+        var argument = prop.argument;
+        prop.name = argument;
     
-        if(modifiers[0] === "dom") {
-          // Literal DOM property
-          addDomPropertyToNode(attrName, attrValue, node);
-          return output;
-        } else {
-          if(attrName === "class") {
-            // Render class at runtime
-            output = "\"class\": m.renderClass(" + attrValue + ")";
-          } else {
-            // Literal attribute
-            output = "\"" + attrName + "\": " + attrValue;
-          }
-    
-          return {
-            output: output,
-            dynamic: compileTemplateExpression(attrValue, state)
-          }
+        if(argument === "class") {
+          prop.value = "m.renderClass(" + (prop.value) + ")";
         }
+    
+        return compileTemplateExpression(prop.value, state);
       }
     };
     

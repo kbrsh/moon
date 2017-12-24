@@ -33,7 +33,7 @@ const escapeMap = {
 }
 
 // Global Variables/Keywords
-const globals = ["instance", "staticNodes", "true", "false", "undefined", "null", "NaN", "typeof", "in"];
+const globals = ["NaN", "false", "in", "instance", "m", "null", "staticNodes", "true", "typeof", "undefined"];
 
 // Void and SVG Elements
 const VOID_ELEMENTS = ["area", "base", "br", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"];

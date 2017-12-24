@@ -1,7 +1,7 @@
 describe("Virtual DOM", function() {
   it("should clone hoisted vnodes", function() {
     var vdomHoistEl = createTestElement("vdomHoist", "");
-    var hoisted = Moon.util.m("p", {}, {}, [Moon.util.m("#text", "Paragraph")]);
+    var hoisted = Moon.util.m("p", {}, {}, [Moon.util.m("#text", {}, "Paragraph")]);
     var vdomHoistApp = new Moon({
       root: "#vdomHoist",
       data: {
@@ -11,9 +11,9 @@ describe("Virtual DOM", function() {
         var children;
 
         if(this.get("condition") === true) {
-          children = [m("h1", {}, {}, [m("#text", "Head")]), hoisted]
+          children = [m("h1", {}, {}, [m("#text", {}, "Head")]), hoisted]
         } else {
-          children = [hoisted, m("h1", {}, {}, [m("#text", "Head")])];
+          children = [hoisted, m("h1", {}, {}, [m("#text", {}, "Head")])];
         }
 
         return m("div", {}, {}, children);
