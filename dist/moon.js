@@ -663,7 +663,7 @@
     }
     
     // Global Variables/Keywords
-    var globals = ["NaN", "false", "in", "instance", "m", "null", "staticNodes", "true", "typeof", "undefined"];
+    var globals = ["NaN", "false", "in", "instance", 'm', "null", "staticNodes", "true", "typeof", "undefined"];
     
     // Void and SVG Elements
     var VOID_ELEMENTS = ["area", "base", "br", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"];
