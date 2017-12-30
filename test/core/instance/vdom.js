@@ -2,6 +2,7 @@ describe("Virtual DOM", function() {
   it("should clone hoisted vnodes", function() {
     var vdomHoistEl = createTestElement("vdomHoist", "");
     var hoisted = Moon.util.m("p", {}, {}, [Moon.util.m("#text", {}, "Paragraph")]);
+    
     var vdomHoistApp = new Moon({
       root: "#vdomHoist",
       data: {
