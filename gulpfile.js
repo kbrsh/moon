@@ -38,7 +38,7 @@ const pkg = require("./package.json");
 // Header comment
 const comment = `/**
  * Moon v${pkg.version}
- * Copyright 2016-2017 Kabir Shah
+ * Copyright 2016-2018 Kabir Shah
  * Released under the MIT License
  * http://moonjs.ga
  */\r\n`;
