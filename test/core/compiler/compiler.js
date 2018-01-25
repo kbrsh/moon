@@ -142,4 +142,15 @@ describe("Compiler", function() {
 
     expect(app.render().children[0].data.flags & 2).to.equal(2);
   });
+
+  it("should compile attribute values with anything between the quotes", function() {
+    var el = createTestElement("anyAttrValue", "");
+    var app = new Moon({
+      root: "#anyAttrValue",
+      template: "<div id=\"anyAttrValue\" class=\"!@#$%*()''{}[]|>;:<><>?/\"></div>"
+    });
+
+    expect(app.render().props.attrs["class"] === "!@#$%*()''{}[]|>;:<><>?/").to.equal(true);
+  });
+
 });
