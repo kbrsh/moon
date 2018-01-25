@@ -1,6 +1,27 @@
 // Concatenation Symbol
 const concatenationSymbol = " + ";
 
+// Tag start
+// Group 1: `/` or `""` (empty string)
+const tagStartRE = /^<\s*(\/?)\s*/i;
+
+// Tag name
+// Group 1: tag name
+const tagNameRE = /^([_A-Z][_A-Z\d\-\.]*)\s*/i;
+
+// Attribute name
+// Group 1: attribute name
+// Group 2: `=` or `""` (empty string)
+const attrNameRE = /^([_A-Z][_A-Z\d\-\.:]*)\s*(=?)\s*/i;
+
+// Attribute value
+// Group 1: quote type. `"` or `'`
+const attrValueRE = /^(["']?)(.*?)\1\s*/i;
+
+// Tag end
+// Group 1: `/` or `""` (empty string)
+const tagEndRE = /^(\/?)\s*>/i;
+
 // Opening delimiter
 const openRE = /\{\{\s*/;
 
@@ -8,13 +29,13 @@ const openRE = /\{\{\s*/;
 const closeRE = /\s*\}\}/;
 
 // Whitespace character
-const whitespaceCharRE = /[\s\n]/;
+const whitespaceCharRE = /[\s]/;
 
 // All whitespace
-const whitespaceRE = /[\s\n]/g;
+const whitespaceRE = /[\s]/g;
 
 // Start of a tag or comment
-const tagOrCommentStartRE = /<\/?(?:[A-Za-z]+\w*)|<!--/;
+const tagOrCommentStartRE = /<\/?(?:[A-Z]+\w*)|<!--/i;
 
 // Dynamic expressions
 const expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)(?:\s*\()?/g;

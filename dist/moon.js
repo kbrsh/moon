@@ -631,6 +631,27 @@
     // Concatenation Symbol
     var concatenationSymbol = " + ";
     
+    // Tag start
+    // Group 1: `/` or `""` (empty string)
+    var tagStartRE = /^<\s*(\/?)\s*/i;
+    
+    // Tag name
+    // Group 1: tag name
+    var tagNameRE = /^([_A-Z][_A-Z\d\-\.]*)\s*/i;
+    
+    // Attribute name
+    // Group 1: attribute name
+    // Group 2: `=` or `""` (empty string)
+    var attrNameRE = /^([_A-Z][_A-Z\d\-\.:]*)\s*(=?)\s*/i;
+    
+    // Attribute value
+    // Group 1: quote type. `"` or `'`
+    var attrValueRE = /^(["']?)(.*?)\1\s*/i;
+    
+    // Tag end
+    // Group 1: `/` or `""` (empty string)
+    var tagEndRE = /^(\/?)\s*>/i;
+    
     // Opening delimiter
     var openRE = /\{\{\s*/;
     
@@ -638,13 +659,13 @@
     var closeRE = /\s*\}\}/;
     
     // Whitespace character
-    var whitespaceCharRE = /[\s\n]/;
+    var whitespaceCharRE = /[\s]/;
     
     // All whitespace
-    var whitespaceRE = /[\s\n]/g;
+    var whitespaceRE = /[\s]/g;
     
     // Start of a tag or comment
-    var tagOrCommentStartRE = /<\/?(?:[A-Za-z]+\w*)|<!--/;
+    var tagOrCommentStartRE = /<\/?(?:[A-Z]+\w*)|<!--/i;
     
     // Dynamic expressions
     var expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)(?:\s*\()?/g;
@@ -776,123 +797,123 @@
       };
     }
     
+    /**
+     * Check if the template is at the start of a comment.
+     *
+     * @param {String} template HTML string we are analysing.
+     *
+     * @return {Boolean} True if it is the start of a comment, false otherwise.
+     */
+    var isComment = function(template) {
+      return template.substr(0, 4) === "<!--";
+    }
+    
+    /**
+     * Gets the comment from the start of the template.
+     *
+     * @param {String} template HTML string to get the comment from.
+     *
+     * @return {String} Whole string of the comment. Including `<!--` and `-->`.
+     */
+    var getComment = function(template) {
+      var commentEnd = template.indexOf("-->", 4);
+    
+      // Endless comment
+      if(commentEnd === -1) {
+        return template;
+      }
+    
+      return template.substring(0, commentEnd + 3);
+    }
+    
+    /**
+     * Get attributes from HTML.
+     *
+     * @param {String} template HTML string to get attributes from.
+     *
+     * @return {Object} An object containing two properties. `attributes`, a list
+     * of the found attributes. And `match`, an string with all the text from the
+     * start of the attributes until before the `>`.
+     */
+    var getAttributes = function(template) {
+    
+      var attributes = [];
+      var match = "";
+    
+      while(true) {
+    
+        var attrName = template.match(attrNameRE);
+    
+        // No more attributes
+        if(attrName === null) {
+          break;
+        }
+    
+        template = template.substr(attrName[0].length);
+        match += attrName[0];
+    
+        var attrValue = "";
+    
+        // Attr value
+        if(attrName[2] === "=") {
+          attrValue = template.match(attrValueRE);
+    
+          template = template.substr(attrValue[0].length);
+          match += attrValue[0];
+    
+          attrValue = attrValue[2];
+        }
+    
+        attrName = attrName[1].split(":");
+        attributes.push({
+          name: attrName[0],
+          value: attrValue,
+          argument: attrName[1],
+          data: {}
+        });
+      }
+    
+      return {
+        match: match,
+        attributes: attributes
+      };
+    }
+    
+    /**
+     * Gets text.
+     *
+     * @param {String} template HTML string to get text from.
+     *
+     * @return {String} Text, not tags or HTML elements, until next tag.
+     */
+    var getText = function(template) {
+    
+      var endText = template.search(tagOrCommentStartRE);
+    
+      var text = "";
+      if(endText === -1) {
+        return template;
+      }
+    
+      return template.substring(0, endText);
+    }
+    
     var lex = function(template) {
-      var length = template.length;
+    
       var tokens = [];
       var current = 0;
     
-      while(current < length) {
-        var char = template[current];
-        if(char === '<') {
-          current++;
-          if(template.substring(current, current + 3) === "!--") {
-            // Comment
-            current += 3;
-            var endOfComment = template.indexOf("-->", current);
-            if(endOfComment === -1) {
-              current = length;
-            } else {
-              current = endOfComment + 3;
-            }
-          } else {
-            // Tag
-            var tagToken = {
-              type: "Tag",
-              value: ''
-            }
+      while(template.length > 0) {
     
-            var tagType = '';
-            var attributes = [];
+        // Text
+        if(template[current] !== "<") {
     
-            var closeStart = false;
-            var closeEnd = false;
+          var text = getText(template);
     
-            char = template[current];
+          template = template.substr(text.length);
     
-            // Exit starting closing slash
-            if(char === '/') {
-              char = template[++current];
-              closeStart = true;
-            }
-    
-            // Get tag name
-            while((current < length) && ((char !== '>') && (char !== '/') && (whitespaceCharRE.test(char) === false))) {
-              tagType += char;
-              char = template[++current];
-            }
-    
-            // Iterate to end of tag
-            while((current < length) && ((char !== '>') && (char !== '/' || template[current + 1] !== '>'))) {
-              if(whitespaceCharRE.test(char) === true) {
-                // Skip whitespace
-                char = template[++current];
-              } else {
-                // Find attribute name
-                var attrName = '';
-                var attrValue = '';
-                while((current < length) && ((char !== '=') && (whitespaceCharRE.test(char) === false) && ((char !== '>') && (char !== '/' || template[current + 1] !== '>')))) {
-                  attrName += char;
-                  char = template[++current];
-                }
-    
-                // Find attribute value
-                if(char === '=') {
-                  char = template[++current];
-    
-                  var quoteType = ' ';
-                  if(char === '"' || char === '\'' || char === ' ' || char === '\n') {
-                    quoteType = char;
-                    char = template[++current];
-                  }
-    
-                  // Iterate to end of quote type, or end of tag
-                  while((current < length) && ((char !== '>') && (char !== '/' || template[current + 1] !== '>'))) {
-                    if(char === quoteType) {
-                      char = template[++current];
-                      break;
-                    } else {
-                      attrValue += char;
-                      char = template[++current];
-                    }
-                  }
-                }
-    
-                attrName = attrName.split(':');
-                attributes.push({
-                  name: attrName[0],
-                  value: attrValue,
-                  argument: attrName[1],
-                  data: {}
-                });
-              }
-            }
-    
-            if(char === '/') {
-              current += 2;
-              closeEnd = true;
-            } else {
-              current++;
-            }
-    
-            tagToken.value = tagType;
-            tagToken.attributes = attributes;
-            tagToken.closeStart = closeStart;
-            tagToken.closeEnd = closeEnd;
-            tokens.push(tagToken);
-          }
-        } else {
-          // Text
-          var textTail = template.substring(current);
-          var endOfText = textTail.search(tagOrCommentStartRE);
-          var text = (void 0);
-          if(endOfText === -1) {
-            text = textTail;
-            current = length;
-          } else {
-            text = textTail.substring(0, endOfText);
-            current += endOfText;
-          }
-          if(trimWhitespace(text).length !== 0) {
+          // Escape text
+          if(text.replace(/\s/g, "").length > 0) {
             tokens.push({
               type: "Text",
               value: text.replace(escapeRE, function(match) {
@@ -900,7 +921,56 @@
               })
             });
           }
+    
+          continue;
         }
+    
+        // Comment
+        if(isComment(template)) {
+          var comment = getComment(template);
+          template = template.substr(comment.length);
+          continue;
+        }
+    
+        // Tag
+        var tagType = '';
+        var attributes = [];
+    
+        var closeStart = false;
+        var closeEnd = false;
+    
+        // Tag start
+        var tagStart = template.match(tagStartRE);
+        closeStart = tagStart[1] === "/";
+    
+        template = template.substr(tagStart[0].length);
+    
+        // Tag name
+        var tagName = template.match(tagNameRE);
+        tagType = tagName[1];
+    
+        template = template.substr(tagName[0].length);
+    
+        // Attributes
+        var attrObj = getAttributes(template);
+        attributes = attrObj.attributes;
+    
+        template = template.substr(attrObj.match.length);
+    
+        // Tag end
+        var tagEnd = template.match(tagEndRE);
+        closeEnd = tagEnd[1] === "/";
+    
+        template = template.substr(tagEnd[0].length);
+    
+        // Push token
+        tokens.push({
+          type: "Tag",
+          value: tagType,
+          attributes: attributes,
+          closeStart: closeStart,
+          closeEnd: closeEnd
+        });
       }
     
       return tokens;

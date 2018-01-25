@@ -28,77 +28,6 @@ const getComment = function(template) {
 }
 
 /**
- * Gets the whole of the tag start. From `<` to the start of tag name,
- * including the `\` if existent.
- *
- * @param {String} template HTML string to get the tag start from.
- *
- * @return {RegExp} RegExp match object. Group 1 is the `/`, if existent,
- * empty string otherwise.
- */
-const getTagStart = function(template) {
-  // Group 1: `/` or `""` (empty string)
-  const tagStartRegExp = /^<\s*(\/?)\s*/i;
-  return template.match(tagStartRegExp);
-}
-
-/**
- * Get the tag end from string.
- *
- * @param {String} template HTML string to get the end of the tag from.
- *
- * @return {RegExp} RegExp match object. Group 1 is the closing slash, if
- * existent.
- */
-const getTagEnd = function(template) {
-  const tagEndRegExp = /^(\/?)\s*>/i;
-  return template.match(tagEndRegExp);
-}
-
-/**
- * Get HTML tag element's name.
- *
- * @param {String} template HTML to get tag name from.
- *
- * @return {RegExp} RegExp match object. Group 1 is the name of the tag.
- */
-const getTagName = function(template) {
-  // Group 1: tag name
-  const tagNameRegExp = /^([_A-Z][_A-Z\d\-\.]*)\s*/i;
-  return template.match(tagNameRegExp);
-}
-
-/**
- * Get attribute name from string.
- *
- * @param {String} template HTML string to get attribute name from.
- *
- * @return {RegExp} RegExp match object. Group 1 is the name of the attribute.
- * Group 2 is what is after the name, `=` or `\>` and `>`.
- */
-const getAttrName = function(template) {
-  // Group 1: name of attribute
-  // Group 2: after attrbute name `=`
-  const attrNameRegExp = /^([_A-Z][_A-Z\d\-\.:]*)\s*(=?)\s*/i;
-  return template.match(attrNameRegExp);
-}
-
-/**
- * Gets the attribute value from the string.
- *
- * @param {String} template HTML string to get attribute value from.
- *
- * @return {RegExp} RegExp match object. Group 1 is the quote type used for the
- * value. Group 2 is the value itself. Everything between group 1 quotes.
- */
-const getAttrValue = function(template) {
-  // Group 1: quote type `'` or `"`
-  // Group 2: value between quotes
-  const attrValueRegExp = /^(["']?)(.*?)\1\s*/i;
-  return template.match(attrValueRegExp);
-}
-
-/**
  * Get attributes from HTML.
  *
  * @param {String} template HTML string to get attributes from.
@@ -114,7 +43,7 @@ const getAttributes = function(template) {
 
   while(true) {
 
-    let attrName = getAttrName(template);
+    let attrName = template.match(attrNameRE);
 
     // No more attributes
     if(attrName === null) {
@@ -128,7 +57,7 @@ const getAttributes = function(template) {
 
     // Attr value
     if(attrName[2] === "=") {
-      attrValue = getAttrValue(template);
+      attrValue = template.match(attrValueRE);
 
       template = template.substr(attrValue[0].length);
       match += attrValue[0];
@@ -152,21 +81,23 @@ const getAttributes = function(template) {
 }
 
 /**
- * Gets everything that is between tags.
+ * Gets text.
  *
  * @param {String} template HTML string to get text from.
  *
- * @return {String} CString contatining all the text between tags.
+ * @return {String} Text, not tags or HTML elements, until next tag.
  */
 const getText = function(template) {
 
+  const endText = template.search(tagOrCommentStartRE);
+
   let text = "";
+  if(endText === -1) {
+    return template;
+  }
 
-  const nextTag = template.indexOf("<");
-
-
+  return template.substring(0, endText);
 }
-
 
 const lex = function(template) {
 
@@ -175,72 +106,14 @@ const lex = function(template) {
 
   while(template.length > 0) {
 
-    let char = template[current];
+    // Text
+    if(template[current] !== "<") {
 
-    // Tag
-    if(char === "<") {
+      const text = getText(template);
 
-      // Comment
-      if(isComment(template)) {
-        const comment = getComment(template);
-        template = template.substr(comment.length);
-        continue;
-      }
+      template = template.substr(text.length);
 
-      let tagToken = {
-        type: "Tag",
-      }
-
-      // Token properties
-      let tagType = '';
-      let attributes = [];
-
-      let closeStart = false;
-      let closeEnd = false;
-
-      // Tag start
-      const tagStart = getTagStart(template);
-      closeStart = tagStart[1] === "/";
-
-      template = template.substr(tagStart[0].length);
-
-      // Tag name
-      const tagName = getTagName(template);
-      tagType = tagName[1];
-
-      template = template.substr(tagName[0].length);
-
-      // Attributes
-      const attrObj = getAttributes(template);
-      attributes = attrObj.attributes;
-
-      template = template.substr(attrObj.match.length);
-
-      // Tag end
-      const tagEnd = getTagEnd(template);
-      closeEnd = tagEnd[1] === "/";
-
-      template = template.substr(tagEnd[0].length);
-
-      tagToken.value = tagType;
-      tagToken.attributes = attributes;
-      tagToken.closeStart = closeStart;
-      tagToken.closeEnd = closeEnd;
-      tokens.push(tagToken);
-
-    } else {
-
-      const endText = template.search(/<\/?(?:[A-Z]+\w*)|<!--/i);
-
-      let text = "";
-      if(endText === -1) {
-        text = template;
-        template = "";
-      } else {
-        text = template.substring(0, endText);
-        template = template.substr(endText);
-      }
-
+      // Escape text
       if(text.replace(/\s/g, "").length > 0) {
         tokens.push({
           type: "Text",
@@ -250,7 +123,55 @@ const lex = function(template) {
         });
       }
 
+      continue;
     }
+
+    // Comment
+    if(isComment(template)) {
+      const comment = getComment(template);
+      template = template.substr(comment.length);
+      continue;
+    }
+
+    // Tag
+    let tagType = '';
+    let attributes = [];
+
+    let closeStart = false;
+    let closeEnd = false;
+
+    // Tag start
+    const tagStart = template.match(tagStartRE);
+    closeStart = tagStart[1] === "/";
+
+    template = template.substr(tagStart[0].length);
+
+    // Tag name
+    const tagName = template.match(tagNameRE);
+    tagType = tagName[1];
+
+    template = template.substr(tagName[0].length);
+
+    // Attributes
+    const attrObj = getAttributes(template);
+    attributes = attrObj.attributes;
+
+    template = template.substr(attrObj.match.length);
+
+    // Tag end
+    const tagEnd = template.match(tagEndRE);
+    closeEnd = tagEnd[1] === "/";
+
+    template = template.substr(tagEnd[0].length);
+
+    // Push token
+    tokens.push({
+      type: "Tag",
+      value: tagType,
+      attributes: attributes,
+      closeStart: closeStart,
+      closeEnd: closeEnd
+    });
   }
 
   return tokens;
