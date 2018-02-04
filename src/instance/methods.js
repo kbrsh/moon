@@ -1,4 +1,9 @@
-Moon.prototype.get = function(key) {
+import {m} from "../util/vdom.js";
+import {hydrate, patch} from "../util/vdom.js";
+import {createNode, replaceNode} from "../util/dom.js";
+import {log, error, queueBuild, callHook, defineProperty, noop} from "../util/util.js";
+
+const get = function(key) {
   // Collect dependencies if currently collecting
   const observer = this.observer;
   let map = observer.map;
@@ -19,7 +24,7 @@ Moon.prototype.get = function(key) {
   return this.data[key];
 }
 
-Moon.prototype.set = function(key, value) {
+const set = function(key, value) {
   // Get observer
   const observer = this.observer;
 
@@ -45,7 +50,7 @@ Moon.prototype.set = function(key, value) {
   queueBuild(this);
 }
 
-Moon.prototype.destroy = function() {
+const destroy = function() {
   // Remove event listeners
   this.off();
 
@@ -61,7 +66,7 @@ Moon.prototype.destroy = function() {
 
 // Event Emitter, adapted from https://github.com/kbrsh/voke
 
-Moon.prototype.on = function(eventType, handler) {
+const on = function(eventType, handler) {
   let events = this.events;
   let handlers = events[eventType];
 
@@ -74,7 +79,7 @@ Moon.prototype.on = function(eventType, handler) {
   }
 }
 
-Moon.prototype.off = function(eventType, handler) {
+const off = function(eventType, handler) {
   if(eventType === undefined) {
     // No event name provided, remove all events
     this.events = {};
@@ -93,7 +98,7 @@ Moon.prototype.off = function(eventType, handler) {
   }
 }
 
-Moon.prototype.emit = function(eventType, data) {
+const emit = function(eventType, data) {
   // Events
   const events = this.events;
 
@@ -119,7 +124,7 @@ Moon.prototype.emit = function(eventType, data) {
   }
 }
 
-Moon.prototype.mount = function(rootOption) {
+const mount = function(rootOption) {
   // Get root from the DOM
   let root = this.root = typeof rootOption === "string" ? document.querySelector(rootOption) : rootOption;
   if("__ENV__" !== "production" && root === null) {
@@ -153,11 +158,11 @@ Moon.prototype.mount = function(rootOption) {
   callHook(this, "mounted");
 }
 
-Moon.prototype.render = function() {
+const render = function() {
   return this.compiledRender(m);
 }
 
-Moon.prototype.build = function() {
+const build = function() {
   const dom = this.render();
   let old = this.dom;
 
@@ -166,7 +171,7 @@ Moon.prototype.build = function() {
   }
 }
 
-Moon.prototype.init = function() {
+const init = function() {
   log("======= Moon =======");
   callHook(this, "init");
 
@@ -175,3 +180,5 @@ Moon.prototype.init = function() {
     this.mount(root);
   }
 }
+
+export default {get, set, destroy, on, off, emit, mount, render, build, init};

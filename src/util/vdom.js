@@ -1,4 +1,9 @@
-const m = function(type, props, data, children) {
+import {error, callHook} from "./util.js";
+import {directives, components} from "../global/var.js";
+import {addEvents, createNode, createComponent, appendVNode,
+  removeNode, removeVNode, replaceNode, replaceVNode} from "./dom.js";
+
+export const m = function(type, props, data, children) {
   if(type === "#text") {
     // Text virtual node
     return {
@@ -94,7 +99,7 @@ m.renderLoop = function(iteratable, item) {
   return items;
 }
 
-const patchProps = function(node, nodeAttrs, vnode, props) {
+export const patchProps = function(node, nodeAttrs, vnode, props) {
   // Get VNode Attributes
   const vnodeAttrs = props.attrs;
 
@@ -240,7 +245,7 @@ const patchChildren = function(newChildren, oldChildren, parentNode) {
   }
 }
 
-const hydrate = function(node, vnode) {
+export const hydrate = function(node, vnode) {
   let vnodeData = vnode.data;
 
   // Add reference to node
@@ -312,7 +317,7 @@ const hydrate = function(node, vnode) {
   }
 }
 
-const patch = function(newVNode, oldVNode) {
+export const patch = function(newVNode, oldVNode) {
   const oldVNodeData = oldVNode.data;
   const oldVNodeNode = oldVNodeData.node;
 

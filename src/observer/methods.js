@@ -1,4 +1,4 @@
-const initMethods = function(instance, methods) {
+export const initMethods = function(instance, methods) {
   let instanceMethods = instance.methods;
   for(let methodName in methods) {
     // Change context of method

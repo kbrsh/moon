@@ -1,3 +1,9 @@
+import {FLAG_STATIC, trimWhitespace} from "../compiler/constants.js";
+import {compileTemplateExpression, compileTemplate} from "../compiler/template.js";
+import {generateStaticNode, generateNodeState, generateNode} from "../compiler/generator.js";
+
+export const defaultDirectives = {};
+
 const hashRE = /\.|\[/;
 
 const addEventToNode = function(eventType, eventHandler, node) {
@@ -24,7 +30,7 @@ const addDomPropertyToNode = function(domPropName, domPropValue, node) {
   });
 }
 
-specialDirectives["m-if"] = {
+defaultDirectives["m-if"] = {
   before: function(prop, node, parentNode, state) {
     const children = parentNode.children;
     const nextIndex = node.index + 1;
@@ -66,7 +72,7 @@ specialDirectives["m-if"] = {
   }
 };
 
-specialDirectives["m-for"] = {
+defaultDirectives["m-for"] = {
   before: function(prop, node, parentNode, state) {
     // Flatten children
     parentNode.deep = true;
@@ -98,7 +104,7 @@ specialDirectives["m-for"] = {
   }
 };
 
-specialDirectives["m-on"] = {
+defaultDirectives["m-on"] = {
   before: function(prop, node, parentNode, state) {
     let exclude = state.exclude;
 
@@ -119,7 +125,7 @@ specialDirectives["m-on"] = {
   }
 };
 
-specialDirectives["m-bind"] = {
+defaultDirectives["m-bind"] = {
   before: function(prop, node, parentNode, state) {
     let value = prop.value;
 
@@ -152,7 +158,7 @@ specialDirectives["m-bind"] = {
   }
 };
 
-specialDirectives["m-dom"] = {
+defaultDirectives["m-dom"] = {
   before: function(prop, node, parentNode, state) {
     const propValue = prop.value;
     addDomPropertyToNode(prop.argument, propValue, node);
@@ -160,7 +166,7 @@ specialDirectives["m-dom"] = {
   }
 };
 
-specialDirectives["m-literal"] = {
+defaultDirectives["m-literal"] = {
   during: function(prop, node, parentNode, state) {
     const argument = prop.argument;
     prop.name = argument;
@@ -173,6 +179,6 @@ specialDirectives["m-literal"] = {
   }
 };
 
-specialDirectives["m-mask"] = {
+defaultDirectives["m-mask"] = {
 
 };

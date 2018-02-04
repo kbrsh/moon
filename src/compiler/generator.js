@@ -1,4 +1,9 @@
-const generateStaticNode = function(nodeOutput, staticNodes) {
+import {error, noop} from "../util/util.js";
+import {specialDirectives} from "../global/var.js";
+import {compileTemplateExpression, compileTemplate} from "./template.js";
+import {globals, SVG_ELEMENTS, FLAG_STATIC, FLAG_SVG} from "./constants.js";
+
+export const generateStaticNode = function(nodeOutput, staticNodes) {
   const staticNodesLength = staticNodes.length;
   staticNodes[staticNodesLength] = nodeOutput;
   return `staticNodes[${staticNodesLength}]`;
@@ -64,7 +69,7 @@ const generateProps = function(type, props) {
   return propOutput + '}';
 }
 
-const generateNodeState = function(node, parentNode, state) {
+export const generateNodeState = function(node, parentNode, state) {
   const type = node.type;
   if(type === "#text") {
     // Text
@@ -185,7 +190,7 @@ const generateNodeState = function(node, parentNode, state) {
   }
 }
 
-const generateNode = function(node, parentNode, state) {
+export const generateNode = function(node, parentNode, state) {
   const type = node.type;
   let data = node.data;
   let callOutput;
@@ -257,7 +262,7 @@ const generateNode = function(node, parentNode, state) {
   }
 }
 
-const generate = function(tree) {
+export const generate = function(tree) {
   let state = {
     staticNodes: [],
     dependencies: {

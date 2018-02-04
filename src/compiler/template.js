@@ -1,4 +1,7 @@
-const compileTemplateExpression = function(expression, state) {
+import {error} from "../util/util.js";
+import {concatenationSymbol, openRE, closeRE, expressionRE} from "./constants.js";
+
+export const compileTemplateExpression = function(expression, state) {
   const dependencies = state.dependencies;
   let props = dependencies.props;
   let methods = dependencies.methods;
@@ -30,7 +33,7 @@ const compileTemplateExpression = function(expression, state) {
   return dynamic;
 }
 
-const compileTemplate = function(template, state) {
+export const compileTemplate = function(template, state) {
   const length = template.length;
   let current = 0;
   let dynamic = false;

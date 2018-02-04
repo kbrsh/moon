@@ -3,8 +3,10 @@
 // Gulp
 const gulp = require("gulp");
 
-// Javascript transpiler
-const buble = require("buble");
+// Javascript bundler and transpiler
+const rollup = require("rollup-stream");
+const buble = require("rollup-plugin-buble");
+const stream = require("vinyl-source-stream");
 
 // Javascript minifier
 const uglifyJS = require("uglify-js");
@@ -26,9 +28,6 @@ const header = require("gulp-header");
 // Display size of file
 const size = require("gulp-size");
 
-// Transform
-const Transform = require("stream").Transform;
-
 // Karma server
 const Server = require("karma").Server;
 
@@ -43,43 +42,21 @@ const comment = `/**
  * http://moonjs.ga
  */\r\n`;
 
-// Gulp Buble Plugin
-const gulpBuble = function(options) {
-  return new Transform({
-    objectMode: true,
-    transform: function(file, encoding, callback) {
-      if(!file.isStream()) {
-        if(options === undefined) {
-          options = {};
-        }
-
-        let result = null;
-        try {
-          result = buble.transform(file.contents.toString(), options);
-        } catch(e) {
-          throw new Error("[Buble] Error: " + e);
-        }
-
-        file.contents = new Buffer(result.code);
-
-        callback(null, file);
-      }
-    }
-  });
-};
 
 // Build Moon
-gulp.task("transpile", function() {
-  return gulp.src(["./src/index.js"])
-    .pipe(include())
-    .pipe(gulpBuble({
+gulp.task("build", function() {
+  return rollup({
+    input: "./src/index.js",
+    format: "umd",
+    name: "Moon",
+    plugins: [buble({
       namedFunctionExpressions: false,
       transforms: {
         arrow: true,
         classes: false,
         collections: false,
         computedProperty: false,
-        conciseMethodProperty: false,
+        conciseMethodProperty: true,
         constLoop: false,
         dangerousForOf: false,
         dangerousTaggedTemplateString: false,
@@ -97,20 +74,13 @@ gulp.task("transpile", function() {
         templateString: true,
         unicodeRegExp: false
       }
-    }))
-    .pipe(concat("moon.js"))
-    .pipe(gulp.dest("./dist/"));
-});
-
-gulp.task("build", ["transpile"], function() {
-  return gulp.src(["./src/wrapper.js"])
-    .pipe(include())
-    .pipe(concat("moon.js"))
+    })]
+  })
+    .pipe(stream("moon.js"))
     .pipe(header(comment + "\n"))
     .pipe(replace("__VERSION__", pkg.version))
     .pipe(replace("__ENV__", "development"))
-    .pipe(size())
-    .pipe(gulp.dest("./dist/"));
+    .pipe(gulp.dest("./dist/"))
 });
 
 // Build minified (compressed) version of Moon
@@ -119,12 +89,32 @@ gulp.task("minify", ["build"], function() {
     .pipe(replace("\"development\"", "\"production\""))
     .pipe(uglify())
     .pipe(header(comment))
+    .pipe(concat("moon.min.js"))
+    .pipe(gulp.dest("./dist/"))
     .pipe(size())
     .pipe(size({
       gzip: true
-    }))
-    .pipe(concat("moon.min.js"))
-    .pipe(gulp.dest("./dist/"));
+    }));
+});
+
+gulp.task("es6", function() {
+  return rollup({
+    input: "./src/index.js",
+    format: "es",
+  })
+    .pipe(stream("moon.esm.js"))
+    .pipe(header(comment + "\n"))
+    .pipe(replace("__VERSION__", pkg.version))
+    .pipe(replace("__ENV__", "production"))
+    .pipe(gulp.dest("./dist/"))
+    .pipe(size());
+});
+
+gulp.task("es6-dev", ["es6"], function() {
+  return gulp.src(["./dist/moon.esm.js"])
+    .pipe(replace("\"development\"", "\"production\""))
+    .pipe(concat("moon.esm.dev.js"))
+    .pipe(gulp.dest("./dist/"))
 });
 
 // Run Tests
@@ -146,4 +136,4 @@ gulp.task("test-saucelabs", function(done) {
 });
 
 // Default task
-gulp.task("default", ["build", "minify"]);
+gulp.task("default", ["build", "minify", "es6", "es6-dev"]);

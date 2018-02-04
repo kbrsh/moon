@@ -1,4 +1,6 @@
-const initComputed = function(instance, computed) {
+import {noop} from "../util/util.js";
+
+export const initComputed = function(instance, computed) {
   // Set all computed properties
   const data = instance.data;
   const observer = instance.observer;
