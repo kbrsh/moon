@@ -54,7 +54,7 @@
         <h1 class="post-title">Global API</h1>
         <div class="post-content">
           <p>Moon comes with global methods available via <code>Moon.foo</code> that don&#39;t come with every instance.</p>
-<h5 id="-use-"><strong>use</strong></h5>
+<h5 id="use"><strong>use</strong></h5>
 <ul>
 <li>Arguments:<ul>
 <li><code>{Object} plugin</code></li>
@@ -65,7 +65,7 @@
 <pre><code class="lang-js">Moon.use(plugin);
 </code></pre>
 <p>Can initialize and begin using a Moon plugin. Calls the <code>init</code> method of the plugin provided with <code>Moon</code> as a parameter.</p>
-<h5 id="-compile-"><strong>compile</strong></h5>
+<h5 id="compile"><strong>compile</strong></h5>
 <ul>
 <li>Arguments:<ul>
 <li><code>{String} html</code></li>
@@ -76,7 +76,7 @@
 <pre><code class="lang-js">Moon.compile(&quot;&lt;h1&gt;{{msg}}&lt;/h1&gt;&quot;);
 </code></pre>
 <p>Can be used to precompile Moon templates to render functions (to be used internally)</p>
-<h5 id="-nexttick-"><strong>nextTick</strong></h5>
+<h5 id="nexttick"><strong>nextTick</strong></h5>
 <ul>
 <li>Arguments:<ul>
 <li><code>{Function} task</code></li>
@@ -89,7 +89,7 @@
 });
 </code></pre>
 <p>Can be used to do tasks after Moon has finished updating the DOM. Since Moon&#39;s DOM updates are done asynchronously, the DOM will not be changed right after setting a property, instead, it will be queued.</p>
-<h5 id="-directive-"><strong>directive</strong></h5>
+<h5 id="directive"><strong>directive</strong></h5>
 <ul>
 <li>Arguments:<ul>
 <li><code>{String} name</code></li>
@@ -104,7 +104,7 @@
 </code></pre>
 <p>Can be used to create custom directives for Moon, the example above, a directive called <code>m-custom</code> will be created. This can be used anywhere, and will be automatically extracted from the DOM during runtime. These directives will be compiled as an <strong>expression</strong>, meaning there are no mustache templates, but plain Javascript.</p>
 <p>You will be provided with the element the directive is in, and the value of the directive.</p>
-<h5 id="-component-"><strong>component</strong></h5>
+<h5 id="component"><strong>component</strong></h5>
 <ul>
 <li>Arguments:<ul>
 <li><code>{String} name</code></li>

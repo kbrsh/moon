@@ -54,7 +54,7 @@
         <h1 class="post-title">Instance Methods</h1>
         <div class="post-content">
           <p>Every Moon instance comes with built in methods specific to that instance, you can call them like: <code>instance.foo</code>.</p>
-<h5 id="-get-"><strong>get</strong></h5>
+<h5 id="get"><strong>get</strong></h5>
 <ul>
 <li>Arguments:<ul>
 <li><code>{String} property</code></li>
@@ -66,7 +66,7 @@
 <pre><code class="lang-js">instance.get(&#39;property&#39;).foo.bar;
 </code></pre>
 <p>Can return a value from Moon instance data.</p>
-<h5 id="-set-"><strong>set</strong></h5>
+<h5 id="set"><strong>set</strong></h5>
 <ul>
 <li>Arguments:<ul>
 <li><code>{String} keypath</code></li>
@@ -78,7 +78,7 @@
 <pre><code class="lang-js">instance.set(&#39;property.foo.bar&#39;, &#39;baz&#39;);
 </code></pre>
 <p>Used to set Moon instance data, ensuring that a DOM build is queued.</p>
-<h5 id="-callmethod-"><strong>callMethod</strong></h5>
+<h5 id="callmethod"><strong>callMethod</strong></h5>
 <ul>
 <li>Arguments:<ul>
 <li><code>{String} method</code></li>
@@ -90,7 +90,7 @@
 <pre><code class="lang-js">instance.callMethod(&#39;foo&#39;, [&#39;bar&#39;, 10]);
 </code></pre>
 <p>Used to call a method defined in the <code>methods</code> option of a Moon instance with the provided parameters. It should always be used to call a method manually, as <code>this</code> will refer to the Moon instance.</p>
-<h5 id="-mount-"><strong>mount</strong></h5>
+<h5 id="mount"><strong>mount</strong></h5>
 <ul>
 <li>Arguments:<ul>
 <li><code>{String|Node} selector</code></li>
@@ -102,17 +102,17 @@
 instance.mount(el);
 </code></pre>
 <p>Used to manually mount an instance to an element, compiling a template or using a render function, and running the initial build.</p>
-<h5 id="-destroy-"><strong>destroy</strong></h5>
+<h5 id="destroy"><strong>destroy</strong></h5>
 <p>Usage:</p>
 <pre><code class="lang-js">instance.destroy();
 </code></pre>
 <p>Used to manually destroy (unmount) an instance. Updated data won&#39;t be queued anymore, unless mounted again.</p>
-<h5 id="-build-"><strong>build</strong></h5>
+<h5 id="build"><strong>build</strong></h5>
 <p>Usage:</p>
 <pre><code class="lang-js">instance.build();
 </code></pre>
 <p>Used to force a build an instance, rerendering the virtual DOM, and patching.</p>
-<h5 id="-on-"><strong>on</strong></h5>
+<h5 id="on"><strong>on</strong></h5>
 <ul>
 <li>Arguments:<ul>
 <li><code>{String} event</code></li>
@@ -126,7 +126,7 @@ instance.mount(el);
 });
 </code></pre>
 <p>Used to attach an event listener to a certain event to the instance. You can also listen on a wildcard event (<code>*</code>) to attach an event listener that will be invoked if any event is called.</p>
-<h5 id="-off-"><strong>off</strong></h5>
+<h5 id="off"><strong>off</strong></h5>
 <ul>
 <li>Arguments:<ul>
 <li><code>{String} event</code></li>
@@ -145,7 +145,7 @@ instance.off(&quot;foo&quot;);
 instance.off();
 </code></pre>
 <p>Used to remove an event listener from a certain event.</p>
-<h5 id="-emit-"><strong>emit</strong></h5>
+<h5 id="emit"><strong>emit</strong></h5>
 <ul>
 <li>Arguments:<ul>
 <li><code>{String} event</code></li>

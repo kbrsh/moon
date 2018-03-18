@@ -54,7 +54,7 @@
         <h1 class="post-title">Directives</h1>
         <div class="post-content">
           <p>Moon comes with directives similar to Angular, allowing you to dynamically render elements. A directive is indicated with the <code>m-</code> prefix and the name of the directive. A directive is compiled as if it were an <strong>expression</strong>, in which all data properties are available as if it were plain Javascript. This means that there are no templates.</p>
-<h5 id="-html-"><strong>html</strong></h5>
+<h5 id="html"><strong>html</strong></h5>
 <ul>
 <li>Expects: <code>String</code></li>
 </ul>
@@ -62,7 +62,7 @@
 <pre><code class="lang-html">&lt;h1 m-html=&quot;html&quot;&gt;&lt;/h1&gt;
 </code></pre>
 <p>Can be used to dynamically set the <code>innerHTML</code> of an element. Note that this will not be compiled (you cannot use directives or templates)</p>
-<h5 id="-if-"><strong>if</strong></h5>
+<h5 id="if"><strong>if</strong></h5>
 <ul>
 <li>Expects: <code>Boolean</code></li>
 </ul>
@@ -71,7 +71,7 @@
 &lt;h1 m-if=&quot;true === false&quot;&gt;&lt;/h1&gt;
 </code></pre>
 <p>Can be used to conditionally render an element based on a case, it can take any valid Javascript expression.</p>
-<h5 id="-show-"><strong>show</strong></h5>
+<h5 id="show"><strong>show</strong></h5>
 <ul>
 <li>Expects: <code>Boolean</code></li>
 </ul>
@@ -80,7 +80,7 @@
 &lt;h1 m-show=&quot;true === false&quot;&gt;&lt;/h1&gt;
 </code></pre>
 <p>Similar to <code>if</code>, but it toggles the <code>display</code> property of an element. It can take any valid Javascript expression.</p>
-<h5 id="-for-"><strong>for</strong></h5>
+<h5 id="for"><strong>for</strong></h5>
 <ul>
 <li>Expects: <code>Array|Object|Number</code></li>
 </ul>
@@ -97,7 +97,7 @@
 &lt;/ul&gt;
 </code></pre>
 <p>Can be used to render an array, object, or number (a range), the alias (the part before <code>in</code>) can be used in <code>{{mustache}}</code> templates within the element.</p>
-<h5 id="-on-"><strong>on</strong></h5>
+<h5 id="on"><strong>on</strong></h5>
 <ul>
 <li>Expects: <code>String</code></li>
 <li>Arguments: <code>{String} event</code></li>
@@ -119,7 +119,7 @@
 </code></pre>
 <p>Can be used to attach an event listener to an element correctly, and firing a method when invoked. All data is available within the parameters (including methods), and can be accessed with plain Javascript.</p>
 <p>Can also attach an event listener to listen any child component events. The event fired on the child will result in the parent handler being called. Note that this only works if the handler is set on the root child component.</p>
-<h5 id="-model-"><strong>model</strong></h5>
+<h5 id="model"><strong>model</strong></h5>
 <ul>
 <li>Expects: <code>String</code></li>
 </ul>
@@ -131,7 +131,7 @@
 <p>Can be used for two way data binding, the value of any input with this directive will be bound to the data property provided, and any changes to the data property will be reflected in the input value.</p>
 <p>When used on a checkbox, the resulting value will be the current state of the checkbox.</p>
 <p>When used on a radio button, the resulting value will be the <code>value</code> attribute of the current selected item.</p>
-<h5 id="-literal-"><strong>literal</strong></h5>
+<h5 id="literal"><strong>literal</strong></h5>
 <ul>
 <li>Expects: <code>Expression</code></li>
 <li>Arguments: <code>{String} attr</code></li>
@@ -147,7 +147,7 @@
 </code></pre>
 <p>Note how the object syntax needs a special case, if this is true, then the class will be applied.</p>
 <p>Can be used to treat the value of a property as a literal Javascript expression.</p>
-<h5 id="-mask-"><strong>mask</strong></h5>
+<h5 id="mask"><strong>mask</strong></h5>
 <p>Usage:</p>
 <pre><code class="lang-html">&lt;h1 m-mask&gt;{{msg}}&lt;/h1&gt;
 </code></pre>
