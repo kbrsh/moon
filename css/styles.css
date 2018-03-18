@@ -229,38 +229,28 @@ code {
 
 /* === Footer === */
 footer {
-	margin: 5rem;
-}
-
-#footer-content {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-}
-
-#footer-name, #footer-madeby {
-	margin-top: 0;
-	margin-bottom: 0;
-	font-size: 2.5rem;
-}
-
-#footer-name {
-	font-family: "Gilroy-Bold", sans-serif;
-}
-
-#footer-desc {
-	margin-left: 1rem;
-	font-family: "Gilroy-Light", sans-serif;
-}
-
-#footer-logo {
-	height: 75px;
-	width: 75px;
-	border-radius: 10px;
-	margin-bottom: 0;
+  margin: 50px;
 }
 
 #footer-link {
-	color: #f5f5f5;
-	text-decoration: none;
+  text-decoration: none;
+  color: #f5f5f5;
+}
+
+#footer-made, #footer-name, #footer-logo {
+  margin-top: 0;
+  margin-bottom: 0;
+  vertical-align: middle;
+}
+
+#footer-name {
+  font-weight: 700;
+}
+
+#footer-logo {
+  height: 25px;
+  width: 25px;
+  margin-left: 10px;
+  margin-right: 10px;
+  border-radius: 3px;
 }
