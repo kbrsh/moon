@@ -7,7 +7,7 @@
   "devDependencies": {
     "ejs": "^2.5.7",
     "moonjs": "latest",
-    "sold": "^0.2.4"
+    "sold": "2.0.0"
   },
   "scripts": {
     "build": "sold"

@@ -1,10 +1,7 @@
-var Sold = require("sold");
+const Sold = require("sold");
 
-Sold(__dirname)
-  .data({
-    // version: require("moonjs").version
-  })
-  .engine("ejs")
-  .source("src")
-  .destination("")
-  .build();
+Sold({
+  root: __dirname,
+  destination: "",
+  engine: "ejs"
+});
