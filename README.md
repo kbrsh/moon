@@ -1,4 +1,4 @@
-<p align="center"><a href="https://kbrsh.github.io/moon/" target="_blank"><img width="100" src="https://raw.githubusercontent.com/kbrsh/moon/gh-pages/img/logo.png"></a></p>
+<p align="center"><a href="https://kbrsh.github.io/moon" target="_blank"><img width="100" src="https://raw.githubusercontent.com/kbrsh/moon/gh-pages/img/logo.png"></a></p>
 <h1 align="center">Moon</h1>
 <p align="center">A minimal, blazing fast UI library.</p>
 <p align="center">
@@ -41,7 +41,7 @@ Still, you do not have to use Moon if you are happy with your current solution, 
 
 ### Usage
 
-See [the website.](http://moonjs.ga)
+See [the website.](https://kbrsh.github.io/moon)
 
 ### Contributing
 
