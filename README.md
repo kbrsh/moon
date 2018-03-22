@@ -41,7 +41,7 @@ Still, you do not have to use Moon if you are happy with your current solution, 
 
 ### Usage
 
-See [the website.](https://kbrsh.github.io/moon)
+See [the documentation.](https://kbrsh.github.io/moon)
 
 ### Contributing
 
