@@ -4,9 +4,9 @@
   "description": "A minimal, blazing fast user interface library.",
   "main": "dist/moon.min.js",
   "scripts": {
-    "build": "gulp",
-    "test": "gulp test && node test/log.js",
-    "test-saucelabs": "gulp test-saucelabs",
+    "build": "node build/build.js",
+    "test": "karma start test/karma.conf.js; node test/log.js",
+    "test-saucelabs": "karma start test/karma.sauce.conf.js",
     "release": "node build/release.js"
   },
   "repository": {
