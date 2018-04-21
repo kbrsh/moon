@@ -1,5 +1,5 @@
 "use strict";
 
-function Moon() {
+export default function Moon() {
 
 }

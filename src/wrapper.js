@@ -5,5 +5,5 @@
     module.exports = factory();
   }
 }(this, function() {
-    return Moon;
+INSERT
 }));
