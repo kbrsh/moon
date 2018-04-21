@@ -28,12 +28,7 @@ if(document.getElementById("moon-els")) {
 var expect = chai.expect;
 
 // Stop logs
-var noop = Moon.util.noop;
-console.log = console.error = noop;
-
-// Cover errors
-Moon.util.log("Test");
-Moon.util.error("Test");
+console.log = console.error = function() {};
 
 var createTestElement = function(id, html) {
   var el = document.createElement("div");
@@ -50,19 +45,19 @@ var captureError = function(fn) {
   }
 }
 
-var wait = function(cb) {
-  return new Promise(function(resolve, reject) {
-    Moon.nextTick(function() {
-      try {
-        if(cb.toString().indexOf("done") !== -1) {
-          cb(resolve);
-        } else {
-          cb();
-          resolve();
-        }
-      } catch(err) {
-        reject(err);
-      }
-    });
-  });
-}
+// var wait = function(cb) {
+//   return new Promise(function(resolve, reject) {
+//     Moon.after(function() {
+//       try {
+//         if(cb.toString().indexOf("done") !== -1) {
+//           cb(resolve);
+//         } else {
+//           cb();
+//           resolve();
+//         }
+//       } catch(err) {
+//         reject(err);
+//       }
+//     });
+//   });
+// }
