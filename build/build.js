@@ -5,7 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const pkg = require("../package.json");
 const cwd = process.cwd();
-const ENV_RE = /__ENV__/g;
+const ENV_RE = /process\.env\.MOON_ENV/g;
 
 const comment = `/**
  * Moon v${pkg.version}
