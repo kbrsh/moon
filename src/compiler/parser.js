@@ -1,6 +1,7 @@
 import { error } from "../util/util";
 
 const WHITESPACE_RE = /\s/;
+let parseIndex;
 
 const pushChild = (child, stack) => {
   stack[stack.length - 1].children.push(child);
@@ -14,6 +15,7 @@ const parseOpeningTag = (index, input, length, stack) => {
 
     if (char === ">") {
       const element = {
+        index: parseIndex++,
         type: type,
         children: []
       };
@@ -25,6 +27,7 @@ const parseOpeningTag = (index, input, length, stack) => {
       break;
     } else if (char === "/" && input[index + 1] === ">") {
       pushChild({
+        index: parseIndex++,
         type: type,
         children: []
       }, stack);
@@ -75,6 +78,7 @@ const parseText = (index, input, length, stack) => {
   }
 
   pushChild({
+    index: parseIndex++,
     type: "m-text",
     content: content
   }, stack);
@@ -84,8 +88,10 @@ const parseText = (index, input, length, stack) => {
 
 export const parse = (input) => {
   const length = input.length;
+  parseIndex = 0;
 
   const root = {
+    index: parseIndex++,
     type: "m-fragment",
     children: []
   };
