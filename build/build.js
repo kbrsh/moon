@@ -1,6 +1,7 @@
 const rollup = require("rollup");
 const buble = require("rollup-plugin-buble");
 const uglify = require("uglify-js");
+const gzipSize = require("gzip-size");
 const fs = require("fs");
 const path = require("path");
 const pkg = require("../package.json");
@@ -30,8 +31,17 @@ async function build() {
   let { code } = await bundle.generate(options);
   code = fs.readFileSync(path.join(cwd, "/src/wrapper.js")).toString().replace("INSERT", code.split("\n").slice(1, -3).join("\n")).replace("'use strict'", "\"use strict\"");
 
-  fs.writeFileSync(path.join(cwd, "/dist/moon.js"), comment + code.replace(ENV_RE, '"development"'));
-  fs.writeFileSync(path.join(cwd, "/dist/moon.min.js"), comment + uglify.minify(code.replace(ENV_RE, '"production"')).code);
+  const developmentCode = comment + code.replace(ENV_RE, '"development"');
+  const productionCode = comment + uglify.minify(code.replace(ENV_RE, '"production"')).code;
+
+  fs.writeFileSync(path.join(cwd, "/dist/moon.js"), developmentCode);
+  fs.writeFileSync(path.join(cwd, "/dist/moon.min.js"), productionCode);
+
+  console.log("Moon development -> " + developmentCode.length / 1000 + "kb");
+  console.log("Moon production -> " + productionCode.length / 1000 + "kb");
+  console.log("");
+  console.log("Moon development (gzipped) -> " + gzipSize.sync(developmentCode) / 1000 + "kb");
+  console.log("Moon production (gzipped) -> " + gzipSize.sync(productionCode) / 1000 + "kb");
 }
 
 build();
