@@ -1,4 +1,4 @@
-import { error } from "../util/util.js";
+import { error } from "../util/util";
 
 const WHITESPACE_RE = /\s/;
 
@@ -53,8 +53,9 @@ const parseClosingTag = (index, input, length, stack) => {
     }
   }
 
-  if (type !== stack.pop().type && process.env.MOON_ENV === "development") {
-    error(`Unclosed tag "${type}"`);
+  const lastElement = stack.pop();
+  if (type !== lastElement.type && process.env.MOON_ENV === "development") {
+    error(`Unclosed tag "${lastElement.type}", expected "${type}"`);
   }
 
   return index;
