@@ -23,6 +23,8 @@
     }
   };
 
+  var parseIndex;
+
   var pushChild = function (child, stack) {
     stack[stack.length - 1].children.push(child);
   };
@@ -35,6 +37,7 @@
 
       if (char === ">") {
         var element = {
+          index: parseIndex++,
           type: type,
           children: []
         };
@@ -46,6 +49,7 @@
         break;
       } else if (char === "/" && input[index + 1] === ">") {
         pushChild({
+          index: parseIndex++,
           type: type,
           children: []
         }, stack);
@@ -96,6 +100,7 @@
     }
 
     pushChild({
+      index: parseIndex++,
       type: "m-text",
       content: content
     }, stack);
@@ -105,8 +110,10 @@
 
   var parse = function (input) {
     var length = input.length;
+    parseIndex = 0;
 
     var root = {
+      index: parseIndex++,
       type: "m-fragment",
       children: []
     };
@@ -132,15 +139,58 @@
     return root;
   };
 
-  var generate = function (tree) {};
+  var generateCreateFragment = function (element) {
+    return ((element.children.map(generateCreate)) + " m[" + (element.index) + "] = []; ");
+  };
+
+  var generateCreateText = function (element) {};
+
+  var generateCreateElement = function (element) {
+    return (" m[" + (element.index) + "] = document.createElement(\"" + (element.type) + "\");");
+  };
+
+  var generateCreate = function (element) {
+    switch (element.type) {
+      case "m-fragment":
+        return generateCreateFragment(element);
+        break;
+      case "m-text":
+        return generateCreateText(element);
+        break;
+      default:
+        return generateCreateElement(element);
+    }
+  };
+
+  var generateUpdate = function () {};
+
+  var generate = function (tree) {
+    var prelude = "var data = instance.data; var m = instance.m;";
+    return new Function(("return [function (instance) {" + prelude + (generateCreate(tree)) + "}, function (instance) {" + prelude + (generateUpdate(tree)) + "}]"))();
+  };
 
   var compile = function (input) {
     return generate(parse(input));
   };
 
-  function Moon() {
+  function Moon(element, view) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
 
+    if (typeof view === "string") {
+      view = compile(view);
+    }
+
+    view[0]();
+    view[1]();
   }
+
+  Moon.extend = function (name, view, data) {
+    if (typeof view === "string") {
+      view = compile(view);
+    }
+  };
 
   Moon.compile = compile;
   Moon.config = config;
