@@ -1,5 +1,5 @@
-import { parse } from "./parser.js";
-import { generate } from "./generator.js";
+import { parse } from "./parser";
+import { generate } from "./generator";
 
 export const compile = (input) => {
   return generate(parse(input));
