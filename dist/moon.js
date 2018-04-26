@@ -11,11 +11,21 @@
     module.exports = factory();
   }
 }(this, function() {
-	"use strict";
+  "use strict";
 
-	function Moon() {
+  var config = {
+    silent: ("development" === "production") || (typeof console === "undefined")
+  };
 
-	}
+  var createGlobal = function (Moon) {
+    Moon.config = config;
+  };
 
-	return Moon;
+  function Moon() {
+
+  }
+
+  createGlobal(Moon);
+
+  return Moon;
 }));
