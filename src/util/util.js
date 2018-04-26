@@ -1,4 +1,4 @@
-import { config } from "../global/global";
+import { config } from "./config";
 
 export const error = (message) => {
   if (config.silent === false) {

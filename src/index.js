@@ -1,7 +1,9 @@
-import { createGlobal } from "./global/global.js";
+import { compile } from "./compiler/compiler";
+import { config } from "./util/config";
 
 export default function Moon() {
 
 }
 
-createGlobal(Moon);
+Moon.compile = compile;
+Moon.config = config;
