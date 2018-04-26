@@ -82,7 +82,7 @@ const parseText = (index, input, length, stack) => {
   return index;
 };
 
-const parse = (input) => {
+export const parse = (input) => {
   const length = input.length;
 
   const root = {
