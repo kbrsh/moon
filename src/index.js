@@ -1,27 +1,12 @@
 "use strict";
 
-/* ======= Global Variables ======= */
-let directives = {};
-let specialDirectives = {};
-let components = {};
+import globalApi from "./global/api.js";
+import instanceMethods from "./instance/methods.js";
 
-/* ======= Utilities ======= */
-//=require util/util.js
-//=require util/dom.js
-//=require util/vdom.js
-
-/* ======= Observer ======= */
-//=require observer/methods.js
-//=require observer/computed.js
-//=require observer/observer.js
-
-/* ======= Compiler ======= */
-//=require compiler/constants.js
-//=require compiler/template.js
-//=require compiler/lexer.js
-//=require compiler/parser.js
-//=require compiler/generator.js
-//=require compiler/compiler.js
+import {Observer} from "./observer/observer.js";
+import {initMethods} from "./observer/methods.js";
+import {initComputed} from "./observer/computed.js";
+import {defineProperty, noop} from "./util/util.js";
 
 function Moon(options) {
   /* ======= Initial Values ======= */
@@ -83,11 +68,24 @@ function Moon(options) {
   this.init();
 }
 
-/* ======= Instance Methods ======= */
-//=require instance/methods.js
+Moon.prototype.get = instanceMethods.get;
+Moon.prototype.set = instanceMethods.set;
+Moon.prototype.destroy = instanceMethods.destroy;
+Moon.prototype.on = instanceMethods.on;
+Moon.prototype.off = instanceMethods.off;
+Moon.prototype.emit = instanceMethods.emit;
+Moon.prototype.mount = instanceMethods.mount;
+Moon.prototype.render = instanceMethods.render;
+Moon.prototype.build = instanceMethods.build;
+Moon.prototype.init = instanceMethods.init;
 
-/* ======= Global API ======= */
-//=require global/api.js
+Moon.config = globalApi.config;
+Moon.version = globalApi.version;
+Moon.util = globalApi.util;
+Moon.use = globalApi.use;
+Moon.compile = globalApi.compile;
+Moon.nextTick = globalApi.nextTick;
+Moon.directive = globalApi.directive;
+Moon.extend = globalApi.extend;
 
-/* ======= Default Directives ======= */
-//=require directives/default.js
+export default Moon;

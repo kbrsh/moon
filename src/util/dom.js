@@ -1,4 +1,7 @@
-const addEvents = function(node, events) {
+import {patchProps} from "./vdom.js";
+import {FLAG_SVG} from "../compiler/constants.js";
+
+export const addEvents = function(node, events) {
   for(let eventType in events) {
     // Create handle function
     const handle = function(event) {
@@ -19,7 +22,7 @@ const addEvents = function(node, events) {
   }
 }
 
-const createNode = function(vnode) {
+export const createNode = function(vnode) {
   const type = vnode.type;
   let data = vnode.data;
   let node;
@@ -52,7 +55,7 @@ const createNode = function(vnode) {
   return node;
 }
 
-const createComponent = function(node, vnode, component) {
+export const createComponent = function(node, vnode, component) {
   const props = component.options.props;
   const attrs = vnode.props.attrs;
   let componentProps = {};
@@ -93,7 +96,7 @@ const appendNode = function(node, parentNode) {
   parentNode.appendChild(node);
 }
 
-const appendVNode = function(vnode, parentNode) {
+export const appendVNode = function(vnode, parentNode) {
   const vnodeComponent = vnode.data.component;
 
   if(vnodeComponent === undefined) {
@@ -105,11 +108,11 @@ const appendVNode = function(vnode, parentNode) {
   }
 }
 
-const removeNode = function(node, parentNode) {
+export const removeNode = function(node, parentNode) {
   parentNode.removeChild(node);
 }
 
-const removeVNode = function(vnode, parentNode) {
+export const removeVNode = function(vnode, parentNode) {
   const vnodeData = vnode.data;
   const vnodeComponentInstance = vnodeData.component;
 
@@ -120,11 +123,11 @@ const removeVNode = function(vnode, parentNode) {
   removeNode(vnodeData.node, parentNode);
 }
 
-const replaceNode = function(newNode, oldNode, parentNode) {
+export const replaceNode = function(newNode, oldNode, parentNode) {
   parentNode.replaceChild(newNode, oldNode);
 }
 
-const replaceVNode = function(newVNode, oldVNode, parentNode) {
+export const replaceVNode = function(newVNode, oldVNode, parentNode) {
   const oldVNodeData = oldVNode.data;
   const oldVNodeComponentInstance = oldVNodeData.component;
 

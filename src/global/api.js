@@ -1,33 +1,40 @@
-Moon.config = {
+import Moon from "../index.js";
+
+import {m} from "../util/vdom.js";
+import {directives, components} from "./var.js";
+import {log, error, callHook, noop} from "../util/util.js";
+import {compile as _compile} from "../compiler/compiler.js";
+
+const config = {
   silent: ("__ENV__" === "production") || (typeof console === "undefined")
 }
 
-Moon.version = "__VERSION__";
+const version = "__VERSION__";
 
-Moon.util = {
+const util = {
   noop: noop,
   log: log,
   error: error,
   m: m
 }
 
-Moon.use = function(plugin, options) {
+const use = function(plugin, options) {
   plugin.init(Moon, options);
 }
 
-Moon.compile = function(template) {
-  return compile(template);
+const compile = function(template) {
+  return _compile(template);
 }
 
-Moon.nextTick = function(task) {
+const nextTick = function(task) {
   setTimeout(task, 0);
 }
 
-Moon.directive = function(name, action) {
+const directive = function(name, action) {
   directives["m-" + name] = action;
 }
 
-Moon.extend = function(name, options) {
+const extend = function(name, options) {
   options.name = name;
 
   if(options.data !== undefined && typeof options.data !== "function") {
@@ -69,3 +76,5 @@ Moon.extend = function(name, options) {
 
   return MoonComponent;
 }
+
+export default {config, version, util, use, compile, nextTick, directive, extend};

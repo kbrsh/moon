@@ -1,4 +1,7 @@
-const lex = function(template) {
+import {whitespaceCharRE, tagOrCommentStartRE, escapeRE,
+  escapeMap, trimWhitespace} from "./constants.js";
+
+export const lex = function(template) {
   const length = template.length;
   let tokens = [];
   let current = 0;

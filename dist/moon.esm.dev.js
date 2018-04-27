@@ -5,25 +5,19 @@
  * http://moonjs.ga
  */
 
-(function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-	typeof define === 'function' && define.amd ? define(factory) :
-	(global.Moon = factory());
-}(this, (function () { 'use strict';
-
-var log = function(msg) {
+const log = function(msg) {
   if(Moon$1.config.silent === false) {
     console.log(msg);
   }
 };
 
-var error = function(msg) {
+const error = function(msg) {
   if(Moon$1.config.silent === false) {
     console.error("[Moon] ERROR: " + msg);
   }
 };
 
-var queueBuild = function(instance) {
+const queueBuild = function(instance) {
   if(instance.queued === false) {
     instance.queued = true;
     setTimeout(function() {
@@ -34,14 +28,14 @@ var queueBuild = function(instance) {
   }
 };
 
-var callHook = function(instance, name) {
-  var hook = instance.hooks[name];
+const callHook = function(instance, name) {
+  const hook = instance.hooks[name];
   if(hook !== undefined) {
     hook.call(instance);
   }
 };
 
-var defineProperty = function(obj, prop, value, def) {
+const defineProperty = function(obj, prop, value, def) {
   if(value === undefined) {
     obj[prop] = def;
   } else {
@@ -49,34 +43,34 @@ var defineProperty = function(obj, prop, value, def) {
   }
 };
 
-var noop = function() {
+const noop = function() {
   
 };
 
 // Concatenation Symbol
-var concatenationSymbol = " + ";
+const concatenationSymbol = " + ";
 
 // Opening delimiter
-var openRE = /\{\{\s*/;
+const openRE = /\{\{\s*/;
 
 // Closing delimiter
-var closeRE = /\s*\}\}/;
+const closeRE = /\s*\}\}/;
 
 // Whitespace character
-var whitespaceCharRE = /[\s\n]/;
+const whitespaceCharRE = /[\s\n]/;
 
 // All whitespace
-var whitespaceRE = /[\s\n]/g;
+const whitespaceRE = /[\s\n]/g;
 
 // Start of a tag or comment
-var tagOrCommentStartRE = /<\/?(?:[A-Za-z]+\w*)|<!--/;
+const tagOrCommentStartRE = /<\/?(?:[A-Za-z]+\w*)|<!--/;
 
 // Dynamic expressions
-var expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)(?:\s*\()?/g;
+const expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)(?:\s*\()?/g;
 
 // HTML Escapes
-var escapeRE = /(?:(?:&(?:amp|gt|lt|nbsp|quot);)|"|\\|\n)/g;
-var escapeMap = {
+const escapeRE = /(?:(?:&(?:amp|gt|lt|nbsp|quot);)|"|\\|\n)/g;
+const escapeMap = {
   "&amp;": '&',
   "&gt;": '>',
   "&lt;": '<',
@@ -88,35 +82,35 @@ var escapeMap = {
 };
 
 // Global Variables/Keywords
-var globals = ["NaN", "false", "in", "instance", 'm', "null", "staticNodes", "true", "typeof", "undefined"];
+const globals = ["NaN", "false", "in", "instance", 'm', "null", "staticNodes", "true", "typeof", "undefined"];
 
 // Void and SVG Elements
-var VOID_ELEMENTS = ["area", "base", "br", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"];
-var SVG_ELEMENTS = ["animate", "circle", "clippath", "cursor", "defs", "desc", "ellipse", "filter", "font-face", "foreignObject", "g", "glyph", "image", "line", "marker", "mask", "missing-glyph", "path", "pattern", "polygon", "polyline", "rect", "svg", "switch", "symbol", "text", "textpath", "tspan", "use", "view"];
+const VOID_ELEMENTS = ["area", "base", "br", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"];
+const SVG_ELEMENTS = ["animate", "circle", "clippath", "cursor", "defs", "desc", "ellipse", "filter", "font-face", "foreignObject", "g", "glyph", "image", "line", "marker", "mask", "missing-glyph", "path", "pattern", "polygon", "polyline", "rect", "svg", "switch", "symbol", "text", "textpath", "tspan", "use", "view"];
 
 // Data Flags
-var FLAG_STATIC = 1;
-var FLAG_SVG = 1 << 1;
+const FLAG_STATIC = 1;
+const FLAG_SVG = 1 << 1;
 
 // Trim Whitespace
-var trimWhitespace = function(value) {
+const trimWhitespace = function(value) {
   return value.replace(whitespaceRE, '');
 };
 
-var compileTemplateExpression = function(expression, state) {
-  var dependencies = state.dependencies;
-  var props = dependencies.props;
-  var methods = dependencies.methods;
+const compileTemplateExpression = function(expression, state) {
+  const dependencies = state.dependencies;
+  let props = dependencies.props;
+  let methods = dependencies.methods;
 
-  var exclude = state.exclude;
-  var locals = state.locals;
+  const exclude = state.exclude;
+  const locals = state.locals;
 
-  var dynamic = false;
-  var info;
+  let dynamic = false;
+  let info;
 
   while((info = expressionRE.exec(expression)) !== null) {
-    var match = info[0];
-    var name = info[1];
+    let match = info[0];
+    let name = info[1];
     if(name !== undefined && exclude.indexOf(name) === -1) {
       if(match[match.length - 1] === "(") {
         if(methods.indexOf(name) === -1) {
@@ -135,30 +129,30 @@ var compileTemplateExpression = function(expression, state) {
   return dynamic;
 };
 
-var compileTemplate = function(template, state) {
-  var length = template.length;
-  var current = 0;
-  var dynamic = false;
-  var output = '';
+const compileTemplate = function(template, state) {
+  const length = template.length;
+  let current = 0;
+  let dynamic = false;
+  let output = '';
 
   if(length === 0) {
     output = "\"\"";
   } else {
     while(current < length) {
       // Match text
-      var textTail = template.substring(current);
-      var textMatch = textTail.match(openRE);
+      const textTail = template.substring(current);
+      const textMatch = textTail.match(openRE);
 
       if(textMatch === null) {
         // Only static text
-        output += "\"" + textTail + "\"";
+        output += `"${textTail}"`;
         break;
       }
 
-      var textIndex = textMatch.index;
+      const textIndex = textMatch.index;
       if(textIndex !== 0) {
         // Add static text and move to template expression
-        output += "\"" + (textTail.substring(0, textIndex)) + "\"";
+        output += `"${textTail.substring(0, textIndex)}"`;
         current += textIndex;
       }
 
@@ -174,17 +168,17 @@ var compileTemplate = function(template, state) {
       current += textMatch[0].length;
 
       // Get expression, and exit closing delimiter
-      var expressionTail = template.substring(current);
-      var expressionMatch = expressionTail.match(closeRE);
+      const expressionTail = template.substring(current);
+      const expressionMatch = expressionTail.match(closeRE);
 
-      if("development" !== "production" && expressionMatch === null) {
-        error(("Expected closing delimiter after \"" + expressionTail + "\""));
+      if("production" !== "production" && expressionMatch === null) {
+        error(`Expected closing delimiter after "${expressionTail}"`);
       } else {
         // Add expression
-        var expressionIndex = expressionMatch.index;
-        var expression = expressionTail.substring(0, expressionIndex);
+        const expressionIndex = expressionMatch.index;
+        const expression = expressionTail.substring(0, expressionIndex);
         compileTemplateExpression(expression, state);
-        output += "(" + expression + ")";
+        output += `(${expression})`;
         current += expression.length + expressionMatch[0].length;
 
         // Concatenate if not at the end
@@ -201,27 +195,27 @@ var compileTemplate = function(template, state) {
   };
 };
 
-var generateStaticNode = function(nodeOutput, staticNodes) {
-  var staticNodesLength = staticNodes.length;
+const generateStaticNode = function(nodeOutput, staticNodes) {
+  const staticNodesLength = staticNodes.length;
   staticNodes[staticNodesLength] = nodeOutput;
-  return ("staticNodes[" + staticNodesLength + "]");
+  return `staticNodes[${staticNodesLength}]`;
 };
 
-var generateData = function(data) {
-  var dataOutput = '{';
-  var separator = '';
+const generateData = function(data) {
+  let dataOutput = '{';
+  let separator = '';
 
   // Events
-  var events = data.events;
-  var eventHandlerSeparator = '';
+  let events = data.events;
+  let eventHandlerSeparator = '';
   if(events !== undefined) {
     dataOutput += "events: {";
 
-    for(var eventType in events) {
-      dataOutput += separator + "\"" + eventType + "\": [";
+    for(let eventType in events) {
+      dataOutput += `${separator}"${eventType}": [`;
 
-      var handlers = events[eventType];
-      for(var i = 0; i < handlers.length; i++) {
+      let handlers = events[eventType];
+      for(let i = 0; i < handlers.length; i++) {
         dataOutput += eventHandlerSeparator + handlers[i];
         eventHandlerSeparator = ", ";
       }
@@ -240,38 +234,38 @@ var generateData = function(data) {
     delete data.flags;
   }
 
-  for(var key in data) {
-    dataOutput += "" + separator + key + ": " + (data[key]);
+  for(let key in data) {
+    dataOutput += `${separator}${key}: ${data[key]}`;
     separator = ", ";
   }
 
   return dataOutput + '}';
 };
 
-var generateProps = function(type, props) {
-  var propOutput = type + ": {";
-  var separator = '';
+const generateProps = function(type, props) {
+  let propOutput = type + ": {";
+  let separator = '';
 
-  for(var i = 0; i < props.length; i++) {
-    var prop = props[i];
-    var propValue = prop.value;
+  for(let i = 0; i < props.length; i++) {
+    const prop = props[i];
+    let propValue = prop.value;
 
     if(propValue.length === 0) {
       propValue = "\"\"";
     }
 
-    propOutput += separator + "\"" + (prop.name) + "\": " + propValue;
+    propOutput += `${separator}"${prop.name}": ${propValue}`;
     separator = ", ";
   }
 
   return propOutput + '}';
 };
 
-var generateNodeState = function(node, parentNode, state) {
-  var type = node.type;
+const generateNodeState = function(node, parentNode, state) {
+  const type = node.type;
   if(type === "#text") {
     // Text
-    var compiledText = compileTemplate(node.value, state);
+    const compiledText = compileTemplate(node.value, state);
     node.value = compiledText.output;
     return compiledText.dynamic;
   } else if(type === "m-insert") {
@@ -279,9 +273,9 @@ var generateNodeState = function(node, parentNode, state) {
     parentNode.deep = true;
     return true;
   } else {
-    var locals = state.locals;
-    var dynamic = false;
-    var data = node.data;
+    const locals = state.locals;
+    let dynamic = false;
+    let data = node.data;
 
     // SVG flag
     if(SVG_ELEMENTS.indexOf(type) !== -1) {
@@ -289,11 +283,11 @@ var generateNodeState = function(node, parentNode, state) {
     }
 
     // Props
-    var props = node.props;
-    var propsLength = props.length;
-    var propStateAttrs = [];
-    var propStateDirectives = [];
-    var propStateSpecialDirectivesAfter = [];
+    const props = node.props;
+    const propsLength = props.length;
+    let propStateAttrs = [];
+    let propStateDirectives = [];
+    let propStateSpecialDirectivesAfter = [];
     node.props = {
       attrs: propStateAttrs,
       dom: [],
@@ -302,12 +296,12 @@ var generateNodeState = function(node, parentNode, state) {
     };
 
     // Before/After special directives
-    for(var i = 0; i < propsLength; i++) {
-      var prop = props[i];
-      var specialDirective = specialDirectives[prop.name];
+    for(let i = 0; i < propsLength; i++) {
+      const prop = props[i];
+      const specialDirective = specialDirectives[prop.name];
 
       if(specialDirective !== undefined) {
-        var specialDirectiveAfter = specialDirective.after;
+        const specialDirectiveAfter = specialDirective.after;
         if(specialDirectiveAfter !== undefined) {
           propStateSpecialDirectivesAfter.push({
             prop: prop,
@@ -315,7 +309,7 @@ var generateNodeState = function(node, parentNode, state) {
           });
         }
 
-        var specialDirectiveBefore = specialDirective.before;
+        const specialDirectiveBefore = specialDirective.before;
         if(specialDirectiveBefore !== undefined) {
           if(specialDirectiveBefore(prop, node, parentNode, state) === true) {
             dynamic = true;
@@ -325,47 +319,47 @@ var generateNodeState = function(node, parentNode, state) {
     }
 
     // Attributes
-    for(var i$1 = 0; i$1 < propsLength; i$1++) {
-      var prop$1 = props[i$1];
-      var propName = prop$1.name;
-      var specialDirective$1 = specialDirectives[propName];
+    for(let i = 0; i < propsLength; i++) {
+      const prop = props[i];
+      const propName = prop.name;
+      const specialDirective = specialDirectives[propName];
 
-      if(specialDirective$1 !== undefined) {
+      if(specialDirective !== undefined) {
         // During special directive
-        var specialDirectiveDuring = specialDirective$1.during;
+        const specialDirectiveDuring = specialDirective.during;
         if(specialDirectiveDuring !== undefined) {
-          if(specialDirectiveDuring(prop$1, node, parentNode, state) === true) {
+          if(specialDirectiveDuring(prop, node, parentNode, state) === true) {
             dynamic = true;
           }
 
-          propStateAttrs.push(prop$1);
+          propStateAttrs.push(prop);
         }
       } else if(propName[0] === 'm' && propName[1] === '-') {
         // Directive
-        if(compileTemplateExpression(prop$1.value, state) === true) {
+        if(compileTemplateExpression(prop.value, state) === true) {
           dynamic = true;
         }
 
-        propStateDirectives.push(prop$1);
+        propStateDirectives.push(prop);
       } else {
         // Attribute
-        var compiledProp = compileTemplate(prop$1.value, state);
+        const compiledProp = compileTemplate(prop.value, state);
 
         if(compiledProp.dynamic === true) {
           dynamic = true;
         }
 
-        prop$1.value = compiledProp.output;
-        propStateAttrs.push(prop$1);
+        prop.value = compiledProp.output;
+        propStateAttrs.push(prop);
       }
     }
 
     // Children
-    var children = node.children;
-    var childStates = [];
+    const children = node.children;
+    let childStates = [];
 
-    for(var i$2 = 0; i$2 < children.length; i$2++) {
-      var childState = generateNodeState(children[i$2], node, state);
+    for(let i = 0; i < children.length; i++) {
+      const childState = generateNodeState(children[i], node, state);
 
       if(childState === true) {
         dynamic = true;
@@ -374,9 +368,9 @@ var generateNodeState = function(node, parentNode, state) {
       childStates.push(childState);
     }
 
-    for(var i$3 = 0; i$3 < children.length; i$3++) {
-      if(dynamic === true && childStates[i$3] === false) {
-        var childData = children[i$3].data;
+    for(let i = 0; i < children.length; i++) {
+      if(dynamic === true && childStates[i] === false) {
+        const childData = children[i].data;
         childData.flags = childData.flags | FLAG_STATIC;
       }
     }
@@ -388,39 +382,39 @@ var generateNodeState = function(node, parentNode, state) {
   }
 };
 
-var generateNode = function(node, parentNode, state) {
-  var type = node.type;
-  var data = node.data;
-  var callOutput;
+const generateNode = function(node, parentNode, state) {
+  const type = node.type;
+  let data = node.data;
+  let callOutput;
 
   if(type === "#text") {
     // Text
-    callOutput = "m(\"#text\", " + (generateData(data)) + ", " + (node.value) + ")";
+    callOutput = `m("#text", ${generateData(data)}, ${node.value})`;
   } else if(type === "m-insert") {
     callOutput = "instance.insert";
   } else {
-    callOutput = "m(\"" + type + "\", {";
+    callOutput = `m("${type}", {`;
 
     // Props
-    var propState = node.props;
-    var propSeparator = '';
+    const propState = node.props;
+    let propSeparator = '';
 
     // Attributes
-    var propStateAttrs = propState.attrs;
+    const propStateAttrs = propState.attrs;
     if(propStateAttrs.length !== 0) {
       callOutput += generateProps("attrs", propStateAttrs);
       propSeparator = ", ";
     }
 
     // Directives
-    var propStateDirectives = propState.directives;
+    const propStateDirectives = propState.directives;
     if(propStateDirectives.length !== 0) {
       callOutput += generateProps(propSeparator + "directives", propStateDirectives);
       propSeparator = ", ";
     }
 
     // DOM Props
-    var propStateDom = propState.dom;
+    const propStateDom = propState.dom;
     if(propStateDom.length !== 0) {
       callOutput += generateProps(propSeparator + "dom", propStateDom);
     }
@@ -429,25 +423,25 @@ var generateNode = function(node, parentNode, state) {
     callOutput += "}, " + generateData(data) + ", ";
 
     // Children
-    var childrenOutput = '';
-    var childrenSeparator = '';
-    var children = node.children;
-    for(var i = 0; i < children.length; i++) {
+    let childrenOutput = '';
+    let childrenSeparator = '';
+    const children = node.children;
+    for(let i = 0; i < children.length; i++) {
       childrenOutput += childrenSeparator + generateNode(children[i], node, state);
       childrenSeparator = ", ";
     }
 
     // Close children and call
     if(node.deep === true) {
-      callOutput += "m.flatten([" + childrenOutput + "]))";
+      callOutput += `m.flatten([${childrenOutput}]))`;
     } else {
-      callOutput += "[" + childrenOutput + "])";
+      callOutput += `[${childrenOutput}])`;
     }
 
     // Process special directives
-    var propStateSpecialDirectivesAfter = propState.specialDirectivesAfter;
-    for(var i$1 = 0; i$1 < propStateSpecialDirectivesAfter.length; i$1++) {
-      var propStateSpecialDirectiveAfter = propStateSpecialDirectivesAfter[i$1];
+    const propStateSpecialDirectivesAfter = propState.specialDirectivesAfter;
+    for(let i = 0; i < propStateSpecialDirectivesAfter.length; i++) {
+      const propStateSpecialDirectiveAfter = propStateSpecialDirectivesAfter[i];
       callOutput = propStateSpecialDirectiveAfter.after(propStateSpecialDirectiveAfter.prop, callOutput, node, parentNode, state);
     }
   }
@@ -460,8 +454,8 @@ var generateNode = function(node, parentNode, state) {
   }
 };
 
-var generate = function(tree) {
-  var state = {
+const generate = function(tree) {
+  let state = {
     staticNodes: [],
     dependencies: {
       props: [],
@@ -472,33 +466,33 @@ var generate = function(tree) {
   };
 
   if(generateNodeState(tree, undefined, state) === false) {
-    var treeData = tree.data;
+    const treeData = tree.data;
     treeData.flags = treeData.flags | FLAG_STATIC;
   }
 
-  var treeOutput = generateNode(tree, undefined, state);
+  const treeOutput = generateNode(tree, undefined, state);
 
-  var dependencies = state.dependencies;
-  var props = dependencies.props;
-  var methods = dependencies.methods;
-  var dependenciesOutput = '';
+  const dependencies = state.dependencies;
+  const props = dependencies.props;
+  const methods = dependencies.methods;
+  let dependenciesOutput = '';
 
-  var staticNodes = state.staticNodes;
-  var staticNodesOutput = '';
+  let staticNodes = state.staticNodes;
+  let staticNodesOutput = '';
 
-  var i = 0;
-  var separator = '';
+  let i = 0;
+  let separator = '';
 
   // Generate data prop dependencies
   for(; i < props.length; i++) {
-    var propName = props[i];
-    dependenciesOutput += "var " + propName + " = instance.get(\"" + propName + "\");";
+    const propName = props[i];
+    dependenciesOutput += `var ${propName} = instance.get("${propName}");`;
   }
 
   // Generate method dependencies
   for(i = 0; i < methods.length; i++) {
-    var methodName = methods[i];
-    dependenciesOutput += "var " + methodName + " = instance.methods[\"" + methodName + "\"];";
+    const methodName = methods[i];
+    dependenciesOutput += `var ${methodName} = instance.methods["${methodName}"];`;
   }
 
   // Generate static nodes
@@ -509,26 +503,26 @@ var generate = function(tree) {
 
   // Generate render function
   try {
-    return new Function('m', ("var instance = this;var staticNodes = instance.compiledRender.staticNodes;" + dependenciesOutput + "if(staticNodes === undefined) {staticNodes = instance.compiledRender.staticNodes = [" + staticNodesOutput + "];}return " + treeOutput + ";"));
+    return new Function('m', `var instance = this;var staticNodes = instance.compiledRender.staticNodes;${dependenciesOutput}if(staticNodes === undefined) {staticNodes = instance.compiledRender.staticNodes = [${staticNodesOutput}];}return ${treeOutput};`);
   } catch(e) {
     error("Could not create render function");
     return noop;
   }
 };
 
-var defaultDirectives = {};
+const defaultDirectives = {};
 
-var hashRE = /\.|\[/;
+const hashRE = /\.|\[/;
 
-var addEventToNode = function(eventType, eventHandler, node) {
-  var data = node.data;
-  var events = data.events;
+const addEventToNode = function(eventType, eventHandler, node) {
+  const data = node.data;
+  let events = data.events;
 
   if(events === undefined) {
     events = data.events = {};
     events[eventType] = [eventHandler];
   } else {
-    var eventHandlers = events[eventType];
+    let eventHandlers = events[eventType];
     if(eventHandlers === undefined) {
       events[eventType] = [eventHandler];
     } else {
@@ -537,7 +531,7 @@ var addEventToNode = function(eventType, eventHandler, node) {
   }
 };
 
-var addDomPropertyToNode = function(domPropName, domPropValue, node) {
+const addDomPropertyToNode = function(domPropName, domPropValue, node) {
   node.props.dom.push({
     name: domPropName,
     value: domPropValue
@@ -546,22 +540,22 @@ var addDomPropertyToNode = function(domPropName, domPropValue, node) {
 
 defaultDirectives["m-if"] = {
   before: function(prop, node, parentNode, state) {
-    var children = parentNode.children;
-    var nextIndex = node.index + 1;
-    var nextChild = children[nextIndex];
+    const children = parentNode.children;
+    const nextIndex = node.index + 1;
+    const nextChild = children[nextIndex];
     compileTemplateExpression(prop.value, state);
 
     if(nextChild !== undefined) {
-      var nextChildProps = nextChild.props;
-      for(var i = 0; i < nextChildProps.length; i++) {
-        var nextChildProp = nextChildProps[i];
+      let nextChildProps = nextChild.props;
+      for(let i = 0; i < nextChildProps.length; i++) {
+        const nextChildProp = nextChildProps[i];
         if(nextChildProp.name === "m-else") {
           nextChildProps.splice(i, 1);
 
           if(generateNodeState(nextChild, parentNode, state) === false) {
-            var nextChildChildren = nextChild.children;
-            for(var j = 0; j < nextChildChildren.length; j++) {
-              var nextChildChildData = nextChildChildren[j].data;
+            let nextChildChildren = nextChild.children;
+            for(let j = 0; j < nextChildChildren.length; j++) {
+              const nextChildChildData = nextChildChildren[j].data;
               nextChildChildData.flags = nextChildChildData.flags | FLAG_STATIC;
             }
           }
@@ -576,13 +570,13 @@ defaultDirectives["m-if"] = {
     return true;
   },
   after: function(prop, output, node, parentNode, state) {
-    var elseOutput = prop.data.elseOutput;
+    let elseOutput = prop.data.elseOutput;
 
     if(elseOutput === undefined) {
-      elseOutput = generateStaticNode(("m(\"#text\", {flags: " + FLAG_STATIC + "}, '')"), state.staticNodes);
+      elseOutput = generateStaticNode(`m("#text", {flags: ${FLAG_STATIC}}, '')`, state.staticNodes);
     }
 
-    return ((prop.value) + " ? " + output + " : " + elseOutput);
+    return `${prop.value} ? ${output} : ${elseOutput}`;
   }
 };
 
@@ -592,14 +586,14 @@ defaultDirectives["m-for"] = {
     parentNode.deep = true;
 
     // Parts
-    var parts = prop.value.split(" in ");
+    const parts = prop.value.split(" in ");
 
     // Aliases
-    var aliases = trimWhitespace(parts[0]);
+    const aliases = trimWhitespace(parts[0]);
 
     // Save information
-    var iteratable = parts[1];
-    var propData = prop.data;
+    const iteratable = parts[1];
+    const propData = prop.data;
     propData.forIteratable = iteratable;
     propData.forAliases = aliases;
     state.locals = state.locals.concat(aliases.split(','));
@@ -611,29 +605,29 @@ defaultDirectives["m-for"] = {
   },
   after: function(prop, output, node, parentNode, state) {
     // Get information about parameters
-    var propData = prop.data;
+    const propData = prop.data;
 
     // Use the renderLoop runtime helper
-    return ("m.renderLoop(" + (propData.forIteratable) + ", function(" + (propData.forAliases) + ") {return " + output + ";})");
+    return `m.renderLoop(${propData.forIteratable}, function(${propData.forAliases}) {return ${output};})`;
   }
 };
 
 defaultDirectives["m-on"] = {
   before: function(prop, node, parentNode, state) {
-    var exclude = state.exclude;
+    let exclude = state.exclude;
 
     // Get method call
-    var methodCall = prop.value;
+    let methodCall = prop.value;
     if(methodCall.indexOf('(') === -1) {
       methodCall += "()";
     }
 
     // Add event handler
-    addEventToNode(prop.argument, ("function(event) {" + methodCall + ";}"), node);
+    addEventToNode(prop.argument, `function(event) {${methodCall};}`, node);
 
     // Compile method call
     exclude.push("event");
-    var dynamic = compileTemplateExpression(methodCall, state);
+    const dynamic = compileTemplateExpression(methodCall, state);
     exclude.pop();
     return dynamic;
   }
@@ -641,28 +635,28 @@ defaultDirectives["m-on"] = {
 
 defaultDirectives["m-bind"] = {
   before: function(prop, node, parentNode, state) {
-    var value = prop.value;
+    let value = prop.value;
 
-    var dynamicIndex = value.search(hashRE);
-    var base;
-    var properties;
+    const dynamicIndex = value.search(hashRE);
+    let base;
+    let properties;
     if(dynamicIndex !== -1) {
       base = value.substring(0, dynamicIndex);
       properties = value.substring(dynamicIndex);
-      value = "instance.get(\"" + base + "\")" + properties;
+      value = `instance.get("${base}")${properties}`;
     }
 
-    var eventType = "input";
-    var instanceKey = value;
-    var instanceValue = "event.target.value";
-    var domKey = "value";
-    var domValue = value;
-    var eventHandler = '';
+    let eventType = "input";
+    let instanceKey = value;
+    let instanceValue = "event.target.value";
+    let domKey = "value";
+    let domValue = value;
+    let eventHandler = '';
 
     if(dynamicIndex === -1) {
-      eventHandler = "function(event) {instance.set(\"" + instanceKey + "\", " + instanceValue + ");}";
+      eventHandler = `function(event) {instance.set("${instanceKey}", ${instanceValue});}`;
     } else {
-      eventHandler = "function(event) {var boundValue = instance.get(\"" + base + "\");boundValue" + properties + " = " + instanceValue + ";instance.set(\"" + base + "\", boundValue);}";
+      eventHandler = `function(event) {var boundValue = instance.get("${base}");boundValue${properties} = ${instanceValue};instance.set("${base}", boundValue);}`;
     }
 
     addEventToNode(eventType, eventHandler, node);
@@ -674,7 +668,7 @@ defaultDirectives["m-bind"] = {
 
 defaultDirectives["m-dom"] = {
   before: function(prop, node, parentNode, state) {
-    var propValue = prop.value;
+    const propValue = prop.value;
     addDomPropertyToNode(prop.argument, propValue, node);
     return compileTemplateExpression(propValue, state);
   }
@@ -682,11 +676,11 @@ defaultDirectives["m-dom"] = {
 
 defaultDirectives["m-literal"] = {
   during: function(prop, node, parentNode, state) {
-    var argument = prop.argument;
+    const argument = prop.argument;
     prop.name = argument;
 
     if(argument === "class") {
-      prop.value = "m.renderClass(" + (prop.value) + ")";
+      prop.value = `m.renderClass(${prop.value})`;
     }
 
     return compileTemplateExpression(prop.value, state);
@@ -697,16 +691,16 @@ defaultDirectives["m-mask"] = {
 
 };
 
-var directives = {};
-var specialDirectives = defaultDirectives;
-var components = {};
+let directives = {};
+let specialDirectives = defaultDirectives;
+let components = {};
 
-var addEvents = function(node, events) {
-  var loop = function ( eventType ) {
+const addEvents = function(node, events) {
+  for(let eventType in events) {
     // Create handle function
-    var handle = function(event) {
-      var handlers = handle.handlers;
-      for(var i = 0; i < handlers.length; i++) {
+    const handle = function(event) {
+      const handlers = handle.handlers;
+      for(let i = 0; i < handlers.length; i++) {
         handlers[i](event);
       }
     };
@@ -719,30 +713,28 @@ var addEvents = function(node, events) {
 
     // Add event listener
     node.addEventListener(eventType, handle);
-  };
-
-  for(var eventType in events) loop( eventType );
+  }
 };
 
-var createNode = function(vnode) {
-  var type = vnode.type;
-  var data = vnode.data;
-  var node;
+const createNode = function(vnode) {
+  const type = vnode.type;
+  let data = vnode.data;
+  let node;
 
   if(type === "#text") {
     // Create textnode
     node = document.createTextNode(vnode.value);
   } else {
-    var children = vnode.children;
+    let children = vnode.children;
     node = (data.flags & FLAG_SVG) === FLAG_SVG ? document.createElementNS("http://www.w3.org/2000/svg", type) : document.createElement(type);
 
     // Append all children
-    for(var i = 0; i < children.length; i++) {
+    for(let i = 0; i < children.length; i++) {
       appendVNode(children[i], node);
     }
 
     // Add all event listeners
-    var events = data.events;
+    const events = data.events;
     if(events !== undefined) {
       addEvents(node, events);
     }
@@ -757,28 +749,28 @@ var createNode = function(vnode) {
   return node;
 };
 
-var createComponent = function(node, vnode, component) {
-  var props = component.options.props;
-  var attrs = vnode.props.attrs;
-  var componentProps = {};
+const createComponent = function(node, vnode, component) {
+  const props = component.options.props;
+  const attrs = vnode.props.attrs;
+  let componentProps = {};
 
   // Get component props
   if(props !== undefined && attrs !== undefined) {
-    for(var i = 0; i < props.length; i++) {
-      var propName = props[i];
+    for(let i = 0; i < props.length; i++) {
+      const propName = props[i];
       componentProps[propName] = attrs[propName];
     }
   }
 
   // Create component options
-  var componentOptions = {
+  let componentOptions = {
     root: node,
     props: componentProps,
     insert: vnode.children
   };
 
   // Check for events
-  var events = vnode.data.events;
+  const events = vnode.data.events;
   if(events === undefined) {
     componentOptions.events = {};
   } else {
@@ -786,37 +778,37 @@ var createComponent = function(node, vnode, component) {
   }
 
   // Initialize and mount instance
-  var componentInstance = new component.CTor(componentOptions);
+  const componentInstance = new component.CTor(componentOptions);
 
   // Update data
-  var data = vnode.data;
+  const data = vnode.data;
   data.component = componentInstance;
   data.node = componentInstance.root;
 };
 
-var appendNode = function(node, parentNode) {
+const appendNode = function(node, parentNode) {
   parentNode.appendChild(node);
 };
 
-var appendVNode = function(vnode, parentNode) {
-  var vnodeComponent = vnode.data.component;
+const appendVNode = function(vnode, parentNode) {
+  const vnodeComponent = vnode.data.component;
 
   if(vnodeComponent === undefined) {
     appendNode(createNode(vnode), parentNode);
   } else {
-    var root = document.createElement(vnode.type);
+    const root = document.createElement(vnode.type);
     appendNode(root, parentNode);
     createComponent(root, vnode, vnodeComponent);
   }
 };
 
-var removeNode = function(node, parentNode) {
+const removeNode = function(node, parentNode) {
   parentNode.removeChild(node);
 };
 
-var removeVNode = function(vnode, parentNode) {
-  var vnodeData = vnode.data;
-  var vnodeComponentInstance = vnodeData.component;
+const removeVNode = function(vnode, parentNode) {
+  const vnodeData = vnode.data;
+  const vnodeComponentInstance = vnodeData.component;
 
   if(vnodeComponentInstance !== undefined) {
     vnodeComponentInstance.destroy();
@@ -825,19 +817,19 @@ var removeVNode = function(vnode, parentNode) {
   removeNode(vnodeData.node, parentNode);
 };
 
-var replaceNode = function(newNode, oldNode, parentNode) {
+const replaceNode = function(newNode, oldNode, parentNode) {
   parentNode.replaceChild(newNode, oldNode);
 };
 
-var replaceVNode = function(newVNode, oldVNode, parentNode) {
-  var oldVNodeData = oldVNode.data;
-  var oldVNodeComponentInstance = oldVNodeData.component;
+const replaceVNode = function(newVNode, oldVNode, parentNode) {
+  const oldVNodeData = oldVNode.data;
+  const oldVNodeComponentInstance = oldVNodeData.component;
 
   if(oldVNodeComponentInstance !== undefined) {
     oldVNodeComponentInstance.destroy();
   }
 
-  var newVNodeComponent = newVNode.data.component;
+  const newVNodeComponent = newVNode.data.component;
   if(newVNodeComponent === undefined) {
     replaceNode(createNode(newVNode), oldVNodeData.node, parentNode);
   } else {
@@ -845,7 +837,7 @@ var replaceVNode = function(newVNode, oldVNode, parentNode) {
   }
 };
 
-var m = function(type, props, data, children) {
+const m = function(type, props, data, children) {
   if(type === "#text") {
     // Text virtual node
     return {
@@ -854,7 +846,7 @@ var m = function(type, props, data, children) {
       value: data
     };
   } else {
-    var component = components[type];
+    let component = components[type];
     if(component !== undefined) {
       // Component
       data.component = component;
@@ -871,10 +863,10 @@ var m = function(type, props, data, children) {
 };
 
 m.flatten = function(children) {
-  for(var i = 0; i < children.length; ) {
-    var child = children[i];
+  for(let i = 0; i < children.length; ) {
+    let child = children[i];
     if(Array.isArray(child) === true) {
-      var childLength = child.length;
+      const childLength = child.length;
       child.unshift(i, 1);
       children.splice.apply(children, child);
       child.slice(2, 0);
@@ -892,17 +884,17 @@ m.renderClass = function(classNames) {
     // String class names are already processed
     return classNames;
   } else {
-    var renderedClassNames = '';
-    var separator = '';
+    let renderedClassNames = '';
+    let separator = '';
     if(Array.isArray(classNames) === true) {
       // It's an array concatenate them
-      for(var i = 0; i < classNames.length; i++) {
+      for(let i = 0; i < classNames.length; i++) {
         renderedClassNames += separator + m.renderClass(classNames[i]);
         separator = ' ';
       }
     } else if(typeof classNames === "object") {
       // Object of classnames, concatenate if value is true
-      for(var className in classNames) {
+      for(let className in classNames) {
         if(classNames[className] === true) {
           renderedClassNames += separator + className;
           separator = ' ';
@@ -915,106 +907,106 @@ m.renderClass = function(classNames) {
 };
 
 m.renderLoop = function(iteratable, item) {
-  var items;
+  let items;
 
   if(Array.isArray(iteratable)) {
     // Render array
-    var length = iteratable.length;
+    const length = iteratable.length;
     items = new Array(length);
-    for(var i = 0; i < length; i++) {
+    for(let i = 0; i < length; i++) {
       items[i] = item(iteratable[i], i);
     }
   } else if(typeof iteratable === "object") {
     // Render object
     items = [];
-    for(var key in iteratable) {
+    for(let key in iteratable) {
       items.push(item(iteratable[key], key));
     }
   } else if(typeof iteratable === "number") {
     // Render range
     items = new Array(iteratable);
-    for(var i$1 = 0; i$1 < iteratable; i$1++) {
-      items[i$1] = item(i$1 + 1, i$1);
+    for(let i = 0; i < iteratable; i++) {
+      items[i] = item(i + 1, i);
     }
   }
 
   return items;
 };
 
-var patchProps = function(node, nodeAttrs, vnode, props) {
+const patchProps = function(node, nodeAttrs, vnode, props) {
   // Get VNode Attributes
-  var vnodeAttrs = props.attrs;
+  const vnodeAttrs = props.attrs;
 
   if(vnodeAttrs === undefined) {
     if(nodeAttrs !== undefined) {
       // Remove all
-      for(var nodeAttrName in nodeAttrs) {
+      for(let nodeAttrName in nodeAttrs) {
         node.removeAttribute(nodeAttrName);
       }
     }
   } else {
     if(nodeAttrs === undefined) {
       // Add all
-      for(var vnodeAttrName in vnodeAttrs) {
-        var vnodeAttrValue = vnodeAttrs[vnodeAttrName];
+      for(let vnodeAttrName in vnodeAttrs) {
+        const vnodeAttrValue = vnodeAttrs[vnodeAttrName];
         node.setAttribute(vnodeAttrName, vnodeAttrValue === true ? '' : vnodeAttrValue);
       }
     } else {
       // Add
-      for(var vnodeAttrName$1 in vnodeAttrs) {
-        var vnodeAttrValue$1 = vnodeAttrs[vnodeAttrName$1];
-        var nodeAttrValue = nodeAttrs[vnodeAttrName$1];
+      for(let vnodeAttrName in vnodeAttrs) {
+        const vnodeAttrValue = vnodeAttrs[vnodeAttrName];
+        const nodeAttrValue = nodeAttrs[vnodeAttrName];
 
-        if((vnodeAttrValue$1 !== false) && (nodeAttrValue === undefined || vnodeAttrValue$1 !== nodeAttrValue)) {
-          node.setAttribute(vnodeAttrName$1, vnodeAttrValue$1 === true ? '' : vnodeAttrValue$1);
+        if((vnodeAttrValue !== false) && (nodeAttrValue === undefined || vnodeAttrValue !== nodeAttrValue)) {
+          node.setAttribute(vnodeAttrName, vnodeAttrValue === true ? '' : vnodeAttrValue);
         }
       }
 
       // Remove
-      for(var nodeAttrName$1 in nodeAttrs) {
-        var vnodeAttrValue$2 = vnodeAttrs[nodeAttrName$1];
-        if(vnodeAttrValue$2 === undefined || vnodeAttrValue$2 === false) {
-          node.removeAttribute(nodeAttrName$1);
+      for(let nodeAttrName in nodeAttrs) {
+        const vnodeAttrValue = vnodeAttrs[nodeAttrName];
+        if(vnodeAttrValue === undefined || vnodeAttrValue === false) {
+          node.removeAttribute(nodeAttrName);
         }
       }
     }
   }
 
   // Execute any directives
-  var vnodeDirectives = props.directives;
+  let vnodeDirectives = props.directives;
   if(vnodeDirectives !== undefined) {
-    for(var directiveName in vnodeDirectives) {
-      var directive = directives[directiveName];
+    for(let directiveName in vnodeDirectives) {
+      let directive = directives[directiveName];
       if(directive !== undefined) {
         directive(node, vnodeDirectives[directiveName], vnode);
       } else {
-        error(("Could not find directive \"" + directiveName + "\""));
+        error(`Could not find directive "${directiveName}"`);
       }
     }
   }
 
   // Add/Update any DOM Props
-  var domProps = props.dom;
+  const domProps = props.dom;
   if(domProps !== undefined) {
-    for(var domPropName in domProps) {
+    for(let domPropName in domProps) {
       node[domPropName] = domProps[domPropName];
     }
   }
 };
 
-var patchEvents = function(newEvents, oldEvents) {
+const patchEvents = function(newEvents, oldEvents) {
   // Update event handlers
-  for(var eventType in newEvents) {
+  for(let eventType in newEvents) {
     oldEvents[eventType].handlers = newEvents[eventType];
   }
 };
 
-var patchChildren = function(newChildren, oldChildren, parentNode) {
-  var newLength = newChildren.length;
-  var oldLength = oldChildren.length;
-  var totalLength = newLength > oldLength ? newLength : oldLength;
+const patchChildren = function(newChildren, oldChildren, parentNode) {
+  const newLength = newChildren.length;
+  const oldLength = oldChildren.length;
+  const totalLength = newLength > oldLength ? newLength : oldLength;
 
-  for(var i = 0; i < totalLength; i++) {
+  for(let i = 0; i < totalLength; i++) {
     if(i >= newLength) {
       // Past length of new children, remove child
       removeVNode(oldChildren.pop(), parentNode);
@@ -1022,31 +1014,31 @@ var patchChildren = function(newChildren, oldChildren, parentNode) {
       // Past length of old children, append child
       appendVNode((oldChildren[i] = newChildren[i]), parentNode);
     } else {
-      var newChild = newChildren[i];
-      var oldChild = oldChildren[i];
+      const newChild = newChildren[i];
+      const oldChild = oldChildren[i];
 
       if(newChild !== oldChild) {
-        var newChildType = newChild.type;
+        const newChildType = newChild.type;
         if(newChildType !== oldChild.type) {
           // Types are different, replace child
           replaceVNode(newChild, oldChild, parentNode);
           oldChildren[i] = newChild;
         } else {
-          var oldChildData = oldChild.data;
-          var oldChildComponentInstance = oldChildData.component;
+          const oldChildData = oldChild.data;
+          const oldChildComponentInstance = oldChildData.component;
           if(oldChildComponentInstance !== undefined) {
             // Component found
-            var componentChanged = false;
+            let componentChanged = false;
 
-            var oldChildComponentInstanceProps = oldChildComponentInstance.options.props;
+            const oldChildComponentInstanceProps = oldChildComponentInstance.options.props;
             if(oldChildComponentInstanceProps !== undefined) {
               // Update component props
-              var newChildAttrs = newChild.props.attrs;
-              var oldChildComponentInstanceObserver = oldChildComponentInstance.observer;
-              var oldChildComponentInstanceData = oldChildComponentInstance.data;
+              const newChildAttrs = newChild.props.attrs;
+              const oldChildComponentInstanceObserver = oldChildComponentInstance.observer;
+              let oldChildComponentInstanceData = oldChildComponentInstance.data;
 
-              for(var j = 0; j < oldChildComponentInstanceProps.length; j++) {
-                var oldChildComponentInstancePropName = oldChildComponentInstanceProps[j];
+              for(let j = 0; j < oldChildComponentInstanceProps.length; j++) {
+                const oldChildComponentInstancePropName = oldChildComponentInstanceProps[j];
                 oldChildComponentInstanceData[oldChildComponentInstancePropName] = newChildAttrs[oldChildComponentInstancePropName];
                 oldChildComponentInstanceObserver.notify(oldChildComponentInstancePropName);
               }
@@ -1055,13 +1047,13 @@ var patchChildren = function(newChildren, oldChildren, parentNode) {
             }
 
             // Patch component events
-            var newChildEvents = newChild.data.events;
+            const newChildEvents = newChild.data.events;
             if(newChildEvents !== undefined) {
               patchEvents(newChildEvents, oldChildData.events);
             }
 
             // Add insert
-            var newChildChildren = newChild.children;
+            const newChildChildren = newChild.children;
             if(newChildChildren.length !== 0) {
               oldChildComponentInstance.insert = newChildChildren;
               componentChanged = true;
@@ -1074,7 +1066,7 @@ var patchChildren = function(newChildren, oldChildren, parentNode) {
             }
           } else if(newChildType === "#text") {
             // Text node, update value
-            var newChildValue = newChild.value;
+            const newChildValue = newChild.value;
             oldChildData.node.textContent = newChildValue;
             oldChild.value = newChildValue;
           } else {
@@ -1087,56 +1079,56 @@ var patchChildren = function(newChildren, oldChildren, parentNode) {
   }
 };
 
-var hydrate = function(node, vnode) {
-  var vnodeData = vnode.data;
+const hydrate = function(node, vnode) {
+  let vnodeData = vnode.data;
 
   // Add reference to node
   vnodeData.node = node;
 
   // Patch props
-  var vnodeProps = vnode.props;
-  var nodeAttributes = node.attributes;
-  var nodeAttrs = {};
-  for(var i = 0; i < nodeAttributes.length; i++) {
-    var nodeAttribute = nodeAttributes[i];
+  const vnodeProps = vnode.props;
+  const nodeAttributes = node.attributes;
+  let nodeAttrs = {};
+  for(let i = 0; i < nodeAttributes.length; i++) {
+    const nodeAttribute = nodeAttributes[i];
     nodeAttrs[nodeAttribute.name] = nodeAttribute.value;
   }
   patchProps(node, nodeAttrs, vnode, vnodeProps);
 
   // Add events
-  var vnodeEvents = vnodeData.events;
+  const vnodeEvents = vnodeData.events;
   if(vnodeEvents !== undefined) {
     addEvents(node, vnodeEvents);
   }
 
   // Hydrate children
-  var vnodeDomProps = vnodeProps.dom;
+  const vnodeDomProps = vnodeProps.dom;
   if((vnodeDomProps === undefined) || (vnodeDomProps.innerHTML === undefined && vnodeDomProps.textContent === undefined)) {
-    var vnodeChildren = vnode.children;
-    var vnodeChildrenLength = vnodeChildren.length;
+    const vnodeChildren = vnode.children;
+    const vnodeChildrenLength = vnodeChildren.length;
 
-    var i$1 = 0;
+    let i = 0;
 
-    var childVNode = i$1 === vnodeChildrenLength ? undefined : vnodeChildren[i$1];
-    var childNode = node.firstChild;
+    let childVNode = i === vnodeChildrenLength ? undefined : vnodeChildren[i];
+    let childNode = node.firstChild;
 
     while(childVNode !== undefined || childNode !== null) {
       if(childNode === null) {
         // Node doesn't exist, create and append a node
         appendVNode(childVNode, node);
       } else {
-        var nextSibling = childNode.nextSibling;
+        let nextSibling = childNode.nextSibling;
 
         if(childVNode === undefined) {
           // No VNode, remove the node
           removeNode(childNode, node);
         } else {
-          var childVNodeComponent = childVNode.data.component;
+          const childVNodeComponent = childVNode.data.component;
           if(childVNodeComponent !== undefined) {
             // Create a component
             createComponent(childNode, childVNode, childVNodeComponent);
           } else {
-            var childVNodeType = childVNode.type;
+            const childVNodeType = childVNode.type;
             if(childNode.nodeName.toLowerCase() !== childVNodeType) {
               // Different types, replace nodes
               replaceNode(createNode(childVNode), childNode, node);
@@ -1154,22 +1146,22 @@ var hydrate = function(node, vnode) {
         childNode = nextSibling;
       }
 
-      childVNode = ++i$1 < vnodeChildrenLength ? vnodeChildren[i$1] : undefined;
+      childVNode = ++i < vnodeChildrenLength ? vnodeChildren[i] : undefined;
     }
   }
 };
 
-var patch = function(newVNode, oldVNode) {
-  var oldVNodeData = oldVNode.data;
-  var oldVNodeNode = oldVNodeData.node;
+const patch = function(newVNode, oldVNode) {
+  const oldVNodeData = oldVNode.data;
+  const oldVNodeNode = oldVNodeData.node;
 
   // Patch props
-  var newVNodeProps = newVNode.props;
+  const newVNodeProps = newVNode.props;
   patchProps(oldVNodeNode, oldVNode.props.attrs, newVNode, newVNodeProps);
   oldVNode.props = newVNodeProps;
 
   // Patch events
-  var newVNodeEvents = newVNode.data.events;
+  const newVNodeEvents = newVNode.data.events;
   if(newVNodeEvents !== undefined) {
     patchEvents(newVNodeEvents, oldVNodeData.events);
   }
@@ -1178,19 +1170,19 @@ var patch = function(newVNode, oldVNode) {
   patchChildren(newVNode.children, oldVNode.children, oldVNodeNode);
 };
 
-var lex = function(template) {
-  var length = template.length;
-  var tokens = [];
-  var current = 0;
+const lex = function(template) {
+  const length = template.length;
+  let tokens = [];
+  let current = 0;
 
   while(current < length) {
-    var char = template[current];
+    let char = template[current];
     if(char === '<') {
       current++;
       if(template.substring(current, current + 3) === "!--") {
         // Comment
         current += 3;
-        var endOfComment = template.indexOf("-->", current);
+        const endOfComment = template.indexOf("-->", current);
         if(endOfComment === -1) {
           current = length;
         } else {
@@ -1198,16 +1190,16 @@ var lex = function(template) {
         }
       } else {
         // Tag
-        var tagToken = {
+        let tagToken = {
           type: "Tag",
           value: ''
         };
 
-        var tagType = '';
-        var attributes = [];
+        let tagType = '';
+        let attributes = [];
 
-        var closeStart = false;
-        var closeEnd = false;
+        let closeStart = false;
+        let closeEnd = false;
 
         char = template[current];
 
@@ -1230,8 +1222,8 @@ var lex = function(template) {
             char = template[++current];
           } else {
             // Find attribute name
-            var attrName = '';
-            var attrValue = '';
+            let attrName = '';
+            let attrValue = '';
             while((current < length) && ((char !== '=') && (whitespaceCharRE.test(char) === false) && ((char !== '>') && (char !== '/' || template[current + 1] !== '>')))) {
               attrName += char;
               char = template[++current];
@@ -1241,7 +1233,7 @@ var lex = function(template) {
             if(char === '=') {
               char = template[++current];
 
-              var quoteType = ' ';
+              let quoteType = ' ';
               if(char === '"' || char === '\'' || char === ' ' || char === '\n') {
                 quoteType = char;
                 char = template[++current];
@@ -1284,9 +1276,9 @@ var lex = function(template) {
       }
     } else {
       // Text
-      var textTail = template.substring(current);
-      var endOfText = textTail.search(tagOrCommentStartRE);
-      var text = (void 0);
+      const textTail = template.substring(current);
+      const endOfText = textTail.search(tagOrCommentStartRE);
+      let text;
       if(endOfText === -1) {
         text = textTail;
         current = length;
@@ -1308,17 +1300,17 @@ var lex = function(template) {
   return tokens;
 };
 
-var parse = function(tokens) {
-  var root = {
+const parse = function(tokens) {
+  let root = {
     type: "ROOT",
     props: {},
     children: []
   };
-  var elements = [root];
-  var lastIndex = 0;
+  let elements = [root];
+  let lastIndex = 0;
 
-  for(var i = 0; i < tokens.length; i++) {
-    var token = tokens[i];
+  for(let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
     if(token.type === "Text") {
       // Push text to currently pending element
       elements[lastIndex].children.push({
@@ -1331,19 +1323,19 @@ var parse = function(tokens) {
     } else if(token.type === "Tag") {
       // Tag found
       if(token.closeStart === true) {
-        if("development" !== "production" && token.value !== elements[lastIndex].type) {
-          error(("The element \"" + (elements[lastIndex].type) + "\" was left unclosed"));
+        if("production" !== "production" && token.value !== elements[lastIndex].type) {
+          error(`The element "${elements[lastIndex].type}" was left unclosed`);
         }
         // Closing tag found, close current element
         elements.pop();
         lastIndex--;
       } else {
         // Opening tag found, create element
-        var type = token.value;
-        var lastChildren = elements[lastIndex].children;
-        var index = lastChildren.length;
+        const type = token.value;
+        const lastChildren = elements[lastIndex].children;
+        const index = lastChildren.length;
 
-        var node = {
+        let node = {
           type: type,
           index: index,
           props: token.attributes,
@@ -1364,46 +1356,46 @@ var parse = function(tokens) {
     }
   }
 
-  if("development" !== "production" && root.children[0].type === "#text") {
+  if("production" !== "production" && root.children[0].type === "#text") {
     error("The root element cannot be text");
   }
   return root.children[0];
 };
 
-var compile$1 = function(template) {
+const compile$1 = function(template) {
   return generate(parse(lex(template)));
 };
 
-var config = {
-  silent: ("development" === "production") || (typeof console === "undefined")
+const config = {
+  silent: ("production" === "production") || (typeof console === "undefined")
 };
 
-var version = "0.11.0";
+const version = "0.11.0";
 
-var util = {
+const util = {
   noop: noop,
   log: log,
   error: error,
   m: m
 };
 
-var use = function(plugin, options) {
+const use = function(plugin, options) {
   plugin.init(Moon$1, options);
 };
 
-var compile$$1 = function(template) {
+const compile$$1 = function(template) {
   return compile$1(template);
 };
 
-var nextTick = function(task) {
+const nextTick = function(task) {
   setTimeout(task, 0);
 };
 
-var directive = function(name, action) {
+const directive = function(name, action) {
   directives["m-" + name] = action;
 };
 
-var extend = function(name, options) {
+const extend = function(name, options) {
   options.name = name;
 
   if(options.data !== undefined && typeof options.data !== "function") {
@@ -1419,11 +1411,11 @@ var extend = function(name, options) {
   MoonComponent.prototype.constructor = MoonComponent;
 
   MoonComponent.prototype.init = function() {
-    var componentOptions = this.componentOptions;
-    var props = componentOptions.props;
-    var data = this.data;
+    const componentOptions = this.componentOptions;
+    const props = componentOptions.props;
+    let data = this.data;
 
-    for(var prop in props) {
+    for(let prop in props) {
       data[prop] = props[prop];
     }
 
@@ -1432,7 +1424,7 @@ var extend = function(name, options) {
 
     callHook(this, "init");
 
-    var root = componentOptions.root;
+    let root = componentOptions.root;
     if(root !== undefined) {
       this.mount(root);
     }
@@ -1446,13 +1438,13 @@ var extend = function(name, options) {
   return MoonComponent;
 };
 
-var globalApi = {config: config, version: version, util: util, use: use, compile: compile$$1, nextTick: nextTick, directive: directive, extend: extend};
+var globalApi = {config, version, util, use, compile: compile$$1, nextTick, directive, extend};
 
-var get = function(key) {
+const get = function(key) {
   // Collect dependencies if currently collecting
-  var observer = this.observer;
-  var map = observer.map;
-  var target = observer.target;
+  const observer = this.observer;
+  let map = observer.map;
+  let target = observer.target;
 
   if(target !== undefined) {
     if(map[key] === undefined) {
@@ -1463,20 +1455,20 @@ var get = function(key) {
   }
 
   // Return value
-  if("development" !== "production" && this.data.hasOwnProperty(key) === false) {
-    error(("The item \"" + key + "\" was referenced but not defined"));
+  if("production" !== "production" && this.data.hasOwnProperty(key) === false) {
+    error(`The item "${key}" was referenced but not defined`);
   }
   return this.data[key];
 };
 
-var set = function(key, value) {
+const set = function(key, value) {
   // Get observer
-  var observer = this.observer;
+  const observer = this.observer;
 
   if(typeof key === "object") {
     // Shallow merge
-    var data = this.data;
-    for(var prop in key) {
+    let data = this.data;
+    for(let prop in key) {
       // Set value
       data[prop] = key[prop];
 
@@ -1495,7 +1487,7 @@ var set = function(key, value) {
   queueBuild(this);
 };
 
-var destroy = function() {
+const destroy = function() {
   // Remove event listeners
   this.off();
 
@@ -1511,9 +1503,9 @@ var destroy = function() {
 
 // Event Emitter, adapted from https://github.com/kbrsh/voke
 
-var on = function(eventType, handler) {
-  var events = this.events;
-  var handlers = events[eventType];
+const on = function(eventType, handler) {
+  let events = this.events;
+  let handlers = events[eventType];
 
   if(handlers === undefined) {
     // Create handler
@@ -1524,7 +1516,7 @@ var on = function(eventType, handler) {
   }
 };
 
-var off = function(eventType, handler) {
+const off = function(eventType, handler) {
   if(eventType === undefined) {
     // No event name provided, remove all events
     this.events = {};
@@ -1533,26 +1525,26 @@ var off = function(eventType, handler) {
     this.events[eventType] = [];
   } else {
     // Get handlers from event name
-    var handlers = this.events[eventType];
+    let handlers = this.events[eventType];
 
     // Get index of the handler to remove
-    var index = handlers.indexOf(handler);
+    const index = handlers.indexOf(handler);
 
     // Remove the handler
     handlers.splice(index, 1);
   }
 };
 
-var emit = function(eventType, data) {
+const emit = function(eventType, data) {
   // Events
-  var events = this.events;
+  const events = this.events;
 
   // Get handlers and global handlers
-  var handlers = events[eventType];
-  var globalHandlers = events['*'];
+  let handlers = events[eventType];
+  let globalHandlers = events['*'];
 
   // Counter
-  var i;
+  let i;
 
   // Call all handlers for the event name
   if(handlers !== undefined) {
@@ -1569,10 +1561,10 @@ var emit = function(eventType, data) {
   }
 };
 
-var mount = function(rootOption) {
+const mount = function(rootOption) {
   // Get root from the DOM
-  var root = this.root = typeof rootOption === "string" ? document.querySelector(rootOption) : rootOption;
-  if("development" !== "production" && root === null) {
+  let root = this.root = typeof rootOption === "string" ? document.querySelector(rootOption) : rootOption;
+  if("production" !== "production" && root === null) {
     error("Element " + this.options.root + " not found");
   }
 
@@ -1588,11 +1580,11 @@ var mount = function(rootOption) {
   this.queued = false;
 
   // Hydrate
-  var dom = this.render();
+  const dom = this.render();
   if(root.nodeName.toLowerCase() === dom.type) {
     hydrate(root, dom);
   } else {
-    var newRoot = createNode(dom);
+    const newRoot = createNode(dom);
     replaceNode(newRoot, root, root.parentNode);
     this.root = newRoot;
   }
@@ -1603,30 +1595,30 @@ var mount = function(rootOption) {
   callHook(this, "mounted");
 };
 
-var render = function() {
+const render = function() {
   return this.compiledRender(m);
 };
 
-var build = function() {
-  var dom = this.render();
-  var old = this.dom;
+const build = function() {
+  const dom = this.render();
+  let old = this.dom;
 
   if(dom !== old) {
     patch(dom, old);
   }
 };
 
-var init = function() {
+const init = function() {
   log("======= Moon =======");
   callHook(this, "init");
 
-  var root = this.options.root;
+  const root = this.options.root;
   if(root !== undefined) {
     this.mount(root);
   }
 };
 
-var instanceMethods = {get: get, set: set, destroy: destroy, on: on, off: off, emit: emit, mount: mount, render: render, build: build, init: init};
+var instanceMethods = {get, set, destroy, on, off, emit, mount, render, build, init};
 
 function Observer() {
   // Property currently being observed
@@ -1640,49 +1632,45 @@ function Observer() {
 }
 
 Observer.prototype.notify = function(key) {
-  var this$1 = this;
-
   // Notify all dependent keys
-  var map = this.map[key];
+  let map = this.map[key];
   if(map !== undefined) {
-    for(var i = 0; i < map.length; i++) {
-      this$1.notify(map[i]);
+    for(let i = 0; i < map.length; i++) {
+      this.notify(map[i]);
     }
   }
 
   // Clear cache for key
-  var cache = this.cache;
+  let cache = this.cache;
   if(cache[key] !== undefined) {
     cache[key] = undefined;
   }
 };
 
-var initMethods = function(instance, methods) {
-  var instanceMethods = instance.methods;
-  var loop = function ( methodName ) {
+const initMethods = function(instance, methods) {
+  let instanceMethods = instance.methods;
+  for(let methodName in methods) {
     // Change context of method
     instanceMethods[methodName] = function() {
       return methods[methodName].apply(instance, arguments);
     };
-  };
-
-  for(var methodName in methods) loop( methodName );
+  }
 };
 
-var initComputed = function(instance, computed) {
+const initComputed = function(instance, computed) {
   // Set all computed properties
-  var data = instance.data;
-  var observer = instance.observer;
-  var loop = function ( propName ) {
-    var option = computed[propName];
-    var getter = option.get;
-    var setter = option.set;
+  const data = instance.data;
+  const observer = instance.observer;
+  for(let propName in computed) {
+    const option = computed[propName];
+    const getter = option.get;
+    const setter = option.set;
 
     // Add getter/setter
     Object.defineProperty(data, propName, {
       get: function() {
         // Property Cache
-        var cache;
+        let cache;
 
         if(observer.cache[propName] === undefined) {
           // Capture dependencies
@@ -1707,9 +1695,7 @@ var initComputed = function(instance, computed) {
         setter.call(instance, val);
       }
     });
-  };
-
-  for(var propName in computed) loop( propName );
+  }
 };
 
 "use strict";
@@ -1730,7 +1716,7 @@ function Moon$1(options) {
   this.root = undefined;
 
   // Data
-  var data = options.data;
+  const data = options.data;
   if(data === undefined) {
     this.data = {};
   } else if(typeof data === "function") {
@@ -1740,7 +1726,7 @@ function Moon$1(options) {
   }
 
   // Methods
-  var methods = options.methods;
+  const methods = options.methods;
   this.methods = {};
   if(methods !== undefined) {
     initMethods(this, methods);
@@ -1765,7 +1751,7 @@ function Moon$1(options) {
   this.queued = true;
 
   // Initialize computed properties
-  var computed = options.computed;
+  const computed = options.computed;
   if(computed !== undefined) {
     initComputed(this, computed);
   }
@@ -1794,6 +1780,4 @@ Moon$1.nextTick = globalApi.nextTick;
 Moon$1.directive = globalApi.directive;
 Moon$1.extend = globalApi.extend;
 
-return Moon$1;
-
-})));
+export default Moon$1;

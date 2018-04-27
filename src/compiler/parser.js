@@ -1,4 +1,7 @@
-const parse = function(tokens) {
+import {error} from "../util/util.js";
+import {VOID_ELEMENTS} from "./constants.js";
+
+export const parse = function(tokens) {
   let root = {
     type: "ROOT",
     props: {},

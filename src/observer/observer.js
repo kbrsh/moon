@@ -1,4 +1,4 @@
-function Observer() {
+export function Observer() {
   // Property currently being observed
   this.target = undefined;
   
