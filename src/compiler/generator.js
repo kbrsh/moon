@@ -4,7 +4,7 @@ const generateCreate = (element) => {
   } else {
     switch (element.type) {
       case "m-text":
-        return `m[${element.index}] = document.createTextNode("");`;
+        return `m[${element.index}] = document.createTextNode("${element.content}");`;
         break;
       default:
         return element.children.map(generateCreate).join("") + `m[${element.index}] = document.createElement("${element.type}");`;
