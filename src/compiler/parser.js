@@ -58,7 +58,7 @@ const parseClosingTag = (index, input, length, stack) => {
 
   const lastElement = stack.pop();
   if (type !== lastElement.type && process.env.MOON_ENV === "development") {
-    error(`Unclosed tag "${lastElement.type}", expected "${type}"`);
+    error(`Unclosed tag "${lastElement.type}"`);
   }
 
   return index;
