@@ -12,9 +12,20 @@ export default function Moon(element, view) {
     view = compile(view);
   }
 
-  view[0]();
-  view[1]();
-  view[2]();
+  const instance = {
+    name: "@",
+    data: {},
+    create: view[0],
+    mount: view[1],
+    update: view[2],
+    m: []
+  };
+
+  instance.create();
+  instance.mount();
+  element.parentNode.removeChild(element);
+
+  return instance;
 }
 
 Moon.extend = (name, view, data) => {
