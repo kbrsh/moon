@@ -14,6 +14,7 @@ export default function Moon(element, view) {
 
   view[0]();
   view[1]();
+  view[2]();
 }
 
 Moon.extend = (name, view, data) => {
@@ -24,9 +25,10 @@ Moon.extend = (name, view, data) => {
   components[name] = () => {
     return {
       name: name,
-      data: data,
-      mount: view[0],
-      build: view[1],
+      data: data(),
+      create: view[0],
+      mount: view[1],
+      update: view[2],
       m: []
     };
   };
