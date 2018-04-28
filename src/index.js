@@ -3,9 +3,9 @@ import { config } from "./util/config";
 
 let components = {};
 
-export default function Moon(element, view) {
-  if (typeof element === "string") {
-    element = document.querySelector(element);
+export default function Moon(root, view) {
+  if (typeof root === "string") {
+    root = document.querySelector(root);
   }
 
   if (typeof view === "string") {
@@ -22,8 +22,8 @@ export default function Moon(element, view) {
   };
 
   instance.create();
-  instance.mount();
-  element.parentNode.removeChild(element);
+  instance.mount(root);
+  root.parentNode.removeChild(root);
 
   return instance;
 }
