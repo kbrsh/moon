@@ -80,7 +80,7 @@
 
     var lastElement = stack.pop();
     if (type !== lastElement.type && "development" === "development") {
-      error(("Unclosed tag \"" + (lastElement.type) + "\", expected \"" + type + "\""));
+      error(("Unclosed tag \"" + (lastElement.type) + "\""));
     }
 
     return index;
@@ -113,8 +113,6 @@
     parseIndex = 0;
 
     var root = {
-      index: parseIndex++,
-      type: "m-fragment",
       children: []
     };
 
@@ -136,54 +134,85 @@
       }
     }
 
-    return root;
-  };
-
-  var generateCreateFragment = function (element) {
-    return ((element.children.map(generateCreate)) + " m[" + (element.index) + "] = []; ");
-  };
-
-  var generateCreateText = function (element) {};
-
-  var generateCreateElement = function (element) {
-    return (" m[" + (element.index) + "] = document.createElement(\"" + (element.type) + "\");");
+    return root.children;
   };
 
   var generateCreate = function (element) {
-    switch (element.type) {
-      case "m-fragment":
-        return generateCreateFragment(element);
-        break;
-      case "m-text":
-        return generateCreateText(element);
-        break;
-      default:
-        return generateCreateElement(element);
+    if (Array.isArray(element)) {
+      return element.map(generateCreate).join("");
+    } else {
+      switch (element.type) {
+        case "m-text":
+          return ("m[" + (element.index) + "] = document.createTextNode(\"" + (element.content) + "\");");
+          break;
+        default:
+          return element.children.map(generateCreate).join("") + "m[" + (element.index) + "] = document.createElement(\"" + (element.type) + "\");";
+      }
     }
+  };
+
+  var generateMount = function (element, parent) {
+    var generatedMount = "";
+
+    if (Array.isArray(element)) {
+      var loop = function ( i ) {
+        var child = element[i];
+        var childPath = "m[" + (child.index) + "]";
+
+        if (child.type !== "m-text") {
+          generatedMount += child.children.map(function (grandchild) { return generateMount(grandchild, childPath); }).join("");
+        }
+
+        generatedMount += parent + ".parentNode.insertBefore(" + childPath + ", " + parent + ");";
+      };
+
+      for (var i = 0; i < element.length; i++) loop( i );
+    } else {
+      var elementPath = "m[" + (element.index) + "]";
+
+      if (element.type !== "m-text") {
+        generatedMount += element.children.map(function (child) { return generateMount(child, elementPath); }).join("");
+      }
+
+      generatedMount += parent + ".appendChild(" + elementPath + ");";
+    }
+
+    return generatedMount;
   };
 
   var generateUpdate = function () {};
 
   var generate = function (tree) {
-    var prelude = "var data = instance.data; var m = instance.m;";
-    return new Function(("return [function (instance) {" + prelude + (generateCreate(tree)) + "}, function (instance) {" + prelude + (generateUpdate(tree)) + "}]"))();
+    return new Function(("return [function () {var m = this.m;" + (generateCreate(tree)) + "}, function (root) {var m = this.m;" + (generateMount(tree, "root")) + "}, function () {var m = this.m;" + (generateUpdate(tree)) + "}]"))();
   };
 
   var compile = function (input) {
     return generate(parse(input));
   };
 
-  function Moon(element, view) {
-    if (typeof element === "string") {
-      element = document.querySelector(element);
+  function Moon(root, view) {
+    if (typeof root === "string") {
+      root = document.querySelector(root);
     }
 
     if (typeof view === "string") {
       view = compile(view);
     }
 
-    view[0]();
-    view[1]();
+    var instance = {
+      name: "@",
+      data: {},
+      create: view[0],
+      mount: view[1],
+      update: view[2],
+      m: []
+    };
+
+    instance.create();
+    instance.mount(root);
+    root.parentNode.removeChild(root);
+
+    return instance;
   }
 
   Moon.extend = function (name, view, data) {
