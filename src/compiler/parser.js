@@ -1,6 +1,18 @@
 import { error } from "../util/util";
 
-const WHITESPACE_RE = /\s/;
+const whitespaceRE = /\s/;
+const escapeRE = /(?:(?:&(?:amp|gt|lt|nbsp|quot);)|"|\\|\n)/g;
+const escapeMap = {
+  "&amp;": '&',
+  "&gt;": '>',
+  "&lt;": '<',
+  "&nbsp;": ' ',
+  "&quot;": "\\\"",
+  '\\': "\\\\",
+  '"': "\\\"",
+  '\n': "\\n"
+};
+
 let parseIndex;
 
 const pushChild = (child, stack) => {
@@ -80,7 +92,7 @@ const parseText = (index, input, length, stack) => {
   pushChild({
     index: parseIndex++,
     type: "m-text",
-    content: content
+    content: content.replace(escapeRE, (match) => escapeMap[match])
   }, stack);
 
   return index;

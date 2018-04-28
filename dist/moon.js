@@ -23,6 +23,18 @@
     }
   };
 
+  var escapeRE = /(?:(?:&(?:amp|gt|lt|nbsp|quot);)|"|\\|\n)/g;
+  var escapeMap = {
+    "&amp;": '&',
+    "&gt;": '>',
+    "&lt;": '<',
+    "&nbsp;": ' ',
+    "&quot;": "\\\"",
+    '\\': "\\\\",
+    '"': "\\\"",
+    '\n': "\\n"
+  };
+
   var parseIndex;
 
   var pushChild = function (child, stack) {
@@ -102,7 +114,7 @@
     pushChild({
       index: parseIndex++,
       type: "m-text",
-      content: content
+      content: content.replace(escapeRE, function (match) { return escapeMap[match]; })
     }, stack);
 
     return index;
