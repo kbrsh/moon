@@ -91,8 +91,6 @@ export const parse = (input) => {
   parseIndex = 0;
 
   const root = {
-    index: parseIndex++,
-    type: "m-fragment",
     children: []
   };
 
@@ -114,5 +112,5 @@ export const parse = (input) => {
     }
   }
 
-  return root;
+  return root.children;
 };
