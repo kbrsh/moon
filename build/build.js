@@ -1,5 +1,6 @@
 const rollup = require("rollup");
 const buble = require("rollup-plugin-buble");
+const eslint = require("rollup-plugin-eslint");
 const uglify = require("uglify-js");
 const gzipSize = require("gzip-size");
 const fs = require("fs");
@@ -24,6 +25,7 @@ async function build() {
   const bundle = await rollup.rollup({
     input: path.join(cwd, "/src/index.js"),
     plugins: [
+      eslint(),
       buble()
     ]
   });

@@ -41,6 +41,7 @@
     "phantomjs-prebuilt": "^2.1.16",
     "rollup": "^0.58.1",
     "rollup-plugin-buble": "^0.19.2",
+    "rollup-plugin-eslint": "^4.0.0",
     "uglify-js": "^3.3.22"
   }
 }
