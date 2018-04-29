@@ -1,6 +1,5 @@
 import { error } from "../util/util";
 
-const whitespaceRE = /\s/;
 const escapeRE = /(?:(?:&(?:amp|gt|lt|nbsp|quot);)|"|\\|\n)/g;
 const escapeMap = {
   "&amp;": '&',
