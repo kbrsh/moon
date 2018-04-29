@@ -42,8 +42,6 @@
     }
   };
 
-  var mapReduce = function (arr, fn) { return arr.reduce(function (result, current) { return result + fn(current); }, ""); };
-
   var expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
   var escapeRE = /(?:(?:&(?:amp|gt|lt|nbsp|quot);)|"|\\|\n)/g;
   var escapeMap = {
@@ -206,6 +204,8 @@
     return root;
   };
 
+  var mapReduce = function (arr, fn) { return arr.reduce(function (result, current) { return result + fn(current); }, ""); };
+
   var generateCreate = function (element) {
     switch (element.type) {
       case "m-fragment":
@@ -256,7 +256,7 @@
   };
 
   var generate = function (tree) {
-    return new Function(("return [function () {var m = this.m;" + (generateCreate(tree)) + "}, function (root) {var m = this.m;" + (generateMount(tree, "root")) + "}, function () {var m = this.m;" + (tree.dependencies.map(function (dependency) { return ("var " + dependency + " = this.data." + dependency + ";"); })) + (generateUpdate(tree)) + "}]"))();
+    return new Function(("return [function () {var m = this.m;" + (generateCreate(tree)) + "}, function (root) {var m = this.m;" + (generateMount(tree, "root")) + "}, function () {var m = this.m;" + (mapReduce(tree.dependencies, function (dependency) { return ("var " + dependency + " = this.data." + dependency + ";"); })) + (generateUpdate(tree)) + "}]"))();
   };
 
   var compile = function (input) {
