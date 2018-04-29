@@ -1,5 +1,6 @@
 import { compile } from "./compiler/compiler";
 import { config } from "./util/config";
+import { newM } from "./util/m";
 
 let components = {};
 
@@ -18,12 +19,12 @@ export default function Moon(root, view) {
     create: view[0],
     mount: view[1],
     update: view[2],
-    m: []
+    m: newM()
   };
 
   instance.create();
   instance.mount(root);
-  root.parentNode.removeChild(root);
+  instance.update();
 
   return instance;
 }
@@ -40,7 +41,7 @@ Moon.extend = (name, view, data) => {
       create: view[0],
       mount: view[1],
       update: view[2],
-      m: []
+      m: newM()
     };
   };
 };
