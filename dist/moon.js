@@ -258,7 +258,7 @@
   };
 
   var generate = function (tree) {
-    return new Function(("return [function () {var m = this.m;" + (generateCreate(tree)) + "}, function (root) {var m = this.m;" + (generateMount(tree, "root")) + "}, function () {var m = this.m;" + (tree.dependencies.map(function (dependency) { return ("var " + dependency + " = this." + dependency + ";"); })) + (generateUpdate(tree)) + "}]"))();
+    return new Function(("return [function () {var m = this.m;" + (generateCreate(tree)) + "}, function (root) {var m = this.m;" + (generateMount(tree, "root")) + "}, function () {var m = this.m;" + (tree.dependencies.map(function (dependency) { return ("var " + dependency + " = this.data." + dependency + ";"); })) + (generateUpdate(tree)) + "}]"))();
   };
 
   var compile = function (input) {
