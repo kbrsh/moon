@@ -1,4 +1,4 @@
-const mapReduce = (arr, fn) => arr.reduce((result, current) => result + fn(current), "");
+import { mapReduce } from "../util/util";
 
 const generateCreate = (element) => {
   switch (element.type) {
@@ -6,13 +6,13 @@ const generateCreate = (element) => {
       return mapReduce(element.children, generateCreate);
       break;
     case "m-expression":
-      return `m[${element.index}] = document.createTextNode("");`;
+      return `m[${element.index}] = m.ct("");`;
       break;
     case "m-text":
-      return `m[${element.index}] = document.createTextNode("${element.content}");`;
+      return `m[${element.index}] = m.ct("${element.content}");`;
       break;
     default:
-      return `${mapReduce(element.children, generateCreate)}m[${element.index}] = document.createElement("${element.type}");`;
+      return `${mapReduce(element.children, generateCreate)}m[${element.index}] = m.ce("${element.type}");`;
   }
 };
 
@@ -21,18 +21,7 @@ const generateMount = (element, parent) => {
 
   switch (element.type) {
     case "m-fragment":
-      const children = element.children;
-
-      for (let i = 0; i < children.length; i++) {
-        const child = children[i];
-        const childPath = `m[${child.index}]`;
-
-        if (child.type !== "m-text") {
-          generatedMount += mapReduce(child.children, (grandchild) => generateMount(grandchild, childPath));
-        }
-
-        generatedMount += `${parent}.parentNode.insertBefore(${childPath}, ${parent});`;
-      }
+      return mapReduce(element.children, (child) => generateMount(child, parent));
       break;
     default:
       const elementPath = `m[${element.index}]`;
@@ -41,7 +30,7 @@ const generateMount = (element, parent) => {
         generatedMount += mapReduce(element.children, (child) => generateMount(child, elementPath));
       }
 
-      generatedMount += `${parent}.appendChild(${elementPath});`;
+      generatedMount += `m.ma(${elementPath}, ${parent});`;
   }
 
   return generatedMount;
@@ -50,7 +39,7 @@ const generateMount = (element, parent) => {
 const generateUpdate = (element) => {
   switch (element.type) {
     case "m-expression":
-      return `m[${element.index}].textContent = ${element.content};`;
+      return `m.ut(m[${element.index}], ${element.content});`
       break;
     case "m-text":
       return "";
