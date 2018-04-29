@@ -23,6 +23,7 @@
     }
   };
 
+  var expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
   var escapeRE = /(?:(?:&(?:amp|gt|lt|nbsp|quot);)|"|\\|\n)/g;
   var escapeMap = {
     "&amp;": '&',
@@ -41,14 +42,14 @@
     stack[stack.length - 1].children.push(child);
   };
 
-  var parseComment = function (index, input, length, stack) {
-    for (; index < length;) {
+  var parseComment = function (index, input, length) {
+    while (index < length) {
       var char0 = input[index];
       var char1 = input[index + 1];
       var char2 = input[index + 2];
 
       if (char0 === "<" && char1 === "!" && char2 === "-" && input[index + 3] === "-") {
-        index = parseComment(index + 4, input, length, stack);
+        index = parseComment(index + 4, input, length);
       } else if (char0 === "-" && char1 === "-" && char2 === ">") {
         index += 3;
         break;
@@ -123,7 +124,7 @@
     for (; index < length; index++) {
       var char = input[index];
 
-      if (char === "<") {
+      if (char === "<" || char === "{") {
         break;
       } else {
         content += char;
@@ -139,12 +140,47 @@
     return index;
   };
 
+  var parseExpression = function (index, input, length, stack, dependencies, locals) {
+    var expression = "";
+
+    for (; index < length; index++) {
+      var char = input[index];
+
+      if (char === "}") {
+        index += 1;
+        break;
+      } else {
+        expression += char;
+      }
+    }
+
+    var info;
+    while ((info = expressionRE.exec(expression)) !== null) {
+      var name = info[1];
+      if (name !== undefined && locals.indexOf(name) === -1) {
+        dependencies.push(name);
+      }
+    }
+
+    pushChild({
+      index: parseIndex++,
+      type: "m-expression",
+      content: expression
+    }, stack);
+
+    return index;
+  };
+
   var parse = function (input) {
     var length = input.length;
+    var dependencies = [];
+    var locals = ["NaN", "false", "in", "instance", "m", "null", "true", "typeof", "undefined"];
     parseIndex = 0;
 
     var root = {
-      children: []
+      type: "@",
+      children: [],
+      dependencies: dependencies
     };
 
     var stack = [root];
@@ -154,18 +190,20 @@
 
       if (char === "<") {
         if (input[i + 1] === "!" && input[i + 2] === "-" && input[i + 3] === "-") {
-          i = parseComment(i + 4, input, length, stack);
+          i = parseComment(i + 4, input, length);
         } else if (input[i + 1] === "/") {
           i = parseClosingTag(i + 2, input, length, stack);
         } else {
           i = parseOpeningTag(i + 1, input, length, stack);
         }
+      } else if (char === "{") {
+        i = parseExpression(i + 1, input, length, stack, dependencies, locals);
       } else {
         i = parseText(i, input, length, stack);
       }
     }
 
-    return root.children;
+    return root;
   };
 
   var generateCreate = function (element) {
