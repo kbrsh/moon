@@ -3,6 +3,9 @@ const generateCreate = (element) => {
     case "m-fragment":
       return element.children.map(generateCreate).join("");
       break;
+    case "m-expression":
+      return `m[${element.index}] = document.createTextNode("");`;
+      break;
     case "m-text":
       return `m[${element.index}] = document.createTextNode("${element.content}");`;
       break;
@@ -32,7 +35,7 @@ const generateMount = (element, parent) => {
     default:
       const elementPath = `m[${element.index}]`;
 
-      if (element.type !== "m-text") {
+      if (element.type !== "m-text" && element.type !== "m-expression") {
         generatedMount += element.children.map((child) => generateMount(child, elementPath)).join("");
       }
 
@@ -45,5 +48,5 @@ const generateMount = (element, parent) => {
 const generateUpdate = () => {};
 
 export const generate = (tree) => {
-  return new Function(`return [function () {var m = this.m;${generateCreate(tree)}}, function (root) {var m = this.m;${generateMount(tree, "root")}}, function () {var m = this.m;${generateUpdate(tree)}}]`)();
+  return new Function(`return [function () {var m = this.m;${generateCreate(tree)}}, function (root) {var m = this.m;${generateMount(tree, "root")}}, function () {var m = this.m;${tree.dependencies.map((dependency) => `var ${dependency} = this.${dependency};`)}${generateUpdate(tree)}}]`)();
 };
