@@ -207,43 +207,46 @@
   };
 
   var generateCreate = function (element) {
-    if (Array.isArray(element)) {
-      return element.map(generateCreate).join("");
-    } else {
-      switch (element.type) {
-        case "m-text":
-          return ("m[" + (element.index) + "] = document.createTextNode(\"" + (element.content) + "\");");
-          break;
-        default:
-          return element.children.map(generateCreate).join("") + "m[" + (element.index) + "] = document.createElement(\"" + (element.type) + "\");";
-      }
+    switch (element.type) {
+      case "m-fragment":
+        return element.children.map(generateCreate).join("");
+        break;
+      case "m-text":
+        return ("m[" + (element.index) + "] = document.createTextNode(\"" + (element.content) + "\");");
+        break;
+      default:
+        return element.children.map(generateCreate).join("") + "m[" + (element.index) + "] = document.createElement(\"" + (element.type) + "\");";
     }
   };
 
   var generateMount = function (element, parent) {
     var generatedMount = "";
 
-    if (Array.isArray(element)) {
-      var loop = function ( i ) {
-        var child = element[i];
-        var childPath = "m[" + (child.index) + "]";
+    switch (element.type) {
+      case "m-fragment":
+        var children = element.children;
 
-        if (child.type !== "m-text") {
-          generatedMount += child.children.map(function (grandchild) { return generateMount(grandchild, childPath); }).join("");
+        var loop = function ( i ) {
+          var child = children[i];
+          var childPath = "m[" + (child.index) + "]";
+
+          if (child.type !== "m-text") {
+            generatedMount += child.children.map(function (grandchild) { return generateMount(grandchild, childPath); }).join("");
+          }
+
+          generatedMount += parent + ".parentNode.insertBefore(" + childPath + ", " + parent + ");";
+        };
+
+    for (var i = 0; i < children.length; i++) loop( i );
+        break;
+      default:
+        var elementPath = "m[" + (element.index) + "]";
+
+        if (element.type !== "m-text") {
+          generatedMount += element.children.map(function (child) { return generateMount(child, elementPath); }).join("");
         }
 
-        generatedMount += parent + ".parentNode.insertBefore(" + childPath + ", " + parent + ");";
-      };
-
-      for (var i = 0; i < element.length; i++) loop( i );
-    } else {
-      var elementPath = "m[" + (element.index) + "]";
-
-      if (element.type !== "m-text") {
-        generatedMount += element.children.map(function (child) { return generateMount(child, elementPath); }).join("");
-      }
-
-      generatedMount += parent + ".appendChild(" + elementPath + ");";
+        generatedMount += parent + ".appendChild(" + elementPath + ");";
     }
 
     return generatedMount;
