@@ -151,7 +151,7 @@ const parseExpression = (index, input, length, stack, dependencies, locals) => {
 export const parse = (input) => {
   const length = input.length;
   let dependencies = [];
-  let locals = ["NaN", "false", "in", "instance", "m", "null", "true", "typeof", "undefined"];
+  let locals = ["NaN", "false", "in", "m", "null", "true", "typeof", "undefined"];
   parseIndex = 0;
 
   const root = {
