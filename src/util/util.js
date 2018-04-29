@@ -5,3 +5,5 @@ export const error = (message) => {
     console.error("[Moon] ERROR: " + message);
   }
 };
+
+export const mapReduce = (arr, fn) => arr.reduce((result, current) => result + fn(current), "");
