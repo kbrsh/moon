@@ -285,7 +285,7 @@
     return m;
   };
 
-  function Moon(root, view) {
+  function Moon(root, view, data) {
     if (typeof root === "string") {
       root = document.querySelector(root);
     }
@@ -294,9 +294,13 @@
       view = compile(view);
     }
 
+    if (data === undefined) {
+      data = {};
+    }
+
     var instance = {
-      name: "@",
-      data: {},
+      name: "m-root",
+      data: data,
       create: view[0],
       mount: view[1],
       update: view[2],
@@ -313,6 +317,12 @@
   Moon.extend = function (name, view, data) {
     if (typeof view === "string") {
       view = compile(view);
+    }
+
+    if (data === undefined) {
+      data = function () {
+        return {};
+      };
     }
   };
 

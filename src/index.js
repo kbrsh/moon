@@ -4,7 +4,7 @@ import { newM } from "./util/m";
 
 let components = {};
 
-export default function Moon(root, view) {
+export default function Moon(root, view, data) {
   if (typeof root === "string") {
     root = document.querySelector(root);
   }
@@ -13,9 +13,13 @@ export default function Moon(root, view) {
     view = compile(view);
   }
 
+  if (data === undefined) {
+    data = {};
+  }
+
   const instance = {
-    name: "@",
-    data: {},
+    name: "m-root",
+    data: data,
     create: view[0],
     mount: view[1],
     update: view[2],
@@ -32,6 +36,12 @@ export default function Moon(root, view) {
 Moon.extend = (name, view, data) => {
   if (typeof view === "string") {
     view = compile(view);
+  }
+
+  if (data === undefined) {
+    data = () => {
+      return {};
+    };
   }
 
   components[name] = () => {
