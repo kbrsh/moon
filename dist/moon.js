@@ -41,6 +41,25 @@
     stack[stack.length - 1].children.push(child);
   };
 
+  var parseComment = function (index, input, length, stack) {
+    for (; index < length;) {
+      var char0 = input[index];
+      var char1 = input[index + 1];
+      var char2 = input[index + 2];
+
+      if (char0 === "<" && char1 === "!" && char2 === "-" && input[index + 3] === "-") {
+        index = parseComment(index + 4, input, length, stack);
+      } else if (char0 === "-" && char1 === "-" && char2 === ">") {
+        index += 3;
+        break;
+      } else {
+        index += 1;
+      }
+    }
+
+    return index;
+  };
+
   var parseOpeningTag = function (index, input, length, stack) {
     var type = "";
 
