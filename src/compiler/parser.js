@@ -155,7 +155,7 @@ export const parse = (input) => {
   parseIndex = 0;
 
   const root = {
-    type: "@",
+    type: "m-fragment",
     children: [],
     dependencies: dependencies
   };

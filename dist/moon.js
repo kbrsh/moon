@@ -178,7 +178,7 @@
     parseIndex = 0;
 
     var root = {
-      type: "@",
+      type: "m-fragment",
       children: [],
       dependencies: dependencies
     };
