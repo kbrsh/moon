@@ -174,7 +174,7 @@
   var parse = function (input) {
     var length = input.length;
     var dependencies = [];
-    var locals = ["NaN", "false", "in", "instance", "m", "null", "true", "typeof", "undefined"];
+    var locals = ["NaN", "false", "in", "m", "null", "true", "typeof", "undefined"];
     parseIndex = 0;
 
     var root = {
@@ -206,16 +206,21 @@
     return root;
   };
 
+  var mapReduce = function (arr, fn) { return arr.reduce(function (result, current) { return result + fn(current); }, ""); };
+
   var generateCreate = function (element) {
     switch (element.type) {
       case "m-fragment":
-        return element.children.map(generateCreate).join("");
+        return mapReduce(element.children, generateCreate);
+        break;
+      case "m-expression":
+        return ("m[" + (element.index) + "] = document.createTextNode(\"\");");
         break;
       case "m-text":
         return ("m[" + (element.index) + "] = document.createTextNode(\"" + (element.content) + "\");");
         break;
       default:
-        return element.children.map(generateCreate).join("") + "m[" + (element.index) + "] = document.createElement(\"" + (element.type) + "\");";
+        return ((mapReduce(element.children, generateCreate)) + "m[" + (element.index) + "] = document.createElement(\"" + (element.type) + "\");");
     }
   };
 
@@ -231,7 +236,7 @@
           var childPath = "m[" + (child.index) + "]";
 
           if (child.type !== "m-text") {
-            generatedMount += child.children.map(function (grandchild) { return generateMount(grandchild, childPath); }).join("");
+            generatedMount += mapReduce(child.children, function (grandchild) { return generateMount(grandchild, childPath); });
           }
 
           generatedMount += parent + ".parentNode.insertBefore(" + childPath + ", " + parent + ");";
@@ -242,8 +247,8 @@
       default:
         var elementPath = "m[" + (element.index) + "]";
 
-        if (element.type !== "m-text") {
-          generatedMount += element.children.map(function (child) { return generateMount(child, elementPath); }).join("");
+        if (element.type !== "m-text" && element.type !== "m-expression") {
+          generatedMount += mapReduce(element.children, function (child) { return generateMount(child, elementPath); });
         }
 
         generatedMount += parent + ".appendChild(" + elementPath + ");";
@@ -252,10 +257,21 @@
     return generatedMount;
   };
 
-  var generateUpdate = function () {};
+  var generateUpdate = function (element) {
+    switch (element.type) {
+      case "m-expression":
+        return ("m[" + (element.index) + "].textContent = " + (element.content) + ";");
+        break;
+      case "m-text":
+        return "";
+        break;
+      default:
+        return mapReduce(element.children, generateUpdate);
+    }
+  };
 
   var generate = function (tree) {
-    return new Function(("return [function () {var m = this.m;" + (generateCreate(tree)) + "}, function (root) {var m = this.m;" + (generateMount(tree, "root")) + "}, function () {var m = this.m;" + (generateUpdate(tree)) + "}]"))();
+    return new Function(("return [function () {var m = this.m;" + (generateCreate(tree)) + "}, function (root) {var m = this.m;" + (generateMount(tree, "root")) + "}, function () {var m = this.m;" + (tree.dependencies.map(function (dependency) { return ("var " + dependency + " = this." + dependency + ";"); })) + (generateUpdate(tree)) + "}]"))();
   };
 
   var compile = function (input) {

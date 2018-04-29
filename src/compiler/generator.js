@@ -1,7 +1,9 @@
+const mapReduce = (arr, fn) => arr.reduce((result, current) => result + fn(current), "");
+
 const generateCreate = (element) => {
   switch (element.type) {
     case "m-fragment":
-      return element.children.map(generateCreate).join("");
+      return mapReduce(element.children, generateCreate);
       break;
     case "m-expression":
       return `m[${element.index}] = document.createTextNode("");`;
@@ -10,7 +12,7 @@ const generateCreate = (element) => {
       return `m[${element.index}] = document.createTextNode("${element.content}");`;
       break;
     default:
-      return element.children.map(generateCreate).join("") + `m[${element.index}] = document.createElement("${element.type}");`;
+      return `${mapReduce(element.children, generateCreate)}m[${element.index}] = document.createElement("${element.type}");`;
   }
 };
 
@@ -26,7 +28,7 @@ const generateMount = (element, parent) => {
         const childPath = `m[${child.index}]`;
 
         if (child.type !== "m-text") {
-          generatedMount += child.children.map((grandchild) => generateMount(grandchild, childPath)).join("");
+          generatedMount += mapReduce(child.children, (grandchild) => generateMount(grandchild, childPath));
         }
 
         generatedMount += `${parent}.parentNode.insertBefore(${childPath}, ${parent});`;
@@ -36,7 +38,7 @@ const generateMount = (element, parent) => {
       const elementPath = `m[${element.index}]`;
 
       if (element.type !== "m-text" && element.type !== "m-expression") {
-        generatedMount += element.children.map((child) => generateMount(child, elementPath)).join("");
+        generatedMount += mapReduce(element.children, (child) => generateMount(child, elementPath));
       }
 
       generatedMount += `${parent}.appendChild(${elementPath});`;
@@ -45,7 +47,18 @@ const generateMount = (element, parent) => {
   return generatedMount;
 };
 
-const generateUpdate = () => {};
+const generateUpdate = (element) => {
+  switch (element.type) {
+    case "m-expression":
+      return `m[${element.index}].textContent = ${element.content};`;
+      break;
+    case "m-text":
+      return "";
+      break;
+    default:
+      return mapReduce(element.children, generateUpdate);
+  }
+};
 
 export const generate = (tree) => {
   return new Function(`return [function () {var m = this.m;${generateCreate(tree)}}, function (root) {var m = this.m;${generateMount(tree, "root")}}, function () {var m = this.m;${tree.dependencies.map((dependency) => `var ${dependency} = this.${dependency};`)}${generateUpdate(tree)}}]`)();
