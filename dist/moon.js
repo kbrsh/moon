@@ -23,6 +23,8 @@
     }
   };
 
+  var mapReduce = function (arr, fn) { return arr.reduce(function (result, current) { return result + fn(current); }, ""); };
+
   var expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
   var escapeRE = /(?:(?:&(?:amp|gt|lt|nbsp|quot);)|"|\\|\n)/g;
   var escapeMap = {
@@ -206,21 +208,19 @@
     return root;
   };
 
-  var mapReduce = function (arr, fn) { return arr.reduce(function (result, current) { return result + fn(current); }, ""); };
-
   var generateCreate = function (element) {
     switch (element.type) {
       case "m-fragment":
         return mapReduce(element.children, generateCreate);
         break;
       case "m-expression":
-        return ("m[" + (element.index) + "] = document.createTextNode(\"\");");
+        return ("m[" + (element.index) + "] = m.ct(\"\");");
         break;
       case "m-text":
-        return ("m[" + (element.index) + "] = document.createTextNode(\"" + (element.content) + "\");");
+        return ("m[" + (element.index) + "] = m.ct(\"" + (element.content) + "\");");
         break;
       default:
-        return ((mapReduce(element.children, generateCreate)) + "m[" + (element.index) + "] = document.createElement(\"" + (element.type) + "\");");
+        return ((mapReduce(element.children, generateCreate)) + "m[" + (element.index) + "] = m.ce(\"" + (element.type) + "\");");
     }
   };
 
@@ -229,20 +229,7 @@
 
     switch (element.type) {
       case "m-fragment":
-        var children = element.children;
-
-        var loop = function ( i ) {
-          var child = children[i];
-          var childPath = "m[" + (child.index) + "]";
-
-          if (child.type !== "m-text") {
-            generatedMount += mapReduce(child.children, function (grandchild) { return generateMount(grandchild, childPath); });
-          }
-
-          generatedMount += parent + ".parentNode.insertBefore(" + childPath + ", " + parent + ");";
-        };
-
-    for (var i = 0; i < children.length; i++) loop( i );
+        return mapReduce(element.children, function (child) { return generateMount(child, parent); });
         break;
       default:
         var elementPath = "m[" + (element.index) + "]";
@@ -251,7 +238,7 @@
           generatedMount += mapReduce(element.children, function (child) { return generateMount(child, elementPath); });
         }
 
-        generatedMount += parent + ".appendChild(" + elementPath + ");";
+        generatedMount += "m.ma(" + elementPath + ", " + parent + ");";
     }
 
     return generatedMount;
@@ -260,7 +247,7 @@
   var generateUpdate = function (element) {
     switch (element.type) {
       case "m-expression":
-        return ("m[" + (element.index) + "].textContent = " + (element.content) + ";");
+        return ("m.ut(m[" + (element.index) + "], " + (element.content) + ");")
         break;
       case "m-text":
         return "";
@@ -278,6 +265,26 @@
     return generate(parse(input));
   };
 
+  var createElement = function (type) { return document.createElement(type); };
+  var createTextNode = function (content) { return document.createTextNode(content); };
+
+  var mountAppendChild = function (element, parent) {
+    parent.appendChild(element);
+  };
+
+  var updateTextContent = function (element, content) {
+    element.textContent = content;
+  };
+
+  var newM = function () {
+    var m = [];
+    m.ce = createElement;
+    m.ct = createTextNode;
+    m.ma = mountAppendChild;
+    m.ut = updateTextContent;
+    return m;
+  };
+
   function Moon(root, view) {
     if (typeof root === "string") {
       root = document.querySelector(root);
@@ -293,12 +300,12 @@
       create: view[0],
       mount: view[1],
       update: view[2],
-      m: []
+      m: newM()
     };
 
     instance.create();
     instance.mount(root);
-    root.parentNode.removeChild(root);
+    instance.update();
 
     return instance;
   }
