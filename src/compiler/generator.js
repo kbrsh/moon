@@ -39,7 +39,7 @@ const generateMount = (element, parent) => {
 const generateUpdate = (element) => {
   switch (element.type) {
     case "m-expression":
-      return `m.ut(m[${element.index}], ${element.content});`
+      return `m.ut(m[${element.index}], ${element.content});`;
       break;
     case "m-text":
       return "";

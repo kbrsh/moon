@@ -13,6 +13,25 @@
 }(this, function() {
   "use strict";
 
+  var parseComment = function (index, input, length) {
+    while (index < length) {
+      var char0 = input[index];
+      var char1 = input[index + 1];
+      var char2 = input[index + 2];
+
+      if (char0 === "<" && char1 === "!" && char2 === "-" && input[index + 3] === "-") {
+        index = parseComment(index + 4, input, length);
+      } else if (char0 === "-" && char1 === "-" && char2 === ">") {
+        index += 3;
+        break;
+      } else {
+        index += 1;
+      }
+    }
+
+    return index;
+  };
+
   var config = {
     silent: ("development" === "production") || (typeof console === "undefined")
   };
@@ -38,29 +57,8 @@
     '\n': "\\n"
   };
 
-  var parseIndex;
-
   var pushChild = function (child, stack) {
     stack[stack.length - 1].children.push(child);
-  };
-
-  var parseComment = function (index, input, length) {
-    while (index < length) {
-      var char0 = input[index];
-      var char1 = input[index + 1];
-      var char2 = input[index + 2];
-
-      if (char0 === "<" && char1 === "!" && char2 === "-" && input[index + 3] === "-") {
-        index = parseComment(index + 4, input, length);
-      } else if (char0 === "-" && char1 === "-" && char2 === ">") {
-        index += 3;
-        break;
-      } else {
-        index += 1;
-      }
-    }
-
-    return index;
   };
 
   var parseOpeningTag = function (index, input, length, stack) {
@@ -71,7 +69,7 @@
 
       if (char === ">") {
         var element = {
-          index: parseIndex++,
+          index: stack.parseIndex++,
           type: type,
           children: []
         };
@@ -83,7 +81,7 @@
         break;
       } else if (char === "/" && input[index + 1] === ">") {
         pushChild({
-          index: parseIndex++,
+          index: stack.parseIndex++,
           type: type,
           children: []
         }, stack);
@@ -134,7 +132,7 @@
     }
 
     pushChild({
-      index: parseIndex++,
+      index: stack.parseIndex++,
       type: "m-text",
       content: content.replace(escapeRE, function (match) { return escapeMap[match]; })
     }, stack);
@@ -165,7 +163,7 @@
     }
 
     pushChild({
-      index: parseIndex++,
+      index: stack.parseIndex++,
       type: "m-expression",
       content: expression
     }, stack);
@@ -177,7 +175,6 @@
     var length = input.length;
     var dependencies = [];
     var locals = ["NaN", "false", "in", "m", "null", "true", "typeof", "undefined"];
-    parseIndex = 0;
 
     var root = {
       type: "m-fragment",
@@ -186,6 +183,7 @@
     };
 
     var stack = [root];
+    stack.parseIndex = 0;
 
     for (var i = 0; i < length;) {
       var char = input[i];
@@ -247,7 +245,7 @@
   var generateUpdate = function (element) {
     switch (element.type) {
       case "m-expression":
-        return ("m.ut(m[" + (element.index) + "], " + (element.content) + ");")
+        return ("m.ut(m[" + (element.index) + "], " + (element.content) + ");");
         break;
       case "m-text":
         return "";
