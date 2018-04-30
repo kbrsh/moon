@@ -6,7 +6,7 @@ export const generateCreate = (element) => {
       return mapReduce(element.children, generateCreate);
       break;
     case "m-expression":
-      return `m[${element.index}] = m.ct("");`;
+      return `m[${element.index}] = m.ct(${element.content});`;
       break;
     case "m-text":
       return `m[${element.index}] = m.ct("${element.content}");`;

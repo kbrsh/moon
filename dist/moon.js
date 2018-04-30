@@ -212,7 +212,7 @@
         return mapReduce(element.children, generateCreate);
         break;
       case "m-expression":
-        return ("m[" + (element.index) + "] = m.ct(\"\");");
+        return ("m[" + (element.index) + "] = m.ct(" + (element.content) + ");");
         break;
       case "m-text":
         return ("m[" + (element.index) + "] = m.ct(\"" + (element.content) + "\");");
@@ -256,7 +256,8 @@
   };
 
   var generate = function (tree) {
-    return new Function(("return [function () {var m = this.m;" + (generateCreate(tree)) + "}, function (root) {var m = this.m;" + (generateMount(tree, "root")) + "}, function () {var m = this.m;" + (mapReduce(tree.dependencies, function (dependency) { return ("var " + dependency + " = this.data." + dependency + ";"); })) + (generateUpdate(tree)) + "}]"))();
+    var prelude = "var m = this.m; " + mapReduce(tree.dependencies, function (dependency) { return ("var " + dependency + " = this.data." + dependency + ";"); });
+    return new Function(("return [function () {" + prelude + (generateCreate(tree)) + "}, function (root) {var m = this.m;" + (generateMount(tree, "root")) + "}, function () {var m = this.m;" + prelude + (generateUpdate(tree)) + "}]"))();
   };
 
   var compile = function (input) {
@@ -307,7 +308,6 @@
 
     instance.create();
     instance.mount(root);
-    instance.update();
 
     return instance;
   }

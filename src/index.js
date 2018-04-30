@@ -28,7 +28,6 @@ export default function Moon(root, view, data) {
 
   instance.create();
   instance.mount(root);
-  instance.update();
 
   return instance;
 }
