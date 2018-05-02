@@ -42,19 +42,6 @@
     }
   };
 
-  var expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
-  var escapeRE = /(?:(?:&(?:amp|gt|lt|nbsp|quot);)|"|\\|\n)/g;
-  var escapeMap = {
-    "&amp;": '&',
-    "&gt;": '>',
-    "&lt;": '<',
-    "&nbsp;": ' ',
-    "&quot;": "\\\"",
-    '\\': "\\\\",
-    '"': "\\\"",
-    '\n': "\\n"
-  };
-
   var pushChild = function (child, stack) {
     stack[stack.length - 1].children.push(child);
   };
@@ -116,6 +103,18 @@
     return index;
   };
 
+  var escapeRE = /(?:(?:&(?:amp|gt|lt|nbsp|quot);)|"|\\|\n)/g;
+  var escapeMap = {
+    "&amp;": '&',
+    "&gt;": '>',
+    "&lt;": '<',
+    "&nbsp;": ' ',
+    "&quot;": "\\\"",
+    '\\': "\\\\",
+    '"': "\\\"",
+    '\n': "\\n"
+  };
+
   var parseText = function (index, input, length, stack) {
     var content = "";
 
@@ -137,6 +136,8 @@
 
     return index;
   };
+
+  var expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
 
   var parseExpression = function (index, input, length, stack, dependencies, locals) {
     var expression = "";

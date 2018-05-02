@@ -1,4 +1,6 @@
-import { expressionRE, pushChild } from "./util";
+import { pushChild } from "./util";
+
+const expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
 
 export const parseExpression = (index, input, length, stack, dependencies, locals) => {
   let expression = "";

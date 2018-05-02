@@ -1,4 +1,16 @@
-import { escapeRE, escapeMap, pushChild } from "./util";
+import { pushChild } from "./util";
+
+const escapeRE = /(?:(?:&(?:amp|gt|lt|nbsp|quot);)|"|\\|\n)/g;
+const escapeMap = {
+  "&amp;": '&',
+  "&gt;": '>',
+  "&lt;": '<',
+  "&nbsp;": ' ',
+  "&quot;": "\\\"",
+  '\\': "\\\\",
+  '"': "\\\"",
+  '\n': "\\n"
+};
 
 export const parseText = (index, input, length, stack) => {
   let content = "";
