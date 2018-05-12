@@ -9,7 +9,7 @@ const updateTextContent = (element, content) => {
   element.textContent = content;
 };
 
-export const newM = () => {
+export const m = () => {
   let m = [];
   m.ce = createElement;
   m.ct = createTextNode;

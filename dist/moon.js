@@ -276,13 +276,24 @@
     element.textContent = content;
   };
 
-  var newM = function () {
+  var m = function () {
     var m = [];
     m.ce = createElement;
     m.ct = createTextNode;
     m.ma = mountAppendChild;
     m.ut = updateTextContent;
     return m;
+  };
+
+  var component = function (name, view, data) {
+    return function MoonComponent() {
+      this.name = name;
+      this.data = data();
+      this.create = view[0];
+      this.mount = view[1];
+      this.update = view[2];
+      this.m = m();
+    };
   };
 
   function Moon(root, view, data) {
@@ -295,17 +306,14 @@
     }
 
     if (data === undefined) {
-      data = {};
+      data = function () { return {}; };
+    } else if (typeof data === "object") {
+      var dataObj = data;
+      data = function () { return dataObj; };
     }
 
-    var instance = {
-      name: "m-root",
-      data: data,
-      create: view[0],
-      mount: view[1],
-      update: view[2],
-      m: newM()
-    };
+    var rootComponent = component("m-root", view, data);
+    var instance = new rootComponent();
 
     instance.create();
     instance.mount(root);

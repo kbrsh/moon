@@ -1,6 +1,6 @@
 import { compile } from "./compiler/compiler";
+import { component } from "./component/component";
 import { config } from "./util/config";
-import { newM } from "./util/m";
 
 let components = {};
 
@@ -14,17 +14,14 @@ export default function Moon(root, view, data) {
   }
 
   if (data === undefined) {
-    data = {};
+    data = () => { return {}; };
+  } else if (typeof data === "object") {
+    let dataObj = data;
+    data = () => dataObj;
   }
 
-  const instance = {
-    name: "m-root",
-    data: data,
-    create: view[0],
-    mount: view[1],
-    update: view[2],
-    m: newM()
-  };
+  const rootComponent = component("m-root", view, data);
+  const instance = new rootComponent();
 
   instance.create();
   instance.mount(root);
@@ -43,16 +40,7 @@ Moon.extend = (name, view, data) => {
     };
   }
 
-  components[name] = () => {
-    return {
-      name: name,
-      data: data(),
-      create: view[0],
-      mount: view[1],
-      update: view[2],
-      m: newM()
-    };
-  };
+  components[name] = component(name, view, data);
 };
 
 Moon.compile = compile;
