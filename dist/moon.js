@@ -120,7 +120,7 @@
 
   var parseOpeningTag = function (index, input, length, stack) {
     var type = "";
-    var attributes;
+    var attributes = [];
 
     while (index < length) {
       var char = input[index];
@@ -286,6 +286,10 @@
 
   var mapReduce = function (arr, fn) { return arr.reduce(function (result, current) { return result + fn(current); }, ""); };
 
+  var generateCreateAttribute = function (attribute, element) {
+    return (element + ".setAttribute(\"" + (attribute.key) + "\", " + (attribute.literal ? attribute.value : ("\"" + (attribute.value) + "\"")) + ");");
+  };
+
   var generateCreate = function (element) {
     switch (element.type) {
       case "m-fragment":
@@ -298,7 +302,8 @@
         return ("m[" + (element.index) + "] = m.ct(\"" + (element.content) + "\");");
         break;
       default:
-        return ((mapReduce(element.children, generateCreate)) + "m[" + (element.index) + "] = m.ce(\"" + (element.type) + "\");");
+        var elementPath = "m[" + (element.index) + "]";
+        return ("" + (mapReduce(element.children, generateCreate)) + elementPath + " = m.ce(\"" + (element.type) + "\");" + (mapReduce(element.attributes, function (attribute) { return generateCreateAttribute(attribute, elementPath); })));
     }
   };
 
@@ -336,8 +341,8 @@
   };
 
   var generate = function (tree) {
-    var prelude = "var m = this.m; " + mapReduce(tree.dependencies, function (dependency) { return ("var " + dependency + " = this.data." + dependency + ";"); });
-    return new Function(("return [function () {" + prelude + (generateCreate(tree)) + "}, function (root) {var m = this.m;" + (generateMount(tree, "root")) + "}, function () {var m = this.m;" + prelude + (generateUpdate(tree)) + "}]"))();
+    var prelude = "var m = this.m;" + mapReduce(tree.dependencies, function (dependency) { return ("var " + dependency + " = this.data." + dependency + ";"); });
+    return new Function(("return [function(){" + prelude + (generateCreate(tree)) + "},function(root){var m = this.m;" + (generateMount(tree, "root")) + "},function(){" + prelude + (generateUpdate(tree)) + "}]"))();
   };
 
   var compile = function (input) {

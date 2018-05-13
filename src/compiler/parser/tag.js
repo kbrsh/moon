@@ -74,7 +74,7 @@ const parseAttributes = (index, input, length, attributes) => {
 
 export const parseOpeningTag = (index, input, length, stack) => {
   let type = "";
-  let attributes;
+  let attributes = [];
 
   while (index < length) {
     const char = input[index];

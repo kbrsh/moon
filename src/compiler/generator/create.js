@@ -1,5 +1,9 @@
 import { mapReduce } from "./util";
 
+const generateCreateAttribute = (attribute, element) => {
+  return `${element}.setAttribute("${attribute.key}", ${attribute.literal ? attribute.value : `"${attribute.value}"`});`;
+};
+
 export const generateCreate = (element) => {
   switch (element.type) {
     case "m-fragment":
@@ -12,6 +16,7 @@ export const generateCreate = (element) => {
       return `m[${element.index}] = m.ct("${element.content}");`;
       break;
     default:
-      return `${mapReduce(element.children, generateCreate)}m[${element.index}] = m.ce("${element.type}");`;
+      const elementPath = `m[${element.index}]`;
+      return `${mapReduce(element.children, generateCreate)}${elementPath} = m.ce("${element.type}");${mapReduce(element.attributes, (attribute) => generateCreateAttribute(attribute, elementPath))}`;
   }
 };
