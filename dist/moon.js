@@ -127,7 +127,7 @@
           key: key,
           value: value,
           expression: expression,
-          dynamic: parseTemplate(expression, dependencies, locals)
+          dynamic: expression && parseTemplate(value, dependencies, locals)
         });
       }
     }
