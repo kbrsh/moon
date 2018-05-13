@@ -294,10 +294,6 @@
 
   var mapReduce = function (arr, fn) { return arr.reduce(function (result, current) { return result + fn(current); }, ""); };
 
-  var generateCreateAttribute = function (attribute, element) {
-    return (element + ".setAttribute(\"" + (attribute.key) + "\", " + (attribute.literal ? attribute.value : ("\"" + (attribute.value) + "\"")) + ");");
-  };
-
   var generateCreate = function (element) {
     switch (element.type) {
       case "m-fragment":
@@ -311,7 +307,7 @@
         break;
       default:
         var elementPath = "m[" + (element.index) + "]";
-        return ("" + (mapReduce(element.children, generateCreate)) + elementPath + " = m.ce(\"" + (element.type) + "\");" + (mapReduce(element.attributes, function (attribute) { return generateCreateAttribute(attribute, elementPath); })));
+        return ("" + (mapReduce(element.children, generateCreate)) + elementPath + " = m.ce(\"" + (element.type) + "\");" + (mapReduce(element.attributes, function (attribute) { return (elementPath + ".setAttribute(\"" + (attribute.key) + "\", " + (attribute.expression ? attribute.value : ("\"" + (attribute.value) + "\"")) + ");"); })));
     }
   };
 
