@@ -14,6 +14,7 @@ const parseAttributes = (index, input, length, attributes, dependencies, locals)
       continue;
     } else {
       let key = "";
+      let argument = "";
       let value = "";
       let expression = false;
 
@@ -26,6 +27,12 @@ const parseAttributes = (index, input, length, attributes, dependencies, locals)
         } else if (char === "=") {
           index += 1;
           break;
+        } else if (char === ":" && key[0] === "m" && key[1] === "-") {
+          argument += input[index + 1];
+          index += 2;
+        } else if (argument.length !== 0) {
+          argument += char;
+          index += 1;
         } else {
           key += char;
           index += 1;
@@ -65,6 +72,7 @@ const parseAttributes = (index, input, length, attributes, dependencies, locals)
       attributes.push({
         key: key,
         value: value,
+        argument: argument,
         expression: expression,
         dynamic: expression && parseTemplate(value, dependencies, locals)
       });

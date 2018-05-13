@@ -14,7 +14,7 @@ export const generateMount = (element, parent) => {
         generatedMount += mapReduce(element.children, (child) => generateMount(child, elementPath));
       }
 
-      generatedMount += `m.ma(${elementPath}, ${parent});`;
+      generatedMount += `m.ma(${elementPath},${parent});`;
   }
 
   return generatedMount;

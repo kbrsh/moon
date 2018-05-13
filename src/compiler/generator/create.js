@@ -1,4 +1,20 @@
-import { mapReduce } from "./util";
+import { attributeValue, mapReduce } from "./util";
+
+const generateCreateAttributes = (element) => mapReduce(element.attributes, (attribute) => {
+  const key = attribute.key;
+
+  switch (key) {
+    case "m-for":
+      break;
+    case "m-if":
+      break;
+    case "m-on":
+      return `m[${element.index}].addEventListener("${attribute.argument}", function(event){${attributeValue(attribute)}});`;
+      break;
+    default:
+      return `m[${element.index}].setAttribute("${key}",${attributeValue(attribute)});`;
+  }
+});
 
 export const generateCreate = (element) => {
   switch (element.type) {
@@ -6,13 +22,12 @@ export const generateCreate = (element) => {
       return mapReduce(element.children, generateCreate);
       break;
     case "m-expression":
-      return `m[${element.index}] = m.ct(${element.content});`;
+      return `m[${element.index}]=m.ct(${element.content});`;
       break;
     case "m-text":
-      return `m[${element.index}] = m.ct("${element.content}");`;
+      return `m[${element.index}]=m.ct("${element.content}");`;
       break;
     default:
-      const elementPath = `m[${element.index}]`;
-      return `${mapReduce(element.children, generateCreate)}${elementPath} = m.ce("${element.type}");${mapReduce(element.attributes, (attribute) => `${elementPath}.setAttribute("${attribute.key}", ${attribute.expression ? attribute.value : `"${attribute.value}"`});`)}`;
+      return `${mapReduce(element.children, generateCreate)}m[${element.index}]=m.ce("${element.type}");${generateCreateAttributes(element)}`;
   }
 };

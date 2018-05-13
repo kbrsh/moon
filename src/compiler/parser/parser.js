@@ -6,7 +6,7 @@ import { parseExpression } from "./expression";
 export const parse = (input) => {
   const length = input.length;
   let dependencies = [];
-  let locals = ["NaN", "false", "in", "null", "true", "typeof", "undefined"];
+  let locals = ["NaN", "event", "false", "in", "null", "true", "typeof", "undefined"];
 
   const root = {
     type: "m-fragment",

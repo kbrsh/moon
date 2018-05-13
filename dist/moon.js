@@ -75,6 +75,7 @@
         continue;
       } else {
         var key = "";
+        var argument = "";
         var value = "";
         var expression = false;
 
@@ -87,6 +88,12 @@
           } else if (char === "=") {
             index += 1;
             break;
+          } else if (char === ":" && key[0] === "m" && key[1] === "-") {
+            argument += input[index + 1];
+            index += 2;
+          } else if (argument.length !== 0) {
+            argument += char;
+            index += 1;
           } else {
             key += char;
             index += 1;
@@ -126,6 +133,7 @@
         attributes.push({
           key: key,
           value: value,
+          argument: argument,
           expression: expression,
           dynamic: expression && parseTemplate(value, dependencies, locals)
         });
@@ -260,7 +268,7 @@
   var parse = function (input) {
     var length = input.length;
     var dependencies = [];
-    var locals = ["NaN", "false", "in", "null", "true", "typeof", "undefined"];
+    var locals = ["NaN", "event", "false", "in", "null", "true", "typeof", "undefined"];
 
     var root = {
       type: "m-fragment",
@@ -295,20 +303,37 @@
 
   var mapReduce = function (arr, fn) { return arr.reduce(function (result, current) { return result + fn(current); }, ""); };
 
+  var attributeValue = function (attribute) { return attribute.expression ? attribute.value : ("\"" + (attribute.value) + "\""); };
+
+  var generateCreateAttributes = function (element) { return mapReduce(element.attributes, function (attribute) {
+    var key = attribute.key;
+
+    switch (key) {
+      case "m-for":
+        break;
+      case "m-if":
+        break;
+      case "m-on":
+        return ("m[" + (element.index) + "].addEventListener(\"" + (attribute.argument) + "\", function(event){" + (attributeValue(attribute)) + "});");
+        break;
+      default:
+        return ("m[" + (element.index) + "].setAttribute(\"" + key + "\"," + (attributeValue(attribute)) + ");");
+    }
+  }); };
+
   var generateCreate = function (element) {
     switch (element.type) {
       case "m-fragment":
         return mapReduce(element.children, generateCreate);
         break;
       case "m-expression":
-        return ("m[" + (element.index) + "] = m.ct(" + (element.content) + ");");
+        return ("m[" + (element.index) + "]=m.ct(" + (element.content) + ");");
         break;
       case "m-text":
-        return ("m[" + (element.index) + "] = m.ct(\"" + (element.content) + "\");");
+        return ("m[" + (element.index) + "]=m.ct(\"" + (element.content) + "\");");
         break;
       default:
-        var elementPath = "m[" + (element.index) + "]";
-        return ("" + (mapReduce(element.children, generateCreate)) + elementPath + " = m.ce(\"" + (element.type) + "\");" + (mapReduce(element.attributes, function (attribute) { return (elementPath + ".setAttribute(\"" + (attribute.key) + "\", " + (attribute.expression ? attribute.value : ("\"" + (attribute.value) + "\"")) + ");"); })));
+        return ((mapReduce(element.children, generateCreate)) + "m[" + (element.index) + "]=m.ce(\"" + (element.type) + "\");" + (generateCreateAttributes(element)));
     }
   };
 
@@ -326,7 +351,7 @@
           generatedMount += mapReduce(element.children, function (child) { return generateMount(child, elementPath); });
         }
 
-        generatedMount += "m.ma(" + elementPath + ", " + parent + ");";
+        generatedMount += "m.ma(" + elementPath + "," + parent + ");";
     }
 
     return generatedMount;
@@ -335,20 +360,20 @@
   var generateUpdate = function (element) {
     switch (element.type) {
       case "m-expression":
-        return element.dynamic ? ("m.ut(m[" + (element.index) + "], " + (element.content) + ");") : "";
+        return element.dynamic ? ("m.ut(m[" + (element.index) + "]," + (element.content) + ");") : "";
         break;
       case "m-text":
         return "";
         break;
       default:
         var elementPath = "m[" + (element.index) + "]";
-        return mapReduce(element.attributes, function (attribute) { return attribute.dynamic ? (elementPath + ".setAttribute(\"" + (attribute.key) + "\", " + (attribute.value) + ");") : ""; }) + mapReduce(element.children, generateUpdate);
+        return mapReduce(element.attributes, function (attribute) { return attribute.dynamic ? (elementPath + ".setAttribute(\"" + (attribute.key) + "\"," + (attribute.value) + ");") : ""; }) + mapReduce(element.children, generateUpdate);
     }
   };
 
   var generate = function (tree) {
-    var prelude = "var m = this.m;" + mapReduce(tree.dependencies, function (dependency) { return ("var " + dependency + " = this.data." + dependency + ";"); });
-    return new Function(("return [function(){" + prelude + (generateCreate(tree)) + "},function(root){var m = this.m;" + (generateMount(tree, "root")) + "},function(){" + prelude + (generateUpdate(tree)) + "}]"))();
+    var prelude = "var m=this.m;" + mapReduce(tree.dependencies, function (dependency) { return ("var " + dependency + "=this.data." + dependency + ";"); });
+    return new Function(("return [function(){" + prelude + (generateCreate(tree)) + "},function(root){var m=this.m;" + (generateMount(tree, "root")) + "},function(){" + prelude + (generateUpdate(tree)) + "}]"))();
   };
 
   var compile = function (input) {
