@@ -1,3 +1,5 @@
+import { components } from "../component/components";
+
 const createElement = (type) => document.createElement(type);
 const createTextNode = (content) => document.createTextNode(content);
 
@@ -11,6 +13,7 @@ const updateTextContent = (element, content) => {
 
 export const m = () => {
   let m = [];
+  m.c = components;
   m.ce = createElement;
   m.ct = createTextNode;
   m.ma = mountAppendChild;

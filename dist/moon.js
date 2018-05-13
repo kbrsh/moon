@@ -265,6 +265,8 @@
     return generate(parse(input));
   };
 
+  var components = {};
+
   var createElement = function (type) { return document.createElement(type); };
   var createTextNode = function (content) { return document.createTextNode(content); };
 
@@ -278,6 +280,7 @@
 
   var m = function () {
     var m = [];
+    m.c = components;
     m.ce = createElement;
     m.ct = createTextNode;
     m.ma = mountAppendChild;
@@ -331,6 +334,8 @@
         return {};
       };
     }
+
+    components[name] = component(name, view, data);
   };
 
   Moon.compile = compile;

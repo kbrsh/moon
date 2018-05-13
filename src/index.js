@@ -1,8 +1,7 @@
 import { compile } from "./compiler/compiler";
 import { component } from "./component/component";
+import { components } from "./component/components";
 import { config } from "./util/config";
-
-let components = {};
 
 export default function Moon(root, view, data) {
   if (typeof root === "string") {
