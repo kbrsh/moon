@@ -422,7 +422,19 @@
     return m;
   };
 
-  var set = function (key, value) {
+  var build = function() {
+    if (this.queued === false) {
+      this.queued = true;
+
+      var instance = this;
+      setTimeout(function () {
+        instance.view[2]();
+        instance.queued = false;
+      }, 0);
+    }
+  };
+
+  var set = function(key, value) {
     var this$1 = this;
 
     if (typeof key === "object") {
@@ -431,76 +443,84 @@
       }
     } else {
       this.data[key] = value;
-
-      if (this.queued === false) {
-        this.queued = true;
-
-        var instance = this;
-        setTimeout(function () {
-          instance.update();
-          instance.queued = false;
-        }, 0);
-      }
+      this.build();
     }
   };
 
-  var component = function (name, view, data) {
+  var component = function (name, options) {
     return function MoonComponent() {
       var this$1 = this;
 
       this.name = name;
-      this.data = data();
-      this.queued = false;
-      this.create = view[0];
-      this.mount = view[1];
-      this.update = view[2];
-      this.set = set;
+
+      this.view = options.view.map(function (view) { return view.bind(this$1); });
       this.m = m();
 
-      var actions = this.data.actions;
+      var data = this.data = options.data();
+      var actions = options.actions;
       for (var action in actions) {
-        actions[action] = actions[action].bind(this$1);
+        data[action] = actions[action].bind(this$1);
       }
+
+      this.queued = false;
+      this.build = build;
+      this.set = set;
     };
   };
 
-  function Moon(root, view, data) {
+  function Moon(options) {
+    var root = options.root;
     if (typeof root === "string") {
       root = document.querySelector(root);
     }
 
+    var view = options.view;
     if (typeof view === "string") {
-      view = compile(view);
+      options.view = compile(view);
     }
 
+    var data = options.data;
     if (data === undefined) {
-      data = function () { return {}; };
+      options.data = function () {
+        return {};
+      };
     } else if (typeof data === "object") {
-      var dataObj = data;
-      data = function () { return dataObj; };
+      options.data = function () { return data; };
     }
 
-    var rootComponent = component("m-root", view, data);
+    var actions = options.actions;
+    if (actions === undefined) {
+      options.actions = {};
+    }
+
+    var rootComponent = component("m-root", options);
     var instance = new rootComponent();
 
-    instance.create();
-    instance.mount(root);
+    instance.view[0]();
+    instance.view[1](root);
 
     return instance;
   }
 
-  Moon.extend = function (name, view, data) {
+  Moon.extend = function (name, options) {
+    var view = options.view;
     if (typeof view === "string") {
-      view = compile(view);
+      options.view = compile(view);
     }
 
+    var data = options.data;
     if (data === undefined) {
-      data = function () {
+      options.data = function () {
         return {};
       };
     }
 
-    components[name] = component(name, view, data);
+    var actions = options.actions;
+    if (actions === undefined) {
+      options.actions = {};
+    }
+
+    components[name] = component(name, options);
   };
 
   Moon.compile = compile;

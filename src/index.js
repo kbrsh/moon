@@ -3,43 +3,59 @@ import { component } from "./component/component";
 import { components } from "./component/components";
 import { config } from "./util/config";
 
-export default function Moon(root, view, data) {
+export default function Moon(options) {
+  let root = options.root;
   if (typeof root === "string") {
     root = document.querySelector(root);
   }
 
+  let view = options.view;
   if (typeof view === "string") {
-    view = compile(view);
+    options.view = compile(view);
   }
 
+  let data = options.data;
   if (data === undefined) {
-    data = () => { return {}; };
+    options.data = () => {
+      return {};
+    };
   } else if (typeof data === "object") {
-    let dataObj = data;
-    data = () => dataObj;
+    options.data = () => data;
   }
 
-  const rootComponent = component("m-root", view, data);
+  let actions = options.actions;
+  if (actions === undefined) {
+    options.actions = {};
+  }
+
+  const rootComponent = component("m-root", options);
   const instance = new rootComponent();
 
-  instance.create();
-  instance.mount(root);
+  instance.view[0]();
+  instance.view[1](root);
 
   return instance;
 }
 
-Moon.extend = (name, view, data) => {
+Moon.extend = (name, options) => {
+  let view = options.view;
   if (typeof view === "string") {
-    view = compile(view);
+    options.view = compile(view);
   }
 
+  let data = options.data;
   if (data === undefined) {
-    data = () => {
+    options.data = () => {
       return {};
     };
   }
 
-  components[name] = component(name, view, data);
+  let actions = options.actions;
+  if (actions === undefined) {
+    options.actions = {};
+  }
+
+  components[name] = component(name, options);
 };
 
 Moon.compile = compile;
