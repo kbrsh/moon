@@ -1,6 +1,5 @@
+import { parseTemplate } from "./template";
 import { pushChild } from "./util";
-
-const expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
 
 export const parseExpression = (index, input, length, stack, dependencies, locals) => {
   let expression = "";
@@ -16,18 +15,11 @@ export const parseExpression = (index, input, length, stack, dependencies, local
     }
   }
 
-  let info;
-  while ((info = expressionRE.exec(expression)) !== null) {
-    let name = info[1];
-    if (name !== undefined && locals.indexOf(name) === -1) {
-      dependencies.push(name);
-    }
-  }
-
   pushChild({
     index: stack.parseIndex++,
     type: "m-expression",
-    content: expression
+    content: expression,
+    dynamic: parseTemplate(expression, dependencies, locals)
   }, stack);
 
   return index;

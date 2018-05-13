@@ -1,8 +1,9 @@
+import { parseTemplate } from "./template";
 import { error, pushChild } from "./util";
 
 const whitespaceRE = /\s/;
 
-const parseAttributes = (index, input, length, attributes) => {
+const parseAttributes = (index, input, length, attributes, dependencies, locals) => {
   while (index < length) {
     let char = input[index];
 
@@ -14,7 +15,7 @@ const parseAttributes = (index, input, length, attributes) => {
     } else {
       let key = "";
       let value = "";
-      let literal = false;
+      let expression = false;
 
       while (index < length) {
         char = input[index];
@@ -40,7 +41,7 @@ const parseAttributes = (index, input, length, attributes) => {
           index += 1;
         } else if (char === "{") {
           quote = "}";
-          literal = true;
+          expression = true;
           index += 1;
         } else {
           quote = whitespaceRE;
@@ -64,7 +65,8 @@ const parseAttributes = (index, input, length, attributes) => {
       attributes.push({
         key: key,
         value: value,
-        literal: literal
+        expression: expression,
+        dynamic: parseTemplate(expression, dependencies, locals)
       });
     }
   }
@@ -72,7 +74,7 @@ const parseAttributes = (index, input, length, attributes) => {
   return index;
 };
 
-export const parseOpeningTag = (index, input, length, stack) => {
+export const parseOpeningTag = (index, input, length, stack, dependencies, locals) => {
   let type = "";
   let attributes = [];
 
@@ -104,7 +106,7 @@ export const parseOpeningTag = (index, input, length, stack) => {
       break;
     } else if (whitespaceRE.test(char)) {
       attributes = [];
-      index = parseAttributes(index + 1, input, length, attributes);
+      index = parseAttributes(index + 1, input, length, attributes, dependencies, locals);
     } else {
       type += char;
       index += 1;

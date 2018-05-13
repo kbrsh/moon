@@ -32,6 +32,22 @@
     return index;
   };
 
+  var expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
+
+  var parseTemplate = function (expression, dependencies, locals) {
+    var info, dynamic = false;
+
+    while ((info = expressionRE.exec(expression)) !== null) {
+      var name = info[1];
+      if (name !== undefined && locals.indexOf(name) === -1) {
+        dependencies.push(name);
+        dynamic = true;
+      }
+    }
+
+    return dynamic;
+  };
+
   var config = {
     silent: ("development" === "production") || (typeof console === "undefined")
   };
@@ -48,7 +64,7 @@
 
   var whitespaceRE = /\s/;
 
-  var parseAttributes = function (index, input, length, attributes) {
+  var parseAttributes = function (index, input, length, attributes, dependencies, locals) {
     while (index < length) {
       var char = input[index];
 
@@ -60,7 +76,7 @@
       } else {
         var key = "";
         var value = "";
-        var literal = false;
+        var expression = false;
 
         while (index < length) {
           char = input[index];
@@ -86,7 +102,7 @@
             index += 1;
           } else if (char === "{") {
             quote = "}";
-            literal = true;
+            expression = true;
             index += 1;
           } else {
             quote = whitespaceRE;
@@ -110,7 +126,8 @@
         attributes.push({
           key: key,
           value: value,
-          literal: literal
+          expression: expression,
+          dynamic: parseTemplate(expression, dependencies, locals)
         });
       }
     }
@@ -118,7 +135,7 @@
     return index;
   };
 
-  var parseOpeningTag = function (index, input, length, stack) {
+  var parseOpeningTag = function (index, input, length, stack, dependencies, locals) {
     var type = "";
     var attributes = [];
 
@@ -150,7 +167,7 @@
         break;
       } else if (whitespaceRE.test(char)) {
         attributes = [];
-        index = parseAttributes(index + 1, input, length, attributes);
+        index = parseAttributes(index + 1, input, length, attributes, dependencies, locals);
       } else {
         type += char;
         index += 1;
@@ -216,8 +233,6 @@
     return index;
   };
 
-  var expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
-
   var parseExpression = function (index, input, length, stack, dependencies, locals) {
     var expression = "";
 
@@ -232,18 +247,11 @@
       }
     }
 
-    var info;
-    while ((info = expressionRE.exec(expression)) !== null) {
-      var name = info[1];
-      if (name !== undefined && locals.indexOf(name) === -1) {
-        dependencies.push(name);
-      }
-    }
-
     pushChild({
       index: stack.parseIndex++,
       type: "m-expression",
-      content: expression
+      content: expression,
+      dynamic: parseTemplate(expression, dependencies, locals)
     }, stack);
 
     return index;
@@ -272,7 +280,7 @@
         } else if (input[i + 1] === "/") {
           i = parseClosingTag(i + 2, input, length, stack);
         } else {
-          i = parseOpeningTag(i + 1, input, length, stack);
+          i = parseOpeningTag(i + 1, input, length, stack, dependencies, locals);
         }
       } else if (char === "{") {
         i = parseExpression(i + 1, input, length, stack, dependencies, locals);

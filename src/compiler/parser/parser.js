@@ -26,7 +26,7 @@ export const parse = (input) => {
       } else if (input[i + 1] === "/") {
         i = parseClosingTag(i + 2, input, length, stack);
       } else {
-        i = parseOpeningTag(i + 1, input, length, stack);
+        i = parseOpeningTag(i + 1, input, length, stack, dependencies, locals);
       }
     } else if (char === "{") {
       i = parseExpression(i + 1, input, length, stack, dependencies, locals);
