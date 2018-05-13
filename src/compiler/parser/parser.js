@@ -10,6 +10,7 @@ export const parse = (input) => {
 
   const root = {
     type: "m-fragment",
+    attributes: [],
     children: [],
     dependencies: dependencies
   };

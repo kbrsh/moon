@@ -264,6 +264,7 @@
 
     var root = {
       type: "m-fragment",
+      attributes: [],
       children: [],
       dependencies: dependencies
     };
@@ -334,13 +335,14 @@
   var generateUpdate = function (element) {
     switch (element.type) {
       case "m-expression":
-        return ("m.ut(m[" + (element.index) + "], " + (element.content) + ");");
+        return element.dynamic ? ("m.ut(m[" + (element.index) + "], " + (element.content) + ");") : "";
         break;
       case "m-text":
         return "";
         break;
       default:
-        return mapReduce(element.children, generateUpdate);
+        var elementPath = "m[" + (element.index) + "]";
+        return mapReduce(element.attributes, function (attribute) { return attribute.dynamic ? (elementPath + ".setAttribute(\"" + (attribute.key) + "\", " + (attribute.value) + ");") : ""; }) + mapReduce(element.children, generateUpdate);
     }
   };
 
