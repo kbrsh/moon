@@ -173,7 +173,7 @@
   var parse = function (input) {
     var length = input.length;
     var dependencies = [];
-    var locals = ["NaN", "false", "in", "m", "null", "true", "typeof", "undefined"];
+    var locals = ["NaN", "false", "in", "null", "true", "typeof", "undefined"];
 
     var root = {
       type: "m-fragment",
