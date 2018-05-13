@@ -268,7 +268,7 @@
   var parse = function (input) {
     var length = input.length;
     var dependencies = [];
-    var locals = ["NaN", "event", "false", "in", "null", "true", "typeof", "undefined"];
+    var locals = ["NaN", "event", "false", "in", "null", "this", "true", "typeof", "undefined"];
 
     var root = {
       type: "m-fragment",
@@ -357,6 +357,26 @@
     return generatedMount;
   };
 
+  var generateUpdateAttributes = function (element) { return mapReduce(element.attributes, function (attribute) {
+    if (attribute.dynamic) {
+      var key = attribute.key;
+
+      switch (key) {
+        case "m-for":
+          break;
+        case "m-if":
+          break;
+        case "m-on":
+          return "";
+          break;
+        default:
+          return ("m[" + (element.index) + "].setAttribute(\"" + key + "\"," + (attribute.value) + ");");
+      }
+    } else {
+      return "";
+    }
+  }); };
+
   var generateUpdate = function (element) {
     switch (element.type) {
       case "m-expression":
@@ -366,8 +386,7 @@
         return "";
         break;
       default:
-        var elementPath = "m[" + (element.index) + "]";
-        return mapReduce(element.attributes, function (attribute) { return attribute.dynamic ? (elementPath + ".setAttribute(\"" + (attribute.key) + "\"," + (attribute.value) + ");") : ""; }) + mapReduce(element.children, generateUpdate);
+        return generateUpdateAttributes(element) + mapReduce(element.children, generateUpdate);
     }
   };
 
@@ -403,14 +422,45 @@
     return m;
   };
 
+  var set = function (key, value) {
+    var this$1 = this;
+
+    if (typeof key === "object") {
+      for (var childKey in key) {
+        this$1.set(childKey, key[childKey]);
+      }
+    } else {
+      this.data[key] = value;
+
+      if (this.queued === false) {
+        this.queued = true;
+
+        var instance = this;
+        setTimeout(function () {
+          instance.update();
+          instance.queued = false;
+        }, 0);
+      }
+    }
+  };
+
   var component = function (name, view, data) {
     return function MoonComponent() {
+      var this$1 = this;
+
       this.name = name;
       this.data = data();
+      this.queued = false;
       this.create = view[0];
       this.mount = view[1];
       this.update = view[2];
+      this.set = set;
       this.m = m();
+
+      var actions = this.data.actions;
+      for (var action in actions) {
+        actions[action] = actions[action].bind(this$1);
+      }
     };
   };
 
