@@ -46,16 +46,90 @@
     stack[stack.length - 1].children.push(child);
   };
 
+  var whitespaceRE = /\s/;
+
+  var parseAttributes = function (index, input, length, attributes) {
+    while (index < length) {
+      var char = input[index];
+
+      if (char === "/" || char === ">") {
+        break;
+      } else if (whitespaceRE.test(char)) {
+        index += 1;
+        continue;
+      } else {
+        var key = "";
+        var value = "";
+        var literal = false;
+
+        while (index < length) {
+          char = input[index];
+
+          if (char === "/" || char === ">" || whitespaceRE.test(char)) {
+            value = key;
+            break;
+          } else if (char === "=") {
+            index += 1;
+            break;
+          } else {
+            key += char;
+            index += 1;
+          }
+        }
+
+        if (value.length === 0) {
+          var quote = (void 0);
+          char = input[index];
+
+          if (char === "\"" || char === "'") {
+            quote = char;
+            index += 1;
+          } else if (char === "{") {
+            quote = "}";
+            literal = true;
+            index += 1;
+          } else {
+            quote = whitespaceRE;
+          }
+
+          while (index < length) {
+            char = input[index];
+
+            if (char === "/" || char === ">") {
+              break;
+            } else if ((typeof quote === "object" && quote.test(char)) || char === quote) {
+              index += 1;
+              break;
+            } else {
+              value += char;
+              index += 1;
+            }
+          }
+        }
+
+        attributes.push({
+          key: key,
+          value: value,
+          literal: literal
+        });
+      }
+    }
+
+    return index;
+  };
+
   var parseOpeningTag = function (index, input, length, stack) {
     var type = "";
+    var attributes;
 
-    for (; index < length; index++) {
+    while (index < length) {
       var char = input[index];
 
       if (char === ">") {
         var element = {
           index: stack.parseIndex++,
           type: type,
+          attributes: attributes,
           children: []
         };
 
@@ -68,13 +142,18 @@
         pushChild({
           index: stack.parseIndex++,
           type: type,
+          attributes: attributes,
           children: []
         }, stack);
 
         index += 2;
         break;
+      } else if (whitespaceRE.test(char)) {
+        attributes = [];
+        index = parseAttributes(index + 1, input, length, attributes);
       } else {
         type += char;
+        index += 1;
       }
     }
 
