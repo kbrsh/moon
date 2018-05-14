@@ -409,6 +409,7 @@
       setTimeout(function () {
         instance.view[1]();
         instance.queued = false;
+        instance.emit("updated");
       }, 0);
     }
   };
