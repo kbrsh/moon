@@ -3,7 +3,7 @@ import { error, pushChild } from "./util";
 
 const whitespaceRE = /\s/;
 
-const parseAttributes = (index, input, length, attributes, dependencies, locals) => {
+const parseAttributes = (index, input, length, attributes, directives, dependencies, locals) => {
   while (index < length) {
     let char = input[index];
 
@@ -69,7 +69,7 @@ const parseAttributes = (index, input, length, attributes, dependencies, locals)
         }
       }
 
-      attributes.push({
+      (key[0] === "m" && key[1] === "-" ? directives : attributes).push({
         key: key,
         value: value,
         argument: argument,
@@ -85,6 +85,7 @@ const parseAttributes = (index, input, length, attributes, dependencies, locals)
 export const parseOpeningTag = (index, input, length, stack, dependencies, locals) => {
   let type = "";
   let attributes = [];
+  let directives = [];
 
   while (index < length) {
     const char = input[index];
@@ -94,6 +95,7 @@ export const parseOpeningTag = (index, input, length, stack, dependencies, local
         index: stack.parseIndex++,
         type: type,
         attributes: attributes,
+        directives: directives,
         children: []
       };
 
@@ -107,6 +109,7 @@ export const parseOpeningTag = (index, input, length, stack, dependencies, local
         index: stack.parseIndex++,
         type: type,
         attributes: attributes,
+        directives: directives,
         children: []
       }, stack);
 
@@ -114,7 +117,8 @@ export const parseOpeningTag = (index, input, length, stack, dependencies, local
       break;
     } else if (whitespaceRE.test(char)) {
       attributes = [];
-      index = parseAttributes(index + 1, input, length, attributes, dependencies, locals);
+      directives = [];
+      index = parseAttributes(index + 1, input, length, attributes, directives, dependencies, locals);
     } else {
       type += char;
       index += 1;

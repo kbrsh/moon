@@ -64,7 +64,7 @@
 
   var whitespaceRE = /\s/;
 
-  var parseAttributes = function (index, input, length, attributes, dependencies, locals) {
+  var parseAttributes = function (index, input, length, attributes, directives, dependencies, locals) {
     while (index < length) {
       var char = input[index];
 
@@ -130,7 +130,7 @@
           }
         }
 
-        attributes.push({
+        (key[0] === "m" && key[1] === "-" ? directives : attributes).push({
           key: key,
           value: value,
           argument: argument,
@@ -146,6 +146,7 @@
   var parseOpeningTag = function (index, input, length, stack, dependencies, locals) {
     var type = "";
     var attributes = [];
+    var directives = [];
 
     while (index < length) {
       var char = input[index];
@@ -155,6 +156,7 @@
           index: stack.parseIndex++,
           type: type,
           attributes: attributes,
+          directives: directives,
           children: []
         };
 
@@ -168,6 +170,7 @@
           index: stack.parseIndex++,
           type: type,
           attributes: attributes,
+          directives: directives,
           children: []
         }, stack);
 
@@ -175,7 +178,8 @@
         break;
       } else if (whitespaceRE.test(char)) {
         attributes = [];
-        index = parseAttributes(index + 1, input, length, attributes, dependencies, locals);
+        directives = [];
+        index = parseAttributes(index + 1, input, length, attributes, directives, dependencies, locals);
       } else {
         type += char;
         index += 1;
@@ -273,6 +277,7 @@
     var root = {
       type: "m-fragment",
       attributes: [],
+      directives: [],
       children: [],
       dependencies: dependencies
     };
@@ -305,21 +310,14 @@
 
   var attributeValue = function (attribute) { return attribute.expression ? attribute.value : ("\"" + (attribute.value) + "\""); };
 
-  var generateCreateAttributes = function (element) { return mapReduce(element.attributes, function (attribute) {
-    var key = attribute.key;
-
-    switch (key) {
-      case "m-for":
-        break;
-      case "m-if":
-        break;
-      case "m-on":
-        return ("m[" + (element.index) + "].addEventListener(\"" + (attribute.argument) + "\", function(event){" + (attributeValue(attribute)) + "});");
-        break;
-      default:
-        return ("m[" + (element.index) + "].setAttribute(\"" + key + "\"," + (attributeValue(attribute)) + ");");
+  var directives = {
+    "m-on": {
+      create: function(code, directive, element) {
+        return (code + "m[" + (element.index) + "].addEventListener(\"" + (directive.argument) + "\", function(event){" + (attributeValue(directive)) + ";});");
+      },
+      update: function() {}
     }
-  }); };
+  };
 
   var generateCreate = function (element, parent) {
     switch (element.type) {
@@ -333,29 +331,17 @@
         return ("m[" + (element.index) + "]=m.ct(\"" + (element.content) + "\");m.ca(m[" + (element.index) + "]," + parent + ");");
         break;
       default:
-        return ("m[" + (element.index) + "]=m.ce(\"" + (element.type) + "\");" + (generateCreateAttributes(element)) + "m.ca(m[" + (element.index) + "], " + parent + ");" + (mapReduce(element.children, function (child) { return generateCreate(child, ("m[" + (element.index) + "]")); })));
+        var elementDirectives = element.directives;
+        var code = "m[" + (element.index) + "]=m.ce(\"" + (element.type) + "\");" + (mapReduce(element.attributes, function (attribute) { return ("m[" + (element.index) + "].setAttribute(\"" + (attribute.key) + "\"," + (attributeValue(attribute)) + ");"); })) + "m.ca(m[" + (element.index) + "], " + parent + ");" + (mapReduce(element.children, function (child) { return generateCreate(child, ("m[" + (element.index) + "]")); }));
+
+        for (var i = 0; i < elementDirectives.length; i++) {
+          var elementDirective = elementDirectives[i];
+          code = directives[elementDirective.key].create(code, elementDirective, element, parent);
+        }
+
+        return code;
     }
   };
-
-  var generateUpdateAttributes = function (element) { return mapReduce(element.attributes, function (attribute) {
-    if (attribute.dynamic) {
-      var key = attribute.key;
-
-      switch (key) {
-        case "m-for":
-          break;
-        case "m-if":
-          break;
-        case "m-on":
-          return "";
-          break;
-        default:
-          return ("m[" + (element.index) + "].setAttribute(\"" + key + "\"," + (attribute.value) + ");");
-      }
-    } else {
-      return "";
-    }
-  }); };
 
   var generateUpdate = function (element) {
     switch (element.type) {
@@ -366,7 +352,7 @@
         return "";
         break;
       default:
-        return generateUpdateAttributes(element) + mapReduce(element.children, generateUpdate);
+        return mapReduce(element.attributes, function (attribute) { return attribute.dynamic ? ("m[" + (element.index) + "].setAttribute(\"" + (attribute.key) + "\"," + (attribute.value) + ");") : ""; }) + mapReduce(element.children, generateUpdate);
     }
   };
 

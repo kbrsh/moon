@@ -11,6 +11,7 @@ export const parse = (input) => {
   const root = {
     type: "m-fragment",
     attributes: [],
+    directives: [],
     children: [],
     dependencies: dependencies
   };

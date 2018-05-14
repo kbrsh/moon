@@ -1,25 +1,5 @@
 import { mapReduce } from "./util";
 
-const generateUpdateAttributes = (element) => mapReduce(element.attributes, (attribute) => {
-  if (attribute.dynamic) {
-    const key = attribute.key;
-
-    switch (key) {
-      case "m-for":
-        break;
-      case "m-if":
-        break;
-      case "m-on":
-        return "";
-        break;
-      default:
-        return `m[${element.index}].setAttribute("${key}",${attribute.value});`;
-    }
-  } else {
-    return "";
-  }
-});
-
 export const generateUpdate = (element) => {
   switch (element.type) {
     case "m-expression":
@@ -29,6 +9,6 @@ export const generateUpdate = (element) => {
       return "";
       break;
     default:
-      return generateUpdateAttributes(element) + mapReduce(element.children, generateUpdate);
+      return mapReduce(element.attributes, (attribute) => attribute.dynamic ? `m[${element.index}].setAttribute("${attribute.key}",${attribute.value});` : "") + mapReduce(element.children, generateUpdate);
   }
 };
