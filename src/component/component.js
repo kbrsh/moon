@@ -23,6 +23,33 @@ const set = function(key, value) {
   }
 };
 
+const on = function(type, handler) {
+  let data = this.data;
+  let handlers = data[type];
+
+  if (handlers === undefined) {
+    data[type] = [handler];
+  } else {
+    handlers.push(handler);
+  }
+};
+
+const off = function(type, handler) {
+  if (handler === undefined) {
+    this.data[type] = [];
+  } else {
+    let handlers = this.data[type];
+    handlers.splice(handlers.indexOf(handler), 1);
+  }
+};
+
+const emit = function(type, data) {
+  let handlers = this.data[type];
+  for (let i = 0; i < handlers.length; i++) {
+    handlers[i](data);
+  }
+};
+
 export const component = (name, options) => {
   return function MoonComponent() {
     this.name = name;
@@ -39,5 +66,8 @@ export const component = (name, options) => {
     this.queued = false;
     this.build = build;
     this.set = set;
+    this.on = on;
+    this.off = off;
+    this.emit = emit;
   };
 };

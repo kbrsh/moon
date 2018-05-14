@@ -447,6 +447,33 @@
     }
   };
 
+  var on = function(type, handler) {
+    var data = this.data;
+    var handlers = data[type];
+
+    if (handlers === undefined) {
+      data[type] = [handler];
+    } else {
+      handlers.push(handler);
+    }
+  };
+
+  var off = function(type, handler) {
+    if (handler === undefined) {
+      this.data[type] = [];
+    } else {
+      var handlers = this.data[type];
+      handlers.splice(handlers.indexOf(handler), 1);
+    }
+  };
+
+  var emit = function(type, data) {
+    var handlers = this.data[type];
+    for (var i = 0; i < handlers.length; i++) {
+      handlers[i](data);
+    }
+  };
+
   var component = function (name, options) {
     return function MoonComponent() {
       var this$1 = this;
@@ -465,6 +492,9 @@
       this.queued = false;
       this.build = build;
       this.set = set;
+      this.on = on;
+      this.off = off;
+      this.emit = emit;
     };
   };
 
