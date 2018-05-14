@@ -321,40 +321,20 @@
     }
   }); };
 
-  var generateCreate = function (element) {
+  var generateCreate = function (element, parent) {
     switch (element.type) {
       case "m-fragment":
-        return mapReduce(element.children, generateCreate);
+        return mapReduce(element.children, function (child) { return generateCreate(child, parent); });
         break;
       case "m-expression":
-        return ("m[" + (element.index) + "]=m.ct(" + (element.content) + ");");
+        return ("m[" + (element.index) + "]=m.ct(" + (element.content) + ");m.ca(m[" + (element.index) + "]," + parent + ");");
         break;
       case "m-text":
-        return ("m[" + (element.index) + "]=m.ct(\"" + (element.content) + "\");");
+        return ("m[" + (element.index) + "]=m.ct(\"" + (element.content) + "\");m.ca(m[" + (element.index) + "]," + parent + ");");
         break;
       default:
-        return ((mapReduce(element.children, generateCreate)) + "m[" + (element.index) + "]=m.ce(\"" + (element.type) + "\");" + (generateCreateAttributes(element)));
+        return ("m[" + (element.index) + "]=m.ce(\"" + (element.type) + "\");" + (generateCreateAttributes(element)) + "m.ca(m[" + (element.index) + "], " + parent + ");" + (mapReduce(element.children, function (child) { return generateCreate(child, ("m[" + (element.index) + "]")); })));
     }
-  };
-
-  var generateMount = function (element, parent) {
-    var generatedMount = "";
-
-    switch (element.type) {
-      case "m-fragment":
-        return mapReduce(element.children, function (child) { return generateMount(child, parent); });
-        break;
-      default:
-        var elementPath = "m[" + (element.index) + "]";
-
-        if (element.type !== "m-text" && element.type !== "m-expression") {
-          generatedMount += mapReduce(element.children, function (child) { return generateMount(child, elementPath); });
-        }
-
-        generatedMount += "m.ma(" + elementPath + "," + parent + ");";
-    }
-
-    return generatedMount;
   };
 
   var generateUpdateAttributes = function (element) { return mapReduce(element.attributes, function (attribute) {
@@ -392,7 +372,7 @@
 
   var generate = function (tree) {
     var prelude = "var m=this.m;" + mapReduce(tree.dependencies, function (dependency) { return ("var " + dependency + "=this.data." + dependency + ";"); });
-    return new Function(("return [function(){" + prelude + (generateCreate(tree)) + "},function(root){var m=this.m;" + (generateMount(tree, "root")) + "},function(){" + prelude + (generateUpdate(tree)) + "}]"))();
+    return new Function(("return [function(root){" + prelude + (generateCreate(tree, "root")) + "},function(){" + prelude + (generateUpdate(tree)) + "}]"))();
   };
 
   var compile = function (input) {
@@ -403,8 +383,7 @@
 
   var createElement = function (type) { return document.createElement(type); };
   var createTextNode = function (content) { return document.createTextNode(content); };
-
-  var mountAppendChild = function (element, parent) {
+  var createAppendChild = function (element, parent) {
     parent.appendChild(element);
   };
 
@@ -417,7 +396,7 @@
     m.c = components;
     m.ce = createElement;
     m.ct = createTextNode;
-    m.ma = mountAppendChild;
+    m.ca = createAppendChild;
     m.ut = updateTextContent;
     return m;
   };
@@ -428,7 +407,7 @@
 
       var instance = this;
       setTimeout(function () {
-        instance.view[2]();
+        instance.view[1]();
         instance.queued = false;
       }, 0);
     }
@@ -452,7 +431,9 @@
     var handlers = data[type];
 
     if (handlers === undefined) {
-      data[type] = [handler];
+      data[type] = handler;
+    } else if (typeof handlers === "function") {
+      data[type] = [handlers, handler];
     } else {
       handlers.push(handler);
     }
@@ -462,15 +443,28 @@
     if (handler === undefined) {
       this.data[type] = [];
     } else {
-      var handlers = this.data[type];
-      handlers.splice(handlers.indexOf(handler), 1);
+      var data = this.data;
+      var handlers = data[type];
+
+      if (typeof handlers === "function") {
+        data[type] = undefined;
+      } else {
+        handlers.splice(handlers.indexOf(handler), 1);
+      }
     }
   };
 
   var emit = function(type, data) {
     var handlers = this.data[type];
-    for (var i = 0; i < handlers.length; i++) {
-      handlers[i](data);
+
+    if (handlers !== undefined) {
+      if (typeof handlers === "function") {
+        handlers(data);
+      } else {
+        for (var i = 0; i < handlers.length; i++) {
+          handlers[i](data);
+        }
+      }
     }
   };
 
@@ -526,8 +520,8 @@
     var rootComponent = component("m-root", options);
     var instance = new rootComponent();
 
-    instance.view[0]();
-    instance.view[1](root);
+    instance.view[0](root);
+    instance.emit("created");
 
     return instance;
   }

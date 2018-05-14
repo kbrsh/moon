@@ -6,7 +6,7 @@ const build = function() {
 
     const instance = this;
     setTimeout(() => {
-      instance.view[2]();
+      instance.view[1]();
       instance.queued = false;
     }, 0);
   }
@@ -28,7 +28,9 @@ const on = function(type, handler) {
   let handlers = data[type];
 
   if (handlers === undefined) {
-    data[type] = [handler];
+    data[type] = handler;
+  } else if (typeof handlers === "function") {
+    data[type] = [handlers, handler];
   } else {
     handlers.push(handler);
   }
@@ -38,15 +40,28 @@ const off = function(type, handler) {
   if (handler === undefined) {
     this.data[type] = [];
   } else {
-    let handlers = this.data[type];
-    handlers.splice(handlers.indexOf(handler), 1);
+    let data = this.data;
+    let handlers = data[type];
+
+    if (typeof handlers === "function") {
+      data[type] = undefined;
+    } else {
+      handlers.splice(handlers.indexOf(handler), 1);
+    }
   }
 };
 
 const emit = function(type, data) {
   let handlers = this.data[type];
-  for (let i = 0; i < handlers.length; i++) {
-    handlers[i](data);
+
+  if (handlers !== undefined) {
+    if (typeof handlers === "function") {
+      handlers(data);
+    } else {
+      for (let i = 0; i < handlers.length; i++) {
+        handlers[i](data);
+      }
+    }
   }
 };
 

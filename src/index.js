@@ -31,8 +31,8 @@ export default function Moon(options) {
   const rootComponent = component("m-root", options);
   const instance = new rootComponent();
 
-  instance.view[0]();
-  instance.view[1](root);
+  instance.view[0](root);
+  instance.emit("created");
 
   return instance;
 }

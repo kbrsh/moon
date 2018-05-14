@@ -2,8 +2,7 @@ import { components } from "../component/components";
 
 const createElement = (type) => document.createElement(type);
 const createTextNode = (content) => document.createTextNode(content);
-
-const mountAppendChild = (element, parent) => {
+const createAppendChild = (element, parent) => {
   parent.appendChild(element);
 };
 
@@ -16,7 +15,7 @@ export const m = () => {
   m.c = components;
   m.ce = createElement;
   m.ct = createTextNode;
-  m.ma = mountAppendChild;
+  m.ca = createAppendChild;
   m.ut = updateTextContent;
   return m;
 };

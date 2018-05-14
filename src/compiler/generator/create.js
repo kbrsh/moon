@@ -16,18 +16,18 @@ const generateCreateAttributes = (element) => mapReduce(element.attributes, (att
   }
 });
 
-export const generateCreate = (element) => {
+export const generateCreate = (element, parent) => {
   switch (element.type) {
     case "m-fragment":
-      return mapReduce(element.children, generateCreate);
+      return mapReduce(element.children, (child) => generateCreate(child, parent));
       break;
     case "m-expression":
-      return `m[${element.index}]=m.ct(${element.content});`;
+      return `m[${element.index}]=m.ct(${element.content});m.ca(m[${element.index}],${parent});`;
       break;
     case "m-text":
-      return `m[${element.index}]=m.ct("${element.content}");`;
+      return `m[${element.index}]=m.ct("${element.content}");m.ca(m[${element.index}],${parent});`;
       break;
     default:
-      return `${mapReduce(element.children, generateCreate)}m[${element.index}]=m.ce("${element.type}");${generateCreateAttributes(element)}`;
+      return `m[${element.index}]=m.ce("${element.type}");${generateCreateAttributes(element)}m.ca(m[${element.index}], ${parent});${mapReduce(element.children, (child) => generateCreate(child, `m[${element.index}]`))}`;
   }
 };
