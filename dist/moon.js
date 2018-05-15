@@ -335,7 +335,7 @@
         break;
       default:
         var elementDirectives = element.directives;
-        var code = "m[" + (element.index) + "]=m.ce(\"" + (element.type) + "\");" + (mapReduce(element.attributes, function (attribute) { return ("m[" + (element.index) + "].setAttribute(\"" + (attribute.key) + "\"," + (attributeValue(attribute)) + ");"); })) + "m.ca(m[" + (element.index) + "], " + parent + ");" + (mapReduce(element.children, function (child) { return generateCreate(child, ("m[" + (element.index) + "]"), root); }));
+        var code = "m[" + (element.index) + "]=m.ce(\"" + (element.type) + "\");" + (mapReduce(element.attributes, function (attribute) { return attribute.dynamic ? "" : ("m[" + (element.index) + "].setAttribute(\"" + (attribute.key) + "\"," + (attributeValue(attribute)) + ");"); })) + "m.ca(m[" + (element.index) + "], " + parent + ");" + (mapReduce(element.children, function (child) { return generateCreate(child, ("m[" + (element.index) + "]"), root); }));
 
         for (var i = 0; i < elementDirectives.length; i++) {
           var elementDirective = elementDirectives[i];

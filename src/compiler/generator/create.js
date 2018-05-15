@@ -14,7 +14,7 @@ export const generateCreate = (element, parent, root) => {
       break;
     default:
       const elementDirectives = element.directives;
-      let code = `m[${element.index}]=m.ce("${element.type}");${mapReduce(element.attributes, (attribute) => `m[${element.index}].setAttribute("${attribute.key}",${attributeValue(attribute)});`)}m.ca(m[${element.index}], ${parent});${mapReduce(element.children, (child) => generateCreate(child, `m[${element.index}]`, root))}`;
+      let code = `m[${element.index}]=m.ce("${element.type}");${mapReduce(element.attributes, (attribute) => attribute.dynamic ? "" : `m[${element.index}].setAttribute("${attribute.key}",${attributeValue(attribute)});`)}m.ca(m[${element.index}], ${parent});${mapReduce(element.children, (child) => generateCreate(child, `m[${element.index}]`, root))}`;
 
       for (let i = 0; i < elementDirectives.length; i++) {
         const elementDirective = elementDirectives[i];
