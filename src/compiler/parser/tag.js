@@ -3,7 +3,7 @@ import { error, pushChild } from "./util";
 
 const whitespaceRE = /\s/;
 
-const parseAttributes = (index, input, length, attributes, directives, dependencies, locals) => {
+const parseAttributes = (index, input, length, attributes, directives, dependencies) => {
   while (index < length) {
     let char = input[index];
 
@@ -74,7 +74,7 @@ const parseAttributes = (index, input, length, attributes, directives, dependenc
         value: value,
         argument: argument,
         expression: expression,
-        dynamic: expression && parseTemplate(value, dependencies, locals)
+        dynamic: expression && parseTemplate(value, dependencies)
       });
     }
   }
@@ -82,7 +82,7 @@ const parseAttributes = (index, input, length, attributes, directives, dependenc
   return index;
 };
 
-export const parseOpeningTag = (index, input, length, stack, dependencies, locals) => {
+export const parseOpeningTag = (index, input, length, stack, dependencies) => {
   let type = "";
   let attributes = [];
   let directives = [];
@@ -92,7 +92,7 @@ export const parseOpeningTag = (index, input, length, stack, dependencies, local
 
     if (char === ">") {
       const element = {
-        index: stack.parseIndex++,
+        index: stack[0].index++,
         type: type,
         attributes: attributes,
         directives: directives,
@@ -106,7 +106,7 @@ export const parseOpeningTag = (index, input, length, stack, dependencies, local
       break;
     } else if (char === "/" && input[index + 1] === ">") {
       pushChild({
-        index: stack.parseIndex++,
+        index: stack[0].index++,
         type: type,
         attributes: attributes,
         directives: directives,
@@ -118,7 +118,7 @@ export const parseOpeningTag = (index, input, length, stack, dependencies, local
     } else if (whitespaceRE.test(char)) {
       attributes = [];
       directives = [];
-      index = parseAttributes(index + 1, input, length, attributes, directives, dependencies, locals);
+      index = parseAttributes(index + 1, input, length, attributes, directives, dependencies);
     } else {
       type += char;
       index += 1;

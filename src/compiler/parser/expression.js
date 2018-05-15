@@ -1,7 +1,7 @@
 import { parseTemplate } from "./template";
 import { pushChild } from "./util";
 
-export const parseExpression = (index, input, length, stack, dependencies, locals) => {
+export const parseExpression = (index, input, length, stack, dependencies) => {
   let expression = "";
 
   for (; index < length; index++) {
@@ -16,10 +16,10 @@ export const parseExpression = (index, input, length, stack, dependencies, local
   }
 
   pushChild({
-    index: stack.parseIndex++,
+    index: stack[0].index++,
     type: "m-expression",
     content: expression,
-    dynamic: parseTemplate(expression, dependencies, locals)
+    dynamic: parseTemplate(expression, dependencies)
   }, stack);
 
   return index;

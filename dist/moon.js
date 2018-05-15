@@ -33,8 +33,9 @@
   };
 
   var expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
+  var locals = ["NaN", "event", "false", "in", "m", "null", "this", "true", "typeof", "undefined"];
 
-  var parseTemplate = function (expression, dependencies, locals) {
+  var parseTemplate = function (expression, dependencies) {
     var info, dynamic = false;
 
     while ((info = expressionRE.exec(expression)) !== null) {
@@ -64,7 +65,7 @@
 
   var whitespaceRE = /\s/;
 
-  var parseAttributes = function (index, input, length, attributes, directives, dependencies, locals) {
+  var parseAttributes = function (index, input, length, attributes, directives, dependencies) {
     while (index < length) {
       var char = input[index];
 
@@ -135,7 +136,7 @@
           value: value,
           argument: argument,
           expression: expression,
-          dynamic: expression && parseTemplate(value, dependencies, locals)
+          dynamic: expression && parseTemplate(value, dependencies)
         });
       }
     }
@@ -143,7 +144,7 @@
     return index;
   };
 
-  var parseOpeningTag = function (index, input, length, stack, dependencies, locals) {
+  var parseOpeningTag = function (index, input, length, stack, dependencies) {
     var type = "";
     var attributes = [];
     var directives = [];
@@ -153,7 +154,7 @@
 
       if (char === ">") {
         var element = {
-          index: stack.parseIndex++,
+          index: stack[0].index++,
           type: type,
           attributes: attributes,
           directives: directives,
@@ -167,7 +168,7 @@
         break;
       } else if (char === "/" && input[index + 1] === ">") {
         pushChild({
-          index: stack.parseIndex++,
+          index: stack[0].index++,
           type: type,
           attributes: attributes,
           directives: directives,
@@ -179,7 +180,7 @@
       } else if (whitespaceRE.test(char)) {
         attributes = [];
         directives = [];
-        index = parseAttributes(index + 1, input, length, attributes, directives, dependencies, locals);
+        index = parseAttributes(index + 1, input, length, attributes, directives, dependencies);
       } else {
         type += char;
         index += 1;
@@ -237,7 +238,7 @@
     }
 
     pushChild({
-      index: stack.parseIndex++,
+      index: stack[0].index++,
       type: "m-text",
       content: content.replace(escapeRE, function (match) { return escapeMap[match]; })
     }, stack);
@@ -245,7 +246,7 @@
     return index;
   };
 
-  var parseExpression = function (index, input, length, stack, dependencies, locals) {
+  var parseExpression = function (index, input, length, stack, dependencies) {
     var expression = "";
 
     for (; index < length; index++) {
@@ -260,10 +261,10 @@
     }
 
     pushChild({
-      index: stack.parseIndex++,
+      index: stack[0].index++,
       type: "m-expression",
       content: expression,
-      dynamic: parseTemplate(expression, dependencies, locals)
+      dynamic: parseTemplate(expression, dependencies)
     }, stack);
 
     return index;
@@ -272,9 +273,9 @@
   var parse = function (input) {
     var length = input.length;
     var dependencies = [];
-    var locals = ["NaN", "event", "false", "in", "null", "this", "true", "typeof", "undefined"];
 
     var root = {
+      index: 0,
       type: "m-fragment",
       attributes: [],
       directives: [],
@@ -283,7 +284,6 @@
     };
 
     var stack = [root];
-    stack.parseIndex = 0;
 
     for (var i = 0; i < length;) {
       var char = input[i];
@@ -294,10 +294,10 @@
         } else if (input[i + 1] === "/") {
           i = parseClosingTag(i + 2, input, length, stack);
         } else {
-          i = parseOpeningTag(i + 1, input, length, stack, dependencies, locals);
+          i = parseOpeningTag(i + 1, input, length, stack, dependencies);
         }
       } else if (char === "{") {
-        i = parseExpression(i + 1, input, length, stack, dependencies, locals);
+        i = parseExpression(i + 1, input, length, stack, dependencies);
       } else {
         i = parseText(i, input, length, stack);
       }
@@ -312,38 +312,47 @@
 
   var directives = {
     "m-on": {
-      create: function(code, directive, element) {
-        return (code + "m[" + (element.index) + "].addEventListener(\"" + (directive.argument) + "\", function(event){" + (attributeValue(directive)) + ";});");
+      create: function(code, directive, element, parent, root) {
+        directive.on = root.index++;
+        return (code + "m[" + (element.index) + "].addEventListener(\"" + (directive.argument) + "\",function(event){m[" + (directive.on) + "](event);});");
       },
-      update: function() {}
+      update: function(code, directive) {
+        return (code + "m[" + (directive.on) + "]=function(event){" + (attributeValue(directive)) + ";};");
+      }
     }
   };
 
-  var generateCreate = function (element, parent) {
+  var generateCreate = function (element, parent, root) {
     switch (element.type) {
       case "m-fragment":
-        return mapReduce(element.children, function (child) { return generateCreate(child, parent); });
+        return mapReduce(element.children, function (child) { return generateCreate(child, parent, root); });
         break;
       case "m-expression":
-        return ("m[" + (element.index) + "]=m.ct(" + (element.content) + ");m.ca(m[" + (element.index) + "]," + parent + ");");
+        return ("m[" + (element.index) + "]=m.ct(\"\");m.ca(m[" + (element.index) + "]," + parent + ");");
         break;
       case "m-text":
         return ("m[" + (element.index) + "]=m.ct(\"" + (element.content) + "\");m.ca(m[" + (element.index) + "]," + parent + ");");
         break;
       default:
         var elementDirectives = element.directives;
-        var code = "m[" + (element.index) + "]=m.ce(\"" + (element.type) + "\");" + (mapReduce(element.attributes, function (attribute) { return ("m[" + (element.index) + "].setAttribute(\"" + (attribute.key) + "\"," + (attributeValue(attribute)) + ");"); })) + "m.ca(m[" + (element.index) + "], " + parent + ");" + (mapReduce(element.children, function (child) { return generateCreate(child, ("m[" + (element.index) + "]")); }));
+        var code = "m[" + (element.index) + "]=m.ce(\"" + (element.type) + "\");" + (mapReduce(element.attributes, function (attribute) { return ("m[" + (element.index) + "].setAttribute(\"" + (attribute.key) + "\"," + (attributeValue(attribute)) + ");"); })) + "m.ca(m[" + (element.index) + "], " + parent + ");" + (mapReduce(element.children, function (child) { return generateCreate(child, ("m[" + (element.index) + "]"), root); }));
 
         for (var i = 0; i < elementDirectives.length; i++) {
           var elementDirective = elementDirectives[i];
-          code = directives[elementDirective.key].create(code, elementDirective, element, parent);
+          var directive = directives[elementDirective.key];
+
+          code = directive.create(code, elementDirective, element, parent, root);
+
+          if (!elementDirective.dynamic) {
+            code += directive.update("", elementDirective, element, parent, root);
+          }
         }
 
         return code;
     }
   };
 
-  var generateUpdate = function (element) {
+  var generateUpdate = function (element, root) {
     switch (element.type) {
       case "m-expression":
         return element.dynamic ? ("m.ut(m[" + (element.index) + "]," + (element.content) + ");") : "";
@@ -352,13 +361,23 @@
         return "";
         break;
       default:
-        return mapReduce(element.attributes, function (attribute) { return attribute.dynamic ? ("m[" + (element.index) + "].setAttribute(\"" + (attribute.key) + "\"," + (attribute.value) + ");") : ""; }) + mapReduce(element.children, generateUpdate);
+        var elementDirectives = element.directives;
+        var code = mapReduce(element.attributes, function (attribute) { return attribute.dynamic ? ("m[" + (element.index) + "].setAttribute(\"" + (attribute.key) + "\"," + (attribute.value) + ");") : ""; }) + mapReduce(element.children, function (child) { return generateUpdate(child, root); });
+
+        for (var i = 0; i < elementDirectives.length; i++) {
+          var elementDirective = elementDirectives[i];
+
+          if (elementDirective.dynamic) {
+            code = directives[elementDirective.key].update(code, elementDirective, element, parent, root);
+          }
+        }
+
+        return code;
     }
   };
 
   var generate = function (tree) {
-    var prelude = "var m=this.m;" + mapReduce(tree.dependencies, function (dependency) { return ("var " + dependency + "=this.data." + dependency + ";"); });
-    return new Function(("return [function(root){" + prelude + (generateCreate(tree, "root")) + "},function(){" + prelude + (generateUpdate(tree)) + "}]"))();
+    return new Function(("return [function(root){var m=this.m;" + (generateCreate(tree, "root", tree)) + "},function(){var m=this.m;" + (mapReduce(tree.dependencies, function (dependency) { return ("var " + dependency + "=this.data." + dependency + ";"); })) + (generateUpdate(tree, tree)) + "}]"))();
   };
 
   var compile = function (input) {
@@ -508,6 +527,7 @@
     var instance = new rootComponent();
 
     instance.view[0](root);
+    instance.view[1]();
     instance.emit("created");
 
     return instance;

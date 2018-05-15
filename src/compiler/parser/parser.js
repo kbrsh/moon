@@ -6,9 +6,9 @@ import { parseExpression } from "./expression";
 export const parse = (input) => {
   const length = input.length;
   let dependencies = [];
-  let locals = ["NaN", "event", "false", "in", "null", "this", "true", "typeof", "undefined"];
 
   const root = {
+    index: 0,
     type: "m-fragment",
     attributes: [],
     directives: [],
@@ -17,7 +17,6 @@ export const parse = (input) => {
   };
 
   let stack = [root];
-  stack.parseIndex = 0;
 
   for (let i = 0; i < length;) {
     const char = input[i];
@@ -28,10 +27,10 @@ export const parse = (input) => {
       } else if (input[i + 1] === "/") {
         i = parseClosingTag(i + 2, input, length, stack);
       } else {
-        i = parseOpeningTag(i + 1, input, length, stack, dependencies, locals);
+        i = parseOpeningTag(i + 1, input, length, stack, dependencies);
       }
     } else if (char === "{") {
-      i = parseExpression(i + 1, input, length, stack, dependencies, locals);
+      i = parseExpression(i + 1, input, length, stack, dependencies);
     } else {
       i = parseText(i, input, length, stack);
     }

@@ -32,6 +32,7 @@ export default function Moon(options) {
   const instance = new rootComponent();
 
   instance.view[0](root);
+  instance.view[1]();
   instance.emit("created");
 
   return instance;
