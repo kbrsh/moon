@@ -314,7 +314,7 @@
     "m-on": {
       create: function(code, directive, element, parent, root) {
         directive.on = root.index++;
-        return (code + "m[" + (element.index) + "].addEventListener(\"" + (directive.argument) + "\",function(event){m[" + (directive.on) + "](event);});");
+        return (code + "m.cae(m[" + (element.index) + "],\"" + (directive.argument) + "\",function(event){m[" + (directive.on) + "](event);});");
       },
       update: function(code, directive) {
         return (code + "m[" + (directive.on) + "]=function(event){" + (attributeValue(directive)) + ";};");
@@ -387,12 +387,15 @@
   var components = {};
 
   var createElement = function (type) { return document.createElement(type); };
-  var createTextNode = function (content) { return document.createTextNode(content); };
-  var createAppendChild = function (element, parent) {
+  var createText = function (content) { return document.createTextNode(content); };
+  var createAddEvent = function (element, type, handler) {
+    element.addEventListener(type, handler);
+  };
+  var createAppend = function (element, parent) {
     parent.appendChild(element);
   };
 
-  var updateTextContent = function (element, content) {
+  var updateText = function (element, content) {
     element.textContent = content;
   };
 
@@ -400,9 +403,10 @@
     var m = [];
     m.c = components;
     m.ce = createElement;
-    m.ct = createTextNode;
-    m.ca = createAppendChild;
-    m.ut = updateTextContent;
+    m.ct = createText;
+    m.cae = createAddEvent;
+    m.ca = createAppend;
+    m.ut = updateText;
     return m;
   };
 
