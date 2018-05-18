@@ -59,11 +59,11 @@
     }
   };
 
+  var whitespaceRE = /\s+/;
+
   var pushChild = function (child, stack) {
     stack[stack.length - 1].children.push(child);
   };
-
-  var whitespaceRE = /\s/;
 
   var parseAttributes = function (index, input, length, attributes, directives, dependencies) {
     while (index < length) {
@@ -237,11 +237,13 @@
       }
     }
 
-    pushChild({
-      index: stack[0].index++,
-      type: "m-text",
-      content: content.replace(escapeRE, function (match) { return escapeMap[match]; })
-    }, stack);
+    if (!whitespaceRE.test(content)) {
+      pushChild({
+        index: stack[0].index++,
+        type: "m-text",
+        content: content.replace(escapeRE, function (match) { return escapeMap[match]; })
+      }, stack);
+    }
 
     return index;
   };

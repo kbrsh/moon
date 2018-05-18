@@ -1,7 +1,5 @@
 import { parseTemplate } from "./template";
-import { error, pushChild } from "./util";
-
-const whitespaceRE = /\s/;
+import { whitespaceRE, error, pushChild } from "./util";
 
 const parseAttributes = (index, input, length, attributes, directives, dependencies) => {
   while (index < length) {
