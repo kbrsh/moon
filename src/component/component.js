@@ -1,6 +1,11 @@
 import { m } from "../util/m";
 
-const build = function() {
+const create = function(root) {
+  this.view[0](root);
+  this.emit("created");
+};
+
+const update = function() {
   if (this.queued === false) {
     this.queued = true;
 
@@ -20,7 +25,7 @@ const set = function(key, value) {
     }
   } else {
     this.data[key] = value;
-    this.build();
+    this.update();
   }
 };
 
@@ -80,7 +85,8 @@ export const component = (name, options) => {
     }
 
     this.queued = false;
-    this.build = build;
+    this.create = create;
+    this.update = update;
     this.set = set;
     this.on = on;
     this.off = off;

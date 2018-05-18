@@ -316,6 +316,9 @@
         directive.on = root.index++;
         return (code + "m.cae(m[" + (element.index) + "],\"" + (directive.argument) + "\",function(event){m[" + (directive.on) + "](event);});");
       },
+      mount: function(code) {
+        return code;
+      },
       update: function(code, directive) {
         return (code + "m[" + (directive.on) + "]=function(event){" + (attributeValue(directive)) + ";};");
       }
@@ -328,20 +331,42 @@
         return mapReduce(element.children, function (child) { return generateCreate(child, parent, root); });
         break;
       case "m-expression":
-        return ("m[" + (element.index) + "]=m.ct(\"\");m.ca(m[" + (element.index) + "]," + parent + ");");
+        return ("m[" + (element.index) + "]=m.ct(\"\");");
         break;
       case "m-text":
-        return ("m[" + (element.index) + "]=m.ct(\"" + (element.content) + "\");m.ca(m[" + (element.index) + "]," + parent + ");");
+        return ("m[" + (element.index) + "]=m.ct(\"" + (element.content) + "\");");
         break;
       default:
         var elementDirectives = element.directives;
-        var code = "m[" + (element.index) + "]=m.ce(\"" + (element.type) + "\");" + (mapReduce(element.attributes, function (attribute) { return attribute.dynamic ? "" : ("m[" + (element.index) + "].setAttribute(\"" + (attribute.key) + "\"," + (attributeValue(attribute)) + ");"); })) + "m.ca(m[" + (element.index) + "], " + parent + ");" + (mapReduce(element.children, function (child) { return generateCreate(child, ("m[" + (element.index) + "]"), root); }));
+        var code = "m[" + (element.index) + "]=m.ce(\"" + (element.type) + "\");" + (mapReduce(element.attributes, function (attribute) { return attribute.dynamic ? "" : ("m[" + (element.index) + "].setAttribute(\"" + (attribute.key) + "\"," + (attributeValue(attribute)) + ");"); })) + (mapReduce(element.children, function (child) { return generateCreate(child, ("m[" + (element.index) + "]"), root); }));
+
+        for (var i = 0; i < elementDirectives.length; i++) {
+          var elementDirective = elementDirectives[i];
+          code = directives[elementDirective.key].create(code, elementDirective, element, parent, root);
+        }
+
+        return code;
+    }
+  };
+
+  var generateMount = function (element, parent, root) {
+    switch (element.type) {
+      case "m-fragment":
+        return mapReduce(element.children, function (child) { return generateMount(child, parent, root); });
+        break;
+      case "m-expression":
+      case "m-text":
+        return ("m.ca(m[" + (element.index) + "]," + parent + ");");
+        break;
+      default:
+        var elementDirectives = element.directives;
+        var code = "m.ca(m[" + (element.index) + "], " + parent + ");" + (mapReduce(element.children, function (child) { return generateMount(child, ("m[" + (element.index) + "]"), root); }));
 
         for (var i = 0; i < elementDirectives.length; i++) {
           var elementDirective = elementDirectives[i];
           var directive = directives[elementDirective.key];
 
-          code = directive.create(code, elementDirective, element, parent, root);
+          code = directive.mount(code, elementDirective, element, parent, root);
 
           if (!elementDirective.dynamic) {
             code += directive.update("", elementDirective, element, parent, root);
@@ -352,8 +377,11 @@
     }
   };
 
-  var generateUpdate = function (element, root) {
+  var generateUpdate = function (element, parent, root) {
     switch (element.type) {
+      case "m-fragment":
+        return mapReduce(element.children, function (child) { return generateUpdate(child, parent, root); });
+        break;
       case "m-expression":
         return element.dynamic ? ("m.ut(m[" + (element.index) + "]," + (element.content) + ");") : "";
         break;
@@ -362,7 +390,7 @@
         break;
       default:
         var elementDirectives = element.directives;
-        var code = mapReduce(element.attributes, function (attribute) { return attribute.dynamic ? ("m[" + (element.index) + "].setAttribute(\"" + (attribute.key) + "\"," + (attribute.value) + ");") : ""; }) + mapReduce(element.children, function (child) { return generateUpdate(child, root); });
+        var code = mapReduce(element.attributes, function (attribute) { return attribute.dynamic ? ("m[" + (element.index) + "].setAttribute(\"" + (attribute.key) + "\"," + (attribute.value) + ");") : ""; }) + mapReduce(element.children, function (child) { return generateUpdate(child, ("m[" + (element.index) + "]"), root); });
 
         for (var i = 0; i < elementDirectives.length; i++) {
           var elementDirective = elementDirectives[i];
@@ -377,7 +405,7 @@
   };
 
   var generate = function (tree) {
-    return new Function(("return [function(root){var m=this.m;" + (generateCreate(tree, "root", tree)) + "},function(){var m=this.m;" + (mapReduce(tree.dependencies, function (dependency) { return ("var " + dependency + "=this.data." + dependency + ";"); })) + (generateUpdate(tree, tree)) + "}]"))();
+    return new Function(("return [function(root){var m=this.m;" + (generateCreate(tree, "root", tree)) + (generateMount(tree, "root", tree)) + "},function(){var m=this.m;" + (mapReduce(tree.dependencies, function (dependency) { return ("var " + dependency + "=this.data." + dependency + ";"); })) + (generateUpdate(tree, "root", tree)) + "}]"))();
   };
 
   var compile = function (input) {
@@ -410,7 +438,12 @@
     return m;
   };
 
-  var build = function() {
+  var create = function(root) {
+    this.view[0](root);
+    this.emit("created");
+  };
+
+  var update = function() {
     if (this.queued === false) {
       this.queued = true;
 
@@ -432,7 +465,7 @@
       }
     } else {
       this.data[key] = value;
-      this.build();
+      this.update();
     }
   };
 
@@ -494,7 +527,8 @@
       }
 
       this.queued = false;
-      this.build = build;
+      this.create = create;
+      this.update = update;
       this.set = set;
       this.on = on;
       this.off = off;
@@ -530,9 +564,8 @@
     var rootComponent = component("m-root", options);
     var instance = new rootComponent();
 
-    instance.view[0](root);
-    instance.view[1]();
-    instance.emit("created");
+    instance.create(root);
+    instance.update();
 
     return instance;
   }
