@@ -8,8 +8,8 @@ const appendChild = (element, parent) => {
   parent.appendChild(element);
 };
 
-const replaceChild = (element, old, parent) => {
-  parent.replaceChild(element, old);
+const removeChild = (element, parent) => {
+  parent.removeChild(element);
 };
 
 const addEventListener = (element, type, handler) => {
@@ -30,7 +30,7 @@ export const m = () => {
   m.ce = createElement;
   m.ctn = createTextNode;
   m.ac = appendChild;
-  m.rc = replaceChild;
+  m.rc = removeChild;
   m.ael = addEventListener;
   m.sa = setAttribute;
   m.stc = setTextContent;

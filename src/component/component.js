@@ -18,6 +18,11 @@ const update = function() {
   }
 };
 
+const destroy = function() {
+  this.view[2]();
+  this.emit("destroyed");
+};
+
 const set = function(key, value) {
   if (typeof key === "object") {
     for (let childKey in key) {
@@ -87,6 +92,7 @@ export const component = (name, options) => {
     this.queued = false;
     this.create = create;
     this.update = update;
+    this.destroy = destroy;
     this.set = set;
     this.on = on;
     this.off = off;

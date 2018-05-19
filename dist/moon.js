@@ -40,9 +40,12 @@
 
     while ((info = expressionRE.exec(expression)) !== null) {
       var name = info[1];
-      if (name !== undefined && dependencies.indexOf(name) === -1 && locals.indexOf(name) === -1 && name[0] !== "$") {
-        dependencies.push(name);
+      if (name !== undefined && locals.indexOf(name) === -1 && name[0] !== "$") {
         dynamic = true;
+
+        if (dependencies.indexOf(name) === -1) {
+          dependencies.push(name);
+        }
       }
     }
 
@@ -311,43 +314,50 @@
 
   var mapReduce = function (arr, fn) { return arr.reduce(function (result, current) { return result + fn(current); }, ""); };
 
+  var assignElement = function (element, code) { return ("m[" + element + "]=" + code); };
+
   var attributeValue = function (attribute) { return attribute.expression ? attribute.value : ("\"" + (attribute.value) + "\""); };
+
+  var createElement = function (type) { return ("m.ce(\"" + type + "\");"); };
+
+  var createTextNode = function (content) { return ("m.ctn(" + content + ");"); };
+
+  var appendChild = function (element, parent) { return ("m.ac(m[" + element + "],m[" + parent + "]);"); };
+
+  var removeChild = function (element, parent) { return ("m.rc(m[" + element + "],m[" + parent + "]);"); };
+
+  var addEventListener = function (element, type, handler) { return ("m.ael(m[" + element + "],\"" + type + "\"," + handler + ");"); };
+
+  var setAttribute = function (element, attribute) { return ("m.sa(m[" + element + "],\"" + (attribute.key) + "\"," + (attributeValue(attribute)) + ");"); };
+
+  var setTextContent = function (element, content) { return ("m.stc(m[" + element + "]," + content + ");"); };
 
   var directives = {
     "m-on": {
-      create: function(code, elementCode, childrenCode, directive, element, parent, root) {
+      create: function (code, directive, element, parent, root) {
         directive.on = root.nextIndex++;
-        return (code + "m.ael(m[" + (element.index) + "],\"" + (directive.argument) + "\",function($event){m[" + (directive.on) + "]($event);});");
+        return code + addEventListener(element.index, directive.argument, ("function($event){m[" + (directive.on) + "]($event);}"));
       },
-      mount: function(code) {
-        return code;
-      },
-      update: function(code, elementCode, childrenCode, directive) {
-        return (code + "m[" + (directive.on) + "]=function($event){" + (attributeValue(directive)) + ";};");
-      }
+      mount: function (code) { return code; },
+      update: function (code, directive) { return code + assignElement(directive.on, ("function($event){" + (attributeValue(directive)) + ";};")); }
     }
   };
 
   var generateCreate = function (element, parent, root) {
     switch (element.type) {
-      case "m-fragment":
-        return mapReduce(element.children, function (child) { return generateCreate(child, parent, root); });
-        break;
       case "m-expression":
-        return ("m[" + (element.index) + "]=m.ctn(\"\");");
+        return assignElement(element.index, createTextNode("\"\""));
         break;
       case "m-text":
-        return ("m[" + (element.index) + "]=m.ctn(\"" + (element.content) + "\");");
+        return assignElement(element.index, createTextNode(("\"" + (element.content) + "\"")));
         break;
       default:
         var elementDirectives = element.directives;
-        var elementCode = "m[" + (element.index) + "]=m.ce(\"" + (element.type) + "\");" + (mapReduce(element.attributes, function (attribute) { return attribute.dynamic ? "" : ("m.sa(m[" + (element.index) + "],\"" + (attribute.key) + "\"," + (attributeValue(attribute)) + ")"); }));
-        var childrenCode = mapReduce(element.children, function (child) { return generateCreate(child, element, root); });
-        var code = elementCode + childrenCode;
+        var code = assignElement(element.index, createElement(element.type) + mapReduce(element.attributes, function (attribute) { return attribute.dynamic ? "" : setAttribute(element.index, attribute); }) + mapReduce(element.children, function (child) { return generateCreate(child, element, root); }));
 
         for (var i = 0; i < elementDirectives.length; i++) {
           var elementDirective = elementDirectives[i];
-          code = directives[elementDirective.key].create(code, elementCode, childrenCode, elementDirective, element, parent, root);
+          code = directives[elementDirective.key].create(code, elementDirective, element, parent, root);
         }
 
         return code;
@@ -356,28 +366,17 @@
 
   var generateMount = function (element, parent, root) {
     switch (element.type) {
-      case "m-fragment":
-        return mapReduce(element.children, function (child) { return generateMount(child, parent, root); });
-        break;
       case "m-expression":
       case "m-text":
-        return ("m.ac(m[" + (element.index) + "],m[" + (parent.index) + "]);");
+        return appendChild(element.index, parent.index);
         break;
       default:
         var elementDirectives = element.directives;
-        var elementCode = "m.ac(m[" + (element.index) + "],m[" + (parent.index) + "]);";
-        var childrenCode = mapReduce(element.children, function (child) { return generateMount(child, element, root); });
-        var code = elementCode + childrenCode;
-
+        var code = appendChild(element.index, parent.index) + mapReduce(element.children, function (child) { return generateMount(child, element, root); });
+        
         for (var i = 0; i < elementDirectives.length; i++) {
           var elementDirective = elementDirectives[i];
-          var directive = directives[elementDirective.key];
-
-          code = directive.mount(code, elementCode, childrenCode, elementDirective, element, parent, root);
-
-          if (!elementDirective.dynamic) {
-            code += directive.update("", "", "", elementDirective, element, parent, root);
-          }
+          code = directives[elementDirective.key].mount(code, elementDirective, element, parent, root);
         }
 
         return code;
@@ -386,27 +385,19 @@
 
   var generateUpdate = function (element, parent, root) {
     switch (element.type) {
-      case "m-fragment":
-        return mapReduce(element.children, function (child) { return generateUpdate(child, parent, root); });
-        break;
       case "m-expression":
-        return element.dynamic ? ("m.stc(m[" + (element.index) + "]," + (element.content) + ");") : "";
+        return element.dynamic ? setTextContent(element.index, element.content) : "";
         break;
       case "m-text":
         return "";
         break;
       default:
         var elementDirectives = element.directives;
-        var elementCode = mapReduce(element.attributes, function (attribute) { return attribute.dynamic ? ("m.sa(m[" + (element.index) + "],\"" + (attribute.key) + "\"," + (attribute.value) + ");") : ""; });
-        var childrenCode = mapReduce(element.children, function (child) { return generateUpdate(child, element, root); });
-        var code = elementCode + childrenCode;
+        var code = mapReduce(element.attributes, function (attribute) { return attribute.dynamic ? setAttribute(element.index, attribute) : ""; }) + mapReduce(element.children, function (child) { return generateUpdate(child, element, root); });
 
         for (var i = 0; i < elementDirectives.length; i++) {
           var elementDirective = elementDirectives[i];
-
-          if (elementDirective.dynamic) {
-            code = directives[elementDirective.key].update(code, elementCode, childrenCode, elementDirective, element, parent, root);
-          }
+          code = directives[elementDirective.key].update(code, elementDirective, element, parent, root);
         }
 
         return code;
@@ -414,7 +405,7 @@
   };
 
   var generate = function (tree) {
-    return new Function(("return [function(m){this.m[0]=m;m=this.m;" + (mapReduce(tree.children, function (child) { return generateCreate(child, tree, tree); })) + (mapReduce(tree.children, function (child) { return generateMount(child, tree, tree); })) + "},function(){var m=this.m;" + (mapReduce(tree.dependencies, function (dependency) { return ("var " + dependency + "=this.data." + dependency + ";"); })) + (mapReduce(tree.children, function (child) { return generateUpdate(child, tree, tree); })) + "}]"))();
+    return new Function(("return [function(m){this.m[0]=m;m=this.m;" + (mapReduce(tree.children, function (child) { return generateCreate(child, tree, tree); })) + (mapReduce(tree.children, function (child) { return generateMount(child, tree, tree); })) + "},function(){var m=this.m;" + (mapReduce(tree.dependencies, function (dependency) { return ("var " + dependency + "=this.data." + dependency + ";"); })) + (mapReduce(tree.children, function (child) { return generateUpdate(child, tree, tree); })) + "},function(){var m=this.m;" + (mapReduce(tree.children, function (child) { return removeChild(child.index, tree.index); })) + "m=[m[0]];}];"))();
   };
 
   var compile = function (input) {
@@ -423,40 +414,40 @@
 
   var components = {};
 
-  var createElement = function (type) { return document.createElement(type); };
+  var createElement$1 = function (type) { return document.createElement(type); };
 
-  var createTextNode = function (content) { return document.createTextNode(content); };
+  var createTextNode$1 = function (content) { return document.createTextNode(content); };
 
-  var appendChild = function (element, parent) {
+  var appendChild$1 = function (element, parent) {
     parent.appendChild(element);
   };
 
-  var replaceChild = function (element, old, parent) {
-    parent.replaceChild(element, old);
+  var removeChild$1 = function (element, parent) {
+    parent.removeChild(element);
   };
 
-  var addEventListener = function (element, type, handler) {
+  var addEventListener$1 = function (element, type, handler) {
     element.addEventListener(type, handler);
   };
 
-  var setAttribute = function (element, key, value) {
+  var setAttribute$1 = function (element, key, value) {
     element.setAttribute(key, value);
   };
 
-  var setTextContent = function (element, content) {
+  var setTextContent$1 = function (element, content) {
     element.textContent = content;
   };
 
   var m = function () {
     var m = [];
     m.c = components;
-    m.ce = createElement;
-    m.ctn = createTextNode;
-    m.ac = appendChild;
-    m.rc = replaceChild;
-    m.ael = addEventListener;
-    m.sa = setAttribute;
-    m.stc = setTextContent;
+    m.ce = createElement$1;
+    m.ctn = createTextNode$1;
+    m.ac = appendChild$1;
+    m.rc = removeChild$1;
+    m.ael = addEventListener$1;
+    m.sa = setAttribute$1;
+    m.stc = setTextContent$1;
     return m;
   };
 
@@ -476,6 +467,11 @@
         instance.emit("updated");
       }, 0);
     }
+  };
+
+  var destroy = function() {
+    this.view[2]();
+    this.emit("destroyed");
   };
 
   var set = function(key, value) {
@@ -551,6 +547,7 @@
       this.queued = false;
       this.create = create;
       this.update = update;
+      this.destroy = destroy;
       this.set = set;
       this.on = on;
       this.off = off;

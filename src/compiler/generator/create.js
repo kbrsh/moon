@@ -1,26 +1,21 @@
 import { directives } from "./directives";
-import { attributeValue, mapReduce } from "./util";
+import { assignElement, createElement, createTextNode, setAttribute, mapReduce } from "./util";
 
 export const generateCreate = (element, parent, root) => {
   switch (element.type) {
-    case "m-fragment":
-      return mapReduce(element.children, (child) => generateCreate(child, parent, root));
-      break;
     case "m-expression":
-      return `m[${element.index}]=m.ctn("");`;
+      return assignElement(element.index, createTextNode("\"\""));
       break;
     case "m-text":
-      return `m[${element.index}]=m.ctn("${element.content}");`;
+      return assignElement(element.index, createTextNode(`"${element.content}"`));
       break;
     default:
       const elementDirectives = element.directives;
-      const elementCode = `m[${element.index}]=m.ce("${element.type}");${mapReduce(element.attributes, (attribute) => attribute.dynamic ? "" : `m.sa(m[${element.index}],"${attribute.key}",${attributeValue(attribute)})`)}`;
-      const childrenCode = mapReduce(element.children, (child) => generateCreate(child, element, root));
-      let code = elementCode + childrenCode;
+      let code = assignElement(element.index, createElement(element.type) + mapReduce(element.attributes, (attribute) => attribute.dynamic ? "" : setAttribute(element.index, attribute)) + mapReduce(element.children, (child) => generateCreate(child, element, root)));
 
       for (let i = 0; i < elementDirectives.length; i++) {
         const elementDirective = elementDirectives[i];
-        code = directives[elementDirective.key].create(code, elementCode, childrenCode, elementDirective, element, parent, root);
+        code = directives[elementDirective.key].create(code, elementDirective, element, parent, root);
       }
 
       return code;
