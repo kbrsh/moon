@@ -28,8 +28,8 @@ export default function Moon(options) {
     options.actions = {};
   }
 
-  const rootComponent = component("m-root", options);
-  const instance = new rootComponent();
+  const instanceComponent = component("m-instance", options);
+  const instance = new instanceComponent();
 
   instance.create(root);
   instance.update();

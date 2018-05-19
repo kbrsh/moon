@@ -90,7 +90,7 @@ export const parseOpeningTag = (index, input, length, stack, dependencies) => {
 
     if (char === ">") {
       const element = {
-        index: stack[0].index++,
+        index: stack[0].nextIndex++,
         type: type,
         attributes: attributes,
         directives: directives,
@@ -104,7 +104,7 @@ export const parseOpeningTag = (index, input, length, stack, dependencies) => {
       break;
     } else if (char === "/" && input[index + 1] === ">") {
       pushChild({
-        index: stack[0].index++,
+        index: stack[0].nextIndex++,
         type: type,
         attributes: attributes,
         directives: directives,

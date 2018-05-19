@@ -40,7 +40,7 @@
 
     while ((info = expressionRE.exec(expression)) !== null) {
       var name = info[1];
-      if (name !== undefined && locals.indexOf(name) === -1) {
+      if (name !== undefined && dependencies.indexOf(name) === -1 && locals.indexOf(name) === -1 && name[0] !== "$") {
         dependencies.push(name);
         dynamic = true;
       }
@@ -154,7 +154,7 @@
 
       if (char === ">") {
         var element = {
-          index: stack[0].index++,
+          index: stack[0].nextIndex++,
           type: type,
           attributes: attributes,
           directives: directives,
@@ -168,7 +168,7 @@
         break;
       } else if (char === "/" && input[index + 1] === ">") {
         pushChild({
-          index: stack[0].index++,
+          index: stack[0].nextIndex++,
           type: type,
           attributes: attributes,
           directives: directives,
@@ -239,7 +239,7 @@
 
     if (!whitespaceRE.test(content)) {
       pushChild({
-        index: stack[0].index++,
+        index: stack[0].nextIndex++,
         type: "m-text",
         content: content.replace(escapeRE, function (match) { return escapeMap[match]; })
       }, stack);
@@ -263,7 +263,7 @@
     }
 
     pushChild({
-      index: stack[0].index++,
+      index: stack[0].nextIndex++,
       type: "m-expression",
       content: expression,
       dynamic: parseTemplate(expression, dependencies)
@@ -278,7 +278,8 @@
 
     var root = {
       index: 0,
-      type: "m-fragment",
+      nextIndex: 1,
+      type: "m-root",
       attributes: [],
       directives: [],
       children: [],
@@ -314,15 +315,15 @@
 
   var directives = {
     "m-on": {
-      create: function(code, directive, element, parent, root) {
-        directive.on = root.index++;
-        return (code + "m.cae(m[" + (element.index) + "],\"" + (directive.argument) + "\",function(event){m[" + (directive.on) + "](event);});");
+      create: function(code, elementCode, childrenCode, directive, element, parent, root) {
+        directive.on = root.nextIndex++;
+        return (code + "m.ael(m[" + (element.index) + "],\"" + (directive.argument) + "\",function($event){m[" + (directive.on) + "]($event);});");
       },
       mount: function(code) {
         return code;
       },
-      update: function(code, directive) {
-        return (code + "m[" + (directive.on) + "]=function(event){" + (attributeValue(directive)) + ";};");
+      update: function(code, elementCode, childrenCode, directive) {
+        return (code + "m[" + (directive.on) + "]=function($event){" + (attributeValue(directive)) + ";};");
       }
     }
   };
@@ -333,18 +334,20 @@
         return mapReduce(element.children, function (child) { return generateCreate(child, parent, root); });
         break;
       case "m-expression":
-        return ("m[" + (element.index) + "]=m.ct(\"\");");
+        return ("m[" + (element.index) + "]=m.ctn(\"\");");
         break;
       case "m-text":
-        return ("m[" + (element.index) + "]=m.ct(\"" + (element.content) + "\");");
+        return ("m[" + (element.index) + "]=m.ctn(\"" + (element.content) + "\");");
         break;
       default:
         var elementDirectives = element.directives;
-        var code = "m[" + (element.index) + "]=m.ce(\"" + (element.type) + "\");" + (mapReduce(element.attributes, function (attribute) { return attribute.dynamic ? "" : ("m[" + (element.index) + "].setAttribute(\"" + (attribute.key) + "\"," + (attributeValue(attribute)) + ");"); })) + (mapReduce(element.children, function (child) { return generateCreate(child, ("m[" + (element.index) + "]"), root); }));
+        var elementCode = "m[" + (element.index) + "]=m.ce(\"" + (element.type) + "\");" + (mapReduce(element.attributes, function (attribute) { return attribute.dynamic ? "" : ("m.sa(m[" + (element.index) + "],\"" + (attribute.key) + "\"," + (attributeValue(attribute)) + ")"); }));
+        var childrenCode = mapReduce(element.children, function (child) { return generateCreate(child, element, root); });
+        var code = elementCode + childrenCode;
 
         for (var i = 0; i < elementDirectives.length; i++) {
           var elementDirective = elementDirectives[i];
-          code = directives[elementDirective.key].create(code, elementDirective, element, parent, root);
+          code = directives[elementDirective.key].create(code, elementCode, childrenCode, elementDirective, element, parent, root);
         }
 
         return code;
@@ -358,20 +361,22 @@
         break;
       case "m-expression":
       case "m-text":
-        return ("m.ca(m[" + (element.index) + "]," + parent + ");");
+        return ("m.ac(m[" + (element.index) + "],m[" + (parent.index) + "]);");
         break;
       default:
         var elementDirectives = element.directives;
-        var code = "m.ca(m[" + (element.index) + "], " + parent + ");" + (mapReduce(element.children, function (child) { return generateMount(child, ("m[" + (element.index) + "]"), root); }));
+        var elementCode = "m.ac(m[" + (element.index) + "],m[" + (parent.index) + "]);";
+        var childrenCode = mapReduce(element.children, function (child) { return generateMount(child, element, root); });
+        var code = elementCode + childrenCode;
 
         for (var i = 0; i < elementDirectives.length; i++) {
           var elementDirective = elementDirectives[i];
           var directive = directives[elementDirective.key];
 
-          code = directive.mount(code, elementDirective, element, parent, root);
+          code = directive.mount(code, elementCode, childrenCode, elementDirective, element, parent, root);
 
           if (!elementDirective.dynamic) {
-            code += directive.update("", elementDirective, element, parent, root);
+            code += directive.update("", "", "", elementDirective, element, parent, root);
           }
         }
 
@@ -385,20 +390,22 @@
         return mapReduce(element.children, function (child) { return generateUpdate(child, parent, root); });
         break;
       case "m-expression":
-        return element.dynamic ? ("m.ut(m[" + (element.index) + "]," + (element.content) + ");") : "";
+        return element.dynamic ? ("m.stc(m[" + (element.index) + "]," + (element.content) + ");") : "";
         break;
       case "m-text":
         return "";
         break;
       default:
         var elementDirectives = element.directives;
-        var code = mapReduce(element.attributes, function (attribute) { return attribute.dynamic ? ("m[" + (element.index) + "].setAttribute(\"" + (attribute.key) + "\"," + (attribute.value) + ");") : ""; }) + mapReduce(element.children, function (child) { return generateUpdate(child, ("m[" + (element.index) + "]"), root); });
+        var elementCode = mapReduce(element.attributes, function (attribute) { return attribute.dynamic ? ("m.sa(m[" + (element.index) + "],\"" + (attribute.key) + "\"," + (attribute.value) + ");") : ""; });
+        var childrenCode = mapReduce(element.children, function (child) { return generateUpdate(child, element, root); });
+        var code = elementCode + childrenCode;
 
         for (var i = 0; i < elementDirectives.length; i++) {
           var elementDirective = elementDirectives[i];
 
           if (elementDirective.dynamic) {
-            code = directives[elementDirective.key].update(code, elementDirective, element, parent, root);
+            code = directives[elementDirective.key].update(code, elementCode, childrenCode, elementDirective, element, parent, root);
           }
         }
 
@@ -407,7 +414,7 @@
   };
 
   var generate = function (tree) {
-    return new Function(("return [function(root){var m=this.m;" + (generateCreate(tree, "root", tree)) + (generateMount(tree, "root", tree)) + "},function(){var m=this.m;" + (mapReduce(tree.dependencies, function (dependency) { return ("var " + dependency + "=this.data." + dependency + ";"); })) + (generateUpdate(tree, "root", tree)) + "}]"))();
+    return new Function(("return [function(m){this.m[0]=m;m=this.m;" + (mapReduce(tree.children, function (child) { return generateCreate(child, tree, tree); })) + (mapReduce(tree.children, function (child) { return generateMount(child, tree, tree); })) + "},function(){var m=this.m;" + (mapReduce(tree.dependencies, function (dependency) { return ("var " + dependency + "=this.data." + dependency + ";"); })) + (mapReduce(tree.children, function (child) { return generateUpdate(child, tree, tree); })) + "}]"))();
   };
 
   var compile = function (input) {
@@ -417,15 +424,26 @@
   var components = {};
 
   var createElement = function (type) { return document.createElement(type); };
-  var createText = function (content) { return document.createTextNode(content); };
-  var createAddEvent = function (element, type, handler) {
-    element.addEventListener(type, handler);
-  };
-  var createAppend = function (element, parent) {
+
+  var createTextNode = function (content) { return document.createTextNode(content); };
+
+  var appendChild = function (element, parent) {
     parent.appendChild(element);
   };
 
-  var updateText = function (element, content) {
+  var replaceChild = function (element, old, parent) {
+    parent.replaceChild(element, old);
+  };
+
+  var addEventListener = function (element, type, handler) {
+    element.addEventListener(type, handler);
+  };
+
+  var setAttribute = function (element, key, value) {
+    element.setAttribute(key, value);
+  };
+
+  var setTextContent = function (element, content) {
     element.textContent = content;
   };
 
@@ -433,10 +451,12 @@
     var m = [];
     m.c = components;
     m.ce = createElement;
-    m.ct = createText;
-    m.cae = createAddEvent;
-    m.ca = createAppend;
-    m.ut = updateText;
+    m.ctn = createTextNode;
+    m.ac = appendChild;
+    m.rc = replaceChild;
+    m.ael = addEventListener;
+    m.sa = setAttribute;
+    m.stc = setTextContent;
     return m;
   };
 
@@ -563,8 +583,8 @@
       options.actions = {};
     }
 
-    var rootComponent = component("m-root", options);
-    var instance = new rootComponent();
+    var instanceComponent = component("m-instance", options);
+    var instance = new instanceComponent();
 
     instance.create(root);
     instance.update();

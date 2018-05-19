@@ -9,7 +9,8 @@ export const parse = (input) => {
 
   const root = {
     index: 0,
-    type: "m-fragment",
+    nextIndex: 1,
+    type: "m-root",
     attributes: [],
     directives: [],
     children: [],

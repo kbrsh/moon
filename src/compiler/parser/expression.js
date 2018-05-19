@@ -16,7 +16,7 @@ export const parseExpression = (index, input, length, stack, dependencies) => {
   }
 
   pushChild({
-    index: stack[0].index++,
+    index: stack[0].nextIndex++,
     type: "m-expression",
     content: expression,
     dynamic: parseTemplate(expression, dependencies)

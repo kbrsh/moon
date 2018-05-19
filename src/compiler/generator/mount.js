@@ -8,20 +8,22 @@ export const generateMount = (element, parent, root) => {
       break;
     case "m-expression":
     case "m-text":
-      return `m.ca(m[${element.index}],${parent});`;
+      return `m.ac(m[${element.index}],m[${parent.index}]);`;
       break;
     default:
       const elementDirectives = element.directives;
-      let code = `m.ca(m[${element.index}], ${parent});${mapReduce(element.children, (child) => generateMount(child, `m[${element.index}]`, root))}`;
+      const elementCode = `m.ac(m[${element.index}],m[${parent.index}]);`;
+      const childrenCode = mapReduce(element.children, (child) => generateMount(child, element, root));
+      let code = elementCode + childrenCode;
 
       for (let i = 0; i < elementDirectives.length; i++) {
         const elementDirective = elementDirectives[i];
         const directive = directives[elementDirective.key];
 
-        code = directive.mount(code, elementDirective, element, parent, root);
+        code = directive.mount(code, elementCode, childrenCode, elementDirective, element, parent, root);
 
         if (!elementDirective.dynamic) {
-          code += directive.update("", elementDirective, element, parent, root);
+          code += directive.update("", "", "", elementDirective, element, parent, root);
         }
       }
 

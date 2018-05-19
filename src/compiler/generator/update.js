@@ -7,20 +7,22 @@ export const generateUpdate = (element, parent, root) => {
       return mapReduce(element.children, (child) => generateUpdate(child, parent, root));
       break;
     case "m-expression":
-      return element.dynamic ? `m.ut(m[${element.index}],${element.content});` : "";
+      return element.dynamic ? `m.stc(m[${element.index}],${element.content});` : "";
       break;
     case "m-text":
       return "";
       break;
     default:
       const elementDirectives = element.directives;
-      let code = mapReduce(element.attributes, (attribute) => attribute.dynamic ? `m[${element.index}].setAttribute("${attribute.key}",${attribute.value});` : "") + mapReduce(element.children, (child) => generateUpdate(child, `m[${element.index}]`, root));
+      const elementCode = mapReduce(element.attributes, (attribute) => attribute.dynamic ? `m.sa(m[${element.index}],"${attribute.key}",${attribute.value});` : "");
+      const childrenCode = mapReduce(element.children, (child) => generateUpdate(child, element, root));
+      let code = elementCode + childrenCode;
 
       for (let i = 0; i < elementDirectives.length; i++) {
         const elementDirective = elementDirectives[i];
 
         if (elementDirective.dynamic) {
-          code = directives[elementDirective.key].update(code, elementDirective, element, parent, root);
+          code = directives[elementDirective.key].update(code, elementCode, childrenCode, elementDirective, element, parent, root);
         }
       }
 

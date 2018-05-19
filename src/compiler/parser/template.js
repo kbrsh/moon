@@ -6,7 +6,7 @@ export const parseTemplate = (expression, dependencies) => {
 
   while ((info = expressionRE.exec(expression)) !== null) {
     let name = info[1];
-    if (name !== undefined && locals.indexOf(name) === -1) {
+    if (name !== undefined && dependencies.indexOf(name) === -1 && locals.indexOf(name) === -1 && name[0] !== "$") {
       dependencies.push(name);
       dynamic = true;
     }

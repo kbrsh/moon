@@ -27,7 +27,7 @@ export const parseText = (index, input, length, stack) => {
 
   if (!whitespaceRE.test(content)) {
     pushChild({
-      index: stack[0].index++,
+      index: stack[0].nextIndex++,
       type: "m-text",
       content: content.replace(escapeRE, (match) => escapeMap[match])
     }, stack);
