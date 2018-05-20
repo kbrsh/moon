@@ -1,23 +1,29 @@
 import { directives } from "../directives/directives";
-import { assignElement, createElement, createTextNode, setAttribute, mapReduce } from "./util";
+import { assignElement, attributeValue, createElement, createTextNode, createComment, appendChild, setAttribute, mapReduce } from "./util";
 
 export const generateCreate = (element, parent, root) => {
+  let createCode;
+  let mountCode = appendChild(element.index, parent.index);
+
   switch (element.type) {
-    case "m-expression":
-      return assignElement(element.index, createTextNode(element.content));
+    case "m-comment":
+      createCode = assignElement(element.index, createComment());
       break;
     case "m-text":
-      return assignElement(element.index, createTextNode(`"${element.content}"`));
+      createCode = assignElement(element.index, createTextNode(attributeValue(element.attributes[0])));
       break;
     default:
-      const elementDirectives = element.directives;
-      let code = assignElement(element.index, createElement(element.type) + mapReduce(element.attributes, (attribute) => setAttribute(element.index, attribute)) + mapReduce(element.children, (child) => generateCreate(child, element, root)));
-
-      for (let i = 0; i < elementDirectives.length; i++) {
-        const elementDirective = elementDirectives[i];
-        code = directives[elementDirective.key].create(code, elementDirective, element, parent, root);
-      }
-
-      return code;
+      createCode = assignElement(element.index, createElement(element.type)) + mapReduce(element.attributes, (attribute) => setAttribute(element.index, attribute)) + mapReduce(element.children, (child) => generateCreate(child, element, root));
   }
+
+  const elementDirectives = element.directives;
+
+  for (let i = 0; i < elementDirectives.length; i++) {
+    const elementDirective = elementDirectives[i];
+    const code = directives[elementDirective.key].create(createCode, mountCode, elementDirective, element, parent, root);
+    createCode = code[0];
+    mountCode = code[1];
+  }
+
+  return createCode + mountCode;
 };

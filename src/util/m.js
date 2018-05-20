@@ -4,6 +4,8 @@ const createElement = (type) => document.createElement(type);
 
 const createTextNode = (content) => document.createTextNode(content);
 
+const createComment = () => document.createComment("");
+
 const appendChild = (element, parent) => {
   parent.appendChild(element);
 };
@@ -33,6 +35,7 @@ export const m = () => {
   m.c = components;
   m.ce = createElement;
   m.ctn = createTextNode;
+  m.cc = createComment;
   m.ac = appendChild;
   m.rc = removeChild;
   m.in = insertNode;

@@ -42,6 +42,8 @@
 
   var createTextNode = function (content) { return ("m.ctn(" + content + ");"); };
 
+  var createComment = function () { return "m.cc();"; };
+
   var appendChild = function (element, parent) { return ("m.ac(m[" + element + "],m[" + parent + "]);"); };
 
   var removeChild = function (element, parent) { return ("m.rc(m[" + element + "],m[" + parent + "]);"); };
@@ -54,11 +56,11 @@
 
   var mOn = {
     order: 0,
-    create: function (code, directive, element) {
-      return code + addEventListener(element.index, directive.argument, ("function($event){" + (attributeValue(directive)) + "}"));
+    create: function (createCode, mountCode, directive, element) {
+      return [createCode + addEventListener(element.index, directive.argument, ("function($event){" + (attributeValue(directive)) + "}")), mountCode];
     },
-    mount: function (elementCode, childrenCode) { return [elementCode, childrenCode]; },
-    update: function (code) { return code; }
+    update: function (updateCode) { return updateCode; },
+    destroy: function (destroyCode) { return destroyCode; }
   };
 
   var mIf = {
@@ -284,7 +286,15 @@
       pushChild({
         index: stack[0].nextIndex++,
         type: "m-text",
-        content: content.replace(escapeRE, function (match) { return escapeMap[match]; })
+        attributes: [{
+          key: "content",
+          value: content.replace(escapeRE, function (match) { return escapeMap[match]; }),
+          argument: "",
+          expression: false,
+          dynamic: false
+        }],
+        directives: [],
+        children: []
       }, stack);
     }
 
@@ -307,9 +317,16 @@
 
     pushChild({
       index: stack[0].nextIndex++,
-      type: "m-expression",
-      content: expression,
-      dynamic: parseTemplate(expression, dependencies)
+      type: "m-text",
+      attributes: [{
+        key: "content",
+        value: expression,
+        argument: "",
+        expression: true,
+        dynamic: parseTemplate(expression, dependencies)
+      }],
+      directives: [],
+      children: []
     }, stack);
 
     return index;
@@ -353,72 +370,72 @@
   };
 
   var generateCreate = function (element, parent, root) {
+    var createCode;
+    var mountCode = appendChild(element.index, parent.index);
+
     switch (element.type) {
-      case "m-expression":
-        return assignElement(element.index, createTextNode(element.content));
+      case "m-comment":
+        createCode = assignElement(element.index, createComment());
         break;
       case "m-text":
-        return assignElement(element.index, createTextNode(("\"" + (element.content) + "\"")));
+        createCode = assignElement(element.index, createTextNode(attributeValue(element.attributes[0])));
         break;
       default:
-        var elementDirectives = element.directives;
-        var code = assignElement(element.index, createElement(element.type) + mapReduce(element.attributes, function (attribute) { return setAttribute(element.index, attribute); }) + mapReduce(element.children, function (child) { return generateCreate(child, element, root); }));
-
-        for (var i = 0; i < elementDirectives.length; i++) {
-          var elementDirective = elementDirectives[i];
-          code = directives[elementDirective.key].create(code, elementDirective, element, parent, root);
-        }
-
-        return code;
+        createCode = assignElement(element.index, createElement(element.type)) + mapReduce(element.attributes, function (attribute) { return setAttribute(element.index, attribute); }) + mapReduce(element.children, function (child) { return generateCreate(child, element, root); });
     }
-  };
 
-  var generateMount = function (element, parent, root) {
-    switch (element.type) {
-      case "m-expression":
-      case "m-text":
-        return appendChild(element.index, parent.index);
-        break;
-      default:
-        var elementDirectives = element.directives;
-        var elementCode = appendChild(element.index, parent.index);
-        var childrenCode = mapReduce(element.children, function (child) { return generateMount(child, element, root); });
+    var elementDirectives = element.directives;
 
-        for (var i = 0; i < elementDirectives.length; i++) {
-          var elementDirective = elementDirectives[i];
-          var code = directives[elementDirective.key].mount(elementCode, childrenCode, elementDirective, element, parent, root);
-          elementCode = code[0];
-          childrenCode = code[1];
-        }
-
-        return elementCode + childrenCode;
+    for (var i = 0; i < elementDirectives.length; i++) {
+      var elementDirective = elementDirectives[i];
+      var code = directives[elementDirective.key].create(createCode, mountCode, elementDirective, element, parent, root);
+      createCode = code[0];
+      mountCode = code[1];
     }
+
+    return createCode + mountCode;
   };
 
   var generateUpdate = function (element, parent, root) {
+    var updateCode;
+
     switch (element.type) {
-      case "m-expression":
-        return element.dynamic ? setTextContent(element.index, element.content) : "";
+      case "m-comment":
+        updateCode = "";
         break;
       case "m-text":
-        return "";
+        var content = element.attributes[0];
+        updateCode = content.dynamic ? setTextContent(element.index, content.value) : "";
         break;
       default:
-        var elementDirectives = element.directives;
-        var code = mapReduce(element.attributes, function (attribute) { return attribute.dynamic ? setAttribute(element.index, attribute) : ""; }) + mapReduce(element.children, function (child) { return generateUpdate(child, element, root); });
-
-        for (var i = 0; i < elementDirectives.length; i++) {
-          var elementDirective = elementDirectives[i];
-          code = directives[elementDirective.key].update(code, elementDirective, element, parent, root);
-        }
-
-        return code;
+        updateCode = mapReduce(element.attributes, function (attribute) { return attribute.dynamic ? setAttribute(element.index, attribute) : ""; }) + mapReduce(element.children, function (child) { return generateUpdate(child, element, root); });
     }
+
+    var elementDirectives = element.directives;
+
+    for (var i = 0; i < elementDirectives.length; i++) {
+      var elementDirective = elementDirectives[i];
+      updateCode = directives[elementDirective.key].update(updateCode, elementDirective, element, parent, root);
+    }
+
+    return updateCode;
+  };
+
+  var generateDestroy = function (element, parent, root) {
+    var elementDirectives = element.directives;
+    var destroyCode = removeChild(element.index, parent.index);
+
+    for (var i = 0; i < elementDirectives.length; i++) {
+      var elementDirective = elementDirectives[i];
+      destroyCode = directives[elementDirective.key].destroy(destroyCode, elementDirective, element, parent, root);
+    }
+
+    return destroyCode;
   };
 
   var generate = function (tree) {
     var prelude = mapReduce(tree.dependencies, function (dependency) { return ("var " + dependency + "=this.data." + dependency + ";"); });
-    return new Function(("return [function(m){this.m[0]=m;m=this.m;" + prelude + (mapReduce(tree.children, function (child) { return generateCreate(child, tree, tree); })) + (mapReduce(tree.children, function (child) { return generateMount(child, tree, tree); })) + "},function(){var m=this.m;" + prelude + (mapReduce(tree.children, function (child) { return generateUpdate(child, tree, tree); })) + "},function(){var m=this.m;" + (mapReduce(tree.children, function (child) { return removeChild(child.index, tree.index); })) + "m=[m[0]];}];"))();
+    return new Function(("return [function(m){this.m[0]=m;m=this.m;" + prelude + (mapReduce(tree.children, function (child) { return generateCreate(child, tree, tree); })) + "},function(){var m=this.m;" + prelude + (mapReduce(tree.children, function (child) { return generateUpdate(child, tree, tree); })) + "},function(){var m=this.m;" + (mapReduce(tree.children, function (child) { return generateDestroy(child, tree, tree); })) + "m=[m[0]];}];"))();
   };
 
   var compile = function (input) {
@@ -430,6 +447,8 @@
   var createElement$1 = function (type) { return document.createElement(type); };
 
   var createTextNode$1 = function (content) { return document.createTextNode(content); };
+
+  var createComment$1 = function () { return document.createComment(""); };
 
   var appendChild$1 = function (element, parent) {
     parent.appendChild(element);
@@ -460,6 +479,7 @@
     m.c = components;
     m.ce = createElement$1;
     m.ctn = createTextNode$1;
+    m.cc = createComment$1;
     m.ac = appendChild$1;
     m.rc = removeChild$1;
     m.in = insertNode$1;

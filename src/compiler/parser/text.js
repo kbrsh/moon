@@ -29,7 +29,15 @@ export const parseText = (index, input, length, stack) => {
     pushChild({
       index: stack[0].nextIndex++,
       type: "m-text",
-      content: content.replace(escapeRE, (match) => escapeMap[match])
+      attributes: [{
+        key: "content",
+        value: content.replace(escapeRE, (match) => escapeMap[match]),
+        argument: "",
+        expression: false,
+        dynamic: false
+      }],
+      directives: [],
+      children: []
     }, stack);
   }
 

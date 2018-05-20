@@ -8,6 +8,8 @@ export const createElement = (type) => `m.ce("${type}");`;
 
 export const createTextNode = (content) => `m.ctn(${content});`;
 
+export const createComment = () => `m.cc();`;
+
 export const appendChild = (element, parent) => `m.ac(m[${element}],m[${parent}]);`;
 
 export const removeChild = (element, parent) => `m.rc(m[${element}],m[${parent}]);`;

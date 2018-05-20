@@ -17,9 +17,16 @@ export const parseExpression = (index, input, length, stack, dependencies) => {
 
   pushChild({
     index: stack[0].nextIndex++,
-    type: "m-expression",
-    content: expression,
-    dynamic: parseTemplate(expression, dependencies)
+    type: "m-text",
+    attributes: [{
+      key: "content",
+      value: expression,
+      argument: "",
+      expression: true,
+      dynamic: parseTemplate(expression, dependencies)
+    }],
+    directives: [],
+    children: []
   }, stack);
 
   return index;
