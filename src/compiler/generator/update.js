@@ -1,4 +1,4 @@
-import { directives } from "./directives";
+import { directives } from "../directives/directives";
 import { setAttribute, setTextContent, mapReduce } from "./util";
 
 export const generateUpdate = (element, parent, root) => {

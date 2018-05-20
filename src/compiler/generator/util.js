@@ -12,6 +12,8 @@ export const appendChild = (element, parent) => `m.ac(m[${element}],m[${parent}]
 
 export const removeChild = (element, parent) => `m.rc(m[${element}],m[${parent}]);`;
 
+export const insertNode = (element, reference, parent) => `m.in(m[${element}],m[${reference}],m[${parent}]);`;
+
 export const addEventListener = (element, type, handler) => `m.ael(m[${element}],"${type}",${handler});`;
 
 export const setAttribute = (element, attribute) => `m.sa(m[${element}],"${attribute.key}",${attributeValue(attribute)});`;

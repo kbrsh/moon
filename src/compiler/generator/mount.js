@@ -1,4 +1,4 @@
-import { directives } from "./directives";
+import { directives } from "../directives/directives";
 import { appendChild, mapReduce } from "./util";
 
 export const generateMount = (element, parent, root) => {
@@ -9,13 +9,16 @@ export const generateMount = (element, parent, root) => {
       break;
     default:
       const elementDirectives = element.directives;
-      let code = appendChild(element.index, parent.index) + mapReduce(element.children, (child) => generateMount(child, element, root));
-      
+      let elementCode = appendChild(element.index, parent.index);
+      let childrenCode = mapReduce(element.children, (child) => generateMount(child, element, root));
+
       for (let i = 0; i < elementDirectives.length; i++) {
         const elementDirective = elementDirectives[i];
-        code = directives[elementDirective.key].mount(code, elementDirective, element, parent, root);
+        const code = directives[elementDirective.key].mount(elementCode, childrenCode, elementDirective, element, parent, root);
+        elementCode = code[0];
+        childrenCode = code[1];
       }
 
-      return code;
+      return elementCode + childrenCode;
   }
 };

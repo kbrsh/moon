@@ -1,17 +1,17 @@
-import { directives } from "./directives";
+import { directives } from "../directives/directives";
 import { assignElement, createElement, createTextNode, setAttribute, mapReduce } from "./util";
 
 export const generateCreate = (element, parent, root) => {
   switch (element.type) {
     case "m-expression":
-      return assignElement(element.index, createTextNode("\"\""));
+      return assignElement(element.index, createTextNode(element.content));
       break;
     case "m-text":
       return assignElement(element.index, createTextNode(`"${element.content}"`));
       break;
     default:
       const elementDirectives = element.directives;
-      let code = assignElement(element.index, createElement(element.type) + mapReduce(element.attributes, (attribute) => attribute.dynamic ? "" : setAttribute(element.index, attribute)) + mapReduce(element.children, (child) => generateCreate(child, element, root)));
+      let code = assignElement(element.index, createElement(element.type) + mapReduce(element.attributes, (attribute) => setAttribute(element.index, attribute)) + mapReduce(element.children, (child) => generateCreate(child, element, root)));
 
       for (let i = 0; i < elementDirectives.length; i++) {
         const elementDirective = elementDirectives[i];

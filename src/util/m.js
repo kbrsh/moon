@@ -12,6 +12,10 @@ const removeChild = (element, parent) => {
   parent.removeChild(element);
 };
 
+const insertNode = (element, reference, parent) => {
+  parent.insertNode(element, reference);
+};
+
 const addEventListener = (element, type, handler) => {
   element.addEventListener(type, handler);
 };
@@ -31,6 +35,7 @@ export const m = () => {
   m.ctn = createTextNode;
   m.ac = appendChild;
   m.rc = removeChild;
+  m.in = insertNode;
   m.ael = addEventListener;
   m.sa = setAttribute;
   m.stc = setTextContent;

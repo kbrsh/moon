@@ -1,7 +1,10 @@
+import { directives } from "../directives/directives";
 import { parseTemplate } from "./template";
 import { whitespaceRE, error, pushChild } from "./util";
 
-const parseAttributes = (index, input, length, attributes, directives, dependencies) => {
+const sortDirectives = (elementDirectives) => elementDirectives.sort((a, b) => directives[a.key].order - directives[b.key].order);
+
+const parseAttributes = (index, input, length, attributes, elementDirectives, dependencies) => {
   while (index < length) {
     let char = input[index];
 
@@ -67,7 +70,7 @@ const parseAttributes = (index, input, length, attributes, directives, dependenc
         }
       }
 
-      (key[0] === "m" && key[1] === "-" ? directives : attributes).push({
+      (key[0] === "m" && key[1] === "-" ? elementDirectives : attributes).push({
         key: key,
         value: value,
         argument: argument,
@@ -83,7 +86,7 @@ const parseAttributes = (index, input, length, attributes, directives, dependenc
 export const parseOpeningTag = (index, input, length, stack, dependencies) => {
   let type = "";
   let attributes = [];
-  let directives = [];
+  let elementDirectives = [];
 
   while (index < length) {
     const char = input[index];
@@ -93,7 +96,7 @@ export const parseOpeningTag = (index, input, length, stack, dependencies) => {
         index: stack[0].nextIndex++,
         type: type,
         attributes: attributes,
-        directives: directives,
+        directives: sortDirectives(elementDirectives),
         children: []
       };
 
@@ -107,7 +110,7 @@ export const parseOpeningTag = (index, input, length, stack, dependencies) => {
         index: stack[0].nextIndex++,
         type: type,
         attributes: attributes,
-        directives: directives,
+        directives: sortDirectives(elementDirectives),
         children: []
       }, stack);
 
@@ -115,8 +118,8 @@ export const parseOpeningTag = (index, input, length, stack, dependencies) => {
       break;
     } else if (whitespaceRE.test(char)) {
       attributes = [];
-      directives = [];
-      index = parseAttributes(index + 1, input, length, attributes, directives, dependencies);
+      elementDirectives = [];
+      index = parseAttributes(index + 1, input, length, attributes, elementDirectives, dependencies);
     } else {
       type += char;
       index += 1;
