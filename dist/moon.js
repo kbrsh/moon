@@ -32,46 +32,6 @@
     return index;
   };
 
-  var mapReduce = function (arr, fn) { return arr.reduce(function (result, current) { return result + fn(current); }, ""); };
-
-  var assignElement = function (element, code) { return ("m[" + element + "]=" + code); };
-
-  var attributeValue = function (attribute) { return attribute.expression ? attribute.value : ("\"" + (attribute.value) + "\""); };
-
-  var createElement = function (type) { return ("m.ce(\"" + type + "\");"); };
-
-  var createTextNode = function (content) { return ("m.ctn(" + content + ");"); };
-
-  var createComment = function () { return "m.cc();"; };
-
-  var appendChild = function (element, parent) { return ("m.ac(m[" + element + "],m[" + parent + "]);"); };
-
-  var removeChild = function (element, parent) { return ("m.rc(m[" + element + "],m[" + parent + "]);"); };
-
-  var addEventListener = function (element, type, handler) { return ("m.ael(m[" + element + "],\"" + type + "\"," + handler + ");"); };
-
-  var setAttribute = function (element, attribute) { return ("m.sa(m[" + element + "],\"" + (attribute.key) + "\"," + (attributeValue(attribute)) + ");"); };
-
-  var setTextContent = function (element, content) { return ("m.stc(m[" + element + "]," + content + ");"); };
-
-  var mOn = {
-    order: 0,
-    create: function (createCode, mountCode, directive, element) {
-      return [createCode + addEventListener(element.index, directive.argument, ("function($event){" + (attributeValue(directive)) + "}")), mountCode];
-    },
-    update: function (updateCode) { return updateCode; },
-    destroy: function (destroyCode) { return destroyCode; }
-  };
-
-  var mIf = {
-
-  };
-
-  var directives = {
-    "m-on": mOn,
-    "m-if": mIf
-  };
-
   var expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
   var locals = ["NaN", "event", "false", "in", "m", "null", "this", "true", "typeof", "undefined"];
 
@@ -108,9 +68,7 @@
     stack[stack.length - 1].children.push(child);
   };
 
-  var sortDirectives = function (elementDirectives) { return elementDirectives.sort(function (a, b) { return directives[a.key].order - directives[b.key].order; }); };
-
-  var parseAttributes = function (index, input, length, attributes, elementDirectives, dependencies) {
+  var parseAttributes = function (index, input, length, stack, dependencies, attributes) {
     while (index < length) {
       var char = input[index];
 
@@ -121,7 +79,6 @@
         continue;
       } else {
         var key = "";
-        var argument = "";
         var value = "";
         var expression = false;
 
@@ -134,12 +91,6 @@
           } else if (char === "=") {
             index += 1;
             break;
-          } else if (char === ":" && key[0] === "m" && key[1] === "-") {
-            argument += input[index + 1];
-            index += 2;
-          } else if (argument.length !== 0) {
-            argument += char;
-            index += 1;
           } else {
             key += char;
             index += 1;
@@ -176,13 +127,30 @@
           }
         }
 
-        (key[0] === "m" && key[1] === "-" ? elementDirectives : attributes).push({
-          key: key,
-          value: value,
-          argument: argument,
-          expression: expression,
-          dynamic: expression && parseTemplate(value, dependencies)
-        });
+        var first = key[0];
+        if (first === "#") {
+          var element = {
+            index: stack[0].nextIndex++,
+            type: key,
+            attributes: [{
+              key: "",
+              value: value,
+              expression: expression,
+              dynamic: expression && parseTemplate(value, dependencies)
+            }],
+            children: []
+          };
+
+          pushChild(element, stack);
+          stack.push(element);
+        } else {
+          attributes.push({
+            key: key,
+            value: value,
+            expression: expression,
+            dynamic: expression && parseTemplate(value, dependencies)
+          });
+        }
       }
     }
 
@@ -192,7 +160,6 @@
   var parseOpeningTag = function (index, input, length, stack, dependencies) {
     var type = "";
     var attributes = [];
-    var elementDirectives = [];
 
     while (index < length) {
       var char = input[index];
@@ -202,7 +169,6 @@
           index: stack[0].nextIndex++,
           type: type,
           attributes: attributes,
-          directives: sortDirectives(elementDirectives),
           children: []
         };
 
@@ -216,16 +182,14 @@
           index: stack[0].nextIndex++,
           type: type,
           attributes: attributes,
-          directives: sortDirectives(elementDirectives),
           children: []
         }, stack);
 
         index += 2;
         break;
-      } else if (whitespaceRE.test(char)) {
+      } else if ((whitespaceRE.test(char) && (index += 1)) || char === "=") {
         attributes = [];
-        elementDirectives = [];
-        index = parseAttributes(index + 1, input, length, attributes, elementDirectives, dependencies);
+        index = parseAttributes(index, input, length, stack, dependencies, attributes);
       } else {
         type += char;
         index += 1;
@@ -285,15 +249,13 @@
     if (!whitespaceRE.test(content)) {
       pushChild({
         index: stack[0].nextIndex++,
-        type: "m-text",
+        type: "#text",
         attributes: [{
-          key: "content",
+          key: "",
           value: content.replace(escapeRE, function (match) { return escapeMap[match]; }),
-          argument: "",
           expression: false,
           dynamic: false
         }],
-        directives: [],
         children: []
       }, stack);
     }
@@ -317,15 +279,13 @@
 
     pushChild({
       index: stack[0].nextIndex++,
-      type: "m-text",
+      type: "#text",
       attributes: [{
-        key: "content",
+        key: "",
         value: expression,
-        argument: "",
         expression: true,
         dynamic: parseTemplate(expression, dependencies)
       }],
-      directives: [],
       children: []
     }, stack);
 
@@ -339,9 +299,9 @@
     var root = {
       index: 0,
       nextIndex: 1,
-      type: "m-root",
+      type: "#root",
       attributes: [],
-      directives: [],
+      events: [],
       children: [],
       dependencies: dependencies
     };
@@ -369,69 +329,56 @@
     return root;
   };
 
-  var generateCreate = function (element, parent, root) {
-    var createCode;
-    var mountCode = appendChild(element.index, parent.index);
+  var mapReduce = function (arr, fn) { return arr.reduce(function (result, current) { return result + fn(current); }, ""); };
 
+  var getElement = function (element) { return ("m[" + element + "]"); };
+
+  var setElement = function (element, code) { return ((getElement(element)) + "=" + code); };
+
+  var createElement = function (type) { return ("m.ce(\"" + type + "\");"); };
+
+  var createTextNode = function (content) { return ("m.ctn(" + content + ");"); };
+
+  var attributeValue = function (attribute) { return attribute.expression ? attribute.value : ("\"" + (attribute.value) + "\""); };
+
+  var setAttribute = function (element, attribute) { return ("m.sa(" + (getElement(element)) + ",\"" + (attribute.key) + "\"," + (attributeValue(attribute)) + ");"); };
+
+  var addEventListener = function (element, attribute) { return ("m.ael(" + (getElement(element)) + ",\"" + (attribute.key.substring(1)) + "\",function($event){" + (attributeValue(attribute)) + "});"); };
+
+  var setTextContent = function (element, content) { return ("m.stc(" + (getElement(element)) + "," + content + ");"); };
+
+  var appendChild = function (element, parent) { return ("m.ac(" + (getElement(element)) + "," + (getElement(parent)) + ");"); };
+
+  var removeChild = function (element, parent) { return ("m.rc(" + (getElement(element)) + "," + (getElement(parent)) + ");"); };
+
+  var generateCreate = function (element, parent, root) {
     switch (element.type) {
-      case "m-comment":
-        createCode = assignElement(element.index, createComment());
-        break;
-      case "m-text":
-        createCode = assignElement(element.index, createTextNode(attributeValue(element.attributes[0])));
+      case "#text":
+        return setElement(element.index, createTextNode(attributeValue(element.attributes[0]))) + appendChild(element.index, parent.index);
         break;
       default:
-        createCode = assignElement(element.index, createElement(element.type)) + mapReduce(element.attributes, function (attribute) { return setAttribute(element.index, attribute); }) + mapReduce(element.children, function (child) { return generateCreate(child, element, root); });
+        return setElement(element.index, createElement(element.type)) + mapReduce(element.attributes, function (attribute) { return attribute.key[0] === "@" ? addEventListener(element.index, attribute) : setAttribute(element.index, attribute); }) + mapReduce(element.children, function (child) { return generateCreate(child, element, root); }) + appendChild(element.index, parent.index);
     }
-
-    var elementDirectives = element.directives;
-
-    for (var i = 0; i < elementDirectives.length; i++) {
-      var elementDirective = elementDirectives[i];
-      var code = directives[elementDirective.key].create(createCode, mountCode, elementDirective, element, parent, root);
-      createCode = code[0];
-      mountCode = code[1];
-    }
-
-    return createCode + mountCode;
   };
 
   var generateUpdate = function (element, parent, root) {
-    var updateCode;
-
     switch (element.type) {
-      case "m-comment":
-        updateCode = "";
-        break;
-      case "m-text":
+      case "#text":
         var content = element.attributes[0];
-        updateCode = content.dynamic ? setTextContent(element.index, content.value) : "";
+        return content.dynamic ? setTextContent(element.index, content.value) : "";
         break;
       default:
-        updateCode = mapReduce(element.attributes, function (attribute) { return attribute.dynamic ? setAttribute(element.index, attribute) : ""; }) + mapReduce(element.children, function (child) { return generateUpdate(child, element, root); });
+        return mapReduce(element.attributes, function (attribute) {
+          if (attribute.key[0] === "@" || !attribute.dynamic) {
+            return "";
+          } else {
+            return setAttribute(element.index, attribute);
+          }
+        }) + mapReduce(element.children, function (child) { return generateUpdate(child, element, root); });
     }
-
-    var elementDirectives = element.directives;
-
-    for (var i = 0; i < elementDirectives.length; i++) {
-      var elementDirective = elementDirectives[i];
-      updateCode = directives[elementDirective.key].update(updateCode, elementDirective, element, parent, root);
-    }
-
-    return updateCode;
   };
 
-  var generateDestroy = function (element, parent, root) {
-    var elementDirectives = element.directives;
-    var destroyCode = removeChild(element.index, parent.index);
-
-    for (var i = 0; i < elementDirectives.length; i++) {
-      var elementDirective = elementDirectives[i];
-      destroyCode = directives[elementDirective.key].destroy(destroyCode, elementDirective, element, parent, root);
-    }
-
-    return destroyCode;
-  };
+  var generateDestroy = function (element, parent, root) { return removeChild(element.index, parent.index); };
 
   var generate = function (tree) {
     var prelude = mapReduce(tree.dependencies, function (dependency) { return ("var " + dependency + "=this.data." + dependency + ";"); });
@@ -450,6 +397,18 @@
 
   var createComment$1 = function () { return document.createComment(""); };
 
+  var setAttribute$1 = function (element, key, value) {
+    element.setAttribute(key, value);
+  };
+
+  var addEventListener$1 = function (element, type, handler) {
+    element.addEventListener(type, handler);
+  };
+
+  var setTextContent$1 = function (element, content) {
+    element.textContent = content;
+  };
+
   var appendChild$1 = function (element, parent) {
     parent.appendChild(element);
   };
@@ -458,20 +417,8 @@
     parent.removeChild(element);
   };
 
-  var insertNode$1 = function (element, reference, parent) {
-    parent.insertNode(element, reference);
-  };
-
-  var addEventListener$1 = function (element, type, handler) {
-    element.addEventListener(type, handler);
-  };
-
-  var setAttribute$1 = function (element, key, value) {
-    element.setAttribute(key, value);
-  };
-
-  var setTextContent$1 = function (element, content) {
-    element.textContent = content;
+  var replaceChild$1 = function (element, old, parent) {
+    parent.replaceChild(element, old);
   };
 
   var m = function () {
@@ -480,12 +427,12 @@
     m.ce = createElement$1;
     m.ctn = createTextNode$1;
     m.cc = createComment$1;
+    m.sa = setAttribute$1;
+    m.ael = addEventListener$1;
+    m.stc = setTextContent$1;
     m.ac = appendChild$1;
     m.rc = removeChild$1;
-    m.in = insertNode$1;
-    m.ael = addEventListener$1;
-    m.sa = setAttribute$1;
-    m.stc = setTextContent$1;
+    m.pc = replaceChild$1;
     return m;
   };
 
@@ -618,7 +565,7 @@
       options.actions = {};
     }
 
-    var instanceComponent = component("m-instance", options);
+    var instanceComponent = component("#m", options);
     var instance = new instanceComponent();
 
     instance.create(root);

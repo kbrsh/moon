@@ -6,6 +6,18 @@ const createTextNode = (content) => document.createTextNode(content);
 
 const createComment = () => document.createComment("");
 
+const setAttribute = (element, key, value) => {
+  element.setAttribute(key, value);
+};
+
+const addEventListener = (element, type, handler) => {
+  element.addEventListener(type, handler);
+};
+
+const setTextContent = (element, content) => {
+  element.textContent = content;
+};
+
 const appendChild = (element, parent) => {
   parent.appendChild(element);
 };
@@ -14,20 +26,8 @@ const removeChild = (element, parent) => {
   parent.removeChild(element);
 };
 
-const insertNode = (element, reference, parent) => {
-  parent.insertNode(element, reference);
-};
-
-const addEventListener = (element, type, handler) => {
-  element.addEventListener(type, handler);
-};
-
-const setAttribute = (element, key, value) => {
-  element.setAttribute(key, value);
-};
-
-const setTextContent = (element, content) => {
-  element.textContent = content;
+const replaceChild = (element, old, parent) => {
+  parent.replaceChild(element, old);
 };
 
 export const m = () => {
@@ -36,11 +36,11 @@ export const m = () => {
   m.ce = createElement;
   m.ctn = createTextNode;
   m.cc = createComment;
+  m.sa = setAttribute;
+  m.ael = addEventListener;
+  m.stc = setTextContent;
   m.ac = appendChild;
   m.rc = removeChild;
-  m.in = insertNode;
-  m.ael = addEventListener;
-  m.sa = setAttribute;
-  m.stc = setTextContent;
+  m.pc = replaceChild;
   return m;
 };

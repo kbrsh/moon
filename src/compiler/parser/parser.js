@@ -10,9 +10,9 @@ export const parse = (input) => {
   const root = {
     index: 0,
     nextIndex: 1,
-    type: "m-root",
+    type: "#root",
     attributes: [],
-    directives: [],
+    events: [],
     children: [],
     dependencies: dependencies
   };

@@ -1,10 +1,7 @@
-import { directives } from "../directives/directives";
 import { parseTemplate } from "./template";
 import { whitespaceRE, error, pushChild } from "./util";
 
-const sortDirectives = (elementDirectives) => elementDirectives.sort((a, b) => directives[a.key].order - directives[b.key].order);
-
-const parseAttributes = (index, input, length, attributes, elementDirectives, dependencies) => {
+const parseAttributes = (index, input, length, stack, dependencies, attributes) => {
   while (index < length) {
     let char = input[index];
 
@@ -15,7 +12,6 @@ const parseAttributes = (index, input, length, attributes, elementDirectives, de
       continue;
     } else {
       let key = "";
-      let argument = "";
       let value = "";
       let expression = false;
 
@@ -28,12 +24,6 @@ const parseAttributes = (index, input, length, attributes, elementDirectives, de
         } else if (char === "=") {
           index += 1;
           break;
-        } else if (char === ":" && key[0] === "m" && key[1] === "-") {
-          argument += input[index + 1];
-          index += 2;
-        } else if (argument.length !== 0) {
-          argument += char;
-          index += 1;
         } else {
           key += char;
           index += 1;
@@ -70,13 +60,30 @@ const parseAttributes = (index, input, length, attributes, elementDirectives, de
         }
       }
 
-      (key[0] === "m" && key[1] === "-" ? elementDirectives : attributes).push({
-        key: key,
-        value: value,
-        argument: argument,
-        expression: expression,
-        dynamic: expression && parseTemplate(value, dependencies)
-      });
+      const first = key[0];
+      if (first === "#") {
+        const element = {
+          index: stack[0].nextIndex++,
+          type: key,
+          attributes: [{
+            key: "",
+            value: value,
+            expression: expression,
+            dynamic: expression && parseTemplate(value, dependencies)
+          }],
+          children: []
+        };
+
+        pushChild(element, stack);
+        stack.push(element);
+      } else {
+        attributes.push({
+          key: key,
+          value: value,
+          expression: expression,
+          dynamic: expression && parseTemplate(value, dependencies)
+        });
+      }
     }
   }
 
@@ -86,7 +93,6 @@ const parseAttributes = (index, input, length, attributes, elementDirectives, de
 export const parseOpeningTag = (index, input, length, stack, dependencies) => {
   let type = "";
   let attributes = [];
-  let elementDirectives = [];
 
   while (index < length) {
     const char = input[index];
@@ -96,7 +102,6 @@ export const parseOpeningTag = (index, input, length, stack, dependencies) => {
         index: stack[0].nextIndex++,
         type: type,
         attributes: attributes,
-        directives: sortDirectives(elementDirectives),
         children: []
       };
 
@@ -110,16 +115,14 @@ export const parseOpeningTag = (index, input, length, stack, dependencies) => {
         index: stack[0].nextIndex++,
         type: type,
         attributes: attributes,
-        directives: sortDirectives(elementDirectives),
         children: []
       }, stack);
 
       index += 2;
       break;
-    } else if (whitespaceRE.test(char)) {
+    } else if ((whitespaceRE.test(char) && (index += 1)) || char === "=") {
       attributes = [];
-      elementDirectives = [];
-      index = parseAttributes(index + 1, input, length, attributes, elementDirectives, dependencies);
+      index = parseAttributes(index, input, length, stack, dependencies, attributes);
     } else {
       type += char;
       index += 1;

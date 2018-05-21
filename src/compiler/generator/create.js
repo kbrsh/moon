@@ -1,29 +1,11 @@
-import { directives } from "../directives/directives";
-import { assignElement, attributeValue, createElement, createTextNode, createComment, appendChild, setAttribute, mapReduce } from "./util";
+import { mapReduce, setElement, createElement, createTextNode, attributeValue, setAttribute, addEventListener, appendChild } from "./util";
 
 export const generateCreate = (element, parent, root) => {
-  let createCode;
-  let mountCode = appendChild(element.index, parent.index);
-
   switch (element.type) {
-    case "m-comment":
-      createCode = assignElement(element.index, createComment());
-      break;
-    case "m-text":
-      createCode = assignElement(element.index, createTextNode(attributeValue(element.attributes[0])));
+    case "#text":
+      return setElement(element.index, createTextNode(attributeValue(element.attributes[0]))) + appendChild(element.index, parent.index);
       break;
     default:
-      createCode = assignElement(element.index, createElement(element.type)) + mapReduce(element.attributes, (attribute) => setAttribute(element.index, attribute)) + mapReduce(element.children, (child) => generateCreate(child, element, root));
+      return setElement(element.index, createElement(element.type)) + mapReduce(element.attributes, (attribute) => attribute.key[0] === "@" ? addEventListener(element.index, attribute) : setAttribute(element.index, attribute)) + mapReduce(element.children, (child) => generateCreate(child, element, root)) + appendChild(element.index, parent.index);
   }
-
-  const elementDirectives = element.directives;
-
-  for (let i = 0; i < elementDirectives.length; i++) {
-    const elementDirective = elementDirectives[i];
-    const code = directives[elementDirective.key].create(createCode, mountCode, elementDirective, element, parent, root);
-    createCode = code[0];
-    mountCode = code[1];
-  }
-
-  return createCode + mountCode;
 };
