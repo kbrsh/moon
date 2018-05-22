@@ -68,7 +68,7 @@
     stack[stack.length - 1].children.push(child);
   };
 
-  var parseAttributes = function (index, input, length, stack, dependencies, attributes) {
+  var parseAttributes = function (index, input, length, dependencies, attributes) {
     while (index < length) {
       var char = input[index];
 
@@ -127,30 +127,12 @@
           }
         }
 
-        var first = key[0];
-        if (first === "#") {
-          var element = {
-            index: stack[0].nextIndex++,
-            type: key,
-            attributes: [{
-              key: "",
-              value: value,
-              expression: expression,
-              dynamic: expression && parseTemplate(value, dependencies)
-            }],
-            children: []
-          };
-
-          pushChild(element, stack);
-          stack.push(element);
-        } else {
-          attributes.push({
-            key: key,
-            value: value,
-            expression: expression,
-            dynamic: expression && parseTemplate(value, dependencies)
-          });
-        }
+        attributes.push({
+          key: key,
+          value: value,
+          expression: expression,
+          dynamic: expression && parseTemplate(value, dependencies)
+        });
       }
     }
 
@@ -158,19 +140,38 @@
   };
 
   var parseOpeningTag = function (index, input, length, stack, dependencies) {
-    var type = "";
-    var attributes = [];
+    var element = {
+      index: stack[0].nextIndex++,
+      type: "",
+      attributes: [],
+      children: []
+    };
 
     while (index < length) {
       var char = input[index];
 
       if (char === ">") {
-        var element = {
-          index: stack[0].nextIndex++,
-          type: type,
-          attributes: attributes,
-          children: []
-        };
+        var attributes = element.attributes;
+        for (var i = 0; i < attributes.length;) {
+          var attribute = attributes[i];
+          if (attribute.key[0] === "#") {
+            element = {
+              index: stack[0].nextIndex++,
+              type: attribute.key,
+              attributes: [{
+                key: "",
+                value: attribute.value,
+                expression: attribute.expression,
+                dynamic: attribute.dynamic
+              }],
+              children: [element]
+            };
+            pushChild(element, stack);
+            attributes.splice(i, 1);
+          } else {
+            i += 1;
+          }
+        }
 
         pushChild(element, stack);
         stack.push(element);
@@ -178,20 +179,14 @@
         index += 1;
         break;
       } else if (char === "/" && input[index + 1] === ">") {
-        pushChild({
-          index: stack[0].nextIndex++,
-          type: type,
-          attributes: attributes,
-          children: []
-        }, stack);
+        pushChild(element, stack);
 
         index += 2;
         break;
       } else if ((whitespaceRE.test(char) && (index += 1)) || char === "=") {
-        attributes = [];
-        index = parseAttributes(index, input, length, stack, dependencies, attributes);
+        index = parseAttributes(index, input, length, dependencies, element.attributes);
       } else {
-        type += char;
+        element.type += char;
         index += 1;
       }
     }
@@ -301,7 +296,6 @@
       nextIndex: 1,
       type: "#root",
       attributes: [],
-      events: [],
       children: [],
       dependencies: dependencies
     };
@@ -339,6 +333,8 @@
 
   var createTextNode = function (content) { return ("m.ctn(" + content + ");"); };
 
+  var createComment = function () { return "m.cc();"; };
+
   var attributeValue = function (attribute) { return attribute.expression ? attribute.value : ("\"" + (attribute.value) + "\""); };
 
   var setAttribute = function (element, attribute) { return ("m.sa(" + (getElement(element)) + ",\"" + (attribute.key) + "\"," + (attributeValue(attribute)) + ");"); };
@@ -351,14 +347,26 @@
 
   var removeChild = function (element, parent) { return ("m.rc(" + (getElement(element)) + "," + (getElement(parent)) + ");"); };
 
-  var generateCreate = function (element, parent, root) {
+  var insertBefore = function (element, reference, parent) { return ("m.ib(" + (getElement(element)) + "," + (getElement(reference)) + "," + (getElement(parent)) + ");"); };
+
+  var generateCreate = function (element, parent, root, insert) {
+    var createCode;
     switch (element.type) {
+      case "#if":
+        var ifCreate = element.ifCreate = root.nextIndex++;
+        return setElement(element.index, createComment()) + appendChild(element.index, parent.index) + setElement(ifCreate, ("function(){" + (mapReduce(element.children, function (child) { return generateCreate(child, parent, root, element.index); })) + "};")) + "if(" + (attributeValue(element.attributes[0])) + "){" + (getElement(ifCreate)) + "();}";
+        break;
+      case "#else":
+        var elseCreate = element.elseCreate = root.nextIndex++;
+        return ("else{" + (getElement(elseCreate)) + "();}" + (setElement(elseCreate, ("function(){" + (mapReduce(element.children, function (child) { return generateCreate(child, parent, root, element.index - 1); })) + "};"))));
       case "#text":
-        return setElement(element.index, createTextNode(attributeValue(element.attributes[0]))) + appendChild(element.index, parent.index);
+        createCode = setElement(element.index, createTextNode(attributeValue(element.attributes[0])));
         break;
       default:
-        return setElement(element.index, createElement(element.type)) + mapReduce(element.attributes, function (attribute) { return attribute.key[0] === "@" ? addEventListener(element.index, attribute) : setAttribute(element.index, attribute); }) + mapReduce(element.children, function (child) { return generateCreate(child, element, root); }) + appendChild(element.index, parent.index);
+        createCode = setElement(element.index, createElement(element.type)) + mapReduce(element.attributes, function (attribute) { return attribute.key[0] === "@" ? addEventListener(element.index, attribute) : setAttribute(element.index, attribute); }) + mapReduce(element.children, function (child) { return generateCreate(child, element, root); });
     }
+
+    return createCode + (insert === undefined ? appendChild(element.index, parent.index) : insertBefore(element.index, insert, parent.index));
   };
 
   var generateUpdate = function (element, parent, root) {
@@ -417,8 +425,8 @@
     parent.removeChild(element);
   };
 
-  var replaceChild$1 = function (element, old, parent) {
-    parent.replaceChild(element, old);
+  var insertBefore$1 = function (element, reference, parent) {
+    parent.insertBefore(element, reference);
   };
 
   var m = function () {
@@ -432,7 +440,7 @@
     m.stc = setTextContent$1;
     m.ac = appendChild$1;
     m.rc = removeChild$1;
-    m.pc = replaceChild$1;
+    m.ib = insertBefore$1;
     return m;
   };
 

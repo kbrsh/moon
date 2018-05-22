@@ -22,4 +22,4 @@ export const appendChild = (element, parent) => `m.ac(${getElement(element)},${g
 
 export const removeChild = (element, parent) => `m.rc(${getElement(element)},${getElement(parent)});`;
 
-export const replaceChild = (element, old, parent) => `m.pc(${getElement(element)},${getElement(old)},${getElement(parent)});`;
+export const insertBefore = (element, reference, parent) => `m.ib(${getElement(element)},${getElement(reference)},${getElement(parent)});`;

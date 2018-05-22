@@ -12,7 +12,6 @@ export const parse = (input) => {
     nextIndex: 1,
     type: "#root",
     attributes: [],
-    events: [],
     children: [],
     dependencies: dependencies
   };

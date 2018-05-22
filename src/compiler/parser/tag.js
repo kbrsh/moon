@@ -1,7 +1,7 @@
 import { parseTemplate } from "./template";
 import { whitespaceRE, error, pushChild } from "./util";
 
-const parseAttributes = (index, input, length, stack, dependencies, attributes) => {
+const parseAttributes = (index, input, length, dependencies, attributes) => {
   while (index < length) {
     let char = input[index];
 
@@ -60,30 +60,12 @@ const parseAttributes = (index, input, length, stack, dependencies, attributes) 
         }
       }
 
-      const first = key[0];
-      if (first === "#") {
-        const element = {
-          index: stack[0].nextIndex++,
-          type: key,
-          attributes: [{
-            key: "",
-            value: value,
-            expression: expression,
-            dynamic: expression && parseTemplate(value, dependencies)
-          }],
-          children: []
-        };
-
-        pushChild(element, stack);
-        stack.push(element);
-      } else {
-        attributes.push({
-          key: key,
-          value: value,
-          expression: expression,
-          dynamic: expression && parseTemplate(value, dependencies)
-        });
-      }
+      attributes.push({
+        key: key,
+        value: value,
+        expression: expression,
+        dynamic: expression && parseTemplate(value, dependencies)
+      });
     }
   }
 
@@ -91,19 +73,38 @@ const parseAttributes = (index, input, length, stack, dependencies, attributes) 
 };
 
 export const parseOpeningTag = (index, input, length, stack, dependencies) => {
-  let type = "";
-  let attributes = [];
+  let element = {
+    index: stack[0].nextIndex++,
+    type: "",
+    attributes: [],
+    children: []
+  };
 
   while (index < length) {
     const char = input[index];
 
     if (char === ">") {
-      const element = {
-        index: stack[0].nextIndex++,
-        type: type,
-        attributes: attributes,
-        children: []
-      };
+      const attributes = element.attributes;
+      for (let i = 0; i < attributes.length;) {
+        const attribute = attributes[i];
+        if (attribute.key[0] === "#") {
+          element = {
+            index: stack[0].nextIndex++,
+            type: attribute.key,
+            attributes: [{
+              key: "",
+              value: attribute.value,
+              expression: attribute.expression,
+              dynamic: attribute.dynamic
+            }],
+            children: [element]
+          };
+          pushChild(element, stack);
+          attributes.splice(i, 1);
+        } else {
+          i += 1;
+        }
+      }
 
       pushChild(element, stack);
       stack.push(element);
@@ -111,20 +112,14 @@ export const parseOpeningTag = (index, input, length, stack, dependencies) => {
       index += 1;
       break;
     } else if (char === "/" && input[index + 1] === ">") {
-      pushChild({
-        index: stack[0].nextIndex++,
-        type: type,
-        attributes: attributes,
-        children: []
-      }, stack);
+      pushChild(element, stack);
 
       index += 2;
       break;
     } else if ((whitespaceRE.test(char) && (index += 1)) || char === "=") {
-      attributes = [];
-      index = parseAttributes(index, input, length, stack, dependencies, attributes);
+      index = parseAttributes(index, input, length, dependencies, element.attributes);
     } else {
-      type += char;
+      element.type += char;
       index += 1;
     }
   }

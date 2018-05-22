@@ -26,8 +26,8 @@ const removeChild = (element, parent) => {
   parent.removeChild(element);
 };
 
-const replaceChild = (element, old, parent) => {
-  parent.replaceChild(element, old);
+const insertBefore = (element, reference, parent) => {
+  parent.insertBefore(element, reference);
 };
 
 export const m = () => {
@@ -41,6 +41,6 @@ export const m = () => {
   m.stc = setTextContent;
   m.ac = appendChild;
   m.rc = removeChild;
-  m.pc = replaceChild;
+  m.ib = insertBefore;
   return m;
 };
