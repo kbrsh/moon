@@ -1,5 +1,5 @@
-import { parseComment } from "./comment";
 import { parseOpeningTag, parseClosingTag } from "./tag";
+import { parseComment } from "./comment";
 import { parseText } from "./text";
 import { parseExpression } from "./expression";
 

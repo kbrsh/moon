@@ -1,5 +1,5 @@
 import { parseTemplate } from "./template";
-import { whitespaceRE, error, pushChild } from "./util";
+import { whitespaceRE, error } from "./util";
 
 const parseAttributes = (index, input, length, dependencies, attributes) => {
   while (index < length) {
@@ -85,8 +85,11 @@ export const parseOpeningTag = (index, input, length, stack, dependencies) => {
 
     if (char === ">") {
       const attributes = element.attributes;
+      stack.push(element);
+
       for (let i = 0; i < attributes.length;) {
         const attribute = attributes[i];
+
         if (attribute.key[0] === "#") {
           element = {
             index: stack[0].nextIndex++,
@@ -99,20 +102,18 @@ export const parseOpeningTag = (index, input, length, stack, dependencies) => {
             }],
             children: [element]
           };
-          pushChild(element, stack);
           attributes.splice(i, 1);
         } else {
           i += 1;
         }
       }
 
-      pushChild(element, stack);
-      stack.push(element);
+      stack[stack.length - 2].children.push(element);
 
       index += 1;
       break;
     } else if (char === "/" && input[index + 1] === ">") {
-      pushChild(element, stack);
+      stack[stack.length - 1].children.push(element);
 
       index += 2;
       break;

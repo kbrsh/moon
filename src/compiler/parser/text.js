@@ -1,4 +1,4 @@
-import { whitespaceRE, pushChild } from "./util";
+import { whitespaceRE } from "./util";
 
 const escapeRE = /(?:(?:&(?:amp|gt|lt|nbsp|quot);)|"|\\|\n)/g;
 const escapeMap = {
@@ -26,7 +26,7 @@ export const parseText = (index, input, length, stack) => {
   }
 
   if (!whitespaceRE.test(content)) {
-    pushChild({
+    stack[stack.length - 1].children.push({
       index: stack[0].nextIndex++,
       type: "#text",
       attributes: [{
@@ -36,7 +36,7 @@ export const parseText = (index, input, length, stack) => {
         dynamic: false
       }],
       children: []
-    }, stack);
+    });
   }
 
   return index;

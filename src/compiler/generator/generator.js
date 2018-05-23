@@ -5,5 +5,5 @@ import { mapReduce } from "./util";
 
 export const generate = (tree) => {
   const prelude = mapReduce(tree.dependencies, (dependency) => `var ${dependency}=this.data.${dependency};`);
-  return new Function(`return [function(m){this.m[0]=m;m=this.m;${prelude}${mapReduce(tree.children, (child) => generateCreate(child, tree, tree))}},function(){var m=this.m;${prelude}${mapReduce(tree.children, (child) => generateUpdate(child, tree, tree))}},function(){var m=this.m;${mapReduce(tree.children, (child) => generateDestroy(child, tree, tree))}m=[m[0]];}];`)();
+  return new Function(`return [function(m){this.m[0]=m;m=this.m;${prelude}${mapReduce(tree.children, (child, index) => generateCreate(child, index, tree, tree))}},function(){var m=this.m;${prelude}${mapReduce(tree.children, (child, index) => generateUpdate(child, index, tree, tree))}},function(){var m=this.m;${mapReduce(tree.children, (child, index) => generateDestroy(child, index, tree, tree))}m=[m[0]];}];`)();
 };

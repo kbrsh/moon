@@ -13,25 +13,6 @@
 }(this, function() {
   "use strict";
 
-  var parseComment = function (index, input, length) {
-    while (index < length) {
-      var char0 = input[index];
-      var char1 = input[index + 1];
-      var char2 = input[index + 2];
-
-      if (char0 === "<" && char1 === "!" && char2 === "-" && input[index + 3] === "-") {
-        index = parseComment(index + 4, input, length);
-      } else if (char0 === "-" && char1 === "-" && char2 === ">") {
-        index += 3;
-        break;
-      } else {
-        index += 1;
-      }
-    }
-
-    return index;
-  };
-
   var expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
   var locals = ["NaN", "event", "false", "in", "m", "null", "this", "true", "typeof", "undefined"];
 
@@ -63,10 +44,6 @@
   };
 
   var whitespaceRE = /\s+/;
-
-  var pushChild = function (child, stack) {
-    stack[stack.length - 1].children.push(child);
-  };
 
   var parseAttributes = function (index, input, length, dependencies, attributes) {
     while (index < length) {
@@ -152,8 +129,11 @@
 
       if (char === ">") {
         var attributes = element.attributes;
+        stack.push(element);
+
         for (var i = 0; i < attributes.length;) {
           var attribute = attributes[i];
+
           if (attribute.key[0] === "#") {
             element = {
               index: stack[0].nextIndex++,
@@ -166,20 +146,18 @@
               }],
               children: [element]
             };
-            pushChild(element, stack);
             attributes.splice(i, 1);
           } else {
             i += 1;
           }
         }
 
-        pushChild(element, stack);
-        stack.push(element);
+        stack[stack.length - 2].children.push(element);
 
         index += 1;
         break;
       } else if (char === "/" && input[index + 1] === ">") {
-        pushChild(element, stack);
+        stack[stack.length - 1].children.push(element);
 
         index += 2;
         break;
@@ -216,6 +194,25 @@
     return index;
   };
 
+  var parseComment = function (index, input, length) {
+    while (index < length) {
+      var char0 = input[index];
+      var char1 = input[index + 1];
+      var char2 = input[index + 2];
+
+      if (char0 === "<" && char1 === "!" && char2 === "-" && input[index + 3] === "-") {
+        index = parseComment(index + 4, input, length);
+      } else if (char0 === "-" && char1 === "-" && char2 === ">") {
+        index += 3;
+        break;
+      } else {
+        index += 1;
+      }
+    }
+
+    return index;
+  };
+
   var escapeRE = /(?:(?:&(?:amp|gt|lt|nbsp|quot);)|"|\\|\n)/g;
   var escapeMap = {
     "&amp;": '&',
@@ -242,7 +239,7 @@
     }
 
     if (!whitespaceRE.test(content)) {
-      pushChild({
+      stack[stack.length - 1].children.push({
         index: stack[0].nextIndex++,
         type: "#text",
         attributes: [{
@@ -252,7 +249,7 @@
           dynamic: false
         }],
         children: []
-      }, stack);
+      });
     }
 
     return index;
@@ -272,7 +269,7 @@
       }
     }
 
-    pushChild({
+    stack[stack.length - 1].children.push({
       index: stack[0].nextIndex++,
       type: "#text",
       attributes: [{
@@ -282,7 +279,7 @@
         dynamic: parseTemplate(expression, dependencies)
       }],
       children: []
-    }, stack);
+    });
 
     return index;
   };
@@ -323,7 +320,15 @@
     return root;
   };
 
-  var mapReduce = function (arr, fn) { return arr.reduce(function (result, current) { return result + fn(current); }, ""); };
+  var mapReduce = function (arr, fn) {
+    var result = "";
+
+    for (var i = 0; i < arr.length; i++) {
+      result += fn(arr[i], i);
+    }
+
+    return result;
+  };
 
   var getElement = function (element) { return ("m[" + element + "]"); };
 
@@ -349,27 +354,49 @@
 
   var insertBefore = function (element, reference, parent) { return ("m.ib(" + (getElement(element)) + "," + (getElement(reference)) + "," + (getElement(parent)) + ");"); };
 
-  var generateCreate = function (element, parent, root, insert) {
+  var generateCreate = function (element, index, parent, root, insert) {
     var createCode;
+
     switch (element.type) {
       case "#if":
-        var ifCreate = element.ifCreate = root.nextIndex++;
-        return setElement(element.index, createComment()) + appendChild(element.index, parent.index) + setElement(ifCreate, ("function(){" + (mapReduce(element.children, function (child) { return generateCreate(child, parent, root, element.index); })) + "};")) + "if(" + (attributeValue(element.attributes[0])) + "){" + (getElement(ifCreate)) + "();}";
+        var siblings = parent.children;
+        var ifCreates = "";
+        var ifBranches = "";
+
+        for (var i = index; i < siblings.length;) {
+          var sibling = siblings[i];
+          var siblingType = sibling.type;
+          var ifCreate = root.nextIndex++;
+          var keyword = (void 0);
+
+          if (siblingType === "#if") {
+            keyword = "if(" + (attributeValue(sibling.attributes[0])) + ")";
+          } else if (siblingType === "#elseif") {
+            keyword = "else if(" + (attributeValue(sibling.attributes[0])) + ")";
+          } else if (siblingType === "#else") {
+            keyword = "else";
+          } else {
+            break;
+          }
+
+          ifCreates += setElement(ifCreate, ("function(){" + (mapReduce(sibling.children, function (child, index) { return generateCreate(child, index, parent, root, element.index); })) + "};"));
+          ifBranches += keyword + "{" + (getElement(ifCreate)) + "();}";
+          siblings.splice(i, 1);
+        }
+
+        createCode = ifCreates + ifBranches + setElement(element.index, createComment());
         break;
-      case "#else":
-        var elseCreate = element.elseCreate = root.nextIndex++;
-        return ("else{" + (getElement(elseCreate)) + "();}" + (setElement(elseCreate, ("function(){" + (mapReduce(element.children, function (child) { return generateCreate(child, parent, root, element.index - 1); })) + "};"))));
       case "#text":
         createCode = setElement(element.index, createTextNode(attributeValue(element.attributes[0])));
         break;
       default:
-        createCode = setElement(element.index, createElement(element.type)) + mapReduce(element.attributes, function (attribute) { return attribute.key[0] === "@" ? addEventListener(element.index, attribute) : setAttribute(element.index, attribute); }) + mapReduce(element.children, function (child) { return generateCreate(child, element, root); });
+        createCode = setElement(element.index, createElement(element.type)) + mapReduce(element.attributes, function (attribute) { return attribute.key[0] === "@" ? addEventListener(element.index, attribute) : setAttribute(element.index, attribute); }) + mapReduce(element.children, function (child, index) { return generateCreate(child, index, element, root); });
     }
 
     return createCode + (insert === undefined ? appendChild(element.index, parent.index) : insertBefore(element.index, insert, parent.index));
   };
 
-  var generateUpdate = function (element, parent, root) {
+  var generateUpdate = function (element, index, parent, root) {
     switch (element.type) {
       case "#text":
         var content = element.attributes[0];
@@ -382,15 +409,15 @@
           } else {
             return setAttribute(element.index, attribute);
           }
-        }) + mapReduce(element.children, function (child) { return generateUpdate(child, element, root); });
+        }) + mapReduce(element.children, function (child, index) { return generateUpdate(child, index, element, root); });
     }
   };
 
-  var generateDestroy = function (element, parent, root) { return removeChild(element.index, parent.index); };
+  var generateDestroy = function (element, index, parent, root) { return removeChild(element.index, parent.index); };
 
   var generate = function (tree) {
     var prelude = mapReduce(tree.dependencies, function (dependency) { return ("var " + dependency + "=this.data." + dependency + ";"); });
-    return new Function(("return [function(m){this.m[0]=m;m=this.m;" + prelude + (mapReduce(tree.children, function (child) { return generateCreate(child, tree, tree); })) + "},function(){var m=this.m;" + prelude + (mapReduce(tree.children, function (child) { return generateUpdate(child, tree, tree); })) + "},function(){var m=this.m;" + (mapReduce(tree.children, function (child) { return generateDestroy(child, tree, tree); })) + "m=[m[0]];}];"))();
+    return new Function(("return [function(m){this.m[0]=m;m=this.m;" + prelude + (mapReduce(tree.children, function (child, index) { return generateCreate(child, index, tree, tree); })) + "},function(){var m=this.m;" + prelude + (mapReduce(tree.children, function (child, index) { return generateUpdate(child, index, tree, tree); })) + "},function(){var m=this.m;" + (mapReduce(tree.children, function (child, index) { return generateDestroy(child, index, tree, tree); })) + "m=[m[0]];}];"))();
   };
 
   var compile = function (input) {

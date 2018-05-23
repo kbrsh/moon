@@ -1,6 +1,6 @@
 import { mapReduce, setAttribute, setTextContent } from "./util";
 
-export const generateUpdate = (element, parent, root) => {
+export const generateUpdate = (element, index, parent, root) => {
   switch (element.type) {
     case "#text":
       const content = element.attributes[0];
@@ -13,6 +13,6 @@ export const generateUpdate = (element, parent, root) => {
         } else {
           return setAttribute(element.index, attribute);
         }
-      }) + mapReduce(element.children, (child) => generateUpdate(child, element, root));
+      }) + mapReduce(element.children, (child, index) => generateUpdate(child, index, element, root));
   }
 };
