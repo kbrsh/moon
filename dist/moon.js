@@ -355,45 +355,46 @@
   var insertBefore = function (element, reference, parent) { return ("m.ib(" + (getElement(element)) + "," + (getElement(reference)) + "," + (getElement(parent)) + ");"); };
 
   var generateCreate = function (element, index, parent, root, insert) {
-    var createCode;
+    var createCode, mountCode = "", mountElement = element.index;
 
     switch (element.type) {
       case "#if":
         var siblings = parent.children;
+        var ifReference = root.nextIndex++;
         var ifCreates = "";
         var ifBranches = "";
 
         for (var i = index; i < siblings.length;) {
           var sibling = siblings[i];
-          var siblingType = sibling.type;
-          var ifCreate = root.nextIndex++;
           var keyword = (void 0);
 
-          if (siblingType === "#if") {
+          if (sibling.type === "#if") {
             keyword = "if(" + (attributeValue(sibling.attributes[0])) + ")";
-          } else if (siblingType === "#elseif") {
+          } else if (sibling.type === "#elseif") {
             keyword = "else if(" + (attributeValue(sibling.attributes[0])) + ")";
-          } else if (siblingType === "#else") {
+          } else if (sibling.type === "#else") {
             keyword = "else";
           } else {
             break;
           }
 
-          ifCreates += setElement(ifCreate, ("function(){" + (mapReduce(sibling.children, function (child, index) { return generateCreate(child, index, parent, root, element.index); })) + "};"));
-          ifBranches += keyword + "{" + (getElement(ifCreate)) + "();}";
+          ifCreates += setElement(sibling.index, ("function(){" + (mapReduce(sibling.children, function (child, index) { return generateCreate(child, index, parent, root, ifReference); })) + "};"));
+          ifBranches += keyword + "{" + (getElement(sibling.index)) + "();}";
           siblings.splice(i, 1);
         }
 
-        createCode = ifCreates + ifBranches + setElement(element.index, createComment());
+        createCode = setElement(ifReference, createComment());
+        mountCode = ifCreates + ifBranches;
+        mountElement = ifReference;
         break;
       case "#text":
-        createCode = setElement(element.index, createTextNode(attributeValue(element.attributes[0])));
+        createCode = setElement(mountElement, createTextNode(attributeValue(element.attributes[0])));
         break;
       default:
-        createCode = setElement(element.index, createElement(element.type)) + mapReduce(element.attributes, function (attribute) { return attribute.key[0] === "@" ? addEventListener(element.index, attribute) : setAttribute(element.index, attribute); }) + mapReduce(element.children, function (child, index) { return generateCreate(child, index, element, root); });
+        createCode = setElement(mountElement, createElement(element.type)) + mapReduce(element.attributes, function (attribute) { return attribute.key[0] === "@" ? addEventListener(mountElement, attribute) : setAttribute(mountElement, attribute); }) + mapReduce(element.children, function (child, index) { return generateCreate(child, index, element, root); });
     }
 
-    return createCode + (insert === undefined ? appendChild(element.index, parent.index) : insertBefore(element.index, insert, parent.index));
+    return createCode + (insert === undefined ? appendChild(mountElement, parent.index) : insertBefore(mountElement, insert, parent.index)) + mountCode;
   };
 
   var generateUpdate = function (element, index, parent, root) {
