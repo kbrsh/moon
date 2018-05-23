@@ -476,7 +476,19 @@
     this.emit("created");
   };
 
-  var update = function() {
+  var update = function(key, value) {
+    var this$1 = this;
+
+    if (key !== undefined) {
+      if (typeof key === "object") {
+        for (var childKey in key) {
+          this$1.data[childKey] = key[childKey];
+        }
+      } else {
+        this.data[key] = value;
+      }
+    }
+
     if (this.queued === false) {
       this.queued = true;
 
@@ -492,19 +504,6 @@
   var destroy = function() {
     this.view[2]();
     this.emit("destroyed");
-  };
-
-  var set = function(key, value) {
-    var this$1 = this;
-
-    if (typeof key === "object") {
-      for (var childKey in key) {
-        this$1.set(childKey, key[childKey]);
-      }
-    } else {
-      this.data[key] = value;
-      this.update();
-    }
   };
 
   var on = function(type, handler) {
@@ -554,6 +553,7 @@
       var this$1 = this;
 
       this.name = name;
+      this.queued = false;
 
       this.view = options.view.map(function (view) { return view.bind(this$1); });
       this.m = m();
@@ -564,11 +564,9 @@
         data[action] = actions[action].bind(this$1);
       }
 
-      this.queued = false;
       this.create = create;
       this.update = update;
       this.destroy = destroy;
-      this.set = set;
       this.on = on;
       this.off = off;
       this.emit = emit;

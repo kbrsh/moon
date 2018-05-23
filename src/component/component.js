@@ -5,7 +5,17 @@ const create = function(root) {
   this.emit("created");
 };
 
-const update = function() {
+const update = function(key, value) {
+  if (key !== undefined) {
+    if (typeof key === "object") {
+      for (let childKey in key) {
+        this.data[childKey] = key[childKey];
+      }
+    } else {
+      this.data[key] = value;
+    }
+  }
+
   if (this.queued === false) {
     this.queued = true;
 
@@ -21,17 +31,6 @@ const update = function() {
 const destroy = function() {
   this.view[2]();
   this.emit("destroyed");
-};
-
-const set = function(key, value) {
-  if (typeof key === "object") {
-    for (let childKey in key) {
-      this.set(childKey, key[childKey]);
-    }
-  } else {
-    this.data[key] = value;
-    this.update();
-  }
 };
 
 const on = function(type, handler) {
@@ -79,6 +78,7 @@ const emit = function(type, data) {
 export const component = (name, options) => {
   return function MoonComponent() {
     this.name = name;
+    this.queued = false;
 
     this.view = options.view.map((view) => view.bind(this));
     this.m = m();
@@ -89,11 +89,9 @@ export const component = (name, options) => {
       data[action] = actions[action].bind(this);
     }
 
-    this.queued = false;
     this.create = create;
     this.update = update;
     this.destroy = destroy;
-    this.set = set;
     this.on = on;
     this.off = off;
     this.emit = emit;
