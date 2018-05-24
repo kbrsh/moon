@@ -2,7 +2,7 @@ export const mapReduce = (arr, fn) => {
   let result = "";
 
   for (let i = 0; i < arr.length; i++) {
-    result += fn(arr[i], i);
+    result += fn(arr[i]);
   }
 
   return result;

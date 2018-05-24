@@ -15,7 +15,6 @@ export const parseExpression = (index, input, length, stack, dependencies) => {
   }
 
   stack[stack.length - 1].children.push({
-    index: stack[0].nextIndex++,
     type: "#text",
     attributes: [{
       key: "",

@@ -27,7 +27,6 @@ export const parseText = (index, input, length, stack) => {
 
   if (!whitespaceRE.test(content)) {
     stack[stack.length - 1].children.push({
-      index: stack[0].nextIndex++,
       type: "#text",
       attributes: [{
         key: "",

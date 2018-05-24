@@ -32,6 +32,7 @@ export default function Moon(options) {
   const instance = new instanceComponent();
 
   instance.create(root);
+  instance.update();
 
   return instance;
 }

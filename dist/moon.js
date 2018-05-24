@@ -43,7 +43,7 @@
     }
   };
 
-  var whitespaceRE = /\s+/;
+  var whitespaceRE = /^\s+$/;
 
   var parseAttributes = function (index, input, length, dependencies, attributes) {
     while (index < length) {
@@ -118,7 +118,6 @@
 
   var parseOpeningTag = function (index, input, length, stack, dependencies) {
     var element = {
-      index: stack[0].nextIndex++,
       type: "",
       attributes: [],
       children: []
@@ -129,6 +128,11 @@
 
       if (char === ">") {
         var attributes = element.attributes;
+
+        if (element.type[0] !== "#") {
+          element.index = stack[0].nextIndex++;
+        }
+
         stack.push(element);
 
         for (var i = 0; i < attributes.length;) {
@@ -136,7 +140,6 @@
 
           if (attribute.key[0] === "#") {
             element = {
-              index: stack[0].nextIndex++,
               type: attribute.key,
               attributes: [{
                 key: "",
@@ -157,6 +160,10 @@
         index += 1;
         break;
       } else if (char === "/" && input[index + 1] === ">") {
+        if (element.type[0] !== "#") {
+          element.index = stack[0].nextIndex++;
+        }
+        
         stack[stack.length - 1].children.push(element);
 
         index += 2;
@@ -240,7 +247,6 @@
 
     if (!whitespaceRE.test(content)) {
       stack[stack.length - 1].children.push({
-        index: stack[0].nextIndex++,
         type: "#text",
         attributes: [{
           key: "",
@@ -270,7 +276,6 @@
     }
 
     stack[stack.length - 1].children.push({
-      index: stack[0].nextIndex++,
       type: "#text",
       attributes: [{
         key: "",
@@ -324,7 +329,7 @@
     var result = "";
 
     for (var i = 0; i < arr.length; i++) {
-      result += fn(arr[i], i);
+      result += fn(arr[i]);
     }
 
     return result;
@@ -354,71 +359,111 @@
 
   var insertBefore = function (element, reference, parent) { return ("m.ib(" + (getElement(element)) + "," + (getElement(reference)) + "," + (getElement(parent)) + ");"); };
 
-  var generateCreate = function (element, index, parent, root, insert) {
-    var createCode, mountCode = "", mountElement = element.index;
+  var generateMount = function (element, parent, insert) { return insert === undefined ? appendChild(element, parent) : insertBefore(element, insert, parent); };
 
+  var generateCreate = function (element, parent, root, insert) {
     switch (element.type) {
-      case "#if":
+      case "#if": {
         var siblings = parent.children;
-        var ifReference = root.nextIndex++;
-        var ifCreates = "";
-        var ifBranches = "";
+        var nextSiblingIndex = siblings.indexOf(element) + 1;
+        var nextSibling = siblings[nextSiblingIndex];
 
-        for (var i = index; i < siblings.length;) {
-          var sibling = siblings[i];
-          var keyword = (void 0);
+        element.ifReference = root.nextIndex++;
+        element.ifState = root.nextIndex++;
+        element.ifCreate = generateCreate(element.children[0], parent, root, element.ifReference);
 
-          if (sibling.type === "#if") {
-            keyword = "if(" + (attributeValue(sibling.attributes[0])) + ")";
-          } else if (sibling.type === "#elseif") {
-            keyword = "else if(" + (attributeValue(sibling.attributes[0])) + ")";
-          } else if (sibling.type === "#else") {
-            keyword = "else";
-          } else {
-            break;
-          }
-
-          ifCreates += setElement(sibling.index, ("function(){" + (mapReduce(sibling.children, function (child, index) { return generateCreate(child, index, parent, root, ifReference); })) + "};"));
-          ifBranches += keyword + "{" + (getElement(sibling.index)) + "();}";
-          siblings.splice(i, 1);
+        if (nextSibling !== undefined && nextSibling.type === "#else") {
+          nextSibling.ifState = element.ifState;
+          nextSibling.ifReference = element.ifReference;
+        } else {
+          siblings.splice(nextSiblingIndex, 0, {
+            type: "#else",
+            attributes: [],
+            children: [{
+              type: "#comment",
+              attributes: [],
+              children: []
+            }],
+            ifState: element.ifState,
+            ifReference: element.ifReference
+          });
         }
 
-        createCode = setElement(ifReference, createComment());
-        mountCode = ifCreates + ifBranches;
-        mountElement = ifReference;
-        break;
-      case "#text":
-        createCode = setElement(mountElement, createTextNode(attributeValue(element.attributes[0])));
-        break;
-      default:
-        createCode = setElement(mountElement, createElement(element.type)) + mapReduce(element.attributes, function (attribute) { return attribute.key[0] === "@" ? addEventListener(mountElement, attribute) : setAttribute(mountElement, attribute); }) + mapReduce(element.children, function (child, index) { return generateCreate(child, index, element, root); });
+        return setElement(element.ifReference, createComment()) + generateMount(element.ifReference, parent.index, insert);
+      }
+      case "#else": {
+        element.ifCreate = generateCreate(element.children[0], parent, root, element.ifReference);
+        return "";
+      }
+      case "#comment": {
+        element.commentElement = root.nextIndex++;
+        return setElement(element.commentElement, createComment());
+      }
+      case "#text": {
+        var textAttribute = element.attributes[0];
+        element.textElement = root.nextIndex++;
+        return setElement(element.textElement, createTextNode(textAttribute.dynamic ? "\"\"" : attributeValue(textAttribute))) + generateMount(element.textElement, parent.index, insert);
+      }
+      default: {
+        return setElement(element.index, createElement(element.type)) + mapReduce(element.attributes, function (attribute) {
+          if (attribute.key[0] === "@") {
+            return addEventListener(element.index, attribute);
+          } else if (attribute.dynamic) {
+            return "";
+          } else {
+            return setAttribute(element.index, attribute);
+          }
+        }) + mapReduce(element.children, function (child) { return generateCreate(child, element, root); }) + generateMount(element.index, parent.index, insert);
+      }
     }
-
-    return createCode + (insert === undefined ? appendChild(mountElement, parent.index) : insertBefore(mountElement, insert, parent.index)) + mountCode;
   };
 
-  var generateUpdate = function (element, index, parent, root) {
+  var generateDestroy = function (element, parent, root) {
     switch (element.type) {
-      case "#text":
-        var content = element.attributes[0];
-        return content.dynamic ? setTextContent(element.index, content.value) : "";
-        break;
-      default:
+      case "#if": {
+        return removeChild(element.ifReference, parent.index) + generateDestroy(element.children[0], parent, root);
+      }
+      case "#comment": {
+        return removeChild(element.commentElement, parent.index);
+      }
+      case "#text": {
+        return removeChild(element.textElement, parent.index);
+      }
+      default: {
+        return removeChild(element.index, parent.index);
+      }
+    }
+  };
+
+  var generateUpdate = function (element, parent, root) {
+    switch (element.type) {
+      case "#text": {
+        var textAttribute = element.attributes[0];
+        return textAttribute.dynamic ? setTextContent(element.index, textAttribute.value) : "";
+      }
+      case "#if": {
+        var ifChild = element.children[0];
+        return ("\n      if (" + (attributeValue(element.attributes[0])) + ") {\n        if (" + (getElement(element.ifState)) + " === 0) {\n          " + (generateUpdate(ifChild, parent, root)) + "\n        } else {\n          " + (generateDestroy(ifChild, parent, root)) + "\n          " + (element.ifCreate) + "\n          " + (setElement(element.ifState, "0")) + "\n        }\n      }\n      ");
+      }
+      case "#else": {
+        var ifChild$1 = element.children[0];
+        return ("\n      else {\n        if (" + (getElement(element.ifState)) + " === 1) {\n          " + (generateUpdate(ifChild$1, parent, root)) + "\n        } else {\n          " + (generateDestroy(ifChild$1, parent, root)) + "\n          " + (element.ifCreate) + "\n          " + (setElement(element.ifState, "1")) + "\n        }\n      }\n      ");
+      }
+      default: {
         return mapReduce(element.attributes, function (attribute) {
           if (attribute.key[0] === "@" || !attribute.dynamic) {
             return "";
           } else {
             return setAttribute(element.index, attribute);
           }
-        }) + mapReduce(element.children, function (child, index) { return generateUpdate(child, index, element, root); });
+        }) + mapReduce(element.children, function (child) { return generateUpdate(child, element, root); });
+      }
     }
   };
 
-  var generateDestroy = function (element, index, parent, root) { return removeChild(element.index, parent.index); };
-
   var generate = function (tree) {
     var prelude = mapReduce(tree.dependencies, function (dependency) { return ("var " + dependency + "=this.data." + dependency + ";"); });
-    return new Function(("return [function(m){this.m[0]=m;m=this.m;" + prelude + (mapReduce(tree.children, function (child, index) { return generateCreate(child, index, tree, tree); })) + "},function(){var m=this.m;" + prelude + (mapReduce(tree.children, function (child, index) { return generateUpdate(child, index, tree, tree); })) + "},function(){var m=this.m;" + (mapReduce(tree.children, function (child, index) { return generateDestroy(child, index, tree, tree); })) + "m=[m[0]];}];"))();
+    return new Function(("return [function(m){this.m[0]=m;m=this.m;" + prelude + (mapReduce(tree.children, function (child) { return generateCreate(child, tree, tree); })) + "},function(){var m=this.m;" + prelude + (mapReduce(tree.children, function (child) { return generateUpdate(child, tree, tree); })) + "},function(){var m=this.m;" + (mapReduce(tree.children, function (child) { return generateDestroy(child, tree, tree); })) + "m=[m[0]];}];"))();
   };
 
   var compile = function (input) {
@@ -474,7 +519,7 @@
 
   var create = function(root) {
     this.view[0](root);
-    this.emit("created");
+    this.emit("create");
   };
 
   var update = function(key, value) {
@@ -497,14 +542,14 @@
       setTimeout(function () {
         instance.view[1]();
         instance.queued = false;
-        instance.emit("updated");
+        instance.emit("update");
       }, 0);
     }
   };
 
   var destroy = function() {
     this.view[2]();
-    this.emit("destroyed");
+    this.emit("destroy");
   };
 
   var on = function(type, handler) {
@@ -603,6 +648,7 @@
     var instance = new instanceComponent();
 
     instance.create(root);
+    instance.update();
 
     return instance;
   }

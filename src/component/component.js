@@ -2,7 +2,7 @@ import { m } from "../util/m";
 
 const create = function(root) {
   this.view[0](root);
-  this.emit("created");
+  this.emit("create");
 };
 
 const update = function(key, value) {
@@ -23,14 +23,14 @@ const update = function(key, value) {
     setTimeout(() => {
       instance.view[1]();
       instance.queued = false;
-      instance.emit("updated");
+      instance.emit("update");
     }, 0);
   }
 };
 
 const destroy = function() {
   this.view[2]();
-  this.emit("destroyed");
+  this.emit("destroy");
 };
 
 const on = function(type, handler) {

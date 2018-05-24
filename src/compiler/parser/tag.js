@@ -74,7 +74,6 @@ const parseAttributes = (index, input, length, dependencies, attributes) => {
 
 export const parseOpeningTag = (index, input, length, stack, dependencies) => {
   let element = {
-    index: stack[0].nextIndex++,
     type: "",
     attributes: [],
     children: []
@@ -85,6 +84,11 @@ export const parseOpeningTag = (index, input, length, stack, dependencies) => {
 
     if (char === ">") {
       const attributes = element.attributes;
+
+      if (element.type[0] !== "#") {
+        element.index = stack[0].nextIndex++;
+      }
+
       stack.push(element);
 
       for (let i = 0; i < attributes.length;) {
@@ -92,7 +96,6 @@ export const parseOpeningTag = (index, input, length, stack, dependencies) => {
 
         if (attribute.key[0] === "#") {
           element = {
-            index: stack[0].nextIndex++,
             type: attribute.key,
             attributes: [{
               key: "",
@@ -113,6 +116,10 @@ export const parseOpeningTag = (index, input, length, stack, dependencies) => {
       index += 1;
       break;
     } else if (char === "/" && input[index + 1] === ">") {
+      if (element.type[0] !== "#") {
+        element.index = stack[0].nextIndex++;
+      }
+      
       stack[stack.length - 1].children.push(element);
 
       index += 2;

@@ -1,44 +1,60 @@
-import { mapReduce, getElement, setElement, createElement, createTextNode, createComment, attributeValue, setAttribute, addEventListener, appendChild, insertBefore } from "./util";
+import { mapReduce, setElement, createElement, createTextNode, createComment, attributeValue, setAttribute, addEventListener, appendChild, insertBefore } from "./util";
 
-export const generateCreate = (element, index, parent, root, insert) => {
-  let createCode, mountCode = "", mountElement = element.index;
+const generateMount = (element, parent, insert) => insert === undefined ? appendChild(element, parent) : insertBefore(element, insert, parent);
 
+export const generateCreate = (element, parent, root, insert) => {
   switch (element.type) {
-    case "#if":
+    case "#if": {
       const siblings = parent.children;
-      const ifReference = root.nextIndex++;
-      let ifCreates = "";
-      let ifBranches = "";
+      const nextSiblingIndex = siblings.indexOf(element) + 1;
+      const nextSibling = siblings[nextSiblingIndex];
 
-      for (let i = index; i < siblings.length;) {
-        const sibling = siblings[i];
-        let keyword;
+      element.ifReference = root.nextIndex++;
+      element.ifState = root.nextIndex++;
+      element.ifCreate = generateCreate(element.children[0], parent, root, element.ifReference);
 
-        if (sibling.type === "#if") {
-          keyword = `if(${attributeValue(sibling.attributes[0])})`;
-        } else if (sibling.type === "#elseif") {
-          keyword = `else if(${attributeValue(sibling.attributes[0])})`;
-        } else if (sibling.type === "#else") {
-          keyword = "else";
-        } else {
-          break;
-        }
-
-        ifCreates += setElement(sibling.index, `function(){${mapReduce(sibling.children, (child, index) => generateCreate(child, index, parent, root, ifReference))}};`);
-        ifBranches += `${keyword}{${getElement(sibling.index)}();}`;
-        siblings.splice(i, 1);
+      if (nextSibling !== undefined && nextSibling.type === "#else") {
+        nextSibling.ifState = element.ifState;
+        nextSibling.ifReference = element.ifReference;
+      } else {
+        siblings.splice(nextSiblingIndex, 0, {
+          type: "#else",
+          attributes: [],
+          children: [{
+            type: "#comment",
+            attributes: [],
+            children: []
+          }],
+          ifState: element.ifState,
+          ifReference: element.ifReference
+        });
       }
 
-      createCode = setElement(ifReference, createComment());
-      mountCode = ifCreates + ifBranches;
-      mountElement = ifReference;
-      break;
-    case "#text":
-      createCode = setElement(mountElement, createTextNode(attributeValue(element.attributes[0])));
-      break;
-    default:
-      createCode = setElement(mountElement, createElement(element.type)) + mapReduce(element.attributes, (attribute) => attribute.key[0] === "@" ? addEventListener(mountElement, attribute) : setAttribute(mountElement, attribute)) + mapReduce(element.children, (child, index) => generateCreate(child, index, element, root));
+      return setElement(element.ifReference, createComment()) + generateMount(element.ifReference, parent.index, insert);
+    }
+    case "#else": {
+      element.ifCreate = generateCreate(element.children[0], parent, root, element.ifReference);
+      return "";
+    }
+    case "#comment": {
+      element.commentElement = root.nextIndex++;
+      return setElement(element.commentElement, createComment());
+    }
+    case "#text": {
+      const textAttribute = element.attributes[0];
+      element.textElement = root.nextIndex++;
+      return setElement(element.textElement, createTextNode(textAttribute.dynamic ? "\"\"" : attributeValue(textAttribute))) + generateMount(element.textElement, parent.index, insert);
+    }
+    default: {
+      return setElement(element.index, createElement(element.type)) + mapReduce(element.attributes, (attribute) => {
+        if (attribute.key[0] === "@") {
+          return addEventListener(element.index, attribute);
+        } else if (attribute.dynamic) {
+          return "";
+        } else {
+          return setAttribute(element.index, attribute);
+        }
+      }) + mapReduce(element.children, (child) => generateCreate(child, element, root)) + generateMount(element.index, parent.index, insert);
+    }
   }
-
-  return createCode + (insert === undefined ? appendChild(mountElement, parent.index) : insertBefore(mountElement, insert, parent.index)) + mountCode;
 };
