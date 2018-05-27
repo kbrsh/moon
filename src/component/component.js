@@ -34,27 +34,29 @@ const destroy = function() {
 };
 
 const on = function(type, handler) {
-  let data = this.data;
-  let handlers = data[type];
+  let events = this.events;
+  let handlers = events[type];
 
   if (handlers === undefined) {
-    data[type] = handler;
+    events[type] = handler;
   } else if (typeof handlers === "function") {
-    data[type] = [handlers, handler];
+    events[type] = [handlers, handler];
   } else {
     handlers.push(handler);
   }
 };
 
 const off = function(type, handler) {
-  if (handler === undefined) {
-    this.data[type] = [];
+  if (type === undefined) {
+    this.events = {};
+  } else if (handler === undefined) {
+    this.events[type] = [];
   } else {
-    let data = this.data;
-    let handlers = data[type];
+    let events = this.events;
+    let handlers = events[type];
 
     if (typeof handlers === "function") {
-      data[type] = undefined;
+      events[type] = undefined;
     } else {
       handlers.splice(handlers.indexOf(handler), 1);
     }
@@ -62,7 +64,7 @@ const off = function(type, handler) {
 };
 
 const emit = function(type, data) {
-  let handlers = this.data[type];
+  let handlers = this.events[type];
 
   if (handlers !== undefined) {
     if (typeof handlers === "function") {
@@ -83,10 +85,24 @@ export const component = (name, options) => {
     this.view = options.view.map((view) => view.bind(this));
     this.m = m();
 
-    let data = this.data = options.data();
-    let actions = options.actions;
-    for (let action in actions) {
-      data[action] = actions[action].bind(this);
+    const data = this.data = options.data();
+    for (let key in data) {
+      const value = data[key];
+      if (typeof value === "function") {
+        data[key] = value.bind(this);
+      }
+    }
+
+    const events = this.events = options.events;
+    for (let type in events) {
+      const handlers = events[type];
+      if (typeof handlers === "function") {
+        events[type] = handlers.bind(this);
+      } else {
+        for (let i = 0; i < handlers.length; i++) {
+          handlers[i] = handlers[i].bind(this);
+        }
+      }
     }
 
     this.create = create;

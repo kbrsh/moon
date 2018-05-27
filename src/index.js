@@ -23,16 +23,15 @@ export default function Moon(options) {
     options.data = () => data;
   }
 
-  let actions = options.actions;
-  if (actions === undefined) {
-    options.actions = {};
+  let events = options.events;
+  if (events === undefined) {
+    options.events = {};
   }
 
-  const instanceComponent = component("#m", options);
+  const instanceComponent = component("", options);
   const instance = new instanceComponent();
 
   instance.create(root);
-  instance.update();
 
   return instance;
 }
@@ -50,9 +49,9 @@ Moon.extend = (name, options) => {
     };
   }
 
-  let actions = options.actions;
-  if (actions === undefined) {
-    options.actions = {};
+  let events = options.events;
+  if (events === undefined) {
+    options.events = {};
   }
 
   components[name] = component(name, options);

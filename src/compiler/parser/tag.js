@@ -19,7 +19,7 @@ const parseAttributes = (index, input, length, dependencies, attributes) => {
         char = input[index];
 
         if (char === "/" || char === ">" || whitespaceRE.test(char)) {
-          value = key;
+          value = "";
           break;
         } else if (char === "=") {
           index += 1;
@@ -60,11 +60,12 @@ const parseAttributes = (index, input, length, dependencies, attributes) => {
         }
       }
 
+      const template = parseTemplate(value, dependencies);
       attributes.push({
         key: key,
-        value: value,
+        value: template.expression,
         expression: expression,
-        dynamic: expression && parseTemplate(value, dependencies)
+        dynamic: expression && template.dynamic
       });
     }
   }
@@ -119,7 +120,7 @@ export const parseOpeningTag = (index, input, length, stack, dependencies) => {
       if (element.type[0] !== "#") {
         element.index = stack[0].nextIndex++;
       }
-      
+
       stack[stack.length - 1].children.push(element);
 
       index += 2;

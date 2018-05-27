@@ -14,13 +14,14 @@ export const parseExpression = (index, input, length, stack, dependencies) => {
     }
   }
 
+  const template = parseTemplate(expression, dependencies);
   stack[stack.length - 1].children.push({
     type: "#text",
     attributes: [{
       key: "",
-      value: expression,
+      value: template.expression,
       expression: true,
-      dynamic: parseTemplate(expression, dependencies)
+      dynamic: template.dynamic
     }],
     children: []
   });
