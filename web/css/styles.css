@@ -1,0 +1,57 @@
+body {
+  background: #F7F7F7;
+  color: #121212;
+}
+
+.container-small {
+  width: 70%;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+button {
+  font-size: 13px;
+  letter-spacing: 1px;
+  background: #E6E6E6;
+  color: #232323;
+}
+
+pre code {
+  position: relative;
+  background: #141b1f;
+  border: 1px solid #343434;
+  color: #85a0ad;
+}
+
+pre code::after {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  content: attr(lang);
+  font-size: 13px;
+  color: #526d7a;
+}
+
+pre code .red {
+  color: #ec7979;
+}
+
+pre code .orange {
+  color: #e4a281;
+}
+
+pre code .green {
+  color: #a7d590;
+}
+
+pre code .blue {
+  color: #79b2ec;
+}
+
+pre code .purple {
+  color: #c381e4;
+}
+
+pre code .gray {
+  color: #526d7a;
+}

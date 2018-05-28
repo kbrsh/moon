@@ -1,0 +1,27 @@
+#head {
+  background: #121212;
+  color: #F7F7F7;
+}
+
+#head h1 {
+  font-size: 50px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+#head a:nth-child(2) button {
+  background: hsl(240, 100%, 14%);
+  border: 1px solid hsl(240, 100%, 20%);
+  color: hsl(240, 100%, 90%);
+}
+
+#head a:nth-child(3) button {
+  background: #232323;
+  border: 1px solid #343434;
+  color: #E6E6E6;
+}
+
+.feature {
+  margin-top: 70px;
+  margin-bottom: 70px;
+}

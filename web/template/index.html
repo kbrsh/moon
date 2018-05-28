@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A minimal & fast UI library.">
+    <meta name="author" content="Kabir Shah">
+
+    <title>Moon</title>
+
+    <link rel="shortcut icon" href="./img/favicon.png"/>
+
+    <link rel="stylesheet" type="text/css" href="./css/lib/wing.min.css" />
+    <link rel="stylesheet" type="text/css" href="./css/styles.css" />
+    <link rel="stylesheet" type="text/css" href="./css/index.css" />
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-70792533-14', 'auto');
+      ga('send', 'pageview');
+    </script>
+  </head>
+
+  <body>
+    <section id="head" class="flex size-full align-center">
+      <div class="container-small">
+        <h1>A minimal & fast user interface library.</h1>
+        <a href="./guide/getting-started.html"><button>GET STARTED</button></a>
+        <a href="./guide/about.html"><button>ABOUT</button></a>
+      </div>
+    </section>
+
+    <section id="feature-minimal" class="container feature">
+      <h1>Minimal</h1>
+      <p>Moon instances have two parts — a view and data. The view is responsible for displaying the data which can contain actions to update the view. The view is defined using the <b>Moon View Language</b> — an intuitive template language allowing for powerful interpolation and simple logic. The data is a JavaScript object that can contain properties of any type along with actions — functions that can change the data to update the view.</p>
+      <div class="row">
+        <div class="col">
+          <pre><code lang="mvl"><span class="red">&lt;p</span><span class="red">&gt;</span>Count: { count }<span class="red">&lt;/p</span><span class="red">&gt;</span>
+<span class="red">&lt;button</span> <span class="orange">@click</span>={ <span class="blue">increment</span>() }<span class="red">&gt;</span>
+  Increment
+<span class="red">&lt;/button</span><span class="red">&gt;</span></code></pre>
+          <pre><code lang="js">{
+  count: <span class="orange">0</span>,
+  <span class="blue">increment</span>() {
+    <span class="orange">this</span>.<span class="blue">update</span>(<span class="green">&quot;count&quot;</span>, <span class="orange">this</span>.data.count + <span class="orange">1</span>);
+  }
+}</code></pre>
+        </div>
+        <div class="col">
+
+        </div>
+      </div>
+    </section>
+  </body>
+</html>
