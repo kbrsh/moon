@@ -51,6 +51,8 @@
 
   var whitespaceRE = /^\s+$/;
 
+  var valueEndRE = /[\s/>]/;
+
   var parseAttributes = function (index, input, length, dependencies, attributes) {
     while (index < length) {
       var char = input[index];
@@ -62,7 +64,7 @@
         continue;
       } else {
         var key = "";
-        var value = "";
+        var value = (void 0);
         var expression = false;
 
         while (index < length) {
@@ -80,8 +82,9 @@
           }
         }
 
-        if (value.length === 0) {
+        if (value === undefined) {
           var quote = (void 0);
+          value = "";
           char = input[index];
 
           if (char === "\"" || char === "'") {
@@ -92,15 +95,13 @@
             expression = true;
             index += 1;
           } else {
-            quote = whitespaceRE;
+            quote = valueEndRE;
           }
 
           while (index < length) {
             char = input[index];
 
-            if (char === "/" || char === ">") {
-              break;
-            } else if ((typeof quote === "object" && quote.test(char)) || char === quote) {
+            if ((typeof quote === "object" && quote.test(char)) || char === quote) {
               index += 1;
               break;
             } else {
@@ -110,12 +111,19 @@
           }
         }
 
-        var template = parseTemplate(value, dependencies);
+        var dynamic = false;
+
+        if (expression) {
+          var template = parseTemplate(value, dependencies);
+          value = template.expression;
+          dynamic = template.dynamic;
+        }
+
         attributes.push({
           key: key,
-          value: template.expression,
+          value: value,
           expression: expression,
-          dynamic: expression && template.dynamic
+          dynamic: dynamic
         });
       }
     }
@@ -370,10 +378,11 @@
   var generateDestroy = function (element, parent, root) {
     switch (element.type) {
       case "#if": {
-        return removeChild(element.ifReference, parent.index) + "if(" + (getElement(element.ifState)) + "===1){" + (getElement(element.elseDestroy)) + "();}";
+        return removeChild(element.ifReference, parent.index) + (getElement(element.ifState)) + "();";
       }
+      case "#elseif":
       case "#else": {
-        return ("else{" + (getElement(element.ifDestroy)) + "();}");
+        return "";
       }
       case "#comment": {
         return removeChild(element.commentElement, parent.index);
@@ -392,55 +401,39 @@
   var generateCreate = function (element, parent, root, insert) {
     switch (element.type) {
       case "#if": {
-        var siblings = parent.children;
-        var nextSiblingIndex = siblings.indexOf(element) + 1;
-        var nextSibling = siblings[nextSiblingIndex];
-
+        var ifState = root.nextIndex++;
         element.ifReference = root.nextIndex++;
-        element.ifState = root.nextIndex++;
-        element.ifCreate = root.nextIndex++;
-        element.elseDestroy = root.nextIndex++;
+        var ifBlocks = "";
 
-        if (nextSibling !== undefined && nextSibling.type === "#else") {
-          nextSibling.ifState = element.ifState;
-          nextSibling.elseCreate = root.nextIndex++;
-          nextSibling.ifDestroy = root.nextIndex++;
-        } else {
-          nextSibling = {
-            type: "#else",
-            attributes: [],
-            children: [],
-            ifState: element.ifState,
-            elseCreate: root.nextIndex++,
-            ifDestroy: root.nextIndex++
-          };
+        var siblings = parent.children;
+        for (var i = 0; i < siblings.length; i++) {
+          var sibling = siblings[i];
+          if (sibling.type === "#if" || sibling.type === "#elseif" || sibling.type === "#else") {
+            var children = sibling.children;
+            var ifCreate = "";
+            var ifDestroy = "";
 
-          siblings.splice(nextSiblingIndex, 0, nextSibling);
+            for (var i$1 = 0; i$1 < children.length; i$1++) {
+              var child = children[i$1];
+              ifCreate += generateCreate(child, parent, root, element.ifReference);
+              ifDestroy += generateDestroy(child, parent, root);
+            }
+
+            sibling.ifState = ifState;
+            sibling.ifCreate = root.nextIndex++;
+            sibling.ifDestroy = root.nextIndex++;
+
+            ifBlocks += setElement(sibling.ifCreate, ("function(){" + ifCreate + "};")) + setElement(sibling.ifDestroy, ("function(){" + ifDestroy + "};"));
+          }
         }
 
-        var ifCreate = "";
-        var ifDestroy = "";
-        var elseCreate = "";
-        var elseDestroy = "";
-
-        var elementChildren = element.children;
-        for (var i = 0; i < elementChildren.length; i++) {
-          var child = elementChildren[i];
-          ifCreate += generateCreate(child, parent, root, element.ifReference);
-          ifDestroy += generateDestroy(child, parent, root);
-        }
-
-        var nextSiblingChildren = nextSibling.children;
-        for (var i$1 = 0; i$1 < nextSiblingChildren.length; i$1++) {
-          var child$1 = nextSiblingChildren[i$1];
-          elseCreate += generateCreate(child$1, parent, root, element.ifReference);
-          elseDestroy += generateDestroy(child$1, parent, root);
-        }
-
-        return setElement(element.ifReference, createComment()) + generateMount(element.ifReference, parent.index, insert) + setElement(element.ifCreate, ("function(){" + ifCreate + "};")) + setElement(nextSibling.ifDestroy, ("function(){" + ifDestroy + "};")) + setElement(nextSibling.elseCreate, ("function(){" + elseCreate + "};")) + setElement(element.elseDestroy, ("function(){" + elseDestroy + "};")) + "if(" + (attributeValue(element.attributes[0])) + "){" + (getElement(element.ifCreate)) + "();" + (setElement(element.ifState, "0;")) + "}";
+        return setElement(element.ifReference, createComment()) + generateMount(element.ifReference, parent.index, insert) + ifBlocks + "if(" + (attributeValue(element.attributes[0])) + "){" + (getElement(element.ifCreate)) + "();" + (setElement(element.ifState, getElement(element.ifDestroy))) + "}";
+      }
+      case "#elseif": {
+        return ("else if(" + (attributeValue(element.attributes[0])) + "){" + (getElement(element.ifCreate)) + "();" + (setElement(element.ifState, getElement(element.ifDestroy))) + "}");
       }
       case "#else": {
-        return ("else{" + (getElement(element.elseCreate)) + "();" + (setElement(element.ifState, "1;")) + "}");
+        return ("else{" + (getElement(element.ifCreate)) + "();" + (setElement(element.ifState, getElement(element.ifDestroy))) + "}");
       }
       case "#comment": {
         element.commentElement = root.nextIndex++;
@@ -466,10 +459,13 @@
   var generateUpdate = function (element, parent, root) {
     switch (element.type) {
       case "#if": {
-        return ("if(" + (attributeValue(element.attributes[0])) + "){if(" + (getElement(element.ifState)) + "===0){" + (mapReduce(element.children, function (child) { return generateUpdate(child, parent, root); })) + "}else{" + (getElement(element.elseDestroy)) + "();" + (getElement(element.ifCreate)) + "();" + (setElement(element.ifState, "0;")) + "}}");
+        return ("if(" + (attributeValue(element.attributes[0])) + "){if(" + (getElement(element.ifState)) + "===" + (getElement(element.ifDestroy)) + "){" + (mapReduce(element.children, function (child) { return generateUpdate(child, parent, root); })) + "}else{" + (getElement(element.ifState)) + "();" + (getElement(element.ifCreate)) + "();" + (setElement(element.ifState, getElement(element.ifDestroy))) + "}}");
+      }
+      case "#elseif": {
+        return ("else if(" + (attributeValue(element.attributes[0])) + "){if(" + (getElement(element.ifState)) + "===" + (getElement(element.ifDestroy)) + "){" + (mapReduce(element.children, function (child) { return generateUpdate(child, parent, root); })) + "}else{" + (getElement(element.ifState)) + "();" + (getElement(element.ifCreate)) + "();" + (setElement(element.ifState, getElement(element.ifDestroy))) + "}}");
       }
       case "#else": {
-        return ("else{if(" + (getElement(element.ifState)) + "===1){" + (mapReduce(element.children, function (child) { return generateUpdate(child, parent, root); })) + "}else{" + (getElement(element.ifDestroy)) + "();" + (getElement(element.elseCreate)) + "();" + (setElement(element.ifState, "1;")) + "}}");
+        return ("else{if(" + (getElement(element.ifState)) + "===" + (getElement(element.ifDestroy)) + "){" + (mapReduce(element.children, function (child) { return generateUpdate(child, parent, root); })) + "}else{" + (getElement(element.ifState)) + "();" + (getElement(element.ifCreate)) + "();" + (setElement(element.ifState, getElement(element.ifDestroy))) + "}}");
       }
       case "#text": {
         var textAttribute = element.attributes[0];

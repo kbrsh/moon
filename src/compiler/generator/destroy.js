@@ -3,10 +3,11 @@ import { getElement, removeChild } from "./util";
 export const generateDestroy = (element, parent, root) => {
   switch (element.type) {
     case "#if": {
-      return removeChild(element.ifReference, parent.index) + `if(${getElement(element.ifState)}===1){${getElement(element.elseDestroy)}();}`;
+      return removeChild(element.ifReference, parent.index) + `${getElement(element.ifState)}();`;
     }
+    case "#elseif":
     case "#else": {
-      return `else{${getElement(element.ifDestroy)}();}`;
+      return "";
     }
     case "#comment": {
       return removeChild(element.commentElement, parent.index);

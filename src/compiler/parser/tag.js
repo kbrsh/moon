@@ -1,6 +1,8 @@
 import { parseTemplate } from "./template";
 import { whitespaceRE, error } from "./util";
 
+const valueEndRE = /[\s/>]/;
+
 const parseAttributes = (index, input, length, dependencies, attributes) => {
   while (index < length) {
     let char = input[index];
@@ -12,7 +14,7 @@ const parseAttributes = (index, input, length, dependencies, attributes) => {
       continue;
     } else {
       let key = "";
-      let value = "";
+      let value;
       let expression = false;
 
       while (index < length) {
@@ -30,8 +32,9 @@ const parseAttributes = (index, input, length, dependencies, attributes) => {
         }
       }
 
-      if (value.length === 0) {
+      if (value === undefined) {
         let quote;
+        value = "";
         char = input[index];
 
         if (char === "\"" || char === "'") {
@@ -42,15 +45,13 @@ const parseAttributes = (index, input, length, dependencies, attributes) => {
           expression = true;
           index += 1;
         } else {
-          quote = whitespaceRE;
+          quote = valueEndRE;
         }
 
         while (index < length) {
           char = input[index];
 
-          if (char === "/" || char === ">") {
-            break;
-          } else if ((typeof quote === "object" && quote.test(char)) || char === quote) {
+          if ((typeof quote === "object" && quote.test(char)) || char === quote) {
             index += 1;
             break;
           } else {
@@ -60,12 +61,19 @@ const parseAttributes = (index, input, length, dependencies, attributes) => {
         }
       }
 
-      const template = parseTemplate(value, dependencies);
+      let dynamic = false;
+
+      if (expression) {
+        const template = parseTemplate(value, dependencies);
+        value = template.expression;
+        dynamic = template.dynamic;
+      }
+
       attributes.push({
         key: key,
-        value: template.expression,
+        value: value,
         expression: expression,
-        dynamic: expression && template.dynamic
+        dynamic: dynamic
       });
     }
   }

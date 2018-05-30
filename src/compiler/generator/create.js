@@ -6,55 +6,39 @@ const generateMount = (element, parent, insert) => insert === undefined ? append
 export const generateCreate = (element, parent, root, insert) => {
   switch (element.type) {
     case "#if": {
-      const siblings = parent.children;
-      const nextSiblingIndex = siblings.indexOf(element) + 1;
-      let nextSibling = siblings[nextSiblingIndex];
-
+      const ifState = root.nextIndex++;
       element.ifReference = root.nextIndex++;
-      element.ifState = root.nextIndex++;
-      element.ifCreate = root.nextIndex++;
-      element.elseDestroy = root.nextIndex++;
+      let ifBlocks = "";
 
-      if (nextSibling !== undefined && nextSibling.type === "#else") {
-        nextSibling.ifState = element.ifState;
-        nextSibling.elseCreate = root.nextIndex++;
-        nextSibling.ifDestroy = root.nextIndex++;
-      } else {
-        nextSibling = {
-          type: "#else",
-          attributes: [],
-          children: [],
-          ifState: element.ifState,
-          elseCreate: root.nextIndex++,
-          ifDestroy: root.nextIndex++
-        };
+      const siblings = parent.children;
+      for (let i = 0; i < siblings.length; i++) {
+        const sibling = siblings[i];
+        if (sibling.type === "#if" || sibling.type === "#elseif" || sibling.type === "#else") {
+          const children = sibling.children;
+          let ifCreate = "";
+          let ifDestroy = "";
 
-        siblings.splice(nextSiblingIndex, 0, nextSibling);
+          for (let i = 0; i < children.length; i++) {
+            const child = children[i];
+            ifCreate += generateCreate(child, parent, root, element.ifReference);
+            ifDestroy += generateDestroy(child, parent, root);
+          }
+
+          sibling.ifState = ifState;
+          sibling.ifCreate = root.nextIndex++;
+          sibling.ifDestroy = root.nextIndex++;
+
+          ifBlocks += setElement(sibling.ifCreate, `function(){${ifCreate}};`) + setElement(sibling.ifDestroy, `function(){${ifDestroy}};`);
+        }
       }
 
-      let ifCreate = "";
-      let ifDestroy = "";
-      let elseCreate = "";
-      let elseDestroy = "";
-
-      const elementChildren = element.children;
-      for (let i = 0; i < elementChildren.length; i++) {
-        const child = elementChildren[i];
-        ifCreate += generateCreate(child, parent, root, element.ifReference);
-        ifDestroy += generateDestroy(child, parent, root);
-      }
-
-      const nextSiblingChildren = nextSibling.children;
-      for (let i = 0; i < nextSiblingChildren.length; i++) {
-        const child = nextSiblingChildren[i];
-        elseCreate += generateCreate(child, parent, root, element.ifReference);
-        elseDestroy += generateDestroy(child, parent, root);
-      }
-
-      return setElement(element.ifReference, createComment()) + generateMount(element.ifReference, parent.index, insert) + setElement(element.ifCreate, `function(){${ifCreate}};`) + setElement(nextSibling.ifDestroy, `function(){${ifDestroy}};`) + setElement(nextSibling.elseCreate, `function(){${elseCreate}};`) + setElement(element.elseDestroy, `function(){${elseDestroy}};`) + `if(${attributeValue(element.attributes[0])}){${getElement(element.ifCreate)}();${setElement(element.ifState, "0;")}}`;
+      return setElement(element.ifReference, createComment()) + generateMount(element.ifReference, parent.index, insert) + ifBlocks + `if(${attributeValue(element.attributes[0])}){${getElement(element.ifCreate)}();${setElement(element.ifState, getElement(element.ifDestroy))}}`;
+    }
+    case "#elseif": {
+      return `else if(${attributeValue(element.attributes[0])}){${getElement(element.ifCreate)}();${setElement(element.ifState, getElement(element.ifDestroy))}}`;
     }
     case "#else": {
-      return `else{${getElement(element.elseCreate)}();${setElement(element.ifState, "1;")}}`;
+      return `else{${getElement(element.ifCreate)}();${setElement(element.ifState, getElement(element.ifDestroy))}}`;
     }
     case "#comment": {
       element.commentElement = root.nextIndex++;
