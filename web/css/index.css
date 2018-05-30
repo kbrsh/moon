@@ -20,9 +20,9 @@
 }
 
 #head a:nth-child(3) button {
-  background: hsl(240, 100%, 14%);
-  border: 1px solid hsl(240, 100%, 20%);
-  color: hsl(240, 100%, 90%);
+  background: hsl(245, 100%, 64%);
+  border: 1px solid hsl(245, 100%, 57%);
+  color: #E6E6E6;
 }
 
 #head a:nth-child(4) button {
