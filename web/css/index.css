@@ -7,10 +7,16 @@
   font-size: 50px;
   font-weight: 600;
   letter-spacing: 1px;
+  margin-bottom: 20px;
 }
 
 #head img {
   height: 100px;
+  margin-bottom: 20px;
+}
+
+#head a {
+  margin-bottom: 20px;
 }
 
 #head a:nth-child(3) button {
