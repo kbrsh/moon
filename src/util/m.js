@@ -31,16 +31,16 @@ const insertBefore = (element, reference, parent) => {
 };
 
 export const m = () => {
-  let m = [];
-  m.c = components;
-  m.ce = createElement;
-  m.ctn = createTextNode;
-  m.cc = createComment;
-  m.sa = setAttribute;
-  m.ael = addEventListener;
-  m.stc = setTextContent;
-  m.ac = appendChild;
-  m.rc = removeChild;
-  m.ib = insertBefore;
-  return m;
+  return {
+    c: components,
+    ce: createElement,
+    ctn: createTextNode,
+    cc: createComment,
+    sa: setAttribute,
+    ael: addEventListener,
+    stc: setTextContent,
+    ac: appendChild,
+    rc: removeChild,
+    ib: insertBefore
+  };
 };

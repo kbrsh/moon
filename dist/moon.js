@@ -351,7 +351,7 @@
     return result;
   };
 
-  var getElement = function (element) { return ("m[" + element + "]"); };
+  var getElement = function (element) { return ("m" + element); };
 
   var setElement = function (element, code) { return ((getElement(element)) + "=" + code); };
 
@@ -484,7 +484,16 @@
   };
 
   var generate = function (tree) {
-    return new Function(("return [function(m){this.m[0]=m;m=this.m;var data=this.data;" + (mapReduce(tree.children, function (child) { return generateCreate(child, tree, tree); })) + "},function(){var m=this.m;var data=this.data;" + (mapReduce(tree.children, function (child) { return generateUpdate(child, tree, tree); })) + "},function(){var m=this.m;" + (mapReduce(tree.children, function (child) { return generateDestroy(child, tree, tree); })) + "this.m=[m[0]];}];"))();
+    var create = mapReduce(tree.children, function (child) { return generateCreate(child, tree, tree); });
+    var update = mapReduce(tree.children, function (child) { return generateUpdate(child, tree, tree); });
+    var destroy = mapReduce(tree.children, function (child) { return generateDestroy(child, tree, tree); });
+    var prelude = "var m0";
+
+    for (var i = 1; i < tree.nextIndex; i++) {
+      prelude += ",m" + i;
+    }
+
+    return new Function((prelude + ";return [function(m){m0=m;m=this.m;var data=this.data;" + create + "},function(){var m=this.m;var data=this.data;" + update + "},function(){var m=this.m;" + destroy + "}];"));
   };
 
   var compile = function (input) {
@@ -524,18 +533,18 @@
   };
 
   var m = function () {
-    var m = [];
-    m.c = components;
-    m.ce = createElement$1;
-    m.ctn = createTextNode$1;
-    m.cc = createComment$1;
-    m.sa = setAttribute$1;
-    m.ael = addEventListener$1;
-    m.stc = setTextContent$1;
-    m.ac = appendChild$1;
-    m.rc = removeChild$1;
-    m.ib = insertBefore$1;
-    return m;
+    return {
+      c: components,
+      ce: createElement$1,
+      ctn: createTextNode$1,
+      cc: createComment$1,
+      sa: setAttribute$1,
+      ael: addEventListener$1,
+      stc: setTextContent$1,
+      ac: appendChild$1,
+      rc: removeChild$1,
+      ib: insertBefore$1
+    };
   };
 
   var create = function(root) {
@@ -664,7 +673,7 @@
 
     var view = options.view;
     if (typeof view === "string") {
-      options.view = compile(view);
+      options.view = compile(view)();
     }
 
     var data = options.data;
@@ -692,7 +701,7 @@
   Moon.extend = function (name, options) {
     var view = options.view;
     if (typeof view === "string") {
-      options.view = compile(view);
+      options.view = compile(view)();
     }
 
     var data = options.data;

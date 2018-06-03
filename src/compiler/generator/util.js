@@ -8,7 +8,7 @@ export const mapReduce = (arr, fn) => {
   return result;
 };
 
-export const getElement = (element) => `m[${element}]`;
+export const getElement = (element) => `m${element}`;
 
 export const setElement = (element, code) => `${getElement(element)}=${code}`;
 

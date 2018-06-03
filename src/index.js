@@ -11,7 +11,7 @@ export default function Moon(options) {
 
   let view = options.view;
   if (typeof view === "string") {
-    options.view = compile(view);
+    options.view = compile(view)();
   }
 
   let data = options.data;
@@ -39,7 +39,7 @@ export default function Moon(options) {
 Moon.extend = (name, options) => {
   let view = options.view;
   if (typeof view === "string") {
-    options.view = compile(view);
+    options.view = compile(view)();
   }
 
   let data = options.data;
