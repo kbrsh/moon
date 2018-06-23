@@ -1,20 +1,19 @@
 const expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
-const locals = ["NaN", "event", "false", "in", "m", "null", "this", "true", "typeof", "undefined"];
+const locals = ["NaN", "event", "false", "in", "null", "this", "true", "typeof", "undefined"];
 
-export const parseTemplate = (expression, dependencies) => {
+export const parseTemplate = (expression) => {
   let dynamic = false;
 
   expression = expression.replace(expressionRE, function(match, name) {
-    if (name === undefined || locals.indexOf(name) !== -1 || name[0] === "$") {
+    if (name === undefined || locals.indexOf(name) !== -1) {
       return match;
     } else {
-      dynamic = true;
-
-      if (dependencies.indexOf(name) === -1) {
-        dependencies.push(name);
+      if (name[0] === "$") {
+        return name;
+      } else {
+        dynamic = true;
+        return `instance.${name}`;
       }
-
-      return `data.${name}`;
     }
   });
 

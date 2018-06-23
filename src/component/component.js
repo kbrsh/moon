@@ -1,7 +1,8 @@
+import { compile } from "../compiler/compiler";
 import { m } from "../util/m";
 
 const create = function(root) {
-  this.view[0](root);
+  this._view[0](root);
   this.emit("create");
 };
 
@@ -9,38 +10,36 @@ const update = function(key, value) {
   if (key !== undefined) {
     if (typeof key === "object") {
       for (let childKey in key) {
-        this.data[childKey] = key[childKey];
+        this[childKey] = key[childKey];
       }
     } else {
-      this.data[key] = value;
+      this[key] = value;
     }
   }
 
-  if (this.queued === false) {
-    this.queued = true;
+  if (this._queued === false) {
+    this._queued = true;
 
     const instance = this;
     setTimeout(() => {
-      instance.view[1]();
-      instance.queued = false;
+      instance._view[1]();
+      instance._queued = false;
       instance.emit("update");
     }, 0);
   }
 };
 
 const destroy = function() {
-  this.view[2]();
+  this._view[2]();
   this.emit("destroy");
 };
 
 const on = function(type, handler) {
-  let events = this.events;
+  let events = this._events;
   let handlers = events[type];
 
   if (handlers === undefined) {
-    events[type] = handler;
-  } else if (typeof handlers === "function") {
-    events[type] = [handlers, handler];
+    events[type] = [handler];
   } else {
     handlers.push(handler);
   }
@@ -48,23 +47,17 @@ const on = function(type, handler) {
 
 const off = function(type, handler) {
   if (type === undefined) {
-    this.events = {};
+    this._events = {};
   } else if (handler === undefined) {
-    this.events[type] = [];
+    this._events[type] = [];
   } else {
-    let events = this.events;
-    let handlers = events[type];
-
-    if (typeof handlers === "function") {
-      events[type] = undefined;
-    } else {
-      handlers.splice(handlers.indexOf(handler), 1);
-    }
+    let handlers = this._events[type];
+    handlers.splice(handlers.indexOf(handler), 1);
   }
 };
 
 const emit = function(type, data) {
-  let handlers = this.events[type];
+  let handlers = this._events[type];
 
   if (handlers !== undefined) {
     if (typeof handlers === "function") {
@@ -77,34 +70,58 @@ const emit = function(type, data) {
   }
 };
 
-export const component = (name, options) => {
+export const component = (name, data) => {
   return function MoonComponent() {
-    this.name = name;
-    this.queued = false;
+    // Properties
+    this._name = name;
+    this._queued = false;
 
-    this.view = options.view.map((view) => view.bind(this));
-    this.m = m();
+    // View
+    if (typeof data.view === "string") {
+      this._view = new Function("m", "instance", compile(data.view))(m, this);
+    } else {
+      this._view = data.view;
+    }
 
-    const data = this.data = options.data();
+    delete data.view;
+
+    // Events
+    let events = {};
+
+    if (data.onCreate !== undefined) {
+      events.onCreate = data.onCreate.bind(this);
+      delete data.onCreate;
+    }
+
+    if (data.onUpdate !== undefined) {
+      events.onUpdate = data.onUpdate.bind(this);
+      delete data.onUpdate;
+    }
+
+    if (data.onDestroy !== undefined) {
+      events.onDestroy = data.onDestroy.bind(this);
+      delete data.onDestroy;
+    }
+
+    this._events = events;
+
+    // Data
+    if (data === undefined) {
+      data = {};
+    } else if (typeof data === "function") {
+      data = data();
+    }
+
     for (let key in data) {
       const value = data[key];
       if (typeof value === "function") {
-        data[key] = value.bind(this);
-      }
-    }
-
-    const events = this.events = options.events;
-    for (let type in events) {
-      const handlers = events[type];
-      if (typeof handlers === "function") {
-        events[type] = handlers.bind(this);
+        this[key] = value.bind(this);
       } else {
-        for (let i = 0; i < handlers.length; i++) {
-          handlers[i] = handlers[i].bind(this);
-        }
+        this[key] = value;
       }
     }
 
+    // Methods
     this.create = create;
     this.update = update;
     this.destroy = destroy;

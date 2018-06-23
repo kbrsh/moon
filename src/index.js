@@ -3,58 +3,25 @@ import { component } from "./component/component";
 import { components } from "./component/components";
 import { config } from "./util/config";
 
-export default function Moon(options) {
-  let root = options.root;
+export default function Moon(data) {
+  let root = data.root;
+  delete data.root;
+
   if (typeof root === "string") {
     root = document.querySelector(root);
   }
 
-  let view = options.view;
-  if (typeof view === "string") {
-    options.view = compile(view)();
-  }
-
-  let data = options.data;
-  if (data === undefined) {
-    options.data = () => {
-      return {};
-    };
-  } else if (typeof data === "object") {
-    options.data = () => data;
-  }
-
-  let events = options.events;
-  if (events === undefined) {
-    options.events = {};
-  }
-
-  const instanceComponent = component("", options);
+  const instanceComponent = component("", data);
   const instance = new instanceComponent();
 
   instance.create(root);
+  instance.update();
 
   return instance;
 }
 
-Moon.extend = (name, options) => {
-  let view = options.view;
-  if (typeof view === "string") {
-    options.view = compile(view)();
-  }
-
-  let data = options.data;
-  if (data === undefined) {
-    options.data = () => {
-      return {};
-    };
-  }
-
-  let events = options.events;
-  if (events === undefined) {
-    options.events = {};
-  }
-
-  components[name] = component(name, options);
+Moon.extend = (name, data) => {
+  components[name] = component(name, data);
 };
 
 Moon.compile = compile;

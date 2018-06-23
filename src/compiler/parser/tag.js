@@ -3,7 +3,7 @@ import { whitespaceRE, error } from "./util";
 
 const valueEndRE = /[\s/>]/;
 
-const parseAttributes = (index, input, length, dependencies, attributes) => {
+const parseAttributes = (index, input, length, attributes) => {
   while (index < length) {
     let char = input[index];
 
@@ -64,7 +64,7 @@ const parseAttributes = (index, input, length, dependencies, attributes) => {
       let dynamic = false;
 
       if (expression) {
-        const template = parseTemplate(value, dependencies);
+        const template = parseTemplate(value);
         value = template.expression;
         dynamic = template.dynamic;
       }
@@ -81,7 +81,7 @@ const parseAttributes = (index, input, length, dependencies, attributes) => {
   return index;
 };
 
-export const parseOpeningTag = (index, input, length, stack, dependencies) => {
+export const parseOpeningTag = (index, input, length, stack) => {
   let element = {
     type: "",
     attributes: [],
@@ -91,14 +91,15 @@ export const parseOpeningTag = (index, input, length, stack, dependencies) => {
   while (index < length) {
     const char = input[index];
 
-    if (char === ">") {
+    if (char === "/" || char === ">") {
       const attributes = element.attributes;
+      const lastIndex = stack.length - 1;
 
-      if (element.type[0] !== "#") {
-        element.index = stack[0].nextIndex++;
+      if (char === "/") {
+        index += 1;
+      } else {
+        stack.push(element);
       }
-
-      stack.push(element);
 
       for (let i = 0; i < attributes.length;) {
         const attribute = attributes[i];
@@ -120,21 +121,12 @@ export const parseOpeningTag = (index, input, length, stack, dependencies) => {
         }
       }
 
-      stack[stack.length - 2].children.push(element);
+      stack[lastIndex].children.push(element);
 
       index += 1;
       break;
-    } else if (char === "/" && input[index + 1] === ">") {
-      if (element.type[0] !== "#") {
-        element.index = stack[0].nextIndex++;
-      }
-
-      stack[stack.length - 1].children.push(element);
-
-      index += 2;
-      break;
     } else if ((whitespaceRE.test(char) && (index += 1)) || char === "=") {
-      index = parseAttributes(index, input, length, dependencies, element.attributes);
+      index = parseAttributes(index, input, length, element.attributes);
     } else {
       element.type += char;
       index += 1;

@@ -22,7 +22,7 @@ export const attributeValue = (attribute) => attribute.expression ? attribute.va
 
 export const setAttribute = (element, attribute) => `m.sa(${getElement(element)},"${attribute.key}",${attributeValue(attribute)});`;
 
-export const addEventListener = (element, attribute) => `m.ael(${getElement(element)},"${attribute.key.substring(1)}",function($event){${attributeValue(attribute)}});`;
+export const addEventListener = (element, type, handler) => `m.ael(${getElement(element)},"${type}",${handler});`;
 
 export const setTextContent = (element, content) => `m.stc(${getElement(element)},${content});`;
 
@@ -31,3 +31,5 @@ export const appendChild = (element, parent) => `m.ac(${getElement(element)},${g
 export const removeChild = (element, parent) => `m.rc(${getElement(element)},${getElement(parent)});`;
 
 export const insertBefore = (element, reference, parent) => `m.ib(${getElement(element)},${getElement(reference)},${getElement(parent)});`;
+
+export const directiveIf = (ifState, ifReference, ifConditions, ifPortions, ifParent) => `m.di(${getElement(ifState)},${getElement(ifReference)},${getElement(ifConditions)},${getElement(ifPortions)},${getElement(ifParent)});`;

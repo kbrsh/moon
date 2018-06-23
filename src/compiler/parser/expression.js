@@ -1,6 +1,6 @@
 import { parseTemplate } from "./template";
 
-export const parseExpression = (index, input, length, stack, dependencies) => {
+export const parseExpression = (index, input, length, stack) => {
   let expression = "";
 
   for (; index < length; index++) {
@@ -14,7 +14,7 @@ export const parseExpression = (index, input, length, stack, dependencies) => {
     }
   }
 
-  const template = parseTemplate(expression, dependencies);
+  const template = parseTemplate(expression);
   stack[stack.length - 1].children.push({
     type: "#text",
     attributes: [{

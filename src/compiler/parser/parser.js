@@ -5,15 +5,13 @@ import { parseExpression } from "./expression";
 
 export const parse = (input) => {
   const length = input.length;
-  let dependencies = [];
 
   const root = {
-    index: 0,
-    nextIndex: 1,
+    element: 0,
+    nextElement: 1,
     type: "#root",
     attributes: [],
-    children: [],
-    dependencies: dependencies
+    children: []
   };
 
   let stack = [root];
@@ -27,10 +25,10 @@ export const parse = (input) => {
       } else if (input[i + 1] === "/") {
         i = parseClosingTag(i + 2, input, length, stack);
       } else {
-        i = parseOpeningTag(i + 1, input, length, stack, dependencies);
+        i = parseOpeningTag(i + 1, input, length, stack);
       }
     } else if (char === "{") {
-      i = parseExpression(i + 1, input, length, stack, dependencies);
+      i = parseExpression(i + 1, input, length, stack);
     } else {
       i = parseText(i, input, length, stack);
     }
