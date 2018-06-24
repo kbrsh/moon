@@ -89,17 +89,17 @@ export const component = (name, data) => {
 		let events = {};
 
 		if (data.onCreate !== undefined) {
-			events.onCreate = data.onCreate.bind(this);
+			events.create = data.onCreate.bind(this);
 			delete data.onCreate;
 		}
 
 		if (data.onUpdate !== undefined) {
-			events.onUpdate = data.onUpdate.bind(this);
+			events.update = data.onUpdate.bind(this);
 			delete data.onUpdate;
 		}
 
 		if (data.onDestroy !== undefined) {
-			events.onDestroy = data.onDestroy.bind(this);
+			events.destroy = data.onDestroy.bind(this);
 			delete data.onDestroy;
 		}
 

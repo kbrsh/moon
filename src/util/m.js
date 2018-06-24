@@ -51,6 +51,25 @@ const directiveIf = (ifState, ifReference, ifConditions, ifPortions, ifParent) =
 	}
 };
 
+const directiveFor = (forValue, forReference, forPortion, forPortions, forParent) => {
+	const previousLength = forPortions.length;
+	const nextLength = forValue.length;
+	const maxLength = previousLength > nextLength ? previousLength : nextLength;
+
+	for (let i = 0; i < maxLength; i++) {
+		if (i >= previousLength)	{
+			const newForPortion = forPortion();
+			forPortions.push(newForPortion);
+			newForPortion[0](forParent);
+			newForPortion[1]();
+		} else if (i >= nextLength) {
+			forPortions.pop()[2]();
+		} else {
+			forPortions[i][1]();
+		}
+	}
+};
+
 export const m = {
 	ce: createElement,
 	ctn: createTextNode,
@@ -61,5 +80,6 @@ export const m = {
 	ac: appendChild,
 	rc: removeChild,
 	ib: insertBefore,
-	di: directiveIf
+	di: directiveIf,
+	df: directiveFor
 };

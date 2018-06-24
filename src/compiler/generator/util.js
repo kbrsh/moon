@@ -33,3 +33,5 @@ export const removeChild = (element, parent) => `m.rc(${getElement(element)},${g
 export const insertBefore = (element, reference, parent) => `m.ib(${getElement(element)},${getElement(reference)},${getElement(parent)});`;
 
 export const directiveIf = (ifState, ifReference, ifConditions, ifPortions, ifParent) => `m.di(${getElement(ifState)},${getElement(ifReference)},${getElement(ifConditions)},${getElement(ifPortions)},${getElement(ifParent)});`;
+
+export const directiveFor = (forValue, forReference, forPortion, forPortions, forParent) => `m.df(${forValue},${getElement(forReference)},${getElement(forPortion)},${getElement(forPortions)},${getElement(forParent)});`;

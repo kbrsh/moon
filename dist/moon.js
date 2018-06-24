@@ -356,6 +356,8 @@
 
 	var directiveIf = function (ifState, ifReference, ifConditions, ifPortions, ifParent) { return ("m.di(" + (getElement(ifState)) + "," + (getElement(ifReference)) + "," + (getElement(ifConditions)) + "," + (getElement(ifPortions)) + "," + (getElement(ifParent)) + ");"); };
 
+	var directiveFor = function (forValue, forReference, forPortion, forPortions, forParent) { return ("m.df(" + forValue + "," + (getElement(forReference)) + "," + (getElement(forPortion)) + "," + (getElement(forPortions)) + "," + (getElement(forParent)) + ");"); };
+
 	var generateMount = function (element, parent, insert) { return insert === undefined ? appendChild(element, parent) : insertBefore(element, insert, parent); };
 
 	var generateAll = function (element, parent, root, insert) {
@@ -405,12 +407,34 @@
 			case "#else": {
 				return ["", "", ""];
 			}
+			case "#for": {
+				var forReference = root.nextElement++;
+				var forPortion = root.nextElement++;
+				var forPortions = root.nextElement++;
+
+				return [
+					setElement(forReference, createComment()) +
+					generateMount(forReference, parent.element, insert) +
+					setElement(forPortion, "function(){" + generate({
+						element: root.nextElement,
+						nextElement: root.nextElement + 1,
+						type: "#root",
+						attributes: [],
+						children: element.children
+					}, forReference) + "};") +
+					setElement(forPortions, "[];"),
+
+					directiveFor(attributeValue(element.attributes[0]), forReference, forPortion, forPortions, parent.element),
+
+					directiveFor("[]", forReference, forPortion, forPortions)
+				];
+			}
 			case "#text": {
 				var textAttribute = element.attributes[0];
-				element.textElement = root.nextElement++;
+				var textElement = root.nextElement++;
 
-				var textCode = setTextContent(element.textElement, attributeValue(textAttribute));
-				var createCode = setElement(element.textElement, createTextNode("\"\""));
+				var textCode = setTextContent(textElement, attributeValue(textAttribute));
+				var createCode = setElement(textElement, createTextNode("\"\""));
 				var updateCode = "";
 
 				if (textAttribute.dynamic) {
@@ -419,7 +443,7 @@
 					createCode += textCode;
 				}
 
-				return [createCode + generateMount(element.textElement, parent.element, insert), updateCode, removeChild(element.textElement, parent.element)];
+				return [createCode + generateMount(textElement, parent.element, insert), updateCode, removeChild(textElement, parent.element)];
 			}
 			default: {
 				var attributes = element.attributes;
@@ -538,6 +562,25 @@
 		}
 	};
 
+	var directiveFor$1 = function (forValue, forReference, forPortion, forPortions, forParent) {
+		var previousLength = forPortions.length;
+		var nextLength = forValue.length;
+		var maxLength = previousLength > nextLength ? previousLength : nextLength;
+
+		for (var i = 0; i < maxLength; i++) {
+			if (i >= previousLength)	{
+				var newForPortion = forPortion();
+				forPortions.push(newForPortion);
+				newForPortion[0](forParent);
+				newForPortion[1]();
+			} else if (i >= nextLength) {
+				forPortions.pop()[2]();
+			} else {
+				forPortions[i][1]();
+			}
+		}
+	};
+
 	var m = {
 		ce: createElement$1,
 		ctn: createTextNode$1,
@@ -548,7 +591,8 @@
 		ac: appendChild$1,
 		rc: removeChild$1,
 		ib: insertBefore$1,
-		di: directiveIf$1
+		di: directiveIf$1,
+		df: directiveFor$1
 	};
 
 	var create = function(root) {
@@ -643,17 +687,17 @@
 			var events = {};
 
 			if (data.onCreate !== undefined) {
-				events.onCreate = data.onCreate.bind(this);
+				events.create = data.onCreate.bind(this);
 				delete data.onCreate;
 			}
 
 			if (data.onUpdate !== undefined) {
-				events.onUpdate = data.onUpdate.bind(this);
+				events.update = data.onUpdate.bind(this);
 				delete data.onUpdate;
 			}
 
 			if (data.onDestroy !== undefined) {
-				events.onDestroy = data.onDestroy.bind(this);
+				events.destroy = data.onDestroy.bind(this);
 				delete data.onDestroy;
 			}
 

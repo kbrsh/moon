@@ -1,4 +1,4 @@
-import { getElement, setElement, createElement, createTextNode, createComment, attributeValue, setAttribute, addEventListener, setTextContent, appendChild, removeChild, insertBefore, directiveIf } from "./util";
+import { getElement, setElement, createElement, createTextNode, createComment, attributeValue, setAttribute, addEventListener, setTextContent, appendChild, removeChild, insertBefore, directiveIf, directiveFor } from "./util";
 
 const generateMount = (element, parent, insert) => insert === undefined ? appendChild(element, parent) : insertBefore(element, insert, parent);
 
@@ -49,12 +49,34 @@ export const generateAll = (element, parent, root, insert) => {
 		case "#else": {
 			return ["", "", ""];
 		}
+		case "#for": {
+			const forReference = root.nextElement++;
+			const forPortion = root.nextElement++;
+			const forPortions = root.nextElement++;
+
+			return [
+				setElement(forReference, createComment()) +
+				generateMount(forReference, parent.element, insert) +
+				setElement(forPortion, "function(){" + generate({
+					element: root.nextElement,
+					nextElement: root.nextElement + 1,
+					type: "#root",
+					attributes: [],
+					children: element.children
+				}, forReference) + "};") +
+				setElement(forPortions, "[];"),
+
+				directiveFor(attributeValue(element.attributes[0]), forReference, forPortion, forPortions, parent.element),
+
+				directiveFor("[]", forReference, forPortion, forPortions)
+			];
+		}
 		case "#text": {
 			const textAttribute = element.attributes[0];
-			element.textElement = root.nextElement++;
+			const textElement = root.nextElement++;
 
-			const textCode = setTextContent(element.textElement, attributeValue(textAttribute));
-			let createCode = setElement(element.textElement, createTextNode("\"\""));
+			const textCode = setTextContent(textElement, attributeValue(textAttribute));
+			let createCode = setElement(textElement, createTextNode("\"\""));
 			let updateCode = "";
 
 			if (textAttribute.dynamic) {
@@ -63,7 +85,7 @@ export const generateAll = (element, parent, root, insert) => {
 				createCode += textCode;
 			}
 
-			return [createCode + generateMount(element.textElement, parent.element, insert), updateCode, removeChild(element.textElement, parent.element)];
+			return [createCode + generateMount(textElement, parent.element, insert), updateCode, removeChild(textElement, parent.element)];
 		}
 		default: {
 			const attributes = element.attributes;
