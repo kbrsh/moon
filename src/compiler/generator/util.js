@@ -1,11 +1,11 @@
 export const mapReduce = (arr, fn) => {
-  let result = "";
+	let result = "";
 
-  for (let i = 0; i < arr.length; i++) {
-    result += fn(arr[i]);
-  }
+	for (let i = 0; i < arr.length; i++) {
+		result += fn(arr[i]);
+	}
 
-  return result;
+	return result;
 };
 
 export const getElement = (element) => `m${element}`;

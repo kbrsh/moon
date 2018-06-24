@@ -13,52 +13,52 @@ const HTML_ATTRIBUTE_RE = /(\S+)=["']?((?:.(?!["']?\s+(?:\S+)=|[>"']))+.)["']?/g
 const HTML_TAG_RE = /(&lt;\/?[\w\d-]*?)(\s(?:.|\n)*?)?(\/?&gt;)/g;
 const escapeRE = /&(?:amp|gt|lt);/g;
 const escapeMap = {
-  "&amp;": '&',
-  "&gt;": '>',
-  "&lt;": '<'
+	"&amp;": '&',
+	"&gt;": '>',
+	"&lt;": '<'
 };
 
 const highlight = function(compiled) {
-  compiled = compiled.replace(STR_RE, "<span class=\"green\">$1$2$1</span>");
+	compiled = compiled.replace(STR_RE, "<span class=\"green\">$1$2$1</span>");
 
-  compiled = compiled.replace(HTML_COMMENT_RE, "<span class=\"gray\">$1</span>");
-  compiled = compiled.replace(HTML_TAG_RE, function(match, start, content, end) {
-    if (content === undefined) {
-      content = '';
-    } else {
-      content = content.replace(HTML_ATTRIBUTE_RE, function(match, name, value) {
-        if (value !== "string") {
-          if (value === undefined) {
-            value = '';
-          } else {
-            value = '=' + value;
-          }
-          return "<span class=\"orange\">" + name + "</span>" + value;
-        }
-      });
-    }
+	compiled = compiled.replace(HTML_COMMENT_RE, "<span class=\"gray\">$1</span>");
+	compiled = compiled.replace(HTML_TAG_RE, function(match, start, content, end) {
+		if (content === undefined) {
+			content = '';
+		} else {
+			content = content.replace(HTML_ATTRIBUTE_RE, function(match, name, value) {
+				if (value !== "string") {
+					if (value === undefined) {
+						value = '';
+					} else {
+						value = '=' + value;
+					}
+					return "<span class=\"orange\">" + name + "</span>" + value;
+				}
+			});
+		}
 
-    return "<span class=\"red\">" + start + "</span>" + content + "<span class=\"red\">" + end + "</span>";
-  });
+		return "<span class=\"red\">" + start + "</span>" + content + "<span class=\"red\">" + end + "</span>";
+	});
 
-  compiled = compiled.replace(COMMENT_RE, "<span class=\"gray\">$1</span>");
-  compiled = compiled.replace(MULTILINE_COMMENT_RE, "<span class=\"gray\">$1</span>");
+	compiled = compiled.replace(COMMENT_RE, "<span class=\"gray\">$1</span>");
+	compiled = compiled.replace(MULTILINE_COMMENT_RE, "<span class=\"gray\">$1</span>");
 
-  compiled = compiled.replace(SPECIAL_RE, "<span class=\"purple\">$1</span>");
-  compiled = compiled.replace(GLOBAL_VARIABLE_RE, "<span class=\"orange\">$1</span>");
+	compiled = compiled.replace(SPECIAL_RE, "<span class=\"purple\">$1</span>");
+	compiled = compiled.replace(GLOBAL_VARIABLE_RE, "<span class=\"orange\">$1</span>");
 
-  compiled = compiled.replace(CONST_RE, "<span class=\"purple\">$1</span><span class=\"orange\">$2</span>");
-  compiled = compiled.replace(METHODS_RE, function(match, name) {
-    return "<span class=\"blue\">" + name + "</span>(";
-  });
+	compiled = compiled.replace(CONST_RE, "<span class=\"purple\">$1</span><span class=\"orange\">$2</span>");
+	compiled = compiled.replace(METHODS_RE, function(match, name) {
+		return "<span class=\"blue\">" + name + "</span>(";
+	});
 
-  return compiled;
+	return compiled;
 }
 
 Sold({
-  root: __dirname,
-  template: "template",
-  source: "src",
-  destination: '',
-  engine: "handlebars"
+	root: __dirname,
+	template: "template",
+	source: "src",
+	destination: '',
+	engine: "handlebars"
 });

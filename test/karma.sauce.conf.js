@@ -1,77 +1,77 @@
 module.exports = function(config) {
-  const customLaunchers = {
-    sl_chrome: {
-      base: "SauceLabs",
-      browserName: "chrome",
-      platform: "Windows 7",
-      version: "59"
-    },
-    sl_firefox: {
-      base: "SauceLabs",
-      browserName: "firefox",
-      version: "54"
-    },
-    sl_safari: {
-      base: "SauceLabs",
-      browserName: "safari",
-      version: "10"
-    },
-    sl_ie_11: {
-      base: "SauceLabs",
-      browserName: "internet explorer",
-      version: "11"
-    },
-    sl_ie_10: {
-      base: "SauceLabs",
-      browserName: "internet explorer",
-      version: "10"
-    },
-    sl_ie_9: {
-      base: "SauceLabs",
-      browserName: "internet explorer",
-      version: "9"
-    }
-  }
+	const customLaunchers = {
+		sl_chrome: {
+			base: "SauceLabs",
+			browserName: "chrome",
+			platform: "Windows 7",
+			version: "59"
+		},
+		sl_firefox: {
+			base: "SauceLabs",
+			browserName: "firefox",
+			version: "54"
+		},
+		sl_safari: {
+			base: "SauceLabs",
+			browserName: "safari",
+			version: "10"
+		},
+		sl_ie_11: {
+			base: "SauceLabs",
+			browserName: "internet explorer",
+			version: "11"
+		},
+		sl_ie_10: {
+			base: "SauceLabs",
+			browserName: "internet explorer",
+			version: "10"
+		},
+		sl_ie_9: {
+			base: "SauceLabs",
+			browserName: "internet explorer",
+			version: "9"
+		}
+	}
 
-  config.set({
-    basePath: "",
-    frameworks: ["mocha"],
+	config.set({
+		basePath: "",
+		frameworks: ["mocha"],
 
-    files: [
-      "../dist/moon.js",
-      "../node_modules/chai/chai.js",
-      "./core/*.js",
-      "./core/*/*.js"
-    ],
+		files: [
+			"../dist/moon.js",
+			"../node_modules/chai/chai.js",
+			"./core/*.js",
+			"./core/*/*.js"
+		],
 
-    exclude: [
-    ],
+		exclude: [
+		],
 
-    preprocessors: {
-    },
+		preprocessors: {
+		},
 
-    reporters: ["spec", "saucelabs"],
+		reporters: ["spec", "saucelabs"],
 
-    port: 9876,
+		port: 9876,
 
-    colors: true,
+		colors: true,
 
-    logLevel: config.LOG_INFO,
+		logLevel: config.LOG_INFO,
 
-    autoWatch: false,
+		autoWatch: false,
 
-    browsers: ["PhantomJS"],
+		browsers: ["PhantomJS"],
 
-    singleRun: true,
+		singleRun: true,
 
-    concurrency: Infinity,
+		concurrency: Infinity,
 
-    sauceLabs: {
-      testName: "Moon Tests"
-    },
+		sauceLabs: {
+			testName: "Moon Tests"
+		},
 
-    customLaunchers: customLaunchers,
+		customLaunchers: customLaunchers,
 
-    browsers: Object.keys(customLaunchers)
-  })
+		browsers: Object.keys(customLaunchers)
+	})
 }

@@ -1,15 +1,15 @@
 // Custom Event Polyfill
 (function () {
-  function CustomEvent ( event, params ) {
-    params = params || { bubbles: false, cancelable: false, detail: undefined };
-    var evt = document.createEvent( 'CustomEvent' );
-    evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail );
-    return evt;
-   }
+	function CustomEvent ( event, params ) {
+		params = params || { bubbles: false, cancelable: false, detail: undefined };
+		var evt = document.createEvent( 'CustomEvent' );
+		evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail );
+		return evt;
+	}
 
-  CustomEvent.prototype = window.Event.prototype;
+	CustomEvent.prototype = window.Event.prototype;
 
-  window.CustomEvent = CustomEvent;
+	window.CustomEvent = CustomEvent;
 })();
 
 // Promise Polyfill
@@ -17,11 +17,11 @@
 
 // Wrapper
 if(document.getElementById("moon-els")) {
-  var moon_els = document.getElementById("moon-els");
+	var moon_els = document.getElementById("moon-els");
 } else {
-  var moon_els = document.createElement("div");
-  moon_els.id = "moon-els";
-  document.body.appendChild(moon_els);
+	var moon_els = document.createElement("div");
+	moon_els.id = "moon-els";
+	document.body.appendChild(moon_els);
 }
 
 // Expect utility
@@ -31,33 +31,33 @@ var expect = chai.expect;
 console.log = console.error = function() {};
 
 var createTestElement = function(id, html) {
-  var el = document.createElement("div");
-  el.innerHTML = html;
-  el.id = id;
-  moon_els.appendChild(el);
-  return el;
+	var el = document.createElement("div");
+	el.innerHTML = html;
+	el.id = id;
+	moon_els.appendChild(el);
+	return el;
 }
 
 var captureError = function(fn) {
-  console.error = function() {
-    fn();
-    console.error = noop;
-  }
+	console.error = function() {
+		fn();
+		console.error = noop;
+	}
 }
 
 // var wait = function(cb) {
-//   return new Promise(function(resolve, reject) {
-//     Moon.after(function() {
-//       try {
-//         if(cb.toString().indexOf("done") !== -1) {
-//           cb(resolve);
-//         } else {
-//           cb();
-//           resolve();
-//         }
-//       } catch(err) {
-//         reject(err);
-//       }
-//     });
-//   });
+// 	return new Promise(function(resolve, reject) {
+// 		Moon.after(function() {
+// 			try {
+// 				if(cb.toString().indexOf("done") !== -1) {
+// 					cb(resolve);
+// 				} else {
+// 					cb();
+// 					resolve();
+// 				}
+// 			} catch(err) {
+// 				reject(err);
+// 			}
+// 		});
+// 	});
 // }

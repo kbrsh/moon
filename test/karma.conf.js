@@ -1,56 +1,56 @@
 module.exports = function(config) {
-  config.set({
-    basePath: "",
-    frameworks: ["mocha"],
+	config.set({
+		basePath: "",
+		frameworks: ["mocha"],
 
-    files: [
-      "../dist/moon.js",
-      "../node_modules/chai/chai.js",
-      "./core/*.js",
-      "./core/*/*.js"
-    ],
+		files: [
+			"../dist/moon.js",
+			"../node_modules/chai/chai.js",
+			"./core/*.js",
+			"./core/*/*.js"
+		],
 
-    exclude: [
-    ],
+		exclude: [
+		],
 
-    preprocessors: {
-      "../dist/moon.js": ["coverage"]
-    },
+		preprocessors: {
+			"../dist/moon.js": ["coverage"]
+		},
 
-    reporters: ["spec", "coverage"],
+		reporters: ["spec", "coverage"],
 
-    port: 9876,
+		port: 9876,
 
-    colors: true,
+		colors: true,
 
-    logLevel: config.LOG_INFO,
+		logLevel: config.LOG_INFO,
 
-    autoWatch: false,
+		autoWatch: false,
 
-    browsers: ["PhantomJS"],
+		browsers: ["PhantomJS"],
 
-    singleRun: true,
+		singleRun: true,
 
-    concurrency: Infinity,
+		concurrency: Infinity,
 
-    coverageReporter: {
-      type: "text",
-      dir: "../coverage/",
-      reporters: [
-        {
-          type: "lcovonly",
-          subdir: "."
-        },
-        {
-          type: "json",
-          subdir: "."
-        },
-        {
-          type: "text-summary",
-          subdir: ".",
-          file: "summary.txt"
-        }
-      ]
-    }
-  })
+		coverageReporter: {
+			type: "text",
+			dir: "../coverage/",
+			reporters: [
+				{
+					type: "lcovonly",
+					subdir: "."
+				},
+				{
+					type: "json",
+					subdir: "."
+				},
+				{
+					type: "text-summary",
+					subdir: ".",
+					file: "summary.txt"
+				}
+			]
+		}
+	})
 }

@@ -17,33 +17,33 @@ const comment = `/**
  */\r\n`;
 
 const options = {
-  format: "iife",
-  name: "Moon"
+	format: "iife",
+	name: "Moon"
 };
 
 async function build() {
-  const bundle = await rollup.rollup({
-    input: path.join(cwd, "/src/index.js"),
-    plugins: [
-      eslint(),
-      buble()
-    ]
-  });
+	const bundle = await rollup.rollup({
+		input: path.join(cwd, "/src/index.js"),
+		plugins: [
+			eslint(),
+			buble()
+		]
+	});
 
-  let { code } = await bundle.generate(options);
-  code = fs.readFileSync(path.join(cwd, "/src/wrapper.js")).toString().replace("INSERT", code.split("\n").slice(1, -3).join("\n")).replace("'use strict'", "\"use strict\"");
+	let { code } = await bundle.generate(options);
+	code = fs.readFileSync(path.join(cwd, "/src/wrapper.js")).toString().replace("INSERT", code.split("\n").slice(1, -3).join("\n")).replace("'use strict'", "\"use strict\"");
 
-  const developmentCode = comment + code.replace(ENV_RE, '"development"');
-  const productionCode = comment + uglify.minify(code.replace(ENV_RE, '"production"')).code;
+	const developmentCode = comment + code.replace(ENV_RE, '"development"');
+	const productionCode = comment + uglify.minify(code.replace(ENV_RE, '"production"')).code;
 
-  fs.writeFileSync(path.join(cwd, "/dist/moon.js"), developmentCode);
-  fs.writeFileSync(path.join(cwd, "/dist/moon.min.js"), productionCode);
+	fs.writeFileSync(path.join(cwd, "/dist/moon.js"), developmentCode);
+	fs.writeFileSync(path.join(cwd, "/dist/moon.min.js"), productionCode);
 
-  console.log("Moon development -> " + developmentCode.length / 1000 + "kb");
-  console.log("Moon production -> " + productionCode.length / 1000 + "kb");
-  console.log("");
-  console.log("Moon development (gzipped) -> " + gzipSize.sync(developmentCode) / 1000 + "kb");
-  console.log("Moon production (gzipped) -> " + gzipSize.sync(productionCode) / 1000 + "kb");
+	console.log("Moon development -> " + developmentCode.length / 1000 + "kb");
+	console.log("Moon production -> " + productionCode.length / 1000 + "kb");
+	console.log("");
+	console.log("Moon development (gzipped) -> " + gzipSize.sync(developmentCode) / 1000 + "kb");
+	console.log("Moon production (gzipped) -> " + gzipSize.sync(productionCode) / 1000 + "kb");
 }
 
 build();
