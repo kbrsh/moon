@@ -356,7 +356,7 @@
 
 	var directiveIf = function (ifState, ifReference, ifConditions, ifPortions, ifParent) { return ("m.di(" + (getElement(ifState)) + "," + (getElement(ifReference)) + "," + (getElement(ifConditions)) + "," + (getElement(ifPortions)) + "," + (getElement(ifParent)) + ");"); };
 
-	var directiveFor = function (forValue, forReference, forPortion, forPortions, forParent) { return ("m.df(" + forValue + "," + (getElement(forReference)) + "," + (getElement(forPortion)) + "," + (getElement(forPortions)) + "," + (getElement(forParent)) + ");"); };
+	var directiveFor = function (forIdentifiers, forValue, forReference, forPortion, forPortions, forParent) { return ("m.df(" + forIdentifiers + "," + forValue + "," + (getElement(forReference)) + "," + (getElement(forPortion)) + "," + (getElement(forPortions)) + "," + (getElement(forParent)) + ",instance);"); };
 
 	var generateMount = function (element, parent, insert) { return insert === undefined ? appendChild(element, parent) : insertBefore(element, insert, parent); };
 
@@ -408,9 +408,30 @@
 				return ["", "", ""];
 			}
 			case "#for": {
+				var forAttribute = attributeValue(element.attributes[0]);
+				var forIdentifiers = "[";
+				var forValue = "";
+
 				var forReference = root.nextElement++;
 				var forPortion = root.nextElement++;
 				var forPortions = root.nextElement++;
+
+				var forIdentifier = "", separator$1 = "";
+
+				for (var i$1 = 0; i$1 < forAttribute.length; i$1++) {
+					var char = forAttribute[i$1];
+
+					if (char === "," || (char === " " && forAttribute[i$1 + 1] === "i" && forAttribute[i$1 + 2] === "n" && forAttribute[i$1 + 3] === " " && (i$1 += 3))) {
+						forIdentifiers += separator$1 + "\"" + forIdentifier.substring(9) + "\"";
+						forIdentifier = "";
+						separator$1 = ",";
+					} else {
+						forIdentifier += char;
+					}
+				}
+
+				forIdentifiers += "]";
+				forValue += forIdentifier;
 
 				return [
 					setElement(forReference, createComment()) +
@@ -424,9 +445,9 @@
 					}, forReference) + "};") +
 					setElement(forPortions, "[];"),
 
-					directiveFor(attributeValue(element.attributes[0]), forReference, forPortion, forPortions, parent.element),
+					directiveFor(forIdentifiers, forValue, forReference, forPortion, forPortions, parent.element),
 
-					directiveFor("[]", forReference, forPortion, forPortions)
+					directiveFor(forIdentifiers, "[]", forReference, forPortion, forPortions, parent.element)
 				];
 			}
 			case "#text": {
@@ -453,8 +474,8 @@
 				var createCode$1 = setElement(element.element, createElement(element.type));
 				var updateCode$1 = "";
 
-				for (var i$1 = 0; i$1 < attributes.length; i$1++) {
-					var attribute = attributes[i$1];
+				for (var i$2 = 0; i$2 < attributes.length; i$2++) {
+					var attribute = attributes[i$2];
 					var attributeCode = (void 0);
 
 					if (attribute.key[0] === "@") {
@@ -472,8 +493,8 @@
 					}
 				}
 
-				for (var i$2 = 0; i$2 < children.length; i$2++) {
-					var childCode = generateAll(children[i$2], element, root);
+				for (var i$3 = 0; i$3 < children.length; i$3++) {
+					var childCode = generateAll(children[i$3], element, root);
 					createCode$1 += childCode[0];
 					updateCode$1 += childCode[1];
 				}
@@ -562,20 +583,30 @@
 		}
 	};
 
-	var directiveFor$1 = function (forValue, forReference, forPortion, forPortions, forParent) {
+	var directiveFor$1 = function (forIdentifiers, forValue, forReference, forPortion, forPortions, forParent, instance) {
 		var previousLength = forPortions.length;
 		var nextLength = forValue.length;
 		var maxLength = previousLength > nextLength ? previousLength : nextLength;
 
+		var keyIdentifier = forIdentifiers[1];
+		var valueIdentifier = forIdentifiers[0];
+
 		for (var i = 0; i < maxLength; i++) {
-			if (i >= previousLength)	{
+			if (i >= previousLength) {
 				var newForPortion = forPortion();
 				forPortions.push(newForPortion);
+
+				instance[keyIdentifier] = i;
+				instance[valueIdentifier] = forValue[i];
+
 				newForPortion[0](forParent);
 				newForPortion[1]();
 			} else if (i >= nextLength) {
 				forPortions.pop()[2]();
 			} else {
+				instance[keyIdentifier] = i;
+				instance[valueIdentifier] = forValue[i];
+
 				forPortions[i][1]();
 			}
 		}

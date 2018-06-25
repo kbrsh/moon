@@ -51,20 +51,30 @@ const directiveIf = (ifState, ifReference, ifConditions, ifPortions, ifParent) =
 	}
 };
 
-const directiveFor = (forValue, forReference, forPortion, forPortions, forParent) => {
+const directiveFor = (forIdentifiers, forValue, forReference, forPortion, forPortions, forParent, instance) => {
 	const previousLength = forPortions.length;
 	const nextLength = forValue.length;
 	const maxLength = previousLength > nextLength ? previousLength : nextLength;
 
+	const keyIdentifier = forIdentifiers[1];
+	const valueIdentifier = forIdentifiers[0];
+
 	for (let i = 0; i < maxLength; i++) {
-		if (i >= previousLength)	{
+		if (i >= previousLength) {
 			const newForPortion = forPortion();
 			forPortions.push(newForPortion);
+
+			instance[keyIdentifier] = i;
+			instance[valueIdentifier] = forValue[i];
+
 			newForPortion[0](forParent);
 			newForPortion[1]();
 		} else if (i >= nextLength) {
 			forPortions.pop()[2]();
 		} else {
+			instance[keyIdentifier] = i;
+			instance[valueIdentifier] = forValue[i];
+
 			forPortions[i][1]();
 		}
 	}

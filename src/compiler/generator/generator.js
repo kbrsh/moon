@@ -50,9 +50,30 @@ export const generateAll = (element, parent, root, insert) => {
 			return ["", "", ""];
 		}
 		case "#for": {
+			const forAttribute = attributeValue(element.attributes[0]);
+			let forIdentifiers = "[";
+			let forValue = "";
+
 			const forReference = root.nextElement++;
 			const forPortion = root.nextElement++;
 			const forPortions = root.nextElement++;
+
+			let forIdentifier = "", separator = "";
+
+			for (let i = 0; i < forAttribute.length; i++) {
+				const char = forAttribute[i];
+
+				if (char === "," || (char === " " && forAttribute[i + 1] === "i" && forAttribute[i + 2] === "n" && forAttribute[i + 3] === " " && (i += 3))) {
+					forIdentifiers += separator + "\"" + forIdentifier.substring(9) + "\"";
+					forIdentifier = "";
+					separator = ",";
+				} else {
+					forIdentifier += char;
+				}
+			}
+
+			forIdentifiers += "]";
+			forValue += forIdentifier;
 
 			return [
 				setElement(forReference, createComment()) +
@@ -66,9 +87,9 @@ export const generateAll = (element, parent, root, insert) => {
 				}, forReference) + "};") +
 				setElement(forPortions, "[];"),
 
-				directiveFor(attributeValue(element.attributes[0]), forReference, forPortion, forPortions, parent.element),
+				directiveFor(forIdentifiers, forValue, forReference, forPortion, forPortions, parent.element),
 
-				directiveFor("[]", forReference, forPortion, forPortions)
+				directiveFor(forIdentifiers, "[]", forReference, forPortion, forPortions, parent.element)
 			];
 		}
 		case "#text": {
