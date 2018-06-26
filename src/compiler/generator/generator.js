@@ -20,13 +20,13 @@ export const generateAll = (element, parent, root, insert) => {
 				if (sibling.type === "#if" || sibling.type === "#elseif" || sibling.type === "#else") {
 					ifConditionsCode += separator + (sibling.type === "#else" ? "true" : attributeValue(sibling.attributes[0]));
 
-					ifPortionsCode += separator + "function(){" + generate({
+					ifPortionsCode += separator + "function(locals){" + generate({
 						element: root.nextElement,
 						nextElement: root.nextElement + 1,
 						type: "#root",
 						attributes: [],
 						children: sibling.children
-					}, element.ifReference) + "}()";
+					}, element.ifReference) + "}({})";
 
 					separator = ",";
 				} else {
@@ -57,6 +57,7 @@ export const generateAll = (element, parent, root, insert) => {
 			const forReference = root.nextElement++;
 			const forPortion = root.nextElement++;
 			const forPortions = root.nextElement++;
+			const forLocals = root.nextElement++;
 
 			let forIdentifier = "", separator = "";
 
@@ -64,7 +65,7 @@ export const generateAll = (element, parent, root, insert) => {
 				const char = forAttribute[i];
 
 				if (char === "," || (char === " " && forAttribute[i + 1] === "i" && forAttribute[i + 2] === "n" && forAttribute[i + 3] === " " && (i += 3))) {
-					forIdentifiers += separator + "\"" + forIdentifier.substring(9) + "\"";
+					forIdentifiers += separator + "\"" + forIdentifier.substring(7) + "\"";
 					forIdentifier = "";
 					separator = ",";
 				} else {
@@ -78,18 +79,19 @@ export const generateAll = (element, parent, root, insert) => {
 			return [
 				setElement(forReference, createComment()) +
 				generateMount(forReference, parent.element, insert) +
-				setElement(forPortion, "function(){" + generate({
+				setElement(forPortion, "function(locals){" + generate({
 					element: root.nextElement,
 					nextElement: root.nextElement + 1,
 					type: "#root",
 					attributes: [],
 					children: element.children
 				}, forReference) + "};") +
-				setElement(forPortions, "[];"),
+				setElement(forPortions, "[];") +
+				setElement(forLocals, "[];"),
 
-				directiveFor(forIdentifiers, forValue, forReference, forPortion, forPortions, parent.element),
+				directiveFor(forIdentifiers, forValue, forReference, forPortion, forPortions, forLocals, parent.element),
 
-				directiveFor(forIdentifiers, "[]", forReference, forPortion, forPortions, parent.element)
+				directiveFor(forIdentifiers, "[]", forReference, forPortion, forPortions, forLocals, parent.element)
 			];
 		}
 		case "#text": {
@@ -123,7 +125,7 @@ export const generateAll = (element, parent, root, insert) => {
 				if (attribute.key[0] === "@") {
 					const eventHandler = root.nextElement++;
 					createCode += addEventListener(element.element, attribute.key.substring(1), `function($event){${getElement(eventHandler)}($event);}`);
-					attributeCode = setElement(eventHandler, `function($event){${attributeValue(attribute)};};`);
+					attributeCode = setElement(eventHandler, `function($event){locals.$event=$event;${attributeValue(attribute)};};`);
 				} else {
 					attributeCode = setAttribute(element.element, attribute);
 				}

@@ -14,17 +14,17 @@
 	"use strict";
 
 	var expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
-	var locals = ["NaN", "event", "false", "in", "null", "this", "true", "typeof", "undefined"];
+	var globals = ["NaN", "event", "false", "in", "null", "this", "true", "typeof", "undefined"];
 
 	var parseTemplate = function (expression) {
 		var dynamic = false;
 
 		expression = expression.replace(expressionRE, function(match, name) {
-			if (name === undefined || locals.indexOf(name) !== -1) {
+			if (name === undefined || globals.indexOf(name) !== -1) {
 				return match;
 			} else {
 				if (name[0] === "$") {
-					return name;
+					return ("locals." + name);
 				} else {
 					dynamic = true;
 					return ("instance." + name);
@@ -356,7 +356,7 @@
 
 	var directiveIf = function (ifState, ifReference, ifConditions, ifPortions, ifParent) { return ("m.di(" + (getElement(ifState)) + "," + (getElement(ifReference)) + "," + (getElement(ifConditions)) + "," + (getElement(ifPortions)) + "," + (getElement(ifParent)) + ");"); };
 
-	var directiveFor = function (forIdentifiers, forValue, forReference, forPortion, forPortions, forParent) { return ("m.df(" + forIdentifiers + "," + forValue + "," + (getElement(forReference)) + "," + (getElement(forPortion)) + "," + (getElement(forPortions)) + "," + (getElement(forParent)) + ",instance);"); };
+	var directiveFor = function (forIdentifiers, forValue, forReference, forPortion, forPortions, forLocals, forParent) { return ("m.df(" + forIdentifiers + "," + forValue + "," + (getElement(forReference)) + "," + (getElement(forPortion)) + "," + (getElement(forPortions)) + "," + (getElement(forLocals)) + "," + (getElement(forParent)) + ");"); };
 
 	var generateMount = function (element, parent, insert) { return insert === undefined ? appendChild(element, parent) : insertBefore(element, insert, parent); };
 
@@ -378,13 +378,13 @@
 					if (sibling.type === "#if" || sibling.type === "#elseif" || sibling.type === "#else") {
 						ifConditionsCode += separator + (sibling.type === "#else" ? "true" : attributeValue(sibling.attributes[0]));
 
-						ifPortionsCode += separator + "function(){" + generate({
+						ifPortionsCode += separator + "function(locals){" + generate({
 							element: root.nextElement,
 							nextElement: root.nextElement + 1,
 							type: "#root",
 							attributes: [],
 							children: sibling.children
-						}, element.ifReference) + "}()";
+						}, element.ifReference) + "}({})";
 
 						separator = ",";
 					} else {
@@ -415,6 +415,7 @@
 				var forReference = root.nextElement++;
 				var forPortion = root.nextElement++;
 				var forPortions = root.nextElement++;
+				var forLocals = root.nextElement++;
 
 				var forIdentifier = "", separator$1 = "";
 
@@ -422,7 +423,7 @@
 					var char = forAttribute[i$1];
 
 					if (char === "," || (char === " " && forAttribute[i$1 + 1] === "i" && forAttribute[i$1 + 2] === "n" && forAttribute[i$1 + 3] === " " && (i$1 += 3))) {
-						forIdentifiers += separator$1 + "\"" + forIdentifier.substring(9) + "\"";
+						forIdentifiers += separator$1 + "\"" + forIdentifier.substring(7) + "\"";
 						forIdentifier = "";
 						separator$1 = ",";
 					} else {
@@ -436,18 +437,19 @@
 				return [
 					setElement(forReference, createComment()) +
 					generateMount(forReference, parent.element, insert) +
-					setElement(forPortion, "function(){" + generate({
+					setElement(forPortion, "function(locals){" + generate({
 						element: root.nextElement,
 						nextElement: root.nextElement + 1,
 						type: "#root",
 						attributes: [],
 						children: element.children
 					}, forReference) + "};") +
-					setElement(forPortions, "[];"),
+					setElement(forPortions, "[];") +
+					setElement(forLocals, "[];"),
 
-					directiveFor(forIdentifiers, forValue, forReference, forPortion, forPortions, parent.element),
+					directiveFor(forIdentifiers, forValue, forReference, forPortion, forPortions, forLocals, parent.element),
 
-					directiveFor(forIdentifiers, "[]", forReference, forPortion, forPortions, parent.element)
+					directiveFor(forIdentifiers, "[]", forReference, forPortion, forPortions, forLocals, parent.element)
 				];
 			}
 			case "#text": {
@@ -481,7 +483,7 @@
 					if (attribute.key[0] === "@") {
 						var eventHandler = root.nextElement++;
 						createCode$1 += addEventListener(element.element, attribute.key.substring(1), ("function($event){" + (getElement(eventHandler)) + "($event);}"));
-						attributeCode = setElement(eventHandler, ("function($event){" + (attributeValue(attribute)) + ";};"));
+						attributeCode = setElement(eventHandler, ("function($event){locals.$event=$event;" + (attributeValue(attribute)) + ";};"));
 					} else {
 						attributeCode = setAttribute(element.element, attribute);
 					}
@@ -583,7 +585,7 @@
 		}
 	};
 
-	var directiveFor$1 = function (forIdentifiers, forValue, forReference, forPortion, forPortions, forParent, instance) {
+	var directiveFor$1 = function (forIdentifiers, forValue, forReference, forPortion, forPortions, forLocals, forParent) {
 		var previousLength = forPortions.length;
 		var nextLength = forValue.length;
 		var maxLength = previousLength > nextLength ? previousLength : nextLength;
@@ -593,19 +595,22 @@
 
 		for (var i = 0; i < maxLength; i++) {
 			if (i >= previousLength) {
-				var newForPortion = forPortion();
-				forPortions.push(newForPortion);
+				var forLocal = {};
+				forLocal[keyIdentifier] = i;
+				forLocal[valueIdentifier] = forValue[i];
+				forLocals[i] = forLocal;
 
-				instance[keyIdentifier] = i;
-				instance[valueIdentifier] = forValue[i];
+				var newForPortion = forPortion(forLocal);
+				forPortions.push(newForPortion);
 
 				newForPortion[0](forParent);
 				newForPortion[1]();
 			} else if (i >= nextLength) {
 				forPortions.pop()[2]();
 			} else {
-				instance[keyIdentifier] = i;
-				instance[valueIdentifier] = forValue[i];
+				var forLocal$1 = forLocals[i];
+				forLocal$1[keyIdentifier] = i;
+				forLocal$1[valueIdentifier] = forValue[i];
 
 				forPortions[i][1]();
 			}
@@ -707,7 +712,7 @@
 
 			// View
 			if (typeof data.view === "string") {
-				this._view = new Function("m", "instance", compile(data.view))(m, this);
+				this._view = new Function("m", "instance", "locals", compile(data.view))(m, this, {});
 			} else {
 				this._view = data.view;
 			}

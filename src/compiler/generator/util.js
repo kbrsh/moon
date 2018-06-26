@@ -34,4 +34,4 @@ export const insertBefore = (element, reference, parent) => `m.ib(${getElement(e
 
 export const directiveIf = (ifState, ifReference, ifConditions, ifPortions, ifParent) => `m.di(${getElement(ifState)},${getElement(ifReference)},${getElement(ifConditions)},${getElement(ifPortions)},${getElement(ifParent)});`;
 
-export const directiveFor = (forIdentifiers, forValue, forReference, forPortion, forPortions, forParent) => `m.df(${forIdentifiers},${forValue},${getElement(forReference)},${getElement(forPortion)},${getElement(forPortions)},${getElement(forParent)},instance);`;
+export const directiveFor = (forIdentifiers, forValue, forReference, forPortion, forPortions, forLocals, forParent) => `m.df(${forIdentifiers},${forValue},${getElement(forReference)},${getElement(forPortion)},${getElement(forPortions)},${getElement(forLocals)},${getElement(forParent)});`;
