@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="description" content="Moon | Todo">
+		<meta name="author" content="Kabir Shah">
+
+		<title>Moon | Todo</title>
+
+		<link rel="stylesheet" type="text/css" href="../../css/lib/wing.min.css" />
+	</head>
+	<body>
+		<div id="root"></div>
+
+		<script id="template" type="text/moon">
+			<div class="container">
+				<div class="todos">
+					<div #for={$todo in todos} class="todo" @click={completeTodo($todo)}>{$todo.value}</div>
+				</div>
+
+				<input type="text" placeholder="Your todo" @keydown={createTodo($event)} />
+			</div>
+		</script>
+
+		<script src="../../../dist/moon.min.js"></script>
+		<script>
+			Moon({
+				root: "#root",
+				view: document.getElementById("template").innerHTML,
+
+				todos: [],
+
+				createTodo: function($event) {
+					if ($event.keyCode === 13) {
+						this.todos.push({
+							value: $event.target.value,
+							complete: false
+						});
+
+						this.update();
+					}
+				},
+
+				completeTodo: function(todo) {
+					todo.complete = true;
+					this.update();
+				}
+			});
+		</script>
+	</body>
+</html>
