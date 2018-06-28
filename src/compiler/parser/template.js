@@ -8,10 +8,11 @@ export const parseTemplate = (expression) => {
 		if (name === undefined || globals.indexOf(name) !== -1) {
 			return match;
 		} else {
+			dynamic = true;
+
 			if (name[0] === "$") {
 				return `locals.${name}`;
 			} else {
-				dynamic = true;
 				return `instance.${name}`;
 			}
 		}

@@ -23,10 +23,11 @@
 			if (name === undefined || globals.indexOf(name) !== -1) {
 				return match;
 			} else {
+				dynamic = true;
+
 				if (name[0] === "$") {
 					return ("locals." + name);
 				} else {
-					dynamic = true;
 					return ("instance." + name);
 				}
 			}
@@ -481,9 +482,20 @@
 					var attributeCode = (void 0);
 
 					if (attribute.key[0] === "@") {
-						var eventHandler = root.nextElement++;
-						createCode$1 += addEventListener(element.element, attribute.key.substring(1), ("function($event){" + (getElement(eventHandler)) + "($event);}"));
-						attributeCode = setElement(eventHandler, ("function($event){locals.$event=$event;" + (attributeValue(attribute)) + ";};"));
+						var eventType = (void 0), eventHandler = (void 0);
+
+						if (attribute.key === "@bind") {
+							var bindVariable = attributeValue(attribute);
+							attributeCode = (getElement(element.element)) + ".value=" + bindVariable + ";";
+							eventType = "input";
+							eventHandler = bindVariable + "=$event.target.value;instance.update();";
+						} else {
+							attributeCode = "";
+							eventType = attribute.key.substring(1);
+							eventHandler =	"locals.$event=$event;" + (attributeValue(attribute)) + ";";
+						}
+
+						createCode$1 += addEventListener(element.element, eventType, ("function($event){" + eventHandler + "}"));
 					} else {
 						attributeCode = setAttribute(element.element, attribute);
 					}

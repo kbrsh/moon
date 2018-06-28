@@ -123,9 +123,20 @@ export const generateAll = (element, parent, root, insert) => {
 				let attributeCode;
 
 				if (attribute.key[0] === "@") {
-					const eventHandler = root.nextElement++;
-					createCode += addEventListener(element.element, attribute.key.substring(1), `function($event){${getElement(eventHandler)}($event);}`);
-					attributeCode = setElement(eventHandler, `function($event){locals.$event=$event;${attributeValue(attribute)};};`);
+					let eventType, eventHandler;
+
+					if (attribute.key === "@bind") {
+						const bindVariable = attributeValue(attribute);
+						attributeCode = `${getElement(element.element)}.value=${bindVariable};`;
+						eventType = "input";
+						eventHandler = `${bindVariable}=$event.target.value;instance.update();`;
+					} else {
+						attributeCode = "";
+						eventType = attribute.key.substring(1);
+						eventHandler =	`locals.$event=$event;${attributeValue(attribute)};`;
+					}
+
+					createCode += addEventListener(element.element, eventType, `function($event){${eventHandler}}`);
 				} else {
 					attributeCode = setAttribute(element.element, attribute);
 				}
