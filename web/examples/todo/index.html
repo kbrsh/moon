@@ -10,17 +10,28 @@
 		<title>Moon | Todo</title>
 
 		<link rel="stylesheet" type="text/css" href="../../css/lib/wing.min.css" />
+
+		<style>
+			.todo {
+				font-size: 30px;
+			}
+
+			.complete {
+				color: #E6E6E6;
+				text-decoration: line-through;
+			}
+		</style>
 	</head>
 	<body>
 		<div id="root"></div>
 
 		<script id="template" type="text/moon">
-			<div class="container">
+			<div class="flex direction-vertical justify-center size-full-height container">
 				<div class="todos">
-					<div #for={$todo in todos} class="todo" @click={completeTodo($todo)}>{$todo.value}</div>
+					<p #for={$todo in todos} class={"todo" + ($todo.complete ? " complete" : "")} @click={completeTodo($todo)}>{$todo.value}</p>
 				</div>
 
-				<input type="text" placeholder="Your todo" @keydown={createTodo($event)} />
+				<input type="text" placeholder="Your todo" @bind={value} @keydown={createTodo($event)} />
 			</div>
 		</script>
 
@@ -30,21 +41,24 @@
 				root: "#root",
 				view: document.getElementById("template").innerHTML,
 
+				value: "",
 				todos: [],
 
 				createTodo: function($event) {
 					if ($event.keyCode === 13) {
 						this.todos.push({
-							value: $event.target.value,
+							value: this.value,
 							complete: false
 						});
+
+						this.value = "";
 
 						this.update();
 					}
 				},
 
 				completeTodo: function(todo) {
-					todo.complete = true;
+					todo.complete = !todo.complete;
 					this.update();
 				}
 			});
