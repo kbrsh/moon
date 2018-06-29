@@ -80,7 +80,7 @@ export const component = (name, data) => {
 		if (typeof data.view === "string") {
 			this._view = new Function("m", "instance", "locals", compile(data.view))(m, this, {});
 		} else {
-			this._view = data.view;
+			this._view = data.view(m, this, {});
 		}
 
 		delete data.view;
