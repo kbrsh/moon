@@ -383,12 +383,11 @@
 
 						ifPortionsCode += separator + "function(locals){" + generate({
 							element: 0,
-							referenceElement: 1,
-							nextElement: 2,
+							nextElement: 1,
 							type: "Root",
 							attributes: [],
 							children: sibling.children
-						}) + "}({})";
+						}, ifReference) + "}({})";
 
 						separator = ",";
 					} else {
@@ -443,12 +442,11 @@
 					generateMount(forReference, parent.element, reference) +
 					setElement(forPortion, "function(locals){" + generate({
 						element: 0,
-						referenceElement: 1,
-						nextElement: 2,
+						nextElement: 1,
 						type: "Root",
 						attributes: [],
 						children: element.children
-					}) + "};") +
+					}, forReference) + "};") +
 					setElement(forPortions, "[];") +
 					setElement(forLocals, "[];"),
 
@@ -522,29 +520,29 @@
 		}
 	};
 
-	var generate = function (tree) {
-		var children = tree.children;
+	var generate = function (root, reference) {
+		var children = root.children;
 		var create = "";
 		var update = "";
 		var destroy = "";
 		for (var i = 0; i < children.length; i++) {
-			var generated = generateAll(children[i], tree, tree, tree.referenceElement);
+			var generated = generateAll(children[i], root, root, reference);
 
 			create += generated[0];
 			update += generated[1];
 			destroy += generated[2];
 		}
 
-		var prelude = "var " + (getElement(tree.element)) + "," + (getElement(tree.referenceElement));
-		for (var i$1 = tree.referenceElement + 1; i$1 < tree.nextElement; i$1++) {
+		var prelude = "var " + (getElement(root.element));
+		for (var i$1 = root.element + 1; i$1 < root.nextElement; i$1++) {
 			prelude += "," + getElement(i$1);
 		}
 
-		return (prelude + ";return [function(_0,_1){" + (setElement(tree.element, "_0;")) + (setElement(tree.referenceElement, "_1;")) + create + "},function(){" + update + "},function(){" + destroy + "}];");
+		return (prelude + ";return [function(_0){" + (setElement(root.element, "_0;")) + create + "},function(){" + update + "},function(){" + destroy + "}];");
 	};
 
 	var compile = function (input) {
-		return generate(parse(input));
+		return generate(parse(input), null);
 	};
 
 	var createElement$1 = function (type) { return document.createElement(type); };
@@ -646,8 +644,8 @@
 		df: directiveFor$1
 	};
 
-	var create = function(root, reference) {
-		this._view[0](root, reference);
+	var create = function(root) {
+		this._view[0](root);
 		this.emit("create");
 	};
 
@@ -791,7 +789,7 @@
 		var instanceComponent = component("", data);
 		var instance = new instanceComponent();
 
-		instance.create(root, null);
+		instance.create(root);
 		instance.update();
 
 		return instance;

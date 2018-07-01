@@ -22,12 +22,11 @@ export const generateAll = (element, parent, root, reference) => {
 
 					ifPortionsCode += separator + "function(locals){" + generate({
 						element: 0,
-						referenceElement: 1,
-						nextElement: 2,
+						nextElement: 1,
 						type: "Root",
 						attributes: [],
 						children: sibling.children
-					}) + "}({})";
+					}, ifReference) + "}({})";
 
 					separator = ",";
 				} else {
@@ -82,12 +81,11 @@ export const generateAll = (element, parent, root, reference) => {
 				generateMount(forReference, parent.element, reference) +
 				setElement(forPortion, "function(locals){" + generate({
 					element: 0,
-					referenceElement: 1,
-					nextElement: 2,
+					nextElement: 1,
 					type: "Root",
 					attributes: [],
 					children: element.children
-				}) + "};") +
+				}, forReference) + "};") +
 				setElement(forPortions, "[];") +
 				setElement(forLocals, "[];"),
 
@@ -161,23 +159,23 @@ export const generateAll = (element, parent, root, reference) => {
 	}
 };
 
-export const generate = (tree) => {
-	const children = tree.children;
+export const generate = (root, reference) => {
+	const children = root.children;
 	let create = "";
 	let update = "";
 	let destroy = "";
 	for (let i = 0; i < children.length; i++) {
-		const generated = generateAll(children[i], tree, tree, tree.referenceElement);
+		const generated = generateAll(children[i], root, root, reference);
 
 		create += generated[0];
 		update += generated[1];
 		destroy += generated[2];
 	}
 
-	let prelude = `var ${getElement(tree.element)},${getElement(tree.referenceElement)}`;
-	for (let i = tree.referenceElement + 1; i < tree.nextElement; i++) {
+	let prelude = `var ${getElement(root.element)}`;
+	for (let i = root.element + 1; i < root.nextElement; i++) {
 		prelude += "," + getElement(i);
 	}
 
-	return `${prelude};return [function(_0,_1){${setElement(tree.element, "_0;")}${setElement(tree.referenceElement, "_1;")}${create}},function(){${update}},function(){${destroy}}];`;
+	return `${prelude};return [function(_0){${setElement(root.element, "_0;")}${create}},function(){${update}},function(){${destroy}}];`;
 };
