@@ -28,7 +28,7 @@ const insertBefore = (element, reference, parent) => {
 	parent.insertBefore(element, reference);
 };
 
-const directiveIf = (ifState, ifReference, ifConditions, ifPortions, ifParent) => {
+const directiveIf = (ifState, ifConditions, ifPortions, ifParent) => {
 	for (let i = 0; i < ifConditions.length; i++) {
 		if (ifConditions[i]) {
 			const ifPortion = ifPortions[i];
@@ -51,7 +51,7 @@ const directiveIf = (ifState, ifReference, ifConditions, ifPortions, ifParent) =
 	}
 };
 
-const directiveFor = (forIdentifiers, forValue, forReference, forPortion, forPortions, forLocals, forParent) => {
+const directiveFor = (forIdentifiers, forLocals, forValue, forPortion, forPortions, forParent) => {
 	const previousLength = forPortions.length;
 	const nextLength = forValue.length;
 	const maxLength = previousLength > nextLength ? previousLength : nextLength;

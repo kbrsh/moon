@@ -358,9 +358,9 @@
 
 	var insertBefore = function (element, reference, parent) { return ("m.ib(" + (getElement(element)) + "," + (getElement(reference)) + "," + (getElement(parent)) + ");"); };
 
-	var directiveIf = function (ifState, ifReference, ifConditions, ifPortions, ifParent) { return ("m.di(" + (getElement(ifState)) + "," + (getElement(ifReference)) + "," + (getElement(ifConditions)) + "," + (getElement(ifPortions)) + "," + (getElement(ifParent)) + ");"); };
+	var directiveIf = function (ifState, ifConditions, ifPortions, ifParent) { return ("m.di(" + (getElement(ifState)) + "," + (getElement(ifConditions)) + "," + (getElement(ifPortions)) + "," + (getElement(ifParent)) + ");"); };
 
-	var directiveFor = function (forIdentifiers, forValue, forReference, forPortion, forPortions, forLocals, forParent) { return ("m.df(" + forIdentifiers + "," + forValue + "," + (getElement(forReference)) + "," + (getElement(forPortion)) + "," + (getElement(forPortions)) + "," + (getElement(forLocals)) + "," + (getElement(forParent)) + ");"); };
+	var directiveFor = function (forIdentifiers, forLocals, forValue, forPortion, forPortions, forParent) { return ("m.df(" + forIdentifiers + "," + (getElement(forLocals)) + "," + forValue + "," + (getElement(forPortion)) + "," + (getElement(forPortions)) + "," + (getElement(forParent)) + ");"); };
 
 	var generateMount = function (element, parent, reference) { return reference === null ? appendChild(element, parent) : insertBefore(element, reference, parent); };
 
@@ -382,8 +382,8 @@
 						ifConditionsCode += separator + (sibling.type === "Else" ? "true" : attributeValue(sibling.attributes[0]));
 
 						ifPortionsCode += separator + "function(locals){" + generate({
-							element: 0,
-							nextElement: 1,
+							element: root.nextElement,
+							nextElement: root.nextElement + 1,
 							type: "Root",
 							attributes: [],
 							children: sibling.children
@@ -401,7 +401,7 @@
 					setElement(ifPortions, ifPortionsCode + "];"),
 
 					setElement(ifConditions, ifConditionsCode + "];") +
-					setElement(ifState, directiveIf(ifState, ifReference, ifConditions, ifPortions, parent.element)),
+					setElement(ifState, directiveIf(ifState, ifConditions, ifPortions, parent.element)),
 
 					getElement(ifState) + "[2]();"
 				];
@@ -441,8 +441,8 @@
 					setElement(forReference, createComment()) +
 					generateMount(forReference, parent.element, reference) +
 					setElement(forPortion, "function(locals){" + generate({
-						element: 0,
-						nextElement: 1,
+						element: root.nextElement,
+						nextElement: root.nextElement + 1,
 						type: "Root",
 						attributes: [],
 						children: element.children
@@ -450,10 +450,9 @@
 					setElement(forPortions, "[];") +
 					setElement(forLocals, "[];"),
 
-					directiveFor(forIdentifiers, forValue, forReference, forPortion, forPortions, forLocals, parent.element),
+					directiveFor(forIdentifiers, forLocals, forValue, forPortion, forPortions, parent.element),
 
-					directiveFor(forIdentifiers, "[]", forReference, forPortion, forPortions, forLocals, parent.element)
-				];
+					directiveFor(forIdentifiers, forLocals, "[]", forPortion, forPortions, parent.element) ];
 			}
 			case "Text": {
 				var textAttribute = element.attributes[0];
@@ -575,7 +574,7 @@
 		parent.insertBefore(element, reference);
 	};
 
-	var directiveIf$1 = function (ifState, ifReference, ifConditions, ifPortions, ifParent) {
+	var directiveIf$1 = function (ifState, ifConditions, ifPortions, ifParent) {
 		for (var i = 0; i < ifConditions.length; i++) {
 			if (ifConditions[i]) {
 				var ifPortion = ifPortions[i];
@@ -587,7 +586,7 @@
 						ifState[2]();
 					}
 
-					ifPortion[0](ifParent, ifReference);
+					ifPortion[0](ifParent);
 					ifPortion[1]();
 
 					ifState = ifPortion;
@@ -598,7 +597,7 @@
 		}
 	};
 
-	var directiveFor$1 = function (forIdentifiers, forValue, forReference, forPortion, forPortions, forLocals, forParent) {
+	var directiveFor$1 = function (forIdentifiers, forLocals, forValue, forPortion, forPortions, forParent) {
 		var previousLength = forPortions.length;
 		var nextLength = forValue.length;
 		var maxLength = previousLength > nextLength ? previousLength : nextLength;
@@ -616,7 +615,7 @@
 				var newForPortion = forPortion(forLocal);
 				forPortions.push(newForPortion);
 
-				newForPortion[0](forParent, forReference);
+				newForPortion[0](forParent);
 				newForPortion[1]();
 			} else if (i >= nextLength) {
 				forPortions.pop()[2]();

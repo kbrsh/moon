@@ -21,8 +21,8 @@ export const generateAll = (element, parent, root, reference) => {
 					ifConditionsCode += separator + (sibling.type === "Else" ? "true" : attributeValue(sibling.attributes[0]));
 
 					ifPortionsCode += separator + "function(locals){" + generate({
-						element: 0,
-						nextElement: 1,
+						element: root.nextElement,
+						nextElement: root.nextElement + 1,
 						type: "Root",
 						attributes: [],
 						children: sibling.children
@@ -40,7 +40,7 @@ export const generateAll = (element, parent, root, reference) => {
 				setElement(ifPortions, ifPortionsCode + "];"),
 
 				setElement(ifConditions, ifConditionsCode + "];") +
-				setElement(ifState, directiveIf(ifState, ifReference, ifConditions, ifPortions, parent.element)),
+				setElement(ifState, directiveIf(ifState, ifConditions, ifPortions, parent.element)),
 
 				getElement(ifState) + "[2]();"
 			];
@@ -80,8 +80,8 @@ export const generateAll = (element, parent, root, reference) => {
 				setElement(forReference, createComment()) +
 				generateMount(forReference, parent.element, reference) +
 				setElement(forPortion, "function(locals){" + generate({
-					element: 0,
-					nextElement: 1,
+					element: root.nextElement,
+					nextElement: root.nextElement + 1,
 					type: "Root",
 					attributes: [],
 					children: element.children
@@ -89,9 +89,9 @@ export const generateAll = (element, parent, root, reference) => {
 				setElement(forPortions, "[];") +
 				setElement(forLocals, "[];"),
 
-				directiveFor(forIdentifiers, forValue, forReference, forPortion, forPortions, forLocals, parent.element),
+				directiveFor(forIdentifiers, forLocals, forValue, forPortion, forPortions, parent.element),
 
-				directiveFor(forIdentifiers, "[]", forReference, forPortion, forPortions, forLocals, parent.element)
+				directiveFor(forIdentifiers, forLocals, "[]", forPortion, forPortions, parent.element),
 			];
 		}
 		case "Text": {
