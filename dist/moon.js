@@ -51,6 +51,8 @@
 
 	var whitespaceRE = /^\s+$/;
 
+	var isComponentType = function (type) { return type[0] === type[0].toUpperCase() && type[0] !== type[0].toLowerCase(); };
+
 	var valueEndRE = /[\s/>]/;
 
 	var parseAttributes = function (index, input, length, attributes) {
@@ -154,7 +156,7 @@
 				for (var i = 0; i < attributes.length;) {
 					var attribute = attributes[i];
 
-					if (attribute.key[0] === "#") {
+					if (isComponentType(attribute.key)) {
 						element = {
 							type: attribute.key,
 							attributes: [{
@@ -254,7 +256,7 @@
 
 		if (!whitespaceRE.test(content)) {
 			stack[stack.length - 1].children.push({
-				type: "#text",
+				type: "Text",
 				attributes: [{
 					key: "",
 					value: content.replace(escapeRE, function (match) { return escapeMap[match]; }),
@@ -284,7 +286,7 @@
 
 		var template = parseTemplate(expression);
 		stack[stack.length - 1].children.push({
-			type: "#text",
+			type: "Text",
 			attributes: [{
 				key: "",
 				value: template.expression,
@@ -302,8 +304,9 @@
 
 		var root = {
 			element: 0,
-			nextElement: 1,
-			type: "#root",
+			referenceElement: 1,
+			nextElement: 2,
+			type: "Root",
 			attributes: [],
 			children: []
 		};
@@ -359,14 +362,13 @@
 
 	var directiveFor = function (forIdentifiers, forValue, forReference, forPortion, forPortions, forLocals, forParent) { return ("m.df(" + forIdentifiers + "," + forValue + "," + (getElement(forReference)) + "," + (getElement(forPortion)) + "," + (getElement(forPortions)) + "," + (getElement(forLocals)) + "," + (getElement(forParent)) + ");"); };
 
-	var generateMount = function (element, parent, insert) { return insert === undefined ? appendChild(element, parent) : insertBefore(element, insert, parent); };
+	var generateMount = function (element, parent, reference) { return reference === null ? appendChild(element, parent) : insertBefore(element, reference, parent); };
 
-	var generateAll = function (element, parent, root, insert) {
+	var generateAll = function (element, parent, root, reference) {
 		switch (element.type) {
-			case "#if": {
-				element.ifState = root.nextElement++;
-				element.ifReference = root.nextElement++;
-
+			case "If": {
+				var ifState = root.nextElement++;
+				var ifReference = root.nextElement++;
 				var ifConditions = root.nextElement++;
 				var ifPortions = root.nextElement++;
 				var ifConditionsCode = "[";
@@ -376,16 +378,17 @@
 				var siblings = parent.children;
 				for (var i = siblings.indexOf(element); i < siblings.length; i++) {
 					var sibling = siblings[i];
-					if (sibling.type === "#if" || sibling.type === "#elseif" || sibling.type === "#else") {
-						ifConditionsCode += separator + (sibling.type === "#else" ? "true" : attributeValue(sibling.attributes[0]));
+					if (sibling.type === "If" || sibling.type === "ElseIf" || sibling.type === "Else") {
+						ifConditionsCode += separator + (sibling.type === "Else" ? "true" : attributeValue(sibling.attributes[0]));
 
 						ifPortionsCode += separator + "function(locals){" + generate({
-							element: root.nextElement,
-							nextElement: root.nextElement + 1,
-							type: "#root",
+							element: 0,
+							referenceElement: 1,
+							nextElement: 2,
+							type: "Root",
 							attributes: [],
 							children: sibling.children
-						}, element.ifReference) + "}({})";
+						}) + "}({})";
 
 						separator = ",";
 					} else {
@@ -394,21 +397,21 @@
 				}
 
 				return [
-					setElement(element.ifReference, createComment()) +
-					generateMount(element.ifReference, parent.element, insert) +
+					setElement(ifReference, createComment()) +
+					generateMount(ifReference, parent.element, reference) +
 					setElement(ifPortions, ifPortionsCode + "];"),
 
 					setElement(ifConditions, ifConditionsCode + "];") +
-					setElement(element.ifState, directiveIf(element.ifState, element.ifReference, ifConditions, ifPortions, parent.element)),
+					setElement(ifState, directiveIf(ifState, ifReference, ifConditions, ifPortions, parent.element)),
 
-					getElement(element.ifState) + "[2]();"
+					getElement(ifState) + "[2]();"
 				];
 			}
-			case "#elseif":
-			case "#else": {
+			case "ElseIf":
+			case "Else": {
 				return ["", "", ""];
 			}
-			case "#for": {
+			case "For": {
 				var forAttribute = attributeValue(element.attributes[0]);
 				var forIdentifiers = "[";
 				var forValue = "";
@@ -437,14 +440,15 @@
 
 				return [
 					setElement(forReference, createComment()) +
-					generateMount(forReference, parent.element, insert) +
+					generateMount(forReference, parent.element, reference) +
 					setElement(forPortion, "function(locals){" + generate({
-						element: root.nextElement,
-						nextElement: root.nextElement + 1,
-						type: "#root",
+						element: 0,
+						referenceElement: 1,
+						nextElement: 2,
+						type: "Root",
 						attributes: [],
 						children: element.children
-					}, forReference) + "};") +
+					}) + "};") +
 					setElement(forPortions, "[];") +
 					setElement(forLocals, "[];"),
 
@@ -453,7 +457,7 @@
 					directiveFor(forIdentifiers, "[]", forReference, forPortion, forPortions, forLocals, parent.element)
 				];
 			}
-			case "#text": {
+			case "Text": {
 				var textAttribute = element.attributes[0];
 				var textElement = root.nextElement++;
 
@@ -467,7 +471,7 @@
 					createCode += textCode;
 				}
 
-				return [createCode + generateMount(textElement, parent.element, insert), updateCode, removeChild(textElement, parent.element)];
+				return [createCode + generateMount(textElement, parent.element, reference), updateCode, removeChild(textElement, parent.element)];
 			}
 			default: {
 				var attributes = element.attributes;
@@ -508,36 +512,35 @@
 				}
 
 				for (var i$3 = 0; i$3 < children.length; i$3++) {
-					var childCode = generateAll(children[i$3], element, root);
+					var childCode = generateAll(children[i$3], element, root, null);
 					createCode$1 += childCode[0];
 					updateCode$1 += childCode[1];
 				}
 
-				return [createCode$1 + generateMount(element.element, parent.element, insert), updateCode$1, removeChild(element.element, parent.element)];
+				return [createCode$1 + generateMount(element.element, parent.element, reference), updateCode$1, removeChild(element.element, parent.element)];
 			}
 		}
 	};
 
-	var generate = function (tree, insert) {
+	var generate = function (tree) {
 		var children = tree.children;
 		var create = "";
 		var update = "";
 		var destroy = "";
-
 		for (var i = 0; i < children.length; i++) {
-			var generated = generateAll(children[i], tree, tree, insert);
+			var generated = generateAll(children[i], tree, tree, tree.referenceElement);
 
 			create += generated[0];
 			update += generated[1];
 			destroy += generated[2];
 		}
 
-		var prelude = "var m" + tree.element;
-		for (var i$1 = tree.element + 1; i$1 < tree.nextElement; i$1++) {
-			prelude += ",m" + i$1;
+		var prelude = "var " + (getElement(tree.element)) + "," + (getElement(tree.referenceElement));
+		for (var i$1 = tree.referenceElement + 1; i$1 < tree.nextElement; i$1++) {
+			prelude += "," + getElement(i$1);
 		}
 
-		return (prelude + ";return [function($_){" + (setElement(tree.element, "$_;")) + create + "},function(){" + update + "},function(){" + destroy + "}];");
+		return (prelude + ";return [function(_0,_1){" + (setElement(tree.element, "_0;")) + (setElement(tree.referenceElement, "_1;")) + create + "},function(){" + update + "},function(){" + destroy + "}];");
 	};
 
 	var compile = function (input) {
@@ -586,7 +589,7 @@
 						ifState[2]();
 					}
 
-					ifPortion[0](ifParent);
+					ifPortion[0](ifParent, ifReference);
 					ifPortion[1]();
 
 					ifState = ifPortion;
@@ -615,7 +618,7 @@
 				var newForPortion = forPortion(forLocal);
 				forPortions.push(newForPortion);
 
-				newForPortion[0](forParent);
+				newForPortion[0](forParent, forReference);
 				newForPortion[1]();
 			} else if (i >= nextLength) {
 				forPortions.pop()[2]();
@@ -643,8 +646,8 @@
 		df: directiveFor$1
 	};
 
-	var create = function(root) {
-		this._view[0](root);
+	var create = function(root, reference) {
+		this._view[0](root, reference);
 		this.emit("create");
 	};
 
@@ -788,7 +791,7 @@
 		var instanceComponent = component("", data);
 		var instance = new instanceComponent();
 
-		instance.create(root);
+		instance.create(root, null);
 		instance.update();
 
 		return instance;

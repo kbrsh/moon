@@ -1,13 +1,13 @@
 import { getElement, setElement, createElement, createTextNode, createComment, attributeValue, setAttribute, addEventListener, setTextContent, appendChild, removeChild, insertBefore, directiveIf, directiveFor } from "./util";
+import { isComponentType } from "../util";
 
-const generateMount = (element, parent, insert) => insert === undefined ? appendChild(element, parent) : insertBefore(element, insert, parent);
+const generateMount = (element, parent, reference) => reference === null ? appendChild(element, parent) : insertBefore(element, reference, parent);
 
-export const generateAll = (element, parent, root, insert) => {
+export const generateAll = (element, parent, root, reference) => {
 	switch (element.type) {
-		case "#if": {
-			element.ifState = root.nextElement++;
-			element.ifReference = root.nextElement++;
-
+		case "If": {
+			const ifState = root.nextElement++;
+			const ifReference = root.nextElement++;
 			const ifConditions = root.nextElement++;
 			const ifPortions = root.nextElement++;
 			let ifConditionsCode = "[";
@@ -17,16 +17,17 @@ export const generateAll = (element, parent, root, insert) => {
 			const siblings = parent.children;
 			for (let i = siblings.indexOf(element); i < siblings.length; i++) {
 				const sibling = siblings[i];
-				if (sibling.type === "#if" || sibling.type === "#elseif" || sibling.type === "#else") {
-					ifConditionsCode += separator + (sibling.type === "#else" ? "true" : attributeValue(sibling.attributes[0]));
+				if (sibling.type === "If" || sibling.type === "ElseIf" || sibling.type === "Else") {
+					ifConditionsCode += separator + (sibling.type === "Else" ? "true" : attributeValue(sibling.attributes[0]));
 
 					ifPortionsCode += separator + "function(locals){" + generate({
-						element: root.nextElement,
-						nextElement: root.nextElement + 1,
-						type: "#root",
+						element: 0,
+						referenceElement: 1,
+						nextElement: 2,
+						type: "Root",
 						attributes: [],
 						children: sibling.children
-					}, element.ifReference) + "}({})";
+					}) + "}({})";
 
 					separator = ",";
 				} else {
@@ -35,21 +36,21 @@ export const generateAll = (element, parent, root, insert) => {
 			}
 
 			return [
-				setElement(element.ifReference, createComment()) +
-				generateMount(element.ifReference, parent.element, insert) +
+				setElement(ifReference, createComment()) +
+				generateMount(ifReference, parent.element, reference) +
 				setElement(ifPortions, ifPortionsCode + "];"),
 
 				setElement(ifConditions, ifConditionsCode + "];") +
-				setElement(element.ifState, directiveIf(element.ifState, element.ifReference, ifConditions, ifPortions, parent.element)),
+				setElement(ifState, directiveIf(ifState, ifReference, ifConditions, ifPortions, parent.element)),
 
-				getElement(element.ifState) + "[2]();"
+				getElement(ifState) + "[2]();"
 			];
 		}
-		case "#elseif":
-		case "#else": {
+		case "ElseIf":
+		case "Else": {
 			return ["", "", ""];
 		}
-		case "#for": {
+		case "For": {
 			const forAttribute = attributeValue(element.attributes[0]);
 			let forIdentifiers = "[";
 			let forValue = "";
@@ -78,14 +79,15 @@ export const generateAll = (element, parent, root, insert) => {
 
 			return [
 				setElement(forReference, createComment()) +
-				generateMount(forReference, parent.element, insert) +
+				generateMount(forReference, parent.element, reference) +
 				setElement(forPortion, "function(locals){" + generate({
-					element: root.nextElement,
-					nextElement: root.nextElement + 1,
-					type: "#root",
+					element: 0,
+					referenceElement: 1,
+					nextElement: 2,
+					type: "Root",
 					attributes: [],
 					children: element.children
-				}, forReference) + "};") +
+				}) + "};") +
 				setElement(forPortions, "[];") +
 				setElement(forLocals, "[];"),
 
@@ -94,7 +96,7 @@ export const generateAll = (element, parent, root, insert) => {
 				directiveFor(forIdentifiers, "[]", forReference, forPortion, forPortions, forLocals, parent.element)
 			];
 		}
-		case "#text": {
+		case "Text": {
 			const textAttribute = element.attributes[0];
 			const textElement = root.nextElement++;
 
@@ -108,7 +110,7 @@ export const generateAll = (element, parent, root, insert) => {
 				createCode += textCode;
 			}
 
-			return [createCode + generateMount(textElement, parent.element, insert), updateCode, removeChild(textElement, parent.element)];
+			return [createCode + generateMount(textElement, parent.element, reference), updateCode, removeChild(textElement, parent.element)];
 		}
 		default: {
 			const attributes = element.attributes;
@@ -149,34 +151,33 @@ export const generateAll = (element, parent, root, insert) => {
 			}
 
 			for (let i = 0; i < children.length; i++) {
-				const childCode = generateAll(children[i], element, root);
+				const childCode = generateAll(children[i], element, root, null);
 				createCode += childCode[0];
 				updateCode += childCode[1];
 			}
 
-			return [createCode + generateMount(element.element, parent.element, insert), updateCode, removeChild(element.element, parent.element)];
+			return [createCode + generateMount(element.element, parent.element, reference), updateCode, removeChild(element.element, parent.element)];
 		}
 	}
 };
 
-export const generate = (tree, insert) => {
+export const generate = (tree) => {
 	const children = tree.children;
 	let create = "";
 	let update = "";
 	let destroy = "";
-
 	for (let i = 0; i < children.length; i++) {
-		const generated = generateAll(children[i], tree, tree, insert);
+		const generated = generateAll(children[i], tree, tree, tree.referenceElement);
 
 		create += generated[0];
 		update += generated[1];
 		destroy += generated[2];
 	}
 
-	let prelude = "var m" + tree.element;
-	for (let i = tree.element + 1; i < tree.nextElement; i++) {
-		prelude += `,m${i}`;
+	let prelude = `var ${getElement(tree.element)},${getElement(tree.referenceElement)}`;
+	for (let i = tree.referenceElement + 1; i < tree.nextElement; i++) {
+		prelude += "," + getElement(i);
 	}
 
-	return `${prelude};return [function($_){${setElement(tree.element, "$_;")}${create}},function(){${update}},function(){${destroy}}];`;
+	return `${prelude};return [function(_0,_1){${setElement(tree.element, "_0;")}${setElement(tree.referenceElement, "_1;")}${create}},function(){${update}},function(){${destroy}}];`;
 };

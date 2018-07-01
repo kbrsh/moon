@@ -40,7 +40,7 @@ const directiveIf = (ifState, ifReference, ifConditions, ifPortions, ifParent) =
 					ifState[2]();
 				}
 
-				ifPortion[0](ifParent);
+				ifPortion[0](ifParent, ifReference);
 				ifPortion[1]();
 
 				ifState = ifPortion;
@@ -69,7 +69,7 @@ const directiveFor = (forIdentifiers, forValue, forReference, forPortion, forPor
 			const newForPortion = forPortion(forLocal);
 			forPortions.push(newForPortion);
 
-			newForPortion[0](forParent);
+			newForPortion[0](forParent, forReference);
 			newForPortion[1]();
 		} else if (i >= nextLength) {
 			forPortions.pop()[2]();

@@ -14,7 +14,7 @@ export default function Moon(data) {
 	const instanceComponent = component("", data);
 	const instance = new instanceComponent();
 
-	instance.create(root);
+	instance.create(root, null);
 	instance.update();
 
 	return instance;

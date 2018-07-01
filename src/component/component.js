@@ -1,8 +1,8 @@
 import { compile } from "../compiler/compiler";
 import { m } from "../util/m";
 
-const create = function(root) {
-	this._view[0](root);
+const create = function(root, reference) {
+	this._view[0](root, reference);
 	this.emit("create");
 };
 

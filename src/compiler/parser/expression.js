@@ -16,7 +16,7 @@ export const parseExpression = (index, input, length, stack) => {
 
 	const template = parseTemplate(expression);
 	stack[stack.length - 1].children.push({
-		type: "#text",
+		type: "Text",
 		attributes: [{
 			key: "",
 			value: template.expression,

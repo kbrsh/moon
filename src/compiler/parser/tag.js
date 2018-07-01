@@ -1,5 +1,6 @@
 import { parseTemplate } from "./template";
 import { whitespaceRE, error } from "./util";
+import { isComponentType } from "../util";
 
 const valueEndRE = /[\s/>]/;
 
@@ -104,7 +105,7 @@ export const parseOpeningTag = (index, input, length, stack) => {
 			for (let i = 0; i < attributes.length;) {
 				const attribute = attributes[i];
 
-				if (attribute.key[0] === "#") {
+				if (isComponentType(attribute.key)) {
 					element = {
 						type: attribute.key,
 						attributes: [{

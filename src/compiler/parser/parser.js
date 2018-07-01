@@ -8,8 +8,9 @@ export const parse = (input) => {
 
 	const root = {
 		element: 0,
-		nextElement: 1,
-		type: "#root",
+		referenceElement: 1,
+		nextElement: 2,
+		type: "Root",
 		attributes: [],
 		children: []
 	};
