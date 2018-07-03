@@ -1,3 +1,5 @@
+import { components } from "../component/components";
+
 const createElement = (type) => document.createElement(type);
 
 const createTextNode = (content) => document.createTextNode(content);
@@ -84,6 +86,7 @@ const directiveFor = (forIdentifiers, forLocals, forValue, forPortion, forPortio
 };
 
 export const m = {
+	c: components,
 	ce: createElement,
 	ctn: createTextNode,
 	cc: createComment,

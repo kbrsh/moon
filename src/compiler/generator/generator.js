@@ -113,48 +113,84 @@ export const generateAll = (element, parent, root, reference) => {
 		default: {
 			const attributes = element.attributes;
 			const children = element.children;
-			element.element = root.nextElement++;
 
-			let createCode = setElement(element.element, createElement(element.type));
-			let updateCode = "";
+			if (isComponentType(element.type)) {
+				element.component = root.nextElement++;
 
-			for (let i = 0; i < attributes.length; i++) {
-				const attribute = attributes[i];
-				let attributeCode;
+				let createCode = setElement(element.component, `new m.c.${element.type}();`);
+				let updateCode = "";
+				let dynamic = false;
 
-				if (attribute.key[0] === "@") {
-					let eventType, eventHandler;
+				for (let i = 0; i < attributes.length; i++) {
+					const attribute = attributes[i];
 
-					if (attribute.key === "@bind") {
-						const bindVariable = attributeValue(attribute);
-						attributeCode = `${getElement(element.element)}.value=${bindVariable};`;
-						eventType = "input";
-						eventHandler = `${bindVariable}=$event.target.value;instance.update();`;
+					if (attribute.key[0] === "@") {
+						createCode += `${getElement(element.component)}.on("${attribute.key.substring(1)}",function($event){locals.$event=$event;${attributeValue(attribute)};});`;
 					} else {
-						attributeCode = "";
-						eventType = attribute.key.substring(1);
-						eventHandler =	`locals.$event=$event;${attributeValue(attribute)};`;
+						const attributeCode = `${getElement(element.component)}.${attribute.key}=${attributeValue(attribute)};`;
+
+						if (attribute.dynamic) {
+							dynamic = true;
+							updateCode += attributeCode;
+						} else {
+							createCode += attributeCode;
+						}
+					}
+				}
+
+				if (dynamic) {
+					updateCode += `${getElement(element.component)}.update();`;
+				}
+
+				return [
+					createCode + `${getElement(element.component)}.create(${getElement(parent.element)});${getElement(element.component)}.update();`,
+					updateCode,
+					`${getElement(element.component)}.destroy();`
+				];
+			} else {
+				element.element = root.nextElement++;
+
+				let createCode = setElement(element.element, createElement(element.type));
+				let updateCode = "";
+
+				for (let i = 0; i < attributes.length; i++) {
+					const attribute = attributes[i];
+					let attributeCode;
+
+					if (attribute.key[0] === "@") {
+						let eventType, eventHandler;
+
+						if (attribute.key === "@bind") {
+							const bindVariable = attributeValue(attribute);
+							attributeCode = `${getElement(element.element)}.value=${bindVariable};`;
+							eventType = "input";
+							eventHandler = `${bindVariable}=$event.target.value;instance.update();`;
+						} else {
+							attributeCode = "";
+							eventType = attribute.key.substring(1);
+							eventHandler =	`locals.$event=$event;${attributeValue(attribute)};`;
+						}
+
+						createCode += addEventListener(element.element, eventType, `function($event){${eventHandler}}`);
+					} else {
+						attributeCode = setAttribute(element.element, attribute);
 					}
 
-					createCode += addEventListener(element.element, eventType, `function($event){${eventHandler}}`);
-				} else {
-					attributeCode = setAttribute(element.element, attribute);
+					if (attribute.dynamic) {
+						updateCode += attributeCode;
+					} else {
+						createCode += attributeCode;
+					}
 				}
 
-				if (attribute.dynamic) {
-					updateCode += attributeCode;
-				} else {
-					createCode += attributeCode;
+				for (let i = 0; i < children.length; i++) {
+					const childCode = generateAll(children[i], element, root, null);
+					createCode += childCode[0];
+					updateCode += childCode[1];
 				}
-			}
 
-			for (let i = 0; i < children.length; i++) {
-				const childCode = generateAll(children[i], element, root, null);
-				createCode += childCode[0];
-				updateCode += childCode[1];
+				return [createCode + generateMount(element.element, parent.element, reference), updateCode, removeChild(element.element, parent.element)];
 			}
-
-			return [createCode + generateMount(element.element, parent.element, reference), updateCode, removeChild(element.element, parent.element)];
 		}
 	}
 };

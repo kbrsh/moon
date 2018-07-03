@@ -473,48 +473,84 @@
 			default: {
 				var attributes = element.attributes;
 				var children = element.children;
-				element.element = root.nextElement++;
 
-				var createCode$1 = setElement(element.element, createElement(element.type));
-				var updateCode$1 = "";
+				if (isComponentType(element.type)) {
+					element.component = root.nextElement++;
 
-				for (var i$2 = 0; i$2 < attributes.length; i$2++) {
-					var attribute = attributes[i$2];
-					var attributeCode = (void 0);
+					var createCode$1 = setElement(element.component, ("new m.c." + (element.type) + "();"));
+					var updateCode$1 = "";
+					var dynamic = false;
 
-					if (attribute.key[0] === "@") {
-						var eventType = (void 0), eventHandler = (void 0);
+					for (var i$2 = 0; i$2 < attributes.length; i$2++) {
+						var attribute = attributes[i$2];
 
-						if (attribute.key === "@bind") {
-							var bindVariable = attributeValue(attribute);
-							attributeCode = (getElement(element.element)) + ".value=" + bindVariable + ";";
-							eventType = "input";
-							eventHandler = bindVariable + "=$event.target.value;instance.update();";
+						if (attribute.key[0] === "@") {
+							createCode$1 += (getElement(element.component)) + ".on(\"" + (attribute.key.substring(1)) + "\",function($event){locals.$event=$event;" + (attributeValue(attribute)) + ";});";
 						} else {
-							attributeCode = "";
-							eventType = attribute.key.substring(1);
-							eventHandler =	"locals.$event=$event;" + (attributeValue(attribute)) + ";";
+							var attributeCode = (getElement(element.component)) + "." + (attribute.key) + "=" + (attributeValue(attribute)) + ";";
+
+							if (attribute.dynamic) {
+								dynamic = true;
+								updateCode$1 += attributeCode;
+							} else {
+								createCode$1 += attributeCode;
+							}
+						}
+					}
+
+					if (dynamic) {
+						updateCode$1 += (getElement(element.component)) + ".update();";
+					}
+
+					return [
+						createCode$1 + (getElement(element.component)) + ".create(" + (getElement(parent.element)) + ");" + (getElement(element.component)) + ".update();",
+						updateCode$1,
+						((getElement(element.component)) + ".destroy();")
+					];
+				} else {
+					element.element = root.nextElement++;
+
+					var createCode$2 = setElement(element.element, createElement(element.type));
+					var updateCode$2 = "";
+
+					for (var i$3 = 0; i$3 < attributes.length; i$3++) {
+						var attribute$1 = attributes[i$3];
+						var attributeCode$1 = (void 0);
+
+						if (attribute$1.key[0] === "@") {
+							var eventType = (void 0), eventHandler = (void 0);
+
+							if (attribute$1.key === "@bind") {
+								var bindVariable = attributeValue(attribute$1);
+								attributeCode$1 = (getElement(element.element)) + ".value=" + bindVariable + ";";
+								eventType = "input";
+								eventHandler = bindVariable + "=$event.target.value;instance.update();";
+							} else {
+								attributeCode$1 = "";
+								eventType = attribute$1.key.substring(1);
+								eventHandler =	"locals.$event=$event;" + (attributeValue(attribute$1)) + ";";
+							}
+
+							createCode$2 += addEventListener(element.element, eventType, ("function($event){" + eventHandler + "}"));
+						} else {
+							attributeCode$1 = setAttribute(element.element, attribute$1);
 						}
 
-						createCode$1 += addEventListener(element.element, eventType, ("function($event){" + eventHandler + "}"));
-					} else {
-						attributeCode = setAttribute(element.element, attribute);
+						if (attribute$1.dynamic) {
+							updateCode$2 += attributeCode$1;
+						} else {
+							createCode$2 += attributeCode$1;
+						}
 					}
 
-					if (attribute.dynamic) {
-						updateCode$1 += attributeCode;
-					} else {
-						createCode$1 += attributeCode;
+					for (var i$4 = 0; i$4 < children.length; i$4++) {
+						var childCode = generateAll(children[i$4], element, root, null);
+						createCode$2 += childCode[0];
+						updateCode$2 += childCode[1];
 					}
-				}
 
-				for (var i$3 = 0; i$3 < children.length; i$3++) {
-					var childCode = generateAll(children[i$3], element, root, null);
-					createCode$1 += childCode[0];
-					updateCode$1 += childCode[1];
+					return [createCode$2 + generateMount(element.element, parent.element, reference), updateCode$2, removeChild(element.element, parent.element)];
 				}
-
-				return [createCode$1 + generateMount(element.element, parent.element, reference), updateCode$1, removeChild(element.element, parent.element)];
 			}
 		}
 	};
@@ -543,6 +579,8 @@
 	var compile = function (input) {
 		return generate(parse(input), null);
 	};
+
+	var components = {};
 
 	var createElement$1 = function (type) { return document.createElement(type); };
 
@@ -630,6 +668,7 @@
 	};
 
 	var m = {
+		c: components,
 		ce: createElement$1,
 		ctn: createTextNode$1,
 		cc: createComment$1,
@@ -714,13 +753,23 @@
 		}
 	};
 
-	var component = function (name, data) {
+	var component = function (name, options) {
 		return function MoonComponent() {
 			var this$1 = this;
 
 			// Properties
 			this._name = name;
 			this._queued = false;
+
+			// Options
+			var data;
+			if (options === undefined) {
+				data = {};
+			} else if (typeof options === "function") {
+				data = options();
+			} else {
+				data = options;
+			}
 
 			// View
 			if (typeof data.view === "string") {
@@ -752,12 +801,6 @@
 			this._events = events;
 
 			// Data
-			if (data === undefined) {
-				data = {};
-			} else if (typeof data === "function") {
-				data = data();
-			}
-
 			for (var key in data) {
 				var value = data[key];
 				if (typeof value === "function") {
@@ -777,16 +820,16 @@
 		};
 	};
 
-	function Moon(data) {
-		var root = data.root;
-		delete data.root;
+	function Moon(options) {
+		var instanceComponent = component("", options);
+		var instance = new instanceComponent();
+
+		var root = instance.root;
+		delete instance.root;
 
 		if (typeof root === "string") {
 			root = document.querySelector(root);
 		}
-
-		var instanceComponent = component("", data);
-		var instance = new instanceComponent();
 
 		instance.create(root);
 		instance.update();
@@ -794,7 +837,8 @@
 		return instance;
 	}
 
-	Moon.extend = function (name, data) {
+	Moon.extend = function (name, options) {
+		components[name] = component(name, options);
 	};
 
 	Moon.compile = compile;

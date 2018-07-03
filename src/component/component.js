@@ -70,11 +70,21 @@ const emit = function(type, data) {
 	}
 };
 
-export const component = (name, data) => {
+export const component = (name, options) => {
 	return function MoonComponent() {
 		// Properties
 		this._name = name;
 		this._queued = false;
+
+		// Options
+		let data;
+		if (options === undefined) {
+			data = {};
+		} else if (typeof options === "function") {
+			data = options();
+		} else {
+			data = options;
+		}
 
 		// View
 		if (typeof data.view === "string") {
@@ -106,12 +116,6 @@ export const component = (name, data) => {
 		this._events = events;
 
 		// Data
-		if (data === undefined) {
-			data = {};
-		} else if (typeof data === "function") {
-			data = data();
-		}
-
 		for (let key in data) {
 			const value = data[key];
 			if (typeof value === "function") {
