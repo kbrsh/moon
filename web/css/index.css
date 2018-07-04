@@ -1,13 +1,13 @@
-#head {
-	background: #121212;
-	color: #F7F7F7;
-}
-
-#head h1 {
+h1 {
 	font-size: 50px;
 	font-weight: 600;
 	letter-spacing: 1px;
 	margin-bottom: 20px;
+}
+
+#head {
+	background: #121212;
+	color: #F7F7F7;
 }
 
 #head img {
