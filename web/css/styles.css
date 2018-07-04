@@ -18,9 +18,9 @@ button {
 
 pre code {
 	position: relative;
-	background: #141b1f;
+	background: #1f292e;
 	border: 1px solid #343434;
-	color: #85a0ad;
+	color: #b3c3cc;
 }
 
 pre code::after {
@@ -33,25 +33,25 @@ pre code::after {
 }
 
 pre code .red {
-	color: #ec7979;
+	color: #cd9898;
 }
 
 pre code .orange {
-	color: #e4a281;
+	color: #cdaa98;
 }
 
 pre code .green {
-	color: #a7d590;
+	color: #aacd98;
 }
 
 pre code .blue {
-	color: #79b2ec;
+	color: #90bed5;
 }
 
 pre code .purple {
-	color: #c381e4;
+	color: #bb98cd;
 }
 
 pre code .gray {
-	color: #526d7a;
+	color: #5c7a8a;
 }
