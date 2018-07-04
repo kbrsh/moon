@@ -19,8 +19,6 @@ const escapeMap = {
 };
 
 const highlight = function(compiled) {
-	compiled = compiled.replace(STR_RE, "<span class=\"green\">$1$2$1</span>");
-
 	compiled = compiled.replace(HTML_COMMENT_RE, "<span class=\"gray\">$1</span>");
 	compiled = compiled.replace(HTML_TAG_RE, function(match, start, content, end) {
 		if (content === undefined) {
@@ -51,6 +49,8 @@ const highlight = function(compiled) {
 	compiled = compiled.replace(METHODS_RE, function(match, name) {
 		return "<span class=\"blue\">" + name + "</span>(";
 	});
+
+	compiled = compiled.replace(STR_RE, "<span class=\"green\">$1$2$1</span>");
 
 	return compiled;
 }

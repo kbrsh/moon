@@ -21,6 +21,7 @@ pre code {
 	background: #1f292e;
 	border: 1px solid #343434;
 	color: #b3c3cc;
+	tab-size: 3;
 }
 
 pre code::after {

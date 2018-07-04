@@ -35,24 +35,19 @@
 			</div>
 		</section>
 
-		<section id="feature-minimal" class="container feature">
-			<h1>Minimal</h1>
-			<p>Moon instances have two parts — a view and data. The view is responsible for displaying the data which can contain actions to update the view. The view is defined using the <b>Moon View Language</b> — an intuitive template language allowing for powerful interpolation and simple logic. The data is a JavaScript object that can contain properties of any type along with actions — functions that can change the data to update the view.</p>
+		<section id="feature-minimal" class="container feature"> <h1>Minimal</h1>
+			<p>Moon instances are composed of data and a view to display the data. Actions performed through the view update the data along with the view. The view is defined with the Moon view language — a minimalistic template language allowing powerful interpolation and logic. The data is defined with a JavaScript object containing values of any type.</p>
 			<div class="row">
 				<div class="col">
-					<pre><code lang="mvl"><span class="red">&lt;p</span><span class="red">&gt;</span>Count: { count }<span class="red">&lt;/p</span><span class="red">&gt;</span>
-<span class="red">&lt;button</span> <span class="orange">@click</span>={ <span class="blue">increment</span>() }<span class="red">&gt;</span>
-   Increment
-<span class="red">&lt;/button</span><span class="red">&gt;</span></code></pre>
-					<pre><code lang="js">{
-   count: <span class="orange">0</span>,
-   <span class="blue">increment</span>() {
-      <span class="orange">this</span>.<span class="blue">update</span>(<span class="green">&quot;count&quot;</span>, <span class="orange">this</span>.data.count + <span class="orange">1</span>);
-   }
-}</code></pre>
+					<pre><code lang="mvl"><span class="red">&lt;h1</span><span class="red">&gt;</span>{text}<span class="red">&lt;/h1</span><span class="red">&gt;</span>
+<span class="red">&lt;input</span> <span class="orange">type</span>=<span class="green">&quot;text&quot;</span> <span class="orange">@bind</span>={text} <span class="red">/&gt;</span></code></pre>
+					<pre><code lang="js"><span class="blue">Moon</span>({
+	root: <span class="green">&quot;#root&quot;</span>,
+	text: <span class="green">&quot;Hello Moon!&quot;</span>
+});</code></pre>
 				</div>
 				<div class="col">
-
+					<div id="example"></div>
 				</div>
 			</div>
 		</section>
@@ -74,5 +69,7 @@
 				</div>
 			</div>
 		</section>
+		<script src="../dist/moon.min.js"></script>
+		<script src="./js/index.js"></script>
 	</body>
 </html>
