@@ -138,12 +138,16 @@ export const generateAll = (element, parent, root, reference) => {
 					}
 				}
 
+				createCode += `${getElement(element.component)}.create(${getElement(parent.element)});`;
+
 				if (dynamic) {
 					updateCode += `${getElement(element.component)}.update();`;
+				} else {
+					createCode += `${getElement(element.component)}.update();`;
 				}
 
 				return [
-					createCode + `${getElement(element.component)}.create(${getElement(parent.element)});${getElement(element.component)}.update();`,
+					createCode,
 					updateCode,
 					`${getElement(element.component)}.destroy();`
 				];

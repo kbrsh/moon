@@ -498,12 +498,16 @@
 						}
 					}
 
+					createCode$1 += (getElement(element.component)) + ".create(" + (getElement(parent.element)) + ");";
+
 					if (dynamic) {
 						updateCode$1 += (getElement(element.component)) + ".update();";
+					} else {
+						createCode$1 += (getElement(element.component)) + ".update();";
 					}
 
 					return [
-						createCode$1 + (getElement(element.component)) + ".create(" + (getElement(parent.element)) + ");" + (getElement(element.component)) + ".update();",
+						createCode$1,
 						updateCode$1,
 						((getElement(element.component)) + ".destroy();")
 					];
