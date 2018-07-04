@@ -28,7 +28,7 @@
 		<script id="template" type="text/moon">
 			<div class="flex direction-vertical justify-center size-full-height container">
 				<div class="todos">
-					<p #for={$todo in todos} class={"todo" + ($todo.complete ? " complete" : "")} @click={completeTodo($todo)}>{$todo.value}</p>
+					<p For={$todo in todos} class={"todo" + ($todo.complete ? " complete" : "")} @click={completeTodo($todo)}>{$todo.value}</p>
 				</div>
 
 				<input type="text" placeholder="Your todo" @bind={value} @keydown={createTodo($event)} />
