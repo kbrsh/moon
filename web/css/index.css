@@ -5,6 +5,30 @@ h1 {
 	margin-bottom: 20px;
 }
 
+#nav {
+	display: flex;
+	justify-content: space-between;
+	left: 0;
+	right: 0;
+	margin-top: 16px;
+	margin-bottom: 16px;
+}
+
+#nav a {
+	color: #F7F7F7;
+	text-decoration: none;
+}
+
+#nav-home {
+	margin-bottom: 0;
+	font-weight: 200;
+	letter-spacing: 1px;
+}
+
+#nav-items a {
+	margin-left: 16px;
+}
+
 #head {
 	background: #121212;
 	color: #F7F7F7;
