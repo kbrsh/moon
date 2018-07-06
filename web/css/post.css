@@ -1,0 +1,9 @@
+#post {
+	justify-content: space-between;
+	margin-top: 100px;
+}
+
+#side a {
+	color: #676767;
+	text-decoration: none;
+}

@@ -9,6 +9,33 @@ body {
 	margin: 0 auto;
 }
 
+#nav {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 16px;
+	margin-bottom: 16px;
+}
+
+#nav a {
+	color: #F7F7F7;
+	text-decoration: none;
+}
+
+#nav-home {
+	margin-bottom: 0;
+	font-weight: 200;
+	letter-spacing: 1px;
+}
+
+#nav-items a {
+	margin-left: 16px;
+}
+
+h1, h2, h3 {
+	font-weight: 600;
+	letter-spacing: 1px;
+}
+
 button {
 	font-size: 13px;
 	letter-spacing: 1px;
@@ -19,7 +46,7 @@ button {
 pre code {
 	position: relative;
 	background: #1f292e;
-	border: 1px solid #343434;
+	border: 1px solid #29363d;
 	color: #b3c3cc;
 	tab-size: 3;
 }

@@ -1,41 +1,19 @@
-h1 {
-	font-size: 50px;
-	font-weight: 600;
-	letter-spacing: 1px;
-	margin-bottom: 20px;
-}
-
-#nav {
-	display: flex;
-	justify-content: space-between;
-	left: 0;
-	right: 0;
-	margin-top: 16px;
-	margin-bottom: 16px;
-}
-
-#nav a {
-	color: #F7F7F7;
-	text-decoration: none;
-}
-
-#nav-home {
-	margin-bottom: 0;
-	font-weight: 200;
-	letter-spacing: 1px;
-}
-
-#nav-items a {
-	margin-left: 16px;
-}
-
-#head {
+body {
 	background: #121212;
 	color: #F7F7F7;
 }
 
+#head {
+	margin-top: 100px;
+}
+
 #head img {
 	height: 100px;
+	margin-bottom: 20px;
+}
+
+#head h1 {
+	font-size: 50px;
 	margin-bottom: 20px;
 }
 
@@ -60,6 +38,15 @@ h1 {
 	margin-bottom: 70px;
 }
 
+.feature h3 {
+	font-weight: 700;
+	letter-spacing: 5px;
+}
+
+.feature p {
+	font-weight: 200;
+}
+
 #feature-minimal pre:nth-of-type(2) {
 	margin: 0;
 }
@@ -67,9 +54,17 @@ h1 {
 #example {
 	height: 100%;
 	margin-bottom: 16px;
-	background-color: #E6E6E6;
+	background-color: #232323;
+}
+
+#example p {
+	font-size: 30px;
+	font-weight: 200;
 }
 
 #example input {
 	width: 80%;
+	color: #D5D5D5;
+	background-color: #343434;
+	border-color: #676767;
 }
