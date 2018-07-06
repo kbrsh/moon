@@ -18,6 +18,14 @@ const escapeMap = {
 	"&lt;": '<'
 };
 
+Handlebars.registerHelper("ifeq", function(a, b, options) {
+	if (a === b) {
+		return options.fn(this);
+	} else {
+		return options.inverse(this);
+	}
+});
+
 const highlight = function(compiled) {
 	compiled = compiled.replace(HTML_COMMENT_RE, "<span class=\"gray\">$1</span>");
 	compiled = compiled.replace(HTML_TAG_RE, function(match, start, content, end) {
@@ -60,5 +68,11 @@ Sold({
 	template: "template",
 	source: "src",
 	destination: '',
-	engine: "handlebars"
+	engine: function(template, data, options, done) {
+		if (data.content !== undefined) {
+			data.content = highlight(data.content);
+		}
+
+		done(Handlebars.compile(template)(data));
+	}
 });

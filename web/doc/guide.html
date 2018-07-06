@@ -15,7 +15,7 @@
 		<link rel="stylesheet" type="text/css" href="../css/styles.css" />
 		<link rel="stylesheet" type="text/css" href="../css/post.css" />
 
-		<script src="../dist/moon.min.js"></script>
+		<script src="../../dist/moon.min.js"></script>
 
 		<script>
 			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -28,10 +28,31 @@
 	</head>
 
 	<body>
+		<div id="nav" class="container">
+			<h2 id="nav-home"><a href="../">Moon</a></h2>
+
+			<div id="nav-items">
+				<a href="./doc/guide.html">Guide</a>
+				<a href="./doc/about.html">About</a>
+				<a href="./doc/examples.html">Examples</a>
+				<a href="https://github.com/kbrsh/moon">GitHub</a>
+			</div>
+		</div>
+
 		<div id="post" class="container flex">
 			<div id="side">
 				<h6>Documentation</h6>
-				<a href="./guide.html">Guide</a>
+						<a id="active" href="./guide.html">Guide</a>
+			</div>
+			<div id="content">
+				<h1>Guide</h1>
+				<h3 id="installation">Installation</h3>
+<p>Moon can be installed with a <code><span class="red">&lt;script</span><span class="red">&gt;</span></code> tag or through <code>npm</code>.</p>
+<pre><code class="lang-html"><span class="red">&lt;script</span> <span class="orange">src</span>=<span class="green">&quot;https:<span class="gray">//unpkg.com/moon&quot;</span><span class="red">&gt;</span><span class="red">&lt;/script</span><span class="red">&gt;</span></span>
+</code></pre>
+<pre><code class="lang-sh">npm install moon
+</code></pre>
+
 			</div>
 		</div>
 	</body>

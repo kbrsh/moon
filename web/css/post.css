@@ -7,3 +7,13 @@
 	color: #676767;
 	text-decoration: none;
 }
+
+#side a#active {
+	color: hsl(265, 100%, 52%);
+}
+
+#content {
+	width: 70%;
+	max-width: 700px;
+	margin: 0 auto;
+}
