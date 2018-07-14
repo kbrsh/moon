@@ -52,7 +52,67 @@
 			</div>
 			<div id="content">
 				<h1>About</h1>
-				
+				<p>Moon is a JavaScript library with a minimal API and fast view compiler. It splits up a web application into two parts: the view and the data. The view is responsible <span class="purple">for</span> displaying the data to the user. Moon compiles the view into a vanilla JavaScript program capable of creating, updating, and destroying the view. The data is a simple object with access to the Moon API <span class="purple">for</span> updating itself.</p>
+<pre><code class="lang-html"><span class="red">&lt;p</span> <span class="orange">If</span>={condition}<span class="red">&gt;</span>{foo}<span class="red">&lt;/p</span><span class="red">&gt;</span>
+<span class="red">&lt;p</span> Else<span class="red">&gt;</span>{bar}<span class="red">&lt;/p</span><span class="red">&gt;</span>
+</code></pre>
+<pre><code class="lang-js"><span class="purple">function</span> <span class="blue">view</span>(m, instance) {
+  <span class="purple">var</span> m0, m1, m2, m3, m4, m5;
+  <span class="purple">return</span> [
+    <span class="purple">function</span>(_0) {
+      m0 = _0;
+      m3 = m.<span class="blue">cc</span>();
+      m.<span class="blue">ac</span>(m3, m0);
+      m5 = [
+        (<span class="purple">function</span>(locals) {
+          <span class="purple">var</span> m6, m7, m8;
+          <span class="purple">return</span> [
+            <span class="purple">function</span>(_0) {
+              m6 = _0;
+              m7 = m.<span class="blue">ce</span>(<span class="green">&quot;p&quot;</span>);
+              m8 = m.<span class="blue">ctn</span>(<span class="green">&quot;&quot;</span>);
+              m.<span class="blue">ac</span>(m8, m7);
+              m.<span class="blue">ib</span>(m7, m3, m6);
+            },
+            <span class="purple">function</span>() {
+              m.<span class="blue">stc</span>(m8, instance.foo);
+            },
+            <span class="purple">function</span>() {
+              m.<span class="blue">rc</span>(m7, m6);
+            }
+          ];
+        })({}),
+        (<span class="purple">function</span>(locals) {
+          <span class="purple">var</span> m6, m7, m8;
+          <span class="purple">return</span> [
+            <span class="purple">function</span>(_0) {
+              m6 = _0;
+              m7 = m.<span class="blue">ce</span>(<span class="green">&quot;p&quot;</span>);
+              m8 = m.<span class="blue">ctn</span>(<span class="green">&quot;&quot;</span>);
+              m.<span class="blue">ac</span>(m8, m7);
+              m.<span class="blue">ib</span>(m7, m3, m6);
+            },
+            <span class="purple">function</span>() {
+              m.<span class="blue">stc</span>(m8, instance.bar);
+            },
+            <span class="purple">function</span>() {
+              m.<span class="blue">rc</span>(m7, m6);
+            }
+          ];
+        })({})
+      ];
+    },
+    <span class="purple">function</span>() {
+      m4 = [instance.condition, <span class="orange">true</span>];
+      m2 = m.<span class="blue">di</span>(m2, m4, m5, m0);
+    },
+    <span class="purple">function</span>() {
+      m2[<span class="orange">2</span>]();
+    }
+  ];
+}
+</code></pre>
+
 			</div>
 		</div>
 	</body>
