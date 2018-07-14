@@ -14,7 +14,7 @@
 	"use strict";
 
 	var expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
-	var globals = ["NaN", "event", "false", "in", "null", "this", "true", "typeof", "undefined"];
+	var globals = ["NaN", "false", "in", "null", "this", "true", "typeof", "undefined"];
 
 	var parseTemplate = function (expression) {
 		var dynamic = false;

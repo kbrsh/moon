@@ -1,5 +1,5 @@
 const expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
-const globals = ["NaN", "event", "false", "in", "null", "this", "true", "typeof", "undefined"];
+const globals = ["NaN", "false", "in", "null", "this", "true", "typeof", "undefined"];
 
 export const parseTemplate = (expression) => {
 	let dynamic = false;
