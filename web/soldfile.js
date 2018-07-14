@@ -1,9 +1,10 @@
 const Sold = require("sold");
 const Handlebars = require("handlebars");
 
+const CODE_RE = /<code class="lang-(\w+)">([\w\d\s.,:#@()\[\]{}!?\-/="'&;]+)<\/code>/g;
 const STR_RE = /((?:&quot;)|'|`)((?:.|\n)*?)\1/g;
 const SPECIAL_RE = /\b(new|var|let|if|do|function|while|switch|for|foreach|in|continue|break|return)\b/g;
-const GLOBAL_VARIABLE_RE = /\b(document|window|Array|String|undefined|true|false|Object|this|Boolean|Function|Number|\d+(?:\.\d+)?)\b/g;
+const GLOBAL_VARIABLE_RE = /\b(document|window|Array|String|undefined|true|false|Object|this|Boolean|Function|Number|Math|\d+(?:\.\d+)?)\b/g;
 const CONST_RE = /\b(const )([\w\d]+)/g;
 const METHODS_RE = /\b([\w\d]+)\(/g;
 const MULTILINE_COMMENT_RE  = /(\/\*.*\*\/)/g;
@@ -70,7 +71,9 @@ Sold({
 	destination: '',
 	engine: function(template, data, options, done) {
 		if (data.content !== undefined) {
-			data.content = highlight(data.content);
+			data.content = data.content.replace(CODE_RE, function(match, lang, code) {
+				return "<code lang=\"" + lang + "\">" + highlight(code) + "</code>";
+			});
 		}
 
 		done(Handlebars.compile(template)(data));

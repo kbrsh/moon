@@ -44,19 +44,18 @@
 				<h6>Documentation</h6>
 						<a href="./guide.html">Guide</a>
 						<a id="active" href="./about.html">About</a>
-						<a href="./templates.html">Templates</a>
-						<a href="./conditionals.html">Conditionals</a>
-						<a href="./loops.html">Loops</a>
+						<a href="./views.html">Views</a>
+						<a href="./data.html">Data</a>
 						<a href="./components.html">Components</a>
 						<a href="./examples.html">Examples</a>
 			</div>
 			<div id="content">
 				<h1>About</h1>
-				<p>Moon is a JavaScript library with a minimal API and fast view compiler. It splits up a web application into two parts: the view and the data. The view is responsible <span class="purple">for</span> displaying the data to the user. Moon compiles the view into a vanilla JavaScript program capable of creating, updating, and destroying the view. The data is a simple object with access to the Moon API <span class="purple">for</span> updating itself.</p>
-<pre><code class="lang-html"><span class="red">&lt;p</span> <span class="orange">If</span>={condition}<span class="red">&gt;</span>{foo}<span class="red">&lt;/p</span><span class="red">&gt;</span>
+				<p>Moon is a JavaScript library with a minimal API and fast view compiler. It splits up a web application into two parts: the view and the data. The view is responsible for displaying the data to the user. Moon compiles the view into a JavaScript program running on a 3kb runtime capable of creating, updating, and destroying the view. The data is a simple object with access to the Moon API for updating itself.</p>
+<pre><code lang="mvl"><span class="red">&lt;p</span> <span class="orange">If</span>={condition}<span class="red">&gt;</span>{foo}<span class="red">&lt;/p</span><span class="red">&gt;</span>
 <span class="red">&lt;p</span> Else<span class="red">&gt;</span>{bar}<span class="red">&lt;/p</span><span class="red">&gt;</span>
 </code></pre>
-<pre><code class="lang-js"><span class="purple">function</span> <span class="blue">view</span>(m, instance) {
+<pre><code lang="js"><span class="purple">function</span> <span class="blue">view</span>(m, instance) {
   <span class="purple">var</span> m0, m1, m2, m3, m4, m5;
   <span class="purple">return</span> [
     <span class="purple">function</span>(_0) {

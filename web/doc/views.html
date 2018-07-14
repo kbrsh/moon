@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="description" content="The minimal & fast UI library.">
+		<meta name="author" content="Kabir Shah">
+
+		<title>Moon | Views</title>
+
+		<link rel="shortcut icon" href="../img/favicon.png"/>
+
+		<link rel="stylesheet" type="text/css" href="../css/lib/wing.min.css" />
+		<link rel="stylesheet" type="text/css" href="../css/styles.css" />
+		<link rel="stylesheet" type="text/css" href="../css/post.css" />
+
+		<script src="../../dist/moon.min.js"></script>
+
+		<script>
+			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+				(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+				m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+			})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+			ga('create', 'UA-70792533-14', 'auto');
+			ga('send', 'pageview');
+		</script>
+	</head>
+
+	<body>
+		<div id="nav" class="container">
+			<h2 id="nav-home"><a href="../">Moon</a></h2>
+
+			<div id="nav-items">
+				<a href="./doc/guide.html">Guide</a>
+				<a href="./doc/about.html">About</a>
+				<a href="./doc/examples.html">Examples</a>
+				<a href="https://github.com/kbrsh/moon">GitHub</a>
+			</div>
+		</div>
+
+		<div id="post" class="container flex">
+			<div id="side">
+				<h6>Documentation</h6>
+						<a href="./guide.html">Guide</a>
+						<a href="./about.html">About</a>
+						<a id="active" href="./views.html">Views</a>
+						<a href="./data.html">Data</a>
+						<a href="./components.html">Components</a>
+						<a href="./examples.html">Examples</a>
+			</div>
+			<div id="content">
+				<h1>Views</h1>
+				<p>Moon views are defined using the <em>Moon View Language</em>. The Moon view language is a template language based on HTML and adds support for data interpolation, events, and components.</p>
+<h3 id="interpolation">Interpolation</h3>
+<p>Properties from instance data can be interpolated into the view using a pair of curly braces: <code>{}</code>.</p>
+<pre><code lang="mvl"><span class="red">&lt;div</span> <span class="orange">class</span>={name}<span class="red">&gt;</span>
+    {message}
+<span class="red">&lt;/div</span><span class="red">&gt;</span>
+</code></pre>
+<pre><code lang="js"><span class="blue">Moon</span>({
+    root: <span class="green">&quot;#root&quot;</span>,
+    name: <span class="green">&quot;interpolation&quot;</span>,
+    message: <span class="green">&quot;Hello Moon!&quot;</span>
+});
+</code></pre>
+<div id="view-example-1" class="example"></div>
+
+<script>
+    Moon({
+        root: "#view-example-1",
+        view: "<div class={name}>{message}</div>",
+        name: "interpolation",
+        message: "Hello Moon!"
+    });
+</script>
+
+<h3 id="conditionals">Conditionals</h3>
+<p>Elements can be rendered based on certain conditions using the <code>If</code>, <code>ElseIf</code>, and <code>Else</code> components.</p>
+<pre><code lang="mvl"><span class="red">&lt;div</span> <span class="orange">If</span>={condition}<span class="red">&gt;</span>
+    Condition is truthy.
+<span class="red">&lt;/div</span><span class="red">&gt;</span>
+<span class="red">&lt;div</span> Else<span class="red">&gt;</span>
+    Condition is falsy.
+<span class="red">&lt;/div</span><span class="red">&gt;</span>
+</code></pre>
+<pre><code lang="js"><span class="blue">Moon</span>({
+    root: <span class="green">&quot;#root&quot;</span>,
+    condition: <span class="orange">Math</span>.<span class="blue">random</span>() &lt;= <span class="orange">0.5</span> ? <span class="orange">false</span> : <span class="orange">true</span>
+});
+</code></pre>
+<div id="view-example-2" class="example"></div>
+
+<script>
+    Moon({
+        root: "#view-example-2",
+        view: "<div If={condition}>Condition is truthy.</div><div Else>Condition is falsy.</div>",
+        condition: Math.random() <= 0.5 ? false : true
+    });
+</script>
+
+			</div>
+		</div>
+	</body>
+</html>

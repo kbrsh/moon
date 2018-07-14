@@ -1,4 +1,4 @@
 ---
 title: Components
-order: 5
+order: 4
 ---

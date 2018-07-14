@@ -18,3 +18,9 @@
 	max-width: 700px;
 	margin: 0 auto;
 }
+
+.example {
+	margin-bottom: 16px;
+	padding: 16px;
+	background-color: #E6E6E6;
+}

@@ -3,9 +3,9 @@ title: About
 order: 1
 ---
 
-Moon is a JavaScript library with a minimal API and fast view compiler. It splits up a web application into two parts: the view and the data. The view is responsible for displaying the data to the user. Moon compiles the view into a vanilla JavaScript program capable of creating, updating, and destroying the view. The data is a simple object with access to the Moon API for updating itself.
+Moon is a JavaScript library with a minimal API and fast view compiler. It splits up a web application into two parts: the view and the data. The view is responsible for displaying the data to the user. Moon compiles the view into a JavaScript program running on a 3kb runtime capable of creating, updating, and destroying the view. The data is a simple object with access to the Moon API for updating itself.
 
-```html
+```mvl
 <p If={condition}>{foo}</p>
 <p Else>{bar}</p>
 ```
