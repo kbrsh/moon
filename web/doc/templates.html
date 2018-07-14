@@ -7,7 +7,7 @@
 		<meta name="description" content="The minimal & fast UI library.">
 		<meta name="author" content="Kabir Shah">
 
-		<title>Moon | {{title}}</title>
+		<title>Moon | Templates</title>
 
 		<link rel="shortcut icon" href="../img/favicon.png"/>
 
@@ -42,17 +42,17 @@
 		<div id="post" class="container flex">
 			<div id="side">
 				<h6>Documentation</h6>
-				{{#each posts.doc}}
-					{{#ifeq @root.file file}}
-						<a id="active" href="./{{file}}">{{title}}</a>
-					{{else}}
-						<a href="./{{file}}">{{title}}</a>
-					{{/ifeq}}
-				{{/each}}
+						<a href="./guide.html">Guide</a>
+						<a href="./about.html">About</a>
+						<a id="active" href="./templates.html">Templates</a>
+						<a href="./conditionals.html">Conditionals</a>
+						<a href="./loops.html">Loops</a>
+						<a href="./components.html">Components</a>
+						<a href="./examples.html">Examples</a>
 			</div>
 			<div id="content">
-				<h1>{{title}}</h1>
-				{{{content}}}
+				<h1>Templates</h1>
+				
 			</div>
 		</div>
 	</body>

@@ -1,5 +1,6 @@
 ---
 title: Guide
+order: 0
 ---
 
 ### Installation
