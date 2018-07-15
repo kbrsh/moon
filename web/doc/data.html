@@ -88,6 +88,54 @@
 <p>To destroy a view and remove all DOM elements from the root you use <code>instance.destroy()</code>.</p>
 <pre><code lang="js"><span class="orange">this</span>.<span class="blue">destroy</span>();
 </code></pre>
+<h3 id="on">On</h3>
+<p>To add an event listener to an instance, you use <code>instance.on(event, handler)</code>. The <code>create</code>, <code>update</code>, and <code>destroy</code> events are fired when their corresponding methods are called.</p>
+<pre><code lang="js"><span class="orange">this</span>.<span class="blue">on</span>(<span class="green">&quot;create&quot;</span>, <span class="purple">function</span>() {
+    console.<span class="blue">log</span>(<span class="green">&quot;Component created.&quot;</span>);
+});
+
+<span class="orange">this</span>.<span class="blue">on</span>(<span class="green">&quot;update&quot;</span>, <span class="purple">function</span>() {
+    console.<span class="blue">log</span>(<span class="green">&quot;Component updated.&quot;</span>);
+});
+
+<span class="orange">this</span>.<span class="blue">on</span>(<span class="green">&quot;destroy&quot;</span>, <span class="purple">function</span>() {
+    console.<span class="blue">log</span>(<span class="green">&quot;Component destroyed.&quot;</span>);
+});
+
+<span class="orange">this</span>.<span class="blue">on</span>(<span class="green">&quot;custom&quot;</span>, <span class="purple">function</span>() {
+    console.<span class="blue">log</span>(<span class="green">&quot;Custom event fired.&quot;</span>);
+});
+</code></pre>
+<h3 id="off">Off</h3>
+<p>To remove an event listener from an instance, you use <code>instance.off()</code>.</p>
+<pre><code lang="js"><span class="gray">// Remove all event listeners</span>
+<span class="orange">this</span>.<span class="blue">off</span>();
+
+<span class="gray">// Remove all event listeners <span class="purple">for</span> the <span class="green">&quot;custom&quot;</span> event</span>
+<span class="orange">this</span>.<span class="blue">off</span>(<span class="green">&quot;custom&quot;</span>);
+
+<span class="gray">// Remove <span class="green">`handler`</span> from the <span class="green">&quot;custom&quot;</span> event.</span>
+<span class="orange">this</span>.<span class="blue">off</span>(<span class="green">&quot;custom&quot;</span>, handler);
+</code></pre>
+<h3 id="emit">Emit</h3>
+<p>To emit an event, you use <code>instance.emit(event)</code>.</p>
+<pre><code lang="js"><span class="gray">// Emit the <span class="green">&quot;custom&quot;</span> event</span>
+<span class="orange">this</span>.<span class="blue">emit</span>(<span class="green">&quot;custom&quot;</span>);
+
+
+<span class="gray">// Emit the <span class="green">&quot;custom&quot;</span> event with custom event data</span>
+<span class="orange">this</span>.<span class="blue">emit</span>(<span class="green">&quot;custom&quot;</span>, {
+    foo: <span class="green">&quot;bar&quot;</span>
+});
+</code></pre>
+<h3 id="lifecycle">Lifecycle</h3>
+<p>Rather than using <code>instance.on</code> for every lifecycle event (<code>create</code>, <code>update</code>, <code>destroy</code>), you can provide them in the component data.</p>
+<pre><code lang="js"><span class="blue">Moon</span>({
+    <span class="blue">onCreate</span>() {},
+    <span class="blue">onUpdate</span>() {},
+    <span class="blue">onDestroy</span>() {}
+});
+</code></pre>
 
 			</div>
 		</div>
