@@ -45,14 +45,50 @@
 						<a href="./about.html">About</a>
 						<a href="./installation.html">Installation</a>
 						<a href="./guide.html">Guide</a>
-						<a href="./views.html">Views</a>
 						<a id="active" href="./data.html">Data</a>
+						<a href="./views.html">Views</a>
 						<a href="./components.html">Components</a>
 						<a href="./examples.html">Examples</a>
 			</div>
 			<div id="content">
 				<h1>Data</h1>
-				
+				<p>Every Moon component is a Moon instance with properties and methods that are defined in the component definition.</p>
+<h3 id="root">Root</h3>
+<p>The root instance is created using <code>Moon({})</code>. This invocation creates a new component constructor and initializes it.</p>
+<pre><code lang="js"><span class="blue">Moon</span>({
+    view: <span class="green">&quot;{foo} {bar}&quot;</span>,
+    foo: <span class="orange">17</span>,
+    bar: <span class="green">&quot;baz&quot;</span>,
+    <span class="blue">log</span>() {
+        <span class="gray">// Properties are available under <span class="green">`<span class="orange">this</span>`</span></span>
+        console.<span class="blue">log</span>(<span class="orange">this</span>.foo, <span class="orange">this</span>.bar);
+    }
+});
+</code></pre>
+<p>The above instance has the user-defined properties <code>foo</code> and <code>bar</code> and the method <code>log</code>. Additionally, Moon defines builtin properties and methods on each component to provide utilities for creating, updating, and destroying it.</p>
+<h3 id="create">Create</h3>
+<p>To create the view and initialize all DOM elements, you use <code>instance.create(root)</code>. This method is meant to be used internally but can optionally be utilized in order to use a Moon component with an existing application.</p>
+<pre><code lang="js"><span class="purple">new</span> <span class="blue">ComponentConstructor</span>().<span class="blue">create</span>(<span class="orange">document</span>.<span class="blue">getElementById</span>(<span class="green">&quot;root&quot;</span>));
+</code></pre>
+<h3 id="update">Update</h3>
+<p>To update the view and properties of an instance you use <code>instance.update()</code>. This method updates data within the component and queues a view update.</p>
+<pre><code lang="js"><span class="gray">// Queue a view update</span>
+<span class="orange">this</span>.<span class="blue">update</span>();
+
+<span class="gray">// Update one property and queue a view update</span>
+<span class="orange">this</span>.<span class="blue">update</span>(<span class="green">&quot;count&quot;</span>, <span class="orange">this</span>.count + <span class="orange">1</span>);
+
+<span class="gray">// Update multiple properties and queue a view update</span>
+<span class="orange">this</span>.<span class="blue">update</span>({
+    foo: <span class="green">&quot;bar&quot;</span>,
+    count: <span class="orange">this</span>.count + <span class="orange">1</span>
+});
+</code></pre>
+<h3 id="destroy">Destroy</h3>
+<p>To destroy a view and remove all DOM elements from the root you use <code>instance.destroy()</code>.</p>
+<pre><code lang="js"><span class="orange">this</span>.<span class="blue">destroy</span>();
+</code></pre>
+
 			</div>
 		</div>
 	</body>
