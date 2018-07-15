@@ -90,12 +90,14 @@ Moon({
 <div id="example-view-bind-events" class="example"></div>
 
 <script>
-Moon({
-	root: "#example-view-bind-events",
-	view: "<p>{text}</p><input type=\"text\" @bind={text}/>",
-	text: "Hello Moon!"
-});
+	var ViewBindEvents = Moon({
+		root: "#example-view-bind-events",
+		view: "<p>{text}</p><input type=\"text\" @bind={text}/>",
+		text: "Hello Moon!"
+	});
 </script>
+
+Try entering `ViewBindEvents.update("text", "New Text!")` in the console to update the view.
 
 ##### Component Events
 
@@ -124,9 +126,42 @@ Moon({
 <div id="example-view-conditionals" class="example"></div>
 
 <script>
-	Moon({
+	var ViewConditionals = Moon({
 		root: "#example-view-conditionals",
 		view: "<div If={condition}>Condition is truthy.</div><div Else>Condition is falsy.</div>",
 		condition: Math.random() <= 0.5 ? false : true
 	});
 </script>
+
+Try entering `ViewConditionals.update("condition", !ViewConditionals.condition)` in the console to update the view.
+
+### Loops
+
+Elements can be rendered multiple times for every element in an array using the `For` component. The syntax for the main argument is `$element,$index in array`. The element and index are prefixed with `$`, meaning that they are _locals_ and not on the instance itself.
+
+```mvl
+<ul>
+	<li For={$item,$index in items}>
+		{$index}: {$item}
+	</li>
+</ul>
+```
+
+```js
+Moon({
+	root: "#root",
+	items: ["foo", "bar", "baz"]
+});
+```
+
+<div id="example-view-loops" class="example"></div>
+
+<script>
+	var ViewLoops = Moon({
+		root: "#example-view-loops",
+		view: "<ul><li For={$item,$index in items}>{$index}: {$item}</li></ul>",
+		items: ["foo", "bar", "baz"]
+	});
+</script>
+
+Try entering `ViewLoops.update("items", ViewLoops.items.reverse())` in the console to update the view.

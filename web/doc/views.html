@@ -117,13 +117,14 @@
 <div id="example-view-bind-events" class="example"></div>
 
 <script>
-Moon({
-    root: "#example-view-bind-events",
-    view: "<p>{text}</p><input type=\"text\" @bind={text}/>",
-    text: "Hello Moon!"
-});
+    var ViewBindEvents = Moon({
+        root: "#example-view-bind-events",
+        view: "<p>{text}</p><input type=\"text\" @bind={text}/>",
+        text: "Hello Moon!"
+    });
 </script>
 
+<p>Try entering <code>ViewBindEvents.update(&quot;text&quot;, &quot;New Text!&quot;)</code> in the console to update the view.</p>
 <h5 id="component-events">Component Events</h5>
 <p>Learn about component events in the <a href="./components.html">components section</a>.</p>
 <h3 id="conditionals">Conditionals</h3>
@@ -143,12 +144,38 @@ Moon({
 <div id="example-view-conditionals" class="example"></div>
 
 <script>
-    Moon({
+    var ViewConditionals = Moon({
         root: "#example-view-conditionals",
         view: "<div If={condition}>Condition is truthy.</div><div Else>Condition is falsy.</div>",
         condition: Math.random() <= 0.5 ? false : true
     });
 </script>
+
+<p>Try entering <code>ViewConditionals.update(&quot;condition&quot;, !ViewConditionals.condition)</code> in the console to update the view.</p>
+<h3 id="loops">Loops</h3>
+<p>Elements can be rendered multiple times for every element in an array using the <code>For</code> component. The syntax for the main argument is <code>$element,$index in array</code>. The element and index are prefixed with <code>$</code>, meaning that they are <em>locals</em> and not on the instance itself.</p>
+<pre><code lang="mvl"><span class="red">&lt;ul</span><span class="red">&gt;</span>
+    <span class="red">&lt;li</span> <span class="orange">For</span>={$item,$index <span class="purple">in</span> items}<span class="red">&gt;</span>
+        {$index}: {$item}
+    <span class="red">&lt;/li</span><span class="red">&gt;</span>
+<span class="red">&lt;/ul</span><span class="red">&gt;</span>
+</code></pre>
+<pre><code lang="js"><span class="blue">Moon</span>({
+    root: <span class="green">&quot;#root&quot;</span>,
+    items: [<span class="green">&quot;foo&quot;</span>, <span class="green">&quot;bar&quot;</span>, <span class="green">&quot;baz&quot;</span>]
+});
+</code></pre>
+<div id="example-view-loops" class="example"></div>
+
+<script>
+    var ViewLoops = Moon({
+        root: "#example-view-loops",
+        view: "<ul><li For={$item,$index in items}>{$index}: {$item}</li></ul>",
+        items: ["foo", "bar", "baz"]
+    });
+</script>
+
+<p>Try entering <code>ViewLoops.update(&quot;items&quot;, ViewLoops.items.reverse())</code> in the console to update the view.</p>
 
 			</div>
 		</div>
