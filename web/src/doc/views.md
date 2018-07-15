@@ -1,6 +1,6 @@
 ---
 title: Views
-order: 2
+order: 3
 ---
 
 Moon views are defined using the _Moon View Language_. The Moon view language is a template language based on HTML and adds support for data interpolation, events, and components.
