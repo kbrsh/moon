@@ -23,14 +23,49 @@ Moon({
 });
 ```
 
-<div id="view-example-1" class="example"></div>
+<div id="example-view-interpolation" class="example"></div>
 
 <script>
 	Moon({
-		root: "#view-example-1",
+		root: "#example-view-interpolation",
 		view: "<div class={name}>{message}</div>",
 		name: "interpolation",
 		message: "Hello Moon!"
+	});
+</script>
+
+### Events
+
+Browser events, component events, and lifecycle events can be handled by using an attribute starting with `@`.
+
+##### Browser Events
+
+Browser events such as `click` or `input` can be handled by creating an attribute prepended with `@` with one statement as a value. A special _local variable_ named `$event` will be available and holds the event object.
+
+```mvl
+<button @click={announce($event)}>
+	Make Announcement
+</button>
+```
+
+```js
+Moon({
+	root: "#root",
+	announce($event) {
+		alert($event.target.tagName + " was clicked.");
+	}
+});
+```
+
+<div id="example-view-browser-events" class="example"></div>
+
+<script>
+	Moon({
+		root: "#example-view-browser-events",
+		view: "<button @click={announce($event)}>Make Announcement</button>",
+		announce($event) {
+			alert($event.target.tagName + " was clicked.");
+		}
 	});
 </script>
 
@@ -54,11 +89,11 @@ Moon({
 });
 ```
 
-<div id="view-example-2" class="example"></div>
+<div id="example-view-conditionals" class="example"></div>
 
 <script>
 	Moon({
-		root: "#view-example-2",
+		root: "#example-view-conditionals",
 		view: "<div If={condition}>Condition is truthy.</div><div Else>Condition is falsy.</div>",
 		condition: Math.random() <= 0.5 ? false : true
 	});

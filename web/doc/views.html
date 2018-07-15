@@ -65,14 +65,41 @@
     message: <span class="green">&quot;Hello Moon!&quot;</span>
 });
 </code></pre>
-<div id="view-example-1" class="example"></div>
+<div id="example-view-interpolation" class="example"></div>
 
 <script>
     Moon({
-        root: "#view-example-1",
+        root: "#example-view-interpolation",
         view: "<div class={name}>{message}</div>",
         name: "interpolation",
         message: "Hello Moon!"
+    });
+</script>
+
+<h3 id="events">Events</h3>
+<p>Browser events, component events, and lifecycle events can be handled by using an attribute starting with <code>@</code>.</p>
+<h5 id="browser-events">Browser Events</h5>
+<p>Browser events such as <code>click</code> or <code>input</code> can be handled by creating an attribute prepended with <code>@</code> with one statement as a value. A special <em>local variable</em> named <code>$event</code> will be available and holds the event object.</p>
+<pre><code lang="mvl"><span class="red">&lt;button</span> <span class="orange">@click</span>={<span class="blue">announce</span>($event)}<span class="red">&gt;</span>
+    Make Announcement
+<span class="red">&lt;/button</span><span class="red">&gt;</span>
+</code></pre>
+<pre><code lang="js"><span class="blue">Moon</span>({
+    root: <span class="green">&quot;#root&quot;</span>,
+    <span class="blue">announce</span>($event) {
+        <span class="blue">alert</span>($event.target.tagName + <span class="green">&quot; was clicked.&quot;</span>);
+    }
+});
+</code></pre>
+<div id="example-view-browser-events" class="example"></div>
+
+<script>
+    Moon({
+        root: "#example-view-browser-events",
+        view: "<button @click={announce($event)}>Make Announcement</button>",
+        announce($event) {
+            alert($event.target.tagName + " was clicked.");
+        }
     });
 </script>
 
@@ -90,11 +117,11 @@
     condition: <span class="orange">Math</span>.<span class="blue">random</span>() &lt;= <span class="orange">0.5</span> ? <span class="orange">false</span> : <span class="orange">true</span>
 });
 </code></pre>
-<div id="view-example-2" class="example"></div>
+<div id="example-view-conditionals" class="example"></div>
 
 <script>
     Moon({
-        root: "#view-example-2",
+        root: "#example-view-conditionals",
         view: "<div If={condition}>Condition is truthy.</div><div Else>Condition is falsy.</div>",
         condition: Math.random() <= 0.5 ? false : true
     });
