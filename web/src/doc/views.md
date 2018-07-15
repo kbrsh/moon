@@ -26,13 +26,15 @@ Moon({
 <div id="example-view-interpolation" class="example"></div>
 
 <script>
-	Moon({
+	var ViewInterpolation = Moon({
 		root: "#example-view-interpolation",
 		view: "<div class={name}>{message}</div>",
 		name: "interpolation",
 		message: "Hello Moon!"
 	});
 </script>
+
+Try entering `ViewInterpolation.update("message", "New Message!")` in the console to update the view.
 
 ### Events
 
@@ -68,6 +70,36 @@ Moon({
 		}
 	});
 </script>
+
+##### Bind Events
+
+The `bind` event is a special event used to bind an input value to a variable and a variable to the input value.
+
+```mvl
+<p>{text}</p>
+<input type="text" @bind={text}/>
+```
+
+```js
+Moon({
+	root: "#root",
+	text: "Hello Moon!"
+});
+```
+
+<div id="example-view-bind-events" class="example"></div>
+
+<script>
+Moon({
+	root: "#example-view-bind-events",
+	view: "<p>{text}</p><input type=\"text\" @bind={text}/>",
+	text: "Hello Moon!"
+});
+</script>
+
+##### Component Events
+
+Learn about component events in the [components section](./components.html).
 
 ### Conditionals
 

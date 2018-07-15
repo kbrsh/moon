@@ -68,7 +68,7 @@
 <div id="example-view-interpolation" class="example"></div>
 
 <script>
-    Moon({
+    var ViewInterpolation = Moon({
         root: "#example-view-interpolation",
         view: "<div class={name}>{message}</div>",
         name: "interpolation",
@@ -76,6 +76,7 @@
     });
 </script>
 
+<p>Try entering <code>ViewInterpolation.update(&quot;message&quot;, &quot;New Message!&quot;)</code> in the console to update the view.</p>
 <h3 id="events">Events</h3>
 <p>Browser events, component events, and lifecycle events can be handled by using an attribute starting with <code>@</code>.</p>
 <h5 id="browser-events">Browser Events</h5>
@@ -103,6 +104,28 @@
     });
 </script>
 
+<h5 id="bind-events">Bind Events</h5>
+<p>The <code>bind</code> event is a special event used to bind an input value to a variable and a variable to the input value.</p>
+<pre><code lang="mvl"><span class="red">&lt;p</span><span class="red">&gt;</span>{text}<span class="red">&lt;/p</span><span class="red">&gt;</span>
+<span class="red">&lt;input</span> <span class="orange">type</span>=<span class="green">&quot;text&quot;</span> <span class="orange">@bind</span>={text}<span class="red">/&gt;</span>
+</code></pre>
+<pre><code lang="js"><span class="blue">Moon</span>({
+    root: <span class="green">&quot;#root&quot;</span>,
+    text: <span class="green">&quot;Hello Moon!&quot;</span>
+});
+</code></pre>
+<div id="example-view-bind-events" class="example"></div>
+
+<script>
+Moon({
+    root: "#example-view-bind-events",
+    view: "<p>{text}</p><input type=\"text\" @bind={text}/>",
+    text: "Hello Moon!"
+});
+</script>
+
+<h5 id="component-events">Component Events</h5>
+<p>Learn about component events in the <a href="./components.html">components section</a>.</p>
 <h3 id="conditionals">Conditionals</h3>
 <p>Elements can be rendered based on certain conditions using the <code>If</code>, <code>ElseIf</code>, and <code>Else</code> components.</p>
 <pre><code lang="mvl"><span class="red">&lt;div</span> <span class="orange">If</span>={condition}<span class="red">&gt;</span>
