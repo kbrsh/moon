@@ -52,7 +52,44 @@
 			</div>
 			<div id="content">
 				<h1>Components</h1>
-				
+				<p>Components allow you to split up your application into smaller, composable parts called <em>components</em>. Components are constructors that create new instances. They have the same API as the root Moon component, as both are component instances.</p>
+<p>Once a component is registered using <code>Moon.extend</code>, it can be used anywhere with a tag. Component names must start with a capital letter, and component data should be a function in order to create new data for each component instance.</p>
+<pre><code lang="mvl"><span class="gray">&lt;!-- Root View --&gt;</span>
+<span class="red">&lt;Counter</span><span class="red">/&gt;</span>
+<span class="red">&lt;Counter</span><span class="red">/&gt;</span>
+<span class="red">&lt;Counter</span><span class="red">/&gt;</span>
+</code></pre>
+<pre><code lang="mvl"><span class="gray">&lt;!-- Counter View --&gt;</span>
+<span class="red">&lt;button</span> <span class="orange">@click</span>={<span class="blue">update</span>(<span class="green">&quot;count&quot;</span>, count + <span class="orange">1</span>)}<span class="red">&gt;</span>
+    {count}
+<span class="red">&lt;/button</span><span class="red">&gt;</span>
+</code></pre>
+<pre><code lang="js">Moon.<span class="blue">component</span>(<span class="green">&quot;Counter&quot;</span>, <span class="purple">function</span>() {
+    <span class="purple">return</span> {
+        count: <span class="orange">0</span>
+    }
+});
+
+<span class="blue">Moon</span>({
+    root: <span class="green">&quot;#root&quot;</span>
+});
+</code></pre>
+<div id="example-components-definition" class="example"></div>
+
+<script>
+    Moon.extend("Counter", function() {
+        return {
+            view: "<button @click={update(\"count\", count + 1)}>{count}</button>",
+            count: 0
+        }
+    });
+
+    Moon({
+        root: "#example-components-definition",
+        view: "<Counter/><Counter/><Counter/>"
+    });
+</script>
+
 			</div>
 		</div>
 	</body>

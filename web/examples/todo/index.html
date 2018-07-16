@@ -25,7 +25,7 @@
 	<body>
 		<div id="root"></div>
 
-		<script id="template" type="text/moon">
+		<script type="text/mvl" id="template">
 			<div class="flex direction-vertical justify-center size-full-height container">
 				<div class="todos">
 					<p For={$todo in todos} class={"todo" + ($todo.complete ? " complete" : "")} @click={completeTodo($todo)}>{$todo.value}</p>
@@ -34,6 +34,7 @@
 				<input type="text" placeholder="Your todo" @bind={value} @keydown={createTodo($event)} />
 			</div>
 		</script>
+
 
 		<script src="../../../dist/moon.min.js"></script>
 		<script>

@@ -825,15 +825,15 @@
 	};
 
 	function Moon(options) {
-		var instanceComponent = component("", options);
-		var instance = new instanceComponent();
-
-		var root = instance.root;
-		delete instance.root;
+		var root = options.root;
+		delete options.root;
 
 		if (typeof root === "string") {
 			root = document.querySelector(root);
 		}
+
+		var instanceComponent = component("", options);
+		var instance = new instanceComponent();
 
 		instance.create(root);
 		instance.update();
