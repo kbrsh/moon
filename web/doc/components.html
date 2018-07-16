@@ -90,6 +90,43 @@
     });
 </script>
 
+<h3 id="arguments">Arguments</h3>
+<p>Components can take <em>arguments</em>, which will be set on the instance data.</p>
+<pre><code lang="mvl"><span class="gray">&lt;!-- Root View --&gt;</span>
+<span class="red">&lt;ColoredParagraph</span> <span class="orange">color</span>=<span class="green">&quot;red&quot;</span><span class="red">/&gt;</span>
+<span class="red">&lt;ColoredParagraph</span> <span class="orange">color</span>=<span class="green">&quot;blue&quot;</span><span class="red">/&gt;</span>
+<span class="red">&lt;ColoredParagraph</span> <span class="orange">color</span>={color}<span class="red">/&gt;</span>
+</code></pre>
+<pre><code lang="mvl"><span class="gray">&lt;!-- ColoredParagraph View --&gt;</span>
+<span class="red">&lt;p</span> <span class="orange">style</span>={<span class="green">&quot;color:&quot;</span> + color}<span class="red">&gt;</span>
+    Ut Lunam, citius quam lux, levior quam totum.
+<span class="red">&lt;/p</span><span class="red">&gt;</span>
+</code></pre>
+<pre><code lang="js">Moon.<span class="blue">extend</span>(<span class="green">&quot;ColoredParagraph&quot;</span>, {});
+
+<span class="blue">Moon</span>({
+    root: <span class="green">&quot;#root&quot;</span>,
+    color: <span class="green">&quot;green&quot;</span>
+});
+</code></pre>
+<div id="example-components-arguments" class="example"></div>
+
+<script>
+    Moon.extend("ColoredParagraph", function() {
+        return {
+            view: "<p style={\"color:\" + color}>Ut Lunam, citius quam lux, levior quam totum.</p>"
+        }
+    });
+
+    var ComponentsArguments = Moon({
+        root: "#example-components-arguments",
+        view: "<ColoredParagraph color=\"red\"/><ColoredParagraph color=\"blue\"/><ColoredParagraph color={color}/>",
+        color: "green"
+    });
+</script>
+
+<p>Try entering <code>ComponentsArguments.update(&quot;color&quot;, &quot;black&quot;)</code> in the console to update the color of the last colored paragraph.</p>
+
 			</div>
 		</div>
 	</body>

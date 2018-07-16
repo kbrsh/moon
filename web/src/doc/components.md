@@ -48,3 +48,48 @@ Moon({
 		view: "<Counter/><Counter/><Counter/>"
 	});
 </script>
+
+### Arguments
+
+Components can take _arguments_, which will be set on the instance data.
+
+```mvl
+<!-- Root View -->
+<ColoredParagraph color="red"/>
+<ColoredParagraph color="blue"/>
+<ColoredParagraph color={color}/>
+```
+
+```mvl
+<!-- ColoredParagraph View -->
+<p style={"color:" + color}>
+	Ut Lunam, citius quam lux, levior quam totum.
+</p>
+```
+
+```js
+Moon.extend("ColoredParagraph", {});
+
+Moon({
+	root: "#root",
+	color: "green"
+});
+```
+
+<div id="example-components-arguments" class="example"></div>
+
+<script>
+	Moon.extend("ColoredParagraph", function() {
+		return {
+			view: "<p style={\"color:\" + color}>Ut Lunam, citius quam lux, levior quam totum.</p>"
+		}
+	});
+
+	var ComponentsArguments = Moon({
+		root: "#example-components-arguments",
+		view: "<ColoredParagraph color=\"red\"/><ColoredParagraph color=\"blue\"/><ColoredParagraph color={color}/>",
+		color: "green"
+	});
+</script>
+
+Try entering `ComponentsArguments.update("color", "black")` in the console to update the color of the last colored paragraph.
