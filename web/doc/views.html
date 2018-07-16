@@ -176,6 +176,21 @@
 </script>
 
 <p>Try entering <code>ViewLoops.update(&quot;items&quot;, ViewLoops.items.reverse())</code> in the console to update the view.</p>
+<h3 id="alternate-syntax">Alternate Syntax</h3>
+<p>Since <code>If</code>, <code>ElseIf</code>, <code>Else</code>, and <code>For</code> are just components, you can use the normal <a href="./components.html">component syntax</a>.</p>
+<pre><code lang="mvl">&lt;If={condition}&gt;
+    <span class="red">&lt;p</span><span class="red">&gt;</span>Condition is truthy.<span class="red">&lt;/p</span><span class="red">&gt;</span>
+    <span class="red">&lt;p</span><span class="red">&gt;</span>Multiple elements are allowed.<span class="red">&lt;/p</span><span class="red">&gt;</span>
+<span class="red">&lt;/If</span><span class="red">&gt;</span>
+<span class="red">&lt;Else</span><span class="red">&gt;</span>
+    <span class="red">&lt;p</span><span class="red">&gt;</span>Condition is falsy.<span class="red">&lt;/p</span><span class="red">&gt;</span>
+<span class="red">&lt;/Else</span><span class="red">&gt;</span>
+
+&lt;For={$item,$index <span class="purple">in</span> items}&gt;
+    <span class="red">&lt;p</span><span class="red">&gt;</span>{$item}<span class="red">&lt;/p</span><span class="red">&gt;</span>
+    <span class="red">&lt;p</span><span class="red">&gt;</span>{$index}<span class="red">&lt;/p</span><span class="red">&gt;</span>
+<span class="red">&lt;/For</span><span class="red">&gt;</span>
+</code></pre>
 
 			</div>
 		</div>

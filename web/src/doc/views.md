@@ -165,3 +165,22 @@ Moon({
 </script>
 
 Try entering `ViewLoops.update("items", ViewLoops.items.reverse())` in the console to update the view.
+
+### Alternate Syntax
+
+Since `If`, `ElseIf`, `Else`, and `For` are just components, you can use the normal [component syntax](./components.html).
+
+```mvl
+<If={condition}>
+	<p>Condition is truthy.</p>
+	<p>Multiple elements are allowed.</p>
+</If>
+<Else>
+	<p>Condition is falsy.</p>
+</Else>
+
+<For={$item,$index in items}>
+	<p>{$item}</p>
+	<p>{$index}</p>
+</For>
+```
