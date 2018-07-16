@@ -39,8 +39,9 @@ h1, h2, h3 {
 button {
 	font-size: 13px;
 	letter-spacing: 1px;
-	background: #E6E6E6;
-	color: #232323;
+	background: #D5D5D5;
+	color: #343434;
+	border-color: #A2A2A2;
 }
 
 pre code {
