@@ -126,6 +126,54 @@
 </script>
 
 <p>Try entering <code>ComponentsArguments.update(&quot;color&quot;, &quot;black&quot;)</code> in the console to update the color of the last colored paragraph.</p>
+<h3 id="events">Events</h3>
+<p>Components emit events to notify their parent of an action. Parents can listen to a component&#39;s custom events or lifecycle events.</p>
+<pre><code lang="mvl"><span class="gray">&lt;!-- Root View --&gt;</span>
+<span class="red">&lt;Term</span> <span class="orange">@change</span>={<span class="blue">update</span>(<span class="green">&quot;firstTerm&quot;</span>, $event)}<span class="red">/&gt;</span>
+<span class="red">&lt;p</span><span class="red">&gt;</span>+<span class="red">&lt;/p</span><span class="red">&gt;</span>
+<span class="red">&lt;Term</span> <span class="orange">@change</span>={<span class="blue">update</span>(<span class="green">&quot;secondTerm&quot;</span>, $event)}<span class="red">/&gt;</span>
+<span class="red">&lt;p</span><span class="red">&gt;</span>= {sum}<span class="red">&lt;/p</span><span class="red">&gt;</span>
+</code></pre>
+<pre><code lang="mvl"><span class="gray">&lt;!-- Term View --&gt;</span>
+<span class="red">&lt;input</span> <span class="orange">type</span>=<span class="green">&quot;number&quot;</span> <span class="orange">value</span>=<span class="green">&quot;<span class="orange">0</span>&quot;</span> <span class="orange">@input</span>={<span class="blue">change</span>($event)}<span class="red">/&gt;</span>
+</code></pre>
+<pre><code lang="js">Moon.<span class="blue">extend</span>(<span class="green">&quot;Term&quot;</span>, <span class="purple">function</span>() {
+    <span class="blue">change</span>($event) {
+        <span class="orange">this</span>.<span class="blue">emit</span>(<span class="green">&quot;change&quot;</span>, <span class="blue">parseInt</span>($event.target.value));
+    }
+});
+
+<span class="blue">Moon</span>({
+    root: <span class="green">&quot;#root&quot;</span>,
+    firstTerm: <span class="orange">0</span>,
+    secondTerm: <span class="orange">0</span>,
+    <span class="blue">sum</span>() {
+        <span class="purple">return</span> <span class="orange">this</span>.firstTerm + <span class="orange">this</span>.secondTerm;
+    }
+});
+</code></pre>
+<div id="example-components-events" class="example"></div>
+
+<script>
+    Moon.extend("Term", function() {
+        return {
+            view: "<input type=\"number\" value=\"0\" @input={change($event)}/>",
+            change($event) {
+                this.emit("change", parseInt($event.target.value));
+            }
+        }
+    });
+
+    Moon({
+        root: "#example-components-events",
+        view: "<Term @change={update(\"firstTerm\", $event)}/><p>+</p><Term @change={update(\"secondTerm\", $event)}/><p>= {sum()}</p>",
+        firstTerm: 0,
+        secondTerm: 0,
+        sum() {
+            return this.firstTerm + this.secondTerm;
+        }
+    });
+</script>
 
 			</div>
 		</div>

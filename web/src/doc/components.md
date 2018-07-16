@@ -93,3 +93,60 @@ Moon({
 </script>
 
 Try entering `ComponentsArguments.update("color", "black")` in the console to update the color of the last colored paragraph.
+
+### Events
+
+Components emit events to notify their parent of an action. Parents can listen to a component's custom events or lifecycle events.
+
+```mvl
+<!-- Root View -->
+<Term @change={update("firstTerm", $event)}/>
+<p>+</p>
+<Term @change={update("secondTerm", $event)}/>
+<p>= {sum}</p>
+```
+
+```mvl
+<!-- Term View -->
+<input type="number" value="0" @input={change($event)}/>
+```
+
+```js
+Moon.extend("Term", function() {
+	change($event) {
+		this.emit("change", parseInt($event.target.value));
+	}
+});
+
+Moon({
+	root: "#root",
+	firstTerm: 0,
+	secondTerm: 0,
+	sum() {
+		return this.firstTerm + this.secondTerm;
+	}
+});
+```
+
+<div id="example-components-events" class="example"></div>
+
+<script>
+	Moon.extend("Term", function() {
+		return {
+			view: "<input type=\"number\" value=\"0\" @input={change($event)}/>",
+			change($event) {
+				this.emit("change", parseInt($event.target.value));
+			}
+		}
+	});
+
+	Moon({
+		root: "#example-components-events",
+		view: "<Term @change={update(\"firstTerm\", $event)}/><p>+</p><Term @change={update(\"secondTerm\", $event)}/><p>= {sum()}</p>",
+		firstTerm: 0,
+		secondTerm: 0,
+		sum() {
+			return this.firstTerm + this.secondTerm;
+		}
+	});
+</script>
