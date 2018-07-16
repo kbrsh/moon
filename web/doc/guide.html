@@ -52,7 +52,52 @@
 			</div>
 			<div id="content">
 				<h1>Guide</h1>
-				<p>Coming soon!</p>
+				<p>This guide will introduce you to the basics of Moon while creating a simple todo application. Get started by creating an <code>index.html</code> file with the following contents.</p>
+<pre><code lang="html">&lt;!DOCTYPE html&gt;
+<span class="red">&lt;html</span><span class="red">&gt;</span>
+    <span class="red">&lt;head</span><span class="red">&gt;</span>
+        <span class="red">&lt;title</span><span class="red">&gt;</span>Moon Todo<span class="red">&lt;/title</span><span class="red">&gt;</span>
+    <span class="red">&lt;/head</span><span class="red">&gt;</span>
+    <span class="red">&lt;body</span><span class="red">&gt;</span>
+        <span class="red">&lt;div</span> <span class="orange">id</span>=<span class="green">&quot;root&quot;</span><span class="red">&gt;</span><span class="red">&lt;/div</span><span class="red">&gt;</span>
+
+        <span class="red">&lt;script</span> <span class="orange">id</span>=<span class="green">&quot;view&quot;</span> <span class="orange">type</span>=<span class="green">&quot;text/mvl&quot;</span><span class="red">&gt;</span>
+            <span class="gray">&lt;!-- View --&gt;</span>
+        <span class="red">&lt;/script</span><span class="red">&gt;</span>
+
+        <span class="red">&lt;script</span> <span class="orange">src</span>=<span class="green">&quot;<span class="gray">//unpkg.com/moon&quot;</span><span class="red">&gt;</span><span class="red">&lt;/script</span><span class="red">&gt;</span></span>
+        <span class="red">&lt;script</span><span class="red">&gt;</span>
+            <span class="gray">// Data</span>
+        <span class="red">&lt;/script</span><span class="red">&gt;</span>
+    <span class="red">&lt;/body</span><span class="red">&gt;</span>
+<span class="red">&lt;/html</span><span class="red">&gt;</span>
+</code></pre>
+<p>The view script is a special script of type <code>text/mvl</code>, meaning it uses the <em>Moon View Language</em> to define the main view of the todo app. The data script is a script that will create the app and define the data that the view is responsible for displaying.</p>
+<p>For the following examples, along with the rest of the documentation, the above HTML file can be used. If a code sample is in <code>mvl</code>, you can assume that it goes under the view section. Likewise, if a code sample is in <code>js</code> you can assume it goes under the data section.</p>
+<p>To get started with a basic todo view, add the following contents to their corresponding sections.</p>
+<pre><code lang="mvl"><span class="red">&lt;ul</span><span class="red">&gt;</span>
+    <span class="red">&lt;li</span> <span class="orange">For</span>={$todo <span class="purple">in</span> todos}<span class="red">&gt;</span>{$todo.value}<span class="red">&lt;/li</span><span class="red">&gt;</span>
+<span class="red">&lt;/ul</span><span class="red">&gt;</span>
+</code></pre>
+<pre><code lang="js"><span class="blue">Moon</span>({
+    root: <span class="green">&quot;#root&quot;</span>,
+    view: <span class="orange">document</span>.<span class="blue">getElementById</span>(<span class="green">&quot;view&quot;</span>).innerHTML,
+    todos: []
+});
+</code></pre>
+<div id="example-guide-1" class="example"></div>
+
+<script>
+    Moon({
+        root: "#example-guide-1",
+        view: "<ul><li For={$todo in todos}>{$todo.value}</li></ul>",
+        todos: []
+    });
+</script>
+
+<p>The view is just like an HTML file, but the <code>For</code> attribute is special and provided by Moon. It is a <em>component</em> using <em>directive syntax</em>, where a single element is passed as an argument. In this case, the <code>For</code> component will iterate through every item in the <code>todos</code> array and will alias it to a <em>local</em> named <code>$todo</code>. For each of these, a new <code>&lt;li&gt;</code> element will be appended with the contents of <code>$todo.value</code>.</p>
+<p>Notice the single curly braces <code>{}</code>, they are there to <em>interpolate</em> data from the data provided to <code>Moon</code>. In this case, we provide two options: <code>root</code> and <code>view</code> along with our own custom data: <code>todos</code>.</p>
+<p>The <code>root</code> option decides where the view will be created, and the <code>view</code> option defines what the view will be. The <code>todos</code> are just an empty array since the user will be responsible for creating them.</p>
 
 			</div>
 		</div>
