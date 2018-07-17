@@ -7,7 +7,7 @@ module.exports = function(file, contents) {
 	let css = "";
 	let deps = [];
 
-	const view = "function(m,instance,locals){" + Moon.compile(this.contents) + "};";
+	const view = "function(m,instance,locals){" + Moon.compile(contents) + "};";
 	let data = "{};";
 
 	const fileName = path.basename(file).slice(0, -4);
