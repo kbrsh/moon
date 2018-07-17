@@ -5,7 +5,7 @@ const Moon = require("moon");
 module.exports = function(file, contents) {
 	let js = "import Moon from \"moon\";";
 	let css = "";
-	let dep;
+	let deps = [];
 
 	const view = "function(m,instance,locals){" + Moon.compile(this.contents) + "};";
 	let data = "{};";
@@ -13,7 +13,8 @@ module.exports = function(file, contents) {
 	const fileName = path.basename(file).slice(0, -4);
 	const directoryName = path.dirname(file);
 	if (fs.existsSync(path.join(directoryName, fileName + ".js"))) {
-		dep = `.${path.sep}${fileName}.js`;
+		const dep = `.${path.sep}${fileName}.js`;
+		deps.push(dep);
 		js += `import data from "${dep}";`;
 		data = "data;";
 	}
@@ -23,6 +24,6 @@ module.exports = function(file, contents) {
 	return {
 		js: js,
 		css: css,
-		dep: dep
+		deps: deps
 	};
 };
