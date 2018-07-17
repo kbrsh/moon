@@ -1,47 +1,18 @@
 {
   "name": "moon",
-  "version": "1.0.0-alpha",
-  "description": "A minimal, blazing fast user interface library.",
-  "main": "dist/moon.min.js",
+  "version": "1.0.0-beta.1",
+  "description": "The minimal & fast UI library.",
   "scripts": {
-    "build": "node build/build.js",
-    "test": "karma start test/karma.conf.js; node test/log.js",
-    "test-saucelabs": "karma start test/karma.sauce.conf.js",
-    "release": "node build/release.js"
+    "test": "for D in ./packages/*; do npm run test; done"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kbrsh/moon.git"
   },
-  "keywords": [
-    "moon",
-    "user interface",
-    "UI",
-    "view",
-    "model",
-    "library"
-  ],
   "author": "Kabir Shah",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/kbrsh/moon/issues"
   },
-  "homepage": "https://github.com/kbrsh/moon#readme",
-  "devDependencies": {
-    "buble": "^0.19.3",
-    "chai": "^4.1.2",
-    "gzip-size": "^4.1.0",
-    "karma": "^2.0.2",
-    "karma-coverage": "^1.1.1",
-    "karma-mocha": "^1.3.0",
-    "karma-phantomjs-launcher": "^1.0.4",
-    "karma-sauce-launcher": "^1.2.0",
-    "karma-spec-reporter": "0.0.32",
-    "mocha": "^5.1.1",
-    "phantomjs-prebuilt": "^2.1.16",
-    "rollup": "^0.58.1",
-    "rollup-plugin-buble": "^0.19.2",
-    "rollup-plugin-eslint": "^4.0.0",
-    "uglify-js": "^3.3.22"
-  }
+  "homepage": "https://github.com/kbrsh/moon#readme"
 }
