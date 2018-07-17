@@ -1,0 +1,27 @@
+{
+  "name": "moon-cli",
+  "version": "1.0.0-beta.1",
+  "description": "Moon project generator",
+  "main": "index.js",
+  "bin": {
+    "moon": "index.js"
+  },
+  "scripts": {
+    "build": "",
+    "test": ""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kbrsh/moon.git"
+  },
+  "keywords": [
+    "moon",
+    "cli"
+  ],
+  "author": "Kabir Shah",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kbrsh/moon/issues"
+  },
+  "homepage": "https://github.com/kbrsh/moon#readme"
+}
