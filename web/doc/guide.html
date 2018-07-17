@@ -85,19 +85,63 @@
     todos: []
 });
 </code></pre>
-<div id="example-guide-1" class="example"></div>
-
-<script>
-    Moon({
-        root: "#example-guide-1",
-        view: "<ul><li For={$todo in todos}>{$todo.value}</li></ul>",
-        todos: []
-    });
-</script>
-
 <p>The view is just like an HTML file, but the <code>For</code> attribute is special and provided by Moon. It is a <em>component</em> using <em>directive syntax</em>, where a single element is passed as an argument. In this case, the <code>For</code> component will iterate through every item in the <code>todos</code> array and will alias it to a <em>local</em> named <code>$todo</code>. For each of these, a new <code>&lt;li&gt;</code> element will be appended with the contents of <code>$todo.value</code>.</p>
 <p>Notice the single curly braces <code>{}</code>, they are there to <em>interpolate</em> data from the data provided to <code>Moon</code>. In this case, we provide two options: <code>root</code> and <code>view</code> along with our own custom data: <code>todos</code>.</p>
 <p>The <code>root</code> option decides where the view will be created, and the <code>view</code> option defines what the view will be. The <code>todos</code> are just an empty array since the user will be responsible for creating them.</p>
+<p>Now, an input can be added to the view to allow the user to create todos.</p>
+<pre><code lang="mvl"><span class="red">&lt;input</span> <span class="orange">type</span>=<span class="green">&quot;text&quot;</span> <span class="orange">@bind</span>={value}<span class="red">/&gt;</span>
+<span class="red">&lt;button</span> <span class="orange">@click</span>={<span class="blue">createTodo</span>()}<span class="red">&gt;</span>Create<span class="red">&lt;/button</span><span class="red">&gt;</span>
+</code></pre>
+<p>The <code>@</code> syntax in front of attribute names is for <em>events</em>: lifecycle events, browser events, and custom events. In this case, we are using the <code>@bind</code> and <code>@click</code> events. The <code>@bind</code> event binds the value of an input to a given variable and the value of the variable to the value of the input (two-way data binding). The <code>@click</code> event handles the browser click event and will call <code>createTodo()</code> when invoked.</p>
+<p>Change the data section to match the following to hold a value and create a todo.</p>
+<pre><code lang="js"><span class="blue">Moon</span>({
+    root: <span class="green">&quot;#root&quot;</span>,
+    view: <span class="orange">document</span>.<span class="blue">getElementById</span>(<span class="green">&quot;view&quot;</span>).innerHTML,
+    value: <span class="green">&quot;&quot;</span>,
+    todos: [],
+    <span class="blue">createTodo</span>() {
+        <span class="orange">this</span>.todos.<span class="blue">push</span>({
+            value: <span class="orange">this</span>.value,
+            complete: <span class="orange">false</span>
+        });
+
+        <span class="orange">this</span>.<span class="blue">update</span>({
+            value: <span class="green">&quot;&quot;</span>,
+            todos: <span class="orange">this</span>.todos
+        });
+    }
+});
+</code></pre>
+<p>Since the <code>value</code> property will be set by the <code>@bind</code> event, it will be available under <code>this</code> like all other properties. After pushing a new todo to the existing list of todos, we call the builtin method <code>update</code> with new values for <code>value</code> and <code>todos</code> to update the view.</p>
+<div id="example-guide" class="example"></div>
+
+<script>
+    Moon({
+        root: "#example-guide",
+        view: "<ul><li For={$todo in todos}>{$todo.value}</li></ul><input type=\"text\" @bind={value}/><button @click={createTodo()}>Create</button>",
+        value: "",
+        todos: [],
+        createTodo: function() {
+            this.todos.push({
+                value: this.value,
+                complete: false
+            });
+
+            this.update({
+                value: "",
+                todos: this.todos
+            });
+        }
+    });
+</script>
+
+<p>This guide resulted in an extremely basic todo application, but can be extended to support more features. Try the following exercises to test your knowledge.</p>
+<ul>
+<li>Add support for removing/completing todos using <a href="./views.html#events">events</a> and <a href="./views.html#conditionals"><code>If</code></a>.</li>
+<li>Add support for editing todos using the <code>@dblclick</code> event.</li>
+<li>Add support for filtering todos using <a href="./data.html">data functions</a>.</li>
+<li>Make the application more modular using <a href="./components.html">components</a>.</li>
+</ul>
 
 			</div>
 		</div>
