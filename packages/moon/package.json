@@ -4,6 +4,7 @@
   "description": "A minimal, blazing fast user interface library.",
   "main": "dist/moon.min.js",
   "scripts": {
+    "build": "node build/build.js",
     "test": "karma start test/karma.conf.js; node test/log.js"
   },
   "repository": {

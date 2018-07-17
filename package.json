@@ -3,7 +3,8 @@
   "version": "1.0.0-beta.1",
   "description": "The minimal & fast UI library.",
   "scripts": {
-    "test": "for D in ./packages/*; do npm run test; done"
+    "build": "for d in ./packages/*; do (cd \"$d\" && npm run build); done",
+    "test": "for d in ./packages/*; do (cd \"$d\" && npm run test); done"
   },
   "repository": {
     "type": "git",
