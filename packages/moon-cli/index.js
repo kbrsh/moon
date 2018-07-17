@@ -16,6 +16,8 @@ const archive = {
 	}
 };
 
+const MoonNameRE = /{# MoonName #}/g;
+
 const log = (type, message) => {
 	console.log(`\x1b[34m${type}\x1b[0m ${message}`);
 };
@@ -68,6 +70,7 @@ const create = (currentPath, targetPath) => {
 		if (fs.statSync(nextPath).isDirectory()) {
 			create(nextPath, targetPath);
 		} else {
+			fs.writeFileSync(nextPath, fs.readFileSync(nextPath).toString().replace(MoonNameRE, name));
 			log("create", path.relative(targetPath, nextPath));
 		}
 	}
