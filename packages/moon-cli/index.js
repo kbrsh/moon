@@ -57,6 +57,7 @@ const clean = (archivePath, targetPath) => {
 		create(targetPath, targetPath);
 		log("success", `Generated project "${name}"`)
 		console.log(`To start, run:
+	cd ${name}
 	npm install
 	npm run dev`);
 	});
