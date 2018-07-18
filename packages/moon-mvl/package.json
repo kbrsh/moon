@@ -4,7 +4,7 @@
   "description": "Moon MVL component compiler",
   "main": "index.js",
   "scripts": {
-    "build": "",
+    "build": "echo \"Build Moon MVL\"",
     "test": ""
   },
   "repository": {

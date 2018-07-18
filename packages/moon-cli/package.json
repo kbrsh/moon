@@ -7,7 +7,7 @@
     "moon": "index.js"
   },
   "scripts": {
-    "build": "",
+    "build": "echo \"Build Moon CLI\"",
     "test": ""
   },
   "repository": {
