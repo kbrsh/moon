@@ -1,13 +1,16 @@
-let components = [];
-
-module.exports.register = (component) => {
-	components.push(component);
+module.exports.registerJS = (component) => {
+	return () => {
+		component.destroy();
+	};
 };
 
-module.exports.remove = () => {
-	for (let i = 0; i < components.length; i++) {
-		components[i].destroy();
-	}
+module.exports.registerCSS = (code) => {
+	const head = document.querySelector("head");
+	const style = document.createElement("style");
+	style.appendChild(document.createTextNode(code));
+	head.appendChild(style);
 
-	components = [];
+	return () => {
+		head.removeChild(style);
+	};
 };
