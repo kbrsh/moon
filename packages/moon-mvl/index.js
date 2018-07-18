@@ -46,7 +46,6 @@ const addClass = (element, name) => {
 module.exports = (file, contents) => {
 	let js = "import Moon from \"moon\";";
 	let css;
-	let deps = [];
 
 	let view = "";
 	let data = "{};";
@@ -56,9 +55,7 @@ module.exports = (file, contents) => {
 	const name = path.basename(directoryName);
 
 	if (fs.existsSync(path.join(directoryName, fileName + ".js"))) {
-		const dep = `.${path.sep}${fileName}.js`;
-		deps.push(dep);
-		js += `import data from "${dep}";`;
+		js += `import data from ".${path.sep}${fileName}.js";`;
 		data = "data;";
 	}
 
@@ -77,7 +74,6 @@ module.exports = (file, contents) => {
 
 	return {
 		js: js,
-		css: css,
-		deps: deps
+		css: css
 	};
 };
