@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const Moon = require("moon");
 const slash = require("./lib/slash");
-
+const scopeCSS = require("./lib/scopeCSS");
 
 const addClass = (element, name) => {
 	const attributes = element.attributes;
