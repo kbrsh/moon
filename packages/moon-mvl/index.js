@@ -5,7 +5,7 @@ const slash = require("./slash/slash.js");
 
 const cssRE = /([@#.="':\w\s\-\[\]()]+)(\s*,|(?:{[\s\n]*(?:[\w\n]+:[\w\s\n(),]+;[\s\n]*)*}))/g;
 
-const addClass(element, name) => {
+const addClass = (element, name) => {
 	const attributes = element.attributes;
 	let value = name;
 	let expression = false;
