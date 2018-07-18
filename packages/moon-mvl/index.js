@@ -1,8 +1,39 @@
 const fs = require("fs");
 const path = require("path");
 const Moon = require("moon");
+const slash = require("./slash/slash");
 
 const cssRE = /([@#.="':\w\s\-\[\]()]+)(\s*,|(?:{[\s\n]*(?:[\w\n]+:[\w\s\n(),]+;[\s\n]*)*}))/g;
+
+const addClass(element, name) => {
+	const attributes = element.attributes;
+	let value = name;
+	let expression = false;
+	let dynamic = false;
+
+	for (let i = 0; i < attributes.length; i++) {
+		const attribute = attributes[i];
+		if (attribute.key === "class") {
+			if (attribute.expression) {
+				value = `(${attribute.value}) + " ${name}"`;
+				expression = attribute.expression;
+				dynamic = attribute.dynamic;
+			} else {
+				value = `${attribute.value} ${name}`;
+			}
+
+			attributes.splice(i, 1);
+			break;
+		}
+	}
+
+	attributes.push({
+		key: "class",
+		value: value,
+		expression: expression,
+		dynamic: dynamic
+	});
+};
 
 module.exports = (file, contents) => {
 	let js = "import Moon from \"moon\";";
@@ -26,7 +57,7 @@ module.exports = (file, contents) => {
 	const cssPath = path.join(directoryName, fileName + ".css");
 	if (fs.existsSync(cssPath)) {
 		const scope = `moon-${name}-${slash(name)}`;
-		view = Moon.parse(contents);
+		view = Moon.generate(addClass(Moon.parse(contents), scope), null);
 		css = fs.readFileSync(css).toString().replace(cssRE, (match, selector, rule) => {
 			return selector.replace(trailingWhitespaceRE, "") + "." + scope;
 		});
