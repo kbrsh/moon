@@ -44,15 +44,15 @@ const addClass = (element, name) => {
 };
 
 module.exports = (file, contents) => {
+	const fileName = path.basename(file).slice(0, -4);
+	const directoryName = path.dirname(file);
+	const name = path.basename(directoryName);
+
 	let js = "import Moon from \"moon\";";
 	let css;
 
 	let view = "";
 	let data = "{};";
-
-	const fileName = path.basename(file).slice(0, -4);
-	const directoryName = path.dirname(file);
-	const name = path.basename(directoryName);
 
 	if (fs.existsSync(path.join(directoryName, fileName + ".js"))) {
 		js += `import data from ".${path.sep}${fileName}.js";`;
@@ -73,6 +73,8 @@ module.exports = (file, contents) => {
 	js += `export default Moon.extend("${name}",function(){var options=${data}options.view=function(m,instance,locals){${view}};return options;});`;
 
 	return {
+		name: name,
+		fileName: fileName,
 		js: js,
 		css: css
 	};
