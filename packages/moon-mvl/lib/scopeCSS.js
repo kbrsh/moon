@@ -1,4 +1,4 @@
-const cssRE = /([@#.="':\w\s\-\[\]()]+)(\s*,|(?:{[\s\n]*(?:[\w\n]+:[\w\s\n(),]+;[\s\n]*)*}))/g;
+const cssRE = /([^,{}]+)(,|{[^{}]+})/g;
 const trailingWhitespaceRE = /\s*$/;
 
 module.exports = (scope, css) => {
