@@ -3,8 +3,6 @@ const path = require("path");
 const Moon = require("moon");
 const slash = require("./lib/slash");
 
-const cssRE = /([@#.="':\w\s\-\[\]()]+)(\s*,|(?:{[\s\n]*(?:[\w\n]+:[\w\s\n(),]+;[\s\n]*)*}))/g;
-const trailingWhitespaceRE = /\s*$/;
 
 const addClass = (element, name) => {
 	const attributes = element.attributes;
@@ -63,9 +61,7 @@ module.exports = (file, contents) => {
 	if (fs.existsSync(cssPath)) {
 		const scope = `moon-${name}-${slash(name)}`;
 		view = Moon.generate(addClass(Moon.parse(contents), scope), null);
-		css = fs.readFileSync(cssPath).toString().replace(cssRE, (match, selector, rule) => {
-			return selector.replace(trailingWhitespaceRE, "") + "." + scope + rule;
-		});
+		css = scopeCSS(scope, fs.readFileSync(cssPath).toString());
 	} else {
 		view = Moon.compile(contents);
 	}
