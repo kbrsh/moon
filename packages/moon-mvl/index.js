@@ -67,7 +67,7 @@ module.exports = (file, contents) => {
 		const scope = `moon-${name}-${slash(name)}`;
 		view = Moon.generate(addClass(Moon.parse(contents), scope), null);
 		css = fs.readFileSync(cssPath).toString().replace(cssRE, (match, selector, rule) => {
-			return selector.replace(trailingWhitespaceRE, "") + "." + scope;
+			return selector.replace(trailingWhitespaceRE, "") + "." + scope + rule;
 		});
 	} else {
 		view = Moon.compile(contents);
