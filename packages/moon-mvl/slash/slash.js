@@ -19,3 +19,5 @@ const slash = (key) => {
 
 	return result.toString(36);
 };
+
+module.exports = slash;

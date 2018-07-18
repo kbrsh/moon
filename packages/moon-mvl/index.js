@@ -1,12 +1,14 @@
 const fs = require("fs");
 const path = require("path");
 const Moon = require("moon");
-const slash = require("./slash/slash.js");
+const slash = require("./slash/slash");
 
 const cssRE = /([@#.="':\w\s\-\[\]()]+)(\s*,|(?:{[\s\n]*(?:[\w\n]+:[\w\s\n(),]+;[\s\n]*)*}))/g;
+const trailingWhitespaceRE = /\s*$/;
 
 const addClass = (element, name) => {
 	const attributes = element.attributes;
+	const children = element.children;
 	let value = name;
 	let expression = false;
 	let dynamic = false;
@@ -33,6 +35,12 @@ const addClass = (element, name) => {
 		expression: expression,
 		dynamic: dynamic
 	});
+
+	for (let i = 0; i < children.length; i++) {
+		addClass(children[i], name);
+	}
+
+	return element;
 };
 
 module.exports = (file, contents) => {
@@ -58,7 +66,7 @@ module.exports = (file, contents) => {
 	if (fs.existsSync(cssPath)) {
 		const scope = `moon-${name}-${slash(name)}`;
 		view = Moon.generate(addClass(Moon.parse(contents), scope), null);
-		css = fs.readFileSync(css).toString().replace(cssRE, (match, selector, rule) => {
+		css = fs.readFileSync(cssPath).toString().replace(cssRE, (match, selector, rule) => {
 			return selector.replace(trailingWhitespaceRE, "") + "." + scope;
 		});
 	} else {
