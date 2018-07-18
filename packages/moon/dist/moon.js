@@ -845,6 +845,8 @@
 		components[name] = component(name, options);
 	};
 
+	Moon.parse = parse;
+	Moon.generate = generate;
 	Moon.compile = compile;
 	Moon.config = config;
 

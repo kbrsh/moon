@@ -1,3 +1,5 @@
+import { parse } from "./compiler/parser/parser";
+import { generate } from "./compiler/generator/generator";
 import { compile } from "./compiler/compiler";
 import { component } from "./component/component";
 import { components } from "./component/components";
@@ -24,5 +26,7 @@ Moon.extend = (name, options) => {
 	components[name] = component(name, options);
 };
 
+Moon.parse = parse;
+Moon.generate = generate;
 Moon.compile = compile;
 Moon.config = config;
