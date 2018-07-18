@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const Moon = require("moon");
-const slash = require("./slash/slash");
+const slash = require("./slash/slash.js");
 
 const cssRE = /([@#.="':\w\s\-\[\]()]+)(\s*,|(?:{[\s\n]*(?:[\w\n]+:[\w\s\n(),]+;[\s\n]*)*}))/g;
 
