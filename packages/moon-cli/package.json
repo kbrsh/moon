@@ -1,6 +1,6 @@
 {
   "name": "moon-cli",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-pre",
   "description": "Moon project generator",
   "main": "index.js",
   "bin": {
