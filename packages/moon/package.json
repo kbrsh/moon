@@ -1,6 +1,6 @@
 {
   "name": "moon",
-  "version": "1.0.0-alpha",
+  "version": "1.0.0-beta.1",
   "description": "The minimal & fast UI library",
   "main": "dist/moon.min.js",
   "scripts": {
