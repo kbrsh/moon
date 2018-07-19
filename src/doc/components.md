@@ -150,3 +150,53 @@ Moon({
 		}
 	});
 </script>
+
+### Multi-file Components
+
+A project using multi-file components can be generated using [Moon CLI](./installation.html#cli). A multi-file component has the following structure:
+
+```
+Component
+|____component.css
+|____component.js
+|____component.mvl
+```
+
+The directory name _must_ start with an uppercase letter and represents the name of the component. The `js` and `css` files are optional, but the `mvl` file is _required_ and is used to import the component.
+
+The component can be imported anywhere for use with:
+
+```js
+import Component from "./components/component.mvl";
+```
+
+##### MVL
+
+The `mvl` file represents the view of the component, normally passed as the `view` option. This can use any variables from the data like a normal view.
+
+```mvl
+<h1>{name}</h1>
+```
+
+##### CSS
+
+The `css` file represents the styles of the component, and are _scoped_ to the component using classes.
+
+```css
+h1 {
+	color: blue;
+}
+```
+
+##### JS
+
+The `js` file should export data normally provided in component options.
+
+```js
+export default {
+	name: "Moon",
+	updateName() {
+		this.update("name", "New Moon");
+	}
+}
+```
