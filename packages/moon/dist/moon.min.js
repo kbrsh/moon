@@ -1,5 +1,5 @@
 /**
- * Moon v1.0.0-pre
+ * Moon v1.0.0-beta.1
  * Copyright 2016-2018 Kabir Shah
  * Released under the MIT License
  * https://kbrsh.github.io/moon
