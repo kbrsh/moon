@@ -2,12 +2,8 @@ const fs = require("fs");
 const path = require("path");
 const exec = require("child_process").execSync;
 
-const version = process.argv[2];
-
 const trailingNewlinesRE = /\n+$/;
 const trailingLinesRE = /\n([^\n]*)/g;
-
-exec(`git tag v${version}`);
 
 let tags = exec("git tag --sort=committerdate").toString().split("\n");
 tags.pop();
