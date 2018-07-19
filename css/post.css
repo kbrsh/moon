@@ -24,3 +24,15 @@
 	padding: 16px;
 	background-color: #E6E6E6;
 }
+
+@media screen and (max-width: 768px) {
+	#post {
+		flex-direction: column;
+		justify-content: start;
+	}
+
+	#content {
+		width: 100%;
+		margin-top: 50px;
+	}
+}
