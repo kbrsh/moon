@@ -1,0 +1,28 @@
+{
+  "name": "moon-web",
+  "version": "1.0.0-beta.1",
+  "description": "Moon Web",
+  "main": "soldfile.js",
+  "directories": {
+    "doc": "doc",
+    "example": "examples"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kbrsh/moon.git"
+  },
+  "keywords": [
+    "moon",
+    "web"
+  ],
+  "author": "Kabir Shah",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kbrsh/moon/issues"
+  },
+  "homepage": "https://github.com/kbrsh/moon#readme",
+  "devDependencies": {
+    "handlebars": "^4.0.11",
+    "sold": "^2.1.0"
+  }
+}
