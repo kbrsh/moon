@@ -4,10 +4,10 @@ Hey! I'm super glad you're interested in contributing to Moon. Helpful contribut
 
 Please ensure you have understood the guidelines before contributing, it helps keep the code organized.
 
-* [Development Setup](https://github.com/KingPixil/moon/blob/master/CONTRIBUTING.md#development-setup)
-* [Development](https://github.com/KingPixil/moon/blob/master/CONTRIBUTING.md#development)
-* [Submitting an Issue](https://github.com/KingPixil/moon/blob/master/CONTRIBUTING.md#submitting-an-issue)
-* [Submitting a Pull Request](https://github.com/KingPixil/moon/blob/master/CONTRIBUTING.md#submitting-a-pull-request)
+* [Development Setup](https://github.com/kbrsh/moon/blob/master/CONTRIBUTING.md#development-setup)
+* [Development](https://github.com/kbrsh/moon/blob/master/CONTRIBUTING.md#development)
+* [Submitting an Issue](https://github.com/kbrsh/moon/blob/master/CONTRIBUTING.md#submitting-an-issue)
+* [Submitting a Pull Request](https://github.com/kbrsh/moon/blob/master/CONTRIBUTING.md#submitting-a-pull-request)
 
 ### Development Setup
 
@@ -62,30 +62,7 @@ Be sure to put the number of the issue you fixed.
 
 ##### File Structure
 
-* `src` - main source files
-  * `compiler` - code for the compiler, which is responsible for lexing, parsing, optimizing, and generating code for templates.
-  * `directives` - code for all directives, including ones that are invoked at runtime, and special directives that generate code
-  * `global` - code for the global API
-  * `instance` - code for instance methods
-  * `observer` - code for the dependency tracking system, and changing the context of methods
-  * `util` - code for utilities used throughout the codebase (logs, virtual DOM, DOM operations, and other general utilities)
-  * `index.js` - code that defines the Moon constructor and normalizes all options
-  * `wrapper.js` - code that exports Moon correctly depending on the environment
-* `dist` - distribution files
-  * `moon.js` - development version of moon
-  * `moon.min.js` - production (minified + no warnings) version of moon
-* `build` - scripts for automating certain build tasks
-  * `release.js` - generates release notes and copies them to the clipboard
-  * `build.sh` - script for Travis CI to run for every push to Git
-  * `pr.sh` - script for Travis CI to run for every PR
-* `test` - files for testing
-  * `test` - folder with actual test definitions
-    * `core` - all core tests
-  * `index.html` - HTML file for Mocha/Chai Phantom browser tests
-  * `log.js` - file that logs extra information about test results
-* `benchmarks` - benchmarks for measuring performance
-  * `dbmon` - DBMonster benchmark code
-  * `loop` - Loop benchmark code
+TODO
 
 ### Submitting an Issue
 
@@ -98,4 +75,4 @@ Submit an issue for the following reasons:
 
 ### Submitting a Pull Request
 
-Submit a pull request if you'd like to address an issue. Be sure to follow the [development guide](https://github.com/KingPixil/moon/blob/master/CONTRIBUTING.md#development).
+Submit a pull request if you'd like to address an issue. Be sure to follow the [development guide](https://github.com/kbrsh/moon/blob/master/CONTRIBUTING.md#development).
