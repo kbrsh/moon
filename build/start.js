@@ -16,6 +16,6 @@ for (let i = 0; i < packages.length; i++) {
 }
 
 console.log(exec("npm run build").toString());
-console.log(exec("git add ."));
-console.log(exec(`git commit -m "${version}"`));
-console.log(exec("git push"));
+console.log(exec("git add .").toString());
+console.log(exec(`git commit -m "${version}"`).toString());
+console.log(exec("git push").toString());
