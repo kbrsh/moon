@@ -53,7 +53,7 @@ module.exports = (file, contents) => {
 	let data = "{};";
 
 	if (fs.existsSync(path.join(directoryName, fileName + ".js"))) {
-		js += `import data from ".${path.sep}${fileName}.js";`;
+		js += `import data from ".${path.sep === '\\' ? '\\\\' : path.sep}${fileName}.js";`;
 		data = "data;";
 	}
 
