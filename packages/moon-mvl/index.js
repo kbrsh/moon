@@ -39,7 +39,7 @@ const addClass = (element, name) => {
 	return element;
 };
 
-module.exports = (name, mvl, jsPath, js, cssPath, css) => {
+module.exports = (name, mvl, jsFile, js, cssFile, css) => {
 	let outputJS = "import Moon from \"moon\";";
 	let outputCSS;
 
@@ -47,7 +47,7 @@ module.exports = (name, mvl, jsPath, js, cssPath, css) => {
 	let data = "{};";
 
 	if (js !== null) {
-		outputJS += `import data from "${jsPath}";`;
+		outputJS += `import data from "${jsFile}";`;
 		data = "data;";
 	}
 
@@ -59,7 +59,7 @@ module.exports = (name, mvl, jsPath, js, cssPath, css) => {
 		outputCSS = scopeCSS(scope, css);
 	}
 
-	js += `export default Moon.extend("${name}",function(){var options=${data}options.view=function(m,instance,locals){${view}};return options;});`;
+	outputJS += `export default Moon.extend("${name}",function(){var options=${data}options.view=function(m,instance,locals){${view}};return options;});`;
 
 	return {
 		js: outputJS,
