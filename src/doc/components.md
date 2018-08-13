@@ -151,52 +151,70 @@ Moon({
 	});
 </script>
 
-### Multi-file Components
+### Single-file Components
 
-A project using multi-file components can be generated using [Moon CLI](./installation.html#cli). A multi-file component has the following structure:
-
-```
-Component
-|____component.css
-|____component.js
-|____component.mvl
-```
-
-The directory name _must_ start with an uppercase letter and represents the name of the component. The `js` and `css` files are optional, but the `mvl` file is _required_ and is used to import the component.
+A project using single-file components can be generated using [Moon CLI](./installation.html#cli). A single-file component has a view, styles, and data.
 
 The component can be imported anywhere for use with:
 
 ```js
-import Component from "./components/component.mvl";
+import Component from "./components/Component.mvl";
 ```
 
-##### MVL
+##### View
 
-The `mvl` file represents the view of the component, normally passed as the `view` option. This can use any variables from the data like a normal view.
+The main content of an `mvl` file is the view. Every element other than `script` and `style` will be part of the component view.
 
 ```mvl
 <h1>{name}</h1>
 ```
 
-##### CSS
+##### Style
 
-The `css` file represents the styles of the component, and are _scoped_ to the component using classes.
+If a `style` tag is present, it will be _scoped_ to the component and included in the bundle. This means that the styles will only apply to the component they are styling.
 
-```css
-h1 {
-	color: blue;
-}
+```mvl
+<style>
+	h1 {
+		color: blue;
+	}
+</style>
 ```
 
-##### JS
+##### Data
 
-The `js` file should export data normally provided in component options.
+If a `script` tag is present, the default export will be used as the data for the component.
 
-```js
-export default {
-	name: "Moon",
-	updateName() {
-		this.update("name", "New Moon");
+```mvl
+<script>
+	export default {
+		name: "Moon",
+		updateName() {
+			this.update("name", "New Moon");
+		}
 	}
-}
+</script>
+```
+
+##### Overall
+
+The overall component can be created in one `mvl` file.
+
+```mvl
+<h1>{name}</h1>
+
+<style>
+	h1 {
+		color: blue;
+	}
+</style>
+
+<script>
+	export default {
+		name: "Moon",
+		updateName() {
+			this.update("name", "New Moon");
+		}
+	}
+</script>
 ```

@@ -175,34 +175,52 @@
     });
 </script>
 
-<h3 id="multi-file-components">Multi-file Components</h3>
-<p>A project using multi-file components can be generated using <a href="./installation.html#cli">Moon CLI</a>. A multi-file component has the following structure:</p>
-<pre><code>Component
-|____component.css
-|____component.js
-|____component.mvl
-</code></pre><p>The directory name <em>must</em> start with an uppercase letter and represents the name of the component. The <code>js</code> and <code>css</code> files are optional, but the <code>mvl</code> file is <em>required</em> and is used to import the component.</p>
+<h3 id="single-file-components">Single-file Components</h3>
+<p>A project using single-file components can be generated using <a href="./installation.html#cli">Moon CLI</a>. A single-file component has a view, styles, and data.</p>
 <p>The component can be imported anywhere for use with:</p>
-<pre><code lang="js">import Component from <span class="green">&quot;./components/component.mvl&quot;</span>;
+<pre><code lang="js">import Component from <span class="green">&quot;./components/Component.mvl&quot;</span>;
 </code></pre>
-<h5 id="mvl">MVL</h5>
-<p>The <code>mvl</code> file represents the view of the component, normally passed as the <code>view</code> option. This can use any variables from the data like a normal view.</p>
+<h5 id="view">View</h5>
+<p>The main content of an <code>mvl</code> file is the view. Every element other than <code>script</code> and <code>style</code> will be part of the component view.</p>
 <pre><code lang="mvl"><span class="red">&lt;h1</span><span class="red">&gt;</span>{name}<span class="red">&lt;/h1</span><span class="red">&gt;</span>
 </code></pre>
-<h5 id="css">CSS</h5>
-<p>The <code>css</code> file represents the styles of the component, and are <em>scoped</em> to the component using classes.</p>
-<pre><code lang="css">h1 {
-    color: blue;
-}
-</code></pre>
-<h5 id="js">JS</h5>
-<p>The <code>js</code> file should export data normally provided in component options.</p>
-<pre><code lang="js">export default {
-    name: <span class="green">&quot;Moon&quot;</span>,
-    <span class="blue">updateName</span>() {
-        <span class="orange">this</span>.<span class="blue">update</span>(<span class="green">&quot;name&quot;</span>, <span class="green">&quot;New Moon&quot;</span>);
+<h5 id="style">Style</h5>
+<p>If a <code>style</code> tag is present, it will be <em>scoped</em> to the component and included in the bundle. This means that the styles will only apply to the component they are styling.</p>
+<pre><code lang="mvl"><span class="red">&lt;style</span><span class="red">&gt;</span>
+    h1 {
+        color: blue;
     }
-}
+<span class="red">&lt;/style</span><span class="red">&gt;</span>
+</code></pre>
+<h5 id="data">Data</h5>
+<p>If a <code>script</code> tag is present, the default export will be used as the data for the component.</p>
+<pre><code lang="mvl"><span class="red">&lt;script</span><span class="red">&gt;</span>
+    export default {
+        name: <span class="green">&quot;Moon&quot;</span>,
+        <span class="blue">updateName</span>() {
+            <span class="orange">this</span>.<span class="blue">update</span>(<span class="green">&quot;name&quot;</span>, <span class="green">&quot;New Moon&quot;</span>);
+        }
+    }
+<span class="red">&lt;/script</span><span class="red">&gt;</span>
+</code></pre>
+<h5 id="overall">Overall</h5>
+<p>The overall component can be created in one <code>mvl</code> file.</p>
+<pre><code lang="mvl"><span class="red">&lt;h1</span><span class="red">&gt;</span>{name}<span class="red">&lt;/h1</span><span class="red">&gt;</span>
+
+<span class="red">&lt;style</span><span class="red">&gt;</span>
+    h1 {
+        color: blue;
+    }
+<span class="red">&lt;/style</span><span class="red">&gt;</span>
+
+<span class="red">&lt;script</span><span class="red">&gt;</span>
+    export default {
+        name: <span class="green">&quot;Moon&quot;</span>,
+        <span class="blue">updateName</span>() {
+            <span class="orange">this</span>.<span class="blue">update</span>(<span class="green">&quot;name&quot;</span>, <span class="green">&quot;New Moon&quot;</span>);
+        }
+    }
+<span class="red">&lt;/script</span><span class="red">&gt;</span>
 </code></pre>
 
 			</div>
