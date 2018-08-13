@@ -39,7 +39,12 @@ const download = (res) => {
 
 const install = (archivePath) => {
 	const targetPath = path.join(process.cwd(), name);
-	exec(`mkdir ${targetPath}; tar -xzf ${archivePath} -C ${targetPath} --strip=1`, (err) => {
+
+	exec(`mkdir ${targetPath}`, (err) => {
+		if (err) throw err;
+	});
+
+	exec(`tar -xzf ${archivePath} -C ${targetPath} --strip=1`, (err) => {
 		if (err) throw err;
 
 		log("install", "template");
