@@ -64,7 +64,7 @@
     {count}
 <span class="red">&lt;/button</span><span class="red">&gt;</span>
 </code></pre>
-<pre><code lang="js">Moon.<span class="blue">component</span>(<span class="green">&quot;Counter&quot;</span>, <span class="purple">function</span>() {
+<pre><code lang="js">Moon.<span class="blue">extend</span>(<span class="green">&quot;Counter&quot;</span>, <span class="purple">function</span>() {
     <span class="purple">return</span> {
         count: <span class="orange">0</span>
     }
@@ -138,8 +138,10 @@
 <span class="red">&lt;input</span> <span class="orange">type</span>=<span class="green">&quot;number&quot;</span> <span class="orange">value</span>=<span class="green">&quot;<span class="orange">0</span>&quot;</span> <span class="orange">@input</span>={<span class="blue">change</span>($event)}<span class="red">/&gt;</span>
 </code></pre>
 <pre><code lang="js">Moon.<span class="blue">extend</span>(<span class="green">&quot;Term&quot;</span>, <span class="purple">function</span>() {
-    <span class="blue">change</span>($event) {
-        <span class="orange">this</span>.<span class="blue">emit</span>(<span class="green">&quot;change&quot;</span>, <span class="blue">parseInt</span>($event.target.value));
+    <span class="purple">return</span> {
+        <span class="blue">change</span>($event) {
+            <span class="orange">this</span>.<span class="blue">emit</span>(<span class="green">&quot;change&quot;</span>, <span class="blue">parseInt</span>($event.target.value));
+        }
     }
 });
 

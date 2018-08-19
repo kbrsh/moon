@@ -22,7 +22,7 @@ Once a component is registered using `Moon.extend`, it can be used anywhere with
 ```
 
 ```js
-Moon.component("Counter", function() {
+Moon.extend("Counter", function() {
 	return {
 		count: 0
 	}
@@ -113,8 +113,10 @@ Components emit events to notify their parent of an action. Parents can listen t
 
 ```js
 Moon.extend("Term", function() {
-	change($event) {
-		this.emit("change", parseInt($event.target.value));
+	return {
+		change($event) {
+			this.emit("change", parseInt($event.target.value));
+		}
 	}
 });
 
