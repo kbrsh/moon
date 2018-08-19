@@ -117,7 +117,7 @@ Moon.extend("Term", function() {
 		change($event) {
 			this.emit("change", parseInt($event.target.value));
 		}
-	}
+	};
 });
 
 Moon({
