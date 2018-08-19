@@ -35,7 +35,7 @@ module.exports = (name, input, hot) => {
 		outputJS = inputJS.replace("export default", "const _moonOptions=");
 	}
 
-	outputJS = `import Moon from "moon";export default Moon.extend("${name}",function(){${outputJS}_moonOptions.view=function(m,instance,locals){${Moon.generate(tree, null)}};return _moonOptions;});`;
+	outputJS = `import Moon from "moon";${outputJS}_moonOptions.view=function(m,instance,locals){${Moon.generate(tree, null)}};export default Moon.extend("${name}",_moonOptions);`;
 
 	if (hot) {
 		outputJS = `
@@ -43,13 +43,13 @@ module.exports = (name, input, hot) => {
 			const _moonRemoveJS = [];
 			const _moonRemoveCSS = registerCSS(\`${outputCSS}\`);
 			${
-				outputJS.replace("return _moonOptions;", `
+				outputJS.replace("export default", `
 					const _moonOnCreate = _moonOptions.onCreate;
 					_moonOptions.onCreate = function() {
 						_moonRemoveJS.push(registerJS(this));
 
 						if (_moonOnCreate !== undefined) {
-							_moonOnCreate();
+							_moonOnCreate(this, []);
 						}
 					};
 					$&
