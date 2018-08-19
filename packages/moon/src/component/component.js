@@ -39,9 +39,9 @@ const on = function(type, handler) {
 	let handlers = events[type];
 
 	if (handlers === undefined) {
-		events[type] = [handler];
+		events[type] = [handler.bind(this)];
 	} else {
-		handlers.push(handler);
+		handlers.push(handler.bind(this));
 	}
 };
 
@@ -60,77 +60,68 @@ const emit = function(type, data) {
 	let handlers = this._events[type];
 
 	if (handlers !== undefined) {
-		if (typeof handlers === "function") {
-			handlers(data);
-		} else {
-			for (let i = 0; i < handlers.length; i++) {
-				handlers[i](data);
-			}
+		for (let i = 0; i < handlers.length; i++) {
+			handlers[i](data);
 		}
 	}
 };
 
-export const component = (name, options) => {
-	return function MoonComponent() {
-		// Properties
-		this._name = name;
-		this._queued = false;
+export const component = (name, data) => {
+	// Default
+	if (data === undefined) {
+		data = {};
+	}
 
-		// Options
-		let data;
-		if (options === undefined) {
-			data = {};
-		} else if (typeof options === "function") {
-			data = options();
-		} else {
-			data = options;
+	// View
+	let view = data.view;
+	if (typeof view === "string") {
+		view = new Function("m", "instance", "locals", compile(view));
+	}
+
+	delete data.view;
+
+	// Events
+	let onCreate = data.onCreate;
+	let onUpdate = data.onUpdate;
+	let onDestroy = data.onDestroy;
+
+	delete data.onCreate;
+	delete data.onUpdate;
+	delete data.onDestroy;
+
+	// Constructor
+	function MoonComponent() {
+		this._view = view(m, this, {});
+
+		this._events = {};
+
+		if (onCreate !== undefined) {
+			this.on("create", onCreate);
 		}
 
-		// View
-		if (typeof data.view === "string") {
-			this._view = new Function("m", "instance", "locals", compile(data.view))(m, this, {});
-		} else {
-			this._view = data.view(m, this, {});
+		if (onUpdate !== undefined) {
+			this.on("update", onUpdate);
 		}
 
-		delete data.view;
-
-		// Events
-		let events = {};
-
-		if (data.onCreate !== undefined) {
-			events.create = data.onCreate.bind(this);
-			delete data.onCreate;
+		if (onDestroy !== undefined) {
+			this.on("destroy", onDestroy);
 		}
+	}
 
-		if (data.onUpdate !== undefined) {
-			events.update = data.onUpdate.bind(this);
-			delete data.onUpdate;
-		}
+	// Initialize
+	MoonComponent.prototype = data;
 
-		if (data.onDestroy !== undefined) {
-			events.destroy = data.onDestroy.bind(this);
-			delete data.onDestroy;
-		}
+	// Properties
+	data._name = name;
+	data._queued = false;
 
-		this._events = events;
+	// Methods
+	data.create = create;
+	data.update = update;
+	data.destroy = destroy;
+	data.on = on;
+	data.off = off;
+	data.emit = emit;
 
-		// Data
-		for (let key in data) {
-			const value = data[key];
-			if (typeof value === "function") {
-				this[key] = value.bind(this);
-			} else {
-				this[key] = value;
-			}
-		}
-
-		// Methods
-		this.create = create;
-		this.update = update;
-		this.destroy = destroy;
-		this.on = on;
-		this.off = off;
-		this.emit = emit;
-	};
+	return MoonComponent;
 };
