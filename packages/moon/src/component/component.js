@@ -67,11 +67,6 @@ const emit = function(type, data) {
 };
 
 export const component = (name, data) => {
-	// Default
-	if (data === undefined) {
-		data = {};
-	}
-
 	// View
 	let view = data.view;
 	if (typeof view === "string") {
