@@ -1,6 +1,6 @@
 const rollup = require("rollup");
-const buble = require("rollup-plugin-buble");
-const eslint = require("rollup-plugin-eslint");
+const babel = require("rollup-plugin-babel");
+const eslint = require("rollup-plugin-eslint").eslint;
 const uglify = require("uglify-js");
 const gzipSize = require("gzip-size");
 const fs = require("fs");
@@ -26,15 +26,17 @@ async function build() {
 		input: path.join(cwd, "/src/index.js"),
 		plugins: [
 			eslint(),
-			buble()
+			babel()
 		]
 	});
 
-	let { code } = await bundle.generate(options);
-	code = fs.readFileSync(path.join(cwd, "/src/wrapper.js")).toString().replace("INSERT", code.split("\n").slice(1, -3).join("\n")).replace("'use strict'", "\"use strict\"");
+	let { output } = await bundle.generate(options);
+	output = output[0].code;
 
-	const developmentCode = comment + code.replace(ENV_RE, '"development"');
-	const productionCode = comment + uglify.minify(code.replace(ENV_RE, '"production"')).code;
+	output = fs.readFileSync(path.join(cwd, "/src/wrapper.js")).toString().replace("INSERT", output.split("\n").slice(1, -3).join("\n")).replace("'use strict'", "\"use strict\"");
+
+	const developmentCode = comment + output.replace(ENV_RE, '"development"');
+	const productionCode = comment + uglify.minify(output.replace(ENV_RE, '"production"')).output;
 
 	fs.writeFileSync(path.join(cwd, "/dist/moon.js"), developmentCode);
 	fs.writeFileSync(path.join(cwd, "/dist/moon.min.js"), productionCode);

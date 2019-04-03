@@ -1,8 +1,8 @@
 language: node_js
 script:
-   - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then sh ./build/travis.sh; fi'
-   - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then sh ./build/travis-pr.sh; fi'
+   - "npm run build"
+   - "npm run test"
    node_js:
       - "node"
       after_success:
-         - bash <(curl -s https://codecov.io/bash)
+         - "for d in ./packages/*; do bash <(curl -s https://codecov.io/bash) -F \"$d\"; done"

@@ -1,39 +1,68 @@
-import { parseOpeningTag, parseClosingTag } from "./tag";
-import { parseComment } from "./comment";
-import { parseText } from "./text";
-import { parseExpression } from "./expression";
+function parseElements(start, end, tokens) {
+	const length = end - start;
 
-export const parse = (input) => {
-	const length = input.length;
+	if (length === 0) {
+		return [];
+	} else {
+		for (
+			let elementEnd = start + 1;
+			elementEnd <= end;
+			elementEnd++
+		) {
+			const element = parse(start, elementEnd, tokens);
 
-	const root = {
-		element: 0,
-		referenceElement: 1,
-		nextElement: 2,
-		type: "Root",
-		attributes: [],
-		children: []
-	};
+			if (element !== null) {
+				const elements = parseElements(elementEnd, end, tokens);
 
-	let stack = [root];
-
-	for (let i = 0; i < length;) {
-		const char = input[i];
-
-		if (char === "<") {
-			if (input[i + 1] === "!" && input[i + 2] === "-" && input[i + 3] === "-") {
-				i = parseComment(i + 4, input, length);
-			} else if (input[i + 1] === "/") {
-				i = parseClosingTag(i + 2, input, length, stack);
-			} else {
-				i = parseOpeningTag(i + 1, input, length, stack);
+				if (elements !== null) {
+					return [element, ...elements];
+				}
 			}
-		} else if (char === "{") {
-			i = parseExpression(i + 1, input, length, stack);
+		}
+
+		return null;
+	}
+}
+
+export function parse(start, end, tokens) {
+	const firstToken = tokens[start];
+	const lastToken = tokens[end - 1];
+	const length = end - start;
+
+	if (length === 0) {
+		return null;
+	} else if (length === 1) {
+		if (
+			firstToken.type === "tagOpen" &&
+			firstToken.closed === true
+		) {
+			return {
+				type: firstToken.value,
+				attributes: firstToken.attributes,
+				children: []
+			};
 		} else {
-			i = parseText(i, input, length, stack);
+			return null;
+		}
+	} else {
+		if (
+			firstToken.type === "tagOpen" &&
+			lastToken.type === "tagClose" &&
+			firstToken.value === lastToken.value
+		) {
+			const children = parseElements(start + 1, end - 1, tokens);
+
+			if (children === null) {
+				return null;
+			} else {
+				return {
+					type: firstToken.value,
+					attributes: firstToken.attributes,
+					children
+				};
+			}
+		} else {
+			return null;
 		}
 	}
-
-	return root;
-};
+}
