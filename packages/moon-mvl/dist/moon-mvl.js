@@ -1,6 +1,6 @@
 /**
  * Moon MVL v1.0.0-beta.2
- * Copyright 2016-2018 Kabir Shah
+ * Copyright 2016-2019 Kabir Shah
  * Released under the MIT License
  * https://kbrsh.github.io/moon
  */

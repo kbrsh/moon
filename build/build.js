@@ -14,7 +14,7 @@ async function build(package) {
 
 	const comment = `/**
  * ${options.name} v${pkg.version}
- * Copyright 2016-2018 Kabir Shah
+ * Copyright 2016-2019 Kabir Shah
  * Released under the MIT License
  * https://kbrsh.github.io/moon
  */\r\n`;
