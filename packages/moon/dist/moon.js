@@ -359,9 +359,38 @@
 		return "".concat(prelude, ";return [function(_0){").concat(setElement(root.element, "_0;")).concat(create, "},function(){").concat(update, "},function(){").concat(destroy, "}];");
 	};
 
+	/**
+	 * Capture the tag name, attribute text, and closing slash from an opening tag.
+	 */
 	var typeRE = /<([\w\d-_]+)([^>]*?)(\/?)>/g;
+	/**
+	 * Capture a key, value, and expression from a list of whitespace-separated
+	 * attributes. There cannot be a value and an expression, but both are captured
+	 * due to the limits of regular expressions. One or both of them can be
+	 * undefined.
+	 */
+
 	var attributeRE = /\s*([\w\d-_]*)(?:=(?:("[\w\d-_]*"|'[\w\d-_]*')|{([\w\d-_]*)}))?/g;
+	/**
+	 * Lexer
+	 *
+	 * The lexer is responsible for taking an input view template and converting it
+	 * into a list of tokens. To make the parser's job easier, it does some extra
+	 * processing and handles tag names, attribute key/value pairs, and converting
+	 * text into <Text/> components.
+	 *
+	 * It works by running through the input text and checking for specific initial
+	 * characters such as "<", "{", or any text. After identifying the type of
+	 * token, it processes each part individually until the end of the token. The
+	 * lexer appends the new token to a cumulative list and eventually returns it.
+	 *
+	 * @param {string} input
+	 * @returns {Object[]} tokens
+	 */
+
 	function lex(input) {
+		// Remove leading and trailing whitespace because the lexer should only
+		// accept one element as an input, and whitespace counts as text.
 		input = input.trim();
 		var tokens = [];
 
@@ -372,6 +401,8 @@
 				var nextChar = input[i + 1];
 
 				if (nextChar === "/") {
+					// Append a closing tag token if a sequence of characters begins
+					// with "</".
 					var closeIndex = input.indexOf(">", i + 2);
 
 					var _type = input.slice(i + 2, closeIndex);
@@ -383,31 +414,48 @@
 					i = closeIndex + 1;
 					continue;
 				} else if (nextChar === "!" && input[i + 2] === "-" && input[i + 3] === "-") {
+					// Ignore input if a sequence of characters begins with "<!--".
 					i = input.indexOf("-->", i + 4) + 3;
 					continue;
-				}
+				} // Set the last searched index of the tag type regular expression to
+				// the index of the character currently being processed. Since it is
+				// being executed on the whole input, this is required for getting the
+				// correct match and having better performance.
 
-				typeRE.lastIndex = i;
+
+				typeRE.lastIndex = i; // Execute the tag type regular expression on the input and store
+				// the match and captured groups.
+
 				var typeExec = typeRE.exec(input);
 				var typeMatch = typeExec[0];
 				var type = typeExec[1];
 				var attributesText = typeExec[2];
 				var closingSlash = typeExec[3];
 				var attributes = {};
-				var attributeExec = void 0;
+				var attributeExec = void 0; // Keep matching for new attribute key/value pairs until there are no
+				// more in the attribute text.
 
 				while ((attributeExec = attributeRE.exec(attributesText)) !== null) {
+					// Store the match and captured groups.
 					var attributeMatch = attributeExec[0];
 					var attributeKey = attributeExec[1];
 					var attributeValue = attributeExec[2];
 					var attributeExpression = attributeExec[3];
 
 					if (attributeMatch.length === 0) {
+						// If nothing is matched, continue searching from the next
+						// character. This is required because the attribute regular
+						// expression can have empty matches and create an infinite
+						// loop.
 						attributeRE.lastIndex += 1;
 					} else {
+						// Store the key/value pair using the matched value or
+						// expression.
 						attributes[attributeKey] = attributeExpression === undefined ? attributeValue : attributeExpression;
 					}
-				}
+				} // Append an opening tag token with the type, attributes, and optional
+				// self-closing slash.
+
 
 				tokens.push({
 					type: "tagOpen",
@@ -417,7 +465,9 @@
 				});
 				i += typeMatch.length;
 			} else if (_char === "{") {
-				var expression = "";
+				// If a sequence of characters begins with "{", process it as an
+				// expression token.
+				var expression = ""; // Consume the input until the end of the expression.
 
 				for (i += 1; i < input.length; i++) {
 					var _char2 = input[i];
@@ -427,7 +477,9 @@
 					} else {
 						expression += _char2;
 					}
-				}
+				} // Append the expression as a <Text/> element with the appropriate
+				// text content attribute.
+
 
 				tokens.push({
 					type: "tagOpen",
@@ -439,17 +491,20 @@
 				});
 				i += 1;
 			} else {
-				var text = "";
+				// If nothing has matched at this point, process the input as text.
+				var text = ""; // Consume the input until the start of a new tag or expression.
 
 				for (; i < input.length; i++) {
 					var _char3 = input[i];
 
-					if (_char3 === "<") {
+					if (_char3 === "<" || _char3 === "{") {
 						break;
 					} else {
 						text += _char3;
 					}
-				}
+				} // Append the text as a <Text/> element with the appropriate text
+				// content attribute.
+
 
 				tokens.push({
 					type: "tagOpen",
