@@ -2,9 +2,9 @@
   "name": "moon-cli",
   "version": "1.0.0-beta.2",
   "description": "Moon project generator",
-  "main": "src/index.js",
+  "main": "dist/moon-cli.min.js",
   "bin": {
-    "moon": "src/index.js"
+    "moon": "dist/moon-cli.min.js"
   },
   "repository": {
     "type": "git",

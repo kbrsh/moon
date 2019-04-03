@@ -37,7 +37,11 @@ async function build(package) {
 	output = options.transform(output);
 
 	const developmentCode = comment + output.replace(ENV_RE, '"development"');
-	const productionCode = comment + uglify.minify(output.replace(ENV_RE, '"production"')).code;
+	const productionCode = comment + uglify.minify(output.replace(ENV_RE, '"production"'), {
+		output: {
+			ascii_only: true
+		}
+	}).code;
 
 	fs.writeFileSync(`./packages/${package}/dist/${package}.js`, developmentCode);
 	fs.writeFileSync(`./packages/${package}/dist/${package}.min.js`, productionCode);
