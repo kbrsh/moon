@@ -1,3 +1,3 @@
-node build/start.js
-node build/git.js
-sh build/npm.sh
+node build/releast/start.js
+node build/releast/git.js
+sh build/release/npm.sh
