@@ -5,4 +5,4 @@ script:
    - "npm run test"
 
 after_success:
-   - "for d in ./packages/*; do bash <(curl -s https://codecov.io/bash) -F \"$d\"; done"
+   - "bash <(curl -s https://codecov.io/bash)"
