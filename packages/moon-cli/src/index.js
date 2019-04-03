@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 const fs = require("fs");
 const path = require("path");
 const https = require("https");
@@ -60,7 +58,7 @@ const clean = (archivePath, targetPath) => {
 		log("clean", "template");
 
 		create(targetPath, targetPath);
-		log("success", `Generated project "${name}"`)
+		log("success", `Generated project "${name}"`);
 		console.log(`To start, run:
 	cd ${name}
 	npm install

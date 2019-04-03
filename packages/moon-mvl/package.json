@@ -2,11 +2,7 @@
   "name": "moon-mvl",
   "version": "1.0.0-beta.2",
   "description": "Moon MVL component compiler",
-  "main": "src/index.js",
-  "scripts": {
-    "build": "echo \"Build Moon MVL\"",
-    "test": ""
-  },
+  "main": "dist/moon-mvl.min.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kbrsh/moon.git"
