@@ -195,8 +195,6 @@
 	}
 
 	/**
-	 * Parse elements
-	 *
 	 * Given a start index, end index, and a list of tokens, return a tree after
 	 * matching against the following grammar:
 	 *
