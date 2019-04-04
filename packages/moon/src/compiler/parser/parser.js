@@ -48,7 +48,14 @@ function parseElements(start, end, tokens) {
 				const elements = parseElements(elementEnd, end, tokens);
 
 				if (!(elements instanceof ParseError)) {
-					return [element, ...elements];
+					// Combine the first element with the rest of the elements.
+					let elementsAll = [element];
+
+					for (let i = 0; i < elements.length; i++) {
+						elementsAll.push(elements[i]);
+					}
+
+					return elementsAll;
 				}
 			}
 		}
