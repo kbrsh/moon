@@ -89,14 +89,20 @@ test("parse nested elements", () => {
 });
 
 test("parse error from invalid view", () => {
+	console.error = jest.fn();
+
 	expect(parseTest(`
 		<div>
 			<p>text?
 			</h1></input>
 		</div>
-	`)).toBe(null);
+	`).constructor.name).toBe("ParseError");
+	expect(console.error).toBeCalled();
 });
 
 test("parse error from empty element", () => {
-	expect(parseTest("")).toBe(null);
+	console.error = jest.fn();
+
+	expect(parseTest("").constructor.name).toBe("ParseError");
+	expect(console.error).toBeCalled();
 });
