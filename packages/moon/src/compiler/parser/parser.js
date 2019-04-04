@@ -187,9 +187,6 @@ export function parse(tokens) {
 		do {
 			parseErrors += `${parseError.message}\n`;
 
-			let tokenStrings = "";
-			let marks = "";
-
 			// Collect the tokens responsible for the error as well as the
 			// surrounding tokens.
 			for (
@@ -197,19 +194,10 @@ export function parse(tokens) {
 				i < Math.min(parseError.end + 1, tokens.length);
 				i++
 			) {
-				const currentTokenString = tokenString(tokens[i]);
-
-				tokenStrings += currentTokenString;
-
-				// If the token was directly responsible for the error, mark it.
-				marks += (
-					(i >= parseError.start && i < parseError.end) ?
-					"^" :
-					" "
-				).repeat(currentTokenString.length);
+				parseErrors += tokenString(tokens[i]);
 			}
 
-			parseErrors += `${tokenStrings}\n${marks}\n\n`;
+			parseErrors += "\n\n";
 		} while ((parseError = parseError.next) !== undefined);
 
 		error(`Parser failed to process the view.\n\n${parseErrors}`);

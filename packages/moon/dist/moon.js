@@ -428,19 +428,14 @@
 			var parseError = tree;
 
 			do {
-				parseErrors += "".concat(parseError.message, "\n");
-				var tokenStrings = "";
-				var marks = ""; // Collect the tokens responsible for the error as well as the
+				parseErrors += "".concat(parseError.message, "\n"); // Collect the tokens responsible for the error as well as the
 				// surrounding tokens.
 
 				for (var i = Math.max(0, parseError.start - 1); i < Math.min(parseError.end + 1, tokens.length); i++) {
-					var currentTokenString = tokenString(tokens[i]);
-					tokenStrings += currentTokenString; // If the token was directly responsible for the error, mark it.
-
-					marks += (i >= parseError.start && i < parseError.end ? "^" : " ").repeat(currentTokenString.length);
+					parseErrors += tokenString(tokens[i]);
 				}
 
-				parseErrors += "".concat(tokenStrings, "\n").concat(marks, "\n\n");
+				parseErrors += "\n\n";
 			} while ((parseError = parseError.next) !== undefined);
 
 			error("Parser failed to process the view.\n\n".concat(parseErrors));
