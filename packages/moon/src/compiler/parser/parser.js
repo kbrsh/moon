@@ -11,7 +11,7 @@
  * @param {integer} start
  * @param {integer} end
  * @param {Object[]} tokens
- * @returns {Object} tree
+ * @returns {Object} Abstract syntax tree
  */
 function parseElements(start, end, tokens) {
 	const length = end - start;
@@ -71,7 +71,7 @@ function parseElements(start, end, tokens) {
  * @param {integer} start
  * @param {integer} end
  * @param {Object[]} tokens
- * @returns {Object} tree
+ * @returns {Object} Abstract syntax tree
  */
 export function parse(start, end, tokens) {
 	const firstToken = tokens[start];

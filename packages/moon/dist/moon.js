@@ -13,18 +13,165 @@
 }(this, function() {
 	"use strict";
 
-	function _typeof(obj) {
-		if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-			_typeof = function (obj) {
-				return typeof obj;
-			};
-		} else {
-			_typeof = function (obj) {
-				return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-			};
+	/**
+	 * Capture the tag name, attribute text, and closing slash from an opening tag.
+	 */
+	var typeRE = /<([\w\d-_]+)([^>]*?)(\/?)>/g;
+	/**
+	 * Capture a key, value, and expression from a list of whitespace-separated
+	 * attributes. There cannot be a value and an expression, but both are captured
+	 * due to the limits of regular expressions. One or both of them can be
+	 * undefined.
+	 */
+
+	var attributeRE = /\s*([\w\d-_]*)(?:=(?:("[\w\d-_]*"|'[\w\d-_]*')|{([\w\d-_]*)}))?/g;
+	/**
+	 * Lexer
+	 *
+	 * The lexer is responsible for taking an input view template and converting it
+	 * into a list of tokens. To make the parser's job easier, it does some extra
+	 * processing and handles tag names, attribute key/value pairs, and converting
+	 * text into `<Text/>` components.
+	 *
+	 * It works by running through the input text and checking for specific initial
+	 * characters such as "<", "{", or any text. After identifying the type of
+	 * token, it processes each part individually until the end of the token. The
+	 * lexer appends the new token to a cumulative list and eventually returns it.
+	 *
+	 * @param {string} input
+	 * @returns {Object[]} List of tokens
+	 */
+
+	function lex(input) {
+		// Remove leading and trailing whitespace because the lexer should only
+		// accept one element as an input, and whitespace counts as text.
+		input = input.trim();
+		var tokens = [];
+
+		for (var i = 0; i < input.length;) {
+			var _char = input[i];
+
+			if (_char === "<") {
+				var nextChar = input[i + 1];
+
+				if (nextChar === "/") {
+					// Append a closing tag token if a sequence of characters begins
+					// with "</".
+					var closeIndex = input.indexOf(">", i + 2);
+
+					var _type = input.slice(i + 2, closeIndex);
+
+					tokens.push({
+						type: "tagClose",
+						value: _type
+					});
+					i = closeIndex + 1;
+					continue;
+				} else if (nextChar === "!" && input[i + 2] === "-" && input[i + 3] === "-") {
+					// Ignore input if a sequence of characters begins with "<!--".
+					i = input.indexOf("-->", i + 4) + 3;
+					continue;
+				} // Set the last searched index of the tag type regular expression to
+				// the index of the character currently being processed. Since it is
+				// being executed on the whole input, this is required for getting the
+				// correct match and having better performance.
+
+
+				typeRE.lastIndex = i; // Execute the tag type regular expression on the input and store
+				// the match and captured groups.
+
+				var typeExec = typeRE.exec(input);
+				var typeMatch = typeExec[0];
+				var type = typeExec[1];
+				var attributesText = typeExec[2];
+				var closingSlash = typeExec[3];
+				var attributes = {};
+				var attributeExec = void 0; // Keep matching for new attribute key/value pairs until there are no
+				// more in the attribute text.
+
+				while ((attributeExec = attributeRE.exec(attributesText)) !== null) {
+					// Store the match and captured groups.
+					var attributeMatch = attributeExec[0];
+					var attributeKey = attributeExec[1];
+					var attributeValue = attributeExec[2];
+					var attributeExpression = attributeExec[3];
+
+					if (attributeMatch.length === 0) {
+						// If nothing is matched, continue searching from the next
+						// character. This is required because the attribute regular
+						// expression can have empty matches and create an infinite
+						// loop.
+						attributeRE.lastIndex += 1;
+					} else {
+						// Store the key/value pair using the matched value or
+						// expression.
+						attributes[attributeKey] = attributeExpression === undefined ? attributeValue : attributeExpression;
+					}
+				} // Append an opening tag token with the type, attributes, and optional
+				// self-closing slash.
+
+
+				tokens.push({
+					type: "tagOpen",
+					value: type,
+					attributes: attributes,
+					closed: closingSlash === "/"
+				});
+				i += typeMatch.length;
+			} else if (_char === "{") {
+				// If a sequence of characters begins with "{", process it as an
+				// expression token.
+				var expression = ""; // Consume the input until the end of the expression.
+
+				for (i += 1; i < input.length; i++) {
+					var _char2 = input[i];
+
+					if (_char2 === "}") {
+						break;
+					} else {
+						expression += _char2;
+					}
+				} // Append the expression as a `<Text/>` element with the appropriate
+				// text content attribute.
+
+
+				tokens.push({
+					type: "tagOpen",
+					value: "Text",
+					attributes: {
+						"": expression
+					},
+					closed: true
+				});
+				i += 1;
+			} else {
+				// If nothing has matched at this point, process the input as text.
+				var text = ""; // Consume the input until the start of a new tag or expression.
+
+				for (; i < input.length; i++) {
+					var _char3 = input[i];
+
+					if (_char3 === "<" || _char3 === "{") {
+						break;
+					} else {
+						text += _char3;
+					}
+				} // Append the text as a `<Text/>` element with the appropriate text
+				// content attribute.
+
+
+				tokens.push({
+					type: "tagOpen",
+					value: "Text",
+					attributes: {
+						"": "\"".concat(text, "\"")
+					},
+					closed: true
+				});
+			}
 		}
 
-		return _typeof(obj);
+		return tokens;
 	}
 
 	function _toConsumableArray(arr) {
@@ -47,6 +194,21 @@
 		throw new TypeError("Invalid attempt to spread non-iterable instance");
 	}
 
+	/**
+	 * Parse elements
+	 *
+	 * Given a start index, end index, and a list of tokens, return a tree after
+	 * matching against the following grammar:
+	 *
+	 * Elements -> Empty | Element Elements
+	 *
+	 * The parsing algorithm is explained in more detail in the `parse` function.
+	 *
+	 * @param {integer} start
+	 * @param {integer} end
+	 * @param {Object[]} tokens
+	 * @returns {Object} Abstract syntax tree
+	 */
 	function parseElements(start, end, tokens) {
 		var length = end - start;
 
@@ -68,6 +230,41 @@
 			return null;
 		}
 	}
+	/**
+	 * Parser
+	 *
+	 * The parser is responsible for taking a start index, end index, and a list of
+	 * tokens to return an abstract syntax tree of a view template. The start and
+	 * end index are required because it is a recursive function that is called on
+	 * various sections of the tokens. Instead of passing down slices of the
+	 * tokens, it is much more efficient to keep the same reference and pass new
+	 * ranges. The start index is inclusive, and the end index is exclusive.
+	 *
+	 * The parser is built up of other parsers, including itself and
+	 * `parseChildren()`. Each parser is responsible for taking an input with a
+	 * length within a certain range. A parser has a set of alternates that are
+	 * matched *exactly* to the input. Each alternate distributes the input in
+	 * various ways across other parsers in every possible way. If an alternate
+	 * matches, it is returned as a new node in the tree. If it doesn't, and any
+	 * other alternates don't match either, then it returns an error.
+	 *
+	 * The simplest possible parser simply takes an input and ensures that it
+	 * matches a certain sequence of tokens. This parser is built from the
+	 * following structure:
+	 *
+	 * Element -> TagSelfClosing | TagOpen Elements TagClose
+	 * Elements -> Empty | Element Elements
+	 *
+	 * In this case, `TagSelfClosing`, `TagOpen`, and `TagClose` are primitive
+	 * parsers that ensure that the input token matches their respective token
+	 * type.
+	 *
+	 * @param {integer} start
+	 * @param {integer} end
+	 * @param {Object[]} tokens
+	 * @returns {Object} Abstract syntax tree
+	 */
+
 
 	function parse(start, end, tokens) {
 		var firstToken = tokens[start];
@@ -75,9 +272,13 @@
 		var length = end - start;
 
 		if (length === 0) {
+			// Return an error because this parser does not accept empty inputs.
 			return null;
 		} else if (length === 1) {
+			// The next alternate only matches on inputs with one token.
 			if (firstToken.type === "tagOpen" && firstToken.closed === true) {
+				// Verify that the single token is a self-closing tag, and return a
+				// new element without children.
 				return {
 					type: firstToken.value,
 					attributes: firstToken.attributes,
@@ -87,7 +288,11 @@
 				return null;
 			}
 		} else {
+			// If the input size is greater than one, it must be a full element with
+			// both opening and closing tags that match.
 			if (firstToken.type === "tagOpen" && lastToken.type === "tagClose" && firstToken.value === lastToken.value) {
+				// Attempt to parse the inner contents as children. They must be valid
+				// for the element parse to succeed.
 				var children = parseElements(start + 1, end - 1, tokens);
 
 				if (children === null) {
@@ -359,396 +564,99 @@
 		return "".concat(prelude, ";return [function(_0){").concat(setElement(root.element, "_0;")).concat(create, "},function(){").concat(update, "},function(){").concat(destroy, "}];");
 	};
 
-	/**
-	 * Capture the tag name, attribute text, and closing slash from an opening tag.
-	 */
-	var typeRE = /<([\w\d-_]+)([^>]*?)(\/?)>/g;
-	/**
-	 * Capture a key, value, and expression from a list of whitespace-separated
-	 * attributes. There cannot be a value and an expression, but both are captured
-	 * due to the limits of regular expressions. One or both of them can be
-	 * undefined.
-	 */
-
-	var attributeRE = /\s*([\w\d-_]*)(?:=(?:("[\w\d-_]*"|'[\w\d-_]*')|{([\w\d-_]*)}))?/g;
-	/**
-	 * Lexer
-	 *
-	 * The lexer is responsible for taking an input view template and converting it
-	 * into a list of tokens. To make the parser's job easier, it does some extra
-	 * processing and handles tag names, attribute key/value pairs, and converting
-	 * text into <Text/> components.
-	 *
-	 * It works by running through the input text and checking for specific initial
-	 * characters such as "<", "{", or any text. After identifying the type of
-	 * token, it processes each part individually until the end of the token. The
-	 * lexer appends the new token to a cumulative list and eventually returns it.
-	 *
-	 * @param {string} input
-	 * @returns {Object[]} tokens
-	 */
-
-	function lex(input) {
-		// Remove leading and trailing whitespace because the lexer should only
-		// accept one element as an input, and whitespace counts as text.
-		input = input.trim();
-		var tokens = [];
-
-		for (var i = 0; i < input.length;) {
-			var _char = input[i];
-
-			if (_char === "<") {
-				var nextChar = input[i + 1];
-
-				if (nextChar === "/") {
-					// Append a closing tag token if a sequence of characters begins
-					// with "</".
-					var closeIndex = input.indexOf(">", i + 2);
-
-					var _type = input.slice(i + 2, closeIndex);
-
-					tokens.push({
-						type: "tagClose",
-						value: _type
-					});
-					i = closeIndex + 1;
-					continue;
-				} else if (nextChar === "!" && input[i + 2] === "-" && input[i + 3] === "-") {
-					// Ignore input if a sequence of characters begins with "<!--".
-					i = input.indexOf("-->", i + 4) + 3;
-					continue;
-				} // Set the last searched index of the tag type regular expression to
-				// the index of the character currently being processed. Since it is
-				// being executed on the whole input, this is required for getting the
-				// correct match and having better performance.
-
-
-				typeRE.lastIndex = i; // Execute the tag type regular expression on the input and store
-				// the match and captured groups.
-
-				var typeExec = typeRE.exec(input);
-				var typeMatch = typeExec[0];
-				var type = typeExec[1];
-				var attributesText = typeExec[2];
-				var closingSlash = typeExec[3];
-				var attributes = {};
-				var attributeExec = void 0; // Keep matching for new attribute key/value pairs until there are no
-				// more in the attribute text.
-
-				while ((attributeExec = attributeRE.exec(attributesText)) !== null) {
-					// Store the match and captured groups.
-					var attributeMatch = attributeExec[0];
-					var attributeKey = attributeExec[1];
-					var attributeValue = attributeExec[2];
-					var attributeExpression = attributeExec[3];
-
-					if (attributeMatch.length === 0) {
-						// If nothing is matched, continue searching from the next
-						// character. This is required because the attribute regular
-						// expression can have empty matches and create an infinite
-						// loop.
-						attributeRE.lastIndex += 1;
-					} else {
-						// Store the key/value pair using the matched value or
-						// expression.
-						attributes[attributeKey] = attributeExpression === undefined ? attributeValue : attributeExpression;
-					}
-				} // Append an opening tag token with the type, attributes, and optional
-				// self-closing slash.
-
-
-				tokens.push({
-					type: "tagOpen",
-					value: type,
-					attributes: attributes,
-					closed: closingSlash === "/"
-				});
-				i += typeMatch.length;
-			} else if (_char === "{") {
-				// If a sequence of characters begins with "{", process it as an
-				// expression token.
-				var expression = ""; // Consume the input until the end of the expression.
-
-				for (i += 1; i < input.length; i++) {
-					var _char2 = input[i];
-
-					if (_char2 === "}") {
-						break;
-					} else {
-						expression += _char2;
-					}
-				} // Append the expression as a <Text/> element with the appropriate
-				// text content attribute.
-
-
-				tokens.push({
-					type: "tagOpen",
-					value: "Text",
-					attributes: {
-						"": expression
-					},
-					closed: true
-				});
-				i += 1;
-			} else {
-				// If nothing has matched at this point, process the input as text.
-				var text = ""; // Consume the input until the start of a new tag or expression.
-
-				for (; i < input.length; i++) {
-					var _char3 = input[i];
-
-					if (_char3 === "<" || _char3 === "{") {
-						break;
-					} else {
-						text += _char3;
-					}
-				} // Append the text as a <Text/> element with the appropriate text
-				// content attribute.
-
-
-				tokens.push({
-					type: "tagOpen",
-					value: "Text",
-					attributes: {
-						"": "\"".concat(text, "\"")
-					},
-					closed: true
-				});
-			}
-		}
-
-		return tokens;
-	}
-
 	function compile(input) {
 		var tokens = lex(input);
 		return parse(0, tokens.length, tokens);
 	}
 
-	var components = {};
-
-	var createElement$1 = function createElement(type) {
-		return document.createElement(type);
-	};
-
-	var createTextNode$1 = function createTextNode(content) {
-		return document.createTextNode(content);
-	};
-
-	var createComment$1 = function createComment() {
-		return document.createComment("");
-	};
-
-	var setAttribute$1 = function setAttribute(element, key, value) {
-		element.setAttribute(key, value);
-	};
-
-	var addEventListener$1 = function addEventListener(element, type, handler) {
-		element.addEventListener(type, handler);
-	};
-
-	var setTextContent$1 = function setTextContent(element, content) {
-		element.textContent = content;
-	};
-
-	var appendChild$1 = function appendChild(element, parent) {
-		parent.appendChild(element);
-	};
-
-	var removeChild$1 = function removeChild(element, parent) {
-		parent.removeChild(element);
-	};
-
-	var insertBefore$1 = function insertBefore(element, reference, parent) {
-		parent.insertBefore(element, reference);
-	};
-
-	var directiveIf$1 = function directiveIf(ifState, ifConditions, ifPortions, ifParent) {
-		for (var i = 0; i < ifConditions.length; i++) {
-			if (ifConditions[i]) {
-				var ifPortion = ifPortions[i];
-
-				if (ifState === ifPortion) {
-					ifPortion[1]();
-				} else {
-					if (ifState) {
-						ifState[2]();
-					}
-
-					ifPortion[0](ifParent);
-					ifPortion[1]();
-					ifState = ifPortion;
-				}
-
-				return ifState;
-			}
-		}
-	};
-
-	var directiveFor$1 = function directiveFor(forIdentifiers, forLocals, forValue, forPortion, forPortions, forParent) {
-		var previousLength = forPortions.length;
-		var nextLength = forValue.length;
-		var maxLength = previousLength > nextLength ? previousLength : nextLength;
-		var keyIdentifier = forIdentifiers[1];
-		var valueIdentifier = forIdentifiers[0];
-
-		for (var i = 0; i < maxLength; i++) {
-			if (i >= previousLength) {
-				var forLocal = {};
-				forLocal[keyIdentifier] = i;
-				forLocal[valueIdentifier] = forValue[i];
-				forLocals[i] = forLocal;
-				var newForPortion = forPortion(forLocal);
-				forPortions.push(newForPortion);
-				newForPortion[0](forParent);
-				newForPortion[1]();
-			} else if (i >= nextLength) {
-				forPortions.pop()[2]();
-			} else {
-				var _forLocal = forLocals[i];
-				_forLocal[keyIdentifier] = i;
-				_forLocal[valueIdentifier] = forValue[i];
-				forPortions[i][1]();
-			}
-		}
-	};
-
-	var m = {
-		c: components,
-		ce: createElement$1,
-		ctn: createTextNode$1,
-		cc: createComment$1,
-		sa: setAttribute$1,
-		ael: addEventListener$1,
-		stc: setTextContent$1,
-		ac: appendChild$1,
-		rc: removeChild$1,
-		ib: insertBefore$1,
-		di: directiveIf$1,
-		df: directiveFor$1
-	};
-
-	var create = function create(root) {
-		this._view[0](root);
-
-		this.emit("create");
-	};
-
-	var update = function update(key, value) {
-		if (key !== undefined) {
-			if (_typeof(key) === "object") {
-				for (var childKey in key) {
-					this[childKey] = key[childKey];
-				}
-			} else {
-				this[key] = value;
-			}
-		}
-
-		if (this._queued === false) {
-			this._queued = true;
-			var instance = this;
-			setTimeout(function () {
-				instance._view[1]();
-
-				instance._queued = false;
-				instance.emit("update");
-			}, 0);
-		}
-	};
-
-	var destroy = function destroy() {
-		this._view[2]();
-
-		this.emit("destroy");
-	};
-
-	var on = function on(type, handler) {
-		var events = this._events;
-		var handlers = events[type];
-
-		if (handlers === undefined) {
-			events[type] = [handler.bind(this)];
-		} else {
-			handlers.push(handler.bind(this));
-		}
-	};
-
-	var off = function off(type, handler) {
-		if (type === undefined) {
-			this._events = {};
-		} else if (handler === undefined) {
-			this._events[type] = [];
-		} else {
-			var handlers = this._events[type];
-			handlers.splice(handlers.indexOf(handler), 1);
-		}
-	};
-
-	var emit = function emit(type, data) {
-		var handlers = this._events[type];
-
-		if (handlers !== undefined) {
-			for (var i = 0; i < handlers.length; i++) {
-				handlers[i](data);
-			}
-		}
-	};
-
-	var component = function component(name, data) {
-		// View
-		var view = data.view;
-
-		if (typeof view === "string") {
-			view = new Function("m", "instance", "locals", compile(view));
-		}
-
-		delete data.view; // Events
-
-		var onCreate = data.onCreate;
-		var onUpdate = data.onUpdate;
-		var onDestroy = data.onDestroy;
-		delete data.onCreate;
-		delete data.onUpdate;
-		delete data.onDestroy; // Constructor
-
-		function MoonComponent() {
-			this._view = view(m, this, {});
-			this._events = {};
-
-			if (onCreate !== undefined) {
-				this.on("create", onCreate);
-			}
-
-			if (onUpdate !== undefined) {
-				this.on("update", onUpdate);
-			}
-
-			if (onDestroy !== undefined) {
-				this.on("destroy", onDestroy);
-			}
-		} // Initialize
-
-
-		MoonComponent.prototype = data; // Properties
-
-		data._name = name;
-		data._queued = false; // Methods
-
-		data.create = create;
-		data.update = update;
-		data.destroy = destroy;
-		data.on = on;
-		data.off = off;
-		data.emit = emit;
-		return MoonComponent;
-	};
-
 	var config = {
 		silent: "development" === "production" || typeof console === "undefined"
 	};
 
+	/**
+	 * Does nothing.
+	 */
+
+	function noop() {}
+	/**
+	 * Returns a value if it is defined, or else returns a default value.
+	 *
+	 * @param value
+	 * @param fallback
+	 * @returns Value or default value
+	 */
+
+	function defaultValue(value, fallback) {
+		return value === undefined ? fallback : value;
+	}
+	/**
+	 * Logs an error message to the console.
+	 * @param {string} message
+	 */
+
+	function error(message) {
+		if (config.silent === false) {
+			console.error("[Moon] ERROR: " + message);
+		}
+	}
+
+	/**
+	 * Moon
+	 *
+	 * Creates a new Moon constructor based on given data.
+	 *
+	 * The data can have a `name` property with a string representing the name of
+	 * the component, "Root" by default.
+	 *
+	 * The data can have a `root` property with an element. Moon will automatically
+	 * create a new instance and mount it to the root element provided.
+	 *
+	 * The data must have a `view` property with a string template or precompiled
+	 * functions.
+	 *
+	 * Optional `onCreate`, `onUpdate`, and `onDestroy` hooks can be in the data
+	 * and are called when their corresponding event occurs.
+	 *
+	 * The rest of the data is custom starting state that will be modified as the
+	 * component is passed different values. It can contain properties and methods
+	 * of any type, and will have access to various utilities for creating a new
+	 * state.
+	 *
+	 * @param {Object} data
+	 * @param {string} [data.name="Root"]
+	 * @param {Node|string} [data.root]
+	 * @param {Function|string} data.view
+	 * @param {Function} [data.onCreate]
+	 * @param {Function} [data.onUpdate]
+	 * @param {Function} [data.onDestroy]
+	 * @returns {MoonComponent} Moon constructor or instance
+	 */
+
 	function Moon(data) {
+		// Initialize the component constructor with the given data.
+		function MoonComponent() {}
+
+		MoonComponent.prototype = data; // Handle the optional `name` parameter.
+
+		data.name = defaultValue(data.name, "Root"); // Ensure the view is defined, and compile it if needed.
+
+		var view = data.view;
+
+		if (view === undefined) {
+			error("The ".concat(data.name, " component requires a \"view\" property."));
+		}
+
+		if (typeof view === "string") {
+			view = compile(view);
+		}
+
+		data.view = view; // Create default events at the beginning so that checks before calling them
+		// aren't required.
+
+		data.onCreate = defaultValue(data.onCreate, noop);
+		data.onUpdate = defaultValue(data.onUpdate, noop);
+		data.onDestroy = defaultValue(data.onDestroy, noop); // If a `root` option is given, create a new instance and mount it.
+
 		var root = data.root;
 		delete data.root;
 
@@ -756,17 +664,15 @@
 			root = document.querySelector(root);
 		}
 
-		var instanceComponent = component("", data);
-		var instance = new instanceComponent();
-		instance.create(root);
-		instance.update();
-		return instance;
+		if (root === undefined) {
+			return MoonComponent;
+		} else {
+			var instance = new MoonComponent();
+			instance.create(root);
+			return instance;
+		}
 	}
-
-	Moon.extend = function (name, data) {
-		components[name] = component(name, data);
-	};
-
+	Moon.lex = lex;
 	Moon.parse = parse;
 	Moon.generate = generate;
 	Moon.compile = compile;

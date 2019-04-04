@@ -25,7 +25,7 @@ const attributeRE = /\s*([\w\d-_]*)(?:=(?:("[\w\d-_]*"|'[\w\d-_]*')|{([\w\d-_]*)
  * lexer appends the new token to a cumulative list and eventually returns it.
  *
  * @param {string} input
- * @returns {Object[]} tokens
+ * @returns {Object[]} List of tokens
  */
 export function lex(input) {
 	// Remove leading and trailing whitespace because the lexer should only
