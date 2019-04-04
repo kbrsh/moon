@@ -1,3 +1,5 @@
+import { isQuote } from "../../util/util";
+
 /**
  * Capture the tag name, attribute text, and closing slash from an opening tag.
  */
@@ -10,6 +12,43 @@ const typeRE = /<([\w\d-_]+)([^>]*?)(\/?)>/g;
  * undefined.
  */
 const attributeRE = /\s*([\w\d-_]*)(?:=(?:("[\w\d-_]*"|'[\w\d-_]*')|{([\w\d-_]*)}))?/g;
+
+/**
+ * Convert a token into a string, accounting for `<Text/>` components.
+ *
+ * @param {Object} token
+ * @returns {String} Token converted into a string
+ */
+export function tokenString(token) {
+	if (token.type === "tagOpen") {
+		if (token.value === "Text") {
+			const content = token.attributes[""];
+
+			// If the text content is surrounded with quotes, it was normal text.
+			// If not, it was an expression and needs to be formatted.
+			if (isQuote(content[0])) {
+				return content;
+			} else {
+				return `{${content}}`;
+			}
+		} else {
+			let tag = `<${token.value}`;
+
+			for (let attributeKey in token.attributes) {
+				const attributeValue = token.attributes[attributeKey];
+				tag += ` ${attributeKey}=${isQuote(attributeValue) ? attributeValue : `{${attributeValue}}`}`;
+			}
+
+			if (token.closed) {
+				tag += "/";
+			}
+
+			return tag + ">";
+		}
+	} else {
+		return `</${token.value}>`;
+	}
+}
 
 /**
  * Lexer

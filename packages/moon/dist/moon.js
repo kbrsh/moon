@@ -13,9 +13,51 @@
 }(this, function() {
 	"use strict";
 
+	var config = {
+		silent: "development" === "production" || typeof console === "undefined"
+	};
+
+	/**
+	 * Does nothing.
+	 */
+
+	function noop() {}
+	/**
+	 * Returns a value if it is defined, or else returns a default value.
+	 *
+	 * @param value
+	 * @param fallback
+	 * @returns Value or default value
+	 */
+
+	function defaultValue(value, fallback) {
+		return value === undefined ? fallback : value;
+	}
+	/**
+	 * Checks if a given character is a quote.
+	 *
+	 * @param {string} char
+	 * @returns {boolean} True if the character is a quote
+	 */
+
+	function isQuote(_char) {
+		return _char === "\"" || _char === "'";
+	}
+	/**
+	 * Logs an error message to the console.
+	 * @param {string} message
+	 */
+
+	function error(message) {
+		if (config.silent === false) {
+			console.error("[Moon] ERROR: " + message);
+		}
+	}
+
 	/**
 	 * Capture the tag name, attribute text, and closing slash from an opening tag.
 	 */
+
 	var typeRE = /<([\w\d-_]+)([^>]*?)(\/?)>/g;
 	/**
 	 * Capture a key, value, and expression from a list of whitespace-separated
@@ -25,6 +67,42 @@
 	 */
 
 	var attributeRE = /\s*([\w\d-_]*)(?:=(?:("[\w\d-_]*"|'[\w\d-_]*')|{([\w\d-_]*)}))?/g;
+	/**
+	 * Convert a token into a string, accounting for `<Text/>` components.
+	 *
+	 * @param {Object} token
+	 * @returns {String} Token converted into a string
+	 */
+
+	function tokenString(token) {
+		if (token.type === "tagOpen") {
+			if (token.value === "Text") {
+				var content = token.attributes[""]; // If the text content is surrounded with quotes, it was normal text.
+				// If not, it was an expression and needs to be formatted.
+
+				if (isQuote(content[0])) {
+					return content;
+				} else {
+					return "{".concat(content, "}");
+				}
+			} else {
+				var tag = "<".concat(token.value);
+
+				for (var attributeKey in token.attributes) {
+					var attributeValue = token.attributes[attributeKey];
+					tag += " ".concat(attributeKey, "=").concat(isQuote(attributeValue) ? attributeValue : "{".concat(attributeValue, "}"));
+				}
+
+				if (token.closed) {
+					tag += "/";
+				}
+
+				return tag + ">";
+			}
+		} else {
+			return "</".concat(token.value, ">");
+		}
+	}
 	/**
 	 * Lexer
 	 *
@@ -195,6 +273,17 @@
 	}
 
 	/**
+	 * Stores an error message, a slice of tokens associated with the error, and a
+	 * related error for later reporting.
+	 */
+
+	function ParseError(message, start, end, next) {
+		this.message = message;
+		this.start = start;
+		this.end = end;
+		this.next = next;
+	}
+	/**
 	 * Given a start index, end index, and a list of tokens, return a tree after
 	 * matching against the following grammar:
 	 *
@@ -205,10 +294,13 @@
 	 * @param {integer} start
 	 * @param {integer} end
 	 * @param {Object[]} tokens
-	 * @returns {Object} Abstract syntax tree
+	 * @returns {Object} Abstract syntax tree or ParseError
 	 */
+
+
 	function parseElements(start, end, tokens) {
 		var length = end - start;
+		var error;
 
 		if (length === 0) {
 			return [];
@@ -216,16 +308,21 @@
 			for (var elementEnd = start + 1; elementEnd <= end; elementEnd++) {
 				var element = parseElement(start, elementEnd, tokens);
 
-				if (element !== null) {
+				if (element instanceof ParseError) {
+					// Store the latest error in parsing an element. This will be the
+					// error with the largest possible match if all of the input tokens
+					// fail to match.
+					error = element;
+				} else {
 					var elements = parseElements(elementEnd, end, tokens);
 
-					if (elements !== null) {
+					if (!(elements instanceof ParseError)) {
 						return [element].concat(_toConsumableArray(elements));
 					}
 				}
 			}
 
-			return null;
+			return new ParseError("Parser expected valid elements but encountered an error.", start, end, error);
 		}
 	}
 	/**
@@ -239,7 +336,7 @@
 	 * @param {integer} start
 	 * @param {integer} end
 	 * @param {Object[]} tokens
-	 * @returns {Object} Abstract syntax tree
+	 * @returns {Object} Abstract syntax tree or ParseError
 	 */
 
 
@@ -250,7 +347,7 @@
 
 		if (length === 0) {
 			// Return an error because this parser does not accept empty inputs.
-			return null;
+			return new ParseError("Parser expected an element but received nothing.", start, end);
 		} else if (length === 1) {
 			// The next alternate only matches on inputs with one token.
 			if (firstToken.type === "tagOpen" && firstToken.closed === true) {
@@ -262,7 +359,7 @@
 					children: []
 				};
 			} else {
-				return null;
+				return new ParseError("Parser expected a self-closing tag or text but received \"\".", start, end);
 			}
 		} else {
 			// If the input size is greater than one, it must be a full element with
@@ -272,8 +369,8 @@
 				// for the element parse to succeed.
 				var children = parseElements(start + 1, end - 1, tokens);
 
-				if (children === null) {
-					return null;
+				if (children instanceof ParseError) {
+					return new ParseError("Parser expected valid child elements but encountered an error.", start, end, children);
 				} else {
 					return {
 						type: firstToken.value,
@@ -282,7 +379,7 @@
 					};
 				}
 			} else {
-				return null;
+				return new ParseError("Parser expected an element with matching opening and closing tags.", start, end);
 			}
 		}
 	}
@@ -322,6 +419,32 @@
 
 	function parse(tokens) {
 		var tree = parseElement(0, tokens.length, tokens);
+
+		if (tree instanceof ParseError) {
+			// Append error messages and print all of them with their corresponding
+			// locations in the source.
+			var parseErrors = "";
+			var parseError = tree;
+
+			do {
+				parseErrors += "".concat(parseError.message, "\n");
+				var tokenStrings = "";
+				var marks = ""; // Collect the tokens responsible for the error as well as the
+				// surrounding tokens.
+
+				for (var i = Math.max(0, parseError.start - 1); i < Math.min(parseError.end + 1, tokens.length); i++) {
+					var currentTokenString = tokenString(tokens[i]);
+					tokenStrings += currentTokenString; // If the token was directly responsible for the error, mark it.
+
+					marks += (i >= parseError.start && i < parseError.end ? "^" : " ").repeat(currentTokenString.length);
+				}
+
+				parseErrors += "".concat(tokenStrings, "\n").concat(marks, "\n\n");
+			} while ((parseError = parseError.next) !== undefined);
+
+			error("Parser failed to process the view.\n\n".concat(parseErrors));
+		}
+
 		return tree;
 	}
 
@@ -581,37 +704,6 @@
 
 	function compile(input) {
 		return parse(lex(input));
-	}
-
-	var config = {
-		silent: "development" === "production" || typeof console === "undefined"
-	};
-
-	/**
-	 * Does nothing.
-	 */
-
-	function noop() {}
-	/**
-	 * Returns a value if it is defined, or else returns a default value.
-	 *
-	 * @param value
-	 * @param fallback
-	 * @returns Value or default value
-	 */
-
-	function defaultValue(value, fallback) {
-		return value === undefined ? fallback : value;
-	}
-	/**
-	 * Logs an error message to the console.
-	 * @param {string} message
-	 */
-
-	function error(message) {
-		if (config.silent === false) {
-			console.error("[Moon] ERROR: " + message);
-		}
 	}
 
 	/**
