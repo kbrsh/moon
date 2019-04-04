@@ -1,5 +1,3 @@
-import { config } from "./config";
-
 /**
  * Does nothing.
  */
@@ -31,7 +29,7 @@ export function isQuote(char) {
  * @param {string} message
  */
 export function error(message) {
-	if (config.silent === false) {
+	if (process.env.MOON_ENV === "development") {
 		console.error("[Moon] ERROR: " + message);
 	}
 }

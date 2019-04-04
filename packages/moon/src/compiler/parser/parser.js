@@ -54,7 +54,9 @@ function parseElements(start, end, tokens) {
 		}
 
 		return new ParseError(
-			`Parser expected valid elements but encountered an error.`,
+			process.env.MOON_ENV === "development" ?
+			`Parser expected valid elements but encountered an error.` :
+			"",
 			start,
 			end,
 			error
@@ -83,7 +85,9 @@ function parseElement(start, end, tokens) {
 	if (length === 0) {
 		// Return an error because this parser does not accept empty inputs.
 		return new ParseError(
-			`Parser expected an element but received nothing.`,
+			process.env.MOON_ENV === "development" ?
+			`Parser expected an element but received nothing.` :
+			"",
 			start,
 			end
 		);
@@ -102,7 +106,9 @@ function parseElement(start, end, tokens) {
 			};
 		} else {
 			return new ParseError(
-				`Parser expected a self-closing tag or text but received "".`,
+				process.env.MOON_ENV === "development" ?
+				`Parser expected a self-closing tag or text but received "".` :
+				"",
 				start,
 				end
 			);
@@ -121,7 +127,9 @@ function parseElement(start, end, tokens) {
 
 			if (children instanceof ParseError) {
 				return new ParseError(
-					`Parser expected valid child elements but encountered an error.`,
+					process.env.MOON_ENV === "development" ?
+					`Parser expected valid child elements but encountered an error.` :
+					"",
 					start,
 					end,
 					children
@@ -135,7 +143,9 @@ function parseElement(start, end, tokens) {
 			}
 		} else {
 			return new ParseError(
-				`Parser expected an element with matching opening and closing tags.`,
+				process.env.MOON_ENV === "development" ?
+				`Parser expected an element with matching opening and closing tags.` :
+				"",
 				start,
 				end
 			);
@@ -178,7 +188,7 @@ function parseElement(start, end, tokens) {
 export function parse(tokens) {
 	const tree = parseElement(0, tokens.length, tokens);
 
-	if (tree instanceof ParseError) {
+	if (process.env.MOON_ENV === "development" && tree instanceof ParseError) {
 		// Append error messages and print all of them with their corresponding
 		// locations in the source.
 		let parseErrors = "";

@@ -4,7 +4,6 @@ import { generate } from "./compiler/generator/generator";
 import { compile } from "./compiler/compiler";
 import { components } from "./component/components";
 import { defaultValue, error, noop } from "./util/util";
-import { config } from "./util/config";
 
 /**
  * Moon
@@ -55,7 +54,7 @@ export default function Moon(data) {
 	// Ensure the view is defined, and compile it if needed.
 	let view = data.view;
 
-	if (view === undefined) {
+	if (process.env.MOON_ENV === "development" && view === undefined) {
 		error(`The ${data.name} component requires a "view" property.`);
 	}
 
@@ -94,4 +93,3 @@ Moon.lex = lex;
 Moon.parse = parse;
 Moon.generate = generate;
 Moon.compile = compile;
-Moon.config = config;

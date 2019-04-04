@@ -13,14 +13,9 @@
 }(this, function() {
 	"use strict";
 
-	var config = {
-		silent: "development" === "production" || typeof console === "undefined"
-	};
-
 	/**
 	 * Does nothing.
 	 */
-
 	function noop() {}
 	/**
 	 * Returns a value if it is defined, or else returns a default value.
@@ -49,7 +44,7 @@
 	 */
 
 	function error(message) {
-		if (config.silent === false) {
+		if ("development" === "development") {
 			console.error("[Moon] ERROR: " + message);
 		}
 	}
@@ -323,7 +318,7 @@
 				}
 			}
 
-			return new ParseError("Parser expected valid elements but encountered an error.", start, end, error);
+			return new ParseError("development" === "development" ? "Parser expected valid elements but encountered an error." : "", start, end, error);
 		}
 	}
 	/**
@@ -348,7 +343,7 @@
 
 		if (length === 0) {
 			// Return an error because this parser does not accept empty inputs.
-			return new ParseError("Parser expected an element but received nothing.", start, end);
+			return new ParseError("development" === "development" ? "Parser expected an element but received nothing." : "", start, end);
 		} else if (length === 1) {
 			// The next alternate only matches on inputs with one token.
 			if (firstToken.type === "tagOpen" && firstToken.closed === true) {
@@ -360,7 +355,7 @@
 					children: []
 				};
 			} else {
-				return new ParseError("Parser expected a self-closing tag or text but received \"\".", start, end);
+				return new ParseError("development" === "development" ? "Parser expected a self-closing tag or text but received \"\"." : "", start, end);
 			}
 		} else {
 			// If the input size is greater than one, it must be a full element with
@@ -371,7 +366,7 @@
 				var children = parseElements(start + 1, end - 1, tokens);
 
 				if (children instanceof ParseError) {
-					return new ParseError("Parser expected valid child elements but encountered an error.", start, end, children);
+					return new ParseError("development" === "development" ? "Parser expected valid child elements but encountered an error." : "", start, end, children);
 				} else {
 					return {
 						type: firstToken.value,
@@ -380,7 +375,7 @@
 					};
 				}
 			} else {
-				return new ParseError("Parser expected an element with matching opening and closing tags.", start, end);
+				return new ParseError("development" === "development" ? "Parser expected an element with matching opening and closing tags." : "", start, end);
 			}
 		}
 	}
@@ -421,7 +416,7 @@
 	function parse(tokens) {
 		var tree = parseElement(0, tokens.length, tokens);
 
-		if (tree instanceof ParseError) {
+		if ("development" === "development" && tree instanceof ParseError) {
 			// Append error messages and print all of them with their corresponding
 			// locations in the source.
 			var parseErrors = "";
@@ -751,7 +746,7 @@
 
 		var view = data.view;
 
-		if (view === undefined) {
+		if ("development" === "development" && view === undefined) {
 			error("The ".concat(data.name, " component requires a \"view\" property."));
 		}
 
@@ -786,7 +781,6 @@
 	Moon.parse = parse;
 	Moon.generate = generate;
 	Moon.compile = compile;
-	Moon.config = config;
 
 	return Moon;
 }));
