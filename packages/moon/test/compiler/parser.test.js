@@ -2,8 +2,7 @@ import { lex } from "../../src/compiler/lexer/lexer";
 import { parse } from "../../src/compiler/parser/parser";
 
 function parseTest(input) {
-	const tokens = lex(input);
-	return parse(0, tokens.length, tokens);
+	return parse(lex(input));
 }
 
 test("parse empty element", () => {

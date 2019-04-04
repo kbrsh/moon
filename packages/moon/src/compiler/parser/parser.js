@@ -22,7 +22,7 @@ function parseElements(start, end, tokens) {
 			elementEnd <= end;
 			elementEnd++
 		) {
-			const element = parse(start, elementEnd, tokens);
+			const element = parseElement(start, elementEnd, tokens);
 
 			if (element !== null) {
 				const elements = parseElements(elementEnd, end, tokens);
@@ -38,40 +38,19 @@ function parseElements(start, end, tokens) {
 }
 
 /**
- * Parser
- *
- * The parser is responsible for taking a start index, end index, and a list of
- * tokens to return an abstract syntax tree of a view template. The start and
- * end index are required because it is a recursive function that is called on
- * various sections of the tokens. Instead of passing down slices of the
- * tokens, it is much more efficient to keep the same reference and pass new
- * ranges. The start index is inclusive, and the end index is exclusive.
- *
- * The parser is built up of other parsers, including itself and
- * `parseChildren()`. Each parser is responsible for taking an input with a
- * length within a certain range. A parser has a set of alternates that are
- * matched *exactly* to the input. Each alternate distributes the input in
- * various ways across other parsers in every possible way. If an alternate
- * matches, it is returned as a new node in the tree. If it doesn't, and any
- * other alternates don't match either, then it returns an error.
- *
- * The simplest possible parser simply takes an input and ensures that it
- * matches a certain sequence of tokens. This parser is built from the
- * following structure:
+ * Given a start index, end index, and a list of tokens, return a tree after
+ * matching against the following grammar:
  *
  * Element -> TagSelfClosing | TagOpen Elements TagClose
- * Elements -> Empty | Element Elements
  *
- * In this case, `TagSelfClosing`, `TagOpen`, and `TagClose` are primitive
- * parsers that ensure that the input token matches their respective token
- * type.
+ * The parsing algorithm is explained in more detail in the `parse` function.
  *
  * @param {integer} start
  * @param {integer} end
  * @param {Object[]} tokens
  * @returns {Object} Abstract syntax tree
  */
-export function parse(start, end, tokens) {
+function parseElement(start, end, tokens) {
 	const firstToken = tokens[start];
 	const lastToken = tokens[end - 1];
 	const length = end - start;
@@ -120,4 +99,41 @@ export function parse(start, end, tokens) {
 			return null;
 		}
 	}
+}
+
+/**
+ * Parser
+ *
+ * The parser is responsible for taking a list of tokens to return an abstract
+ * syntax tree of a view template. The start and end index are passed around
+ * because it is a recursive function that is called on various sections of the
+ * tokens. Instead of passing down slices of the tokens, it is much more
+ * efficient to keep the same reference and pass new ranges. The start index is
+ * inclusive, and the end index is exclusive.
+ *
+ * The parser is built up of other parsers, including `parseElement()` and
+ * `parseElements()`. Each parser is responsible for taking an input with a
+ * length within a certain range. A parser has a set of alternates that are
+ * matched *exactly* to the input. Each alternate distributes the input in
+ * various ways across other parsers in every possible way. If an alternate
+ * matches, it is returned as a new node in the tree. If it doesn't, and any
+ * other alternates don't match either, then it returns an error.
+ *
+ * The simplest possible parser takes an input and ensures that it matches a
+ * certain sequence of tokens. This parser is built from the following
+ * structure:
+ *
+ * Element -> TagSelfClosing | TagOpen Elements TagClose
+ * Elements -> Empty | Element Elements
+ *
+ * In this case, `TagSelfClosing`, `TagOpen`, and `TagClose` are primitive
+ * parsers that ensure that the input token matches their respective token
+ * type.
+ *
+ * @param {Object[]} tokens
+ * @returns {Object} Abstract syntax tree
+ */
+export function parse(tokens) {
+	const tree = parseElement(0, tokens.length, tokens);
+	return tree;
 }
