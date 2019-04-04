@@ -85,8 +85,8 @@ function parseElements(start, end, tokens) {
  * @returns {Object} Abstract syntax tree or ParseError
  */
 function parseElement(start, end, tokens) {
-	const firstToken = tokens[start];
-	const lastToken = tokens[end - 1];
+	const tokenFirst = tokens[start];
+	const tokenLast = tokens[end - 1];
 	const length = end - start;
 
 	if (length === 0) {
@@ -101,14 +101,14 @@ function parseElement(start, end, tokens) {
 	} else if (length === 1) {
 		// The next alternate only matches on inputs with one token.
 		if (
-			firstToken.type === "tagOpen" &&
-			firstToken.closed === true
+			tokenFirst.type === "tagOpen" &&
+			tokenFirst.closed === true
 		) {
 			// Verify that the single token is a self-closing tag, and return a
 			// new element without children.
 			return {
-				type: firstToken.value,
-				attributes: firstToken.attributes,
+				type: tokenFirst.value,
+				attributes: tokenFirst.attributes,
 				children: []
 			};
 		} else {
@@ -124,9 +124,9 @@ function parseElement(start, end, tokens) {
 		// If the input size is greater than one, it must be a full element with
 		// both opening and closing tags that match.
 		if (
-			firstToken.type === "tagOpen" &&
-			lastToken.type === "tagClose" &&
-			firstToken.value === lastToken.value
+			tokenFirst.type === "tagOpen" &&
+			tokenLast.type === "tagClose" &&
+			tokenFirst.value === tokenLast.value
 		) {
 			// Attempt to parse the inner contents as children. They must be valid
 			// for the element parse to succeed.
@@ -143,8 +143,8 @@ function parseElement(start, end, tokens) {
 				);
 			} else {
 				return {
-					type: firstToken.value,
-					attributes: firstToken.attributes,
+					type: tokenFirst.value,
+					attributes: tokenFirst.attributes,
 					children
 				};
 			}

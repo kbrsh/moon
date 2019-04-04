@@ -10,7 +10,7 @@ export function noop() {}
  * @param fallback
  * @returns Value or default value
  */
-export function defaultValue(value, fallback) {
+export function valueDefault(value, fallback) {
 	return value === undefined ? fallback : value;
 }
 

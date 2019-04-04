@@ -25,7 +25,7 @@
 	 * @returns Value or default value
 	 */
 
-	function defaultValue(value, fallback) {
+	function valueDefault(value, fallback) {
 		return value === undefined ? fallback : value;
 	}
 	/**
@@ -126,22 +126,22 @@
 			var _char = input[i];
 
 			if (_char === "<") {
-				var nextChar = input[i + 1];
+				var charNext = input[i + 1];
 
-				if (nextChar === "/") {
+				if (charNext === "/") {
 					// Append a closing tag token if a sequence of characters begins
 					// with "</".
-					var closeIndex = input.indexOf(">", i + 2);
+					var indexClose = input.indexOf(">", i + 2);
 
-					var _type = input.slice(i + 2, closeIndex);
+					var _type = input.slice(i + 2, indexClose);
 
 					tokens.push({
 						type: "tagClose",
 						value: _type
 					});
-					i = closeIndex + 1;
+					i = indexClose + 1;
 					continue;
-				} else if (nextChar === "!" && input[i + 2] === "-" && input[i + 3] === "-") {
+				} else if (charNext === "!" && input[i + 2] === "-" && input[i + 3] === "-") {
 					// Ignore input if a sequence of characters begins with "<!--".
 					i = input.indexOf("-->", i + 4) + 3;
 					continue;
@@ -324,8 +324,8 @@
 
 
 	function parseElement(start, end, tokens) {
-		var firstToken = tokens[start];
-		var lastToken = tokens[end - 1];
+		var tokenFirst = tokens[start];
+		var tokenLast = tokens[end - 1];
 		var length = end - start;
 
 		if (length === 0) {
@@ -333,12 +333,12 @@
 			return new ParseError("development" === "development" ? "Parser expected an element but received nothing." : "", start, end);
 		} else if (length === 1) {
 			// The next alternate only matches on inputs with one token.
-			if (firstToken.type === "tagOpen" && firstToken.closed === true) {
+			if (tokenFirst.type === "tagOpen" && tokenFirst.closed === true) {
 				// Verify that the single token is a self-closing tag, and return a
 				// new element without children.
 				return {
-					type: firstToken.value,
-					attributes: firstToken.attributes,
+					type: tokenFirst.value,
+					attributes: tokenFirst.attributes,
 					children: []
 				};
 			} else {
@@ -347,7 +347,7 @@
 		} else {
 			// If the input size is greater than one, it must be a full element with
 			// both opening and closing tags that match.
-			if (firstToken.type === "tagOpen" && lastToken.type === "tagClose" && firstToken.value === lastToken.value) {
+			if (tokenFirst.type === "tagOpen" && tokenLast.type === "tagClose" && tokenFirst.value === tokenLast.value) {
 				// Attempt to parse the inner contents as children. They must be valid
 				// for the element parse to succeed.
 				var children = parseElements(start + 1, end - 1, tokens);
@@ -356,8 +356,8 @@
 					return new ParseError("development" === "development" ? "Parser expected valid child elements but encountered an error." : "", start, end, children);
 				} else {
 					return {
-						type: firstToken.value,
-						attributes: firstToken.attributes,
+						type: tokenFirst.value,
+						attributes: tokenFirst.attributes,
 						children: children
 					};
 				}
@@ -729,7 +729,7 @@
 
 		MoonComponent.prototype = data; // Handle the optional `name` parameter.
 
-		data.name = defaultValue(data.name, "Root"); // Ensure the view is defined, and compile it if needed.
+		data.name = valueDefault(data.name, "Root"); // Ensure the view is defined, and compile it if needed.
 
 		var view = data.view;
 
@@ -744,9 +744,9 @@
 		data.view = view; // Create default events at the beginning so that checks before calling them
 		// aren't required.
 
-		data.onCreate = defaultValue(data.onCreate, noop);
-		data.onUpdate = defaultValue(data.onUpdate, noop);
-		data.onDestroy = defaultValue(data.onDestroy, noop); // If a `root` option is given, create a new instance and mount it, or else
+		data.onCreate = valueDefault(data.onCreate, noop);
+		data.onUpdate = valueDefault(data.onUpdate, noop);
+		data.onDestroy = valueDefault(data.onDestroy, noop); // If a `root` option is given, create a new instance and mount it, or else
 		// just return the constructor.
 
 		var root = data.root;

@@ -3,7 +3,7 @@ import { parse } from "./compiler/parser/parser";
 import { generate } from "./compiler/generator/generator";
 import { compile } from "./compiler/compiler";
 import { components } from "./component/components";
-import { defaultValue, error, noop } from "./util/util";
+import { error, noop, valueDefault } from "./util/util";
 
 /**
  * Moon
@@ -49,7 +49,7 @@ export default function Moon(data) {
 	MoonComponent.prototype = data;
 
 	// Handle the optional `name` parameter.
-	data.name = defaultValue(data.name, "Root");
+	data.name = valueDefault(data.name, "Root");
 
 	// Ensure the view is defined, and compile it if needed.
 	let view = data.view;
@@ -66,9 +66,9 @@ export default function Moon(data) {
 
 	// Create default events at the beginning so that checks before calling them
 	// aren't required.
-	data.onCreate = defaultValue(data.onCreate, noop);
-	data.onUpdate = defaultValue(data.onUpdate, noop);
-	data.onDestroy = defaultValue(data.onDestroy, noop);
+	data.onCreate = valueDefault(data.onCreate, noop);
+	data.onUpdate = valueDefault(data.onUpdate, noop);
+	data.onDestroy = valueDefault(data.onDestroy, noop);
 
 	// If a `root` option is given, create a new instance and mount it, or else
 	// just return the constructor.

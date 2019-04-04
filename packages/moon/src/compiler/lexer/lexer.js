@@ -78,24 +78,24 @@ export function lex(input) {
 		const char = input[i];
 
 		if (char === "<") {
-			const nextChar = input[i + 1];
+			const charNext = input[i + 1];
 
-			if (nextChar === "/") {
+			if (charNext === "/") {
 				// Append a closing tag token if a sequence of characters begins
 				// with "</".
 
-				const closeIndex = input.indexOf(">", i + 2);
-				const type = input.slice(i + 2, closeIndex);
+				const indexClose = input.indexOf(">", i + 2);
+				const type = input.slice(i + 2, indexClose);
 
 				tokens.push({
 					type: "tagClose",
 					value: type
 				});
 
-				i = closeIndex + 1;
+				i = indexClose + 1;
 				continue;
 			} else if (
-				nextChar === "!" &&
+				charNext === "!" &&
 				input[i + 2] === "-" &&
 				input[i + 3] === "-"
 			) {
