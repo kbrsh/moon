@@ -88,7 +88,7 @@ test("parse nested elements", () => {
 	});
 });
 
-test("parse error from invalid view", () => {
+test("parse errors in development", () => {
 	process.env.MOON_ENV = "development";
 	console.error = jest.fn();
 
@@ -100,6 +100,11 @@ test("parse error from invalid view", () => {
 	`).constructor.name).toBe("ParseError");
 	expect(console.error).toBeCalled();
 
+	expect(parseTest("").constructor.name).toBe("ParseError");
+	expect(console.error.mock.calls.length).toBe(2);
+});
+
+test("parse errors in production", () => {
 	process.env.MOON_ENV = "production";
 	console.error = jest.fn();
 
@@ -110,17 +115,6 @@ test("parse error from invalid view", () => {
 		</div>
 	`).constructor.name).toBe("ParseError");
 	expect(console.error).not.toBeCalled();
-});
-
-test("parse error from empty element", () => {
-	process.env.MOON_ENV = "development";
-	console.error = jest.fn();
-
-	expect(parseTest("").constructor.name).toBe("ParseError");
-	expect(console.error).toBeCalled();
-
-	process.env.MOON_ENV = "production";
-	console.error = jest.fn();
 
 	expect(parseTest("").constructor.name).toBe("ParseError");
 	expect(console.error).not.toBeCalled();
