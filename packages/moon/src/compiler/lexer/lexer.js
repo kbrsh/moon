@@ -24,10 +24,11 @@ export function tokenString(token) {
 		if (token.value === "Text") {
 			const content = token.attributes[""];
 
-			// If the text content is surrounded with quotes, it was normal text.
-			// If not, it was an expression and needs to be formatted.
+			// If the text content is surrounded with quotes, it was normal text
+			// and doesn't need the quotes. If not, it was an expression and
+			// needs to be formatted with curly braces.
 			if (isQuote(content[0])) {
-				return content;
+				return content.slice(1, -1);
 			} else {
 				return `{${content}}`;
 			}
@@ -36,7 +37,7 @@ export function tokenString(token) {
 
 			for (let attributeKey in token.attributes) {
 				const attributeValue = token.attributes[attributeKey];
-				tag += ` ${attributeKey}=${isQuote(attributeValue) ? attributeValue : `{${attributeValue}}`}`;
+				tag += ` ${attributeKey}=${isQuote(attributeValue[0]) ? attributeValue : `{${attributeValue}}`}`;
 			}
 
 			if (token.closed) {

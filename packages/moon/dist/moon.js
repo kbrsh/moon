@@ -77,11 +77,12 @@
 	function tokenString(token) {
 		if (token.type === "tagOpen") {
 			if (token.value === "Text") {
-				var content = token.attributes[""]; // If the text content is surrounded with quotes, it was normal text.
-				// If not, it was an expression and needs to be formatted.
+				var content = token.attributes[""]; // If the text content is surrounded with quotes, it was normal text
+				// and doesn't need the quotes. If not, it was an expression and
+				// needs to be formatted with curly braces.
 
 				if (isQuote(content[0])) {
-					return content;
+					return content.slice(1, -1);
 				} else {
 					return "{".concat(content, "}");
 				}
@@ -90,7 +91,7 @@
 
 				for (var attributeKey in token.attributes) {
 					var attributeValue = token.attributes[attributeKey];
-					tag += " ".concat(attributeKey, "=").concat(isQuote(attributeValue) ? attributeValue : "{".concat(attributeValue, "}"));
+					tag += " ".concat(attributeKey, "=").concat(isQuote(attributeValue[0]) ? attributeValue : "{".concat(attributeValue, "}"));
 				}
 
 				if (token.closed) {
