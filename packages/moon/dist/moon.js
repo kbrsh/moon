@@ -413,7 +413,7 @@
 	 * type.
 	 *
 	 * @param {Object[]} tokens
-	 * @returns {Object} Abstract syntax tree
+	 * @returns {Object} Abstract syntax tree or ParseError
 	 */
 
 

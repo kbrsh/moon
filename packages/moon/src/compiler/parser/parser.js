@@ -173,7 +173,7 @@ function parseElement(start, end, tokens) {
  * type.
  *
  * @param {Object[]} tokens
- * @returns {Object} Abstract syntax tree
+ * @returns {Object} Abstract syntax tree or ParseError
  */
 export function parse(tokens) {
 	const tree = parseElement(0, tokens.length, tokens);
