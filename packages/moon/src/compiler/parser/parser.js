@@ -1,4 +1,4 @@
-/*
+/**
  * Parse elements
  *
  * Given a start index, end index, and a list of tokens, return a tree after
@@ -39,7 +39,7 @@ function parseElements(start, end, tokens) {
 	}
 }
 
-/*
+/**
  * Parser
  *
  * The parser is responsible for taking a start index, end index, and a list of
