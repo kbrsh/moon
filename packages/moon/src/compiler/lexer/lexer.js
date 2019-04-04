@@ -84,15 +84,15 @@ export function lex(input) {
 				// Append a closing tag token if a sequence of characters begins
 				// with "</".
 
-				const indexClose = input.indexOf(">", i + 2);
-				const type = input.slice(i + 2, indexClose);
+				const closeIndex = input.indexOf(">", i + 2);
+				const type = input.slice(i + 2, closeIndex);
 
 				tokens.push({
 					type: "tagClose",
 					value: type
 				});
 
-				i = indexClose + 1;
+				i = closeIndex + 1;
 				continue;
 			} else if (
 				charNext === "!" &&
@@ -116,7 +116,7 @@ export function lex(input) {
 			const typeMatch = typeExec[0];
 			const type = typeExec[1];
 			const attributesText = typeExec[2];
-			const closingSlash = typeExec[3];
+			const closeSlash = typeExec[3];
 			const attributes = {};
 			let attributeExec;
 
@@ -154,7 +154,7 @@ export function lex(input) {
 				type: "tagOpen",
 				value: type,
 				attributes,
-				closed: closingSlash === "/"
+				closed: closeSlash  === "/"
 			});
 
 			i += typeMatch.length;

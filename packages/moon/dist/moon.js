@@ -131,15 +131,15 @@
 				if (charNext === "/") {
 					// Append a closing tag token if a sequence of characters begins
 					// with "</".
-					var indexClose = input.indexOf(">", i + 2);
+					var closeIndex = input.indexOf(">", i + 2);
 
-					var _type = input.slice(i + 2, indexClose);
+					var _type = input.slice(i + 2, closeIndex);
 
 					tokens.push({
 						type: "tagClose",
 						value: _type
 					});
-					i = indexClose + 1;
+					i = closeIndex + 1;
 					continue;
 				} else if (charNext === "!" && input[i + 2] === "-" && input[i + 3] === "-") {
 					// Ignore input if a sequence of characters begins with "<!--".
@@ -158,7 +158,7 @@
 				var typeMatch = typeExec[0];
 				var type = typeExec[1];
 				var attributesText = typeExec[2];
-				var closingSlash = typeExec[3];
+				var closeSlash = typeExec[3];
 				var attributes = {};
 				var attributeExec = void 0; // Keep matching for new attribute key/value pairs until there are no
 				// more in the attribute text.
@@ -189,7 +189,7 @@
 					type: "tagOpen",
 					value: type,
 					attributes: attributes,
-					closed: closingSlash === "/"
+					closed: closeSlash === "/"
 				});
 				i += typeMatch.length;
 			} else if (_char === "{") {
