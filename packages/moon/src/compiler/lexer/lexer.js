@@ -19,7 +19,7 @@ const attributeRE = /\s*([\w\d-_]*)(?:=(?:("[\w\d-_]*"|'[\w\d-_]*')|{([\w\d-_]*)
  * @param {Object} token
  * @returns {String} Token converted into a string
  */
-export function stringToken(token) {
+export function tokenString(token) {
 	if (token.type === "tagOpen") {
 		if (token.value === "Text") {
 			const content = token.attributes[""];

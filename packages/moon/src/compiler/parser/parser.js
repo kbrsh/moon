@@ -1,4 +1,4 @@
-import { stringToken } from "../lexer/lexer";
+import { tokenString } from "../lexer/lexer";
 import { error } from "../../util/util";
 
 /**
@@ -211,7 +211,7 @@ export function parse(tokens) {
 				i < Math.min(parseError.end + 1, tokens.length);
 				i++
 			) {
-				parseErrors += stringToken(tokens[i]);
+				parseErrors += tokenString(tokens[i]);
 			}
 
 			parseErrors += "\n\n";

@@ -69,7 +69,7 @@
 	 * @returns {String} Token converted into a string
 	 */
 
-	function stringToken(token) {
+	function tokenString(token) {
 		if (token.type === "tagOpen") {
 			if (token.value === "Text") {
 				var content = token.attributes[""]; // If the text content is surrounded with quotes, it was normal text
@@ -414,7 +414,7 @@
 				// surrounding tokens.
 
 				for (var i = Math.max(0, parseError.start - 1); i < Math.min(parseError.end + 1, tokens.length); i++) {
-					parseErrors += stringToken(tokens[i]);
+					parseErrors += tokenString(tokens[i]);
 				}
 
 				parseErrors += "\n\n";
