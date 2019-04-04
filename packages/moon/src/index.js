@@ -9,7 +9,14 @@ import { config } from "./util/config";
 /**
  * Moon
  *
- * Creates a new Moon constructor based on given data.
+ * Creates a new Moon constructor based on given data. Each Moon component is
+ * independent and has no knowledge of the parent. A component has the sole
+ * function of mapping data to a view. A component starts by creating a view
+ * with data. Every time data is set to a new object, the component updates
+ * with the new data. Each of these methods are created from compiling the view
+ * into vanilla JavaScript running on a lightweight Moon runtime. The built-in
+ * components can all be implemented in user space, but some are optimized and
+ * implemented in the compiler.
  *
  * The data can have a `name` property with a string representing the name of
  * the component, "Root" by default.
