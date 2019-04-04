@@ -71,7 +71,8 @@ export default function Moon(data) {
 	data.onUpdate = defaultValue(data.onUpdate, noop);
 	data.onDestroy = defaultValue(data.onDestroy, noop);
 
-	// If a `root` option is given, create a new instance and mount it.
+	// If a `root` option is given, create a new instance and mount it, or else
+	// just return the constructor.
 	let root = data.root;
 	delete data.root;
 

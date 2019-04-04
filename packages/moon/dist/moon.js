@@ -662,7 +662,8 @@
 
 		data.onCreate = defaultValue(data.onCreate, noop);
 		data.onUpdate = defaultValue(data.onUpdate, noop);
-		data.onDestroy = defaultValue(data.onDestroy, noop); // If a `root` option is given, create a new instance and mount it.
+		data.onDestroy = defaultValue(data.onDestroy, noop); // If a `root` option is given, create a new instance and mount it, or else
+		// just return the constructor.
 
 		var root = data.root;
 		delete data.root;
