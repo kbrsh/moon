@@ -17,7 +17,7 @@ const attributeRE = /\s*([\w\d-_]*)(?:=(?:("[\w\d-_]*"|'[\w\d-_]*')|{([\w\d-_]*)
  * The lexer is responsible for taking an input view template and converting it
  * into a list of tokens. To make the parser's job easier, it does some extra
  * processing and handles tag names, attribute key/value pairs, and converting
- * text into <Text/> components.
+ * text into `<Text/>` components.
  *
  * It works by running through the input text and checking for specific initial
  * characters such as "<", "{", or any text. After identifying the type of
@@ -134,7 +134,7 @@ export function lex(input) {
 				}
 			}
 
-			// Append the expression as a <Text/> element with the appropriate
+			// Append the expression as a `<Text/>` element with the appropriate
 			// text content attribute.
 			tokens.push({
 				type: "tagOpen",
@@ -161,7 +161,7 @@ export function lex(input) {
 				}
 			}
 
-			// Append the text as a <Text/> element with the appropriate text
+			// Append the text as a `<Text/>` element with the appropriate text
 			// content attribute.
 			tokens.push({
 				type: "tagOpen",
