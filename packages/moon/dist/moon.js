@@ -107,7 +107,7 @@
 	 */
 
 	function lexError(message, input, index) {
-		var lexMessage = message + "\n\n";
+		var lexMessage = message + "\n\n"; // Show input characters surrounding the source of the error.
 
 		for (var i = Math.max(0, index - 16); i < Math.min(index + 16, input.length); i++) {
 			lexMessage += input[i];
@@ -189,6 +189,11 @@
 				// the match and captured groups.
 
 				var typeExec = typeRE.exec(input);
+
+				if ("development" === "development" && typeExec === null) {
+					lexError("Lexer expected a valid opening or closing tag.", input, i);
+				}
+
 				var typeMatch = typeExec[0];
 				var type = typeExec[1];
 				var attributesText = typeExec[2];
@@ -302,6 +307,7 @@
 
 
 	function parseErrorMessage(message) {
+		/* istanbul ignore next */
 		return "development" === "development" ? message : "";
 	}
 	/**

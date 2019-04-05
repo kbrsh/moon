@@ -62,6 +62,7 @@ export function tokenString(token) {
 function lexError(message, input, index) {
 	let lexMessage = `${message}\n\n`;
 
+	// Show input characters surrounding the source of the error.
 	for (
 		let i = Math.max(0, index - 16);
 		i < Math.min(index + 16, input.length);
@@ -152,6 +153,11 @@ export function lex(input) {
 			// Execute the tag type regular expression on the input and store
 			// the match and captured groups.
 			const typeExec = typeRE.exec(input);
+
+			if (process.env.MOON_ENV === "development" && typeExec === null) {
+				lexError("Lexer expected a valid opening or closing tag.", input, i);
+			}
+
 			const typeMatch = typeExec[0];
 			const type = typeExec[1];
 			const attributesText = typeExec[2];

@@ -93,6 +93,20 @@ test("lex error from unclosed opening bracket", () => {
 	expect(console.error).toBeCalled();
 });
 
+test("lex error from invalid opening tag", () => {
+	console.error = jest.fn();
+
+	expect(Array.isArray(lex("<div"))).toBe(true);
+	expect(console.error).toBeCalled();
+});
+
+test("lex error from invalid closing tag", () => {
+	console.error = jest.fn();
+
+	expect(Array.isArray(lex("<div/"))).toBe(true);
+	expect(console.error).toBeCalled();
+});
+
 test("lex error from unclosed self-closing tag", () => {
 	console.error = jest.fn();
 
