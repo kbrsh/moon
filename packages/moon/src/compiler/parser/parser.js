@@ -71,7 +71,7 @@ function parseElements(start, end, tokens) {
 		}
 
 		return new ParseError(
-			parseErrorMessage(`Parser expected valid elements but encountered an error.`),
+			parseErrorMessage("Parser expected valid elements but encountered an error."),
 			start,
 			end,
 			error
@@ -100,7 +100,7 @@ function parseElement(start, end, tokens) {
 	if (length === 0) {
 		// Return an error because this parser does not accept empty inputs.
 		return new ParseError(
-			parseErrorMessage(`Parser expected an element but received nothing.`),
+			parseErrorMessage("Parser expected an element but received nothing."),
 			start,
 			end
 		);
@@ -120,7 +120,7 @@ function parseElement(start, end, tokens) {
 		} else {
 			return new ParseError(
 				process.env.MOON_ENV === "development" ?
-				`Parser expected a self-closing tag or text but received "".` :
+				"Parser expected a self-closing tag or text." :
 				"",
 				start,
 				end
@@ -140,7 +140,7 @@ function parseElement(start, end, tokens) {
 
 			if (children instanceof ParseError) {
 				return new ParseError(
-					parseErrorMessage(`Parser expected valid child elements but encountered an error.`),
+					parseErrorMessage("Parser expected valid child elements but encountered an error."),
 					start,
 					end,
 					children
@@ -154,7 +154,7 @@ function parseElement(start, end, tokens) {
 			}
 		} else {
 			return new ParseError(
-				parseErrorMessage(`Parser expected an element with matching opening and closing tags.`),
+				parseErrorMessage("Parser expected an element with matching opening and closing tags."),
 				start,
 				end
 			);

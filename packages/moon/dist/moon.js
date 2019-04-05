@@ -145,7 +145,7 @@
 			if (_char === "<") {
 				var charNext = input[i + 1];
 
-				if (charNext === undefined) {
+				if ("development" === "development" && charNext === undefined) {
 					lexError("Lexer expected a character after \"<\".", input, i);
 				}
 
@@ -156,7 +156,7 @@
 
 					var _type = input.slice(i + 2, closeIndex);
 
-					if (closeIndex === -1) {
+					if ("development" === "development" && closeIndex === -1) {
 						lexError("Lexer expected a closing \">\" after \"</\".", input, i);
 					}
 
@@ -170,11 +170,11 @@
 					// Ignore input if a sequence of characters begins with "<!--".
 					var _closeIndex = input.indexOf("-->", i + 4);
 
-					if (_closeIndex === -1) {
+					if ("development" === "development" && _closeIndex === -1) {
 						lexError("Lexer expected a closing \"-->\" after \"<!--\".", input, i);
 					}
 
-					i = input.indexOf("-->", i + 4) + 3;
+					i = _closeIndex + 3;
 					continue;
 				} // Set the last searched index of the tag type regular expression to
 				// the index of the character currently being processed. Since it is
@@ -384,7 +384,7 @@
 					children: []
 				};
 			} else {
-				return new ParseError("development" === "development" ? "Parser expected a self-closing tag or text but received \"\"." : "", start, end);
+				return new ParseError("development" === "development" ? "Parser expected a self-closing tag or text." : "", start, end);
 			}
 		} else {
 			// If the input size is greater than one, it must be a full element with
@@ -773,7 +773,7 @@
 
 		var view = data.view;
 
-		if (view === undefined) {
+		if ("development" === "development" && view === undefined) {
 			error("The " + data.name + " component requires a \"view\" property.");
 		}
 

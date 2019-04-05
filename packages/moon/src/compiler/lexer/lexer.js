@@ -102,7 +102,7 @@ export function lex(input) {
 		if (char === "<") {
 			const charNext = input[i + 1];
 
-			if (charNext === undefined) {
+			if (process.env.MOON_ENV === "development" && charNext === undefined) {
 				lexError(`Lexer expected a character after "<".`, input, i);
 			}
 
@@ -113,7 +113,7 @@ export function lex(input) {
 				const closeIndex = input.indexOf(">", i + 2);
 				const type = input.slice(i + 2, closeIndex);
 
-				if (closeIndex === -1) {
+				if (process.env.MOON_ENV === "development" && closeIndex === -1) {
 					lexError(`Lexer expected a closing ">" after "</".`, input, i);
 				}
 
@@ -132,11 +132,11 @@ export function lex(input) {
 				// Ignore input if a sequence of characters begins with "<!--".
 				const closeIndex = input.indexOf("-->", i + 4);
 
-				if (closeIndex === -1) {
+				if (process.env.MOON_ENV === "development" && closeIndex === -1) {
 					lexError(`Lexer expected a closing "-->" after "<!--".`, input, i);
 				}
 
-				i = input.indexOf("-->", i + 4) + 3;
+				i = closeIndex + 3;
 				continue;
 			}
 

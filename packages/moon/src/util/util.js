@@ -29,5 +29,5 @@ export function isQuote(char) {
  * @param {string} message
  */
 export function error(message) {
-	console.error("[Moon] ERROR: " + message);
+	console.error(`[Moon] ERROR: ${message}`);
 }

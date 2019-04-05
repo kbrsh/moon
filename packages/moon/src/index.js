@@ -54,7 +54,7 @@ export default function Moon(data) {
 	// Ensure the view is defined, and compile it if needed.
 	let view = data.view;
 
-	if (view === undefined) {
+	if (process.env.MOON_ENV === "development" && view === undefined) {
 		error(`The ${data.name} component requires a "view" property.`);
 	}
 
