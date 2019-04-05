@@ -31,7 +31,7 @@ module.exports = function (name, input, hot) {
 	var outputCSS = null;
 
 	if (inputCSS !== null) {
-		var scope = "moon-".concat(name, "-").concat(slash(name));
+		var scope = "moon-" + name + "-" + slash(name);
 		tree = addClass(tree, scope);
 		outputCSS = scopeCSS(scope, inputCSS);
 	}
@@ -42,10 +42,10 @@ module.exports = function (name, input, hot) {
 		outputJS = inputJS.replace("export default", "const _moonOptions=");
 	}
 
-	outputJS = "import Moon from \"moon\";".concat(outputJS, "_moonOptions.view=function(m,instance,locals){").concat(Moon.generate(tree, null), "};export default Moon.extend(\"").concat(name, "\",_moonOptions);");
+	outputJS = "import Moon from \"moon\";" + outputJS + "_moonOptions.view=function(m,instance,locals){" + Moon.generate(tree, null) + "};export default Moon.extend(\"" + name + "\",_moonOptions);";
 
 	if (hot) {
-		outputJS = "\n\t\t\timport { registerJS, registerCSS } from \"moon-mvl/lib/hot\";\n\t\t\tconst _moonRemoveJS = [];\n\t\t\tconst _moonRemoveCSS = registerCSS(`".concat(outputCSS, "`);\n\t\t\t").concat(outputJS.replace("export default", "\n\t\t\t\t\tconst _moonOnCreate = _moonOptions.onCreate;\n\t\t\t\t\t_moonOptions.onCreate = function() {\n\t\t\t\t\t\t_moonRemoveJS.push(registerJS(this));\n\n\t\t\t\t\t\tif (_moonOnCreate !== undefined) {\n\t\t\t\t\t\t\t_moonOnCreate(this, []);\n\t\t\t\t\t\t}\n\t\t\t\t\t};\n\t\t\t\t\t$&\n\t\t\t\t"), "\n\t\t\tif (module.hot) {\n\t\t\t\tmodule.hot.dispose(() => {\n\t\t\t\t\tfor (let i = 0; i < _moonRemoveJS.length; i++) {\n\t\t\t\t\t\t_moonRemoveJS[i]();\n\t\t\t\t\t}\n\n\t\t\t\t\t_moonRemoveCSS();\n\t\t\t\t});\n\t\t\t}\n\t\t");
+		outputJS = "\n\t\t\timport { registerJS, registerCSS } from \"moon-mvl/lib/hot\";\n\t\t\tconst _moonRemoveJS = [];\n\t\t\tconst _moonRemoveCSS = registerCSS(`" + outputCSS + "`);\n\t\t\t" + outputJS.replace("export default", "\n\t\t\t\t\tconst _moonOnCreate = _moonOptions.onCreate;\n\t\t\t\t\t_moonOptions.onCreate = function() {\n\t\t\t\t\t\t_moonRemoveJS.push(registerJS(this));\n\n\t\t\t\t\t\tif (_moonOnCreate !== undefined) {\n\t\t\t\t\t\t\t_moonOnCreate(this, []);\n\t\t\t\t\t\t}\n\t\t\t\t\t};\n\t\t\t\t\t$&\n\t\t\t\t") + "\n\t\t\tif (module.hot) {\n\t\t\t\tmodule.hot.dispose(() => {\n\t\t\t\t\tfor (let i = 0; i < _moonRemoveJS.length; i++) {\n\t\t\t\t\t\t_moonRemoveJS[i]();\n\t\t\t\t\t}\n\n\t\t\t\t\t_moonRemoveCSS();\n\t\t\t\t});\n\t\t\t}\n\t\t";
 		outputCSS = null;
 	}
 

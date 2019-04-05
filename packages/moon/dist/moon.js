@@ -44,9 +44,7 @@
 	 */
 
 	function error(message) {
-		if ("development" === "development") {
-			console.error("[Moon] ERROR: " + message);
-		}
+		console.error("[Moon] ERROR: " + message);
 	}
 
 	/**
@@ -79,14 +77,14 @@
 				if (isQuote(content[0])) {
 					return content.slice(1, -1);
 				} else {
-					return "{".concat(content, "}");
+					return "{" + content + "}";
 				}
 			} else {
-				var tag = "<".concat(token.value);
+				var tag = "<" + token.value;
 
 				for (var attributeKey in token.attributes) {
 					var attributeValue = token.attributes[attributeKey];
-					tag += " ".concat(attributeKey, "=").concat(isQuote(attributeValue[0]) ? attributeValue : "{".concat(attributeValue, "}"));
+					tag += " " + attributeKey + "=" + (isQuote(attributeValue[0]) ? attributeValue : "{" + attributeValue + "}");
 				}
 
 				if (token.closed) {
@@ -96,8 +94,26 @@
 				return tag + ">";
 			}
 		} else {
-			return "</".concat(token.value, ">");
+			return "</" + token.value + ">";
 		}
+	}
+	/**
+	 * Logs a lexer error message to the console along with the surrounding
+	 * characters.
+	 *
+	 * @param {string} message
+	 * @param {string} input
+	 * @param {number} index
+	 */
+
+	function lexError(message, input, index) {
+		var lexMessage = message + "\n\n";
+
+		for (var i = Math.max(0, index - 16); i < Math.min(index + 16, input.length); i++) {
+			lexMessage += input[i];
+		}
+
+		error(lexMessage);
 	}
 	/**
 	 * Lexer
@@ -116,6 +132,7 @@
 	 * @returns {Object[]} List of tokens
 	 */
 
+
 	function lex(input) {
 		// Remove leading and trailing whitespace because the lexer should only
 		// accept one element as an input, and whitespace counts as text.
@@ -128,12 +145,20 @@
 			if (_char === "<") {
 				var charNext = input[i + 1];
 
+				if (charNext === undefined) {
+					lexError("Lexer expected a character after \"<\".", input, i);
+				}
+
 				if (charNext === "/") {
 					// Append a closing tag token if a sequence of characters begins
 					// with "</".
 					var closeIndex = input.indexOf(">", i + 2);
 
 					var _type = input.slice(i + 2, closeIndex);
+
+					if (closeIndex === -1) {
+						lexError("Lexer expected a closing \">\" after \"</\".", input, i);
+					}
 
 					tokens.push({
 						type: "tagClose",
@@ -143,6 +168,12 @@
 					continue;
 				} else if (charNext === "!" && input[i + 2] === "-" && input[i + 3] === "-") {
 					// Ignore input if a sequence of characters begins with "<!--".
+					var _closeIndex = input.indexOf("-->", i + 4);
+
+					if (_closeIndex === -1) {
+						lexError("Lexer expected a closing \"-->\" after \"<!--\".", input, i);
+					}
+
 					i = input.indexOf("-->", i + 4) + 3;
 					continue;
 				} // Set the last searched index of the tag type regular expression to
@@ -238,7 +269,7 @@
 					type: "tagOpen",
 					value: "Text",
 					attributes: {
-						"": "\"".concat(text, "\"")
+						"": "\"" + text + "\""
 					},
 					closed: true
 				});
@@ -260,6 +291,17 @@
 		this.next = next;
 	}
 	/**
+	 * Returns a full parse error message only if Moon is in development mode.
+	 *
+	 * @param {string} message
+	 * @returns {string} Conditional error message
+	 */
+
+
+	function parseErrorMessage(message) {
+		return "development" === "development" ? message : "";
+	}
+	/**
 	 * Given a start index, end index, and a list of tokens, return a tree after
 	 * matching against the following grammar:
 	 *
@@ -267,8 +309,8 @@
 	 *
 	 * The parsing algorithm is explained in more detail in the `parse` function.
 	 *
-	 * @param {integer} start
-	 * @param {integer} end
+	 * @param {number} start
+	 * @param {number} end
 	 * @param {Object[]} tokens
 	 * @returns {Object} Abstract syntax tree or ParseError
 	 */
@@ -305,7 +347,7 @@
 				}
 			}
 
-			return new ParseError("development" === "development" ? "Parser expected valid elements but encountered an error." : "", start, end, error);
+			return new ParseError(parseErrorMessage("Parser expected valid elements but encountered an error."), start, end, error);
 		}
 	}
 	/**
@@ -316,8 +358,8 @@
 	 *
 	 * The parsing algorithm is explained in more detail in the `parse` function.
 	 *
-	 * @param {integer} start
-	 * @param {integer} end
+	 * @param {number} start
+	 * @param {number} end
 	 * @param {Object[]} tokens
 	 * @returns {Object} Abstract syntax tree or ParseError
 	 */
@@ -330,7 +372,7 @@
 
 		if (length === 0) {
 			// Return an error because this parser does not accept empty inputs.
-			return new ParseError("development" === "development" ? "Parser expected an element but received nothing." : "", start, end);
+			return new ParseError(parseErrorMessage("Parser expected an element but received nothing."), start, end);
 		} else if (length === 1) {
 			// The next alternate only matches on inputs with one token.
 			if (tokenFirst.type === "tagOpen" && tokenFirst.closed === true) {
@@ -353,7 +395,7 @@
 				var children = parseElements(start + 1, end - 1, tokens);
 
 				if (children instanceof ParseError) {
-					return new ParseError("development" === "development" ? "Parser expected valid child elements but encountered an error." : "", start, end, children);
+					return new ParseError(parseErrorMessage("Parser expected valid child elements but encountered an error."), start, end, children);
 				} else {
 					return {
 						type: tokenFirst.value,
@@ -362,7 +404,7 @@
 					};
 				}
 			} else {
-				return new ParseError("development" === "development" ? "Parser expected an element with matching opening and closing tags." : "", start, end);
+				return new ParseError(parseErrorMessage("Parser expected an element with matching opening and closing tags."), start, end);
 			}
 		}
 	}
@@ -410,63 +452,61 @@
 			var parseError = tree;
 
 			do {
-				parseErrors += "".concat(parseError.message, "\n"); // Collect the tokens responsible for the error as well as the
+				parseErrors += "\n\n" + parseError.message + "\n"; // Collect the tokens responsible for the error as well as the
 				// surrounding tokens.
 
-				for (var i = Math.max(0, parseError.start - 1); i < Math.min(parseError.end + 1, tokens.length); i++) {
+				for (var i = Math.max(0, parseError.start - 2); i < Math.min(parseError.end + 2, tokens.length); i++) {
 					parseErrors += tokenString(tokens[i]);
 				}
-
-				parseErrors += "\n\n";
 			} while ((parseError = parseError.next) !== undefined);
 
-			error("Parser failed to process the view.\n\n".concat(parseErrors));
+			error("Parser failed to process the view." + parseErrors);
 		}
 
 		return tree;
 	}
 
 	var getElement = function getElement(element) {
-		return "m".concat(element);
+		return "m" + element;
 	};
 	var setElement = function setElement(element, code) {
-		return "".concat(getElement(element), "=").concat(code);
+		return getElement(element) + "=" + code;
 	};
 	var createElement = function createElement(type) {
-		return "m.ce(\"".concat(type, "\");");
+		return "m.ce(\"" + type + "\");";
 	};
 	var createTextNode = function createTextNode(content) {
-		return "m.ctn(".concat(content, ");");
+		return "m.ctn(" + content + ");";
 	};
 	var createComment = function createComment() {
 		return "m.cc();";
 	};
 	var attributeValue = function attributeValue(attribute) {
-		return attribute.expression ? attribute.value : "\"".concat(attribute.value, "\"");
+		return attribute.expression ? attribute.value : "\"" + attribute.value + "\"";
 	};
 	var setAttribute = function setAttribute(element, attribute) {
-		return "m.sa(".concat(getElement(element), ",\"").concat(attribute.key, "\",").concat(attributeValue(attribute), ");");
+		return "m.sa(" + getElement(element) + ",\"" + attribute.key + "\"," + attributeValue(attribute) + ");";
 	};
 	var addEventListener = function addEventListener(element, type, handler) {
-		return "m.ael(".concat(getElement(element), ",\"").concat(type, "\",").concat(handler, ");");
+		return "m.ael(" + getElement(element) + ",\"" + type + "\"," + handler + ");";
 	};
 	var setTextContent = function setTextContent(element, content) {
-		return "m.stc(".concat(getElement(element), ",").concat(content, ");");
+		return "m.stc(" + getElement(element) + "," + content + ");";
 	};
 	var appendChild = function appendChild(element, parent) {
-		return "m.ac(".concat(getElement(element), ",").concat(getElement(parent), ");");
+		return "m.ac(" + getElement(element) + "," + getElement(parent) + ");";
 	};
 	var removeChild = function removeChild(element, parent) {
-		return "m.rc(".concat(getElement(element), ",").concat(getElement(parent), ");");
+		return "m.rc(" + getElement(element) + "," + getElement(parent) + ");";
 	};
 	var insertBefore = function insertBefore(element, reference, parent) {
-		return "m.ib(".concat(getElement(element), ",").concat(getElement(reference), ",").concat(getElement(parent), ");");
+		return "m.ib(" + getElement(element) + "," + getElement(reference) + "," + getElement(parent) + ");";
 	};
 	var directiveIf = function directiveIf(ifState, ifConditions, ifPortions, ifParent) {
-		return "m.di(".concat(getElement(ifState), ",").concat(getElement(ifConditions), ",").concat(getElement(ifPortions), ",").concat(getElement(ifParent), ");");
+		return "m.di(" + getElement(ifState) + "," + getElement(ifConditions) + "," + getElement(ifPortions) + "," + getElement(ifParent) + ");";
 	};
 	var directiveFor = function directiveFor(forIdentifiers, forLocals, forValue, forPortion, forPortions, forParent) {
-		return "m.df(".concat(forIdentifiers, ",").concat(getElement(forLocals), ",").concat(forValue, ",").concat(getElement(forPortion), ",").concat(getElement(forPortions), ",").concat(getElement(forParent), ");");
+		return "m.df(" + forIdentifiers + "," + getElement(forLocals) + "," + forValue + "," + getElement(forPortion) + "," + getElement(forPortions) + "," + getElement(forParent) + ");";
 	};
 
 	var isComponentType = function isComponentType(type) {
@@ -577,7 +617,7 @@
 					if (isComponentType(element.type)) {
 						element.component = root.nextElement++;
 
-						var _createCode = setElement(element.component, "new m.c.".concat(element.type, "();"));
+						var _createCode = setElement(element.component, "new m.c." + element.type + "();");
 
 						var _updateCode = "";
 						var dynamic = false;
@@ -586,9 +626,9 @@
 							var attribute = attributes[_i2];
 
 							if (attribute.key[0] === "@") {
-								_createCode += "".concat(getElement(element.component), ".on(\"").concat(attribute.key.substring(1), "\",function($event){locals.$event=$event;").concat(attributeValue(attribute), ";});");
+								_createCode += getElement(element.component) + ".on(\"" + attribute.key.substring(1) + "\",function($event){locals.$event=$event;" + attributeValue(attribute) + ";});";
 							} else {
-								var attributeCode = "".concat(getElement(element.component), ".").concat(attribute.key, "=").concat(attributeValue(attribute), ";");
+								var attributeCode = getElement(element.component) + "." + attribute.key + "=" + attributeValue(attribute) + ";";
 
 								if (attribute.dynamic) {
 									dynamic = true;
@@ -599,15 +639,15 @@
 							}
 						}
 
-						_createCode += "".concat(getElement(element.component), ".create(").concat(getElement(parent.element), ");");
+						_createCode += getElement(element.component) + ".create(" + getElement(parent.element) + ");";
 
 						if (dynamic) {
-							_updateCode += "".concat(getElement(element.component), ".update();");
+							_updateCode += getElement(element.component) + ".update();";
 						} else {
-							_createCode += "".concat(getElement(element.component), ".update();");
+							_createCode += getElement(element.component) + ".update();";
 						}
 
-						return [_createCode, _updateCode, "".concat(getElement(element.component), ".destroy();")];
+						return [_createCode, _updateCode, getElement(element.component) + ".destroy();"];
 					} else {
 						element.element = root.nextElement++;
 
@@ -626,16 +666,16 @@
 
 								if (_attribute.key === "@bind") {
 									var bindVariable = attributeValue(_attribute);
-									_attributeCode = "".concat(getElement(element.element), ".value=").concat(bindVariable, ";");
+									_attributeCode = getElement(element.element) + ".value=" + bindVariable + ";";
 									eventType = "input";
-									eventHandler = "".concat(bindVariable, "=$event.target.value;instance.update();");
+									eventHandler = bindVariable + "=$event.target.value;instance.update();";
 								} else {
 									_attributeCode = "";
 									eventType = _attribute.key.substring(1);
-									eventHandler = "locals.$event=$event;".concat(attributeValue(_attribute), ";");
+									eventHandler = "locals.$event=$event;" + attributeValue(_attribute) + ";";
 								}
 
-								_createCode2 += addEventListener(element.element, eventType, "function($event){".concat(eventHandler, "}"));
+								_createCode2 += addEventListener(element.element, eventType, "function($event){" + eventHandler + "}");
 							} else {
 								_attributeCode = setAttribute(element.element, _attribute);
 							}
@@ -671,13 +711,13 @@
 			destroy += generated[2];
 		}
 
-		var prelude = "var ".concat(getElement(root.element));
+		var prelude = "var " + getElement(root.element);
 
 		for (var _i5 = root.element + 1; _i5 < root.nextElement; _i5++) {
 			prelude += "," + getElement(_i5);
 		}
 
-		return "".concat(prelude, ";return [function(_0){").concat(setElement(root.element, "_0;")).concat(create, "},function(){").concat(update, "},function(){").concat(destroy, "}];");
+		return prelude + ";return [function(_0){" + setElement(root.element, "_0;") + create + "},function(){" + update + "},function(){" + destroy + "}];";
 	};
 
 	function compile(input) {
@@ -733,8 +773,8 @@
 
 		var view = data.view;
 
-		if ("development" === "development" && view === undefined) {
-			error("The ".concat(data.name, " component requires a \"view\" property."));
+		if (view === undefined) {
+			error("The " + data.name + " component requires a \"view\" property.");
 		}
 
 		if (typeof view === "string") {

@@ -85,3 +85,29 @@ test("expression token to string", () => {
 	const input = `{dynamic + 1}`;
 	expect(tokenString(lex(input)[0])).toBe(input);
 });
+
+test("lexer errors", () => {
+	process.env.MOON_ENV = "development";
+	console.error = jest.fn();
+
+	lex("<div><");
+	expect(console.error).toBeCalled();
+
+	lex("</input");
+	expect(console.error.mock.calls.length).toBe(2);
+
+	lex("<!-- never ending comment");
+	expect(console.error.mock.calls.length).toBe(3);
+
+	process.env.MOON_ENV = "production";
+	console.error = jest.fn();
+
+	expect(() => { lex("<div><"); }).toThrow();
+	expect(console.error).not.toBeCalled();
+
+	expect(() => { lex("</input"); }).toThrow();
+	expect(console.error).not.toBeCalled();
+
+	expect(() => { lex("<!-- never ending comment"); }).toThrow();
+	expect(console.error).not.toBeCalled();
+});

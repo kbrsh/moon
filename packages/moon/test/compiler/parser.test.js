@@ -88,7 +88,7 @@ test("parse nested elements", () => {
 	});
 });
 
-test("parse errors in development", () => {
+test("parse errors", () => {
 	process.env.MOON_ENV = "development";
 	console.error = jest.fn();
 
@@ -102,9 +102,7 @@ test("parse errors in development", () => {
 
 	expect(parseTest("").constructor.name).toBe("ParseError");
 	expect(console.error.mock.calls.length).toBe(2);
-});
 
-test("parse errors in production", () => {
 	process.env.MOON_ENV = "production";
 	console.error = jest.fn();
 

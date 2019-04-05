@@ -29,7 +29,5 @@ export function isQuote(char) {
  * @param {string} message
  */
 export function error(message) {
-	if (process.env.MOON_ENV === "development") {
-		console.error("[Moon] ERROR: " + message);
-	}
+	console.error("[Moon] ERROR: " + message);
 }

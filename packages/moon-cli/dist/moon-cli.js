@@ -20,7 +20,7 @@
 	var archive = {
 		method: "GET",
 		host: "api.github.com",
-		path: "/repos/".concat(repo, "/tarball/master"),
+		path: "/repos/" + repo + "/tarball/master",
 		headers: {
 			"User-Agent": "Node.js"
 		}
@@ -28,7 +28,7 @@
 	var MoonNameRE = /{# MoonName #}/g;
 
 	var log = function log(type, message) {
-		console.log("\x1B[34m".concat(type, "\x1B[0m ").concat(message));
+		console.log("\x1B[34m" + type + "\x1B[0m " + message);
 	};
 
 	var download = function download(res) {
@@ -46,10 +46,10 @@
 
 	var install = function install(archivePath) {
 		var targetPath = path.join(process.cwd(), name);
-		exec("mkdir ".concat(targetPath), function (err) {
+		exec("mkdir " + targetPath, function (err) {
 			if (err) throw err;
 		});
-		exec("tar -xzf ".concat(archivePath, " -C ").concat(targetPath, " --strip=1"), function (err) {
+		exec("tar -xzf " + archivePath + " -C " + targetPath + " --strip=1", function (err) {
 			if (err) throw err;
 			log("install", "template");
 			clean(archivePath, targetPath);
@@ -61,8 +61,8 @@
 			if (err) throw err;
 			log("clean", "template");
 			create(targetPath, targetPath);
-			log("success", "Generated project \"".concat(name, "\""));
-			console.log("To start, run:\n\tcd ".concat(name, "\n\tnpm install\n\tnpm run dev"));
+			log("success", "Generated project \"" + name + "\"");
+			console.log("To start, run:\n\tcd " + name + "\n\tnpm install\n\tnpm run dev");
 		});
 	};
 

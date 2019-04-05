@@ -13,6 +13,16 @@ function ParseError(message, start, end, next) {
 }
 
 /**
+ * Returns a full parse error message only if Moon is in development mode.
+ *
+ * @param {string} message
+ * @returns {string} Conditional error message
+ */
+function parseErrorMessage(message) {
+	return process.env.MOON_ENV === "development" ? message : "";
+}
+
+/**
  * Given a start index, end index, and a list of tokens, return a tree after
  * matching against the following grammar:
  *
@@ -20,8 +30,8 @@ function ParseError(message, start, end, next) {
  *
  * The parsing algorithm is explained in more detail in the `parse` function.
  *
- * @param {integer} start
- * @param {integer} end
+ * @param {number} start
+ * @param {number} end
  * @param {Object[]} tokens
  * @returns {Object} Abstract syntax tree or ParseError
  */
@@ -61,9 +71,7 @@ function parseElements(start, end, tokens) {
 		}
 
 		return new ParseError(
-			process.env.MOON_ENV === "development" ?
-			`Parser expected valid elements but encountered an error.` :
-			"",
+			parseErrorMessage(`Parser expected valid elements but encountered an error.`),
 			start,
 			end,
 			error
@@ -79,8 +87,8 @@ function parseElements(start, end, tokens) {
  *
  * The parsing algorithm is explained in more detail in the `parse` function.
  *
- * @param {integer} start
- * @param {integer} end
+ * @param {number} start
+ * @param {number} end
  * @param {Object[]} tokens
  * @returns {Object} Abstract syntax tree or ParseError
  */
@@ -92,9 +100,7 @@ function parseElement(start, end, tokens) {
 	if (length === 0) {
 		// Return an error because this parser does not accept empty inputs.
 		return new ParseError(
-			process.env.MOON_ENV === "development" ?
-			`Parser expected an element but received nothing.` :
-			"",
+			parseErrorMessage(`Parser expected an element but received nothing.`),
 			start,
 			end
 		);
@@ -134,9 +140,7 @@ function parseElement(start, end, tokens) {
 
 			if (children instanceof ParseError) {
 				return new ParseError(
-					process.env.MOON_ENV === "development" ?
-					`Parser expected valid child elements but encountered an error.` :
-					"",
+					parseErrorMessage(`Parser expected valid child elements but encountered an error.`),
 					start,
 					end,
 					children
@@ -150,9 +154,7 @@ function parseElement(start, end, tokens) {
 			}
 		} else {
 			return new ParseError(
-				process.env.MOON_ENV === "development" ?
-				`Parser expected an element with matching opening and closing tags.` :
-				"",
+				parseErrorMessage(`Parser expected an element with matching opening and closing tags.`),
 				start,
 				end
 			);
@@ -195,29 +197,30 @@ function parseElement(start, end, tokens) {
 export function parse(tokens) {
 	const tree = parseElement(0, tokens.length, tokens);
 
-	if (process.env.MOON_ENV === "development" && tree instanceof ParseError) {
+	if (
+		process.env.MOON_ENV === "development" &&
+		tree instanceof ParseError
+	) {
 		// Append error messages and print all of them with their corresponding
 		// locations in the source.
 		let parseErrors = "";
 		let parseError = tree;
 
 		do {
-			parseErrors += `${parseError.message}\n`;
+			parseErrors += `\n\n${parseError.message}\n`;
 
 			// Collect the tokens responsible for the error as well as the
 			// surrounding tokens.
 			for (
-				let i = Math.max(0, parseError.start - 1);
-				i < Math.min(parseError.end + 1, tokens.length);
+				let i = Math.max(0, parseError.start - 2);
+				i < Math.min(parseError.end + 2, tokens.length);
 				i++
 			) {
 				parseErrors += tokenString(tokens[i]);
 			}
-
-			parseErrors += "\n\n";
 		} while ((parseError = parseError.next) !== undefined);
 
-		error(`Parser failed to process the view.\n\n${parseErrors}`);
+		error(`Parser failed to process the view.${parseErrors}`);
 	}
 
 	return tree;

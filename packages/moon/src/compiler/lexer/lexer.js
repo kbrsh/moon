@@ -1,4 +1,4 @@
-import { isQuote } from "../../util/util";
+import { error, isQuote } from "../../util/util";
 
 /**
  * Capture the tag name, attribute text, and closing slash from an opening tag.
@@ -52,6 +52,28 @@ export function tokenString(token) {
 }
 
 /**
+ * Logs a lexer error message to the console along with the surrounding
+ * characters.
+ *
+ * @param {string} message
+ * @param {string} input
+ * @param {number} index
+ */
+function lexError(message, input, index) {
+	let lexMessage = `${message}\n\n`;
+
+	for (
+		let i = Math.max(0, index - 16);
+		i < Math.min(index + 16, input.length);
+		i++
+	) {
+		lexMessage += input[i];
+	}
+
+	error(lexMessage);
+}
+
+/**
  * Lexer
  *
  * The lexer is responsible for taking an input view template and converting it
@@ -80,12 +102,20 @@ export function lex(input) {
 		if (char === "<") {
 			const charNext = input[i + 1];
 
+			if (charNext === undefined) {
+				lexError(`Lexer expected a character after "<".`, input, i);
+			}
+
 			if (charNext === "/") {
 				// Append a closing tag token if a sequence of characters begins
 				// with "</".
 
 				const closeIndex = input.indexOf(">", i + 2);
 				const type = input.slice(i + 2, closeIndex);
+
+				if (closeIndex === -1) {
+					lexError(`Lexer expected a closing ">" after "</".`, input, i);
+				}
 
 				tokens.push({
 					type: "tagClose",
@@ -100,6 +130,12 @@ export function lex(input) {
 				input[i + 3] === "-"
 			) {
 				// Ignore input if a sequence of characters begins with "<!--".
+				const closeIndex = input.indexOf("-->", i + 4);
+
+				if (closeIndex === -1) {
+					lexError(`Lexer expected a closing "-->" after "<!--".`, input, i);
+				}
+
 				i = input.indexOf("-->", i + 4) + 3;
 				continue;
 			}
