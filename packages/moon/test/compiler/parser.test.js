@@ -88,8 +88,7 @@ test("parse nested elements", () => {
 	});
 });
 
-test("parse errors", () => {
-	process.env.MOON_ENV = "development";
+test("parse error from invalid view", () => {
 	console.error = jest.fn();
 
 	expect(parseTest(`
@@ -99,21 +98,11 @@ test("parse errors", () => {
 		</div>
 	`).constructor.name).toBe("ParseError");
 	expect(console.error).toBeCalled();
+});
 
-	expect(parseTest("").constructor.name).toBe("ParseError");
-	expect(console.error.mock.calls.length).toBe(2);
-
-	process.env.MOON_ENV = "production";
+test("parse error from empty element", () => {
 	console.error = jest.fn();
 
-	expect(parseTest(`
-		<div>
-			<p>text?
-			</h1></input>
-		</div>
-	`).constructor.name).toBe("ParseError");
-	expect(console.error).not.toBeCalled();
-
 	expect(parseTest("").constructor.name).toBe("ParseError");
-	expect(console.error).not.toBeCalled();
+	expect(console.error).toBeCalled();
 });

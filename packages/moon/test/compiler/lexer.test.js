@@ -86,28 +86,23 @@ test("expression token to string", () => {
 	expect(tokenString(lex(input)[0])).toBe(input);
 });
 
-test("lexer errors", () => {
-	process.env.MOON_ENV = "development";
+test("lex error from unclosed opening bracket", () => {
 	console.error = jest.fn();
 
-	lex("<div><");
+	expect(Array.isArray(lex("<div><"))).toBe(true);
 	expect(console.error).toBeCalled();
+});
 
-	lex("</input");
-	expect(console.error.mock.calls.length).toBe(2);
-
-	lex("<!-- never ending comment");
-	expect(console.error.mock.calls.length).toBe(3);
-
-	process.env.MOON_ENV = "production";
+test("lex error from unclosed self-closing tag", () => {
 	console.error = jest.fn();
 
-	expect(() => { lex("<div><"); }).toThrow();
-	expect(console.error).not.toBeCalled();
+	expect(Array.isArray(lex("</input"))).toBe(true);
+	expect(console.error).toBeCalled();
+});
 
-	expect(() => { lex("</input"); }).toThrow();
-	expect(console.error).not.toBeCalled();
+test("lex error from unclosed comment", () => {
+	console.error = jest.fn();
 
-	expect(() => { lex("<!-- never ending comment"); }).toThrow();
-	expect(console.error).not.toBeCalled();
+	expect(Array.isArray(lex("<!-- endless comment"))).toBe(true);
+	expect(console.error).toBeCalled();
 });

@@ -19,6 +19,7 @@ function ParseError(message, start, end, next) {
  * @returns {string} Conditional error message
  */
 function parseErrorMessage(message) {
+	/* istanbul ignore next */
 	return process.env.MOON_ENV === "development" ? message : "";
 }
 

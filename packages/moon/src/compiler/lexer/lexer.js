@@ -104,6 +104,7 @@ export function lex(input) {
 
 			if (process.env.MOON_ENV === "development" && charNext === undefined) {
 				lexError(`Lexer expected a character after "<".`, input, i);
+				break;
 			}
 
 			if (charNext === "/") {
@@ -115,6 +116,7 @@ export function lex(input) {
 
 				if (process.env.MOON_ENV === "development" && closeIndex === -1) {
 					lexError(`Lexer expected a closing ">" after "</".`, input, i);
+					break;
 				}
 
 				tokens.push({
@@ -134,6 +136,7 @@ export function lex(input) {
 
 				if (process.env.MOON_ENV === "development" && closeIndex === -1) {
 					lexError(`Lexer expected a closing "-->" after "<!--".`, input, i);
+					break;
 				}
 
 				i = closeIndex + 3;

@@ -147,6 +147,7 @@
 
 				if ("development" === "development" && charNext === undefined) {
 					lexError("Lexer expected a character after \"<\".", input, i);
+					break;
 				}
 
 				if (charNext === "/") {
@@ -158,6 +159,7 @@
 
 					if ("development" === "development" && closeIndex === -1) {
 						lexError("Lexer expected a closing \">\" after \"</\".", input, i);
+						break;
 					}
 
 					tokens.push({
@@ -172,6 +174,7 @@
 
 					if ("development" === "development" && _closeIndex === -1) {
 						lexError("Lexer expected a closing \"-->\" after \"<!--\".", input, i);
+						break;
 					}
 
 					i = _closeIndex + 3;

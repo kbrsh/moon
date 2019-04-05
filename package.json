@@ -4,7 +4,7 @@
   "description": "The minimal & fast UI library",
   "scripts": {
     "build": "node build/build.js",
-    "test": "jest"
+    "test": "MOON_ENV=\"development\" jest"
   },
   "repository": {
     "type": "git",
