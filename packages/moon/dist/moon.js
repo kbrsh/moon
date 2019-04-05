@@ -384,7 +384,7 @@
 					children: []
 				};
 			} else {
-				return new ParseError("development" === "development" ? "Parser expected a self-closing tag or text." : "", start, end);
+				return new ParseError(parseErrorMessage("Parser expected a self-closing tag or text."), start, end);
 			}
 		} else {
 			// If the input size is greater than one, it must be a full element with

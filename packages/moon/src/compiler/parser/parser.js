@@ -119,9 +119,7 @@ function parseElement(start, end, tokens) {
 			};
 		} else {
 			return new ParseError(
-				process.env.MOON_ENV === "development" ?
-				"Parser expected a self-closing tag or text." :
-				"",
+				parseErrorMessage("Parser expected a self-closing tag or text."),
 				start,
 				end
 			);
