@@ -155,7 +155,7 @@ export function lex(input) {
 			const typeExec = typeRE.exec(input);
 
 			if (process.env.MOON_ENV === "development" && typeExec === null) {
-				lexError("Lexer expected a valid opening or closing tag.", input, i);
+				lexError("Lexer expected a valid opening or self-closing tag.", input, i);
 			}
 
 			const typeMatch = typeExec[0];

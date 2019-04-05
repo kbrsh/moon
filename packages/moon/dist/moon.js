@@ -191,7 +191,7 @@
 				var typeExec = typeRE.exec(input);
 
 				if ("development" === "development" && typeExec === null) {
-					lexError("Lexer expected a valid opening or closing tag.", input, i);
+					lexError("Lexer expected a valid opening or self-closing tag.", input, i);
 				}
 
 				var typeMatch = typeExec[0];
