@@ -6,78 +6,17 @@ import { components } from "./components/components";
 import { error } from "./util/util";
 
 /**
- * Holds a list of transforms to execute over multiple frames.
- */
-let transforms;
-
-/**
- * Executes the list of global transforms over multiple frames.
- */
-function transformAll() {
-	const timeStart = performance.now();
-	let transform = transforms;
-
-	do {
-		// Pause execution after about eight milliseconds.
-		if (performance.now() - timeStart >= 8) {
-			break;
-		}
-
-		transform();
-	} while((transform = transform.next) !== undefined);
-
-	// Set all transforms to either be empty or start directly after the
-	// last-executed transform.
-	transforms = transform;
-
-	// If all transforms weren't executed yet, yield back to the browser and
-	// continue in the next frame.
-	if (transforms !== undefined) {
-		requestAnimationFrame(transformAll);
-	}
-}
-
-/**
- * Transforms data to the required data for the view. The required data
- * consists of the expressions inside of a view that are enclosed in curly
- * braces. These transforms are done over multiple frames to give the browser
- * time to process other events. After they are processed, the `next` function
- * is called.
- *
- * @param {Function} next
- */
-function transform(next) {
-	// `next` acts like a transform but updates the view instead.
-	this.view.transforms.next = () => {
-		this.emit("transform");
-		next();
-	};
-
-	if (transforms === undefined) {
-		// If there are no transforms, begin processing them.
-		transforms = this.view.transforms;
-		requestAnimationFrame(transformAll);
-	} else {
-		// If they are already being processed, add more to be processed.
-		transforms.next = this.view.transforms;
-	}
-}
-
-/**
- * Creates a view mounted on the given root element after processing
- * transforms.
+ * Creates a view mounted on the given root element.
  *
  * @param {Node} root
  */
 function create(root) {
-	this.transform(() => {
-		this.view.create(root);
-		this.emit("create");
-	});
+	this.view.create(root);
+	this.emit("create");
 }
 
 /**
- * Updates data, transforms it, and then updates the view.
+ * Updates data and the view.
  *
  * @param {Object} data
  */
@@ -86,10 +25,8 @@ function update(data) {
 		this[key] = data[key];
 	}
 
-	this.transform(() => {
-		this.view.update();
-		this.emit("update");
-	});
+	this.view.update();
+	this.emit("update");
 }
 
 /**
@@ -171,7 +108,7 @@ function emit(type, data) {
  * The data must have a `view` property with a string template or precompiled
  * functions.
  *
- * Optional `onTransform`, `onCreate`, `onUpdate`, and `onDestroy` hooks can be
+ * Optional `onCreate`, `onUpdate`, and `onDestroy` hooks can be
  * in the data and are called when their corresponding event occurs.
  *
  * The rest of the data is custom starting state that will be modified as the
@@ -183,7 +120,6 @@ function emit(type, data) {
  * @param {string} [data.name="Root"]
  * @param {Node|string} [data.root]
  * @param {Object|string} data.view
- * @param {Function} [data.onTransform]
  * @param {Function} [data.onCreate]
  * @param {Function} [data.onUpdate]
  * @param {Function} [data.onDestroy]
@@ -207,26 +143,19 @@ export default function Moon(data) {
 
 	// Create default events at the beginning so that checks before calling them
 	// aren't required.
-	const onTransform = data.onTransform;
 	const onCreate = data.onCreate;
 	const onUpdate = data.onUpdate;
 	const onDestroy = data.onDestroy;
 
-	delete data.onTransform;
 	delete data.onCreate;
 	delete data.onUpdate;
 	delete data.onDestroy;
 
 	data.events = {
-		transform: [],
 		create: [],
 		update: [],
 		destroy: []
 	};
-
-	if (onTransform !== undefined) {
-		data.events.transform.push(onTransform);
-	}
 
 	if (onCreate !== undefined) {
 		data.events.create.push(onCreate);
@@ -245,7 +174,6 @@ export default function Moon(data) {
 		this.view = view();
 	}
 	MoonComponent.prototype = data;
-	MoonComponent.prototype.transform = transform;
 	MoonComponent.prototype.create = create;
 	MoonComponent.prototype.update = update;
 	MoonComponent.prototype.destroy = destroy;

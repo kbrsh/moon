@@ -718,102 +718,29 @@
 	}
 
 	/**
-	 * Holds a list of transforms to execute over multiple frames.
-	 */
-
-	var transforms;
-	/**
-	 * Executes the list of global transforms over multiple frames.
-	 */
-
-	function transformAll() {
-		var timeStart = performance.now();
-		var transform = transforms;
-
-		do {
-			// Pause execution after about eight milliseconds.
-			if (performance.now() - timeStart >= 8) {
-				break;
-			}
-
-			transform();
-		} while ((transform = transform.next) !== undefined); // Set all transforms to either be empty or start directly after the
-		// last-executed transform.
-
-
-		transforms = transform; // If all transforms weren't executed yet, yield back to the browser and
-		// continue in the next frame.
-
-		if (transforms !== undefined) {
-			requestAnimationFrame(transformAll);
-		}
-	}
-	/**
-	 * Transforms data to the required data for the view. The required data
-	 * consists of the expressions inside of a view that are enclosed in curly
-	 * braces. These transforms are done over multiple frames to give the browser
-	 * time to process other events. After they are processed, the `next` function
-	 * is called.
-	 *
-	 * @param {Function} next
-	 */
-
-
-	function transform(next) {
-		var _this = this;
-
-		// `next` acts like a transform but updates the view instead.
-		this.view.transforms.next = function () {
-			_this.emit("transform");
-
-			next();
-		};
-
-		if (transforms === undefined) {
-			// If there are no transforms, begin processing them.
-			transforms = this.view.transforms;
-			requestAnimationFrame(transformAll);
-		} else {
-			// If they are already being processed, add more to be processed.
-			transforms.next = this.view.transforms;
-		}
-	}
-	/**
-	 * Creates a view mounted on the given root element after processing
-	 * transforms.
+	 * Creates a view mounted on the given root element.
 	 *
 	 * @param {Node} root
 	 */
 
-
 	function create(root) {
-		var _this2 = this;
-
-		this.transform(function () {
-			_this2.view.create(root);
-
-			_this2.emit("create");
-		});
+		this.view.create(root);
+		this.emit("create");
 	}
 	/**
-	 * Updates data, transforms it, and then updates the view.
+	 * Updates data and the view.
 	 *
 	 * @param {Object} data
 	 */
 
 
 	function update(data) {
-		var _this3 = this;
-
 		for (var key in data) {
 			this[key] = data[key];
 		}
 
-		this.transform(function () {
-			_this3.view.update();
-
-			_this3.emit("update");
-		});
+		this.view.update();
+		this.emit("update");
 	}
 	/**
 	 * Destroys the view.
@@ -898,7 +825,7 @@
 	 * The data must have a `view` property with a string template or precompiled
 	 * functions.
 	 *
-	 * Optional `onTransform`, `onCreate`, `onUpdate`, and `onDestroy` hooks can be
+	 * Optional `onCreate`, `onUpdate`, and `onDestroy` hooks can be
 	 * in the data and are called when their corresponding event occurs.
 	 *
 	 * The rest of the data is custom starting state that will be modified as the
@@ -910,7 +837,6 @@
 	 * @param {string} [data.name="Root"]
 	 * @param {Node|string} [data.root]
 	 * @param {Object|string} data.view
-	 * @param {Function} [data.onTransform]
 	 * @param {Function} [data.onCreate]
 	 * @param {Function} [data.onUpdate]
 	 * @param {Function} [data.onDestroy]
@@ -935,24 +861,17 @@
 		// aren't required.
 
 
-		var onTransform = data.onTransform;
 		var onCreate = data.onCreate;
 		var onUpdate = data.onUpdate;
 		var onDestroy = data.onDestroy;
-		delete data.onTransform;
 		delete data.onCreate;
 		delete data.onUpdate;
 		delete data.onDestroy;
 		data.events = {
-			transform: [],
 			create: [],
 			update: [],
 			destroy: []
 		};
-
-		if (onTransform !== undefined) {
-			data.events.transform.push(onTransform);
-		}
 
 		if (onCreate !== undefined) {
 			data.events.create.push(onCreate);
@@ -972,7 +891,6 @@
 		}
 
 		MoonComponent.prototype = data;
-		MoonComponent.prototype.transform = transform;
 		MoonComponent.prototype.create = create;
 		MoonComponent.prototype.update = update;
 		MoonComponent.prototype.destroy = destroy;
