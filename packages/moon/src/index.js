@@ -132,6 +132,7 @@ function emit(type, data) {
  * @param {string} [data.name="Root"]
  * @param {Node|string} [data.root]
  * @param {Function|string} data.view
+ * @param {Function} [data.onTransform]
  * @param {Function} [data.onCreate]
  * @param {Function} [data.onUpdate]
  * @param {Function} [data.onDestroy]
