@@ -169,10 +169,12 @@ export default function Moon(data) {
 		data.events.destroy.push(onDestroy);
 	}
 
-	// Initialize the component constructor with the given data.
+	// Initialize the component constructor with the given data, given view, and
+	// default methods.
 	function MoonComponent() {
 		this.view = view();
 	}
+
 	MoonComponent.prototype = data;
 	MoonComponent.prototype.create = create;
 	MoonComponent.prototype.update = update;

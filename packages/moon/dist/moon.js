@@ -883,7 +883,8 @@
 
 		if (onDestroy !== undefined) {
 			data.events.destroy.push(onDestroy);
-		} // Initialize the component constructor with the given data.
+		} // Initialize the component constructor with the given data, given view, and
+		// default methods.
 
 
 		function MoonComponent() {
