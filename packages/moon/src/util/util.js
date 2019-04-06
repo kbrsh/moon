@@ -1,20 +1,4 @@
 /**
- * Does nothing.
- */
-export function noop() {}
-
-/**
- * Returns a value if it is defined, or else returns a default value.
- *
- * @param value
- * @param fallback
- * @returns Value or default value
- */
-export function valueDefault(value, fallback) {
-	return value === undefined ? fallback : value;
-}
-
-/**
  * Checks if a given character is a quote.
  *
  * @param {string} char

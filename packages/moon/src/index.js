@@ -2,8 +2,102 @@ import { lex } from "./compiler/lexer/lexer";
 import { parse } from "./compiler/parser/parser";
 import { generate } from "./compiler/generator/generator";
 import { compile } from "./compiler/compiler";
-import { components } from "./component/components";
-import { error, noop, valueDefault } from "./util/util";
+import { components } from "./components/components";
+import { error } from "./util/util";
+
+/**
+ * Transforms data to the required data for the view. The required data
+ * consists of the expressions inside of a view that are enclosed in curly
+ * braces. These transforms are done over multiple frames to give the browser
+ * time to process other events.
+ */
+function transform() {
+	this.emit("transform");
+}
+
+/**
+ * Creates a view mounted on the given root element.
+ *
+ * @param {Node} root
+ */
+function create(root) {
+	this.view.create(root);
+	this.emit("create");
+}
+
+/**
+ * Updates data, transforms it, and then updates the view.
+ *
+ * @param {Object} data
+ */
+function update(data) {
+	for (let key in data) {
+		this[key] = data[key];
+	}
+
+	this.transform(function() {
+		this.view.update();
+		this.emit("update");
+	});
+}
+
+/**
+ * Destroys the view.
+ */
+function destroy() {
+	this.view.destroy();
+	this.emit("destroy");
+}
+
+/**
+ * Add an event handler to listen to a given event type.
+ *
+ * @param {string} type
+ * @param {Function} handler
+ */
+function on(type, handler) {
+	const handlers = this.events[type];
+
+	if (handlers === undefined) {
+		this.events[type] = [handler.bind(this)];
+	} else {
+		handlers.push(handler.bind(this));
+	}
+}
+
+/**
+ * Remove an event handler from a given event type. If no type or handler are
+ * given, all event handlers are removed. If only a type is given, all event
+ * handlers for that type are removed. If both a type and handler are given,
+ * the handler stops listening to that event type.
+ *
+ * @param {string} [type]
+ * @param {Function} [handler]
+ */
+function off(type, handler) {
+	if (type === undefined) {
+		this.events = {};
+	} else if (handler === undefined) {
+		this.events[type] = [];
+	} else {
+		const handlers = this.events[type];
+		handlers.splice(handlers.indexOf(handler), 1);
+	}
+}
+
+/**
+ * Emits an event and calls any handlers listening to it with the given data.
+ *
+ * @param {string} type
+ * @param data
+ */
+function emit(type, data) {
+	const handlers = this.events[type];
+
+	for (let i = 0; i < handlers.length; i++) {
+		handlers[i](data);
+	}
+}
 
 /**
  * Moon
@@ -26,8 +120,8 @@ import { error, noop, valueDefault } from "./util/util";
  * The data must have a `view` property with a string template or precompiled
  * functions.
  *
- * Optional `onCreate`, `onUpdate`, and `onDestroy` hooks can be in the data
- * and are called when their corresponding event occurs.
+ * Optional `onTransform`, `onCreate`, `onUpdate`, and `onDestroy` hooks can be
+ * in the data and are called when their corresponding event occurs.
  *
  * The rest of the data is custom starting state that will be modified as the
  * component is passed different values. It can contain properties and methods
@@ -47,9 +141,16 @@ export default function Moon(data) {
 	// Initialize the component constructor with the given data.
 	function MoonComponent() {}
 	MoonComponent.prototype = data;
+	MoonComponent.prototype.transform = transform;
+	MoonComponent.prototype.create = create;
+	MoonComponent.prototype.update = update;
+	MoonComponent.prototype.destroy = destroy;
+	MoonComponent.prototype.on = on;
+	MoonComponent.prototype.off = off;
+	MoonComponent.prototype.emit = emit;
 
 	// Handle the optional `name` parameter.
-	data.name = valueDefault(data.name, "Root");
+	data.name = data.name === undefined ? "Root" : data.name;
 
 	// Ensure the view is defined, and compile it if needed.
 	let view = data.view;
@@ -66,13 +167,38 @@ export default function Moon(data) {
 
 	// Create default events at the beginning so that checks before calling them
 	// aren't required.
-	data.onCreate = valueDefault(data.onCreate, noop);
-	data.onUpdate = valueDefault(data.onUpdate, noop);
-	data.onDestroy = valueDefault(data.onDestroy, noop);
+	const onTransform = data.onTransform;
+	const onCreate = data.onCreate;
+	const onUpdate = data.onUpdate;
+	const onDestroy = data.onDestroy;
+
+	delete data.onTransform;
+	delete data.onCreate;
+	delete data.onUpdate;
+	delete data.onDestroy;
+
+	this.events = {};
+
+	if (onTransform !== undefined) {
+		this.events.transform = [onTransform];
+	}
+
+	if (onCreate !== undefined) {
+		this.events.create = [onCreate];
+	}
+
+	if (onUpdate !== undefined) {
+		this.events.update = [onUpdate];
+	}
+
+	if (onDestroy !== undefined) {
+		this.events.destroy = [onDestroy];
+	}
 
 	// If a `root` option is given, create a new instance and mount it, or else
 	// just return the constructor.
 	let root = data.root;
+
 	delete data.root;
 
 	if (typeof root === "string") {
