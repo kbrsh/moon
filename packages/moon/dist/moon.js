@@ -718,25 +718,82 @@
 	}
 
 	/**
+	 * Holds a list of transforms to execute over multiple frames.
+	 */
+
+	var transforms;
+	/**
+	 * Executes the list of global transforms over multiple frames.
+	 */
+
+	function transformAll() {
+		var timeStart = performance.now();
+		var transform = transforms;
+
+		do {
+			// Pause execution after about eight milliseconds.
+			if (performance.now() - timeStart >= 8) {
+				break;
+			}
+
+			transform();
+		} while ((transform = transform.next) !== undefined); // Set all transforms to either be empty or start directly after the
+		// last-executed transform.
+
+
+		transforms = transform; // If all transforms weren't executed yet, yield back to the browser and
+		// continue in the next frame.
+
+		if (transforms !== undefined) {
+			requestAnimationFrame(transformAll);
+		}
+	}
+	/**
 	 * Transforms data to the required data for the view. The required data
 	 * consists of the expressions inside of a view that are enclosed in curly
 	 * braces. These transforms are done over multiple frames to give the browser
-	 * time to process other events.
+	 * time to process other events. After they are processed, the `next` function
+	 * is called.
+	 *
+	 * @param {Function} next
 	 */
 
-	function transform() {
-		this.emit("transform");
+
+	function transform(next) {
+		var _this = this;
+
+		// `next` acts like a transform but updates the view instead.
+		this.view.transforms.next = function () {
+			_this.emit("transform");
+
+			next();
+		};
+
+		if (transforms === undefined) {
+			// If there are no transforms, begin processing them.
+			transforms = this.view.transforms;
+			requestAnimationFrame(transformAll);
+		} else {
+			// If they are already being processed, add more to be processed.
+			transforms.next = this.view.transforms;
+		}
 	}
 	/**
-	 * Creates a view mounted on the given root element.
+	 * Creates a view mounted on the given root element after processing
+	 * transforms.
 	 *
 	 * @param {Node} root
 	 */
 
 
 	function create(root) {
-		this.view.create(root);
-		this.emit("create");
+		var _this2 = this;
+
+		this.transform(function () {
+			_this2.view.create(root);
+
+			_this2.emit("create");
+		});
 	}
 	/**
 	 * Updates data, transforms it, and then updates the view.
@@ -746,13 +803,16 @@
 
 
 	function update(data) {
+		var _this3 = this;
+
 		for (var key in data) {
 			this[key] = data[key];
 		}
 
 		this.transform(function () {
-			this.view.update();
-			this.emit("update");
+			_this3.view.update();
+
+			_this3.emit("update");
 		});
 	}
 	/**
@@ -859,21 +919,11 @@
 
 
 	function Moon(data) {
-		// Initialize the component constructor with the given data.
-		function MoonComponent() {}
-
-		MoonComponent.prototype = data;
-		MoonComponent.prototype.transform = transform;
-		MoonComponent.prototype.create = create;
-		MoonComponent.prototype.update = update;
-		MoonComponent.prototype.destroy = destroy;
-		MoonComponent.prototype.on = on;
-		MoonComponent.prototype.off = off;
-		MoonComponent.prototype.emit = emit; // Handle the optional `name` parameter.
-
+		// Handle the optional `name` parameter.
 		data.name = data.name === undefined ? "Root" : data.name; // Ensure the view is defined, and compile it if needed.
 
 		var view = data.view;
+		delete data.view;
 
 		if ("development" === "development" && view === undefined) {
 			error("The " + data.name + " component requires a \"view\" property.");
@@ -881,10 +931,9 @@
 
 		if (typeof view === "string") {
 			view = compile(view);
-		}
-
-		data.view = view; // Create default events at the beginning so that checks before calling them
+		} // Create default events at the beginning so that checks before calling them
 		// aren't required.
+
 
 		var onTransform = data.onTransform;
 		var onCreate = data.onCreate;
@@ -894,25 +943,43 @@
 		delete data.onCreate;
 		delete data.onUpdate;
 		delete data.onDestroy;
-		this.events = {};
+		data.events = {
+			transform: [],
+			create: [],
+			update: [],
+			destroy: []
+		};
 
 		if (onTransform !== undefined) {
-			this.events.transform = [onTransform];
+			data.events.transform.push(onTransform);
 		}
 
 		if (onCreate !== undefined) {
-			this.events.create = [onCreate];
+			data.events.create.push(onCreate);
 		}
 
 		if (onUpdate !== undefined) {
-			this.events.update = [onUpdate];
+			data.events.update.push(onUpdate);
 		}
 
 		if (onDestroy !== undefined) {
-			this.events.destroy = [onDestroy];
-		} // If a `root` option is given, create a new instance and mount it, or else
-		// just return the constructor.
+			data.events.destroy.push(onDestroy);
+		} // Initialize the component constructor with the given data.
 
+
+		function MoonComponent() {
+			this.view = view();
+		}
+
+		MoonComponent.prototype = data;
+		MoonComponent.prototype.transform = transform;
+		MoonComponent.prototype.create = create;
+		MoonComponent.prototype.update = update;
+		MoonComponent.prototype.destroy = destroy;
+		MoonComponent.prototype.on = on;
+		MoonComponent.prototype.off = off;
+		MoonComponent.prototype.emit = emit; // If a `root` option is given, create a new instance and mount it, or else
+		// just return the constructor.
 
 		var root = data.root;
 		delete data.root;
