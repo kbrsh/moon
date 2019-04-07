@@ -2,22 +2,20 @@
  * Set of instructions that the compiler can output.
  */
 export const instructions = {
-	createElement: 0 | (3 << 4), // storage, type, attributes
-	updateElement: 1 | (2 << 4), // element, attributes
+	createElement: 0, // storage, type, attributes
+	updateElement: 1, // element, attributes
 
-	createText: 2 | (2 << 4), // storage, content
-	updateText: 3 | (2 << 4), // element, content
+	createText: 2, // storage, content
+	updateText: 3, // element, content
 
-	destroyElement: 4 | (1 << 4), // element
-	appendElement: 5 | (2 << 4), // element, parent element
+	destroyElement: 4, // element
+	appendElement: 5, // element, parent element
 
-	createComponent: 6 | (3 << 4), // storage, component name, data
-	updateComponent: 7 | (2 << 4), // component instance, data
-	destroyComponent: 8 | (1 << 4), // component instance
+	createComponent: 6, // storage, component name, data
+	updateComponent: 7, // component instance, data
+	destroyComponent: 8, // component instance
 
-	loop: 9 | (1 << 4), // list,
-
-	return: 10 | (1 << 4) // var
+	returnVar: 9 // var
 };
 
 /**

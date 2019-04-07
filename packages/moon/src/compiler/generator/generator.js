@@ -134,7 +134,7 @@ export function generate(tree) {
 	create += instruction(instructions.returnVar, [createVar]);
 
 	return {
-		data: dataCode,
+		data: new Function(dataCode),
 		create,
 		update,
 		destroy

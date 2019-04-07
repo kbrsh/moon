@@ -17,7 +17,9 @@ const components = {};
  * @param {Function} [next]
  */
 function create(next) {
-	execute(this.view.create, (element) => {
+	this.view.data();
+
+	execute(0, this, this.view.create, (element) => {
 		this.emit("create", element);
 
 		if (next !== undefined) {
@@ -226,9 +228,10 @@ export default function Moon(data) {
 		return MoonComponent;
 	} else {
 		const instance = new MoonComponent();
-		const instanceElement = instance.create();
 
-		root.appendChild(instanceElement);
+		instance.create((instanceElement) => {
+			root.appendChild(instanceElement);
+		});
 
 		return instance;
 	}

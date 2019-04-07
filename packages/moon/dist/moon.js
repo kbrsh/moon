@@ -43,7 +43,7 @@
 	 * undefined.
 	 */
 
-	var attributeRE = /\s*([\w\d-_]*)(?:=(?:("[\w\d-_]*"|'[\w\d-_]*')|{([\w\d-_]*)}))?/g;
+	var attributeRE = /\s*([\w\d-_]*)(?:=(?:("[^"]*"|'[^']*')|{([^{}]*)}))?/g;
 	/**
 	 * Convert a token into a string, accounting for `<text/>` components.
 	 *
@@ -463,27 +463,25 @@
 	 * Set of instructions that the compiler can output.
 	 */
 	var instructions = {
-		createElement: 0 | 3 << 4,
+		createElement: 0,
 		// storage, type, attributes
-		updateElement: 1 | 2 << 4,
+		updateElement: 1,
 		// element, attributes
-		createText: 2 | 2 << 4,
+		createText: 2,
 		// storage, content
-		updateText: 3 | 2 << 4,
+		updateText: 3,
 		// element, content
-		destroyElement: 4 | 1 << 4,
+		destroyElement: 4,
 		// element
-		appendElement: 5 | 2 << 4,
+		appendElement: 5,
 		// element, parent element
-		createComponent: 6 | 3 << 4,
+		createComponent: 6,
 		// storage, component name, data
-		updateComponent: 7 | 2 << 4,
+		updateComponent: 7,
 		// component instance, data
-		destroyComponent: 8 | 1 << 4,
+		destroyComponent: 8,
 		// component instance
-		loop: 9 | 1 << 4,
-		// list,
-		"return": 10 | 1 << 4 // var
+		returnVar: 9 // var
 
 	};
 	/**
@@ -618,7 +616,7 @@
 
 		create += instruction(instructions.returnVar, [createVar]);
 		return {
-			data: dataCode,
+			data: new Function(dataCode),
 			create: create,
 			update: update,
 			destroy: destroy
@@ -629,7 +627,120 @@
 		return generate(parse(lex(input)));
 	}
 
-	function execute() {}
+	/**
+	 * Gets a value from the executor data given a variable index.
+	 *
+	 * @param {number} index
+	 * @param {Object} data
+	 * @returns Value from data
+	 */
+
+	function executeGet(index, data) {
+		return data["m" + index];
+	}
+	/**
+	 * Sets a value from the executor data given a variable index.
+	 *
+	 * @param {number} index
+	 * @param value
+	 * @param {Object} data
+	 * @returns Value from data
+	 */
+
+
+	function executeSet(index, value, data) {
+		data["m" + index] = value;
+	}
+	/**
+	 * Executor
+	 *
+	 * The executor is responsible for executing instructions passed to it. It
+	 * starts at the given start index and calls the `next` callback when it's
+	 * done. It runs the instructions over multiple frames to allow the browser to
+	 * handle other high-priority events.
+	 *
+	 * @param {number} start
+	 * @param {string} code
+	 * @param {Function} next
+	 */
+
+
+	function execute(start, data, code, next) {
+		main: for (var i = start; i < code.length;) {
+			switch (code.charCodeAt(i)) {
+				case instructions.createElement:
+					{
+						var storage = code.charCodeAt(++i);
+						var element = document.createElement(executeGet(code.charCodeAt(++i), data));
+						var attributes = executeGet(code.charCodeAt(++i), data);
+
+						for (var attribute in attributes) {
+							element.setAttribute(attribute, attributes[attribute]);
+						}
+
+						executeSet(storage, element, data);
+						i += 1;
+						break;
+					}
+
+				case instructions.updateElement:
+					{
+						var _element = executeGet(code.charCodeAt(++i), data);
+
+						var _attributes = executeGet(code.charCodeAt(++i), data);
+
+						for (var _attribute in _attributes) {
+							_element.setAttribute(_attribute, _attributes[_attribute]);
+						}
+
+						i += 1;
+						break;
+					}
+
+				case instructions.createText:
+					{
+						executeSet(code.charCodeAt(++i), document.createTextNode(executeGet(code.charCodeAt(++i), data)), data);
+						i += 1;
+						break;
+					}
+
+				case instructions.updateText:
+					{
+						var text = executeGet(code.charCodeAt(++i), data);
+						var content = executeGet(code.charCodeAt(++i), data);
+						text.textContent = content;
+						i += 1;
+						break;
+					}
+
+				case instructions.destroyElement:
+					{
+						var _element2 = executeGet(code.charCodeAt(++i), data);
+
+						_element2.parentNode.destroyChild(_element2);
+
+						i += 1;
+						break;
+					}
+
+				case instructions.appendElement:
+					{
+						var _element3 = executeGet(code.charCodeAt(++i), data);
+
+						var parent = executeGet(code.charCodeAt(++i), data);
+						parent.appendChild(_element3);
+						i += 1;
+						break;
+					}
+
+				case instructions.returnVar:
+					{
+						next(executeGet(code.charCodeAt(++i), data));
+						break;
+					}
+			}
+		}
+	}
 
 	/**
 	 * Global component store.
@@ -646,7 +757,8 @@
 	function create(next) {
 		var _this = this;
 
-		execute(this.view.create, function (element) {
+		this.view.data();
+		execute(0, this, this.view.create, function (element) {
 			_this.emit("create", element);
 
 			if (next !== undefined) {
@@ -860,8 +972,9 @@
 			return MoonComponent;
 		} else {
 			var instance = new MoonComponent();
-			var instanceElement = instance.create();
-			root.appendChild(instanceElement);
+			instance.create(function (instanceElement) {
+				root.appendChild(instanceElement);
+			});
 			return instance;
 		}
 	}
