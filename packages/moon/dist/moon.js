@@ -574,7 +574,7 @@
 				childrenCreate += instruction(instructions.appendElement, [childCode.createVar, elementVar]);
 				childrenUpdate += childCode.update;
 				childrenDestroy += childCode.destroy;
-				total += childCode.total;
+				total = childCode.total;
 			}
 
 			return {
@@ -659,14 +659,18 @@
 	 * done. It runs the instructions over multiple frames to allow the browser to
 	 * handle other high-priority events.
 	 *
+	 * @param {number} index
 	 * @param {number} start
+	 * @param {Object} data
 	 * @param {string} code
 	 * @param {Function} next
 	 */
 
 
-	function execute(start, data, code, next) {
-		main: for (var i = start; i < code.length;) {
+	function execute(index, start, data, code, next) {
+		var i = index;
+
+		while (i < code.length) {
 			switch (code.charCodeAt(i)) {
 				case instructions.createElement:
 					{
@@ -736,8 +740,15 @@
 				case instructions.returnVar:
 					{
 						next(executeGet(code.charCodeAt(++i), data));
-						break;
+						return;
 					}
+			}
+
+			if (performance.now() - start >= 8) {
+				requestAnimationFrame(function () {
+					execute(i, performance.now(), data, code, next);
+				});
+				break;
 			}
 		}
 	}
@@ -752,13 +763,14 @@
 	 * with the new element.
 	 *
 	 * @param {Function} [next]
+	 * @param {number} [start]
 	 */
 
-	function create(next) {
+	function create(next, start) {
 		var _this = this;
 
 		this.view.data();
-		execute(0, this, this.view.create, function (element) {
+		execute(0, start === undefined ? performance.now() : start, this, this.view.create, function (element) {
 			_this.emit("create", element);
 
 			if (next !== undefined) {
@@ -771,17 +783,18 @@
 	 *
 	 * @param {Object} data
 	 * @param {Function} [next]
+	 * @param {number} [start]
 	 */
 
 
-	function update(data, next) {
+	function update(data, next, start) {
 		var _this2 = this;
 
 		for (var key in data) {
 			this[key] = data[key];
 		}
 
-		execute(this.view.update, function () {
+		execute(0, start === undefined ? performance.now() : start, this, this.view.update, function () {
 			_this2.emit("update");
 
 			if (next !== undefined) {
@@ -793,13 +806,14 @@
 	 * Destroys the view over multiple frames and calls the given function.
 	 *
 	 * @param {Function} [next]
+	 * @param {number} [start]
 	 */
 
 
-	function destroy(next) {
+	function destroy(next, start) {
 		var _this3 = this;
 
-		execute(this.view.destroy, function () {
+		execute(0, start === undefined ? performance.now() : start, this, this.view.destroy, function () {
 			_this3.emit("destroy");
 
 			if (next !== undefined) {

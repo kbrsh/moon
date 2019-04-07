@@ -31,13 +31,16 @@ function executeSet(index, value, data) {
  * done. It runs the instructions over multiple frames to allow the browser to
  * handle other high-priority events.
  *
+ * @param {number} index
  * @param {number} start
+ * @param {Object} data
  * @param {string} code
  * @param {Function} next
  */
-export function execute(start, data, code, next) {
-	main:
-	for (let i = start; i < code.length;) {
+export function execute(index, start, data, code, next) {
+	let i = index;
+
+	while (i < code.length) {
 		switch (code.charCodeAt(i)) {
 			case instructions.createElement: {
 				const storage = code.charCodeAt(++i);
@@ -112,8 +115,16 @@ export function execute(start, data, code, next) {
 
 			case instructions.returnVar: {
 				next(executeGet(code.charCodeAt(++i), data));
-				break;
+				return;
 			}
+		}
+
+		if (performance.now() - start >= 8) {
+			requestAnimationFrame(() => {
+				execute(i, performance.now(), data, code, next);
+			});
+
+			break;
 		}
 	}
 }

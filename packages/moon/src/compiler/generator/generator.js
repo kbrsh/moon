@@ -85,7 +85,7 @@ function generateAll(tree, data, total) {
 
 			childrenDestroy += childCode.destroy;
 
-			total += childCode.total;
+			total = childCode.total;
 		}
 
 		return {

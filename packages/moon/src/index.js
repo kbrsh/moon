@@ -15,17 +15,24 @@ const components = {};
  * with the new element.
  *
  * @param {Function} [next]
+ * @param {number} [start]
  */
-function create(next) {
+function create(next, start) {
 	this.view.data();
 
-	execute(0, this, this.view.create, (element) => {
-		this.emit("create", element);
+	execute(
+		0,
+		start === undefined ? performance.now() : start,
+		this,
+		this.view.create,
+		(element) => {
+			this.emit("create", element);
 
-		if (next !== undefined) {
-			next(element);
+			if (next !== undefined) {
+				next(element);
+			}
 		}
-	});
+	);
 }
 
 /**
@@ -33,34 +40,48 @@ function create(next) {
  *
  * @param {Object} data
  * @param {Function} [next]
+ * @param {number} [start]
  */
-function update(data, next) {
+function update(data, next, start) {
 	for (let key in data) {
 		this[key] = data[key];
 	}
 
-	execute(this.view.update, () => {
-		this.emit("update");
+	execute(
+		0,
+		start === undefined ? performance.now() : start,
+		this,
+		this.view.update,
+		() => {
+			this.emit("update");
 
-		if (next !== undefined) {
-			next();
+			if (next !== undefined) {
+				next();
+			}
 		}
-	});
+	);
 }
 
 /**
  * Destroys the view over multiple frames and calls the given function.
  *
  * @param {Function} [next]
+ * @param {number} [start]
  */
-function destroy(next) {
-	execute(this.view.destroy, () => {
-		this.emit("destroy");
+function destroy(next, start) {
+	execute(
+		0,
+		start === undefined ? performance.now() : start,
+		this,
+		this.view.destroy,
+		() => {
+			this.emit("destroy");
 
-		if (next !== undefined) {
-			next();
+			if (next !== undefined) {
+				next();
+			}
 		}
-	});
+	);
 }
 
 /**
