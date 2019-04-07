@@ -2,39 +2,63 @@ import { lex } from "./compiler/lexer/lexer";
 import { parse } from "./compiler/parser/parser";
 import { generate } from "./compiler/generator/generator";
 import { compile } from "./compiler/compiler";
-import { components } from "./components/components";
+import { execute } from "./compiler/executor";
 import { error } from "./util/util";
 
 /**
- * Creates a view mounted on the given root element.
- *
- * @param {Node} root
+ * Global component store.
  */
-function create(root) {
-	this.view.create(root);
-	this.emit("create");
+const components = {};
+
+/**
+ * Creates a view element over multiple frames and calls the given function
+ * with the new element.
+ *
+ * @param {Function} [next]
+ */
+function create(next) {
+	execute(this.view.create, (element) => {
+		this.emit("create", element);
+
+		if (next !== undefined) {
+			next(element);
+		}
+	});
 }
 
 /**
- * Updates data and the view.
+ * Updates data and the view over multiple frames and calls the given function.
  *
  * @param {Object} data
+ * @param {Function} [next]
  */
-function update(data) {
+function update(data, next) {
 	for (let key in data) {
 		this[key] = data[key];
 	}
 
-	this.view.update();
-	this.emit("update");
+	execute(this.view.update, () => {
+		this.emit("update");
+
+		if (next !== undefined) {
+			next();
+		}
+	});
 }
 
 /**
- * Destroys the view.
+ * Destroys the view over multiple frames and calls the given function.
+ *
+ * @param {Function} [next]
  */
-function destroy() {
-	this.view.destroy();
-	this.emit("destroy");
+function destroy(next) {
+	execute(this.view.destroy, () => {
+		this.emit("destroy");
+
+		if (next !== undefined) {
+			next();
+		}
+	});
 }
 
 /**
@@ -131,14 +155,13 @@ export default function Moon(data) {
 
 	// Ensure the view is defined, and compile it if needed.
 	let view = data.view;
-	delete data.view;
 
 	if (process.env.MOON_ENV === "development" && view === undefined) {
 		error(`The ${data.name} component requires a "view" property.`);
 	}
 
 	if (typeof view === "string") {
-		view = compile(view);
+		data.view = compile(view);
 	}
 
 	// Create default events at the beginning so that checks before calling them
@@ -171,11 +194,16 @@ export default function Moon(data) {
 
 	// Initialize the component constructor with the given data, given view, and
 	// default methods.
-	function MoonComponent() {
-		this.view = view();
+	function MoonComponent(data) {
+		this.view.data = this.view.data.bind(this);
+
+		for (let key in data) {
+			this[key] = data[key];
+		}
 	}
 
 	MoonComponent.prototype = data;
+	MoonComponent.prototype.m = [];
 	MoonComponent.prototype.create = create;
 	MoonComponent.prototype.update = update;
 	MoonComponent.prototype.destroy = destroy;
@@ -198,7 +226,10 @@ export default function Moon(data) {
 		return MoonComponent;
 	} else {
 		const instance = new MoonComponent();
-		instance.create(root);
+		const instanceElement = instance.create();
+
+		root.appendChild(instanceElement);
+
 		return instance;
 	}
 }
@@ -207,3 +238,5 @@ Moon.lex = lex;
 Moon.parse = parse;
 Moon.generate = generate;
 Moon.compile = compile;
+Moon.execute = execute;
+Moon.components = components;

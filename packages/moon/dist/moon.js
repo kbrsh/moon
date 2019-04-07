@@ -45,7 +45,7 @@
 
 	var attributeRE = /\s*([\w\d-_]*)(?:=(?:("[\w\d-_]*"|'[\w\d-_]*')|{([\w\d-_]*)}))?/g;
 	/**
-	 * Convert a token into a string, accounting for `<Text/>` components.
+	 * Convert a token into a string, accounting for `<text/>` components.
 	 *
 	 * @param {Object} token
 	 * @returns {String} Token converted into a string
@@ -53,7 +53,7 @@
 
 	function tokenString(token) {
 		if (token.type === "tagOpen") {
-			if (token.value === "Text") {
+			if (token.value === "text") {
 				var content = token.attributes[""]; // If the text content is surrounded with quotes, it was normal text
 				// and doesn't need the quotes. If not, it was an expression and
 				// needs to be formatted with curly braces.
@@ -105,7 +105,7 @@
 	 * The lexer is responsible for taking an input view template and converting it
 	 * into a list of tokens. To make the parser's job easier, it does some extra
 	 * processing and handles tag names, attribute key/value pairs, and converting
-	 * text into `<Text/>` components.
+	 * text into `<text/>` components.
 	 *
 	 * It works by running through the input text and checking for specific initial
 	 * characters such as "<", "{", or any text. After identifying the type of
@@ -228,13 +228,13 @@
 					} else {
 						expression += _char2;
 					}
-				} // Append the expression as a `<Text/>` element with the appropriate
+				} // Append the expression as a `<text/>` element with the appropriate
 				// text content attribute.
 
 
 				tokens.push({
 					type: "tagOpen",
-					value: "Text",
+					value: "text",
 					attributes: {
 						"": expression
 					},
@@ -253,13 +253,13 @@
 					} else {
 						text += _char3;
 					}
-				} // Append the text as a `<Text/>` element with the appropriate text
+				} // Append the text as a `<text/>` element with the appropriate text
 				// content attribute.
 
 
 				tokens.push({
 					type: "tagOpen",
-					value: "Text",
+					value: "text",
 					attributes: {
 						"": "\"" + text + "\""
 					},
@@ -459,297 +459,241 @@
 		return tree;
 	}
 
-	var getElement = function getElement(element) {
-		return "m" + element;
+	/**
+	 * Set of instructions that the compiler can output.
+	 */
+	var instructions = {
+		createElement: 0 | 3 << 4,
+		// storage, type, attributes
+		updateElement: 1 | 2 << 4,
+		// element, attributes
+		createText: 2 | 2 << 4,
+		// storage, content
+		updateText: 3 | 2 << 4,
+		// element, content
+		destroyElement: 4 | 1 << 4,
+		// element
+		appendElement: 5 | 2 << 4,
+		// element, parent element
+		createComponent: 6 | 3 << 4,
+		// storage, component name, data
+		updateComponent: 7 | 2 << 4,
+		// component instance, data
+		destroyComponent: 8 | 1 << 4,
+		// component instance
+		loop: 9 | 1 << 4,
+		// list,
+		"return": 10 | 1 << 4 // var
+
 	};
-	var setElement = function setElement(element, code) {
-		return getElement(element) + "=" + code;
-	};
-	var createElement = function createElement(type) {
-		return "m.ce(\"" + type + "\");";
-	};
-	var createTextNode = function createTextNode(content) {
-		return "m.ctn(" + content + ");";
-	};
-	var createComment = function createComment() {
-		return "m.cc();";
-	};
-	var attributeValue = function attributeValue(attribute) {
-		return attribute.expression ? attribute.value : "\"" + attribute.value + "\"";
-	};
-	var setAttribute = function setAttribute(element, attribute) {
-		return "m.sa(" + getElement(element) + ",\"" + attribute.key + "\"," + attributeValue(attribute) + ");";
-	};
-	var addEventListener = function addEventListener(element, type, handler) {
-		return "m.ael(" + getElement(element) + ",\"" + type + "\"," + handler + ");";
-	};
-	var setTextContent = function setTextContent(element, content) {
-		return "m.stc(" + getElement(element) + "," + content + ");";
-	};
-	var appendChild = function appendChild(element, parent) {
-		return "m.ac(" + getElement(element) + "," + getElement(parent) + ");";
-	};
-	var removeChild = function removeChild(element, parent) {
-		return "m.rc(" + getElement(element) + "," + getElement(parent) + ");";
-	};
-	var insertBefore = function insertBefore(element, reference, parent) {
-		return "m.ib(" + getElement(element) + "," + getElement(reference) + "," + getElement(parent) + ");";
-	};
-	var directiveIf = function directiveIf(ifState, ifConditions, ifPortions, ifParent) {
-		return "m.di(" + getElement(ifState) + "," + getElement(ifConditions) + "," + getElement(ifPortions) + "," + getElement(ifParent) + ");";
-	};
-	var directiveFor = function directiveFor(forIdentifiers, forLocals, forValue, forPortion, forPortions, forParent) {
-		return "m.df(" + forIdentifiers + "," + getElement(forLocals) + "," + forValue + "," + getElement(forPortion) + "," + getElement(forPortions) + "," + getElement(forParent) + ");";
-	};
+	/**
+	 * Returns an instruction from the given type and arguments.
+	 */
 
-	var isComponentType = function isComponentType(type) {
-		return type[0] === type[0].toUpperCase() && type[0] !== type[0].toLowerCase();
-	};
+	function instruction(type, args) {
+		var code = String.fromCharCode(type);
 
-	var generateMount = function generateMount(element, parent, reference) {
-		return reference === null ? appendChild(element, parent) : insertBefore(element, reference, parent);
-	};
-
-	var generateAll = function generateAll(element, parent, root, reference) {
-		switch (element.type) {
-			case "If":
-				{
-					var ifState = root.nextElement++;
-					var ifReference = root.nextElement++;
-					var ifConditions = root.nextElement++;
-					var ifPortions = root.nextElement++;
-					var ifConditionsCode = "[";
-					var ifPortionsCode = "[";
-					var separator = "";
-					var siblings = parent.children;
-
-					for (var i = siblings.indexOf(element); i < siblings.length; i++) {
-						var sibling = siblings[i];
-
-						if (sibling.type === "If" || sibling.type === "ElseIf" || sibling.type === "Else") {
-							ifConditionsCode += separator + (sibling.type === "Else" ? "true" : attributeValue(sibling.attributes[0]));
-							ifPortionsCode += separator + "function(locals){" + generate({
-								element: root.nextElement,
-								nextElement: root.nextElement + 1,
-								type: "Root",
-								attributes: [],
-								children: sibling.children
-							}, ifReference) + "}({})";
-							separator = ",";
-						} else {
-							break;
-						}
-					}
-
-					return [setElement(ifReference, createComment()) + generateMount(ifReference, parent.element, reference) + setElement(ifPortions, ifPortionsCode + "];"), setElement(ifConditions, ifConditionsCode + "];") + setElement(ifState, directiveIf(ifState, ifConditions, ifPortions, parent.element)), getElement(ifState) + "[2]();"];
-				}
-
-			case "ElseIf":
-			case "Else":
-				{
-					return ["", "", ""];
-				}
-
-			case "For":
-				{
-					var forAttribute = attributeValue(element.attributes[0]);
-					var forIdentifiers = "[";
-					var forValue = "";
-					var forReference = root.nextElement++;
-					var forPortion = root.nextElement++;
-					var forPortions = root.nextElement++;
-					var forLocals = root.nextElement++;
-					var forIdentifier = "",
-							_separator = "";
-
-					for (var _i = 0; _i < forAttribute.length; _i++) {
-						var _char = forAttribute[_i];
-
-						if (_char === "," || _char === " " && forAttribute[_i + 1] === "i" && forAttribute[_i + 2] === "n" && forAttribute[_i + 3] === " " && (_i += 3)) {
-							forIdentifiers += _separator + "\"" + forIdentifier.substring(7) + "\"";
-							forIdentifier = "";
-							_separator = ",";
-						} else {
-							forIdentifier += _char;
-						}
-					}
-
-					forIdentifiers += "]";
-					forValue += forIdentifier;
-					return [setElement(forReference, createComment()) + generateMount(forReference, parent.element, reference) + setElement(forPortion, "function(locals){" + generate({
-						element: root.nextElement,
-						nextElement: root.nextElement + 1,
-						type: "Root",
-						attributes: [],
-						children: element.children
-					}, forReference) + "};") + setElement(forPortions, "[];") + setElement(forLocals, "[];"), directiveFor(forIdentifiers, forLocals, forValue, forPortion, forPortions, parent.element), directiveFor(forIdentifiers, forLocals, "[]", forPortion, forPortions, parent.element)];
-				}
-
-			case "Text":
-				{
-					var textAttribute = element.attributes[0];
-					var textElement = root.nextElement++;
-					var textCode = setTextContent(textElement, attributeValue(textAttribute));
-					var createCode = setElement(textElement, createTextNode("\"\""));
-					var updateCode = "";
-
-					if (textAttribute.dynamic) {
-						updateCode += textCode;
-					} else {
-						createCode += textCode;
-					}
-
-					return [createCode + generateMount(textElement, parent.element, reference), updateCode, removeChild(textElement, parent.element)];
-				}
-
-			default:
-				{
-					var attributes = element.attributes;
-					var children = element.children;
-
-					if (isComponentType(element.type)) {
-						element.component = root.nextElement++;
-
-						var _createCode = setElement(element.component, "new m.c." + element.type + "();");
-
-						var _updateCode = "";
-						var dynamic = false;
-
-						for (var _i2 = 0; _i2 < attributes.length; _i2++) {
-							var attribute = attributes[_i2];
-
-							if (attribute.key[0] === "@") {
-								_createCode += getElement(element.component) + ".on(\"" + attribute.key.substring(1) + "\",function($event){locals.$event=$event;" + attributeValue(attribute) + ";});";
-							} else {
-								var attributeCode = getElement(element.component) + "." + attribute.key + "=" + attributeValue(attribute) + ";";
-
-								if (attribute.dynamic) {
-									dynamic = true;
-									_updateCode += attributeCode;
-								} else {
-									_createCode += attributeCode;
-								}
-							}
-						}
-
-						_createCode += getElement(element.component) + ".create(" + getElement(parent.element) + ");";
-
-						if (dynamic) {
-							_updateCode += getElement(element.component) + ".update();";
-						} else {
-							_createCode += getElement(element.component) + ".update();";
-						}
-
-						return [_createCode, _updateCode, getElement(element.component) + ".destroy();"];
-					} else {
-						element.element = root.nextElement++;
-
-						var _createCode2 = setElement(element.element, createElement(element.type));
-
-						var _updateCode2 = "";
-
-						for (var _i3 = 0; _i3 < attributes.length; _i3++) {
-							var _attribute = attributes[_i3];
-
-							var _attributeCode = void 0;
-
-							if (_attribute.key[0] === "@") {
-								var eventType = void 0,
-										eventHandler = void 0;
-
-								if (_attribute.key === "@bind") {
-									var bindVariable = attributeValue(_attribute);
-									_attributeCode = getElement(element.element) + ".value=" + bindVariable + ";";
-									eventType = "input";
-									eventHandler = bindVariable + "=$event.target.value;instance.update();";
-								} else {
-									_attributeCode = "";
-									eventType = _attribute.key.substring(1);
-									eventHandler = "locals.$event=$event;" + attributeValue(_attribute) + ";";
-								}
-
-								_createCode2 += addEventListener(element.element, eventType, "function($event){" + eventHandler + "}");
-							} else {
-								_attributeCode = setAttribute(element.element, _attribute);
-							}
-
-							if (_attribute.dynamic) {
-								_updateCode2 += _attributeCode;
-							} else {
-								_createCode2 += _attributeCode;
-							}
-						}
-
-						for (var _i4 = 0; _i4 < children.length; _i4++) {
-							var childCode = generateAll(children[_i4], element, root, null);
-							_createCode2 += childCode[0];
-							_updateCode2 += childCode[1];
-						}
-
-						return [_createCode2 + generateMount(element.element, parent.element, reference), _updateCode2, removeChild(element.element, parent.element)];
-					}
-				}
-		}
-	};
-	var generate = function generate(root, reference) {
-		var children = root.children;
-		var create = "";
-		var update = "";
-		var destroy = "";
-
-		for (var i = 0; i < children.length; i++) {
-			var generated = generateAll(children[i], root, root, reference);
-			create += generated[0];
-			update += generated[1];
-			destroy += generated[2];
+		for (var i = 0; i < args.length; i++) {
+			code += String.fromCharCode(args[i]);
 		}
 
-		var prelude = "var " + getElement(root.element);
+		return code;
+	}
 
-		for (var _i5 = root.element + 1; _i5 < root.nextElement; _i5++) {
-			prelude += "," + getElement(_i5);
+	/**
+	 * Generates code for an object.
+	 *
+	 * @param {Object} obj
+	 * @returns {string} Code for object
+	 */
+
+	function generateObject(obj) {
+		var output = "{";
+
+		for (var key in obj) {
+			output += "\"" + key + "\":" + obj[key] + ",";
 		}
 
-		return prelude + ";return [function(_0){" + setElement(root.element, "_0;") + create + "},function(){" + update + "},function(){" + destroy + "}];";
-	};
+		return output + "}";
+	}
+	/**
+	 * Generates instructions for creating, updating, and destroying the given
+	 * tree. Updates the data object with a mapping from expression to variable.
+	 * The `total` argument represents the total number of data mappings.
+	 *
+	 * @param {Object} tree
+	 * @param {Object} data
+	 * @param {Number} total
+	 * @return {Object} Data, create, update, and destroy functions
+	 */
+
+
+	function generateAll(tree, data, total) {
+		var type = tree.type;
+
+		if (type === "text") {
+			var textVar = total++;
+			var textContent = tree.attributes[""];
+			var textContentVar = data[textContent];
+
+			if (textContentVar === undefined) {
+				textContentVar = data[textContent] = total++;
+			}
+
+			return {
+				create: instruction(instructions.createText, [textVar, textContentVar]),
+				createVar: textVar,
+				update: instruction(instructions.updateText, [textContentVar]),
+				destroy: instruction(instructions.destroyElement, [textVar]),
+				total: total
+			};
+		} else if (type[0] === type[0].toLowerCase()) {
+			// Tags that start with a lowercase letter are normal HTML elements. This
+			// could be implemented as a user-defined component but is implemented
+			// here for efficiency.
+			var elementType = "\"" + type + "\"";
+			var elementAttributes = generateObject(tree.attributes);
+			var elementVar = total++;
+			var elementNameVar = data[elementType];
+			var elementAttributesVar = data[elementAttributes];
+
+			if (elementNameVar === undefined) {
+				elementNameVar = data[elementType] = total++;
+			}
+
+			if (elementAttributesVar === undefined) {
+				elementAttributesVar = data[elementAttributes] = total++;
+			}
+
+			var childrenCreate = "";
+			var childrenUpdate = "";
+			var childrenDestroy = "";
+
+			for (var i = 0; i < tree.children.length; i++) {
+				var child = tree.children[i];
+				var childCode = generateAll(child, data, total);
+				childrenCreate += childCode.create;
+				childrenCreate += instruction(instructions.appendElement, [childCode.createVar, elementVar]);
+				childrenUpdate += childCode.update;
+				childrenDestroy += childCode.destroy;
+				total += childCode.total;
+			}
+
+			return {
+				create: instruction(instructions.createElement, [elementVar, elementNameVar, elementAttributesVar]) + childrenCreate,
+				createVar: elementVar,
+				update: instruction(instructions.updateElement, [elementVar]) + childrenUpdate,
+				destroy: instruction(instructions.destroyElement, [elementVar]) + childrenDestroy,
+				total: total
+			};
+		}
+	}
+	/**
+	 * Generator
+	 *
+	 * The generator is responsible for generating instructions that create a view.
+	 * These instructions create, update, and destroy components. For efficiency,
+	 * they also handle elements to remove a layer of abstraction. The instructions
+	 * are ran across multiple frames to allow the browser to handle other events.
+	 *
+	 * @param {Object} tree
+	 * @returns {Object} Data, create, update, and destroy functions
+	 */
+
+
+	function generate(tree) {
+		var data = {};
+
+		var _generateAll = generateAll(tree, data, 0),
+				create = _generateAll.create,
+				createVar = _generateAll.createVar,
+				update = _generateAll.update,
+				destroy = _generateAll.destroy;
+
+		var dataCode = "";
+
+		for (var key in data) {
+			dataCode += "this.m" + data[key] + "=" + key + ";";
+		}
+
+		create += instruction(instructions.returnVar, [createVar]);
+		return {
+			data: dataCode,
+			create: create,
+			update: update,
+			destroy: destroy
+		};
+	}
 
 	function compile(input) {
-		return parse(lex(input));
+		return generate(parse(lex(input)));
 	}
 
+	function execute() {}
+
 	/**
-	 * Creates a view mounted on the given root element.
-	 *
-	 * @param {Node} root
+	 * Global component store.
 	 */
 
-	function create(root) {
-		this.view.create(root);
-		this.emit("create");
+	var components = {};
+	/**
+	 * Creates a view element over multiple frames and calls the given function
+	 * with the new element.
+	 *
+	 * @param {Function} [next]
+	 */
+
+	function create(next) {
+		var _this = this;
+
+		execute(this.view.create, function (element) {
+			_this.emit("create", element);
+
+			if (next !== undefined) {
+				next(element);
+			}
+		});
 	}
 	/**
-	 * Updates data and the view.
+	 * Updates data and the view over multiple frames and calls the given function.
 	 *
 	 * @param {Object} data
+	 * @param {Function} [next]
 	 */
 
 
-	function update(data) {
+	function update(data, next) {
+		var _this2 = this;
+
 		for (var key in data) {
 			this[key] = data[key];
 		}
 
-		this.view.update();
-		this.emit("update");
+		execute(this.view.update, function () {
+			_this2.emit("update");
+
+			if (next !== undefined) {
+				next();
+			}
+		});
 	}
 	/**
-	 * Destroys the view.
+	 * Destroys the view over multiple frames and calls the given function.
+	 *
+	 * @param {Function} [next]
 	 */
 
 
-	function destroy() {
-		this.view.destroy();
-		this.emit("destroy");
+	function destroy(next) {
+		var _this3 = this;
+
+		execute(this.view.destroy, function () {
+			_this3.emit("destroy");
+
+			if (next !== undefined) {
+				next();
+			}
+		});
 	}
 	/**
 	 * Add an event handler to listen to a given event type.
@@ -849,14 +793,13 @@
 		data.name = data.name === undefined ? "Root" : data.name; // Ensure the view is defined, and compile it if needed.
 
 		var view = data.view;
-		delete data.view;
 
 		if ("development" === "development" && view === undefined) {
 			error("The " + data.name + " component requires a \"view\" property.");
 		}
 
 		if (typeof view === "string") {
-			view = compile(view);
+			data.view = compile(view);
 		} // Create default events at the beginning so that checks before calling them
 		// aren't required.
 
@@ -887,11 +830,16 @@
 		// default methods.
 
 
-		function MoonComponent() {
-			this.view = view();
+		function MoonComponent(data) {
+			this.view.data = this.view.data.bind(this);
+
+			for (var key in data) {
+				this[key] = data[key];
+			}
 		}
 
 		MoonComponent.prototype = data;
+		MoonComponent.prototype.m = [];
 		MoonComponent.prototype.create = create;
 		MoonComponent.prototype.update = update;
 		MoonComponent.prototype.destroy = destroy;
@@ -908,10 +856,12 @@
 		}
 
 		if (root === undefined) {
+			components[name] = MoonComponent;
 			return MoonComponent;
 		} else {
 			var instance = new MoonComponent();
-			instance.create(root);
+			var instanceElement = instance.create();
+			root.appendChild(instanceElement);
 			return instance;
 		}
 	}
@@ -919,6 +869,8 @@
 	Moon.parse = parse;
 	Moon.generate = generate;
 	Moon.compile = compile;
+	Moon.execute = execute;
+	Moon.components = components;
 
 	return Moon;
 }));

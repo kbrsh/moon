@@ -3,5 +3,5 @@ import { parse } from "./parser/parser";
 import { generate } from "./generator/generator";
 
 export function compile(input) {
-	return parse(lex(input));
+	return generate(parse(lex(input)));
 }
