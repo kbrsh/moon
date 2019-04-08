@@ -460,28 +460,45 @@
 	}
 
 	/**
+	 * Generates code for an object.
+	 *
+	 * @param {Object} obj
+	 * @returns {string} Code for object
+	 */
+	function generateObject(obj) {
+		var output = "{";
+
+		for (var key in obj) {
+			output += "\"" + key + "\":" + obj[key] + ",";
+		}
+
+		return output + "}";
+	}
+
+	/**
 	 * Set of instructions that the compiler can output.
 	 */
 	var instructions = {
-		createElement: 0,
+		createElement: 0 | 3 << 4,
 		// storage, type, attributes
-		updateElement: 1,
+		updateElement: 1 | 2 << 4,
 		// element, attributes
-		createText: 2,
+		createText: 2 | 2 << 4,
 		// storage, content
-		updateText: 3,
+		updateText: 3 | 2 << 4,
 		// element, content
-		destroyElement: 4,
+		destroyElement: 4 | 1 << 4,
 		// element
-		appendElement: 5,
+		appendElement: 5 | 2 << 4,
 		// element, parent element
-		createComponent: 6,
+		createComponent: 6 | 3 << 4,
 		// storage, component name, data
-		updateComponent: 7,
+		updateComponent: 7 | 2 << 4,
 		// component instance, data
-		destroyComponent: 8,
+		destroyComponent: 8 | 1 << 4,
 		// component instance
-		returnVar: 9 // var
+		"return": 9 | 0 << 4,
+		returnVar: 10 | 1 << 4 // var
 
 	};
 	/**
@@ -499,21 +516,77 @@
 	}
 
 	/**
-	 * Generates code for an object.
+	 * Generates code for an element.
 	 *
-	 * @param {Object} obj
-	 * @returns {string} Code for object
+	 * @param {Object} element
+	 * @param {Object} data
+	 * @param {number} total
 	 */
 
-	function generateObject(obj) {
-		var output = "{";
+	function generateElement(element, data, total) {
+		var elementType = "\"" + element.type + "\"";
+		var elementAttributes = generateObject(element.attributes);
+		var elementVar = total++;
+		var elementNameVar = data[elementType];
+		var elementAttributesVar = data[elementAttributes];
 
-		for (var key in obj) {
-			output += "\"" + key + "\":" + obj[key] + ",";
+		if (elementNameVar === undefined) {
+			elementNameVar = data[elementType] = total++;
 		}
 
-		return output + "}";
+		if (elementAttributesVar === undefined) {
+			elementAttributesVar = data[elementAttributes] = total++;
+		}
+
+		var childrenCreate = "";
+		var childrenUpdate = "";
+		var childrenDestroy = "";
+
+		for (var i = 0; i < element.children.length; i++) {
+			var child = element.children[i];
+			var childCode = generateAll(child, data, total);
+			childrenCreate += childCode.create;
+			childrenCreate += instruction(instructions.appendElement, [childCode.createVar, elementVar]);
+			childrenUpdate += childCode.update;
+			childrenDestroy += childCode.destroy;
+			total = childCode.total;
+		}
+
+		return {
+			create: instruction(instructions.createElement, [elementVar, elementNameVar, elementAttributesVar]) + childrenCreate,
+			createVar: elementVar,
+			update: instruction(instructions.updateElement, [elementVar]) + childrenUpdate,
+			destroy: instruction(instructions.destroyElement, [elementVar]) + childrenDestroy,
+			total: total
+		};
 	}
+
+	/**
+	 * Generates code for a text element.
+	 *
+	 * @param {Object} text
+	 * @param {Object} data
+	 * @param {number} total
+	 */
+
+	function generateText(text, data, total) {
+		var textVar = total++;
+		var textContent = text.attributes[""];
+		var textContentVar = data[textContent];
+
+		if (textContentVar === undefined) {
+			textContentVar = data[textContent] = total++;
+		}
+
+		return {
+			create: instruction(instructions.createText, [textVar, textContentVar]),
+			createVar: textVar,
+			update: instruction(instructions.updateText, [textContentVar]),
+			destroy: instruction(instructions.destroyElement, [textVar]),
+			total: total
+		};
+	}
+
 	/**
 	 * Generates instructions for creating, updating, and destroying the given
 	 * tree. Updates the data object with a mapping from expression to variable.
@@ -521,69 +594,20 @@
 	 *
 	 * @param {Object} tree
 	 * @param {Object} data
-	 * @param {Number} total
+	 * @param {number} total
 	 * @return {Object} Data, create, update, and destroy functions
 	 */
-
 
 	function generateAll(tree, data, total) {
 		var type = tree.type;
 
 		if (type === "text") {
-			var textVar = total++;
-			var textContent = tree.attributes[""];
-			var textContentVar = data[textContent];
-
-			if (textContentVar === undefined) {
-				textContentVar = data[textContent] = total++;
-			}
-
-			return {
-				create: instruction(instructions.createText, [textVar, textContentVar]),
-				createVar: textVar,
-				update: instruction(instructions.updateText, [textContentVar]),
-				destroy: instruction(instructions.destroyElement, [textVar]),
-				total: total
-			};
+			return generateText(tree, data, total);
 		} else if (type[0] === type[0].toLowerCase()) {
 			// Tags that start with a lowercase letter are normal HTML elements. This
 			// could be implemented as a user-defined component but is implemented
 			// here for efficiency.
-			var elementType = "\"" + type + "\"";
-			var elementAttributes = generateObject(tree.attributes);
-			var elementVar = total++;
-			var elementNameVar = data[elementType];
-			var elementAttributesVar = data[elementAttributes];
-
-			if (elementNameVar === undefined) {
-				elementNameVar = data[elementType] = total++;
-			}
-
-			if (elementAttributesVar === undefined) {
-				elementAttributesVar = data[elementAttributes] = total++;
-			}
-
-			var childrenCreate = "";
-			var childrenUpdate = "";
-			var childrenDestroy = "";
-
-			for (var i = 0; i < tree.children.length; i++) {
-				var child = tree.children[i];
-				var childCode = generateAll(child, data, total);
-				childrenCreate += childCode.create;
-				childrenCreate += instruction(instructions.appendElement, [childCode.createVar, elementVar]);
-				childrenUpdate += childCode.update;
-				childrenDestroy += childCode.destroy;
-				total = childCode.total;
-			}
-
-			return {
-				create: instruction(instructions.createElement, [elementVar, elementNameVar, elementAttributesVar]) + childrenCreate,
-				createVar: elementVar,
-				update: instruction(instructions.updateElement, [elementVar]) + childrenUpdate,
-				destroy: instruction(instructions.destroyElement, [elementVar]) + childrenDestroy,
-				total: total
-			};
+			return generateElement(tree, data, total);
 		}
 	}
 	/**
@@ -597,7 +621,6 @@
 	 * @param {Object} tree
 	 * @returns {Object} Data, create, update, and destroy functions
 	 */
-
 
 	function generate(tree) {
 		var data = {};

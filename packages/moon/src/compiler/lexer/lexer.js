@@ -11,7 +11,7 @@ const typeRE = /<([\w\d-_]+)([^>]*?)(\/?)>/g;
  * due to the limits of regular expressions. One or both of them can be
  * undefined.
  */
-const attributeRE = /\s*([\w\d-_]*)(?:=(?:("[^"]*"|'[^']*')|{([^{}]*)}))?/g;
+const attributeRE = /\s*([\w\d-_:@]*)(?:=(?:("[^"]*"|'[^']*')|{([^{}]*)}))?/g;
 
 /**
  * Convert a token into a string, accounting for `<text/>` components.
