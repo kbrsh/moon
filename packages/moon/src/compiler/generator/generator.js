@@ -1,26 +1,42 @@
-import { generateElement } from "./components/element";
-import { generateText } from "./components/text";
+import { types } from "../../util/util";
 
 /**
  * Generator
  *
- * The generator is responsible for generating functions that create a view.
- * These functions create, update, and destroy components. For efficiency, they
- * also handle elements to remove a layer of abstraction. The functions are ran
- * across multiple frames to allow the browser to handle other events.
+ * The generator is responsible for generating a function that creates a view.
+ * A view could be represented as a normal set of recursive function calls, but
+ * it uses lightweight objects to represent them instead. This allows the
+ * executor to execute the function over multiple frames with its own
+ * representation of the stack.
  *
- * @param {Object} tree
- * @returns {Object} Create, update, and destroy functions
+ * @param {Object} element
+ * @returns {string} View function code
  */
-export function generate(tree) {
-	const type = tree.type;
+export function generate(element) {
+	let type;
+	const name = element.type;
 
-	if (type === "text") {
-		return generateText(tree, data, total);
-	} else if (type[0] === type[0].toLowerCase()) {
-		// Tags that start with a lowercase letter are normal HTML elements. This
-		// could be implemented as a user-defined component but is implemented
-		// here for efficiency.
-		return generateElement(tree, data, total);
+	if (name === "text") {
+		type = types.text;
+	} else if (name[0] === name[0].toLowerCase()) {
+		type = types.element;
+	} else {
+		type = types.component;
 	}
+
+	let data = "{";
+
+	for (let attribute in element.attributes) {
+		data += `"${attribute}":${element.attributes[attribute]},`;
+	}
+
+	data += "children:[";
+
+	let separator = "";
+	for (let i = 0; i < element.children.length; i++) {
+		data += separator + generate(element.children[i]);
+		separator = ",";
+	}
+
+	return `{type:${type},name:"${name}",data:${data}]},node:null}`;
 }

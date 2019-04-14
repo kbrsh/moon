@@ -55,7 +55,7 @@ export default function Moon(options) {
 	}
 
 	if (typeof view === "string") {
-		view = compile(view);
+		view = new Function("data", `return ${compile(view)}`);
 	}
 
 	// If a `root` option is given, start the root renderer, or else just return

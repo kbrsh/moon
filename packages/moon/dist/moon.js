@@ -534,158 +534,45 @@
 	}
 
 	/**
-	 * Generates code for an object.
-	 *
-	 * @param {Object} obj
-	 * @returns {string} Code for object
-	 */
-	function generateObject(obj) {
-		var output = "{";
-
-		for (var key in obj) {
-			output += "\"" + key + "\":" + obj[key] + ",";
-		}
-
-		return output + "}";
-	}
-
-	/**
-	 * Set of instructions that the compiler can output.
-	 */
-	var instructions = {
-		createElement: 0 | 3 << 4,
-		// storage, type, attributes
-		updateElement: 1 | 2 << 4,
-		// element, attributes
-		createText: 2 | 2 << 4,
-		// storage, content
-		updateText: 3 | 2 << 4,
-		// element, content
-		destroyElement: 4 | 1 << 4,
-		// element
-		appendElement: 5 | 2 << 4,
-		// element, parent element
-		createComponent: 6 | 3 << 4,
-		// storage, component name, data
-		updateComponent: 7 | 2 << 4,
-		// component instance, data
-		destroyComponent: 8 | 1 << 4,
-		// component instance
-		"return": 9 | 0 << 4,
-		returnVar: 10 | 1 << 4 // var
-
-	};
-	/**
-	 * Returns an instruction from the given type and arguments.
-	 */
-
-	function instruction(type, args) {
-		var code = String.fromCharCode(type);
-
-		for (var i = 0; i < args.length; i++) {
-			code += String.fromCharCode(args[i]);
-		}
-
-		return code;
-	}
-
-	/**
-	 * Generates instructions for an element.
-	 *
-	 * @param {Object} element
-	 * @param {Object} data
-	 * @param {number} total
-	 * @return {Object} Data, create, update, and destroy functions
-	 */
-
-	function generateElement(element, data, total) {
-		var elementType = "\"" + element.type + "\"";
-		var elementAttributes = generateObject(element.attributes);
-		var elementVar = total++;
-		var elementNameVar = data[elementType];
-		var elementAttributesVar = data[elementAttributes];
-
-		if (elementNameVar === undefined) {
-			elementNameVar = data[elementType] = total++;
-		}
-
-		if (elementAttributesVar === undefined) {
-			elementAttributesVar = data[elementAttributes] = total++;
-		}
-
-		var childrenCreate = "";
-		var childrenUpdate = "";
-		var childrenDestroy = "";
-
-		for (var i = 0; i < element.children.length; i++) {
-			var child = element.children[i];
-			var childCode = generate(child, data, total);
-			childrenCreate += childCode.create;
-			childrenCreate += instruction(instructions.appendElement, [childCode.createVar, elementVar]);
-			childrenUpdate += childCode.update;
-			childrenDestroy += childCode.destroy;
-			total = childCode.total;
-		}
-
-		return {
-			create: instruction(instructions.createElement, [elementVar, elementNameVar, elementAttributesVar]) + childrenCreate,
-			createVar: elementVar,
-			update: instruction(instructions.updateElement, [elementVar]) + childrenUpdate,
-			destroy: instruction(instructions.destroyElement, [elementVar]) + childrenDestroy,
-			total: total
-		};
-	}
-
-	/**
-	 * Generates code for a text element.
-	 *
-	 * @param {Object} text
-	 * @param {Object} data
-	 * @param {number} total
-	 * @return {Object} Data, create, update, and destroy functions
-	 */
-
-	function generateText(text, data, total) {
-		var textVar = total++;
-		var textContent = text.attributes[""];
-		var textContentVar = data[textContent];
-
-		if (textContentVar === undefined) {
-			textContentVar = data[textContent] = total++;
-		}
-
-		return {
-			create: instruction(instructions.createText, [textVar, textContentVar]),
-			createVar: textVar,
-			update: instruction(instructions.updateText, [textContentVar]),
-			destroy: instruction(instructions.destroyElement, [textVar]),
-			total: total
-		};
-	}
-
-	/**
 	 * Generator
 	 *
-	 * The generator is responsible for generating functions that create a view.
-	 * These functions create, update, and destroy components. For efficiency, they
-	 * also handle elements to remove a layer of abstraction. The functions are ran
-	 * across multiple frames to allow the browser to handle other events.
+	 * The generator is responsible for generating a function that creates a view.
+	 * A view could be represented as a normal set of recursive function calls, but
+	 * it uses lightweight objects to represent them instead. This allows the
+	 * executor to execute the function over multiple frames with its own
+	 * representation of the stack.
 	 *
-	 * @param {Object} tree
-	 * @returns {Object} Create, update, and destroy functions
+	 * @param {Object} element
+	 * @returns {string} View function code
 	 */
 
-	function generate(tree) {
-		var type = tree.type;
+	function generate(element) {
+		var type;
+		var name = element.type;
 
-		if (type === "text") {
-			return generateText(tree, data, total);
-		} else if (type[0] === type[0].toLowerCase()) {
-			// Tags that start with a lowercase letter are normal HTML elements. This
-			// could be implemented as a user-defined component but is implemented
-			// here for efficiency.
-			return generateElement(tree, data, total);
+		if (name === "text") {
+			type = types.text;
+		} else if (name[0] === name[0].toLowerCase()) {
+			type = types.element;
+		} else {
+			type = types.component;
 		}
+
+		var data = "{";
+
+		for (var attribute in element.attributes) {
+			data += "\"" + attribute + "\":" + element.attributes[attribute] + ",";
+		}
+
+		data += "children:[";
+		var separator = "";
+
+		for (var i = 0; i < element.children.length; i++) {
+			data += separator + generate(element.children[i]);
+			separator = ",";
+		}
+
+		return "{type:" + type + ",name:\"" + name + "\",data:" + data + "]},node:null}";
 	}
 
 	function compile(input) {
@@ -695,7 +582,7 @@
 	/**
 	 * Global data
 	 */
-	var data$1;
+	var data;
 	/**
 	 * Global views
 	 */
@@ -712,7 +599,7 @@
 	 */
 
 	function setData(dataNew) {
-		data$1 = dataNew;
+		data = dataNew;
 	}
 	/**
 	 * Set old view to a new object.
@@ -889,7 +776,7 @@
 
 	function execute() {
 		executeStart = performance.now();
-		executeView([viewCurrent(data$1)], [null], [0]);
+		executeView([viewCurrent(data)], [null], [0]);
 	}
 
 	/**
@@ -898,7 +785,7 @@
 	 */
 
 	function set(dataNew) {
-		merge(data$1, dataNew);
+		merge(data, dataNew);
 		execute();
 	}
 	/**
@@ -942,7 +829,7 @@
 		}
 
 		if (typeof view === "string") {
-			view = compile(view);
+			view = new Function("data", "return " + compile(view));
 		} // If a `root` option is given, start the root renderer, or else just return
 		// the component.
 
