@@ -13,12 +13,35 @@
 }(this, function() {
 	"use strict";
 
+	function _typeof(obj) {
+		if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
+			_typeof = function (obj) {
+				return typeof obj;
+			};
+		} else {
+			_typeof = function (obj) {
+				return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+			};
+		}
+
+		return _typeof(obj);
+	}
+
+	/**
+	 * View node types.
+	 */
+	var types = {
+		element: 0,
+		text: 1,
+		component: 2
+	};
 	/**
 	 * Checks if a given character is a quote.
 	 *
 	 * @param {string} char
 	 * @returns {boolean} True if the character is a quote
 	 */
+
 	function isQuote(_char) {
 		return _char === "\"" || _char === "'";
 	}
@@ -29,6 +52,57 @@
 
 	function error(message) {
 		console.error("[Moon] ERROR: " + message);
+	}
+	/**
+	 * Returns a value or a default fallback if the value is undefined.
+	 *
+	 * @param value
+	 * @param fallback
+	 * @returns Value or default fallback
+	 */
+
+	function defaultValue(value, fallback) {
+		return value === undefined ? fallback : value;
+	}
+	/**
+	 * Returns an object using default fallback key/value pairs if they are
+	 * undefined.
+	 *
+	 * @param {Object} obj
+	 * @param {Object} fallback
+	 * @returns {Object} Full object with default key/value pairs
+	 */
+
+	function defaultObject(obj, fallback) {
+		var full = {};
+
+		for (var key in fallback) {
+			full[key] = fallback[key];
+		}
+
+		for (var _key in obj) {
+			full[_key] = obj[_key];
+		}
+
+		return full;
+	}
+	/**
+	 * Deeply merge objects.
+	 *
+	 * @param {Object} obj
+	 * @param {Object} objNew
+	 */
+
+	function merge(obj, objNew) {
+		for (var key in objNew) {
+			var value = objNew[key];
+
+			if (_typeof(value) === "object") {
+				merge(obj[key], value);
+			} else {
+				obj[key] = value;
+			}
+		}
 	}
 
 	/**
@@ -43,7 +117,7 @@
 	 * undefined.
 	 */
 
-	var attributeRE = /\s*([\w\d-_]*)(?:=(?:("[^"]*"|'[^']*')|{([^{}]*)}))?/g;
+	var attributeRE = /\s*([\w\d-_:@]*)(?:=(?:("[^"]*"|'[^']*')|{([^{}]*)}))?/g;
 	/**
 	 * Convert a token into a string, accounting for `<text/>` components.
 	 *
@@ -516,11 +590,12 @@
 	}
 
 	/**
-	 * Generates code for an element.
+	 * Generates instructions for an element.
 	 *
 	 * @param {Object} element
 	 * @param {Object} data
 	 * @param {number} total
+	 * @return {Object} Data, create, update, and destroy functions
 	 */
 
 	function generateElement(element, data, total) {
@@ -544,7 +619,7 @@
 
 		for (var i = 0; i < element.children.length; i++) {
 			var child = element.children[i];
-			var childCode = generateAll(child, data, total);
+			var childCode = generate(child, data, total);
 			childrenCreate += childCode.create;
 			childrenCreate += instruction(instructions.appendElement, [childCode.createVar, elementVar]);
 			childrenUpdate += childCode.update;
@@ -567,6 +642,7 @@
 	 * @param {Object} text
 	 * @param {Object} data
 	 * @param {number} total
+	 * @return {Object} Data, create, update, and destroy functions
 	 */
 
 	function generateText(text, data, total) {
@@ -588,17 +664,18 @@
 	}
 
 	/**
-	 * Generates instructions for creating, updating, and destroying the given
-	 * tree. Updates the data object with a mapping from expression to variable.
-	 * The `total` argument represents the total number of data mappings.
+	 * Generator
+	 *
+	 * The generator is responsible for generating functions that create a view.
+	 * These functions create, update, and destroy components. For efficiency, they
+	 * also handle elements to remove a layer of abstraction. The functions are ran
+	 * across multiple frames to allow the browser to handle other events.
 	 *
 	 * @param {Object} tree
-	 * @param {Object} data
-	 * @param {number} total
-	 * @return {Object} Data, create, update, and destroy functions
+	 * @returns {Object} Create, update, and destroy functions
 	 */
 
-	function generateAll(tree, data, total) {
+	function generate(tree) {
 		var type = tree.type;
 
 		if (type === "text") {
@@ -610,417 +687,293 @@
 			return generateElement(tree, data, total);
 		}
 	}
-	/**
-	 * Generator
-	 *
-	 * The generator is responsible for generating instructions that create a view.
-	 * These instructions create, update, and destroy components. For efficiency,
-	 * they also handle elements to remove a layer of abstraction. The instructions
-	 * are ran across multiple frames to allow the browser to handle other events.
-	 *
-	 * @param {Object} tree
-	 * @returns {Object} Data, create, update, and destroy functions
-	 */
-
-	function generate(tree) {
-		var data = {};
-
-		var _generateAll = generateAll(tree, data, 0),
-				create = _generateAll.create,
-				createVar = _generateAll.createVar,
-				update = _generateAll.update,
-				destroy = _generateAll.destroy;
-
-		var dataCode = "";
-
-		for (var key in data) {
-			dataCode += "this.m" + data[key] + "=" + key + ";";
-		}
-
-		create += instruction(instructions.returnVar, [createVar]);
-		return {
-			data: new Function(dataCode),
-			create: create,
-			update: update,
-			destroy: destroy
-		};
-	}
 
 	function compile(input) {
 		return generate(parse(lex(input)));
 	}
 
 	/**
-	 * Gets a value from the executor data given a variable index.
-	 *
-	 * @param {number} index
-	 * @param {Object} data
-	 * @returns Value from data
+	 * Global data
+	 */
+	var data$1;
+	/**
+	 * Global views
 	 */
 
-	function executeGet(index, data) {
-		return data["m" + index];
-	}
+	var viewNew, viewCurrent;
 	/**
-	 * Sets a value from the executor data given a variable index.
-	 *
-	 * @param {number} index
-	 * @param value
-	 * @param {Object} data
-	 * @returns Value from data
-	 */
-
-
-	function executeSet(index, value, data) {
-		data["m" + index] = value;
-	}
-	/**
-	 * Executor
-	 *
-	 * The executor is responsible for executing instructions passed to it. It
-	 * starts at the given start index and calls the `next` callback when it's
-	 * done. It runs the instructions over multiple frames to allow the browser to
-	 * handle other high-priority events.
-	 *
-	 * @param {number} index
-	 * @param {number} start
-	 * @param {Object} data
-	 * @param {string} code
-	 * @param {Function} next
-	 */
-
-
-	function execute(index, start, data, code, next) {
-		var i = index;
-
-		while (i < code.length) {
-			switch (code.charCodeAt(i)) {
-				case instructions.createElement:
-					{
-						var storage = code.charCodeAt(++i);
-						var element = document.createElement(executeGet(code.charCodeAt(++i), data));
-						var attributes = executeGet(code.charCodeAt(++i), data);
-
-						for (var attribute in attributes) {
-							element.setAttribute(attribute, attributes[attribute]);
-						}
-
-						executeSet(storage, element, data);
-						i += 1;
-						break;
-					}
-
-				case instructions.updateElement:
-					{
-						var _element = executeGet(code.charCodeAt(++i), data);
-
-						var _attributes = executeGet(code.charCodeAt(++i), data);
-
-						for (var _attribute in _attributes) {
-							_element.setAttribute(_attribute, _attributes[_attribute]);
-						}
-
-						i += 1;
-						break;
-					}
-
-				case instructions.createText:
-					{
-						executeSet(code.charCodeAt(++i), document.createTextNode(executeGet(code.charCodeAt(++i), data)), data);
-						i += 1;
-						break;
-					}
-
-				case instructions.updateText:
-					{
-						var text = executeGet(code.charCodeAt(++i), data);
-						var content = executeGet(code.charCodeAt(++i), data);
-						text.textContent = content;
-						i += 1;
-						break;
-					}
-
-				case instructions.destroyElement:
-					{
-						var _element2 = executeGet(code.charCodeAt(++i), data);
-
-						_element2.parentNode.destroyChild(_element2);
-
-						i += 1;
-						break;
-					}
-
-				case instructions.appendElement:
-					{
-						var _element3 = executeGet(code.charCodeAt(++i), data);
-
-						var parent = executeGet(code.charCodeAt(++i), data);
-						parent.appendChild(_element3);
-						i += 1;
-						break;
-					}
-
-				case instructions.returnVar:
-					{
-						next(executeGet(code.charCodeAt(++i), data));
-						return;
-					}
-			}
-
-			if (performance.now() - start >= 8) {
-				requestAnimationFrame(function () {
-					execute(i, performance.now(), data, code, next);
-				});
-				break;
-			}
-		}
-	}
-
-	/**
-	 * Global component store.
+	 * Global component store
 	 */
 
 	var components = {};
 	/**
-	 * Creates a view element over multiple frames and calls the given function
-	 * with the new element.
-	 *
-	 * @param {Function} [next]
-	 * @param {number} [start]
+	 * Set data to a new object.
+	 * @param {Object} dataNew
 	 */
 
-	function create(next, start) {
-		var _this = this;
+	function setData(dataNew) {
+		data$1 = dataNew;
+	}
+	/**
+	 * Set old view to a new object.
+	 * @param {Object} viewOld
+	 */
 
-		this.view.data();
-		execute(0, start === undefined ? performance.now() : start, this, this.view.create, function (element) {
-			_this.emit("create", element);
+	function setViewOld(viewOldNew) {
+	}
+	/**
+	 * Set new view to a new object.
+	 * @param {Object} viewOld
+	 */
 
-			if (next !== undefined) {
-				next(element);
+	function setViewNew(viewNewNew) {
+		viewNew = viewNewNew;
+	}
+	/**
+	 * Set current view to a new function.
+	 * @param {Function} viewCurrentNew
+	 */
+
+	function setViewCurrent(viewCurrentNew) {
+		viewCurrent = viewCurrentNew;
+	}
+
+	/**
+	 * Start time
+	 */
+
+	var executeStart;
+	/**
+	 * Walks the view and executes components.
+	 *
+	 * @param {Array} nodes
+	 * @param {Array} parents
+	 * @param {Array} indexes
+	 */
+
+
+	function executeView(nodes, parents, indexes) {
+		while (true) {
+			var node = nodes.pop();
+			var parent = parents.pop();
+			var index = indexes.pop();
+
+			if (node.type === types.component) {
+				var nodeComponent = components[node.name](node.data);
+
+				if (parent === null) {
+					setViewNew(nodeComponent);
+				} else {
+					node = parent.data.children[index] = nodeComponent;
+				}
+			} else if (parent === null) {
+				setViewNew(node);
 			}
-		});
-	}
-	/**
-	 * Updates data and the view over multiple frames and calls the given function.
-	 *
-	 * @param {Object} data
-	 * @param {Function} [next]
-	 * @param {number} [start]
-	 */
 
+			var children = node.data.children;
 
-	function update(data, next, start) {
-		var _this2 = this;
-
-		for (var key in data) {
-			this[key] = data[key];
-		}
-
-		execute(0, start === undefined ? performance.now() : start, this, this.view.update, function () {
-			_this2.emit("update");
-
-			if (next !== undefined) {
-				next();
+			for (var i = 0; i < children.length; i++) {
+				nodes.push(children[i]);
+				parents.push(node);
+				indexes.push(i);
 			}
-		});
-	}
-	/**
-	 * Destroys the view over multiple frames and calls the given function.
-	 *
-	 * @param {Function} [next]
-	 * @param {number} [start]
-	 */
 
-
-	function destroy(next, start) {
-		var _this3 = this;
-
-		execute(0, start === undefined ? performance.now() : start, this, this.view.destroy, function () {
-			_this3.emit("destroy");
-
-			if (next !== undefined) {
-				next();
+			if (nodes.length === 0) {
+				break;
+			} else if (performance.now() - executeStart >= 8) {
+				requestAnimationFrame(function () {
+					executeStart = performance.now();
+					executeView(nodes, parents, indexes);
+				});
+				break;
 			}
-		});
-	}
-	/**
-	 * Add an event handler to listen to a given event type.
-	 *
-	 * @param {string} type
-	 * @param {Function} handler
-	 */
+		}
 
-
-	function on(type, handler) {
-		var handlers = this.events[type];
-
-		if (handlers === undefined) {
-			this.events[type] = [handler.bind(this)];
-		} else {
-			handlers.push(handler.bind(this));
+		if (nodes.length === 0) {
+			console.log(viewNew);
 		}
 	}
 	/**
-	 * Remove an event handler from a given event type. If no type or handler are
-	 * given, all event handlers are removed. If only a type is given, all event
-	 * handlers for that type are removed. If both a type and handler are given,
-	 * the handler stops listening to that event type.
+	 * Executes the call tree returned by view functions and finds changes over
+	 * multiple frames.
 	 *
-	 * @param {string} [type]
-	 * @param {Function} [handler]
+	 * @param {Object} nodeOld
+	 * @param {Object} nodeNew
 	 */
 
+	/*
+	function executeDiff(nodeOld, nodeNew) {
+		let nodesOld = [nodeOld];
+		let nodesNew = [nodeNew];
+		let nodes = [];
 
-	function off(type, handler) {
-		if (type === undefined) {
-			this.events = {};
-		} else if (handler === undefined) {
-			this.events[type] = [];
-		} else {
-			var handlers = this.events[type];
-			handlers.splice(handlers.indexOf(handler), 1);
+		while (nodesNew.length !== 0) {
+			const nodeOld = nodesOld.pop();
+			const nodeNew = nodesNew.pop();
+
+			if (nodeNew === nodeOld) {
+				continue;
+			}
+
+			if (nodeNew.type === types.component) {
+				nodeNew = components[nodeNew.name](nodeNew.data);
+			}
+
+			if (nodeNew.name === nodeOld.name) {
+				effects.push({
+					type: effectTypes.setAttributes,
+					node: nodeOld.node,
+					attributes: nodeNew.data
+				});
+			} else {
+				effects.push({
+					type: effectTypes.replaceElement,
+					nodeOld: nodeOld.node,
+					nodeNew: nodeNew
+				});
+
+				const children = nodeNew.data.children;
+
+				for (let i = 0; i < children.length; i++) {
+					nodes.push(children[i]);
+				}
+			}
+		}
+
+		while (nodes.length !== 0) {
+			const node = nodes.pop();
+
+			if (node.type === types.component) {
+				const nodeComponent = components[node.name](node.data);
+
+				// TODO: inline this
+				for (let key in nodeComponent) {
+					node[key] = nodeComponent[key];
+				}
+			}
+
+			const children = node.data.children;
+
+			for (let i = 0; i < children.length; i++) {
+				nodes.push(children[i]);
+			}
 		}
 	}
+	*/
+
 	/**
-	 * Emits an event and calls any handlers listening to it with the given data.
+	 * Executor
 	 *
-	 * @param {string} type
-	 * @param data
+	 * The executor runs in three phases.
+	 *
+	 * 1. View
+	 * 2. Diff
+	 * 3. Patch
+	 *
+	 * The view phase consists of walking the new tree and executing components.
+	 * This is done over multiple frames because component views can be slow, and
+	 * component trees can also be large enough to require it.
+	 *
+	 * The diff phase consists of walking the old and new tree while finding
+	 * differences. The differences are pushed as individual patches to a global
+	 * list of them. This is run over multiple frames because finding differences
+	 * between large component trees can take a while, especially from long lists.
+	 *
+	 * The patch phase consists of iterating through the patches and applying all
+	 * of them to mutate the DOM. These boil down to primitive DOM operations that
+	 * are all batched together to update the view. Rather than doing it along with
+	 * the diff phase, the patch is done in one frame to prevent an inconsistent
+	 * UI -- similar to screen tearing.
 	 */
 
 
-	function emit(type, data) {
-		var handlers = this.events[type];
+	function execute() {
+		executeStart = performance.now();
+		executeView([viewCurrent(data$1)], [null], [0]);
+	}
 
-		for (var i = 0; i < handlers.length; i++) {
-			handlers[i](data);
-		}
+	/**
+	 * Updates the global data and view.
+	 * @param {Object} dataNew
+	 */
+
+	function set(dataNew) {
+		merge(data$1, dataNew);
+		execute();
 	}
 	/**
 	 * Moon
 	 *
-	 * Creates a new Moon constructor based on given data. Each Moon component is
-	 * independent and has no knowledge of the parent. A component has the sole
-	 * function of mapping data to a view. A component starts by creating a view
-	 * with data. Every time data is set to a new object, the component updates
-	 * with the new data. Each of these methods are created from compiling the view
-	 * into vanilla JavaScript running on a lightweight Moon runtime. The built-in
-	 * components can all be implemented in user space, but some are optimized and
-	 * implemented in the compiler.
-	 *
-	 * The data can have a `name` property with a string representing the name of
-	 * the component, "Root" by default.
+	 * Creates a new Moon component or root based on given options. Each Moon
+	 * component is independent and has no knowledge of the parent. A component is
+	 * a function mapping data to a view. The component can update global data to
+	 * recreate the view. In Moon, the view is defined as a function over data, and
+	 * components are just helper functions.
 	 *
 	 * The data can have a `root` property with an element. Moon will automatically
-	 * create a new instance and mount it to the root element provided.
+	 * create the component and append it to the root element provided. This makes
+	 * the data the source of true state that is accessible for updates by every
+	 * component.
 	 *
 	 * The data must have a `view` property with a string template or precompiled
 	 * functions.
 	 *
-	 * Optional `onCreate`, `onUpdate`, and `onDestroy` hooks can be
-	 * in the data and are called when their corresponding event occurs.
-	 *
-	 * The rest of the data is custom starting state that will be modified as the
-	 * component is passed different values. It can contain properties and methods
-	 * of any type, and will have access to various utilities for creating a new
+	 * The rest of the data is custom and can be thought of as a default. This data
+	 * is immutable, and the component updates global data instead of having local
 	 * state.
 	 *
-	 * @param {Object} data
-	 * @param {string} [data.name="Root"]
-	 * @param {Node|string} [data.root]
-	 * @param {Object|string} data.view
-	 * @param {Function} [data.onCreate]
-	 * @param {Function} [data.onUpdate]
-	 * @param {Function} [data.onDestroy]
-	 * @returns {MoonComponent} Moon constructor or instance
+	 * @param {Object} options
+	 * @param {string} [options.name]
+	 * @param {Node|string} [options.root]
+	 * @param {Object|string} options.view
 	 */
 
 
-	function Moon(data) {
+	function Moon(options) {
 		// Handle the optional `name` parameter.
-		data.name = data.name === undefined ? "Root" : data.name; // Ensure the view is defined, and compile it if needed.
+		var name = defaultValue(options.name, "Root");
+		delete options.name; // Ensure the view is defined, and compile it if needed.
 
-		var view = data.view;
+		var view = options.view;
+		delete options.view;
 
 		if ("development" === "development" && view === undefined) {
-			error("The " + data.name + " component requires a \"view\" property.");
+			error("The " + name + " component requires a \"view\" property.");
 		}
 
 		if (typeof view === "string") {
-			data.view = compile(view);
-		} // Create default events at the beginning so that checks before calling them
-		// aren't required.
+			view = compile(view);
+		} // If a `root` option is given, start the root renderer, or else just return
+		// the component.
 
 
-		var onCreate = data.onCreate;
-		var onUpdate = data.onUpdate;
-		var onDestroy = data.onDestroy;
-		delete data.onCreate;
-		delete data.onUpdate;
-		delete data.onDestroy;
-		data.events = {
-			create: [],
-			update: [],
-			destroy: []
-		};
+		var rootElement = typeof options.root === "string" ? document.querySelector(options.root) : options.root;
+		delete options.root;
 
-		if (onCreate !== undefined) {
-			data.events.create.push(onCreate);
-		}
-
-		if (onUpdate !== undefined) {
-			data.events.update.push(onUpdate);
-		}
-
-		if (onDestroy !== undefined) {
-			data.events.destroy.push(onDestroy);
-		} // Initialize the component constructor with the given data, given view, and
-		// default methods.
-
-
-		function MoonComponent(data) {
-			this.view.data = this.view.data.bind(this);
-
-			for (var key in data) {
-				this[key] = data[key];
-			}
-		}
-
-		MoonComponent.prototype = data;
-		MoonComponent.prototype.m = [];
-		MoonComponent.prototype.create = create;
-		MoonComponent.prototype.update = update;
-		MoonComponent.prototype.destroy = destroy;
-		MoonComponent.prototype.on = on;
-		MoonComponent.prototype.off = off;
-		MoonComponent.prototype.emit = emit; // If a `root` option is given, create a new instance and mount it, or else
-		// just return the constructor.
-
-		var root = data.root;
-		delete data.root;
-
-		if (typeof root === "string") {
-			root = document.querySelector(root);
-		}
-
-		if (root === undefined) {
-			components[name] = MoonComponent;
-			return MoonComponent;
+		if (rootElement === undefined) {
+			components[name] = function (data) {
+				return view(defaultObject(data, options));
+			};
 		} else {
-			var instance = new MoonComponent();
-			instance.create(function (instanceElement) {
-				root.appendChild(instanceElement);
+			setViewOld({
+				type: types.element,
+				name: rootElement.tagName,
+				data: {
+					children: []
+				},
+				node: rootElement
 			});
-			return instance;
+			setViewCurrent(view);
+			setData(options);
+			execute();
 		}
 	}
 	Moon.lex = lex;
 	Moon.parse = parse;
 	Moon.generate = generate;
 	Moon.compile = compile;
-	Moon.execute = execute;
 	Moon.components = components;
+	Moon.set = set;
 
 	return Moon;
 }));

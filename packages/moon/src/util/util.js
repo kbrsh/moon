@@ -1,7 +1,11 @@
 /**
- * Does nothing.
+ * View node types.
  */
-export function noop() {}
+export const types = {
+	element: 0,
+	text: 1,
+	component: 2
+};
 
 /**
  * Checks if a given character is a quote.
@@ -52,4 +56,22 @@ export function defaultObject(obj, fallback) {
 	}
 
 	return full;
+}
+
+/**
+ * Deeply merge objects.
+ *
+ * @param {Object} obj
+ * @param {Object} objNew
+ */
+export function merge(obj, objNew) {
+	for (let key in objNew) {
+		const value = objNew[key];
+
+		if (typeof value === "object") {
+			merge(obj[key], value);
+		} else {
+			obj[key] = value;
+		}
+	}
 }

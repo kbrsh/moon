@@ -1,5 +1,5 @@
 import { generateObject } from "../data/object";
-import { generateAll } from "../generator";
+import { generate } from "../generator";
 import { instruction, instructions } from "../../instructions/instruction";
 
 /**
@@ -32,7 +32,7 @@ export function generateElement(element, data, total) {
 
 	for (let i = 0; i < element.children.length; i++) {
 		const child = element.children[i];
-		const childCode = generateAll(child, data, total);
+		const childCode = generate(child, data, total);
 
 		childrenCreate += childCode.create;
 		childrenCreate += instruction(instructions.appendElement, [

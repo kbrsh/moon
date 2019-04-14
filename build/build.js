@@ -24,7 +24,12 @@ async function build(package) {
 		plugins: [
 			eslint(),
 			babel()
-		]
+		],
+		onwarn: (warning) => {
+			if (warning.code !== "CIRCULAR_DEPENDENCY") {
+				console.warn(`Rollup [Warn]: ${warning}`);
+			}
+		}
 	});
 
 	let { output } = await bundle.generate({
