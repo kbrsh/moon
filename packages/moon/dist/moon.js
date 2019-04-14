@@ -947,21 +947,21 @@
 		// the component.
 
 
-		var rootElement = typeof options.root === "string" ? document.querySelector(options.root) : options.root;
+		var root = typeof options.root === "string" ? document.querySelector(options.root) : options.root;
 		delete options.root;
 
-		if (rootElement === undefined) {
+		if (root === undefined) {
 			components[name] = function (data) {
 				return view(defaultObject(data, options));
 			};
 		} else {
 			setViewOld({
 				type: types.element,
-				name: rootElement.tagName,
+				name: root.tagName,
 				data: {
 					children: []
 				},
-				node: rootElement
+				node: root
 			});
 			setViewCurrent(view);
 			setData(options);
