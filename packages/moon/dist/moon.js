@@ -572,7 +572,7 @@
 			separator = ",";
 		}
 
-		return "{type:" + type + ",name:\"" + name + "\",data:" + data + "]},node:null}";
+		return "{type:" + type + ",name:\"" + name + "\",data:" + data + "]}}";
 	}
 
 	function compile(input) {
@@ -587,7 +587,7 @@
 	 * Global views
 	 */
 
-	var viewNew, viewCurrent;
+	var viewOld, viewNew, viewCurrent;
 	/**
 	 * Global component store
 	 */
@@ -607,6 +607,7 @@
 	 */
 
 	function setViewOld(viewOldNew) {
+		viewOld = viewOldNew;
 	}
 	/**
 	 * Set new view to a new object.
@@ -631,7 +632,43 @@
 
 	var executeStart;
 	/**
-	 * Walks the view and executes components.
+	 * Types of patches
+	 */
+
+	var patchTypes = {
+		setAttributes: 0,
+		appendElement: 1,
+		removeElement: 2,
+		replaceElement: 3
+	};
+	/**
+	 * Creates a DOM element from a view node.
+	 *
+	 * @param {Object} node
+	 * @returns {Element} DOM element
+	 */
+
+	function executeCreateElement(node) {
+		if (node.type === types.element) {
+			var element = document.createElement(node.name);
+			var _data = node.data;
+			var children = _data.children;
+
+			for (var key in _data) {
+				element.setAttribute(key, _data[key]);
+			}
+
+			for (var i = 0; i < children.length; i++) {
+				element.appendChild(executeCreateElement(children[i]));
+			}
+
+			return element;
+		} else {
+			return document.createTextNode(node.data[""]);
+		}
+	}
+	/**
+	 * Walks through the view and executes components.
 	 *
 	 * @param {Array} nodes
 	 * @param {Array} parents
@@ -666,6 +703,7 @@
 			}
 
 			if (nodes.length === 0) {
+				executeDiff(viewOld, viewNew, []);
 				break;
 			} else if (performance.now() - executeStart >= 8) {
 				requestAnimationFrame(function () {
@@ -675,79 +713,169 @@
 				break;
 			}
 		}
-
-		if (nodes.length === 0) {
-			console.log(viewNew);
-		}
 	}
 	/**
-	 * Executes the call tree returned by view functions and finds changes over
-	 * multiple frames.
+	 * Finds changes between a new and old tree and creates a list of patches to
+	 * execute.
 	 *
 	 * @param {Object} nodeOld
 	 * @param {Object} nodeNew
+	 * @param {Array} patches
 	 */
 
-	/*
-	function executeDiff(nodeOld, nodeNew) {
-		let nodesOld = [nodeOld];
-		let nodesNew = [nodeNew];
-		let nodes = [];
 
-		while (nodesNew.length !== 0) {
-			const nodeOld = nodesOld.pop();
-			const nodeNew = nodesNew.pop();
+	function executeDiff(nodeOld, nodeNew, patches) {
+		var nodesOld = [nodeOld];
+		var nodesNew = [nodeNew];
 
-			if (nodeNew === nodeOld) {
+		while (true) {
+			var _nodeOld = nodesOld.pop();
+
+			var _nodeNew = nodesNew.pop();
+
+			if (_nodeOld === _nodeNew) {
 				continue;
-			}
-
-			if (nodeNew.type === types.component) {
-				nodeNew = components[nodeNew.name](nodeNew.data);
-			}
-
-			if (nodeNew.name === nodeOld.name) {
-				effects.push({
-					type: effectTypes.setAttributes,
-					node: nodeOld.node,
-					attributes: nodeNew.data
+			} else if (_nodeOld.name !== _nodeNew.name) {
+				patches.push({
+					type: patchTypes.replaceElement,
+					nodeOld: _nodeOld,
+					nodeNew: _nodeNew,
+					nodeParent: null
 				});
 			} else {
-				effects.push({
-					type: effectTypes.replaceElement,
-					nodeOld: nodeOld.node,
-					nodeNew: nodeNew
+				patches.push({
+					type: patchTypes.setAttributes,
+					nodeOld: _nodeOld,
+					nodeNew: _nodeNew,
+					nodeParent: null
 				});
+				var childrenOld = _nodeOld.data.children;
+				var childrenNew = _nodeNew.data.children;
+				var childrenOldLength = childrenOld.length;
+				var childrenNewLength = childrenNew.length;
 
-				const children = nodeNew.data.children;
+				if (childrenOldLength === childrenNewLength) {
+					// If the children have the same length then update both as usual.
+					for (var i = 0; i < childrenOldLength; i++) {
+						nodesOld.push(childrenOld[i]);
+						nodesNew.push(childrenNew[i]);
+					}
+				} else if (childrenOldLength > childrenNewLength) {
+					// If there are more old children than new children, update the
+					// corresponding ones and remove the extra old children.
+					for (var _i = 0; _i < childrenNewLength; _i++) {
+						nodesOld.push(childrenOld[_i]);
+						nodesNew.push(childrenNew[_i]);
+					}
 
-				for (let i = 0; i < children.length; i++) {
-					nodes.push(children[i]);
+					for (var _i2 = childrenNewLength; _i2 < childrenOldLength; _i2++) {
+						patches.push({
+							type: patchTypes.removeElement,
+							nodeOld: childrenOld[_i2],
+							nodeNew: null,
+							nodeParent: _nodeOld
+						});
+					}
+				} else {
+					// If there are more new children than old children, update the
+					// corresponding ones and append the extra new children.
+					for (var _i3 = 0; _i3 < childrenOldLength; _i3++) {
+						nodesOld.push(childrenOld[_i3]);
+						nodesNew.push(childrenNew[_i3]);
+					}
+
+					for (var _i4 = childrenOldLength; _i4 < childrenNewLength; _i4++) {
+						patches.push({
+							type: patchTypes.appendElement,
+							nodeOld: null,
+							nodeNew: childrenNew[_i4],
+							nodeParent: _nodeOld
+						});
+					}
 				}
 			}
-		}
 
-		while (nodes.length !== 0) {
-			const node = nodes.pop();
-
-			if (node.type === types.component) {
-				const nodeComponent = components[node.name](node.data);
-
-				// TODO: inline this
-				for (let key in nodeComponent) {
-					node[key] = nodeComponent[key];
-				}
-			}
-
-			const children = node.data.children;
-
-			for (let i = 0; i < children.length; i++) {
-				nodes.push(children[i]);
+			if (nodesOld.length === 0) {
+				executePatch(patches);
+				break;
+			} else if (performance.now() - executeStart >= 8) {
+				requestAnimationFrame(function () {
+					executeStart = performance.now();
+					executeDiff(nodesOld, nodesNew, patches);
+				});
+				break;
 			}
 		}
 	}
-	*/
+	/**
+	 * Applies the list of patches as DOM updates.
+	 *
+	 * @param {Array} patches
+	 */
 
+
+	function executePatch(patches) {
+		for (var i = 0; i < patches.length; i++) {
+			var patch = patches[i];
+
+			switch (patch.type) {
+				case patchTypes.setAttributes:
+					{
+						var nodeOld = patch.nodeOld;
+						var nodeOldNode = nodeOld.node;
+						var nodeNewData = patch.nodeNew.data;
+						nodeOld.data = nodeNewData;
+
+						for (var key in nodeNewData) {
+							nodeOldNode.setAttribute(key, nodeNewData[key]);
+						}
+
+						break;
+					}
+
+				case patchTypes.appendElement:
+					{
+						var nodeNew = patch.nodeNew;
+						var nodeParent = patch.nodeParent;
+						var nodeNewNode = executeCreateElement(nodeNew);
+						nodeParent.data.children.push({
+							type: nodeNew.type,
+							name: nodeNew.name,
+							data: nodeNew.data,
+							node: nodeNewNode
+						});
+						nodeParent.node.appendChild(nodeNewNode);
+						break;
+					}
+
+				case patchTypes.removeElement:
+					{
+						var _nodeParent = patch.nodeParent;
+
+						_nodeParent.data.children.pop();
+
+						_nodeParent.node.removeChild(patch.nodeOld);
+
+						break;
+					}
+
+				case patchTypes.replaceElement:
+					{
+						var _nodeOld2 = patch.nodeOld;
+						var _nodeNew2 = patch.nodeNew;
+						var _nodeOldNode = _nodeOld2.node;
+						_nodeOld2.type = _nodeNew2.type;
+						_nodeOld2.name = _nodeNew2.name;
+						_nodeOld2.data = _nodeNew2.data;
+						_nodeOld2.node = executeCreateElement(_nodeNew2);
+
+						_nodeOldNode.parentNode.replaceChild(_nodeOld2.node, _nodeOldNode);
+
+						break;
+					}
+			}
+		}
+	}
 	/**
 	 * Executor
 	 *
@@ -844,7 +972,7 @@
 		} else {
 			setViewOld({
 				type: types.element,
-				name: root.tagName,
+				name: root.tagName.toLowerCase(),
 				data: {
 					children: []
 				},

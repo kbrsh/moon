@@ -72,7 +72,7 @@ export default function Moon(options) {
 	} else {
 		setViewOld({
 			type: types.element,
-			name: root.tagName,
+			name: root.tagName.toLowerCase(),
 			data: {
 				children: []
 			},

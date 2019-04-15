@@ -38,5 +38,5 @@ export function generate(element) {
 		separator = ",";
 	}
 
-	return `{type:${type},name:"${name}",data:${data}]},node:null}`;
+	return `{type:${type},name:"${name}",data:${data}]}}`;
 }
