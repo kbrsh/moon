@@ -636,36 +636,68 @@
 	 */
 
 	var patchTypes = {
-		setAttributes: 0,
-		appendElement: 1,
-		removeElement: 2,
-		replaceElement: 3
+		updateText: 0,
+		setAttributes: 1,
+		appendElement: 2,
+		removeElement: 3,
+		replaceElement: 4
 	};
 	/**
 	 * Creates a DOM element from a view node.
 	 *
 	 * @param {Object} node
-	 * @returns {Element} DOM element
+	 * @returns {Object} node to be used as an old node
 	 */
 
-	function executeCreateElement(node) {
-		if (node.type === types.element) {
-			var element = document.createElement(node.name);
+	function executeCreate(node) {
+		var nodeType = node.type;
+		var nodeName = node.name;
+		var nodeData = {};
+		var nodeChildren = [];
+		var nodeNode;
+
+		if (nodeType === types.element) {
+			nodeNode = document.createElement(node.name); // Set data and attributes.
+
 			var _data = node.data;
-			var children = _data.children;
 
 			for (var key in _data) {
-				element.setAttribute(key, _data[key]);
-			}
+				var value = _data[key];
+
+				if (key !== "children") {
+					nodeData[key] = value;
+					nodeNode.setAttribute(key, value);
+				}
+			} // Recursively append children.
+
+
+			var children = _data.children;
 
 			for (var i = 0; i < children.length; i++) {
-				element.appendChild(executeCreateElement(children[i]));
+				var child = executeCreate(children[i]);
+				nodeChildren.push(child);
+				nodeNode.appendChild(child.node);
 			}
-
-			return element;
 		} else {
-			return document.createTextNode(node.data[""]);
-		}
+			// Get text content using the default data key.
+			var textContent = node.data[""]; // Create a text node using the text content.
+
+			nodeNode = document.createTextNode(textContent); // Set only the default data key.
+
+			nodeData[""] = textContent;
+		} // Set the children of the new old node.
+
+
+		nodeData.children = nodeChildren; // Return a new node with copied properties of the original node. This is to
+		// prevent bugs from hoisting. When the new nodes are compared to the old
+		// ones, the old ones are modified, and the new ones are immutable.
+
+		return {
+			type: nodeType,
+			name: nodeName,
+			data: nodeData,
+			node: nodeNode
+		};
 	}
 	/**
 	 * Walks through the view and executes components.
@@ -683,7 +715,8 @@
 			var index = indexes.pop();
 
 			if (node.type === types.component) {
-				var nodeComponent = components[node.name](node.data);
+				// Execute the component to get the component view.
+				var nodeComponent = components[node.name](node.data); // Set the root view or current node to the new component view.
 
 				if (parent === null) {
 					setViewNew(nodeComponent);
@@ -691,8 +724,10 @@
 					node = parent.data.children[index] = nodeComponent;
 				}
 			} else if (parent === null) {
+				// If there is no parent, set the root new view to the current node.
 				setViewNew(node);
-			}
+			} // Execute the views of the children.
+
 
 			var children = node.data.children;
 
@@ -703,9 +738,12 @@
 			}
 
 			if (nodes.length === 0) {
+				// Move to the diff phase if there is nothing left to do.
 				executeDiff(viewOld, viewNew, []);
 				break;
 			} else if (performance.now() - executeStart >= 8) {
+				// If the current frame doesn't have sufficient time left to keep
+				// running then continue executing the view in the next frame.
 				requestAnimationFrame(function () {
 					executeStart = performance.now();
 					executeView(nodes, parents, indexes);
@@ -734,15 +772,28 @@
 			var _nodeNew = nodesNew.pop();
 
 			if (_nodeOld === _nodeNew) {
+				// If they have the same reference (hoisted) then skip diffing.
 				continue;
 			} else if (_nodeOld.name !== _nodeNew.name) {
+				// If they have different names, then replace the old node with the
+				// new one.
 				patches.push({
 					type: patchTypes.replaceElement,
 					nodeOld: _nodeOld,
 					nodeNew: _nodeNew,
 					nodeParent: null
 				});
+			} else if (_nodeOld.type === types.text) {
+				// If they both are text, then update the text content.
+				patches.push({
+					type: patchTypes.updateText,
+					nodeOld: _nodeOld,
+					nodeNew: _nodeNew,
+					parent: null
+				});
 			} else {
+				// If they both are normal elements, then set attributes and diff the
+				// children for appends, deletes, or recursive updates.
 				patches.push({
 					type: patchTypes.setAttributes,
 					nodeOld: _nodeOld,
@@ -796,9 +847,12 @@
 			}
 
 			if (nodesOld.length === 0) {
+				// Move to the patch phase if there is nothing left to do.
 				executePatch(patches);
 				break;
 			} else if (performance.now() - executeStart >= 8) {
+				// If the current frame doesn't have sufficient time left to keep
+				// running then continue diffing in the next frame.
 				requestAnimationFrame(function () {
 					executeStart = performance.now();
 					executeDiff(nodesOld, nodesNew, patches);
@@ -819,15 +873,32 @@
 			var patch = patches[i];
 
 			switch (patch.type) {
+				case patchTypes.updateText:
+					{
+						// Update text of a node with new text.
+						var nodeOld = patch.nodeOld;
+						var nodeNewText = patch.nodeNew.data[""];
+						nodeOld.data[""] = nodeNewText;
+						nodeOld.node.textContent = nodeNewText;
+						break;
+					}
+
 				case patchTypes.setAttributes:
 					{
-						var nodeOld = patch.nodeOld;
-						var nodeOldNode = nodeOld.node;
-						var nodeNewData = patch.nodeNew.data;
-						nodeOld.data = nodeNewData;
+						// Set attributes of a node with new data.
+						var _nodeOld2 = patch.nodeOld;
+						var nodeOldData = _nodeOld2.data;
+						var nodeOldNode = _nodeOld2.node;
+						var nodeNewData = patch.nodeNew.data; // Mutate the old node with the new node's data and set attributes
+						// on the DOM node.
 
 						for (var key in nodeNewData) {
-							nodeOldNode.setAttribute(key, nodeNewData[key]);
+							var value = nodeNewData[key];
+
+							if (key !== "children") {
+								nodeOldData[key] = value;
+								nodeOldNode.setAttribute(key, value);
+							}
 						}
 
 						break;
@@ -835,22 +906,24 @@
 
 				case patchTypes.appendElement:
 					{
+						// Append a node. Creates a new old node because the old node must
+						// be mutable while the new nodes are mutable.
 						var nodeNew = patch.nodeNew;
 						var nodeParent = patch.nodeParent;
-						var nodeNewNode = executeCreateElement(nodeNew);
-						nodeParent.data.children.push({
-							type: nodeNew.type,
-							name: nodeNew.name,
-							data: nodeNew.data,
-							node: nodeNewNode
-						});
-						nodeParent.node.appendChild(nodeNewNode);
+						var nodeOldNew = executeCreate(nodeNew);
+						nodeParent.data.children.push(nodeOldNew);
+						nodeParent.node.appendChild(nodeOldNew.node);
 						break;
 					}
 
 				case patchTypes.removeElement:
 					{
-						var _nodeParent = patch.nodeParent;
+						// Remove a node from the parent.
+						var _nodeParent = patch.nodeParent; // Pops the last child because the patches still hold a reference
+						// to them. The diff phase can only create this patch when there
+						// are extra old children, and popping nodes off of the end is more
+						// efficient than removing at a specific index, especially because
+						// they are equivalent in this case.
 
 						_nodeParent.data.children.pop();
 
@@ -861,15 +934,22 @@
 
 				case patchTypes.replaceElement:
 					{
-						var _nodeOld2 = patch.nodeOld;
+						// Replaces an old node with a new node.
+						var _nodeOld3 = patch.nodeOld;
 						var _nodeNew2 = patch.nodeNew;
-						var _nodeOldNode = _nodeOld2.node;
-						_nodeOld2.type = _nodeNew2.type;
-						_nodeOld2.name = _nodeNew2.name;
-						_nodeOld2.data = _nodeNew2.data;
-						_nodeOld2.node = executeCreateElement(_nodeNew2);
 
-						_nodeOldNode.parentNode.replaceChild(_nodeOld2.node, _nodeOldNode);
+						var _nodeOldNew = executeCreate(_nodeNew2);
+
+						var _nodeOldNode = _nodeOld3.node; // Mutate the old node with the copied data from creating the new
+						// old node, replacing the old DOM node reference.
+
+						_nodeOld3.type = _nodeOldNew.type;
+						_nodeOld3.name = _nodeOldNew.name;
+						_nodeOld3.data = _nodeOldNew.data;
+						_nodeOld3.node = _nodeOldNew.node; // Replace the old node using the reference created before updating
+						// the old node.
+
+						_nodeOldNode.parentNode.replaceChild(_nodeOld3.node, _nodeOldNode);
 
 						break;
 					}
