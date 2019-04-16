@@ -22,14 +22,16 @@ const patchTypes = {
  * @param {Object} node
  * @returns {Element} DOM element
  */
-function executeCreateElement(node) {
+function executeCreate(node) {
 	if (node.type === types.element) {
 		const element = document.createElement(node.name);
 		const data = node.data;
 		const children = data.children;
 
 		for (let key in data) {
-			element.setAttribute(key, data[key]);
+			if (key !== "children") {
+				element.setAttribute(key, data[key]);
+			}
 		}
 
 		for (let i = 0; i < children.length; i++) {
