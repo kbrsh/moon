@@ -117,15 +117,13 @@ function executeView(nodes, parents, indexes) {
 
 		if (node.type === types.component) {
 			// Execute the component to get the component view.
-			const nodeComponent = components[node.name](node.data);
-
-			// TODO: Update component children and component output children.
+			node = components[node.name](node.data);
 
 			// Set the root view or current node to the new component view.
 			if (parent === null) {
-				setViewNew(nodeComponent);
+				setViewNew(node);
 			} else {
-				node = parent.data.children[index] = nodeComponent;
+				parent.data.children[index] = node;
 			}
 		} else if (parent === null) {
 			// If there is no parent, set the root new view to the current node.
