@@ -9,7 +9,7 @@ let executeStart;
 /**
  * Function scheduled to run in next frame
  */
-let executeNextFn = null;
+let executeNextId = null;
 
 /**
  * Types of patches
@@ -27,17 +27,16 @@ const patchTypes = {
  * @param {Function} fn
  */
 function executeNext(fn) {
-	executeNextFn = fn;
-	requestAnimationFrame(executeNextFn);
+	executeNextId = requestAnimationFrame(fn);
 }
 
 /**
  * Cancels the function scheduled to run in the next frame.
  */
 function executeCancel() {
-	if (executeNextFn !== null) {
-		cancelAnimationFrame(executeNextFn);
-		executeNextFn = null;
+	if (executeNextId !== null) {
+		cancelAnimationFrame(executeNextId);
+		executeNextId = null;
 	}
 }
 
@@ -119,6 +118,8 @@ function executeView(nodes, parents, indexes) {
 		if (node.type === types.component) {
 			// Execute the component to get the component view.
 			const nodeComponent = components[node.name](node.data);
+
+			// TODO: Update component children and component output children.
 
 			// Set the root view or current node to the new component view.
 			if (parent === null) {
