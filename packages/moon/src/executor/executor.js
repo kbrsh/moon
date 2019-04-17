@@ -7,6 +7,11 @@ import { types } from "../util/util";
 let executeStart;
 
 /**
+ * Function scheduled to run in next frame
+ */
+let executeNextFn = null;
+
+/**
  * Types of patches
  */
 const patchTypes = {
@@ -16,6 +21,25 @@ const patchTypes = {
 	removeElement: 3,
 	replaceElement: 4
 };
+
+/**
+ * Schedules a function to run in the next frame.
+ * @param {Function} fn
+ */
+function executeNext(fn) {
+	executeNextFn = fn;
+	requestAnimationFrame(executeNextFn);
+}
+
+/**
+ * Cancels the function scheduled to run in the next frame.
+ */
+function executeCancel() {
+	if (executeNextFn !== null) {
+		cancelAnimationFrame(executeNextFn);
+		executeNextFn = null;
+	}
+}
 
 /**
  * Creates a DOM element from a view node.
@@ -118,13 +142,13 @@ function executeView(nodes, parents, indexes) {
 
 		if (nodes.length === 0) {
 			// Move to the diff phase if there is nothing left to do.
-			executeDiff(viewOld, viewNew, []);
+			executeDiff([viewOld], [viewNew], []);
 
 			break;
 		} else if (performance.now() - executeStart >= 8) {
 			// If the current frame doesn't have sufficient time left to keep
 			// running then continue executing the view in the next frame.
-			requestAnimationFrame(() => {
+			executeNext(() => {
 				executeStart = performance.now();
 				executeView(nodes, parents, indexes);
 			});
@@ -138,14 +162,11 @@ function executeView(nodes, parents, indexes) {
  * Finds changes between a new and old tree and creates a list of patches to
  * execute.
  *
- * @param {Object} nodeOld
- * @param {Object} nodeNew
+ * @param {Array} nodesOld
+ * @param {Array} nodesNew
  * @param {Array} patches
  */
-function executeDiff(nodeOld, nodeNew, patches) {
-	let nodesOld = [nodeOld];
-	let nodesNew = [nodeNew];
-
+function executeDiff(nodesOld, nodesNew, patches) {
 	while (true) {
 		const nodeOld = nodesOld.pop();
 		const nodeNew = nodesNew.pop();
@@ -235,7 +256,7 @@ function executeDiff(nodeOld, nodeNew, patches) {
 		} else if (performance.now() - executeStart >= 8) {
 			// If the current frame doesn't have sufficient time left to keep
 			// running then continue diffing in the next frame.
-			requestAnimationFrame(() => {
+			executeNext(() => {
 				executeStart = performance.now();
 				executeDiff(nodesOld, nodesNew, patches);
 			});
@@ -364,6 +385,12 @@ function executePatch(patches) {
  * UI -- similar to screen tearing.
  */
 export function execute() {
+	// Cancel any function scheduled to run in the next frame.
+	executeCancel();
+
+	// Record the current time to reference when running different functions.
 	executeStart = performance.now();
+
+	// Begin executing the view.
 	executeView([viewCurrent(data)], [null], [0]);
 }

@@ -13,20 +13,6 @@
 }(this, function() {
 	"use strict";
 
-	function _typeof(obj) {
-		if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-			_typeof = function (obj) {
-				return typeof obj;
-			};
-		} else {
-			_typeof = function (obj) {
-				return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-			};
-		}
-
-		return _typeof(obj);
-	}
-
 	/**
 	 * View node types.
 	 */
@@ -85,24 +71,6 @@
 		}
 
 		return full;
-	}
-	/**
-	 * Deeply merge objects.
-	 *
-	 * @param {Object} obj
-	 * @param {Object} objNew
-	 */
-
-	function merge(obj, objNew) {
-		for (var key in objNew) {
-			var value = objNew[key];
-
-			if (_typeof(value) === "object") {
-				merge(obj[key], value);
-			} else {
-				obj[key] = value;
-			}
-		}
 	}
 
 	/**
@@ -632,6 +600,11 @@
 
 	var executeStart;
 	/**
+	 * Function scheduled to run in next frame
+	 */
+
+	var executeNextFn = null;
+	/**
 	 * Types of patches
 	 */
 
@@ -643,11 +616,32 @@
 		replaceElement: 4
 	};
 	/**
+	 * Schedules a function to run in the next frame.
+	 * @param {Function} fn
+	 */
+
+	function executeNext(fn) {
+		executeNextFn = fn;
+		requestAnimationFrame(executeNextFn);
+	}
+	/**
+	 * Cancels the function scheduled to run in the next frame.
+	 */
+
+
+	function executeCancel() {
+		if (executeNextFn !== null) {
+			cancelAnimationFrame(executeNextFn);
+			executeNextFn = null;
+		}
+	}
+	/**
 	 * Creates a DOM element from a view node.
 	 *
 	 * @param {Object} node
 	 * @returns {Object} node to be used as an old node
 	 */
+
 
 	function executeCreate(node) {
 		var nodeType = node.type;
@@ -739,12 +733,12 @@
 
 			if (nodes.length === 0) {
 				// Move to the diff phase if there is nothing left to do.
-				executeDiff(viewOld, viewNew, []);
+				executeDiff([viewOld], [viewNew], []);
 				break;
 			} else if (performance.now() - executeStart >= 8) {
 				// If the current frame doesn't have sufficient time left to keep
 				// running then continue executing the view in the next frame.
-				requestAnimationFrame(function () {
+				executeNext(function () {
 					executeStart = performance.now();
 					executeView(nodes, parents, indexes);
 				});
@@ -756,39 +750,35 @@
 	 * Finds changes between a new and old tree and creates a list of patches to
 	 * execute.
 	 *
-	 * @param {Object} nodeOld
-	 * @param {Object} nodeNew
+	 * @param {Array} nodesOld
+	 * @param {Array} nodesNew
 	 * @param {Array} patches
 	 */
 
 
-	function executeDiff(nodeOld, nodeNew, patches) {
-		var nodesOld = [nodeOld];
-		var nodesNew = [nodeNew];
-
+	function executeDiff(nodesOld, nodesNew, patches) {
 		while (true) {
-			var _nodeOld = nodesOld.pop();
+			var nodeOld = nodesOld.pop();
+			var nodeNew = nodesNew.pop();
 
-			var _nodeNew = nodesNew.pop();
-
-			if (_nodeOld === _nodeNew) {
+			if (nodeOld === nodeNew) {
 				// If they have the same reference (hoisted) then skip diffing.
 				continue;
-			} else if (_nodeOld.name !== _nodeNew.name) {
+			} else if (nodeOld.name !== nodeNew.name) {
 				// If they have different names, then replace the old node with the
 				// new one.
 				patches.push({
 					type: patchTypes.replaceElement,
-					nodeOld: _nodeOld,
-					nodeNew: _nodeNew,
+					nodeOld: nodeOld,
+					nodeNew: nodeNew,
 					nodeParent: null
 				});
-			} else if (_nodeOld.type === types.text) {
+			} else if (nodeOld.type === types.text) {
 				// If they both are text, then update the text content.
 				patches.push({
 					type: patchTypes.updateText,
-					nodeOld: _nodeOld,
-					nodeNew: _nodeNew,
+					nodeOld: nodeOld,
+					nodeNew: nodeNew,
 					parent: null
 				});
 			} else {
@@ -796,12 +786,12 @@
 				// children for appends, deletes, or recursive updates.
 				patches.push({
 					type: patchTypes.setAttributes,
-					nodeOld: _nodeOld,
-					nodeNew: _nodeNew,
+					nodeOld: nodeOld,
+					nodeNew: nodeNew,
 					nodeParent: null
 				});
-				var childrenOld = _nodeOld.data.children;
-				var childrenNew = _nodeNew.data.children;
+				var childrenOld = nodeOld.data.children;
+				var childrenNew = nodeNew.data.children;
 				var childrenOldLength = childrenOld.length;
 				var childrenNewLength = childrenNew.length;
 
@@ -824,7 +814,7 @@
 							type: patchTypes.removeElement,
 							nodeOld: childrenOld[_i2],
 							nodeNew: null,
-							nodeParent: _nodeOld
+							nodeParent: nodeOld
 						});
 					}
 				} else {
@@ -840,7 +830,7 @@
 							type: patchTypes.appendElement,
 							nodeOld: null,
 							nodeNew: childrenNew[_i4],
-							nodeParent: _nodeOld
+							nodeParent: nodeOld
 						});
 					}
 				}
@@ -853,7 +843,7 @@
 			} else if (performance.now() - executeStart >= 8) {
 				// If the current frame doesn't have sufficient time left to keep
 				// running then continue diffing in the next frame.
-				requestAnimationFrame(function () {
+				executeNext(function () {
 					executeStart = performance.now();
 					executeDiff(nodesOld, nodesNew, patches);
 				});
@@ -886,9 +876,9 @@
 				case patchTypes.setAttributes:
 					{
 						// Set attributes of a node with new data.
-						var _nodeOld2 = patch.nodeOld;
-						var nodeOldData = _nodeOld2.data;
-						var nodeOldNode = _nodeOld2.node;
+						var _nodeOld = patch.nodeOld;
+						var nodeOldData = _nodeOld.data;
+						var nodeOldNode = _nodeOld.node;
 						var nodeNewData = patch.nodeNew.data; // Mutate the old node with the new node's data and set attributes
 						// on the DOM node.
 
@@ -935,21 +925,21 @@
 				case patchTypes.replaceElement:
 					{
 						// Replaces an old node with a new node.
-						var _nodeOld3 = patch.nodeOld;
-						var _nodeNew2 = patch.nodeNew;
+						var _nodeOld2 = patch.nodeOld;
+						var _nodeNew = patch.nodeNew;
 
-						var _nodeOldNew = executeCreate(_nodeNew2);
+						var _nodeOldNew = executeCreate(_nodeNew);
 
-						var _nodeOldNode = _nodeOld3.node; // Mutate the old node with the copied data from creating the new
+						var _nodeOldNode = _nodeOld2.node; // Mutate the old node with the copied data from creating the new
 						// old node, replacing the old DOM node reference.
 
-						_nodeOld3.type = _nodeOldNew.type;
-						_nodeOld3.name = _nodeOldNew.name;
-						_nodeOld3.data = _nodeOldNew.data;
-						_nodeOld3.node = _nodeOldNew.node; // Replace the old node using the reference created before updating
+						_nodeOld2.type = _nodeOldNew.type;
+						_nodeOld2.name = _nodeOldNew.name;
+						_nodeOld2.data = _nodeOldNew.data;
+						_nodeOld2.node = _nodeOldNew.node; // Replace the old node using the reference created before updating
 						// the old node.
 
-						_nodeOldNode.parentNode.replaceChild(_nodeOld3.node, _nodeOldNode);
+						_nodeOldNode.parentNode.replaceChild(_nodeOld2.node, _nodeOldNode);
 
 						break;
 					}
@@ -983,18 +973,36 @@
 
 
 	function execute() {
-		executeStart = performance.now();
+		// Cancel any function scheduled to run in the next frame.
+		executeCancel(); // Record the current time to reference when running different functions.
+
+		executeStart = performance.now(); // Begin executing the view.
+
 		executeView([viewCurrent(data)], [null], [0]);
 	}
 
+	/**
+	 * Tracks if an execution is queued.
+	 */
+
+	var queued = false;
 	/**
 	 * Updates the global data and view.
 	 * @param {Object} dataNew
 	 */
 
 	function set(dataNew) {
-		merge(data, dataNew);
-		execute();
+		for (var key in dataNew) {
+			data[key] = dataNew[key];
+		}
+
+		if (queued === false) {
+			queued = true;
+			setTimeout(function () {
+				execute();
+				queued = false;
+			}, 0);
+		}
 	}
 	/**
 	 * Moon

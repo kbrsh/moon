@@ -4,15 +4,30 @@ import { generate } from "./compiler/generator/generator";
 import { compile } from "./compiler/compiler";
 import { execute } from "./executor/executor";
 import { components, data, setData, setViewCurrent, setViewOld } from "./util/globals";
-import { defaultObject, defaultValue, error, merge, types } from "./util/util";
+import { defaultObject, defaultValue, error, types } from "./util/util";
+
+/**
+ * Tracks if an execution is queued.
+ */
+let queued = false;
 
 /**
  * Updates the global data and view.
  * @param {Object} dataNew
  */
 function set(dataNew) {
-	merge(data, dataNew);
-	execute();
+	for (let key in dataNew) {
+		data[key] = dataNew[key];
+	}
+
+	if (queued === false) {
+		queued = true;
+
+		setTimeout(() => {
+			execute();
+			queued = false;
+		}, 0);
+	}
 }
 
 /**

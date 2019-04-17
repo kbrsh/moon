@@ -57,21 +57,3 @@ export function defaultObject(obj, fallback) {
 
 	return full;
 }
-
-/**
- * Deeply merge objects.
- *
- * @param {Object} obj
- * @param {Object} objNew
- */
-export function merge(obj, objNew) {
-	for (let key in objNew) {
-		const value = objNew[key];
-
-		if (typeof value === "object") {
-			merge(obj[key], value);
-		} else {
-			obj[key] = value;
-		}
-	}
-}
