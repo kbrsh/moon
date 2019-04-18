@@ -934,7 +934,17 @@
 		executeQueue.shift(); // If there is new data in the execution queue, continue to it.
 
 		if (executeQueue.length !== 0) {
-			executeNext();
+			if (performance.now() - executeStart >= 16) {
+				// If the current frame doesn't have sufficient time left to keep
+				// running then start the next execution in the next frame.
+				requestAnimationFrame(function () {
+					executeStart = performance.now();
+					executeNext();
+				});
+			} else {
+				executeStart = performance.now();
+				executeNext();
+			}
 		}
 	}
 	/**
@@ -944,9 +954,7 @@
 
 	function executeNext() {
 		// Get the next data update.
-		var dataNew = executeQueue[0]; // Record the current time to reference when running different functions.
-
-		executeStart = performance.now(); // Merge new data into current data.
+		var dataNew = executeQueue[0]; // Merge new data into current data.
 
 		for (var key in dataNew) {
 			data[key] = dataNew[key];
@@ -988,6 +996,7 @@
 		executeQueue.push(dataNew); // Execute the next function in the queue if none are scheduled yet.
 
 		if (executeQueue.length === 1) {
+			executeStart = performance.now();
 			executeNext();
 		}
 	}
