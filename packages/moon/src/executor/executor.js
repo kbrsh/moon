@@ -7,9 +7,9 @@ import { types } from "../util/util";
 let executeStart;
 
 /**
- * Function scheduled to run in next frame
+ * Execution queue
  */
-let executeNextId = null;
+let executeQueue = [];
 
 /**
  * Types of patches
@@ -21,24 +21,6 @@ const patchTypes = {
 	removeElement: 3,
 	replaceElement: 4
 };
-
-/**
- * Schedules a function to run in the next frame.
- * @param {Function} fn
- */
-function executeNext(fn) {
-	executeNextId = requestAnimationFrame(fn);
-}
-
-/**
- * Cancels the function scheduled to run in the next frame.
- */
-function executeCancel() {
-	if (executeNextId !== null) {
-		cancelAnimationFrame(executeNextId);
-		executeNextId = null;
-	}
-}
 
 /**
  * Creates a DOM element from a view node.
@@ -147,8 +129,9 @@ function executeView(nodes, parents, indexes) {
 		} else if (performance.now() - executeStart >= 8) {
 			// If the current frame doesn't have sufficient time left to keep
 			// running then continue executing the view in the next frame.
-			executeNext(() => {
+			requestAnimationFrame(() => {
 				executeStart = performance.now();
+
 				executeView(nodes, parents, indexes);
 			});
 
@@ -255,8 +238,9 @@ function executeDiff(nodesOld, nodesNew, patches) {
 		} else if (performance.now() - executeStart >= 8) {
 			// If the current frame doesn't have sufficient time left to keep
 			// running then continue diffing in the next frame.
-			executeNext(() => {
+			requestAnimationFrame(() => {
 				executeStart = performance.now();
+
 				executeDiff(nodesOld, nodesNew, patches);
 			});
 
@@ -330,7 +314,7 @@ function executePatch(patches) {
 				// efficient than removing at a specific index, especially because
 				// they are equivalent in this case.
 				nodeParent.data.children.pop();
-				nodeParent.node.removeChild(patch.nodeOld);
+				nodeParent.node.removeChild(patch.nodeOld.node);
 
 				break;
 			}
@@ -357,6 +341,33 @@ function executePatch(patches) {
 			}
 		}
 	}
+
+	// Remove the current execution from the queue.
+	executeQueue.shift();
+
+	// If there is new data in the execution queue, continue to it.
+	if (executeQueue.length !== 0) {
+		executeNext();
+	}
+}
+
+/**
+ * Execute the next update in the execution queue.
+ */
+function executeNext() {
+	// Get the next data update.
+	const dataNew = executeQueue[0];
+
+	// Record the current time to reference when running different functions.
+	executeStart = performance.now();
+
+	// Merge new data into current data.
+	for (let key in dataNew) {
+		data[key] = dataNew[key];
+	}
+
+	// Begin executing the view.
+	executeView([viewCurrent(data)], [null], [0]);
 }
 
 /**
@@ -382,14 +393,15 @@ function executePatch(patches) {
  * are all batched together to update the view. Rather than doing it along with
  * the diff phase, the patch is done in one frame to prevent an inconsistent
  * UI -- similar to screen tearing.
+ *
+ * @param {Object} dataNew
  */
-export function execute() {
-	// Cancel any function scheduled to run in the next frame.
-	executeCancel();
+export function execute(dataNew) {
+	// Push the new data to the execution queue.
+	executeQueue.push(dataNew);
 
-	// Record the current time to reference when running different functions.
-	executeStart = performance.now();
-
-	// Begin executing the view.
-	executeView([viewCurrent(data)], [null], [0]);
+	// Execute the next function in the queue if none are scheduled yet.
+	if (executeQueue.length === 1) {
+		executeNext();
+	}
 }

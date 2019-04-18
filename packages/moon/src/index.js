@@ -3,32 +3,8 @@ import { parse } from "./compiler/parser/parser";
 import { generate } from "./compiler/generator/generator";
 import { compile } from "./compiler/compiler";
 import { execute } from "./executor/executor";
-import { components, data, setData, setViewCurrent, setViewOld } from "./util/globals";
+import { components, setViewCurrent, setViewOld } from "./util/globals";
 import { defaultObject, defaultValue, error, types } from "./util/util";
-
-/**
- * Tracks if an execution is queued.
- */
-let queued = false;
-
-/**
- * Updates the global data and view.
- * @param {Object} dataNew
- */
-function set(dataNew) {
-	for (let key in dataNew) {
-		data[key] = dataNew[key];
-	}
-
-	if (queued === false) {
-		queued = true;
-
-		setTimeout(() => {
-			execute();
-			queued = false;
-		}, 0);
-	}
-}
 
 /**
  * Moon
@@ -94,8 +70,7 @@ export default function Moon(options) {
 			node: root
 		});
 		setViewCurrent(view);
-		setData(options);
-		execute();
+		execute(options);
 	}
 }
 
@@ -104,4 +79,4 @@ Moon.parse = parse;
 Moon.generate = generate;
 Moon.compile = compile;
 Moon.components = components;
-Moon.set = set;
+Moon.set = execute;

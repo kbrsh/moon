@@ -550,7 +550,7 @@
 	/**
 	 * Global data
 	 */
-	var data;
+	var data = {};
 	/**
 	 * Global views
 	 */
@@ -561,14 +561,6 @@
 	 */
 
 	var components = {};
-	/**
-	 * Set data to a new object.
-	 * @param {Object} dataNew
-	 */
-
-	function setData(dataNew) {
-		data = dataNew;
-	}
 	/**
 	 * Set old view to a new object.
 	 * @param {Object} viewOld
@@ -600,10 +592,10 @@
 
 	var executeStart;
 	/**
-	 * Function scheduled to run in next frame
+	 * Execution queue
 	 */
 
-	var executeNextId = null;
+	var executeQueue = [];
 	/**
 	 * Types of patches
 	 */
@@ -616,31 +608,11 @@
 		replaceElement: 4
 	};
 	/**
-	 * Schedules a function to run in the next frame.
-	 * @param {Function} fn
-	 */
-
-	function executeNext(fn) {
-		executeNextId = requestAnimationFrame(fn);
-	}
-	/**
-	 * Cancels the function scheduled to run in the next frame.
-	 */
-
-
-	function executeCancel() {
-		if (executeNextId !== null) {
-			cancelAnimationFrame(executeNextId);
-			executeNextId = null;
-		}
-	}
-	/**
 	 * Creates a DOM element from a view node.
 	 *
 	 * @param {Object} node
 	 * @returns {Object} node to be used as an old node
 	 */
-
 
 	function executeCreate(node) {
 		var nodeType = node.type;
@@ -737,7 +709,7 @@
 			} else if (performance.now() - executeStart >= 8) {
 				// If the current frame doesn't have sufficient time left to keep
 				// running then continue executing the view in the next frame.
-				executeNext(function () {
+				requestAnimationFrame(function () {
 					executeStart = performance.now();
 					executeView(nodes, parents, indexes);
 				});
@@ -842,7 +814,7 @@
 			} else if (performance.now() - executeStart >= 8) {
 				// If the current frame doesn't have sufficient time left to keep
 				// running then continue diffing in the next frame.
-				executeNext(function () {
+				requestAnimationFrame(function () {
 					executeStart = performance.now();
 					executeDiff(nodesOld, nodesNew, patches);
 				});
@@ -916,7 +888,7 @@
 
 						_nodeParent.data.children.pop();
 
-						_nodeParent.node.removeChild(patch.nodeOld);
+						_nodeParent.node.removeChild(patch.nodeOld.node);
 
 						break;
 					}
@@ -943,7 +915,32 @@
 						break;
 					}
 			}
+		} // Remove the current execution from the queue.
+
+
+		executeQueue.shift(); // If there is new data in the execution queue, continue to it.
+
+		if (executeQueue.length !== 0) {
+			executeNext();
 		}
+	}
+	/**
+	 * Execute the next update in the execution queue.
+	 */
+
+
+	function executeNext() {
+		// Get the next data update.
+		var dataNew = executeQueue[0]; // Record the current time to reference when running different functions.
+
+		executeStart = performance.now(); // Merge new data into current data.
+
+		for (var key in dataNew) {
+			data[key] = dataNew[key];
+		} // Begin executing the view.
+
+
+		executeView([viewCurrent(data)], [null], [0]);
 	}
 	/**
 	 * Executor
@@ -968,41 +965,20 @@
 	 * are all batched together to update the view. Rather than doing it along with
 	 * the diff phase, the patch is done in one frame to prevent an inconsistent
 	 * UI -- similar to screen tearing.
-	 */
-
-
-	function execute() {
-		// Cancel any function scheduled to run in the next frame.
-		executeCancel(); // Record the current time to reference when running different functions.
-
-		executeStart = performance.now(); // Begin executing the view.
-
-		executeView([viewCurrent(data)], [null], [0]);
-	}
-
-	/**
-	 * Tracks if an execution is queued.
-	 */
-
-	var queued = false;
-	/**
-	 * Updates the global data and view.
+	 *
 	 * @param {Object} dataNew
 	 */
 
-	function set(dataNew) {
-		for (var key in dataNew) {
-			data[key] = dataNew[key];
-		}
 
-		if (queued === false) {
-			queued = true;
-			setTimeout(function () {
-				execute();
-				queued = false;
-			}, 0);
+	function execute(dataNew) {
+		// Push the new data to the execution queue.
+		executeQueue.push(dataNew); // Execute the next function in the queue if none are scheduled yet.
+
+		if (executeQueue.length === 1) {
+			executeNext();
 		}
 	}
+
 	/**
 	 * Moon
 	 *
@@ -1029,7 +1005,6 @@
 	 * @param {Node|string} [options.root]
 	 * @param {Object|string} options.view
 	 */
-
 
 	function Moon(options) {
 		// Handle the optional `name` parameter.
@@ -1066,8 +1041,7 @@
 				node: root
 			});
 			setViewCurrent(view);
-			setData(options);
-			execute();
+			execute(options);
 		}
 	}
 	Moon.lex = lex;
@@ -1075,7 +1049,7 @@
 	Moon.generate = generate;
 	Moon.compile = compile;
 	Moon.components = components;
-	Moon.set = set;
+	Moon.set = execute;
 
 	return Moon;
 }));
