@@ -706,7 +706,7 @@
 				// Move to the diff phase if there is nothing left to do.
 				executeDiff([viewOld], [viewNew], []);
 				break;
-			} else if (performance.now() - executeStart >= 8) {
+			} else if (performance.now() - executeStart >= 12) {
 				// If the current frame doesn't have sufficient time left to keep
 				// running then continue executing the view in the next frame.
 				requestAnimationFrame(function () {
@@ -811,7 +811,7 @@
 				// Move to the patch phase if there is nothing left to do.
 				executePatch(patches);
 				break;
-			} else if (performance.now() - executeStart >= 8) {
+			} else if (performance.now() - executeStart >= 12) {
 				// If the current frame doesn't have sufficient time left to keep
 				// running then continue diffing in the next frame.
 				requestAnimationFrame(function () {
