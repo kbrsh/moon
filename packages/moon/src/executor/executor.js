@@ -126,7 +126,7 @@ function executeView(nodes, parents, indexes) {
 			executeDiff([viewOld], [viewNew], []);
 
 			break;
-		} else if (performance.now() - executeStart >= 12) {
+		} else if (performance.now() - executeStart >= 16) {
 			// If the current frame doesn't have sufficient time left to keep
 			// running then continue executing the view in the next frame.
 			requestAnimationFrame(() => {
@@ -235,7 +235,7 @@ function executeDiff(nodesOld, nodesNew, patches) {
 			executePatch(patches);
 
 			break;
-		} else if (performance.now() - executeStart >= 12) {
+		} else if (performance.now() - executeStart >= 16) {
 			// If the current frame doesn't have sufficient time left to keep
 			// running then continue diffing in the next frame.
 			requestAnimationFrame(() => {
