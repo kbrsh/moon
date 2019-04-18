@@ -14,6 +14,17 @@ const typeRE = /<([\w\d-_]+)([^>]*?)(\/?)>/g;
 const attributeRE = /\s*([\w\d-_:@]*)(?:=(?:("[^"]*"|'[^']*')|{([^{}]*)}))?/g;
 
 /**
+ * Capture the variables in expressions to scope them within the data
+ * parameter. This ignores property names and deep object accesses.
+ */
+const expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
+
+/**
+ * List of global variables to ignore in expression scoping
+ */
+const globals = ["NaN", "false", "in", "null", "this", "true", "typeof", "undefined", "window"];
+
+/**
  * Convert a token into a string, accounting for `<text/>` components.
  *
  * @param {Object} token
@@ -188,8 +199,8 @@ export function lex(input) {
 					// expression.
 					attributes[attributeKey] =
 						attributeExpression === undefined ?
-						attributeValue :
-						attributeExpression;
+							attributeValue :
+							attributeExpression;
 				}
 			}
 
@@ -225,7 +236,11 @@ export function lex(input) {
 				type: "tagOpen",
 				value: "text",
 				attributes: {
-					"": expression
+					"": expression.replace(expressionRE, (match, name) =>
+						(name === undefined || globals.indexOf(name) !== -1) ?
+							match :
+							`data.${name}`
+					)
 				},
 				closed: true
 			});
