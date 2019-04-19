@@ -356,8 +356,6 @@ function executePatch(patches) {
 				executeNext();
 			});
 		} else {
-			executeStart = performance.now();
-
 			executeNext();
 		}
 	}
@@ -411,8 +409,10 @@ export function execute(dataNew) {
 
 	// Execute the next function in the queue if none are scheduled yet.
 	if (executeQueue.length === 1) {
-		executeStart = performance.now();
+		requestAnimationFrame(() => {
+			executeStart = performance.now();
 
-		executeNext();
+			executeNext();
+		});
 	}
 }

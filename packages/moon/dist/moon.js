@@ -942,7 +942,6 @@
 					executeNext();
 				});
 			} else {
-				executeStart = performance.now();
 				executeNext();
 			}
 		}
@@ -996,8 +995,10 @@
 		executeQueue.push(dataNew); // Execute the next function in the queue if none are scheduled yet.
 
 		if (executeQueue.length === 1) {
-			executeStart = performance.now();
-			executeNext();
+			requestAnimationFrame(function () {
+				executeStart = performance.now();
+				executeNext();
+			});
 		}
 	}
 
