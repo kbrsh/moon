@@ -96,7 +96,7 @@
 	 * List of global variables to ignore in expression scoping
 	 */
 
-	var globals = ["NaN", "false", "in", "null", "this", "true", "typeof", "undefined", "window"];
+	var globals = ["NaN", "event", "false", "in", "null", "this", "true", "typeof", "undefined", "window"];
 	/**
 	 * Scope an expression to use variables within the `data` object.
 	 *
@@ -267,7 +267,11 @@
 					} else {
 						// Store the key/value pair using the matched value or
 						// expression.
-						attributes[attributeKey] = attributeExpression === undefined ? attributeValue : scopeExpression(attributeExpression);
+						attributes[attributeKey] = attributeExpression === undefined ? attributeValue : scopeExpression(attributeExpression); // Add a wrapper function for events.
+
+						if (attributeKey[0] === "@") {
+							attributes[attributeKey] = "function(event){" + attributes[attributeKey] + "}";
+						}
 					}
 				} // Append an opening tag token with the type, attributes, and optional
 				// self-closing slash.
@@ -645,14 +649,17 @@
 		var nodeNode;
 
 		if (nodeType === types.element) {
-			nodeNode = document.createElement(node.name); // Set data and attributes.
+			nodeNode = document.createElement(node.name); // Set data, events, and attributes.
 
 			var _data = node.data;
 
 			for (var key in _data) {
 				var value = _data[key];
 
-				if (key !== "children") {
+				if (key[0] === "@") {
+					nodeData[key] = value;
+					nodeNode.addEventListener(key.slice(1), value);
+				} else if (key !== "children") {
 					nodeData[key] = value;
 					nodeNode.setAttribute(key, value);
 				}
@@ -874,12 +881,12 @@
 						var nodeOldData = _nodeOld.data;
 						var nodeOldNode = _nodeOld.node;
 						var nodeNewData = patch.nodeNew.data; // Mutate the old node with the new node's data and set attributes
-						// on the DOM node.
+						// and events on the DOM node.
 
 						for (var key in nodeNewData) {
 							var value = nodeNewData[key];
 
-							if (key !== "children") {
+							if (key[0] !== "@" && key !== "children") {
 								nodeOldData[key] = value;
 								nodeOldNode.setAttribute(key, value);
 							}

@@ -38,13 +38,16 @@ function executeCreate(node) {
 	if (nodeType === types.element) {
 		nodeNode = document.createElement(node.name);
 
-		// Set data and attributes.
+		// Set data, events, and attributes.
 		const data = node.data;
 
 		for (let key in data) {
 			const value = data[key];
 
-			if (key !== "children") {
+			if (key[0] === "@") {
+				nodeData[key] = value;
+				nodeNode.addEventListener(key.slice(1), value);
+			} else if (key !== "children") {
 				nodeData[key] = value;
 				nodeNode.setAttribute(key, value);
 			}
@@ -278,11 +281,11 @@ function executePatch(patches) {
 				const nodeNewData = patch.nodeNew.data;
 
 				// Mutate the old node with the new node's data and set attributes
-				// on the DOM node.
+				// and events on the DOM node.
 				for (let key in nodeNewData) {
 					const value = nodeNewData[key];
 
-					if (key !== "children") {
+					if (key[0] !== "@" && key !== "children") {
 						nodeOldData[key] = value;
 						nodeOldNode.setAttribute(key, value);
 					}
