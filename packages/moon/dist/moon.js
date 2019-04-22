@@ -98,11 +98,23 @@
 
 	var globals = ["NaN", "false", "in", "null", "this", "true", "typeof", "undefined", "window"];
 	/**
+	 * Scope an expression to use variables within the `data` object.
+	 *
+	 * @param {string} expression
+	 */
+
+	function scopeExpression(expression) {
+		return expression.replace(expressionRE, function (match, name) {
+			return name === undefined || globals.indexOf(name) !== -1 ? match : "data." + name;
+		});
+	}
+	/**
 	 * Convert a token into a string, accounting for `<text/>` components.
 	 *
 	 * @param {Object} token
 	 * @returns {String} Token converted into a string
 	 */
+
 
 	function tokenString(token) {
 		if (token.type === "tagOpen") {
@@ -255,7 +267,7 @@
 					} else {
 						// Store the key/value pair using the matched value or
 						// expression.
-						attributes[attributeKey] = attributeExpression === undefined ? attributeValue : attributeExpression;
+						attributes[attributeKey] = attributeExpression === undefined ? attributeValue : scopeExpression(attributeExpression);
 					}
 				} // Append an opening tag token with the type, attributes, and optional
 				// self-closing slash.
@@ -289,9 +301,7 @@
 					type: "tagOpen",
 					value: "text",
 					attributes: {
-						"": expression.replace(expressionRE, function (match, name) {
-							return name === undefined || globals.indexOf(name) !== -1 ? match : "data." + name;
-						})
+						"": scopeExpression(expression)
 					},
 					closed: true
 				});

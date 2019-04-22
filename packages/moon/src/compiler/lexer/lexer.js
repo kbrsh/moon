@@ -25,6 +25,19 @@ const expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_
 const globals = ["NaN", "false", "in", "null", "this", "true", "typeof", "undefined", "window"];
 
 /**
+ * Scope an expression to use variables within the `data` object.
+ *
+ * @param {string} expression
+ */
+function scopeExpression(expression) {
+	return expression.replace(expressionRE, (match, name) =>
+		(name === undefined || globals.indexOf(name) !== -1) ?
+			match :
+			`data.${name}`
+	);
+}
+
+/**
  * Convert a token into a string, accounting for `<text/>` components.
  *
  * @param {Object} token
@@ -200,7 +213,7 @@ export function lex(input) {
 					attributes[attributeKey] =
 						attributeExpression === undefined ?
 							attributeValue :
-							attributeExpression;
+							scopeExpression(attributeExpression);
 				}
 			}
 
@@ -236,11 +249,7 @@ export function lex(input) {
 				type: "tagOpen",
 				value: "text",
 				attributes: {
-					"": expression.replace(expressionRE, (match, name) =>
-						(name === undefined || globals.indexOf(name) !== -1) ?
-							match :
-							`data.${name}`
-					)
+					"": scopeExpression(expression)
 				},
 				closed: true
 			});
