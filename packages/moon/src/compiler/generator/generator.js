@@ -13,30 +13,41 @@ import { types } from "../../util/util";
  * @returns {string} View function code
  */
 export function generate(element) {
-	let type;
 	const name = element.type;
+	let type;
 
 	if (name === "text") {
 		type = types.text;
+	} else if (name === "fragment") {
+		type = types.fragment;
 	} else if (name[0] === name[0].toLowerCase()) {
 		type = types.element;
 	} else {
 		type = types.component;
 	}
 
+	const attributes = element.attributes;
 	let data = "{";
-
-	for (let attribute in element.attributes) {
-		data += `"${attribute}":${element.attributes[attribute]},`;
-	}
-
-	data += "children:[";
-
 	let separator = "";
-	for (let i = 0; i < element.children.length; i++) {
-		data += separator + generate(element.children[i]);
+
+	for (let attribute in attributes) {
+		data += `${separator}"${attribute}":${attributes[attribute]}`;
 		separator = ",";
 	}
 
-	return `{type:${type},name:"${name}",data:${data}]}}`;
+	if (attributes.children === undefined) {
+		// Generate children if they are not in the element data.
+		const children = element.children;
+		data += separator + "children:[";
+
+		separator = "";
+		for (let i = 0; i < children.length; i++) {
+			data += separator + generate(children[i]);
+			separator = ",";
+		}
+
+		data += "]";
+	}
+
+	return `{type:${type},name:"${name}",data:${data}}}`;
 }

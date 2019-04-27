@@ -23,7 +23,7 @@ const patchTypes = {
 };
 
 /**
- * Creates a DOM element from a view node.
+ * Creates an old reference node from a view node.
  *
  * @param {Object} node
  * @returns {Object} node to be used as an old node
@@ -35,22 +35,38 @@ function executeCreate(node) {
 	const nodeChildren = [];
 	let nodeNode;
 
-	if (nodeType === types.element) {
-		nodeNode = document.createElement(node.name);
+	if (nodeType === types.text) {
+		// Get text content using the default data key.
+		const textContent = node.data[""];
 
-		// Set data, events, and attributes.
+		// Create a text node using the text content.
+		nodeNode = document.createTextNode(textContent);
+
+		// Set only the default data key.
+		nodeData[""] = textContent;
+
+	} else {
 		const data = node.data;
 
-		for (let key in data) {
-			const value = data[key];
+		if (nodeType === types.element) {
+			// Create a DOM element.
+			nodeNode = document.createElement(node.name);
 
-			if (key[0] === "@") {
-				nodeData[key] = value;
-				nodeNode.addEventListener(key.slice(1), value);
-			} else if (key !== "children") {
-				nodeData[key] = value;
-				nodeNode.setAttribute(key, value);
+			// Set data, events, and attributes.
+			for (let key in data) {
+				const value = data[key];
+
+				if (key[0] === "@") {
+					nodeData[key] = value;
+					nodeNode.addEventListener(key.slice(1), value);
+				} else if (key !== "children") {
+					nodeData[key] = value;
+					nodeNode.setAttribute(key, value);
+				}
 			}
+		} else {
+			// Create a DOM fragment.
+			nodeNode = document.createDocumentFragment();
 		}
 
 		// Recursively append children.
@@ -62,15 +78,6 @@ function executeCreate(node) {
 			nodeChildren.push(child);
 			nodeNode.appendChild(child.node);
 		}
-	} else {
-		// Get text content using the default data key.
-		const textContent = node.data[""];
-
-		// Create a text node using the text content.
-		nodeNode = document.createTextNode(textContent);
-
-		// Set only the default data key.
-		nodeData[""] = textContent;
 	}
 
 	// Set the children of the new old node.
@@ -178,13 +185,16 @@ function executeDiff(nodesOld, nodesNew, patches) {
 			});
 		} else {
 			// If they both are normal elements, then set attributes and diff the
-			// children for appends, deletes, or recursive updates.
-			patches.push({
-				type: patchTypes.setAttributes,
-				nodeOld: nodeOld,
-				nodeNew: nodeNew,
-				nodeParent: null
-			});
+			// children for appends, deletes, or recursive updates. This skips
+			// updating attributes for fragments.
+			if (nodeOld.type === types.element) {
+				patches.push({
+					type: patchTypes.setAttributes,
+					nodeOld: nodeOld,
+					nodeNew: nodeNew,
+					nodeParent: null
+				});
+			}
 
 			const childrenOld = nodeOld.data.children;
 			const childrenNew = nodeNew.data.children;

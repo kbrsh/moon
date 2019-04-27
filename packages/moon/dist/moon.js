@@ -19,7 +19,8 @@
 	var types = {
 		element: 0,
 		text: 1,
-		component: 2
+		component: 2,
+		fragment: 3
 	};
 	/**
 	 * Checks if a given character is a quote.
@@ -542,32 +543,43 @@
 	 */
 
 	function generate(element) {
-		var type;
 		var name = element.type;
+		var type;
 
 		if (name === "text") {
 			type = types.text;
+		} else if (name === "fragment") {
+			type = types.fragment;
 		} else if (name[0] === name[0].toLowerCase()) {
 			type = types.element;
 		} else {
 			type = types.component;
 		}
 
+		var attributes = element.attributes;
 		var data = "{";
-
-		for (var attribute in element.attributes) {
-			data += "\"" + attribute + "\":" + element.attributes[attribute] + ",";
-		}
-
-		data += "children:[";
 		var separator = "";
 
-		for (var i = 0; i < element.children.length; i++) {
-			data += separator + generate(element.children[i]);
+		for (var attribute in attributes) {
+			data += separator + "\"" + attribute + "\":" + attributes[attribute];
 			separator = ",";
 		}
 
-		return "{type:" + type + ",name:\"" + name + "\",data:" + data + "]}}";
+		if (attributes.children === undefined) {
+			// Generate children if they are not in the element data.
+			var children = element.children;
+			data += separator + "children:[";
+			separator = "";
+
+			for (var i = 0; i < children.length; i++) {
+				data += separator + generate(children[i]);
+				separator = ",";
+			}
+
+			data += "]";
+		}
+
+		return "{type:" + type + ",name:\"" + name + "\",data:" + data + "}}";
 	}
 
 	function compile(input) {
@@ -635,7 +647,7 @@
 		replaceElement: 4
 	};
 	/**
-	 * Creates a DOM element from a view node.
+	 * Creates an old reference node from a view node.
 	 *
 	 * @param {Object} node
 	 * @returns {Object} node to be used as an old node
@@ -648,21 +660,34 @@
 		var nodeChildren = [];
 		var nodeNode;
 
-		if (nodeType === types.element) {
-			nodeNode = document.createElement(node.name); // Set data, events, and attributes.
+		if (nodeType === types.text) {
+			// Get text content using the default data key.
+			var textContent = node.data[""]; // Create a text node using the text content.
 
+			nodeNode = document.createTextNode(textContent); // Set only the default data key.
+
+			nodeData[""] = textContent;
+		} else {
 			var _data = node.data;
 
-			for (var key in _data) {
-				var value = _data[key];
+			if (nodeType === types.element) {
+				// Create a DOM element.
+				nodeNode = document.createElement(node.name); // Set data, events, and attributes.
 
-				if (key[0] === "@") {
-					nodeData[key] = value;
-					nodeNode.addEventListener(key.slice(1), value);
-				} else if (key !== "children") {
-					nodeData[key] = value;
-					nodeNode.setAttribute(key, value);
+				for (var key in _data) {
+					var value = _data[key];
+
+					if (key[0] === "@") {
+						nodeData[key] = value;
+						nodeNode.addEventListener(key.slice(1), value);
+					} else if (key !== "children") {
+						nodeData[key] = value;
+						nodeNode.setAttribute(key, value);
+					}
 				}
+			} else {
+				// Create a DOM fragment.
+				nodeNode = document.createDocumentFragment();
 			} // Recursively append children.
 
 
@@ -673,13 +698,6 @@
 				nodeChildren.push(child);
 				nodeNode.appendChild(child.node);
 			}
-		} else {
-			// Get text content using the default data key.
-			var textContent = node.data[""]; // Create a text node using the text content.
-
-			nodeNode = document.createTextNode(textContent); // Set only the default data key.
-
-			nodeData[""] = textContent;
 		} // Set the children of the new old node.
 
 
@@ -784,13 +802,17 @@
 				});
 			} else {
 				// If they both are normal elements, then set attributes and diff the
-				// children for appends, deletes, or recursive updates.
-				patches.push({
-					type: patchTypes.setAttributes,
-					nodeOld: nodeOld,
-					nodeNew: nodeNew,
-					nodeParent: null
-				});
+				// children for appends, deletes, or recursive updates. This skips
+				// updating attributes for fragments.
+				if (nodeOld.type === types.element) {
+					patches.push({
+						type: patchTypes.setAttributes,
+						nodeOld: nodeOld,
+						nodeNew: nodeNew,
+						nodeParent: null
+					});
+				}
+
 				var childrenOld = nodeOld.data.children;
 				var childrenNew = nodeNew.data.children;
 				var childrenOldLength = childrenOld.length;
