@@ -33,7 +33,7 @@ function scopeExpression(expression) {
 	return expression.replace(expressionRE, (match, name) =>
 		(name === undefined || globals.indexOf(name) !== -1) ?
 			match :
-			`data.${name}`
+			"data." + name
 	);
 }
 
@@ -57,10 +57,11 @@ export function tokenString(token) {
 				return `{${content}}`;
 			}
 		} else {
-			let tag = `<${token.value}`;
+			let tag = "<" + token.value;
+			const attributes = token.attributes;
 
-			for (let attributeKey in token.attributes) {
-				const attributeValue = token.attributes[attributeKey];
+			for (let attributeKey in attributes) {
+				const attributeValue = attributes[attributeKey];
 				tag += ` ${attributeKey}=${isQuote(attributeValue[0]) ? attributeValue : `{${attributeValue}}`}`;
 			}
 
@@ -84,7 +85,7 @@ export function tokenString(token) {
  * @param {number} index
  */
 function lexError(message, input, index) {
-	let lexMessage = `${message}\n\n`;
+	let lexMessage = message + "\n\n";
 
 	// Show input characters surrounding the source of the error.
 	for (

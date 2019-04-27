@@ -131,9 +131,10 @@
 				}
 			} else {
 				var tag = "<" + token.value;
+				var attributes = token.attributes;
 
-				for (var attributeKey in token.attributes) {
-					var attributeValue = token.attributes[attributeKey];
+				for (var attributeKey in attributes) {
+					var attributeValue = attributes[attributeKey];
 					tag += " " + attributeKey + "=" + (isQuote(attributeValue[0]) ? attributeValue : "{" + attributeValue + "}");
 				}
 
