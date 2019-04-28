@@ -617,14 +617,40 @@
 
 	function generateNodeFor(element) {
 		var variable = "m" + generateVariable;
-		var dataValue = element.attributes[""];
+		var dataLocals = element.attributes[""].split(",");
 		var dataArray = element.attributes["of"];
 		var dataObject = element.attributes["in"];
+		var dataKey;
+		var dataValue;
+		var prelude;
 		setGenerateVariable(generateVariable + 1);
 		var generateChild = generateNode(element.children[0], element, 0);
 		var body = "" + generateChild.prelude + variable + ".push(" + generateChild.node + ");";
+
+		if (dataArray === undefined) {
+			// Generate a `for` loop over an object. The first local is the key and
+			// the second is the value.
+			var dataObjectValue;
+			dataKey = dataLocals[0];
+
+			if (dataLocals.length === 2) {
+				dataValue = dataLocals[1];
+				dataObjectValue = "var " + dataValue + "=" + dataObject + "[" + dataKey + "];";
+			} else {
+				dataObjectValue = "";
+			}
+
+			prelude = "for(var " + dataKey + " in " + dataObject + "){" + dataObjectValue + body + "}";
+		} else {
+			// Generate a `for` loop over an array. The first local is the value and
+			// the second is the key (index).
+			dataKey = dataLocals.length === 2 ? dataLocals[1] : "i";
+			dataValue = dataLocals[0];
+			prelude = "for(var " + dataKey + "=0;" + dataKey + "<" + dataArray + ".length;" + dataKey + "++){var " + dataValue + "=" + dataArray + "[" + dataKey + "];" + body + "}";
+		}
+
 		return {
-			prelude: "var " + variable + "=[];" + (dataArray === undefined ? "for(var " + dataValue + " in " + dataObject + "){" + body + "}" : "for(var i=0;i<" + dataArray + ".length;i++){var " + dataValue + "=" + dataArray + "[i];" + body + "}"),
+			prelude: "var " + variable + "=[];" + prelude,
 			node: "{type:" + types.element + ",name:\"span\",data:{children:" + variable + "}}"
 		};
 	}
