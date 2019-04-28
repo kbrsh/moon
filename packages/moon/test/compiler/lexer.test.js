@@ -13,7 +13,7 @@ test("lex self closing tag", () => {
 });
 
 test("lex text", () => {
-	expect(lex(`text test`)).toEqual([{"attributes": {"": "\"text test\""}, "closed": true, "type": "tagOpen", "value": "Text"}]);
+	expect(lex(`text test`)).toEqual([{"attributes": {"": "\"text test\""}, "closed": true, "type": "tagOpen", "value": "text"}]);
 });
 
 test("lex text inside tag", () => {
@@ -26,7 +26,7 @@ test("lex text inside tag", () => {
 		},
 		{
 			"type": "tagOpen",
-			"value": "Text",
+			"value": "text",
 			"attributes": {
 				"": "\"text\""
 			},
@@ -40,7 +40,7 @@ test("lex text inside tag", () => {
 })
 
 test("lex expression", () => {
-	expect(lex(`{data + 1}`)).toEqual([{"attributes": {"": "data + 1"}, "closed": true, "type": "tagOpen", "value": "Text"}]);
+	expect(lex(`{data + 1}`)).toEqual([{"attributes": {"": "data.data + 1"}, "closed": true, "type": "tagOpen", "value": "text"}]);
 });
 
 test("lex attributes", () => {
@@ -58,7 +58,7 @@ test("opening tag token to string", () => {
 
 test("opening tag token with attributes to string", () => {
 	const input = `<div id="test-id" class='test-class' expression={dynamic}>`;
-	expect(tokenString(lex(input)[0])).toBe(input);
+	expect(tokenString(lex(input)[0])).toBe(input.replace("dynamic", "data.dynamic"));
 });
 
 test("self-closing tag token to string", () => {
@@ -68,7 +68,7 @@ test("self-closing tag token to string", () => {
 
 test("self-closing tag token with attributes to string", () => {
 	const input = `<input id="test-id" class='test-class' expression={dynamic}/>`;
-	expect(tokenString(lex(input)[0])).toBe(input);
+	expect(tokenString(lex(input)[0])).toBe(input.replace("dynamic", "data.dynamic"));
 });
 
 test("closing tag token to string", () => {
@@ -83,7 +83,7 @@ test("text token to string", () => {
 
 test("expression token to string", () => {
 	const input = `{dynamic + 1}`;
-	expect(tokenString(lex(input)[0])).toBe(input);
+	expect(tokenString(lex(input)[0])).toBe(input.replace("dynamic", "data.dynamic"));
 });
 
 test("lex error from unclosed opening bracket", () => {
