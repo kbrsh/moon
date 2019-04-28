@@ -702,7 +702,7 @@
 		} else {
 			// Generate a `for` loop over an array. The first local is the value and
 			// the second is the key (index).
-			dataKey = dataLocals.length === 2 ? dataLocals[1] : "i";
+			dataKey = dataLocals.length === 2 ? dataLocals[1] : "mi";
 			dataValue = dataLocals[0];
 			prelude = "for(var " + dataKey + "=0;" + dataKey + "<" + dataArray + ".length;" + dataKey + "++){var " + dataValue + "=" + dataArray + "[" + dataKey + "];" + body + "}";
 		}
