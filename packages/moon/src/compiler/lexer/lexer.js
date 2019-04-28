@@ -46,7 +46,11 @@ function isQuote(char) {
  */
 function scopeExpression(expression) {
 	return expression.replace(expressionRE, (match, name) =>
-		(name === undefined || globals.indexOf(name) !== -1) ?
+		(
+			name === undefined ||
+			name[0] === "$" ||
+			globals.indexOf(name) !== -1
+		) ?
 			match :
 			"data." + name
 	);

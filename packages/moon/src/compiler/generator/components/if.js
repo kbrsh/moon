@@ -18,11 +18,7 @@ export function generateNodeIf(element, parent, index) {
 	setGenerateVariable(generateVariable + 1);
 
 	// Generate the initial `if` clause.
-	const generateIf = generateNode(
-		element.children[0],
-		element,
-		0
-	);
+	const generateIf = generateNode(element.children[0], element, 0);
 
 	prelude += `var ${variable};if(${element.attributes[""]}){${generateIf.prelude}${variable}=${generateIf.node};}`;
 

@@ -111,7 +111,7 @@
 
 	function scopeExpression(expression) {
 		return expression.replace(expressionRE, function (match, name) {
-			return name === undefined || globals.indexOf(name) !== -1 ? match : "data." + name;
+			return name === undefined || name[0] === "$" || globals.indexOf(name) !== -1 ? match : "data." + name;
 		});
 	}
 	/**
@@ -609,6 +609,27 @@
 	}
 
 	/**
+	 * Generates view function code and prelude code for a `for` element.
+	 *
+	 * @param {Object} element
+	 * @returns {Object} View function code and prelude code
+	 */
+
+	function generateNodeFor(element) {
+		var variable = "m" + generateVariable;
+		var dataValue = element.attributes[""];
+		var dataArray = element.attributes["of"];
+		var dataObject = element.attributes["in"];
+		setGenerateVariable(generateVariable + 1);
+		var generateChild = generateNode(element.children[0], element, 0);
+		var body = "" + generateChild.prelude + variable + ".push(" + generateChild.node + ");";
+		return {
+			prelude: "var " + variable + "=[];" + (dataArray === undefined ? "for(var " + dataValue + " in " + dataObject + "){" + body + "}" : "for(var i=0;i<" + dataArray + ".length;i++){var " + dataValue + "=" + dataArray + "[i];" + body + "}"),
+			node: "{type:" + types.element + ",name:\"span\",data:{children:" + variable + "}}"
+		};
+	}
+
+	/**
 	 * Generates view function code for a Moon node from an element.
 	 *
 	 * @param {Object} element
@@ -623,6 +644,8 @@
 
 		if (name === "if") {
 			return generateNodeIf(element, parent, index);
+		} else if (name === "for") {
+			return generateNodeFor(element);
 		} else if (name === "text") {
 			type = types.text;
 		} else if (name[0] === name[0].toLowerCase()) {
@@ -648,9 +671,9 @@
 			separator = "";
 
 			for (var i = 0; i < children.length; i++) {
-				var childNode = generateNode(children[i], element, i);
-				prelude += childNode.prelude;
-				data += separator + childNode.node;
+				var generateChild = generateNode(children[i], element, i);
+				prelude += generateChild.prelude;
+				data += separator + generateChild.node;
 				separator = ",";
 			}
 

@@ -1,4 +1,5 @@
 import { generateNodeIf } from "./components/if";
+import { generateNodeFor } from "./components/for";
 import { setGenerateVariable } from "./util/globals";
 import { types } from "../../util/util";
 
@@ -17,6 +18,8 @@ export function generateNode(element, parent, index) {
 	// Generate the correct type number for the given name.
 	if (name === "if") {
 		return generateNodeIf(element, parent, index);
+	} else if (name === "for") {
+		return generateNodeFor(element);
 	} else if (name === "text") {
 		type = types.text;
 	} else if (name[0] === name[0].toLowerCase()) {
@@ -42,10 +45,10 @@ export function generateNode(element, parent, index) {
 
 		separator = "";
 		for (let i = 0; i < children.length; i++) {
-			const childNode = generateNode(children[i], element, i);
+			const generateChild = generateNode(children[i], element, i);
 
-			prelude += childNode.prelude;
-			data += separator + childNode.node;
+			prelude += generateChild.prelude;
+			data += separator + generateChild.node;
 
 			separator = ",";
 		}
