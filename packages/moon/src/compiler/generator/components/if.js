@@ -1,16 +1,43 @@
 import { generateNode } from "../generator";
 import { types } from "../../../util/util";
-import { generateVariable, setGenerateVariable } from "../util/globals";
+import { generateStatic, generateVariable, setGenerateStatic, setGenerateVariable } from "../util/globals";
 
 /**
- * Generates view function code and prelude code for an `if` element.
+ * Generates code for an `if`/`else-if`/`else` clause body.
+ *
+ * @param {number} variable
+ * @param {Object} element
+ * @param {Array} staticNodes
+ * @returns {string} clause body
+ */
+function generateClause(variable, element, staticNodes) {
+	const generateBody = generateNode(element.children[0], element, 0, staticNodes);
+	let clause;
+
+	if (generateBody.isStatic) {
+		// If the clause is static, then use a static node in place of it.
+		clause = `${variable}=m[${generateStatic}];`;
+
+		staticNodes.push(generateBody);
+		setGenerateStatic(generateStatic + 1);
+	} else {
+		// If the clause is dynamic, then use the dynamic node.
+		clause = `${generateBody.prelude}${variable}=${generateBody.node};`;
+	}
+
+	return clause;
+}
+
+/**
+ * Generates code for a node from an `if` element.
  *
  * @param {Object} element
  * @param {Object} parent
  * @param {number} index
- * @returns {Object} View function code and prelude code
+ * @param {Array} staticNodes
+ * @returns {Object} Prelude code, view function code, and static status
  */
-export function generateNodeIf(element, parent, index) {
+export function generateNodeIf(element, parent, index, staticNodes) {
 	const variable = "m" + generateVariable;
 	let prelude = "";
 	let emptyElseClause = true;
@@ -18,9 +45,7 @@ export function generateNodeIf(element, parent, index) {
 	setGenerateVariable(generateVariable + 1);
 
 	// Generate the initial `if` clause.
-	const generateIf = generateNode(element.children[0], element, 0);
-
-	prelude += `var ${variable};if(${element.attributes[""]}){${generateIf.prelude}${variable}=${generateIf.node};}`;
+	prelude += `var ${variable};if(${element.attributes[""]}){${generateClause(variable, element, staticNodes)}}`;
 
 	// Search for `else-if` and `else` clauses if there are siblings.
 	if (parent !== null) {
@@ -31,26 +56,14 @@ export function generateNodeIf(element, parent, index) {
 
 			if (sibling.type === "else-if") {
 				// Generate the `else-if` clause.
-				const generateElseIf = generateNode(
-					sibling.children[0],
-					sibling,
-					0
-				);
-
-				prelude += `else if(${sibling.attributes[""]}){${generateElseIf.prelude}${variable}=${generateElseIf.node};}`;
+				prelude += `else if(${sibling.attributes[""]}){${generateClause(variable, sibling, staticNodes)}}`;
 
 				// Remove the `else-if` clause so that it isn't generated
 				// individually by the parent.
 				siblings.splice(i, 1);
 			} else if (sibling.type === "else") {
 				// Generate the `else` clause.
-				const generateElse = generateNode(
-					sibling.children[0],
-					sibling,
-					0
-				);
-
-				prelude += `else{${generateElse.prelude}${variable}=${generateElse.node};}`;
+				prelude += `else{${generateClause(variable, sibling, staticNodes)}}`;
 
 				// Skip generating the empty `else` clause.
 				emptyElseClause = false;
@@ -66,11 +79,19 @@ export function generateNodeIf(element, parent, index) {
 
 	// Generate an empty `else` clause represented by an empty text node.
 	if (emptyElseClause) {
-		prelude += `else{${variable}={type:${types.text},name:"text",data:{"":"",children:[]}};}`;
+		prelude += `else{${variable}=m[${generateStatic}];}`;
+
+		staticNodes.push({
+			prelude: "",
+			node: `{type:${types.text},name:"text",data:{"":"",children:[]}}`,
+			isStatic: true
+		});
+		setGenerateStatic(generateStatic + 1);
 	}
 
 	return {
 		prelude,
-		node: variable
+		node: variable,
+		isStatic: false
 	};
 }

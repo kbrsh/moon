@@ -1,25 +1,27 @@
 import { generateNodeIf } from "./components/if";
 import { generateNodeFor } from "./components/for";
-import { setGenerateVariable } from "./util/globals";
+import { generateStatic, setGenerateStatic, setGenerateVariable } from "./util/globals";
 import { types } from "../../util/util";
 
 /**
- * Generates view function code for a Moon node from an element.
+ * Generates code for a node from an element.
  *
  * @param {Object} element
  * @param {Object} parent
  * @param {number} index
- * @returns {Object} View function code and prelude code
+ * @param {Array} staticNodes
+ * @returns {Object} Prelude code, view function code, and static status
  */
-export function generateNode(element, parent, index) {
+export function generateNode(element, parent, index, staticNodes) {
 	const name = element.type;
 	let type;
+	let isStatic = true;
 
 	// Generate the correct type number for the given name.
 	if (name === "if") {
-		return generateNodeIf(element, parent, index);
+		return generateNodeIf(element, parent, index, staticNodes);
 	} else if (name === "for") {
-		return generateNodeFor(element);
+		return generateNodeFor(element, staticNodes);
 	} else if (name === "text") {
 		type = types.text;
 	} else if (name[0] === name[0].toLowerCase()) {
@@ -34,21 +36,63 @@ export function generateNode(element, parent, index) {
 	let separator = "";
 
 	for (let attribute in attributes) {
-		data += `${separator}"${attribute}":${attributes[attribute]}`;
+		const attributeValue = attributes[attribute];
+
+		// Mark the current node as dynamic if any attributes are dynamic. Events
+		// are always treated as static.
+		if (
+			attribute[0] !== "@" &&
+			attributeValue[0] !== "\"" &&
+			attributeValue[0] !== "'"
+		) {
+			isStatic = false;
+		}
+
+		data += `${separator}"${attribute}":${attributeValue}`;
 		separator = ",";
 	}
 
 	if (attributes.children === undefined) {
 		// Generate children if they are not in the element data.
 		const children = element.children;
+		let generateChildren = [];
+
 		data += separator + "children:[";
-
 		separator = "";
-		for (let i = 0; i < children.length; i++) {
-			const generateChild = generateNode(children[i], element, i);
 
-			prelude += generateChild.prelude;
-			data += separator + generateChild.node;
+		for (let i = 0; i < children.length; i++) {
+			const generateChild = generateNode(
+				children[i],
+				element,
+				i,
+				staticNodes
+			);
+
+			// Mark the current node as dynamic if any child is dynamic.
+			if (!generateChild.isStatic) {
+				isStatic = false;
+			}
+
+			generateChildren.push(generateChild);
+		}
+
+		for (let i = 0; i < generateChildren.length; i++) {
+			const generateChild = generateChildren[i];
+
+			if (isStatic || !generateChild.isStatic) {
+				// If the whole current node is static or the current node and
+				// child node are dynamic, then append the child as a part of the
+				// node as usual.
+				prelude += generateChild.prelude;
+				data += separator + generateChild.node;
+			} else {
+				// If the whole current node is dynamic and the child node is
+				// static, then use a static node in place of the static child.
+				data += separator + `m[${generateStatic}]`;
+
+				staticNodes.push(generateChild);
+				setGenerateStatic(generateStatic + 1);
+			}
 
 			separator = ",";
 		}
@@ -58,7 +102,8 @@ export function generateNode(element, parent, index) {
 
 	return {
 		prelude,
-		node: `{type:${type},name:"${name}",data:${data}}}`
+		node: `{type:${type},name:"${name}",data:${data}}}`,
+		isStatic
 	};
 }
 
@@ -75,12 +120,42 @@ export function generateNode(element, parent, index) {
  * @returns {string} View function code
  */
 export function generate(element) {
+	// Store static nodes.
+	const staticNodes = [];
+
 	// Reset generator variable.
 	setGenerateVariable(0);
 
-	// Generate the root node and get the prelude and node code.
-	const { prelude, node } = generateNode(element, null, 0);
+	// Hold a reference to the next static node.
+	const staticRoot = generateStatic;
 
-	// Convert the code into a usable function body.
-	return `${prelude}return ${node};`;
+	// Generate the root node and get the prelude and node code.
+	const { prelude, node, isStatic } = generateNode(
+		element,
+		null,
+		0,
+		staticNodes
+	);
+
+	if (isStatic) {
+		// Account for a static root node.
+		setGenerateStatic(generateStatic + 1);
+
+		return `if(m[${staticRoot}]===undefined){${prelude}m[${staticRoot}]=${node};}return m[${staticRoot}];`;
+	} else if (staticNodes.length === 0) {
+		return `${prelude}return ${node};`;
+	} else {
+		// Generate static nodes only once at the start.
+		let staticCode = `if(m[${staticRoot}]===undefined){`;
+
+		for (let i = 0; i < staticNodes.length; i++) {
+			const staticNode = staticNodes[i];
+
+			staticCode += `${staticNode.prelude}m[${staticRoot + i}]=${staticNode.node};`;
+		}
+
+		staticCode += "}";
+
+		return `${staticCode}${prelude}return ${node};`;
+	}
 }

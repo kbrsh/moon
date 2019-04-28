@@ -37,12 +37,14 @@ export function defaultValue(value, fallback) {
 export function defaultObject(obj, fallback) {
 	let full = {};
 
-	for (let key in fallback) {
-		full[key] = fallback[key];
-	}
-
 	for (let key in obj) {
 		full[key] = obj[key];
+	}
+
+	for (let key in fallback) {
+		if (!(key in obj)) {
+			full[key] = fallback[key];
+		}
 	}
 
 	return full;

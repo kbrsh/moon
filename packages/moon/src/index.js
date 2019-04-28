@@ -3,7 +3,7 @@ import { parse } from "./compiler/parser/parser";
 import { generate } from "./compiler/generator/generator";
 import { compile } from "./compiler/compiler";
 import { execute } from "./executor/executor";
-import { components, setViewCurrent, setViewOld } from "./util/globals";
+import { components, m, setViewCurrent, setViewOld } from "./util/globals";
 import { defaultObject, defaultValue, error, types } from "./util/util";
 
 /**
@@ -46,7 +46,7 @@ export default function Moon(options) {
 	}
 
 	if (typeof view === "string") {
-		view = new Function("data", compile(view));
+		view = new Function("m", "data", compile(view));
 	}
 
 	// If a `root` option is given, start the root renderer, or else just return
@@ -58,9 +58,16 @@ export default function Moon(options) {
 
 	delete options.root;
 
+	// Create a wrapper view function that maps data to the compiled view
+	// function. The compiled view function takes `m`, which holds static nodes.
+	// The data is also processed so that `options` acts as a default.
+	const viewComponent = (data) => view(m, defaultObject(data, options));
+
 	if (root === undefined) {
-		components[name] = (data) => view(defaultObject(data, options));
+		// Store it as a component if no `root` is given.
+		components[name] = viewComponent;
 	} else {
+		// Mount to the `root` element and begin execution if it is given.
 		setViewOld({
 			type: types.element,
 			name: root.tagName.toLowerCase(),
@@ -69,7 +76,7 @@ export default function Moon(options) {
 			},
 			node: root
 		});
-		setViewCurrent(view);
+		setViewCurrent(viewComponent);
 		execute(options);
 	}
 }

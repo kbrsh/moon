@@ -1,14 +1,15 @@
 import { generateNode } from "../generator";
 import { types } from "../../../util/util";
-import { generateVariable, setGenerateVariable } from "../util/globals";
+import { generateStatic, generateVariable, setGenerateStatic, setGenerateVariable } from "../util/globals";
 
 /**
- * Generates view function code and prelude code for a `for` element.
+ * Generates code for a node from a `for` element.
  *
  * @param {Object} element
- * @returns {Object} View function code and prelude code
+ * @param {Array} staticNodes
+ * @returns {Object} Prelude code, view function code, and static status
  */
-export function generateNodeFor(element) {
+export function generateNodeFor(element, staticNodes) {
 	const variable = "m" + generateVariable;
 	const dataLocals = element.attributes[""].split(",");
 	const dataArray = element.attributes["of"];
@@ -19,8 +20,24 @@ export function generateNodeFor(element) {
 
 	setGenerateVariable(generateVariable + 1);
 
-	const generateChild = generateNode(element.children[0], element, 0);
-	const body = `${generateChild.prelude}${variable}.push(${generateChild.node});`;
+	const generateChild = generateNode(
+		element.children[0],
+		element,
+		0,
+		staticNodes
+	);
+	let body;
+
+	if (generateChild.isStatic) {
+		// If the body is static, then use a static node in place of it.
+		body = `${variable}.push(m[${generateStatic}]);`;
+
+		staticNodes.push(generateChild);
+		setGenerateStatic(generateStatic + 1);
+	} else {
+		// If the body is dynamic, then use the dynamic node in the loop body.
+		body = `${generateChild.prelude}${variable}.push(${generateChild.node});`;
+	}
 
 	if (dataArray === undefined) {
 		// Generate a `for` loop over an object. The first local is the key and
@@ -42,12 +59,12 @@ export function generateNodeFor(element) {
 		// the second is the key (index).
 		dataKey = dataLocals.length === 2 ? dataLocals[1] : "i";
 		dataValue = dataLocals[0];
-
 		prelude = `for(var ${dataKey}=0;${dataKey}<${dataArray}.length;${dataKey}++){var ${dataValue}=${dataArray}[${dataKey}];${body}}`;
 	}
 
 	return {
 		prelude: `var ${variable}=[];${prelude}`,
-		node: `{type:${types.element},name:"span",data:{children:${variable}}}`
+		node: `{type:${types.element},name:"span",data:{children:${variable}}}`,
+		isStatic: false
 	};
 }

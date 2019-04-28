@@ -14,6 +14,11 @@ export let viewOld, viewNew, viewCurrent;
 export const components = {};
 
 /**
+ * Global static component views
+ */
+export const m = [];
+
+/**
  * Set old view to a new object.
  *
  * @param {Object} viewOld

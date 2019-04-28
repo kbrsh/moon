@@ -52,12 +52,14 @@
 	function defaultObject(obj, fallback) {
 		var full = {};
 
-		for (var key in fallback) {
-			full[key] = fallback[key];
+		for (var key in obj) {
+			full[key] = obj[key];
 		}
 
-		for (var _key in obj) {
-			full[_key] = obj[_key];
+		for (var _key in fallback) {
+			if (!(_key in obj)) {
+				full[_key] = fallback[_key];
+			}
 		}
 
 		return full;
@@ -542,6 +544,11 @@
 	 */
 	var generateVariable;
 	/**
+	 * Global static variable number
+	 */
+
+	var generateStatic = 0;
+	/**
 	 * Set variable number to a new number.
 	 *
 	 * @param {number} newGenerateVariable
@@ -550,24 +557,59 @@
 	function setGenerateVariable(newGenerateVariable) {
 		generateVariable = newGenerateVariable;
 	}
+	/**
+	 * Set static variable number to a new number.
+	 *
+	 * @param {number} newGenerateStatic
+	 */
+
+	function setGenerateStatic(newGenerateStatic) {
+		generateStatic = newGenerateStatic;
+	}
 
 	/**
-	 * Generates view function code and prelude code for an `if` element.
+	 * Generates code for an `if`/`else-if`/`else` clause body.
+	 *
+	 * @param {number} variable
+	 * @param {Object} element
+	 * @param {Array} staticNodes
+	 * @returns {string} clause body
+	 */
+
+	function generateClause(variable, element, staticNodes) {
+		var generateBody = generateNode(element.children[0], element, 0, staticNodes);
+		var clause;
+
+		if (generateBody.isStatic) {
+			// If the clause is static, then use a static node in place of it.
+			clause = variable + "=m[" + generateStatic + "];";
+			staticNodes.push(generateBody);
+			setGenerateStatic(generateStatic + 1);
+		} else {
+			// If the clause is dynamic, then use the dynamic node.
+			clause = "" + generateBody.prelude + variable + "=" + generateBody.node + ";";
+		}
+
+		return clause;
+	}
+	/**
+	 * Generates code for a node from an `if` element.
 	 *
 	 * @param {Object} element
 	 * @param {Object} parent
 	 * @param {number} index
-	 * @returns {Object} View function code and prelude code
+	 * @param {Array} staticNodes
+	 * @returns {Object} Prelude code, view function code, and static status
 	 */
 
-	function generateNodeIf(element, parent, index) {
+
+	function generateNodeIf(element, parent, index, staticNodes) {
 		var variable = "m" + generateVariable;
 		var prelude = "";
 		var emptyElseClause = true;
 		setGenerateVariable(generateVariable + 1); // Generate the initial `if` clause.
 
-		var generateIf = generateNode(element.children[0], element, 0);
-		prelude += "var " + variable + ";if(" + element.attributes[""] + "){" + generateIf.prelude + variable + "=" + generateIf.node + ";}"; // Search for `else-if` and `else` clauses if there are siblings.
+		prelude += "var " + variable + ";if(" + element.attributes[""] + "){" + generateClause(variable, element, staticNodes) + "}"; // Search for `else-if` and `else` clauses if there are siblings.
 
 		if (parent !== null) {
 			var siblings = parent.children;
@@ -577,15 +619,13 @@
 
 				if (sibling.type === "else-if") {
 					// Generate the `else-if` clause.
-					var generateElseIf = generateNode(sibling.children[0], sibling, 0);
-					prelude += "else if(" + sibling.attributes[""] + "){" + generateElseIf.prelude + variable + "=" + generateElseIf.node + ";}"; // Remove the `else-if` clause so that it isn't generated
+					prelude += "else if(" + sibling.attributes[""] + "){" + generateClause(variable, sibling, staticNodes) + "}"; // Remove the `else-if` clause so that it isn't generated
 					// individually by the parent.
 
 					siblings.splice(i, 1);
 				} else if (sibling.type === "else") {
 					// Generate the `else` clause.
-					var generateElse = generateNode(sibling.children[0], sibling, 0);
-					prelude += "else{" + generateElse.prelude + variable + "=" + generateElse.node + ";}"; // Skip generating the empty `else` clause.
+					prelude += "else{" + generateClause(variable, sibling, staticNodes) + "}"; // Skip generating the empty `else` clause.
 
 					emptyElseClause = false; // Remove the `else` clause so that it isn't generated
 					// individually by the parent.
@@ -599,23 +639,31 @@
 
 
 		if (emptyElseClause) {
-			prelude += "else{" + variable + "={type:" + types.text + ",name:\"text\",data:{\"\":\"\",children:[]}};}";
+			prelude += "else{" + variable + "=m[" + generateStatic + "];}";
+			staticNodes.push({
+				prelude: "",
+				node: "{type:" + types.text + ",name:\"text\",data:{\"\":\"\",children:[]}}",
+				isStatic: true
+			});
+			setGenerateStatic(generateStatic + 1);
 		}
 
 		return {
 			prelude: prelude,
-			node: variable
+			node: variable,
+			isStatic: false
 		};
 	}
 
 	/**
-	 * Generates view function code and prelude code for a `for` element.
+	 * Generates code for a node from a `for` element.
 	 *
 	 * @param {Object} element
-	 * @returns {Object} View function code and prelude code
+	 * @param {Array} staticNodes
+	 * @returns {Object} Prelude code, view function code, and static status
 	 */
 
-	function generateNodeFor(element) {
+	function generateNodeFor(element, staticNodes) {
 		var variable = "m" + generateVariable;
 		var dataLocals = element.attributes[""].split(",");
 		var dataArray = element.attributes["of"];
@@ -624,8 +672,18 @@
 		var dataValue;
 		var prelude;
 		setGenerateVariable(generateVariable + 1);
-		var generateChild = generateNode(element.children[0], element, 0);
-		var body = "" + generateChild.prelude + variable + ".push(" + generateChild.node + ");";
+		var generateChild = generateNode(element.children[0], element, 0, staticNodes);
+		var body;
+
+		if (generateChild.isStatic) {
+			// If the body is static, then use a static node in place of it.
+			body = variable + ".push(m[" + generateStatic + "]);";
+			staticNodes.push(generateChild);
+			setGenerateStatic(generateStatic + 1);
+		} else {
+			// If the body is dynamic, then use the dynamic node in the loop body.
+			body = "" + generateChild.prelude + variable + ".push(" + generateChild.node + ");";
+		}
 
 		if (dataArray === undefined) {
 			// Generate a `for` loop over an object. The first local is the key and
@@ -651,27 +709,30 @@
 
 		return {
 			prelude: "var " + variable + "=[];" + prelude,
-			node: "{type:" + types.element + ",name:\"span\",data:{children:" + variable + "}}"
+			node: "{type:" + types.element + ",name:\"span\",data:{children:" + variable + "}}",
+			isStatic: false
 		};
 	}
 
 	/**
-	 * Generates view function code for a Moon node from an element.
+	 * Generates code for a node from an element.
 	 *
 	 * @param {Object} element
 	 * @param {Object} parent
 	 * @param {number} index
-	 * @returns {Object} View function code and prelude code
+	 * @param {Array} staticNodes
+	 * @returns {Object} Prelude code, view function code, and static status
 	 */
 
-	function generateNode(element, parent, index) {
+	function generateNode(element, parent, index, staticNodes) {
 		var name = element.type;
-		var type; // Generate the correct type number for the given name.
+		var type;
+		var isStatic = true; // Generate the correct type number for the given name.
 
 		if (name === "if") {
-			return generateNodeIf(element, parent, index);
+			return generateNodeIf(element, parent, index, staticNodes);
 		} else if (name === "for") {
-			return generateNodeFor(element);
+			return generateNodeFor(element, staticNodes);
 		} else if (name === "text") {
 			type = types.text;
 		} else if (name[0] === name[0].toLowerCase()) {
@@ -686,20 +747,51 @@
 		var separator = "";
 
 		for (var attribute in attributes) {
-			data += separator + "\"" + attribute + "\":" + attributes[attribute];
+			var attributeValue = attributes[attribute]; // Mark the current node as dynamic if any attributes are dynamic. Events
+			// are always treated as static.
+
+			if (attribute[0] !== "@" && attributeValue[0] !== "\"" && attributeValue[0] !== "'") {
+				isStatic = false;
+			}
+
+			data += separator + "\"" + attribute + "\":" + attributeValue;
 			separator = ",";
 		}
 
 		if (attributes.children === undefined) {
 			// Generate children if they are not in the element data.
 			var children = element.children;
+			var generateChildren = [];
 			data += separator + "children:[";
 			separator = "";
 
 			for (var i = 0; i < children.length; i++) {
-				var generateChild = generateNode(children[i], element, i);
-				prelude += generateChild.prelude;
-				data += separator + generateChild.node;
+				var generateChild = generateNode(children[i], element, i, staticNodes); // Mark the current node as dynamic if any child is dynamic.
+
+				if (!generateChild.isStatic) {
+					isStatic = false;
+				}
+
+				generateChildren.push(generateChild);
+			}
+
+			for (var _i = 0; _i < generateChildren.length; _i++) {
+				var _generateChild = generateChildren[_i];
+
+				if (isStatic || !_generateChild.isStatic) {
+					// If the whole current node is static or the current node and
+					// child node are dynamic, then append the child as a part of the
+					// node as usual.
+					prelude += _generateChild.prelude;
+					data += separator + _generateChild.node;
+				} else {
+					// If the whole current node is dynamic and the child node is
+					// static, then use a static node in place of the static child.
+					data += separator + ("m[" + generateStatic + "]");
+					staticNodes.push(_generateChild);
+					setGenerateStatic(generateStatic + 1);
+				}
+
 				separator = ",";
 			}
 
@@ -708,7 +800,8 @@
 
 		return {
 			prelude: prelude,
-			node: "{type:" + type + ",name:\"" + name + "\",data:" + data + "}}"
+			node: "{type:" + type + ",name:\"" + name + "\",data:" + data + "}}",
+			isStatic: isStatic
 		};
 	}
 	/**
@@ -725,15 +818,36 @@
 	 */
 
 	function generate(element) {
-		// Reset generator variable.
-		setGenerateVariable(0); // Generate the root node and get the prelude and node code.
+		// Store static nodes.
+		var staticNodes = []; // Reset generator variable.
 
-		var _generateNode = generateNode(element, null, 0),
+		setGenerateVariable(0); // Hold a reference to the next static node.
+
+		var staticRoot = generateStatic; // Generate the root node and get the prelude and node code.
+
+		var _generateNode = generateNode(element, null, 0, staticNodes),
 				prelude = _generateNode.prelude,
-				node = _generateNode.node; // Convert the code into a usable function body.
+				node = _generateNode.node,
+				isStatic = _generateNode.isStatic;
 
+		if (isStatic) {
+			// Account for a static root node.
+			setGenerateStatic(generateStatic + 1);
+			return "if(m[" + staticRoot + "]===undefined){" + prelude + "m[" + staticRoot + "]=" + node + ";}return m[" + staticRoot + "];";
+		} else if (staticNodes.length === 0) {
+			return prelude + "return " + node + ";";
+		} else {
+			// Generate static nodes only once at the start.
+			var staticCode = "if(m[" + staticRoot + "]===undefined){";
 
-		return prelude + "return " + node + ";";
+			for (var i = 0; i < staticNodes.length; i++) {
+				var staticNode = staticNodes[i];
+				staticCode += staticNode.prelude + "m[" + (staticRoot + i) + "]=" + staticNode.node + ";";
+			}
+
+			staticCode += "}";
+			return "" + staticCode + prelude + "return " + node + ";";
+		}
 	}
 
 	function compile(input) {
@@ -754,6 +868,11 @@
 	 */
 
 	var components = {};
+	/**
+	 * Global static component views
+	 */
+
+	var m = [];
 	/**
 	 * Set old view to a new object.
 	 *
@@ -1233,19 +1352,25 @@
 		}
 
 		if (typeof view === "string") {
-			view = new Function("data", compile(view));
+			view = new Function("m", "data", compile(view));
 		} // If a `root` option is given, start the root renderer, or else just return
 		// the component.
 
 
 		var root = typeof options.root === "string" ? document.querySelector(options.root) : options.root;
-		delete options.root;
+		delete options.root; // Create a wrapper view function that maps data to the compiled view
+		// function. The compiled view function takes `m`, which holds static nodes.
+		// The data is also processed so that `options` acts as a default.
+
+		var viewComponent = function viewComponent(data) {
+			return view(m, defaultObject(data, options));
+		};
 
 		if (root === undefined) {
-			components[name] = function (data) {
-				return view(defaultObject(data, options));
-			};
+			// Store it as a component if no `root` is given.
+			components[name] = viewComponent;
 		} else {
+			// Mount to the `root` element and begin execution if it is given.
 			setViewOld({
 				type: types.element,
 				name: root.tagName.toLowerCase(),
@@ -1254,7 +1379,7 @@
 				},
 				node: root
 			});
-			setViewCurrent(view);
+			setViewCurrent(viewComponent);
 			execute(options);
 		}
 	}
