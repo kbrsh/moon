@@ -27,7 +27,7 @@ const expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_
 /**
  * List of global variables to ignore in expression scoping
  */
-const globals = ["NaN", "event", "false", "in", "null", "this", "true", "typeof", "undefined", "window"];
+const globals = ["NaN", "false", "in", "null", "this", "true", "typeof", "undefined", "window"];
 
 /**
  * Checks if a given character is a quote.
@@ -237,7 +237,7 @@ export function lex(input) {
 
 					// Add a wrapper function for events.
 					if (attributeKey[0] === "@") {
-						attributes[attributeKey] = `function(event){${attributes[attributeKey]}}`;
+						attributes[attributeKey] = `function($event){${attributes[attributeKey]}}`;
 					}
 				}
 			}

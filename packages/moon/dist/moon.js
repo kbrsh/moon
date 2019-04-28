@@ -91,7 +91,7 @@
 	 * List of global variables to ignore in expression scoping
 	 */
 
-	var globals = ["NaN", "event", "false", "in", "null", "this", "true", "typeof", "undefined", "window"];
+	var globals = ["NaN", "false", "in", "null", "this", "true", "typeof", "undefined", "window"];
 	/**
 	 * Checks if a given character is a quote.
 	 *
@@ -277,7 +277,7 @@
 						attributes[attributeKey] = attributeExpression === undefined ? attributeValue : scopeExpression(attributeExpression); // Add a wrapper function for events.
 
 						if (attributeKey[0] === "@") {
-							attributes[attributeKey] = "function(event){" + attributes[attributeKey] + "}";
+							attributes[attributeKey] = "function($event){" + attributes[attributeKey] + "}";
 						}
 					}
 				} // Append an opening tag token with the type, attributes, and optional
