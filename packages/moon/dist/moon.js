@@ -572,7 +572,7 @@
 		if (parent !== null) {
 			var siblings = parent.children;
 
-			for (var i = index + 1; i < siblings.length; i++) {
+			for (var i = index + 1; i < siblings.length;) {
 				var sibling = siblings[i];
 
 				if (sibling.type === "else-if") {
@@ -599,7 +599,7 @@
 
 
 		if (emptyElseClause) {
-			prelude += "else{" + variable + "={type:" + types.text + ",name:\"text\",data:{children:[]}};}";
+			prelude += "else{" + variable + "={type:" + types.text + ",name:\"text\",data:{\"\":\"\",children:[]}};}";
 		}
 
 		return {

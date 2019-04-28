@@ -26,7 +26,7 @@ export function generateNodeIf(element, parent, index) {
 	if (parent !== null) {
 		const siblings = parent.children;
 
-		for (let i = index + 1; i < siblings.length; i++) {
+		for (let i = index + 1; i < siblings.length;) {
 			const sibling = siblings[i];
 
 			if (sibling.type === "else-if") {
@@ -66,7 +66,7 @@ export function generateNodeIf(element, parent, index) {
 
 	// Generate an empty `else` clause represented by an empty text node.
 	if (emptyElseClause) {
-		prelude += `else{${variable}={type:${types.text},name:"text",data:{children:[]}};}`;
+		prelude += `else{${variable}={type:${types.text},name:"text",data:{"":"",children:[]}};}`;
 	}
 
 	return {
