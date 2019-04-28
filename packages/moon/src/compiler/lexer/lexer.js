@@ -232,7 +232,9 @@ export function lex(input) {
 					// expression.
 					attributes[attributeKey] =
 						attributeExpression === undefined ?
-							attributeValue :
+							attributeValue === undefined ?
+								"\"\"" :
+								attributeValue :
 							scopeExpression(attributeExpression);
 
 					// Add a wrapper function for events.

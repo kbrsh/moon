@@ -274,7 +274,7 @@
 					} else {
 						// Store the key/value pair using the matched value or
 						// expression.
-						attributes[attributeKey] = attributeExpression === undefined ? attributeValue : scopeExpression(attributeExpression); // Add a wrapper function for events.
+						attributes[attributeKey] = attributeExpression === undefined ? attributeValue === undefined ? "\"\"" : attributeValue : scopeExpression(attributeExpression); // Add a wrapper function for events.
 
 						if (attributeKey[0] === "@") {
 							attributes[attributeKey] = "function($event){" + attributes[attributeKey] + "}";
