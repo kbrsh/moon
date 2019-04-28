@@ -19,8 +19,6 @@ export function generateNode(element, parent, index) {
 		return generateNodeIf(element, parent, index);
 	} else if (name === "text") {
 		type = types.text;
-	} else if (name === "fragment") {
-		type = types.fragment;
 	} else if (name[0] === name[0].toLowerCase()) {
 		type = types.element;
 	} else {

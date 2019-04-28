@@ -19,8 +19,7 @@
 	var types = {
 		element: 0,
 		text: 1,
-		component: 2,
-		fragment: 3
+		component: 2
 	};
 	/**
 	 * Logs an error message to the console.
@@ -626,8 +625,6 @@
 			return generateNodeIf(element, parent, index);
 		} else if (name === "text") {
 			type = types.text;
-		} else if (name === "fragment") {
-			type = types.fragment;
 		} else if (name[0] === name[0].toLowerCase()) {
 			type = types.element;
 		} else {
@@ -779,26 +776,20 @@
 
 			nodeData[""] = textContent;
 		} else {
-			var _data = node.data;
+			var _data = node.data; // Create a DOM element.
 
-			if (nodeType === types.element) {
-				// Create a DOM element.
-				nodeNode = document.createElement(node.name); // Set data, events, and attributes.
+			nodeNode = document.createElement(node.name); // Set data, events, and attributes.
 
-				for (var key in _data) {
-					var value = _data[key];
+			for (var key in _data) {
+				var value = _data[key];
 
-					if (key[0] === "@") {
-						nodeData[key] = value;
-						nodeNode.addEventListener(key.slice(1), value);
-					} else if (key !== "children") {
-						nodeData[key] = value;
-						nodeNode.setAttribute(key, value);
-					}
+				if (key[0] === "@") {
+					nodeData[key] = value;
+					nodeNode.addEventListener(key.slice(1), value);
+				} else if (key !== "children") {
+					nodeData[key] = value;
+					nodeNode.setAttribute(key, value);
 				}
-			} else {
-				// Create a DOM fragment.
-				nodeNode = document.createDocumentFragment();
 			} // Recursively append children.
 
 
@@ -913,17 +904,13 @@
 				});
 			} else {
 				// If they both are normal elements, then set attributes and diff the
-				// children for appends, deletes, or recursive updates. This skips
-				// updating attributes for fragments.
-				if (nodeOld.type === types.element) {
-					patches.push({
-						type: patchTypes.setAttributes,
-						nodeOld: nodeOld,
-						nodeNew: nodeNew,
-						nodeParent: null
-					});
-				}
-
+				// children for appends, deletes, or recursive updates.
+				patches.push({
+					type: patchTypes.setAttributes,
+					nodeOld: nodeOld,
+					nodeNew: nodeNew,
+					nodeParent: null
+				});
 				var childrenOld = nodeOld.data.children;
 				var childrenNew = nodeNew.data.children;
 				var childrenOldLength = childrenOld.length;

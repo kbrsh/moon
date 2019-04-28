@@ -4,8 +4,7 @@
 export const types = {
 	element: 0,
 	text: 1,
-	component: 2,
-	fragment: 3
+	component: 2
 };
 
 /**

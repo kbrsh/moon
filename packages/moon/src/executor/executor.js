@@ -48,25 +48,20 @@ function executeCreate(node) {
 	} else {
 		const data = node.data;
 
-		if (nodeType === types.element) {
-			// Create a DOM element.
-			nodeNode = document.createElement(node.name);
+		// Create a DOM element.
+		nodeNode = document.createElement(node.name);
 
-			// Set data, events, and attributes.
-			for (let key in data) {
-				const value = data[key];
+		// Set data, events, and attributes.
+		for (let key in data) {
+			const value = data[key];
 
-				if (key[0] === "@") {
-					nodeData[key] = value;
-					nodeNode.addEventListener(key.slice(1), value);
-				} else if (key !== "children") {
-					nodeData[key] = value;
-					nodeNode.setAttribute(key, value);
-				}
+			if (key[0] === "@") {
+				nodeData[key] = value;
+				nodeNode.addEventListener(key.slice(1), value);
+			} else if (key !== "children") {
+				nodeData[key] = value;
+				nodeNode.setAttribute(key, value);
 			}
-		} else {
-			// Create a DOM fragment.
-			nodeNode = document.createDocumentFragment();
 		}
 
 		// Recursively append children.
@@ -185,16 +180,13 @@ function executeDiff(nodesOld, nodesNew, patches) {
 			});
 		} else {
 			// If they both are normal elements, then set attributes and diff the
-			// children for appends, deletes, or recursive updates. This skips
-			// updating attributes for fragments.
-			if (nodeOld.type === types.element) {
-				patches.push({
-					type: patchTypes.setAttributes,
-					nodeOld: nodeOld,
-					nodeNew: nodeNew,
-					nodeParent: null
-				});
-			}
+			// children for appends, deletes, or recursive updates.
+			patches.push({
+				type: patchTypes.setAttributes,
+				nodeOld: nodeOld,
+				nodeNew: nodeNew,
+				nodeParent: null
+			});
 
 			const childrenOld = nodeOld.data.children;
 			const childrenNew = nodeNew.data.children;
