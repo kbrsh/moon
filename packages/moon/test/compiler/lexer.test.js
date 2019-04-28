@@ -44,7 +44,11 @@ test("lex expression", () => {
 });
 
 test("lex attributes", () => {
-	expect(lex(`<div id="test-id" class='test-class' dynamic={true}>`)).toEqual([{"attributes": {"id": "\"test-id\"", "class": "'test-class'", dynamic: "true"}, "closed": false, "type": "tagOpen", "value": "div"}]);
+	expect(lex(`<div id="test-id" class='test-class' dynamic={true} self>`)).toEqual([{"attributes": {"id": "\"test-id\"", "class": "'test-class'", dynamic: "true", self: "\"\""}, "closed": false, "type": "tagOpen", "value": "div"}]);
+});
+
+test("lex events", () => {
+	expect(lex(`<div id="test-id" class='test-class' dynamic={true} self @event={doSomething()}>`)).toEqual([{"attributes": {"id": "\"test-id\"", "class": "'test-class'", dynamic: "true", "@event": "function($event){data.doSomething()}", self: "\"\""}, "closed": false, "type": "tagOpen", "value": "div"}]);
 });
 
 test("lex comments", () => {
