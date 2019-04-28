@@ -79,6 +79,18 @@ test("parse error from invalid view", () => {
 	expect(console.error).toBeCalled();
 });
 
+test("parse error from invalid children", () => {
+	console.error = jest.fn();
+
+	expect(parseTest(`
+		<div>
+			<h1>header</h1>
+			<p>unclosed
+		</div>
+	`).constructor.name).toBe("ParseError");
+	expect(console.error).toBeCalled();
+});
+
 test("parse error from empty element", () => {
 	console.error = jest.fn();
 
