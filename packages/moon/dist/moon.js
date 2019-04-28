@@ -835,7 +835,7 @@
 				if (key[0] === "@") {
 					nodeData[key] = value;
 					nodeNode.addEventListener(key.slice(1), value);
-				} else if (key !== "children") {
+				} else if (key !== "children" && value !== false) {
 					nodeData[key] = value;
 					nodeNode.setAttribute(key, value);
 				}
@@ -1057,7 +1057,12 @@
 
 							if (key[0] !== "@" && key !== "children") {
 								nodeOldData[key] = value;
-								nodeOldNode.setAttribute(key, value);
+
+								if (value === false) {
+									nodeOldNode.removeAttribute(key);
+								} else {
+									nodeOldNode.setAttribute(key, value);
+								}
 							}
 						}
 
