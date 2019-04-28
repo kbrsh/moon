@@ -15,6 +15,7 @@ export const components = {};
 
 /**
  * Set old view to a new object.
+ *
  * @param {Object} viewOld
  */
 export function setViewOld(viewOldNew) {
@@ -23,6 +24,7 @@ export function setViewOld(viewOldNew) {
 
 /**
  * Set new view to a new object.
+ *
  * @param {Object} viewOld
  */
 export function setViewNew(viewNewNew) {
@@ -31,6 +33,7 @@ export function setViewNew(viewNewNew) {
 
 /**
  * Set current view to a new function.
+ *
  * @param {Function} viewCurrentNew
  */
 export function setViewCurrent(viewCurrentNew) {

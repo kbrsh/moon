@@ -1,4 +1,9 @@
-import { error, isQuote } from "../../util/util";
+import { error } from "../../util/util";
+
+/**
+ * Capture whitespace-only text.
+ */
+const whitespaceRE = /^\s+$/;
 
 /**
  * Capture the tag name, attribute text, and closing slash from an opening tag.
@@ -23,6 +28,16 @@ const expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_
  * List of global variables to ignore in expression scoping
  */
 const globals = ["NaN", "event", "false", "in", "null", "this", "true", "typeof", "undefined", "window"];
+
+/**
+ * Checks if a given character is a quote.
+ *
+ * @param {string} char
+ * @returns {boolean} True if the character is a quote
+ */
+function isQuote(char) {
+	return char === "\"" || char === "'";
+}
 
 /**
  * Scope an expression to use variables within the `data` object.
@@ -277,15 +292,17 @@ export function lex(input) {
 			}
 
 			// Append the text as a `<text/>` element with the appropriate text
-			// content attribute.
-			tokens.push({
-				type: "tagOpen",
-				value: "text",
-				attributes: {
-					"": `"${text}"`
-				},
-				closed: true
-			});
+			// content attribute if it isn't only whitespace.
+			if (!whitespaceRE.test(text)) {
+				tokens.push({
+					type: "tagOpen",
+					value: "text",
+					attributes: {
+						"": `"${text}"`
+					},
+					closed: true
+				});
+			}
 		}
 	}
 

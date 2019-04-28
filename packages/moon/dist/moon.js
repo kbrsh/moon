@@ -23,16 +23,6 @@
 		fragment: 3
 	};
 	/**
-	 * Checks if a given character is a quote.
-	 *
-	 * @param {string} char
-	 * @returns {boolean} True if the character is a quote
-	 */
-
-	function isQuote(_char) {
-		return _char === "\"" || _char === "'";
-	}
-	/**
 	 * Logs an error message to the console.
 	 * @param {string} message
 	 */
@@ -75,6 +65,11 @@
 	}
 
 	/**
+	 * Capture whitespace-only text.
+	 */
+
+	var whitespaceRE = /^\s+$/;
+	/**
 	 * Capture the tag name, attribute text, and closing slash from an opening tag.
 	 */
 
@@ -99,10 +94,21 @@
 
 	var globals = ["NaN", "event", "false", "in", "null", "this", "true", "typeof", "undefined", "window"];
 	/**
+	 * Checks if a given character is a quote.
+	 *
+	 * @param {string} char
+	 * @returns {boolean} True if the character is a quote
+	 */
+
+	function isQuote(_char) {
+		return _char === "\"" || _char === "'";
+	}
+	/**
 	 * Scope an expression to use variables within the `data` object.
 	 *
 	 * @param {string} expression
 	 */
+
 
 	function scopeExpression(expression) {
 		return expression.replace(expressionRE, function (match, name) {
@@ -191,9 +197,9 @@
 		var tokens = [];
 
 		for (var i = 0; i < input.length;) {
-			var _char = input[i];
+			var _char2 = input[i];
 
-			if (_char === "<") {
+			if (_char2 === "<") {
 				var charNext = input[i + 1];
 
 				if ("development" === "development" && charNext === undefined) {
@@ -286,18 +292,18 @@
 					closed: closeSlash === "/"
 				});
 				i += typeMatch.length;
-			} else if (_char === "{") {
+			} else if (_char2 === "{") {
 				// If a sequence of characters begins with "{", process it as an
 				// expression token.
 				var expression = ""; // Consume the input until the end of the expression.
 
 				for (i += 1; i < input.length; i++) {
-					var _char2 = input[i];
+					var _char3 = input[i];
 
-					if (_char2 === "}") {
+					if (_char3 === "}") {
 						break;
 					} else {
-						expression += _char2;
+						expression += _char3;
 					}
 				} // Append the expression as a `<text/>` element with the appropriate
 				// text content attribute.
@@ -317,25 +323,27 @@
 				var text = ""; // Consume the input until the start of a new tag or expression.
 
 				for (; i < input.length; i++) {
-					var _char3 = input[i];
+					var _char4 = input[i];
 
-					if (_char3 === "<" || _char3 === "{") {
+					if (_char4 === "<" || _char4 === "{") {
 						break;
 					} else {
-						text += _char3;
+						text += _char4;
 					}
 				} // Append the text as a `<text/>` element with the appropriate text
-				// content attribute.
+				// content attribute if it isn't only whitespace.
 
 
-				tokens.push({
-					type: "tagOpen",
-					value: "text",
-					attributes: {
-						"": "\"" + text + "\""
-					},
-					closed: true
-				});
+				if (!whitespaceRE.test(text)) {
+					tokens.push({
+						type: "tagOpen",
+						value: "text",
+						attributes: {
+							"": "\"" + text + "\""
+						},
+						closed: true
+					});
+				}
 			}
 		}
 
@@ -531,23 +539,92 @@
 	}
 
 	/**
-	 * Generator
+	 * Global variable number
+	 */
+	var generateVariable;
+	/**
+	 * Set variable number to a new number.
 	 *
-	 * The generator is responsible for generating a function that creates a view.
-	 * A view could be represented as a normal set of recursive function calls, but
-	 * it uses lightweight objects to represent them instead. This allows the
-	 * executor to execute the function over multiple frames with its own
-	 * representation of the stack.
-	 *
-	 * @param {Object} element
-	 * @returns {string} View function code
+	 * @param {number} newGenerateVariable
 	 */
 
-	function generate(element) {
-		var name = element.type;
-		var type;
+	function setGenerateVariable(newGenerateVariable) {
+		generateVariable = newGenerateVariable;
+	}
 
-		if (name === "text") {
+	/**
+	 * Generates view function code and prelude code for an `if` element.
+	 *
+	 * @param {Object} element
+	 * @param {Object} parent
+	 * @param {number} index
+	 * @returns {Object} View function code and prelude code
+	 */
+
+	function generateNodeIf(element, parent, index) {
+		var variable = "m" + generateVariable;
+		var prelude = "";
+		var emptyElseClause = true;
+		setGenerateVariable(generateVariable + 1); // Generate the initial `if` clause.
+
+		var generateIf = generateNode(element.children[0], element, 0);
+		prelude += "var " + variable + ";if(" + element.attributes[""] + "){" + generateIf.prelude + variable + "=" + generateIf.node + ";}"; // Search for `else-if` and `else` clauses if there are siblings.
+
+		if (parent !== null) {
+			var siblings = parent.children;
+
+			for (var i = index + 1; i < siblings.length; i++) {
+				var sibling = siblings[i];
+
+				if (sibling.type === "else-if") {
+					// Generate the `else-if` clause.
+					var generateElseIf = generateNode(sibling.children[0], sibling, 0);
+					prelude += "else if(" + sibling.attributes[""] + "){" + generateElseIf.prelude + variable + "=" + generateElseIf.node + ";}"; // Remove the `else-if` clause so that it isn't generated
+					// individually by the parent.
+
+					siblings.splice(i, 1);
+				} else if (sibling.type === "else") {
+					// Generate the `else` clause.
+					var generateElse = generateNode(sibling.children[0], sibling, 0);
+					prelude += "else{" + generateElse.prelude + variable + "=" + generateElse.node + ";}"; // Skip generating the empty `else` clause.
+
+					emptyElseClause = false; // Remove the `else` clause so that it isn't generated
+					// individually by the parent.
+
+					siblings.splice(i, 1);
+				} else {
+					break;
+				}
+			}
+		} // Generate an empty `else` clause represented by an empty text node.
+
+
+		if (emptyElseClause) {
+			prelude += "else{" + variable + "={type:" + types.text + ",name:\"text\",data:{children:[]}};}";
+		}
+
+		return {
+			prelude: prelude,
+			node: variable
+		};
+	}
+
+	/**
+	 * Generates view function code for a Moon node from an element.
+	 *
+	 * @param {Object} element
+	 * @param {Object} parent
+	 * @param {number} index
+	 * @returns {Object} View function code and prelude code
+	 */
+
+	function generateNode(element, parent, index) {
+		var name = element.type;
+		var type; // Generate the correct type number for the given name.
+
+		if (name === "if") {
+			return generateNodeIf(element, parent, index);
+		} else if (name === "text") {
 			type = types.text;
 		} else if (name === "fragment") {
 			type = types.fragment;
@@ -558,6 +635,7 @@
 		}
 
 		var attributes = element.attributes;
+		var prelude = "";
 		var data = "{";
 		var separator = "";
 
@@ -573,14 +651,43 @@
 			separator = "";
 
 			for (var i = 0; i < children.length; i++) {
-				data += separator + generate(children[i]);
+				var childNode = generateNode(children[i], element, i);
+				prelude += childNode.prelude;
+				data += separator + childNode.node;
 				separator = ",";
 			}
 
 			data += "]";
 		}
 
-		return "{type:" + type + ",name:\"" + name + "\",data:" + data + "}}";
+		return {
+			prelude: prelude,
+			node: "{type:" + type + ",name:\"" + name + "\",data:" + data + "}}"
+		};
+	}
+	/**
+	 * Generator
+	 *
+	 * The generator is responsible for generating a function that creates a view.
+	 * A view could be represented as a normal set of recursive function calls, but
+	 * it uses lightweight objects to represent them instead. This allows the
+	 * executor to execute the function over multiple frames with its own
+	 * representation of the stack.
+	 *
+	 * @param {Object} element
+	 * @returns {string} View function code
+	 */
+
+	function generate(element) {
+		// Reset generator variable.
+		setGenerateVariable(0); // Generate the root node and get the prelude and node code.
+
+		var _generateNode = generateNode(element, null, 0),
+				prelude = _generateNode.prelude,
+				node = _generateNode.node; // Convert the code into a usable function body.
+
+
+		return prelude + "return " + node + ";";
 	}
 
 	function compile(input) {
@@ -603,6 +710,7 @@
 	var components = {};
 	/**
 	 * Set old view to a new object.
+	 *
 	 * @param {Object} viewOld
 	 */
 
@@ -611,6 +719,7 @@
 	}
 	/**
 	 * Set new view to a new object.
+	 *
 	 * @param {Object} viewOld
 	 */
 
@@ -619,6 +728,7 @@
 	}
 	/**
 	 * Set current view to a new function.
+	 *
 	 * @param {Function} viewCurrentNew
 	 */
 
@@ -1082,7 +1192,7 @@
 		}
 
 		if (typeof view === "string") {
-			view = new Function("data", "return " + compile(view));
+			view = new Function("data", compile(view));
 		} // If a `root` option is given, start the root renderer, or else just return
 		// the component.
 
