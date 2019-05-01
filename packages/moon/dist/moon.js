@@ -930,56 +930,43 @@
 	 */
 
 	function executeCreate(node) {
-		var nodeType = node.type;
-		var nodeName = node.name;
-		var nodeData = {};
-		var nodeChildren = [];
-		var nodeNode;
+		var element;
+		var children = [];
 
-		if (nodeType === types.text) {
-			// Get text content using the default data key.
-			var textContent = node.data[""]; // Create a text node using the text content.
-
-			nodeNode = document.createTextNode(textContent); // Set only the default data key.
-
-			nodeData[""] = textContent;
+		if (node.type === types.text) {
+			// Create a text node using the text content from the default key.
+			element = document.createTextNode(node.data[""]);
 		} else {
-			var _data = node.data; // Create a DOM element.
+			var nodeData = node.data; // Create a DOM element.
 
-			nodeNode = document.createElement(node.name); // Set data, events, and attributes.
+			element = document.createElement(node.name); // Set data, events, and attributes.
 
-			for (var key in _data) {
-				var value = _data[key];
+			for (var key in nodeData) {
+				var value = nodeData[key];
 
 				if (key[0] === "@") {
-					nodeData[key] = value;
-					nodeNode.addEventListener(key.slice(1), value);
+					element.addEventListener(key.slice(1), value);
 				} else if (key !== "children" && value !== false) {
-					nodeData[key] = value;
-					nodeNode.setAttribute(key, value);
+					element.setAttribute(key, value);
 				}
 			} // Recursively append children.
 
 
-			var children = _data.children;
+			var nodeDataChildren = nodeData.children;
 
-			for (var i = 0; i < children.length; i++) {
-				var child = executeCreate(children[i]);
-				nodeChildren.push(child);
-				nodeNode.appendChild(child.node);
+			for (var i = 0; i < nodeDataChildren.length; i++) {
+				var childOld = executeCreate(nodeDataChildren[i]);
+				element.appendChild(childOld.element);
+				children.push(childOld);
 			}
-		} // Set the children of the new old node.
+		} // Return an old node with a reference to the immutable node and mutable
+		// element. This is to help performance and allow static nodes to be reused.
 
-
-		nodeData.children = nodeChildren; // Return a new node with copied properties of the original node. This is to
-		// prevent bugs from hoisting. When the new nodes are compared to the old
-		// ones, the old ones are modified, and the new ones are immutable.
 
 		return {
-			type: nodeType,
-			name: nodeName,
-			data: nodeData,
-			node: nodeNode
+			element: element,
+			node: node,
+			children: children
 		};
 	}
 	/**
@@ -1006,9 +993,6 @@
 				} else {
 					parent.data.children[index] = node;
 				}
-			} else if (parent === null) {
-				// If there is no parent, set the root new view to the current node.
-				setViewNew(node);
 			} // Execute the views of the children.
 
 
@@ -1048,79 +1032,79 @@
 	function executeDiff(nodesOld, nodesNew, patches) {
 		while (true) {
 			var nodeOld = nodesOld.pop();
-			var nodeNew = nodesNew.pop();
+			var nodeNew = nodesNew.pop(); // If they have the same reference (hoisted) then skip diffing.
 
-			if (nodeOld === nodeNew) {
-				// If they have the same reference (hoisted) then skip diffing.
-				continue;
-			} else if (nodeOld.name !== nodeNew.name) {
-				// If they have different names, then replace the old node with the
-				// new one.
-				patches.push({
-					type: patchTypes.replaceElement,
-					nodeOld: nodeOld,
-					nodeNew: nodeNew,
-					nodeParent: null
-				});
-			} else if (nodeOld.type === types.text) {
-				// If they both are text, then update the text content.
-				patches.push({
-					type: patchTypes.updateText,
-					nodeOld: nodeOld,
-					nodeNew: nodeNew,
-					parent: null
-				});
-			} else {
-				// If they both are normal elements, then set attributes and diff the
-				// children for appends, deletes, or recursive updates.
-				patches.push({
-					type: patchTypes.setAttributes,
-					nodeOld: nodeOld,
-					nodeNew: nodeNew,
-					nodeParent: null
-				});
-				var childrenOld = nodeOld.data.children;
-				var childrenNew = nodeNew.data.children;
-				var childrenOldLength = childrenOld.length;
-				var childrenNewLength = childrenNew.length;
-
-				if (childrenOldLength === childrenNewLength) {
-					// If the children have the same length then update both as usual.
-					for (var i = 0; i < childrenOldLength; i++) {
-						nodesOld.push(childrenOld[i]);
-						nodesNew.push(childrenNew[i]);
-					}
-				} else if (childrenOldLength > childrenNewLength) {
-					// If there are more old children than new children, update the
-					// corresponding ones and remove the extra old children.
-					for (var _i = 0; _i < childrenNewLength; _i++) {
-						nodesOld.push(childrenOld[_i]);
-						nodesNew.push(childrenNew[_i]);
-					}
-
-					for (var _i2 = childrenNewLength; _i2 < childrenOldLength; _i2++) {
-						patches.push({
-							type: patchTypes.removeElement,
-							nodeOld: childrenOld[_i2],
-							nodeNew: null,
-							nodeParent: nodeOld
-						});
-					}
+			if (nodeOld.node !== nodeNew) {
+				if (nodeOld.node.name !== nodeNew.name) {
+					// If they have different names, then replace the old node with the
+					// new one.
+					patches.push({
+						type: patchTypes.replaceElement,
+						nodeOld: nodeOld,
+						nodeNew: nodeNew,
+						nodeParent: null
+					});
+				} else if (nodeOld.node.type === types.text) {
+					// If they both are text, then update the text content.
+					patches.push({
+						type: patchTypes.updateText,
+						nodeOld: nodeOld,
+						nodeNew: nodeNew,
+						nodeParent: null
+					});
 				} else {
-					// If there are more new children than old children, update the
-					// corresponding ones and append the extra new children.
-					for (var _i3 = 0; _i3 < childrenOldLength; _i3++) {
-						nodesOld.push(childrenOld[_i3]);
-						nodesNew.push(childrenNew[_i3]);
-					}
+					// If they both are normal elements, then set attributes and diff
+					// the children for appends, deletes, or recursive updates.
+					patches.push({
+						type: patchTypes.setAttributes,
+						nodeOld: nodeOld,
+						nodeNew: nodeNew,
+						nodeParent: null
+					});
+					var childrenOld = nodeOld.children;
+					var childrenNew = nodeNew.data.children;
+					var childrenOldLength = childrenOld.length;
+					var childrenNewLength = childrenNew.length;
 
-					for (var _i4 = childrenOldLength; _i4 < childrenNewLength; _i4++) {
-						patches.push({
-							type: patchTypes.appendElement,
-							nodeOld: null,
-							nodeNew: childrenNew[_i4],
-							nodeParent: nodeOld
-						});
+					if (childrenOldLength === childrenNewLength) {
+						// If the children have the same length then update both as
+						// usual.
+						for (var i = 0; i < childrenOldLength; i++) {
+							nodesOld.push(childrenOld[i]);
+							nodesNew.push(childrenNew[i]);
+						}
+					} else if (childrenOldLength > childrenNewLength) {
+						// If there are more old children than new children, update the
+						// corresponding ones and remove the extra old children.
+						for (var _i = 0; _i < childrenNewLength; _i++) {
+							nodesOld.push(childrenOld[_i]);
+							nodesNew.push(childrenNew[_i]);
+						}
+
+						for (var _i2 = childrenNewLength; _i2 < childrenOldLength; _i2++) {
+							patches.push({
+								type: patchTypes.removeElement,
+								nodeOld: childrenOld[_i2],
+								nodeNew: null,
+								nodeParent: nodeOld
+							});
+						}
+					} else {
+						// If there are more new children than old children, update the
+						// corresponding ones and append the extra new children.
+						for (var _i3 = 0; _i3 < childrenOldLength; _i3++) {
+							nodesOld.push(childrenOld[_i3]);
+							nodesNew.push(childrenNew[_i3]);
+						}
+
+						for (var _i4 = childrenOldLength; _i4 < childrenNewLength; _i4++) {
+							patches.push({
+								type: patchTypes.appendElement,
+								nodeOld: null,
+								nodeNew: childrenNew[_i4],
+								nodeParent: nodeOld
+							});
+						}
 					}
 				}
 			}
@@ -1156,9 +1140,9 @@
 					{
 						// Update text of a node with new text.
 						var nodeOld = patch.nodeOld;
-						var nodeNewText = patch.nodeNew.data[""];
-						nodeOld.data[""] = nodeNewText;
-						nodeOld.node.textContent = nodeNewText;
+						var nodeNew = patch.nodeNew;
+						nodeOld.element.textContent = nodeNew.data[""];
+						nodeOld.node = nodeNew;
 						break;
 					}
 
@@ -1166,37 +1150,35 @@
 					{
 						// Set attributes of a node with new data.
 						var _nodeOld = patch.nodeOld;
-						var nodeOldData = _nodeOld.data;
-						var nodeOldNode = _nodeOld.node;
-						var nodeNewData = patch.nodeNew.data; // Mutate the old node with the new node's data and set attributes
-						// and events on the DOM node.
+						var nodeOldElement = _nodeOld.element;
+						var _nodeNew = patch.nodeNew;
+						var nodeNewData = _nodeNew.data; // Set attributes on the DOM element.
 
 						for (var key in nodeNewData) {
-							var value = nodeNewData[key];
+							var value = nodeNewData[key]; // Ignore updating events and children.
 
 							if (key[0] !== "@" && key !== "children") {
-								nodeOldData[key] = value;
-
+								// Remove the attribute if the value is false, and update it
+								// otherwise.
 								if (value === false) {
-									nodeOldNode.removeAttribute(key);
+									nodeOldElement.removeAttribute(key);
 								} else {
-									nodeOldNode.setAttribute(key, value);
+									nodeOldElement.setAttribute(key, value);
 								}
 							}
 						}
 
+						_nodeOld.node = _nodeNew;
 						break;
 					}
 
 				case patchTypes.appendElement:
 					{
-						// Append a node. Creates a new old node because the old node must
-						// be mutable while the new nodes are mutable.
-						var nodeNew = patch.nodeNew;
+						// Append a node to the parent.
 						var nodeParent = patch.nodeParent;
-						var nodeOldNew = executeCreate(nodeNew);
-						nodeParent.data.children.push(nodeOldNew);
-						nodeParent.node.appendChild(nodeOldNew.node);
+						var nodeOldNew = executeCreate(patch.nodeNew);
+						nodeParent.element.appendChild(nodeOldNew.element);
+						nodeParent.children.push(nodeOldNew);
 						break;
 					}
 
@@ -1209,9 +1191,7 @@
 						// efficient than removing at a specific index, especially because
 						// they are equivalent in this case.
 
-						_nodeParent.data.children.pop();
-
-						_nodeParent.node.removeChild(patch.nodeOld.node);
+						_nodeParent.element.removeChild(_nodeParent.children.pop().element);
 
 						break;
 					}
@@ -1220,21 +1200,18 @@
 					{
 						// Replaces an old node with a new node.
 						var _nodeOld2 = patch.nodeOld;
-						var _nodeNew = patch.nodeNew;
+						var _nodeOldElement = _nodeOld2.element;
+						var _nodeNew2 = patch.nodeNew;
 
-						var _nodeOldNew = executeCreate(_nodeNew);
+						var _nodeOldNew = executeCreate(_nodeNew2);
 
-						var _nodeOldNode = _nodeOld2.node; // Mutate the old node with the copied data from creating the new
-						// old node, replacing the old DOM node reference.
+						var nodeOldNewElement = _nodeOldNew.element;
 
-						_nodeOld2.type = _nodeOldNew.type;
-						_nodeOld2.name = _nodeOldNew.name;
-						_nodeOld2.data = _nodeOldNew.data;
-						_nodeOld2.node = _nodeOldNew.node; // Replace the old node using the reference created before updating
-						// the old node.
+						_nodeOldElement.parentNode.replaceChild(nodeOldNewElement, _nodeOldElement);
 
-						_nodeOldNode.parentNode.replaceChild(_nodeOld2.node, _nodeOldNode);
-
+						_nodeOld2.element = nodeOldNewElement;
+						_nodeOld2.node = _nodeOldNew.node;
+						_nodeOld2.children = _nodeOldNew.children;
 						break;
 					}
 			}
@@ -1270,7 +1247,9 @@
 		} // Begin executing the view.
 
 
-		executeView([viewCurrent(data)], [null], [0]);
+		var viewNew = viewCurrent(data);
+		setViewNew(viewNew);
+		executeView([viewNew], [null], [0]);
 	}
 	/**
 	 * Executor
@@ -1372,12 +1351,15 @@
 		} else {
 			// Mount to the `root` element and begin execution if it is given.
 			setViewOld({
-				type: types.element,
-				name: root.tagName.toLowerCase(),
-				data: {
-					children: []
+				element: root,
+				node: {
+					type: types.element,
+					name: root.tagName.toLowerCase(),
+					data: {
+						children: []
+					}
 				},
-				node: root
+				children: []
 			});
 			setViewCurrent(viewComponent);
 			execute(options);

@@ -69,12 +69,15 @@ export default function Moon(options) {
 	} else {
 		// Mount to the `root` element and begin execution if it is given.
 		setViewOld({
-			type: types.element,
-			name: root.tagName.toLowerCase(),
-			data: {
-				children: []
+			element: root,
+			node: {
+				type: types.element,
+				name: root.tagName.toLowerCase(),
+				data: {
+					children: []
+				}
 			},
-			node: root
+			children: []
 		});
 		setViewCurrent(viewComponent);
 		execute(options);
