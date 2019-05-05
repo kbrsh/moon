@@ -1,9 +1,3 @@
-module.exports.registerJS = (component) => {
-	return () => {
-		component.destroy();
-	};
-};
-
 module.exports.registerCSS = (code) => {
 	const head = document.querySelector("head");
 	const style = document.createElement("style");

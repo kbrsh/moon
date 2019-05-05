@@ -19,13 +19,15 @@ module.exports = (name, input, hot) => {
 		return prefix + suffix;
 	});
 
-	let tree = Moon.parse(input);
+	const tree = Moon.parse(input);
 	let outputJS;
 	let outputCSS = null;
 
 	if (inputCSS !== null) {
-		const scope = `moon-${name}-${slash(name)}`;
-		tree = addClass(tree, scope);
+		const scope = `moon-${slash(name)}`;
+
+		addClass(tree, scope);
+
 		outputCSS = scopeCSS(scope, inputCSS);
 	}
 
@@ -35,31 +37,17 @@ module.exports = (name, input, hot) => {
 		outputJS = inputJS.replace("export default", "const _moonOptions=");
 	}
 
-	outputJS = `import Moon from "moon";${outputJS}_moonOptions.view=function(m,instance,locals){${Moon.generate(tree, null)}};export default Moon.extend("${name}",_moonOptions);`;
+	outputJS = `import Moon from "moon";${outputJS}_moonOptions.name="${name}";_moonOptions.view=function(m,data){${Moon.generate(tree)}};Moon(_moonOptions);`;
 
 	if (hot) {
 		outputJS = `
-			import { registerJS, registerCSS } from "moon-mvl/lib/hot";
-			const _moonRemoveJS = [];
-			const _moonRemoveCSS = registerCSS(\`${outputCSS}\`);
-			${
-				outputJS.replace("export default", `
-					const _moonOnCreate = _moonOptions.onCreate;
-					_moonOptions.onCreate = function() {
-						_moonRemoveJS.push(registerJS(this));
+			import { registerCSS } from "moon-mvl/lib/hot";
 
-						if (_moonOnCreate !== undefined) {
-							_moonOnCreate(this, []);
-						}
-					};
-					$&
-				`)
-			}
+			const _moonRemoveCSS = registerCSS(\`${outputCSS}\`);
+
 			if (module.hot) {
 				module.hot.dispose(() => {
-					for (let i = 0; i < _moonRemoveJS.length; i++) {
-						_moonRemoveJS[i]();
-					}
+					Moon.set({});
 
 					_moonRemoveCSS();
 				});
