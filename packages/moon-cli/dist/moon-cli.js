@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /**
  * Moon CLI v1.0.0-beta.2
  * Copyright 2016-2019 Kabir Shah
