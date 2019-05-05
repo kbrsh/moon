@@ -27,7 +27,6 @@
         "no-ex-assign": 2,
         "no-extra-boolean-cast": 2,
         "no-extra-semi": 2,
-        "no-fallthrough": 2,
         "no-func-assign": 2,
         "no-global-assign": 2,
         "no-inner-declarations": 2,

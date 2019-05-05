@@ -1,11 +1,11 @@
-const Moon = require("moon");
-const slash = require("./slash");
-const { addClass, scopeCSS } = require("./css");
+import Moon from "moon";
+import slash from "./slash";
+import { addClass, scopeCSS } from "./css";
 
 const scriptRE = /((?:.|\n)*?)<script>((?:.|\n)*)<\/script>((?:.|\n)*)/;
 const styleRE = /((?:.|\n)*?)<style>((?:.|\n)*)<\/style>((?:.|\n)*)/;
 
-module.exports = (name, input, hot) => {
+export default (name, input, hot) => {
 	let inputJS = null;
 	let inputCSS = null;
 

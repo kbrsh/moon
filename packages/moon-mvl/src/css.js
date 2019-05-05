@@ -1,7 +1,7 @@
 const cssRE = /([^,:{}]+)(,|:[^,:{}+]+|{[^{}]+})/g;
 const trailingWhitespaceRE = /\s*$/;
 
-module.exports.addClass = (element, name) => {
+export function addClass(element, name) {
 	const attributes = element.attributes;
 	const children = element.children;
 
@@ -18,9 +18,10 @@ module.exports.addClass = (element, name) => {
 	for (let i = 0; i < children.length; i++) {
 		module.exports.addClass(children[i], name);
 	}
-};
+}
 
-module.exports.scopeCSS = (scope, css) =>
-	css.replace(cssRE, (match, selector, rule) =>
+export function scopeCSS(scope, css) {
+	return css.replace(cssRE, (match, selector, rule) =>
 		selector.replace(trailingWhitespaceRE, "") + "." + scope + rule
 	);
+}

@@ -1,4 +1,4 @@
-module.exports.registerCSS = (code) => {
+export function registerCSS(code) {
 	const head = document.querySelector("head");
 	const style = document.createElement("style");
 	style.appendChild(document.createTextNode(code));
@@ -7,4 +7,4 @@ module.exports.registerCSS = (code) => {
 	return () => {
 		head.removeChild(style);
 	};
-};
+}
