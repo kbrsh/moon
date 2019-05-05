@@ -16,7 +16,7 @@ export function addClass(element, name) {
 	}
 
 	for (let i = 0; i < children.length; i++) {
-		module.exports.addClass(children[i], name);
+		addClass(children[i], name);
 	}
 }
 

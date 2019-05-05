@@ -20,7 +20,7 @@ module.exports = (name, input, hot) => {
 		return prefix + suffix;
 	});
 
-	const tree = Moon.parse(input);
+	const tree = Moon.parse(Moon.lex(input));
 	let outputJS;
 	let outputCSS = null;
 

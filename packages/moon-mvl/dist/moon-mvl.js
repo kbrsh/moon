@@ -84,7 +84,7 @@ function addClass(element, name) {
 	}
 
 	for (var i = 0; i < children.length; i++) {
-		module.exports.addClass(children[i], name);
+		addClass(children[i], name);
 	}
 }
 function scopeCSS(scope, css) {
@@ -109,7 +109,7 @@ module.exports = function (name, input, hot) {
 		inputCSS = style;
 		return prefix + suffix;
 	});
-	var tree = Moon.parse(input);
+	var tree = Moon.parse(Moon.lex(input));
 	var outputJS;
 	var outputCSS = null;
 
