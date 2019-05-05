@@ -1,6 +1,6 @@
 import { generateNode } from "../generator";
 import { types } from "../../../util/util";
-import { generateStatic, generateVariable, setGenerateStatic, setGenerateVariable } from "../util/globals";
+import { generateVariable, setGenerateVariable } from "../util/globals";
 
 /**
  * Generates code for an `if`/`else-if`/`else` clause body.
@@ -16,10 +16,9 @@ function generateClause(variable, element, staticNodes) {
 
 	if (generateBody.isStatic) {
 		// If the clause is static, then use a static node in place of it.
-		clause = `${variable}=m[${generateStatic}];`;
+		clause = `${variable}=m[${staticNodes.length}];`;
 
 		staticNodes.push(generateBody);
-		setGenerateStatic(generateStatic + 1);
 	} else {
 		// If the clause is dynamic, then use the dynamic node.
 		clause = `${generateBody.prelude}${variable}=${generateBody.node};`;
@@ -79,14 +78,13 @@ export function generateNodeIf(element, parent, index, staticNodes) {
 
 	// Generate an empty `else` clause represented by an empty text node.
 	if (emptyElseClause) {
-		prelude += `else{${variable}=m[${generateStatic}];}`;
+		prelude += `else{${variable}=m[${staticNodes.length}];}`;
 
 		staticNodes.push({
 			prelude: "",
 			node: `{type:${types.text},name:"text",data:{"":"",children:[]}}`,
 			isStatic: true
 		});
-		setGenerateStatic(generateStatic + 1);
 	}
 
 	return {

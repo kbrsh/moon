@@ -58,10 +58,13 @@ export default function Moon(options) {
 
 	delete options.root;
 
+	// Create a list of static nodes for the view function.
+	m[name] = [];
+
 	// Create a wrapper view function that maps data to the compiled view
 	// function. The compiled view function takes `m`, which holds static nodes.
 	// The data is also processed so that `options` acts as a default.
-	const viewComponent = (data) => view(m, defaultObject(data, options));
+	const viewComponent = (data) => view(m[name], defaultObject(data, options));
 
 	if (root === undefined) {
 		// Store it as a component if no `root` is given.

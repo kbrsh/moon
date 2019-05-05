@@ -1,6 +1,6 @@
 import { generateNodeIf } from "./components/if";
 import { generateNodeFor } from "./components/for";
-import { generateStatic, setGenerateStatic, setGenerateVariable } from "./util/globals";
+import { setGenerateVariable } from "./util/globals";
 import { types } from "../../util/util";
 
 /**
@@ -88,10 +88,9 @@ export function generateNode(element, parent, index, staticNodes) {
 			} else {
 				// If the whole current node is dynamic and the child node is
 				// static, then use a static node in place of the static child.
-				data += separator + `m[${generateStatic}]`;
+				data += separator + `m[${staticNodes.length}]`;
 
 				staticNodes.push(generateChild);
-				setGenerateStatic(generateStatic + 1);
 			}
 
 			separator = ",";
@@ -126,9 +125,6 @@ export function generate(element) {
 	// Reset generator variable.
 	setGenerateVariable(0);
 
-	// Hold a reference to the next static node.
-	const staticRoot = generateStatic;
-
 	// Generate the root node and get the prelude and node code.
 	const { prelude, node, isStatic } = generateNode(
 		element,
@@ -139,19 +135,17 @@ export function generate(element) {
 
 	if (isStatic) {
 		// Account for a static root node.
-		setGenerateStatic(generateStatic + 1);
-
-		return `if(m[${staticRoot}]===undefined){${prelude}m[${staticRoot}]=${node};}return m[${staticRoot}];`;
+		return `if(m[0]===undefined){${prelude}m[0]=${node};}return m[0];`;
 	} else if (staticNodes.length === 0) {
 		return `${prelude}return ${node};`;
 	} else {
 		// Generate static nodes only once at the start.
-		let staticCode = `if(m[${staticRoot}]===undefined){`;
+		let staticCode = `if(m[0]===undefined){`;
 
 		for (let i = 0; i < staticNodes.length; i++) {
 			const staticNode = staticNodes[i];
 
-			staticCode += `${staticNode.prelude}m[${staticRoot + i}]=${staticNode.node};`;
+			staticCode += `${staticNode.prelude}m[${i}]=${staticNode.node};`;
 		}
 
 		staticCode += "}";

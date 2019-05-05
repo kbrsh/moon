@@ -544,11 +544,6 @@
 	 */
 	var generateVariable;
 	/**
-	 * Global static variable number
-	 */
-
-	var generateStatic = 0;
-	/**
 	 * Set variable number to a new number.
 	 *
 	 * @param {number} newGenerateVariable
@@ -556,15 +551,6 @@
 
 	function setGenerateVariable(newGenerateVariable) {
 		generateVariable = newGenerateVariable;
-	}
-	/**
-	 * Set static variable number to a new number.
-	 *
-	 * @param {number} newGenerateStatic
-	 */
-
-	function setGenerateStatic(newGenerateStatic) {
-		generateStatic = newGenerateStatic;
 	}
 
 	/**
@@ -582,9 +568,8 @@
 
 		if (generateBody.isStatic) {
 			// If the clause is static, then use a static node in place of it.
-			clause = variable + "=m[" + generateStatic + "];";
+			clause = variable + "=m[" + staticNodes.length + "];";
 			staticNodes.push(generateBody);
-			setGenerateStatic(generateStatic + 1);
 		} else {
 			// If the clause is dynamic, then use the dynamic node.
 			clause = "" + generateBody.prelude + variable + "=" + generateBody.node + ";";
@@ -639,13 +624,12 @@
 
 
 		if (emptyElseClause) {
-			prelude += "else{" + variable + "=m[" + generateStatic + "];}";
+			prelude += "else{" + variable + "=m[" + staticNodes.length + "];}";
 			staticNodes.push({
 				prelude: "",
 				node: "{type:" + types.text + ",name:\"text\",data:{\"\":\"\",children:[]}}",
 				isStatic: true
 			});
-			setGenerateStatic(generateStatic + 1);
 		}
 
 		return {
@@ -677,9 +661,8 @@
 
 		if (generateChild.isStatic) {
 			// If the body is static, then use a static node in place of it.
-			body = variable + ".push(m[" + generateStatic + "]);";
+			body = variable + ".push(m[" + staticNodes.length + "]);";
 			staticNodes.push(generateChild);
-			setGenerateStatic(generateStatic + 1);
 		} else {
 			// If the body is dynamic, then use the dynamic node in the loop body.
 			body = "" + generateChild.prelude + variable + ".push(" + generateChild.node + ");";
@@ -787,9 +770,8 @@
 				} else {
 					// If the whole current node is dynamic and the child node is
 					// static, then use a static node in place of the static child.
-					data += separator + ("m[" + generateStatic + "]");
+					data += separator + ("m[" + staticNodes.length + "]");
 					staticNodes.push(_generateChild);
-					setGenerateStatic(generateStatic + 1);
 				}
 
 				separator = ",";
@@ -821,9 +803,7 @@
 		// Store static nodes.
 		var staticNodes = []; // Reset generator variable.
 
-		setGenerateVariable(0); // Hold a reference to the next static node.
-
-		var staticRoot = generateStatic; // Generate the root node and get the prelude and node code.
+		setGenerateVariable(0); // Generate the root node and get the prelude and node code.
 
 		var _generateNode = generateNode(element, null, 0, staticNodes),
 				prelude = _generateNode.prelude,
@@ -832,17 +812,16 @@
 
 		if (isStatic) {
 			// Account for a static root node.
-			setGenerateStatic(generateStatic + 1);
-			return "if(m[" + staticRoot + "]===undefined){" + prelude + "m[" + staticRoot + "]=" + node + ";}return m[" + staticRoot + "];";
+			return "if(m[0]===undefined){" + prelude + "m[0]=" + node + ";}return m[0];";
 		} else if (staticNodes.length === 0) {
 			return prelude + "return " + node + ";";
 		} else {
 			// Generate static nodes only once at the start.
-			var staticCode = "if(m[" + staticRoot + "]===undefined){";
+			var staticCode = "if(m[0]===undefined){";
 
 			for (var i = 0; i < staticNodes.length; i++) {
 				var staticNode = staticNodes[i];
-				staticCode += staticNode.prelude + "m[" + (staticRoot + i) + "]=" + staticNode.node + ";";
+				staticCode += staticNode.prelude + "m[" + i + "]=" + staticNode.node + ";";
 			}
 
 			staticCode += "}";
@@ -1337,12 +1316,14 @@
 
 
 		var root = typeof options.root === "string" ? document.querySelector(options.root) : options.root;
-		delete options.root; // Create a wrapper view function that maps data to the compiled view
+		delete options.root; // Create a list of static nodes for the view function.
+
+		m[name] = []; // Create a wrapper view function that maps data to the compiled view
 		// function. The compiled view function takes `m`, which holds static nodes.
 		// The data is also processed so that `options` acts as a default.
 
 		var viewComponent = function viewComponent(data) {
-			return view(m, defaultObject(data, options));
+			return view(m[name], defaultObject(data, options));
 		};
 
 		if (root === undefined) {

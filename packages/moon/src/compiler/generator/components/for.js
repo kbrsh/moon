@@ -1,6 +1,6 @@
 import { generateNode } from "../generator";
 import { types } from "../../../util/util";
-import { generateStatic, generateVariable, setGenerateStatic, setGenerateVariable } from "../util/globals";
+import { generateVariable, setGenerateVariable } from "../util/globals";
 
 /**
  * Generates code for a node from a `for` element.
@@ -30,10 +30,9 @@ export function generateNodeFor(element, staticNodes) {
 
 	if (generateChild.isStatic) {
 		// If the body is static, then use a static node in place of it.
-		body = `${variable}.push(m[${generateStatic}]);`;
+		body = `${variable}.push(m[${staticNodes.length}]);`;
 
 		staticNodes.push(generateChild);
-		setGenerateStatic(generateStatic + 1);
 	} else {
 		// If the body is dynamic, then use the dynamic node in the loop body.
 		body = `${generateChild.prelude}${variable}.push(${generateChild.node});`;
