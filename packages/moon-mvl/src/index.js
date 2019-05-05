@@ -6,7 +6,7 @@ const Moon = require("moon");
 const scriptRE = /((?:.|\n)*?)<script>((?:.|\n)*)<\/script>((?:.|\n)*)/;
 const styleRE = /((?:.|\n)*?)<style>((?:.|\n)*)<\/style>((?:.|\n)*)/;
 
-export default (name, input, hot) => {
+module.exports = (name, input, hot) => {
 	let inputJS = null;
 	let inputCSS = null;
 

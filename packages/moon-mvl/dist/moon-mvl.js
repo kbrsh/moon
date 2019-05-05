@@ -4,6 +4,8 @@
  * Released under the MIT License
  * https://kbrsh.github.io/moon
  */
+'use strict';
+
 /**
  * Slash
  * Fast, efficient hash
@@ -95,7 +97,8 @@ var Moon = require("moon");
 
 var scriptRE = /((?:.|\n)*?)<script>((?:.|\n)*)<\/script>((?:.|\n)*)/;
 var styleRE = /((?:.|\n)*?)<style>((?:.|\n)*)<\/style>((?:.|\n)*)/;
-var index = (function (name, input, hot) {
+
+module.exports = function (name, input, hot) {
 	var inputJS = null;
 	var inputCSS = null;
 	input = input.replace(scriptRE, function (match, prefix, script, suffix) {
@@ -133,6 +136,4 @@ var index = (function (name, input, hot) {
 		js: outputJS,
 		css: outputCSS
 	};
-});
-
-export default index;
+};

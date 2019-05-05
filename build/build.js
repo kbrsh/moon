@@ -39,16 +39,14 @@ async function build(package) {
 
 	output = output[0].code;
 	output = output.replace(SPACES_RE, "\t");
-	output = options.transformBefore(output);
+	output = options.transform(output);
 
-	let developmentCode = comment + output.replace(ENV_RE, '"development"');
-	let productionCode = comment + uglify.minify(output.replace(ENV_RE, '"production"'), {
+	const developmentCode = comment + output.replace(ENV_RE, '"development"');
+	const productionCode = comment + uglify.minify(output.replace(ENV_RE, '"production"'), {
 		output: {
 			ascii_only: true
 		}
 	}).code;
-
-	({ developmentCode, productionCode } = options.transformAfter(developmentCode, productionCode));
 
 	fs.writeFileSync(`./packages/${package}/dist/${package}.js`, developmentCode);
 	fs.writeFileSync(`./packages/${package}/dist/${package}.min.js`, productionCode);
