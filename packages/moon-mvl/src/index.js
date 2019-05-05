@@ -41,7 +41,7 @@ module.exports = (name, input, hot) => {
 	outputJS = `import Moon from "moon";${outputJS}_moonOptions.name="${name}";_moonOptions.view=function(m,data){${Moon.generate(tree)}};Moon(_moonOptions);`;
 
 	if (hot) {
-		outputJS = `
+		outputJS += `
 			import { registerCSS } from "moon-mvl/lib/hot";
 
 			const _moonRemoveCSS = registerCSS(\`${outputCSS}\`);

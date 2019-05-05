@@ -128,7 +128,7 @@ module.exports = function (name, input, hot) {
 	outputJS = "import Moon from \"moon\";" + outputJS + "_moonOptions.name=\"" + name + "\";_moonOptions.view=function(m,data){" + Moon.generate(tree) + "};Moon(_moonOptions);";
 
 	if (hot) {
-		outputJS = "\n\t\t\timport { registerCSS } from \"moon-mvl/lib/hot\";\n\n\t\t\tconst _moonRemoveCSS = registerCSS(`" + outputCSS + "`);\n\n\t\t\tif (module.hot) {\n\t\t\t\tmodule.hot.dispose(() => {\n\t\t\t\t\tMoon.set({});\n\n\t\t\t\t\t_moonRemoveCSS();\n\t\t\t\t});\n\t\t\t}\n\t\t";
+		outputJS += "\n\t\t\timport { registerCSS } from \"moon-mvl/lib/hot\";\n\n\t\t\tconst _moonRemoveCSS = registerCSS(`" + outputCSS + "`);\n\n\t\t\tif (module.hot) {\n\t\t\t\tmodule.hot.dispose(() => {\n\t\t\t\t\tMoon.set({});\n\n\t\t\t\t\t_moonRemoveCSS();\n\t\t\t\t});\n\t\t\t}\n\t\t";
 		outputCSS = null;
 	}
 
