@@ -12,7 +12,7 @@ const ENV_RE = /process\.env\.MOON_ENV/g;
 async function build(package) {
 	const options = require(`../packages/${package}/config.js`);
 
-	const comment = `/**
+	const comment = `${options.executable ? "#!/usr/bin/env node\n" : ""}/**
  * ${options.name} v${pkg.version}
  * Copyright 2016-2019 Kabir Shah
  * Released under the MIT License
