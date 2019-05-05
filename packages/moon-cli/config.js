@@ -2,5 +2,6 @@ module.exports = {
 	name: "Moon CLI",
 	exportName: "MoonCLI",
 	format: "iife",
-	transform: (output) => output
+	transformBefore: (output) => output,
+	transformAfter: (developmentCode, productionCode) => ({ developmentCode, productionCode })
 };

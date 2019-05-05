@@ -4,8 +4,6 @@
  * Released under the MIT License
  * https://kbrsh.github.io/moon
  */
-import Moon from 'moon';
-
 /**
  * Slash
  * Fast, efficient hash
@@ -92,6 +90,8 @@ function scopeCSS(scope, css) {
 		return selector.replace(trailingWhitespaceRE, "") + "." + scope + rule;
 	});
 }
+
+var Moon = require("moon");
 
 var scriptRE = /((?:.|\n)*?)<script>((?:.|\n)*)<\/script>((?:.|\n)*)/;
 var styleRE = /((?:.|\n)*?)<style>((?:.|\n)*)<\/style>((?:.|\n)*)/;

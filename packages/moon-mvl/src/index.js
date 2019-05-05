@@ -1,6 +1,7 @@
-import Moon from "moon";
 import slash from "./slash";
 import { addClass, scopeCSS } from "./css";
+
+const Moon = require("moon");
 
 const scriptRE = /((?:.|\n)*?)<script>((?:.|\n)*)<\/script>((?:.|\n)*)/;
 const styleRE = /((?:.|\n)*?)<style>((?:.|\n)*)<\/style>((?:.|\n)*)/;
