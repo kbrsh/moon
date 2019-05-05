@@ -27,11 +27,11 @@
 	};
 	var MoonNameRE = /{# MoonName #}/g;
 
-	var log = function log(type, message) {
+	function log(type, message) {
 		console.log("\x1B[34m" + type + "\x1B[0m " + message);
-	};
+	}
 
-	var download = function download(res) {
+	function download(res) {
 		var archivePath = path.join(__dirname, "moon-template.tar.gz");
 		var stream = fs.createWriteStream(archivePath);
 		res.on("data", function (chunk) {
@@ -42,21 +42,21 @@
 			log("download", "template");
 			install(archivePath);
 		});
-	};
+	}
 
-	var install = function install(archivePath) {
+	function install(archivePath) {
 		var targetPath = path.join(process.cwd(), name);
 		exec("mkdir " + targetPath, function (err) {
 			if (err) throw err;
+			exec("tar -xzf " + archivePath + " -C " + targetPath + " --strip=1", function (err) {
+				if (err) throw err;
+				log("install", "template");
+				clean(archivePath, targetPath);
+			});
 		});
-		exec("tar -xzf " + archivePath + " -C " + targetPath + " --strip=1", function (err) {
-			if (err) throw err;
-			log("install", "template");
-			clean(archivePath, targetPath);
-		});
-	};
+	}
 
-	var clean = function clean(archivePath, targetPath) {
+	function clean(archivePath, targetPath) {
 		fs.unlink(archivePath, function (err) {
 			if (err) throw err;
 			log("clean", "template");
@@ -64,9 +64,9 @@
 			log("success", "Generated project \"" + name + "\"");
 			console.log("To start, run:\n\tcd " + name + "\n\tnpm install\n\tnpm run dev");
 		});
-	};
+	}
 
-	var create = function create(currentPath, targetPath) {
+	function create(currentPath, targetPath) {
 		var files = fs.readdirSync(currentPath);
 
 		for (var i = 0; i < files.length; i++) {
@@ -80,10 +80,10 @@
 				log("create", path.relative(targetPath, nextPath));
 			}
 		}
-	};
+	}
 
 	https.get(archive, function (res) {
-		if (res.statusCode > 300 && res.statusCode < 400 && res.headers.location !== undefined) {
+		if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location !== undefined) {
 			https.get(res.headers.location, function (redirectRes) {
 				download(redirectRes);
 			});
