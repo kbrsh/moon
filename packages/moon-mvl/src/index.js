@@ -6,7 +6,7 @@ const Moon = require("moon");
 const scriptRE = /((?:.|\n)*?)<script>((?:.|\n)*)<\/script>((?:.|\n)*)/;
 const styleRE = /((?:.|\n)*?)<style>((?:.|\n)*)<\/style>((?:.|\n)*)/;
 
-module.exports = (name, input, hot) => {
+module.exports = (name, input) => {
 	let inputJS = null;
 	let inputCSS = null;
 
@@ -39,24 +39,6 @@ module.exports = (name, input, hot) => {
 	}
 
 	outputJS = `import Moon from "moon";${outputJS}_moonOptions.name="${name}";_moonOptions.view=function(m,data){${Moon.generate(tree)}};Moon(_moonOptions);`;
-
-	if (hot) {
-		outputJS += `
-			import { registerCSS } from "moon-mvl/lib/hot";
-
-			const _moonRemoveCSS = registerCSS(\`${outputCSS}\`);
-
-			if (module.hot) {
-				module.hot.dispose(() => {
-					Moon.set({});
-
-					_moonRemoveCSS();
-				});
-			}
-		`;
-
-		outputCSS = null;
-	}
 
 	return {
 		js: outputJS,
