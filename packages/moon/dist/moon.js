@@ -74,7 +74,7 @@
 	 * Capture the tag name, attribute text, and closing slash from an opening tag.
 	 */
 
-	var typeRE = /<([\w\d-_]+)([^>]*?)(\/?)>/g;
+	var nameRE = /<([\w\d-_]+)([^>]*?)(\/?)>/g;
 	/**
 	 * Capture a key, value, and expression from a list of whitespace-separated
 	 * attributes. There cannot be a value and an expression, but both are captured
@@ -213,7 +213,7 @@
 					// with "</".
 					var closeIndex = input.indexOf(">", i + 2);
 
-					var _type = input.slice(i + 2, closeIndex);
+					var _name = input.slice(i + 2, closeIndex);
 
 					if ("development" === "development" && closeIndex === -1) {
 						lexError("Lexer expected a closing \">\" after \"</\".", input, i);
@@ -222,7 +222,7 @@
 
 					tokens.push({
 						type: "tagClose",
-						value: _type
+						value: _name
 					});
 					i = closeIndex + 1;
 					continue;
@@ -237,25 +237,25 @@
 
 					i = _closeIndex + 3;
 					continue;
-				} // Set the last searched index of the tag type regular expression to
+				} // Set the last searched index of the tag name regular expression to
 				// the index of the character currently being processed. Since it is
 				// being executed on the whole input, this is required for getting the
 				// correct match and having better performance.
 
 
-				typeRE.lastIndex = i; // Execute the tag type regular expression on the input and store
-				// the match and captured groups.
+				nameRE.lastIndex = i; // Execute the tag name regular expression on the input and store the
+				// match and captured groups.
 
-				var typeExec = typeRE.exec(input);
+				var nameExec = nameRE.exec(input);
 
-				if ("development" === "development" && typeExec === null) {
+				if ("development" === "development" && nameExec === null) {
 					lexError("Lexer expected a valid opening or self-closing tag.", input, i);
 				}
 
-				var typeMatch = typeExec[0];
-				var type = typeExec[1];
-				var attributesText = typeExec[2];
-				var closeSlash = typeExec[3];
+				var nameMatch = nameExec[0];
+				var name = nameExec[1];
+				var attributesText = nameExec[2];
+				var closeSlash = nameExec[3];
 				var attributes = {};
 				var attributeExec = void 0; // Keep matching for new attribute key/value pairs until there are no
 				// more in the attribute text.
@@ -282,17 +282,17 @@
 							attributes[attributeKey] = "function($event){" + attributes[attributeKey] + "}";
 						}
 					}
-				} // Append an opening tag token with the type, attributes, and optional
+				} // Append an opening tag token with the name, attributes, and optional
 				// self-closing slash.
 
 
 				tokens.push({
 					type: "tagOpen",
-					value: type,
+					value: name,
 					attributes: attributes,
 					closed: closeSlash === "/"
 				});
-				i += typeMatch.length;
+				i += nameMatch.length;
 			} else if (_char2 === "{") {
 				// If a sequence of characters begins with "{", process it as an
 				// expression token.
@@ -452,7 +452,7 @@
 				// Verify that the single token is a self-closing tag, and return a
 				// new element without children.
 				return {
-					type: tokenFirst.value,
+					name: tokenFirst.value,
 					attributes: tokenFirst.attributes,
 					children: []
 				};
@@ -471,7 +471,7 @@
 					return new ParseError(parseErrorMessage("Parser expected valid child elements but encountered an error."), start, end, children);
 				} else {
 					return {
-						type: tokenFirst.value,
+						name: tokenFirst.value,
 						attributes: tokenFirst.attributes,
 						children: children
 					};
@@ -602,13 +602,13 @@
 			for (var i = index + 1; i < siblings.length;) {
 				var sibling = siblings[i];
 
-				if (sibling.type === "else-if") {
+				if (sibling.name === "else-if") {
 					// Generate the `else-if` clause.
 					prelude += "else if(" + sibling.attributes[""] + "){" + generateClause(variable, sibling, staticNodes) + "}"; // Remove the `else-if` clause so that it isn't generated
 					// individually by the parent.
 
 					siblings.splice(i, 1);
-				} else if (sibling.type === "else") {
+				} else if (sibling.name === "else") {
 					// Generate the `else` clause.
 					prelude += "else{" + generateClause(variable, sibling, staticNodes) + "}"; // Skip generating the empty `else` clause.
 
@@ -708,7 +708,7 @@
 	 */
 
 	function generateNode(element, parent, index, staticNodes) {
-		var name = element.type;
+		var name = element.name;
 		var type;
 		var isStatic = true; // Generate the correct type number for the given name.
 

@@ -53,14 +53,14 @@ export function generateNodeIf(element, parent, index, staticNodes) {
 		for (let i = index + 1; i < siblings.length;) {
 			const sibling = siblings[i];
 
-			if (sibling.type === "else-if") {
+			if (sibling.name === "else-if") {
 				// Generate the `else-if` clause.
 				prelude += `else if(${sibling.attributes[""]}){${generateClause(variable, sibling, staticNodes)}}`;
 
 				// Remove the `else-if` clause so that it isn't generated
 				// individually by the parent.
 				siblings.splice(i, 1);
-			} else if (sibling.type === "else") {
+			} else if (sibling.name === "else") {
 				// Generate the `else` clause.
 				prelude += `else{${generateClause(variable, sibling, staticNodes)}}`;
 

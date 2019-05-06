@@ -114,7 +114,7 @@ function parseElement(start, end, tokens) {
 			// Verify that the single token is a self-closing tag, and return a
 			// new element without children.
 			return {
-				type: tokenFirst.value,
+				name: tokenFirst.value,
 				attributes: tokenFirst.attributes,
 				children: []
 			};
@@ -146,7 +146,7 @@ function parseElement(start, end, tokens) {
 				);
 			} else {
 				return {
-					type: tokenFirst.value,
+					name: tokenFirst.value,
 					attributes: tokenFirst.attributes,
 					children
 				};

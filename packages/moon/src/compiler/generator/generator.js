@@ -13,7 +13,7 @@ import { types } from "../../util/util";
  * @returns {Object} Prelude code, view function code, and static status
  */
 export function generateNode(element, parent, index, staticNodes) {
-	const name = element.type;
+	const name = element.name;
 	let type;
 	let isStatic = true;
 

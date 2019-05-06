@@ -8,7 +8,7 @@ const whitespaceRE = /^\s+$/;
 /**
  * Capture the tag name, attribute text, and closing slash from an opening tag.
  */
-const typeRE = /<([\w\d-_]+)([^>]*?)(\/?)>/g;
+const nameRE = /<([\w\d-_]+)([^>]*?)(\/?)>/g;
 
 /**
  * Capture a key, value, and expression from a list of whitespace-separated
@@ -157,7 +157,7 @@ export function lex(input) {
 				// with "</".
 
 				const closeIndex = input.indexOf(">", i + 2);
-				const type = input.slice(i + 2, closeIndex);
+				const name = input.slice(i + 2, closeIndex);
 
 				if (process.env.MOON_ENV === "development" && closeIndex === -1) {
 					lexError(`Lexer expected a closing ">" after "</".`, input, i);
@@ -166,7 +166,7 @@ export function lex(input) {
 
 				tokens.push({
 					type: "tagClose",
-					value: type
+					value: name
 				});
 
 				i = closeIndex + 1;
@@ -188,24 +188,24 @@ export function lex(input) {
 				continue;
 			}
 
-			// Set the last searched index of the tag type regular expression to
+			// Set the last searched index of the tag name regular expression to
 			// the index of the character currently being processed. Since it is
 			// being executed on the whole input, this is required for getting the
 			// correct match and having better performance.
-			typeRE.lastIndex = i;
+			nameRE.lastIndex = i;
 
-			// Execute the tag type regular expression on the input and store
-			// the match and captured groups.
-			const typeExec = typeRE.exec(input);
+			// Execute the tag name regular expression on the input and store the
+			// match and captured groups.
+			const nameExec = nameRE.exec(input);
 
-			if (process.env.MOON_ENV === "development" && typeExec === null) {
+			if (process.env.MOON_ENV === "development" && nameExec === null) {
 				lexError("Lexer expected a valid opening or self-closing tag.", input, i);
 			}
 
-			const typeMatch = typeExec[0];
-			const type = typeExec[1];
-			const attributesText = typeExec[2];
-			const closeSlash = typeExec[3];
+			const nameMatch = nameExec[0];
+			const name = nameExec[1];
+			const attributesText = nameExec[2];
+			const closeSlash = nameExec[3];
 			const attributes = {};
 			let attributeExec;
 
@@ -244,16 +244,16 @@ export function lex(input) {
 				}
 			}
 
-			// Append an opening tag token with the type, attributes, and optional
+			// Append an opening tag token with the name, attributes, and optional
 			// self-closing slash.
 			tokens.push({
 				type: "tagOpen",
-				value: type,
+				value: name,
 				attributes,
 				closed: closeSlash  === "/"
 			});
 
-			i += typeMatch.length;
+			i += nameMatch.length;
 		} else if (char === "{") {
 			// If a sequence of characters begins with "{", process it as an
 			// expression token.

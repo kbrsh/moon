@@ -7,7 +7,7 @@ function parseTest(input) {
 
 test("parse empty element", () => {
 	expect(parseTest(`<div></div>`)).toEqual({
-		"type": "div",
+		"name": "div",
 		"attributes": {},
 		"children": []
 	});
@@ -15,7 +15,7 @@ test("parse empty element", () => {
 
 test("parse text element", () => {
 	expect(parseTest(`test text`)).toEqual({
-		"type": "text",
+		"name": "text",
 		"attributes": {
 			"": `"test text"`
 		},
@@ -30,17 +30,17 @@ test("parse nested elements", () => {
 			<p color="blue">Text</p>
 		</div>
 	`)).toEqual({
-		"type": "div",
+		"name": "div",
 		"attributes": {
 			"dynamic": "true"
 		},
 		"children": [
 			{
-				"type": "h1",
+				"name": "h1",
 				"attributes": {},
 				"children": [
 					{
-						"type": "text",
+						"name": "text",
 						"attributes": {
 							"": "\"Title\""
 						},
@@ -49,13 +49,13 @@ test("parse nested elements", () => {
 				]
 			},
 			{
-				"type": "p",
+				"name": "p",
 				"attributes": {
 					"color": "\"blue\""
 				},
 				"children": [
 					{
-						"type": "text",
+						"name": "text",
 						"attributes": {
 							"": "\"Text\""
 						},
