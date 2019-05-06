@@ -730,10 +730,10 @@
 		var separator = "";
 
 		for (var attribute in attributes) {
-			var attributeValue = attributes[attribute]; // Mark the current node as dynamic if any attributes are dynamic. Events
-			// are always treated as static.
+			var attributeValue = attributes[attribute]; // Mark the current node as dynamic if there are any events or dynamic
+			// attributes.
 
-			if (attribute[0] !== "@" && attributeValue[0] !== "\"" && attributeValue[0] !== "'") {
+			if (attribute[0] === "@" || attributeValue[0] !== "\"" && attributeValue[0] !== "'") {
 				isStatic = false;
 			}
 
@@ -833,6 +833,21 @@
 		return generate(parse(lex(input)));
 	}
 
+	function _defineProperty(obj, key, value) {
+		if (key in obj) {
+			Object.defineProperty(obj, key, {
+				value: value,
+				enumerable: true,
+				configurable: true,
+				writable: true
+			});
+		} else {
+			obj[key] = value;
+		}
+
+		return obj;
+	}
+
 	/**
 	 * Global data
 	 */
@@ -896,10 +911,10 @@
 
 	var patchTypes = {
 		updateText: 0,
-		setAttributes: 1,
-		appendElement: 2,
-		removeElement: 3,
-		replaceElement: 4
+		updateData: 1,
+		appendNode: 2,
+		removeNode: 3,
+		replaceNode: 4
 	};
 	/**
 	 * Creates an old reference node from a view node.
@@ -920,14 +935,28 @@
 
 			element = document.createElement(node.name); // Set data, events, and attributes.
 
-			for (var key in nodeData) {
+			var _loop = function _loop(key) {
 				var value = nodeData[key];
 
 				if (key[0] === "@") {
-					element.addEventListener(key.slice(1), value);
+					var MoonEvents = element.MoonEvents;
+
+					if (MoonEvents === undefined) {
+						MoonEvents = element.MoonEvents = _defineProperty({}, key, value);
+					} else {
+						MoonEvents[key] = value;
+					}
+
+					element.addEventListener(key.slice(1), function ($event) {
+						MoonEvents[key]($event);
+					});
 				} else if (key !== "children" && value !== false) {
 					element.setAttribute(key, value);
 				}
+			};
+
+			for (var key in nodeData) {
+				_loop(key);
 			} // Recursively append children.
 
 
@@ -1018,7 +1047,7 @@
 					// If they have different names, then replace the old node with the
 					// new one.
 					patches.push({
-						type: patchTypes.replaceElement,
+						type: patchTypes.replaceNode,
 						nodeOld: nodeOld,
 						nodeNew: nodeNew,
 						nodeParent: null
@@ -1032,10 +1061,11 @@
 						nodeParent: null
 					});
 				} else {
-					// If they both are normal elements, then set attributes and diff
-					// the children for appends, deletes, or recursive updates.
+					// If they both are normal elements, then update attributes, update
+					// events, and diff the children for appends, deletes, or recursive
+					// updates.
 					patches.push({
-						type: patchTypes.setAttributes,
+						type: patchTypes.updateData,
 						nodeOld: nodeOld,
 						nodeNew: nodeNew,
 						nodeParent: null
@@ -1062,7 +1092,7 @@
 
 						for (var _i2 = childrenNewLength; _i2 < childrenOldLength; _i2++) {
 							patches.push({
-								type: patchTypes.removeElement,
+								type: patchTypes.removeNode,
 								nodeOld: childrenOld[_i2],
 								nodeNew: null,
 								nodeParent: nodeOld
@@ -1078,7 +1108,7 @@
 
 						for (var _i4 = childrenOldLength; _i4 < childrenNewLength; _i4++) {
 							patches.push({
-								type: patchTypes.appendElement,
+								type: patchTypes.appendNode,
 								nodeOld: null,
 								nodeNew: childrenNew[_i4],
 								nodeParent: nodeOld
@@ -1125,18 +1155,21 @@
 						break;
 					}
 
-				case patchTypes.setAttributes:
+				case patchTypes.updateData:
 					{
-						// Set attributes of a node with new data.
+						// Set attributes and events of a node with new data.
 						var _nodeOld = patch.nodeOld;
 						var nodeOldElement = _nodeOld.element;
 						var _nodeNew = patch.nodeNew;
 						var nodeNewData = _nodeNew.data; // Set attributes on the DOM element.
 
 						for (var key in nodeNewData) {
-							var value = nodeNewData[key]; // Ignore updating events and children.
+							var value = nodeNewData[key];
 
-							if (key[0] !== "@" && key !== "children") {
+							if (key[0] === "@") {
+								// Update the event listener.
+								nodeOldElement.MoonEvents[key] = value;
+							} else if (key !== "children") {
 								// Remove the attribute if the value is false, and update it
 								// otherwise.
 								if (value === false) {
@@ -1151,7 +1184,7 @@
 						break;
 					}
 
-				case patchTypes.appendElement:
+				case patchTypes.appendNode:
 					{
 						// Append a node to the parent.
 						var nodeParent = patch.nodeParent;
@@ -1161,7 +1194,7 @@
 						break;
 					}
 
-				case patchTypes.removeElement:
+				case patchTypes.removeNode:
 					{
 						// Remove a node from the parent.
 						var _nodeParent = patch.nodeParent; // Pops the last child because the patches still hold a reference
@@ -1175,7 +1208,7 @@
 						break;
 					}
 
-				case patchTypes.replaceElement:
+				case patchTypes.replaceNode:
 					{
 						// Replaces an old node with a new node.
 						var _nodeOld2 = patch.nodeOld;

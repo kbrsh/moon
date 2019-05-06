@@ -38,12 +38,11 @@ export function generateNode(element, parent, index, staticNodes) {
 	for (let attribute in attributes) {
 		const attributeValue = attributes[attribute];
 
-		// Mark the current node as dynamic if any attributes are dynamic. Events
-		// are always treated as static.
+		// Mark the current node as dynamic if there are any events or dynamic
+		// attributes.
 		if (
-			attribute[0] !== "@" &&
-			attributeValue[0] !== "\"" &&
-			attributeValue[0] !== "'"
+			attribute[0] === "@" ||
+			(attributeValue[0] !== "\"" && attributeValue[0] !== "'")
 		) {
 			isStatic = false;
 		}

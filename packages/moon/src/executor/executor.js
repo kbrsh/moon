@@ -16,10 +16,10 @@ let executeQueue = [];
  */
 const patchTypes = {
 	updateText: 0,
-	setAttributes: 1,
-	appendElement: 2,
-	removeElement: 3,
-	replaceElement: 4
+	updateData: 1,
+	appendNode: 2,
+	removeNode: 3,
+	replaceNode: 4
 };
 
 /**
@@ -46,7 +46,19 @@ function executeCreate(node) {
 			const value = nodeData[key];
 
 			if (key[0] === "@") {
-				element.addEventListener(key.slice(1), value);
+				let MoonEvents = element.MoonEvents;
+
+				if (MoonEvents === undefined) {
+					MoonEvents = element.MoonEvents = {
+						[key]: value
+					};
+				} else {
+					MoonEvents[key] = value;
+				}
+
+				element.addEventListener(key.slice(1), ($event) => {
+					MoonEvents[key]($event);
+				});
 			} else if (key !== "children" && value !== false) {
 				element.setAttribute(key, value);
 			}
@@ -144,7 +156,7 @@ function executeDiff(nodesOld, nodesNew, patches) {
 				// If they have different names, then replace the old node with the
 				// new one.
 				patches.push({
-					type: patchTypes.replaceElement,
+					type: patchTypes.replaceNode,
 					nodeOld,
 					nodeNew,
 					nodeParent: null
@@ -158,10 +170,11 @@ function executeDiff(nodesOld, nodesNew, patches) {
 					nodeParent: null
 				});
 			} else {
-				// If they both are normal elements, then set attributes and diff
-				// the children for appends, deletes, or recursive updates.
+				// If they both are normal elements, then update attributes, update
+				// events, and diff the children for appends, deletes, or recursive
+				// updates.
 				patches.push({
-					type: patchTypes.setAttributes,
+					type: patchTypes.updateData,
 					nodeOld,
 					nodeNew,
 					nodeParent: null
@@ -190,7 +203,7 @@ function executeDiff(nodesOld, nodesNew, patches) {
 
 					for (let i = childrenNewLength; i < childrenOldLength; i++) {
 						patches.push({
-							type: patchTypes.removeElement,
+							type: patchTypes.removeNode,
 							nodeOld: childrenOld[i],
 							nodeNew: null,
 							nodeParent: nodeOld
@@ -206,7 +219,7 @@ function executeDiff(nodesOld, nodesNew, patches) {
 
 					for (let i = childrenOldLength; i < childrenNewLength; i++) {
 						patches.push({
-							type: patchTypes.appendElement,
+							type: patchTypes.appendNode,
 							nodeOld: null,
 							nodeNew: childrenNew[i],
 							nodeParent: nodeOld
@@ -256,8 +269,8 @@ function executePatch(patches) {
 				break;
 			}
 
-			case patchTypes.setAttributes: {
-				// Set attributes of a node with new data.
+			case patchTypes.updateData: {
+				// Set attributes and events of a node with new data.
 				const nodeOld = patch.nodeOld;
 				const nodeOldElement = nodeOld.element;
 				const nodeNew = patch.nodeNew;
@@ -267,8 +280,10 @@ function executePatch(patches) {
 				for (let key in nodeNewData) {
 					const value = nodeNewData[key];
 
-					// Ignore updating events and children.
-					if (key[0] !== "@" && key !== "children") {
+					if (key[0] === "@") {
+						// Update the event listener.
+						nodeOldElement.MoonEvents[key] = value;
+					} else if (key !== "children") {
 						// Remove the attribute if the value is false, and update it
 						// otherwise.
 						if (value === false) {
@@ -284,7 +299,7 @@ function executePatch(patches) {
 				break;
 			}
 
-			case patchTypes.appendElement: {
+			case patchTypes.appendNode: {
 				// Append a node to the parent.
 				const nodeParent = patch.nodeParent;
 				const nodeOldNew = executeCreate(patch.nodeNew);
@@ -295,7 +310,7 @@ function executePatch(patches) {
 				break;
 			}
 
-			case patchTypes.removeElement: {
+			case patchTypes.removeNode: {
 				// Remove a node from the parent.
 				const nodeParent = patch.nodeParent;
 
@@ -309,7 +324,7 @@ function executePatch(patches) {
 				break;
 			}
 
-			case patchTypes.replaceElement: {
+			case patchTypes.replaceNode: {
 				// Replaces an old node with a new node.
 				const nodeOld = patch.nodeOld;
 				const nodeOldElement = nodeOld.element;
