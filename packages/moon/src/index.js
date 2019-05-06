@@ -16,9 +16,9 @@ import { defaultObject, defaultValue, error, types } from "./util/util";
  * components are just helper functions.
  *
  * The data can have a `root` property with an element. Moon will automatically
- * create the component and append it to the root element provided. This makes
- * the data the source of true state that is accessible for updates by every
- * component.
+ * create the component and append it to the root element provided if the
+ * component name is "Root". This makes the data the source of true state that
+ * is accessible for updates by every component.
  *
  * The data must have a `view` property with a string template or precompiled
  * functions.
@@ -49,15 +49,6 @@ export default function Moon(options) {
 		view = new Function("m", "data", compile(view));
 	}
 
-	// If a `root` option is given, start the root renderer, or else just return
-	// the component.
-	const root =
-		typeof options.root === "string" ?
-		document.querySelector(options.root) :
-		options.root;
-
-	delete options.root;
-
 	// Create a list of static nodes for the view function.
 	m[name] = [];
 
@@ -66,11 +57,22 @@ export default function Moon(options) {
 	// The data is also processed so that `options` acts as a default.
 	const viewComponent = (data) => view(m[name], defaultObject(data, options));
 
-	if (root === undefined) {
-		// Store it as a component if no `root` is given.
-		components[name] = viewComponent;
-	} else {
-		// Mount to the `root` element and begin execution if it is given.
+	if (name === "Root") {
+		// Mount to the `root` element and begin execution when the component is
+		// the "Root" component.
+		if (process.env.MOON_ENV === "development" && options.root === undefined) {
+			error("The \"Root\" component requires a \"root\" property.");
+		}
+
+		// Process the `root` option.
+		const root =
+			typeof options.root === "string" ?
+			document.querySelector(options.root) :
+			options.root;
+
+		delete options.root;
+
+		// Start the root renderer.
 		setViewOld({
 			element: root,
 			node: {
@@ -84,6 +86,9 @@ export default function Moon(options) {
 		});
 		setViewCurrent(viewComponent);
 		execute(options);
+	} else {
+		// Store it as a component if no `root` is given.
+		components[name] = viewComponent;
 	}
 }
 
