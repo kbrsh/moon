@@ -97,7 +97,7 @@ function scopeCSS(scope, css) {
 	});
 }
 
-var Moon = require("moon");
+var Moon = require("moon/dist/moon.js");
 
 var scriptRE = /((?:.|\n)*?)<script>((?:.|\n)*)<\/script>((?:.|\n)*)/;
 var styleRE = /((?:.|\n)*?)<style>((?:.|\n)*)<\/style>((?:.|\n)*)/;
