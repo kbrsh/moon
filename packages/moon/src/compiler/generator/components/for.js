@@ -12,8 +12,8 @@ import { generateVariable, setGenerateVariable } from "../util/globals";
 export function generateNodeFor(element, staticNodes) {
 	const variable = "m" + generateVariable;
 	const dataLocals = element.attributes[""].split(",");
-	const dataArray = element.attributes["of"];
-	const dataObject = element.attributes["in"];
+	const dataArray = element.attributes.of;
+	const dataObject = element.attributes.in;
 	let dataKey;
 	let dataValue;
 	let prelude;

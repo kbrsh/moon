@@ -650,7 +650,7 @@
 	function generateNodeFor(element, staticNodes) {
 		var variable = "m" + generateVariable;
 		var dataLocals = element.attributes[""].split(",");
-		var dataArray = element.attributes["of"];
+		var dataArray = element.attributes.of;
 		var dataObject = element.attributes["in"];
 		var dataKey;
 		var dataValue;
