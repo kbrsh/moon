@@ -71,20 +71,24 @@ var slash = (function (key) {
 var cssRE = /([^,:{}]+)(,|:[^,:{}+]+|{[^{}]+})/g;
 var trailingWhitespaceRE = /\s*$/;
 function addClass(element, name) {
-	var attributes = element.attributes;
-	var children = element.children;
-	var className = attributes["class"];
+	var elementName = element.name;
+	var elementChildren = element.children;
 
-	if (className === undefined) {
-		attributes["class"] = "\"" + name + "\"";
-	} else if (className[0] === "\"" || className[0] === "'") {
-		attributes["class"] = "" + className[0] + name + " " + className.slice(1);
-	} else {
-		attributes["class"] += " + \" " + name + "\"";
+	if (elementName[0] === elementName[0].toLowerCase() && elementName !== "if" && elementName !== "else-if" && elementName !== "else" && elementName !== "for" && elementName !== "text") {
+		var elementAttributes = element.attributes;
+		var className = elementAttributes["class"];
+
+		if (className === undefined) {
+			elementAttributes["class"] = "\"" + name + "\"";
+		} else if (className[0] === "\"" || className[0] === "'") {
+			elementAttributes["class"] = "" + className[0] + name + " " + className.slice(1);
+		} else {
+			elementAttributes["class"] += " + \" " + name + "\"";
+		}
 	}
 
-	for (var i = 0; i < children.length; i++) {
-		addClass(children[i], name);
+	for (var i = 0; i < elementChildren.length; i++) {
+		addClass(elementChildren[i], name);
 	}
 }
 function scopeCSS(scope, css) {
