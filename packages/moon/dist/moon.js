@@ -90,10 +90,30 @@
 
 	var expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
 	/**
+	 * Capture special characters in text that need to be escaped.
+	 */
+
+	var textRE = /&amp;|&gt;|&lt;|&nbsp;|&quot;|\\|"|\n|\r/g;
+	/**
 	 * List of global variables to ignore in expression scoping
 	 */
 
 	var globals = ["NaN", "false", "in", "null", "this", "true", "typeof", "undefined", "window"];
+	/**
+	 * Map from special characters to a safe format for JavaScript string literals.
+	 */
+
+	var escapeTextMap = {
+		"&amp;": "&",
+		"&gt;": ">",
+		"&lt;": "<",
+		"&nbsp;": " ",
+		"&quot;": "\\\"",
+		"\\": "\\\\",
+		"\"": "\\\"",
+		"\n": "\\n",
+		"\r": "\\r"
+	};
 	/**
 	 * Checks if a given character is a quote.
 	 *
@@ -103,6 +123,18 @@
 
 	function isQuote(_char) {
 		return _char === "\"" || _char === "'";
+	}
+	/**
+	 * Escape text to make it usable in a JavaScript string literal.
+	 *
+	 * @param {string} text
+	 */
+
+
+	function escapeText(text) {
+		return text.replace(textRE, function (match) {
+			return escapeTextMap[match];
+		});
 	}
 	/**
 	 * Scope an expression to use variables within the `data` object.
@@ -340,7 +372,7 @@
 						type: "tagOpen",
 						value: "text",
 						attributes: {
-							"": "\"" + text + "\""
+							"": "\"" + escapeText(text) + "\""
 						},
 						closed: true
 					});

@@ -25,9 +25,29 @@ const attributeRE = /\s*([\w\d-_:@]*)(?:=(?:("[^"]*"|'[^']*')|{([^{}]*)}))?/g;
 const expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
 
 /**
+ * Capture special characters in text that need to be escaped.
+ */
+const textRE = /&amp;|&gt;|&lt;|&nbsp;|&quot;|\\|"|\n|\r/g;
+
+/**
  * List of global variables to ignore in expression scoping
  */
 const globals = ["NaN", "false", "in", "null", "this", "true", "typeof", "undefined", "window"];
+
+/**
+ * Map from special characters to a safe format for JavaScript string literals.
+ */
+const escapeTextMap = {
+	"&amp;": "&",
+	"&gt;": ">",
+	"&lt;": "<",
+	"&nbsp;": " ",
+	"&quot;": "\\\"",
+	"\\": "\\\\",
+	"\"": "\\\"",
+	"\n": "\\n",
+	"\r": "\\r"
+};
 
 /**
  * Checks if a given character is a quote.
@@ -37,6 +57,15 @@ const globals = ["NaN", "false", "in", "null", "this", "true", "typeof", "undefi
  */
 function isQuote(char) {
 	return char === "\"" || char === "'";
+}
+
+/**
+ * Escape text to make it usable in a JavaScript string literal.
+ *
+ * @param {string} text
+ */
+function escapeText(text) {
+	return text.replace(textRE, (match) => escapeTextMap[match]);
 }
 
 /**
@@ -304,7 +333,7 @@ export function lex(input) {
 					type: "tagOpen",
 					value: "text",
 					attributes: {
-						"": `"${text}"`
+						"": `"${escapeText(text)}"`
 					},
 					closed: true
 				});
