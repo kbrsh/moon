@@ -1072,10 +1072,11 @@
 	function executeDiff(nodesOld, nodesNew, patches) {
 		while (true) {
 			var nodeOld = nodesOld.pop();
+			var nodeOldNode = nodeOld.node;
 			var nodeNew = nodesNew.pop(); // If they have the same reference (hoisted) then skip diffing.
 
-			if (nodeOld.node !== nodeNew) {
-				if (nodeOld.node.name !== nodeNew.name) {
+			if (nodeOldNode !== nodeNew) {
+				if (nodeOldNode.name !== nodeNew.name) {
 					// If they have different names, then replace the old node with the
 					// new one.
 					patches.push({
@@ -1084,14 +1085,16 @@
 						nodeNew: nodeNew,
 						nodeParent: null
 					});
-				} else if (nodeOld.node.type === types.text) {
+				} else if (nodeOldNode.type === types.text) {
 					// If they both are text, then update the text content.
-					patches.push({
-						type: patchTypes.updateText,
-						nodeOld: nodeOld,
-						nodeNew: nodeNew,
-						nodeParent: null
-					});
+					if (nodeOldNode.data[""] !== nodeNew.data[""]) {
+						patches.push({
+							type: patchTypes.updateText,
+							nodeOld: nodeOld,
+							nodeNew: nodeNew,
+							nodeParent: null
+						});
+					}
 				} else {
 					// If they both are normal elements, then update attributes, update
 					// events, and diff the children for appends, deletes, or recursive
