@@ -1358,13 +1358,13 @@
 		if (name === "Root") {
 			// Mount to the `root` element and begin execution when the component is
 			// the "Root" component.
-			if ("development" === "development" && options.root === undefined) {
-				error("The \"Root\" component requires a \"root\" property.");
-			} // Process the `root` option.
-
-
 			var root = typeof options.root === "string" ? document.querySelector(options.root) : options.root;
-			delete options.root; // Start the root renderer.
+			delete options.root;
+
+			if ("development" === "development" && root === undefined) {
+				error("The \"Root\" component requires a \"root\" property.");
+			} // Start the root renderer.
+
 
 			setViewOld({
 				element: root,

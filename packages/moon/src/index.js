@@ -60,17 +60,16 @@ export default function Moon(options) {
 	if (name === "Root") {
 		// Mount to the `root` element and begin execution when the component is
 		// the "Root" component.
-		if (process.env.MOON_ENV === "development" && options.root === undefined) {
-			error("The \"Root\" component requires a \"root\" property.");
-		}
-
-		// Process the `root` option.
 		const root =
 			typeof options.root === "string" ?
 			document.querySelector(options.root) :
 			options.root;
 
 		delete options.root;
+
+		if (process.env.MOON_ENV === "development" && root === undefined) {
+			error("The \"Root\" component requires a \"root\" property.");
+		}
 
 		// Start the root renderer.
 		setViewOld({
