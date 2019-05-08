@@ -1194,6 +1194,7 @@
 					{
 						// Set attributes and events of a node with new data.
 						var _nodeOld = patch.nodeOld;
+						var nodeOldNodeData = _nodeOld.node.data;
 						var nodeOldElement = _nodeOld.element;
 						var _nodeNew = patch.nodeNew;
 						var nodeNewData = _nodeNew.data; // Set attributes on the DOM element.
@@ -1212,6 +1213,13 @@
 								} else {
 									nodeOldElement.setAttribute(key, value);
 								}
+							}
+						} // Remove old attributes.
+
+
+						for (var _key in nodeOldNodeData) {
+							if (!(_key in nodeNewData)) {
+								nodeOldElement.removeAttribute(_key);
 							}
 						}
 

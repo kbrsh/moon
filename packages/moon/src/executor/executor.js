@@ -275,6 +275,7 @@ function executePatch(patches) {
 			case patchTypes.updateData: {
 				// Set attributes and events of a node with new data.
 				const nodeOld = patch.nodeOld;
+				const nodeOldNodeData = nodeOld.node.data;
 				const nodeOldElement = nodeOld.element;
 				const nodeNew = patch.nodeNew;
 				const nodeNewData = nodeNew.data;
@@ -294,6 +295,13 @@ function executePatch(patches) {
 						} else {
 							nodeOldElement.setAttribute(key, value);
 						}
+					}
+				}
+
+				// Remove old attributes.
+				for (let key in nodeOldNodeData) {
+					if (!(key in nodeNewData)) {
+						nodeOldElement.removeAttribute(key);
 					}
 				}
 
