@@ -3,7 +3,7 @@ import { parse } from "./compiler/parser/parser";
 import { generate } from "./compiler/generator/generator";
 import { compile } from "./compiler/compiler";
 import { execute } from "./executor/executor";
-import { components, m, setViewCurrent, setViewOld } from "./util/globals";
+import { components, data, m, setViewCurrent, setViewOld } from "./util/globals";
 import { defaultObject, defaultValue, error, types } from "./util/util";
 
 /**
@@ -96,4 +96,5 @@ Moon.parse = parse;
 Moon.generate = generate;
 Moon.compile = compile;
 Moon.components = components;
+Moon.get = data;
 Moon.set = execute;

@@ -1432,6 +1432,7 @@
 	Moon.generate = generate;
 	Moon.compile = compile;
 	Moon.components = components;
+	Moon.get = data;
 	Moon.set = execute;
 
 	return Moon;
