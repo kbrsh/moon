@@ -266,7 +266,7 @@ function executePatch(patches) {
 				const nodeOld = patch.nodeOld;
 				const nodeNew = patch.nodeNew;
 
-				nodeOld.element.textContent = nodeNew.data[""];
+				nodeOld.element.data = nodeNew.data[""];
 				nodeOld.node = nodeNew;
 
 				break;

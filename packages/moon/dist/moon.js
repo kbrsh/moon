@@ -1201,7 +1201,7 @@
 						// Update text of a node with new text.
 						var nodeOld = patch.nodeOld;
 						var nodeNew = patch.nodeNew;
-						nodeOld.element.textContent = nodeNew.data[""];
+						nodeOld.element.data = nodeNew.data[""];
 						nodeOld.node = nodeNew;
 						break;
 					}
