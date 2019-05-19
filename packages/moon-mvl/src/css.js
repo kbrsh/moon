@@ -17,11 +17,12 @@ export function addClass(element, name) {
 		const className = elementAttributes.class;
 
 		if (className === undefined) {
-			elementAttributes.class = `"${name}"`;
-		} else if (className[0] === "\"" || className[0] === "'") {
-			elementAttributes.class = `${className[0]}${name} ${className.slice(1)}`;
+			elementAttributes.class = {
+				value: `"${name}"`,
+				isStatic: true
+			};
 		} else {
-			elementAttributes.class += ` + " ${name}"`;
+			elementAttributes.class.value += ` + " ${name}"`;
 		}
 	}
 
