@@ -142,7 +142,7 @@
 			} else {
 				// Return a dynamic match if there is a dynamic name or a local.
 				isStatic = false;
-				return name[0] === "$" ? match : "data." + name;
+				return name[0] === "$" ? name : "data." + name;
 			}
 		});
 		return {
@@ -635,12 +635,11 @@
 
 	function generateNodeIf(element, parent, index, staticNodes) {
 		var variable = "m" + generateVariable;
-		var attributes = element.attributes;
 		var prelude = "";
 		var emptyElseClause = true;
 		setGenerateVariable(generateVariable + 1); // Generate the initial `if` clause.
 
-		prelude += "var " + variable + ";if(" + attributes[""].value + "){" + generateClause(variable, element, staticNodes) + "}"; // Search for `else-if` and `else` clauses if there are siblings.
+		prelude += "var " + variable + ";if(" + element.attributes[""].value + "){" + generateClause(variable, element, staticNodes) + "}"; // Search for `else-if` and `else` clauses if there are siblings.
 
 		if (parent !== null) {
 			var siblings = parent.children;
@@ -650,7 +649,7 @@
 
 				if (sibling.name === "else-if") {
 					// Generate the `else-if` clause.
-					prelude += "else if(" + attributes[""].value + "){" + generateClause(variable, sibling, staticNodes) + "}"; // Remove the `else-if` clause so that it isn't generated
+					prelude += "else if(" + sibling.attributes[""].value + "){" + generateClause(variable, sibling, staticNodes) + "}"; // Remove the `else-if` clause so that it isn't generated
 					// individually by the parent.
 
 					siblings.splice(i, 1);

@@ -38,14 +38,13 @@ function generateClause(variable, element, staticNodes) {
  */
 export function generateNodeIf(element, parent, index, staticNodes) {
 	const variable = "m" + generateVariable;
-	const attributes = element.attributes;
 	let prelude = "";
 	let emptyElseClause = true;
 
 	setGenerateVariable(generateVariable + 1);
 
 	// Generate the initial `if` clause.
-	prelude += `var ${variable};if(${attributes[""].value}){${generateClause(variable, element, staticNodes)}}`;
+	prelude += `var ${variable};if(${element.attributes[""].value}){${generateClause(variable, element, staticNodes)}}`;
 
 	// Search for `else-if` and `else` clauses if there are siblings.
 	if (parent !== null) {
@@ -56,7 +55,7 @@ export function generateNodeIf(element, parent, index, staticNodes) {
 
 			if (sibling.name === "else-if") {
 				// Generate the `else-if` clause.
-				prelude += `else if(${attributes[""].value}){${generateClause(variable, sibling, staticNodes)}}`;
+				prelude += `else if(${sibling.attributes[""].value}){${generateClause(variable, sibling, staticNodes)}}`;
 
 				// Remove the `else-if` clause so that it isn't generated
 				// individually by the parent.
