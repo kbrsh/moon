@@ -16,7 +16,7 @@ const nameRE = /<([\w\d-_]+)([^>]*?)(\/?)>/g;
  * due to the limits of regular expressions. One or both of them can be
  * undefined.
  */
-const attributeRE = /\s*([\w\d-_:@]*)(?:=(?:("[^"]*"|'[^']*')|{([^{}]*)}))?/g;
+const attributeRE = /([\w\d-_:@]*)(?:=(?:("[^"]*"|'[^']*')|{([^{}]*)}))?/g;
 
 /**
  * Capture the variables in expressions to scope them within the data
