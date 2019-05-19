@@ -14,9 +14,8 @@ export function addClass(element, name) {
 		elementName !== "text"
 	) {
 		const elementAttributes = element.attributes;
-		const className = elementAttributes.class;
 
-		if (className === undefined) {
+		if (elementAttributes.class === undefined) {
 			elementAttributes.class = {
 				value: `"${name}"`,
 				isStatic: true

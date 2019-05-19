@@ -76,9 +76,8 @@ function addClass(element, name) {
 
 	if (elementName[0] === elementName[0].toLowerCase() && elementName !== "if" && elementName !== "else-if" && elementName !== "else" && elementName !== "for" && elementName !== "text") {
 		var elementAttributes = element.attributes;
-		var className = elementAttributes["class"];
 
-		if (className === undefined) {
+		if (elementAttributes["class"] === undefined) {
 			elementAttributes["class"] = {
 				value: "\"" + name + "\"",
 				isStatic: true
