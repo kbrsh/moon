@@ -11,9 +11,10 @@ import { generateVariable, setGenerateVariable } from "../util/globals";
  */
 export function generateNodeFor(element, staticNodes) {
 	const variable = "m" + generateVariable;
-	const dataLocals = element.attributes[""].split(",");
-	const dataArray = element.attributes.of;
-	const dataObject = element.attributes.in;
+	const attributes = element.attributes;
+	const dataLocals = attributes[""].value.split(",");
+	let dataArray = attributes.of;
+	let dataObject = attributes.in;
 	let dataKey;
 	let dataValue;
 	let prelude;
@@ -31,7 +32,6 @@ export function generateNodeFor(element, staticNodes) {
 	if (generateChild.isStatic) {
 		// If the body is static, then use a static node in place of it.
 		body = `${variable}.push(m[${staticNodes.length}]);`;
-
 		staticNodes.push(generateChild);
 	} else {
 		// If the body is dynamic, then use the dynamic node in the loop body.
@@ -42,7 +42,7 @@ export function generateNodeFor(element, staticNodes) {
 		// Generate a `for` loop over an object. The first local is the key and
 		// the second is the value.
 		let dataObjectValue;
-
+		dataObject = dataObject.value;
 		dataKey = dataLocals[0];
 
 		if (dataLocals.length === 2) {
@@ -56,6 +56,7 @@ export function generateNodeFor(element, staticNodes) {
 	} else {
 		// Generate a `for` loop over an array. The first local is the value and
 		// the second is the key (index).
+		dataArray = dataArray.value;
 		dataKey = dataLocals.length === 2 ? dataLocals[1] : "mi";
 		dataValue = dataLocals[0];
 		prelude = `for(var ${dataKey}=0;${dataKey}<${dataArray}.length;${dataKey}++){var ${dataValue}=${dataArray}[${dataKey}];${body}}`;

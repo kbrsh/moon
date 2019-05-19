@@ -115,21 +115,10 @@
 		"\r": "\\r"
 	};
 	/**
-	 * Checks if a given character is a quote.
-	 *
-	 * @param {string} char
-	 * @returns {boolean} True if the character is a quote
-	 */
-
-	function isQuote(_char) {
-		return _char === "\"" || _char === "'";
-	}
-	/**
 	 * Escape text to make it usable in a JavaScript string literal.
 	 *
 	 * @param {string} text
 	 */
-
 
 	function escapeText(text) {
 		return text.replace(textRE, function (match) {
@@ -144,9 +133,22 @@
 
 
 	function scopeExpression(expression) {
-		return expression.replace(expressionRE, function (match, name) {
-			return name === undefined || name[0] === "$" || globals.indexOf(name) !== -1 ? match : "data." + name;
+		var isStatic = true;
+		var value = expression.replace(expressionRE, function (match, name) {
+			if (name === undefined || globals.indexOf(name) !== -1) {
+				// Return a static match if there are no dynamic names or if it is a
+				// global variable.
+				return match;
+			} else {
+				// Return a dynamic match if there is a dynamic name or a local.
+				isStatic = false;
+				return name[0] === "$" ? match : "data." + name;
+			}
 		});
+		return {
+			value: value,
+			isStatic: isStatic
+		};
 	}
 	/**
 	 * Convert a token into a string, accounting for `<text/>` components.
@@ -163,10 +165,10 @@
 				// and doesn't need the quotes. If not, it was an expression and
 				// needs to be formatted with curly braces.
 
-				if (isQuote(content[0])) {
-					return content.slice(1, -1);
+				if (content.isStatic) {
+					return content.value.slice(1, -1);
 				} else {
-					return "{" + content + "}";
+					return "{" + content.value + "}";
 				}
 			} else {
 				var tag = "<" + token.value;
@@ -174,7 +176,7 @@
 
 				for (var attributeKey in attributes) {
 					var attributeValue = attributes[attributeKey];
-					tag += " " + attributeKey + "=" + (isQuote(attributeValue[0]) ? attributeValue : "{" + attributeValue + "}");
+					tag += " " + attributeKey + "=" + (attributeValue.isStatic ? attributeValue.value : "{" + attributeValue.value + "}");
 				}
 
 				if (token.closed) {
@@ -230,9 +232,9 @@
 		var tokens = [];
 
 		for (var i = 0; i < input.length;) {
-			var _char2 = input[i];
+			var _char = input[i];
 
-			if (_char2 === "<") {
+			if (_char === "<") {
 				var charNext = input[i + 1];
 
 				if ("development" === "development" && charNext === undefined) {
@@ -308,10 +310,18 @@
 					} else {
 						// Store the key/value pair using the matched value or
 						// expression.
-						attributes[attributeKey] = attributeExpression === undefined ? attributeValue === undefined ? "\"\"" : attributeValue : scopeExpression(attributeExpression); // Add a wrapper function for events.
+						if (attributeExpression === undefined) {
+							attributes[attributeKey] = {
+								value: attributeValue === undefined ? "\"\"" : attributeValue,
+								isStatic: true
+							};
+						} else {
+							attributes[attributeKey] = scopeExpression(attributeExpression);
+						} // Add a wrapper function for events.
+
 
 						if (attributeKey[0] === "@") {
-							attributes[attributeKey] = "function($event){" + attributes[attributeKey] + "}";
+							attributes[attributeKey].value = "function($event){" + attributes[attributeKey].value + "}";
 						}
 					}
 				} // Append an opening tag token with the name, attributes, and optional
@@ -325,18 +335,18 @@
 					closed: closeSlash === "/"
 				});
 				i += nameMatch.length;
-			} else if (_char2 === "{") {
+			} else if (_char === "{") {
 				// If a sequence of characters begins with "{", process it as an
 				// expression token.
 				var expression = ""; // Consume the input until the end of the expression.
 
 				for (i += 1; i < input.length; i++) {
-					var _char3 = input[i];
+					var _char2 = input[i];
 
-					if (_char3 === "}") {
+					if (_char2 === "}") {
 						break;
 					} else {
-						expression += _char3;
+						expression += _char2;
 					}
 				} // Append the expression as a `<text/>` element with the appropriate
 				// text content attribute.
@@ -356,12 +366,12 @@
 				var text = ""; // Consume the input until the start of a new tag or expression.
 
 				for (; i < input.length; i++) {
-					var _char4 = input[i];
+					var _char3 = input[i];
 
-					if (_char4 === "<" || _char4 === "{") {
+					if (_char3 === "<" || _char3 === "{") {
 						break;
 					} else {
-						text += _char4;
+						text += _char3;
 					}
 				} // Append the text as a `<text/>` element with the appropriate text
 				// content attribute if it isn't only whitespace.
@@ -372,7 +382,10 @@
 						type: "tagOpen",
 						value: "text",
 						attributes: {
-							"": "\"" + escapeText(text) + "\""
+							"": {
+								value: "\"" + escapeText(text) + "\"",
+								isStatic: true
+							}
 						},
 						closed: true
 					});
@@ -622,11 +635,12 @@
 
 	function generateNodeIf(element, parent, index, staticNodes) {
 		var variable = "m" + generateVariable;
+		var attributes = element.attributes;
 		var prelude = "";
 		var emptyElseClause = true;
 		setGenerateVariable(generateVariable + 1); // Generate the initial `if` clause.
 
-		prelude += "var " + variable + ";if(" + element.attributes[""] + "){" + generateClause(variable, element, staticNodes) + "}"; // Search for `else-if` and `else` clauses if there are siblings.
+		prelude += "var " + variable + ";if(" + attributes[""].value + "){" + generateClause(variable, element, staticNodes) + "}"; // Search for `else-if` and `else` clauses if there are siblings.
 
 		if (parent !== null) {
 			var siblings = parent.children;
@@ -636,7 +650,7 @@
 
 				if (sibling.name === "else-if") {
 					// Generate the `else-if` clause.
-					prelude += "else if(" + sibling.attributes[""] + "){" + generateClause(variable, sibling, staticNodes) + "}"; // Remove the `else-if` clause so that it isn't generated
+					prelude += "else if(" + attributes[""].value + "){" + generateClause(variable, sibling, staticNodes) + "}"; // Remove the `else-if` clause so that it isn't generated
 					// individually by the parent.
 
 					siblings.splice(i, 1);
@@ -681,9 +695,10 @@
 
 	function generateNodeFor(element, staticNodes) {
 		var variable = "m" + generateVariable;
-		var dataLocals = element.attributes[""].split(",");
-		var dataArray = element.attributes.of;
-		var dataObject = element.attributes["in"];
+		var attributes = element.attributes;
+		var dataLocals = attributes[""].value.split(",");
+		var dataArray = attributes.of;
+		var dataObject = attributes["in"];
 		var dataKey;
 		var dataValue;
 		var prelude;
@@ -704,6 +719,7 @@
 			// Generate a `for` loop over an object. The first local is the key and
 			// the second is the value.
 			var dataObjectValue;
+			dataObject = dataObject.value;
 			dataKey = dataLocals[0];
 
 			if (dataLocals.length === 2) {
@@ -717,6 +733,7 @@
 		} else {
 			// Generate a `for` loop over an array. The first local is the value and
 			// the second is the key (index).
+			dataArray = dataArray.value;
 			dataKey = dataLocals.length === 2 ? dataLocals[1] : "mi";
 			dataValue = dataLocals[0];
 			prelude = "for(var " + dataKey + "=0;" + dataKey + "<" + dataArray + ".length;" + dataKey + "++){var " + dataValue + "=" + dataArray + "[" + dataKey + "];" + body + "}";
@@ -765,11 +782,11 @@
 			var attributeValue = attributes[attribute]; // Mark the current node as dynamic if there are any events or dynamic
 			// attributes.
 
-			if (attribute[0] === "@" || attributeValue[0] !== "\"" && attributeValue[0] !== "'") {
+			if (attribute[0] === "@" || !attributeValue.isStatic) {
 				isStatic = false;
 			}
 
-			data += separator + "\"" + attribute + "\":" + attributeValue;
+			data += separator + "\"" + attribute + "\":" + attributeValue.value;
 			separator = ",";
 		}
 

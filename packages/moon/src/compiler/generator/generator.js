@@ -42,12 +42,12 @@ export function generateNode(element, parent, index, staticNodes) {
 		// attributes.
 		if (
 			attribute[0] === "@" ||
-			(attributeValue[0] !== "\"" && attributeValue[0] !== "'")
+			!attributeValue.isStatic
 		) {
 			isStatic = false;
 		}
 
-		data += `${separator}"${attribute}":${attributeValue}`;
+		data += `${separator}"${attribute}":${attributeValue.value}`;
 		separator = ",";
 	}
 

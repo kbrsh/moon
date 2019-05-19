@@ -50,16 +50,6 @@ const escapeTextMap = {
 };
 
 /**
- * Checks if a given character is a quote.
- *
- * @param {string} char
- * @returns {boolean} True if the character is a quote
- */
-function isQuote(char) {
-	return char === "\"" || char === "'";
-}
-
-/**
  * Escape text to make it usable in a JavaScript string literal.
  *
  * @param {string} text
@@ -74,15 +64,24 @@ function escapeText(text) {
  * @param {string} expression
  */
 function scopeExpression(expression) {
-	return expression.replace(expressionRE, (match, name) =>
-		(
-			name === undefined ||
-			name[0] === "$" ||
-			globals.indexOf(name) !== -1
-		) ?
-			match :
-			"data." + name
-	);
+	let isStatic = true;
+
+	const value = expression.replace(expressionRE, (match, name) => {
+		if (name === undefined || globals.indexOf(name) !== -1) {
+			// Return a static match if there are no dynamic names or if it is a
+			// global variable.
+			return match;
+		} else {
+			// Return a dynamic match if there is a dynamic name or a local.
+			isStatic = false;
+			return name[0] === "$" ? match : "data." + name;
+		}
+	});
+
+	return {
+		value,
+		isStatic
+	};
 }
 
 /**
@@ -99,10 +98,10 @@ export function tokenString(token) {
 			// If the text content is surrounded with quotes, it was normal text
 			// and doesn't need the quotes. If not, it was an expression and
 			// needs to be formatted with curly braces.
-			if (isQuote(content[0])) {
-				return content.slice(1, -1);
+			if (content.isStatic) {
+				return content.value.slice(1, -1);
 			} else {
-				return `{${content}}`;
+				return `{${content.value}}`;
 			}
 		} else {
 			let tag = "<" + token.value;
@@ -110,7 +109,7 @@ export function tokenString(token) {
 
 			for (let attributeKey in attributes) {
 				const attributeValue = attributes[attributeKey];
-				tag += ` ${attributeKey}=${isQuote(attributeValue[0]) ? attributeValue : `{${attributeValue}}`}`;
+				tag += ` ${attributeKey}=${attributeValue.isStatic ? attributeValue.value : `{${attributeValue.value}}`}`;
 			}
 
 			if (token.closed) {
@@ -184,7 +183,6 @@ export function lex(input) {
 			if (charNext === "/") {
 				// Append a closing tag token if a sequence of characters begins
 				// with "</".
-
 				const closeIndex = input.indexOf(">", i + 2);
 				const name = input.slice(i + 2, closeIndex);
 
@@ -259,16 +257,18 @@ export function lex(input) {
 				} else {
 					// Store the key/value pair using the matched value or
 					// expression.
-					attributes[attributeKey] =
-						attributeExpression === undefined ?
-							attributeValue === undefined ?
-								"\"\"" :
-								attributeValue :
-							scopeExpression(attributeExpression);
+					if (attributeExpression === undefined) {
+						attributes[attributeKey] = {
+							value: attributeValue === undefined ? "\"\"" : attributeValue,
+							isStatic: true
+						};
+					} else {
+						attributes[attributeKey] = scopeExpression(attributeExpression);
+					}
 
 					// Add a wrapper function for events.
 					if (attributeKey[0] === "@") {
-						attributes[attributeKey] = `function($event){${attributes[attributeKey]}}`;
+						attributes[attributeKey].value = `function($event){${attributes[attributeKey].value}}`;
 					}
 				}
 			}
@@ -333,7 +333,10 @@ export function lex(input) {
 					type: "tagOpen",
 					value: "text",
 					attributes: {
-						"": `"${escapeText(text)}"`
+						"": {
+							value: `"${escapeText(text)}"`,
+							isStatic: true
+						}
 					},
 					closed: true
 				});
