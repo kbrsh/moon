@@ -72,14 +72,22 @@ export default function Moon(options) {
 		}
 
 		// Start the root renderer.
+		const rootAttributes = root.attributes;
+		const dataNode = {
+			children: []
+		};
+
+		for (let i = 0; i < rootAttributes.length; i++) {
+			const rootAttribute = rootAttributes[i];
+			dataNode[rootAttribute.name] = rootAttribute.value;
+		}
+
 		setViewOld({
 			element: root,
 			node: {
 				type: types.element,
 				name: root.tagName.toLowerCase(),
-				data: {
-					children: []
-				}
+				data: dataNode
 			},
 			children: []
 		});

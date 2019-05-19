@@ -1425,14 +1425,22 @@
 			} // Start the root renderer.
 
 
+			var rootAttributes = root.attributes;
+			var dataNode = {
+				children: []
+			};
+
+			for (var i = 0; i < rootAttributes.length; i++) {
+				var rootAttribute = rootAttributes[i];
+				dataNode[rootAttribute.name] = rootAttribute.value;
+			}
+
 			setViewOld({
 				element: root,
 				node: {
 					type: types.element,
 					name: root.tagName.toLowerCase(),
-					data: {
-						children: []
-					}
+					data: dataNode
 				},
 				children: []
 			});
