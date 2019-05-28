@@ -9,9 +9,9 @@
 
 		<title>Moon</title>
 
-		<link rel="shortcut icon" href="./img/favicon.png"/>
+		<link rel="shortcut icon" href="./img/logo.png"/>
 
-		<link rel="stylesheet" type="text/css" href="./css/lib/wing.min.css" />
+		<link rel="stylesheet" type="text/css" href="./css/lib/grain.css" />
 		<link rel="stylesheet" type="text/css" href="./css/styles.css" />
 		<link rel="stylesheet" type="text/css" href="./css/index.css" />
 
@@ -49,35 +49,23 @@
 		<section id="feature-minimal" class="container feature">
 			<h3>MINIMAL</h3>
 			<p>Moon instances are composed of data and a view to display the data. Actions performed through the view update the data along with the view. The view is defined with the Moon view language — a minimalistic template language allowing powerful interpolation and logic. The data is defined with a JavaScript object containing values of any type.</p>
-			<div class="row">
-				<div class="col">
-					<pre><code lang="mvl"><span class="red">&lt;p</span><span class="red">&gt;</span>{text}<span class="red">&lt;/p</span><span class="red">&gt;</span>
+			<pre><code lang="mvl"><span class="red">&lt;p</span><span class="red">&gt;</span>{text}<span class="red">&lt;/p</span><span class="red">&gt;</span>
 <span class="red">&lt;input</span> <span class="orange">type</span>=<span class="green">&quot;text&quot;</span> <span class="orange">@bind</span>={text} <span class="red">/&gt;</span></code></pre>
-					<pre><code lang="js"><span class="blue">Moon</span>({
+			<pre><code lang="js"><span class="blue">Moon</span>({
 	root: <span class="green">&quot;#root&quot;</span>,
 	text: <span class="green">&quot;Hello Moon!&quot;</span>
 });</code></pre>
-				</div>
-				<div class="col">
-					<div id="example" class="flex center"></div>
-				</div>
-			</div>
+			<div id="example"></div>
 		</section>
 
 		<section id="feature-fast" class="container feature">
 			<h3>FAST</h3>
 			<p>Moon instances are compiled from the Moon view language to lower level JavaScript DOM operations. Moon generates code to first create and initialize your application. At compile-time, Moon can identify the dynamic parts of your application and generate code to update them when needed at runtime.</p>
-			<div class="row">
-				<div class="col">
-					<pre><code lang="mvl"><span class="red">&lt;p</span><span class="red">&gt;</span>Static content.<span class="red">&lt;/p</span><span class="red">&gt;</span>
+			<pre><code lang="mvl"><span class="red">&lt;p</span><span class="red">&gt;</span>Static content.<span class="red">&lt;/p</span><span class="red">&gt;</span>
 <span class="red">&lt;p</span><span class="red">&gt;</span>Dynamic content: {dynamic}<span class="red">&lt;/p</span><span class="red">&gt;</span></code></pre>
-				</div>
-				<div class="col">
-					<pre><code lang="js"><span class="purple">function</span> <span class="blue">update</span>() {
+			<pre><code lang="js"><span class="purple">function</span> <span class="blue">update</span>() {
 	m.<span class="blue">stc</span>(m6, instance.dynamic);
 }</code></pre>
-				</div>
-			</div>
 		</section>
 		<script src="./js/lib/moon.min.js"></script>
 		<script src="./js/index.js"></script>

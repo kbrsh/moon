@@ -1,48 +1,42 @@
 body {
-	background: #121212;
-	color: #F7F7F7;
+	background: hsl(0, 0%, 10%);
+	color: hsl(0, 0%, 100%);
 }
 
 #nav a {
-	color: #F7F7F7;
-}
-
-#head {
-	margin-top: 100px;
-}
-
-#head img {
-	height: 100px;
-	margin-bottom: 20px;
+	color: hsl(0, 0%, 100%);
 }
 
 #head h1 {
-	font-size: 50px;
-	max-width: 700px;
-	margin-bottom: 20px;
-	margin-left: auto;
-	margin-right: auto;
+	margin-left: 58.5px;
+	margin-right: 58.5px;
 }
 
-#head a {
-	margin-bottom: 20px;
+#head img {
+	width: 169px;
 }
 
 #head a:nth-child(3) button {
-	background: hsl(265, 100%, 52%);
-	border: 1px solid hsl(265, 100%, 52%);
-	color: #F7F7F7;
+	background-color: hsl(260, 100%, 36%);
+	color: hsl(260, 100%, 100%);
+}
+
+#head a:nth-child(3) button:focus {
+	border-color: hsl(260, 100%, 49%);
 }
 
 #head a:nth-child(4) button {
-	background: #232323;
-	border: 1px solid #343434;
-	color: #E6E6E6;
+	background: hsl(0, 0%, 36%);
+	color: hsl(0, 0%, 100%);
+}
+
+#head a:nth-child(4) button:focus {
+	border-color: hsl(0, 0%, 49%);
 }
 
 .feature {
-	margin-top: 70px;
-	margin-bottom: 70px;
+	margin-top: 99.4px;
+	margin-bottom: 99.4px;
 }
 
 .feature h3 {
@@ -54,26 +48,15 @@ body {
 	font-weight: 200;
 }
 
-#feature-minimal pre:nth-of-type(2) {
-	margin: 0;
-}
-
 #example {
-	height: 100%;
-	margin-bottom: 16px;
-	background-color: #232323;
-}
-
-#example p {
-	font-size: 30px;
-	font-weight: 200;
+	display: block;
+	background-color: hsl(0, 0%, 23%);
 }
 
 #example input {
 	width: 80%;
-	color: #D5D5D5;
-	background-color: #343434;
-	border-color: #676767;
+	color: hsl(0, 0%, 100%);
+	background-color: hsl(0, 0%, 36%);
 }
 
 @media screen and (max-width: 768px) {

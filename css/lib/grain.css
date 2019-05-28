@@ -1,0 +1,70 @@
+* {
+	box-sizing: border-box;
+}
+
+html, body {
+	margin: 0;
+	background: hsl(0, 0%, 100%);
+	color: hsl(0, 0%, 10%);
+	font-size: 19.89px;
+}
+
+body {
+	padding: 7px;
+}
+
+div {
+	display: inline-block;
+}
+
+button, code, div, h1, h2, h3, h4, h5, h6, img, input, li, ol, p, pre, textarea, ul, video {
+	margin: 7px;
+	padding: 7px;
+	border: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	line-height: 1.3;
+}
+
+button, code, input, p, pre, textarea {
+	line-height: 1.5;
+}
+
+h1 {
+	font-size: 51.02112px;
+}
+
+h2 {
+	font-size: 43.6078px;
+}
+
+h3 {
+	font-size: 37.2716px;
+}
+
+h4 {
+	font-size: 31.8561px;
+}
+
+h5 {
+	font-size: 27.2274px;
+}
+
+h6 {
+	font-size: 23.2713px;
+}
+
+p {
+	font-size: 19.89px;
+}
+
+button, code, input, pre, textarea {
+	font-size: 17px;
+}
+
+a {
+	color: hsl(200, 100%, 10%);
+	border-bottom: 1px solid hsl(200, 100%, 10%);
+	text-decoration: none;
+}

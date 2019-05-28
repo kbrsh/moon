@@ -9,9 +9,9 @@
 
 		<title>Moon | {{title}}</title>
 
-		<link rel="shortcut icon" href="../img/favicon.png"/>
+		<link rel="shortcut icon" href="../img/logo.png"/>
 
-		<link rel="stylesheet" type="text/css" href="../css/lib/wing.min.css" />
+		<link rel="stylesheet" type="text/css" href="../css/lib/grain.css" />
 		<link rel="stylesheet" type="text/css" href="../css/styles.css" />
 		<link rel="stylesheet" type="text/css" href="../css/post.css" />
 
@@ -28,25 +28,24 @@
 	</head>
 
 	<body>
-		<div id="nav" class="container">
-			<h2 id="nav-home"><a href="../">Moon</a></h2>
+		<div id="post">
+			<div id="nav">
+				<h2 id="nav-home"><a href="../">Moon</a></h2>
 
-			<div id="nav-items">
-				<a href="./guide.html">Guide</a>
-				<a href="./about.html">About</a>
-				<a href="./examples.html">Examples</a>
-				<a href="https://github.com/kbrsh/moon">GitHub</a>
+				<div id="nav-items">
+					<a href="./guide.html">Guide</a>
+					<a href="./about.html">About</a>
+					<a href="./examples.html">Examples</a>
+					<a href="https://github.com/kbrsh/moon">GitHub</a>
+				</div>
 			</div>
-		</div>
-
-		<div id="post" class="container flex">
 			<div id="side">
 				<h6>Documentation</h6>
 				{{#each posts.doc}}
 					{{#ifeq @root.file file}}
-						<a id="active" href="./{{file}}">{{title}}</a>
+						<p><a id="active" href="./{{file}}">{{title}}</a></p>
 					{{else}}
-						<a href="./{{file}}">{{title}}</a>
+						<p><a href="./{{file}}">{{title}}</a></p>
 					{{/ifeq}}
 				{{/each}}
 			</div>

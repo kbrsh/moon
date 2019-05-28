@@ -1,80 +1,100 @@
 body {
-	background: #F7F7F7;
-	color: #121212;
+	background: hsl(0, 0%, 100%);
+	color: hsl(0, 0%, 10%);
+	font-family: -apple-system, BlinkMacSystemFont, Avenir, "Avenir Next", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 }
 
 #nav {
 	display: flex;
 	justify-content: space-between;
-	margin-top: 16px;
-	margin-bottom: 16px;
+	align-items: center;
 }
 
 #nav a {
-	color: #121212;
-	text-decoration: none;
+	color: hsl(0, 0%, 10%);
+	border: none;
 }
 
 #nav-home {
-	margin-bottom: 0;
 	font-weight: 200;
-	letter-spacing: 1px;
 }
 
 #nav-items a {
-	margin-left: 16px;
+	margin-left: 20.23px;
+}
+
+.container {
+	max-width: 830.1px;
+	margin: 0 auto;
 }
 
 h1, h2, h3 {
 	font-weight: 600;
-	letter-spacing: 1px;
 }
 
 button {
-	font-size: 13px;
-	letter-spacing: 1px;
-	background: #D5D5D5;
-	color: #343434;
-	border-color: #A2A2A2;
+	padding: 11.9px;
+	border-radius: 4.1px;
+	font-weight: 700;
+	background-color: hsl(0, 0%, 74%);
+	color: hsl(0, 0%, 10%);
+}
+
+button:focus {
+	outline: none;
+	border: 1.4px solid hsl(0, 0%, 61%);
+}
+
+pre {
+	position: relative;
+	background: hsl(200, 14%, 23%);
+}
+
+code {
+	color: hsl(200, 14%, 74%);
+	background: hsl(200, 14%, 23%);
+	tab-size: 3;
 }
 
 pre code {
-	position: relative;
-	background: #1f292e;
-	border: 1px solid #29363d;
-	color: #b3c3cc;
-	tab-size: 3;
+	display: inline-block;
+	white-space: pre-wrap;
+	word-break: break-all;
 }
 
 pre code::after {
 	position: absolute;
-	top: 5px;
-	right: 10px;
+	top: 7px;
+	right: 7px;
 	content: attr(lang);
-	font-size: 13px;
-	color: #526d7a;
+	font-size: 14.5px;
+	color: hsl(200, 14%, 49%);
 }
 
 pre code .red {
-	color: #cd9898;
+	color: hsl(0, 29%, 61%);
 }
 
 pre code .orange {
-	color: #cdaa98;
+	color: hsl(20, 29%, 61%);
 }
 
 pre code .green {
-	color: #aacd98;
+	color: hsl(100, 29%, 61%);
 }
 
 pre code .blue {
-	color: #90bed5;
+	color: hsl(200, 29%, 61%);
 }
 
 pre code .purple {
-	color: #bb98cd;
+	color: hsl(300, 14%, 61%);
 }
 
 pre code .gray {
-	color: #5c7a8a;
+	color: hsl(200, 14%, 49%);
+}
+
+.text-center {
+	text-align: center;
 }
