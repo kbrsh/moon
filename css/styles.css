@@ -58,6 +58,7 @@ code {
 
 pre code {
 	display: inline-block;
+	width: 100%;
 	white-space: pre-wrap;
 	word-break: break-all;
 }
