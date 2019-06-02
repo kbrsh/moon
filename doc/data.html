@@ -28,30 +28,35 @@
 	</head>
 
 	<body>
-		<div id="post">
-			<div id="nav">
-				<h2 id="nav-home"><a href="../">Moon</a></h2>
+		<div id="post" class="container x-10">
+			<div class="nav">
+				<div class="nav-home">
+					<h2 class="nav-home"><a href="../">Moon</a></h2>
+				</div>
 
-				<div id="nav-items">
-					<a href="./guide.html">Guide</a>
-					<a href="./about.html">About</a>
-					<a href="./examples.html">Examples</a>
-					<a href="https://github.com/kbrsh/moon">GitHub</a>
+				<div class="nav-items">
+					<p>
+						<a href="./guide.html" class="s-1">Guide</a>
+						<a href="./about.html" class="s-1">About</a>
+						<a href="./examples.html" class="s-1">Examples</a>
+						<a href="https://github.com/kbrsh/moon" class="s-1">GitHub</a>
+					</p>
 				</div>
 			</div>
-			<div id="side">
-				<h6>Documentation</h6>
-						<p><a href="./about.html">About</a></p>
-						<p><a href="./installation.html">Installation</a></p>
-						<p><a href="./guide.html">Guide</a></p>
-						<p><a id="active" href="./data.html">Data</a></p>
-						<p><a href="./views.html">Views</a></p>
-						<p><a href="./components.html">Components</a></p>
-						<p><a href="./examples.html">Examples</a></p>
-			</div>
-			<div id="content">
-				<h1>Data</h1>
-				<p>Every Moon component is a Moon instance with properties and methods that are defined in the component definition.</p>
+			<div class="main">
+				<div class="side x-7">
+					<h6>Documentation</h6>
+					<p><a href="./about.html">About</a></p>
+					<p><a href="./installation.html">Installation</a></p>
+					<p><a href="./guide.html">Guide</a></p>
+					<p><a id="active" href="./data.html">Data</a></p>
+					<p><a href="./views.html">Views</a></p>
+					<p><a href="./components.html">Components</a></p>
+					<p><a href="./examples.html">Examples</a></p>
+				</div>
+				<div class="content x-9">
+					<h1>Data</h1>
+					<p>Every Moon component is a Moon instance with properties and methods that are defined in the component definition.</p>
 <h3 id="root">Root</h3>
 <p>The root instance is created using <code>Moon({})</code>. This invocation creates a new component constructor and initializes it.</p>
 <pre><code lang="js"><span class="blue">Moon</span>({
@@ -136,6 +141,8 @@
 });
 </code></pre>
 
+				</div>
+				<div class="x-5"></div>
 			</div>
 		</div>
 	</body>

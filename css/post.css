@@ -1,49 +1,40 @@
-body {
-	text-align: center;
+.main {
+	justify-content: space-between;
+	width: 100%;
 }
 
-#side, #content {
-	text-align: left;
-	vertical-align: top;
+.side {
+	flex-direction: column;
 }
 
-#side {
-	width: 287.2px;
+.side h6, .side p {
+	margin: 1.424791px;
 }
 
-#content {
-	max-width: 830.1px;
-}
-
-#side p {
-	margin-left: 14px;
-	padding: 0;
-}
-
-#side a {
+.side a {
 	color: hsl(0, 0%, 36%);
 	border: none;
 }
 
-#side a#active {
+.side a#active {
 	color: hsl(260, 100%, 49%);
+}
+
+h1, h2, h3, h4, h5, h6, p, pre, img {
+	width: 100%;
 }
 
 code {
 	padding: 4.1px;
-	margin: 0;
 }
 
 .example {
+	width: 100%;
+	flex-direction: column;
 	background-color: hsl(0, 0%, 87%);
 }
 
 .example input {
+	width: 100%;
 	background-color: hsl(0, 0%, 74%);
-}
-
-@media screen and (max-width: 768px) {
-	body {
-		text-align: left;
-	}
 }

@@ -43,18 +43,21 @@ button:focus {
 
 pre {
 	position: relative;
+	padding: 20.23px;
 	background: hsl(200, 14%, 23%);
 }
 
 code {
-	color: hsl(200, 14%, 74%);
-	background: hsl(200, 14%, 23%);
+	color: hsl(200, 14%, 10%);
+	background: hsl(200, 14%, 87%);
 	tab-size: 3;
 }
 
 pre code {
 	display: inline-block;
 	width: 100%;
+	color: hsl(200, 14%, 74%);
+	background: hsl(200, 14%, 23%);
 	white-space: pre-wrap;
 	word-break: break-all;
 }

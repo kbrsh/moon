@@ -28,30 +28,35 @@
 	</head>
 
 	<body>
-		<div id="post">
-			<div id="nav">
-				<h2 id="nav-home"><a href="../">Moon</a></h2>
+		<div id="post" class="container x-10">
+			<div class="nav">
+				<div class="nav-home">
+					<h2 class="nav-home"><a href="../">Moon</a></h2>
+				</div>
 
-				<div id="nav-items">
-					<a href="./guide.html">Guide</a>
-					<a href="./about.html">About</a>
-					<a href="./examples.html">Examples</a>
-					<a href="https://github.com/kbrsh/moon">GitHub</a>
+				<div class="nav-items">
+					<p>
+						<a href="./guide.html" class="s-1">Guide</a>
+						<a href="./about.html" class="s-1">About</a>
+						<a href="./examples.html" class="s-1">Examples</a>
+						<a href="https://github.com/kbrsh/moon" class="s-1">GitHub</a>
+					</p>
 				</div>
 			</div>
-			<div id="side">
-				<h6>Documentation</h6>
-						<p><a href="./about.html">About</a></p>
-						<p><a href="./installation.html">Installation</a></p>
-						<p><a href="./guide.html">Guide</a></p>
-						<p><a href="./data.html">Data</a></p>
-						<p><a href="./views.html">Views</a></p>
-						<p><a id="active" href="./components.html">Components</a></p>
-						<p><a href="./examples.html">Examples</a></p>
-			</div>
-			<div id="content">
-				<h1>Components</h1>
-				<p>Components allow you to split up your application into smaller, composable parts called <em>components</em>. Components are constructors that create new instances. They have the same API as the root Moon component, as both are component instances.</p>
+			<div class="main">
+				<div class="side x-7">
+					<h6>Documentation</h6>
+					<p><a href="./about.html">About</a></p>
+					<p><a href="./installation.html">Installation</a></p>
+					<p><a href="./guide.html">Guide</a></p>
+					<p><a href="./data.html">Data</a></p>
+					<p><a href="./views.html">Views</a></p>
+					<p><a id="active" href="./components.html">Components</a></p>
+					<p><a href="./examples.html">Examples</a></p>
+				</div>
+				<div class="content x-9">
+					<h1>Components</h1>
+					<p>Components allow you to split up your application into smaller, composable parts called <em>components</em>. Components are constructors that create new instances. They have the same API as the root Moon component, as both are component instances.</p>
 <p>Once a component is registered using <code>Moon.extend</code>, it can be used anywhere with a tag. Component names must start with a capital letter, and component data should be a function in order to create new data for each component instance.</p>
 <pre><code lang="mvl"><span class="gray">&lt;!-- Root View --&gt;</span>
 <span class="red">&lt;Counter</span><span class="red">/&gt;</span>
@@ -224,6 +229,8 @@
 <span class="red">&lt;/script</span><span class="red">&gt;</span>
 </code></pre>
 
+				</div>
+				<div class="x-5"></div>
 			</div>
 		</div>
 	</body>
