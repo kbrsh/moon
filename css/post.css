@@ -35,6 +35,10 @@ code {
 }
 
 .example input {
-	width: 100%;
+	width: 287.237071px;
 	background-color: hsl(0, 0%, 74%);
+}
+
+.example button {
+	max-width: 168.962983px;
 }
