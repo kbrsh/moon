@@ -4,28 +4,24 @@ body {
 	font-family: -apple-system, BlinkMacSystemFont, Avenir, "Avenir Next", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 }
 
-#nav {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
+.container {
+	margin-left: auto;
+	margin-right: auto;
 }
 
-#nav a {
+.nav {
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+}
+
+.nav a {
 	color: hsl(0, 0%, 10%);
 	border: none;
 }
 
-#nav-home {
+.nav-home {
 	font-weight: 200;
-}
-
-#nav-items a {
-	margin-left: 20.23px;
-}
-
-.container {
-	max-width: 830.1px;
-	margin: 0 auto;
 }
 
 h1, h2, h3 {
@@ -94,8 +90,4 @@ pre code .purple {
 
 pre code .gray {
 	color: hsl(200, 14%, 49%);
-}
-
-.text-center {
-	text-align: center;
 }

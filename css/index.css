@@ -1,19 +1,16 @@
-body {
+html, body {
 	background: hsl(0, 0%, 10%);
 	color: hsl(0, 0%, 100%);
 }
 
-#nav a {
+.nav a {
 	color: hsl(0, 0%, 100%);
 }
 
-#head h1 {
-	margin-left: 58.5px;
-	margin-right: 58.5px;
-}
-
-#head img {
-	width: 169px;
+#head {
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
 }
 
 #head a:nth-child(3) button {
@@ -34,11 +31,6 @@ body {
 	border-color: hsl(0, 0%, 49%);
 }
 
-.feature {
-	margin-top: 99.4px;
-	margin-bottom: 99.4px;
-}
-
 .feature h3 {
 	font-weight: 700;
 	letter-spacing: 5px;
@@ -48,13 +40,22 @@ body {
 	font-weight: 200;
 }
 
+.example-container, .code {
+	margin: 0;
+}
+
+.code pre {
+	width: 100%;
+}
+
 #example {
-	display: block;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 	background-color: hsl(0, 0%, 23%);
 }
 
 #example input {
-	width: 80%;
 	color: hsl(0, 0%, 100%);
 	background-color: hsl(0, 0%, 36%);
 }
