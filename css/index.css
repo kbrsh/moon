@@ -40,6 +40,10 @@ html, body {
 	font-weight: 200;
 }
 
+.example-container {
+	justify-content: space-between;
+}
+
 .example-container, .code {
 	margin: 0;
 }
