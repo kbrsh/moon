@@ -266,9 +266,9 @@ export function lex(input) {
 						attributes[attributeKey] = scopeExpression(attributeExpression);
 					}
 
-					// Add a wrapper function for events.
+					// For events, pass the event handler and component data.
 					if (attributeKey[0] === "@") {
-						attributes[attributeKey].value = `function($event){${attributes[attributeKey].value}}`;
+						attributes[attributeKey].value = `[${attributes[attributeKey].value},data]`;
 					}
 				}
 			}

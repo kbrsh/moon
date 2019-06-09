@@ -317,11 +317,11 @@
 							};
 						} else {
 							attributes[attributeKey] = scopeExpression(attributeExpression);
-						} // Add a wrapper function for events.
+						} // For events, pass the event handler and component data.
 
 
 						if (attributeKey[0] === "@") {
-							attributes[attributeKey].value = "function($event){" + attributes[attributeKey].value + "}";
+							attributes[attributeKey].value = "[" + attributes[attributeKey].value + ",data]";
 						}
 					}
 				} // Append an opening tag token with the name, attributes, and optional
@@ -881,21 +881,6 @@
 		return generate(parse(lex(input)));
 	}
 
-	function _defineProperty(obj, key, value) {
-		if (key in obj) {
-			Object.defineProperty(obj, key, {
-				value: value,
-				enumerable: true,
-				configurable: true,
-				writable: true
-			});
-		} else {
-			obj[key] = value;
-		}
-
-		return obj;
-	}
-
 	/**
 	 * Global data
 	 */
@@ -979,42 +964,40 @@
 			// Create a text node using the text content from the default key.
 			element = document.createTextNode(node.data[""]);
 		} else {
-			var nodeData = node.data; // Create a DOM element.
+			(function () {
+				var nodeData = node.data; // Create a DOM element.
 
-			element = document.createElement(node.name); // Set data, events, and attributes.
+				element = document.createElement(node.name); // Store DOM events.
 
-			var _loop = function _loop(key) {
-				var value = nodeData[key];
+				var MoonEvents = element.MoonEvents = {}; // Set data, events, and attributes.
 
-				if (key[0] === "@") {
-					var MoonEvents = element.MoonEvents;
+				var _loop = function _loop(key) {
+					var value = nodeData[key];
 
-					if (MoonEvents === undefined) {
-						MoonEvents = element.MoonEvents = _defineProperty({}, key, value);
-					} else {
+					if (key[0] === "@") {
 						MoonEvents[key] = value;
+						element.addEventListener(key.slice(1), function (event) {
+							var info = MoonEvents[key];
+							info[0](event, info[1]);
+						});
+					} else if (key !== "children" && value !== false) {
+						element.setAttribute(key, value);
 					}
+				};
 
-					element.addEventListener(key.slice(1), function ($event) {
-						MoonEvents[key]($event);
-					});
-				} else if (key !== "children" && value !== false) {
-					element.setAttribute(key, value);
+				for (var key in nodeData) {
+					_loop(key);
+				} // Recursively append children.
+
+
+				var nodeDataChildren = nodeData.children;
+
+				for (var i = 0; i < nodeDataChildren.length; i++) {
+					var childOld = executeCreate(nodeDataChildren[i]);
+					element.appendChild(childOld.element);
+					children.push(childOld);
 				}
-			};
-
-			for (var key in nodeData) {
-				_loop(key);
-			} // Recursively append children.
-
-
-			var nodeDataChildren = nodeData.children;
-
-			for (var i = 0; i < nodeDataChildren.length; i++) {
-				var childOld = executeCreate(nodeDataChildren[i]);
-				element.appendChild(childOld.element);
-				children.push(childOld);
-			}
+			})();
 		} // Return an old node with a reference to the immutable node and mutable
 		// element. This is to help performance and allow static nodes to be reused.
 

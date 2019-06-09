@@ -41,23 +41,19 @@ function executeCreate(node) {
 		// Create a DOM element.
 		element = document.createElement(node.name);
 
+		// Store DOM events.
+		const MoonEvents = element.MoonEvents = {};
+
 		// Set data, events, and attributes.
 		for (let key in nodeData) {
 			const value = nodeData[key];
 
 			if (key[0] === "@") {
-				let MoonEvents = element.MoonEvents;
+				MoonEvents[key] = value;
 
-				if (MoonEvents === undefined) {
-					MoonEvents = element.MoonEvents = {
-						[key]: value
-					};
-				} else {
-					MoonEvents[key] = value;
-				}
-
-				element.addEventListener(key.slice(1), ($event) => {
-					MoonEvents[key]($event);
+				element.addEventListener(key.slice(1), (event) => {
+					const info = MoonEvents[key];
+					info[0](event, info[1]);
 				});
 			} else if (key !== "children" && value !== false) {
 				element.setAttribute(key, value);
