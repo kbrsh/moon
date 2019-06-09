@@ -77,13 +77,13 @@ function addClass(element, name) {
 	if (elementName[0] === elementName[0].toLowerCase() && elementName !== "if" && elementName !== "else-if" && elementName !== "else" && elementName !== "for" && elementName !== "text") {
 		var elementAttributes = element.attributes;
 
-		if (elementAttributes["class"] === undefined) {
-			elementAttributes["class"] = {
+		if (elementAttributes.className === undefined) {
+			elementAttributes.className = {
 				value: "\"" + name + "\"",
 				isStatic: true
 			};
 		} else {
-			elementAttributes["class"].value += " + \" " + name + "\"";
+			elementAttributes.className.value += " + \" " + name + "\"";
 		}
 	}
 
