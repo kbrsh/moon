@@ -118,6 +118,7 @@
 	 * Escape text to make it usable in a JavaScript string literal.
 	 *
 	 * @param {string} text
+	 * @returns {string} Escaped text
 	 */
 
 	function escapeText(text) {
@@ -126,9 +127,36 @@
 		});
 	}
 	/**
+	 * Normalize an attribute key to a DOM property.
+	 *
+	 * Moon attribute keys should follow camelCase by convention instead of using
+	 * standard HTML attribute keys. However, standard HTML attributes are
+	 * supported. They should typically be used for custom attributes, data-*
+	 * attributes, or aria-* attributes.
+	 *
+	 * @param {string} key
+	 * @returns {string} Normalized key
+	 */
+
+
+	function normalizeAttributeKey(key) {
+		switch (key) {
+			case "class":
+				return "className";
+
+			case "for":
+				return "htmlFor";
+
+			default:
+				// Other keys should ideally be camelCased.
+				return key;
+		}
+	}
+	/**
 	 * Scope an expression to use variables within the `data` object.
 	 *
 	 * @param {string} expression
+	 * @returns {Object} Scoped expression and static status
 	 */
 
 
@@ -297,7 +325,7 @@
 				while ((attributeExec = attributeRE.exec(attributesText)) !== null) {
 					// Store the match and captured groups.
 					var attributeMatch = attributeExec[0];
-					var attributeKey = attributeExec[1];
+					var attributeKey = normalizeAttributeKey(attributeExec[1]);
 					var attributeValue = attributeExec[2];
 					var attributeExpression = attributeExec[3];
 
@@ -981,7 +1009,11 @@
 							info[0](event, info[1]);
 						});
 					} else if (key !== "children" && value !== false) {
-						element.setAttribute(key, value);
+						if (key in element) {
+							element[key] = value;
+						} else {
+							element.setAttribute(key, value);
+						}
 					}
 				};
 
@@ -1209,6 +1241,8 @@
 								// otherwise.
 								if (value === false) {
 									nodeOldElement.removeAttribute(key);
+								} else if (key in nodeOldElement) {
+									nodeOldElement[key] = value;
 								} else {
 									nodeOldElement.setAttribute(key, value);
 								}

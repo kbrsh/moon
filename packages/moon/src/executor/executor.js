@@ -56,7 +56,11 @@ function executeCreate(node) {
 					info[0](event, info[1]);
 				});
 			} else if (key !== "children" && value !== false) {
-				element.setAttribute(key, value);
+				if (key in element) {
+					element[key] = value;
+				} else {
+					element.setAttribute(key, value);
+				}
 			}
 		}
 
@@ -288,6 +292,8 @@ function executePatch(patches) {
 						// otherwise.
 						if (value === false) {
 							nodeOldElement.removeAttribute(key);
+						} else if (key in nodeOldElement) {
+							nodeOldElement[key] = value;
 						} else {
 							nodeOldElement.setAttribute(key, value);
 						}

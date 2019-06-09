@@ -53,15 +53,40 @@ const escapeTextMap = {
  * Escape text to make it usable in a JavaScript string literal.
  *
  * @param {string} text
+ * @returns {string} Escaped text
  */
 function escapeText(text) {
 	return text.replace(textRE, (match) => escapeTextMap[match]);
 }
 
 /**
+ * Normalize an attribute key to a DOM property.
+ *
+ * Moon attribute keys should follow camelCase by convention instead of using
+ * standard HTML attribute keys. However, standard HTML attributes are
+ * supported. They should typically be used for custom attributes, data-*
+ * attributes, or aria-* attributes.
+ *
+ * @param {string} key
+ * @returns {string} Normalized key
+ */
+function normalizeAttributeKey(key) {
+	switch (key) {
+		case "class":
+			return "className";
+		case "for":
+			return "htmlFor";
+		default:
+			// Other keys should ideally be camelCased.
+			return key;
+	}
+}
+
+/**
  * Scope an expression to use variables within the `data` object.
  *
  * @param {string} expression
+ * @returns {Object} Scoped expression and static status
  */
 function scopeExpression(expression) {
 	let isStatic = true;
@@ -244,7 +269,7 @@ export function lex(input) {
 			) {
 				// Store the match and captured groups.
 				const attributeMatch = attributeExec[0];
-				const attributeKey = attributeExec[1];
+				const attributeKey = normalizeAttributeKey(attributeExec[1]);
 				const attributeValue = attributeExec[2];
 				const attributeExpression = attributeExec[3];
 
