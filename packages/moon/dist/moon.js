@@ -914,7 +914,7 @@
 	 * Global static component views
 	 */
 
-	var m = [];
+	var m = {};
 	/**
 	 * Set old view to a new object.
 	 *
