@@ -292,7 +292,7 @@ export function lex(input) {
 					}
 
 					// For events, pass the event handler and component data.
-					if (attributeKey[0] === "@") {
+					if (attributeKey.charCodeAt(0) === 64) {
 						attributes[attributeKey].value = `[${attributes[attributeKey].value},data]`;
 					}
 				}
