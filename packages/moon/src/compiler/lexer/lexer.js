@@ -293,18 +293,22 @@ export function lex(input) {
 					if (attributeKeyFirst === 42) {
 						// For two-way data binding, store the bound data.
 						bindData = attributeKey.slice(1);
-					} else if (attributeExpression === undefined) {
-						attributes[attributeKey] = {
-							value: attributeValue === undefined ? "\"\"" : attributeValue,
-							isStatic: true
-						};
 					} else {
-						attributes[attributeKey] = scopeExpression(attributeExpression);
-					}
+						if (attributeExpression === undefined) {
+							// Set a static key-value pair.
+							attributes[attributeKey] = {
+								value: attributeValue === undefined ? "\"\"" : attributeValue,
+								isStatic: true
+							};
+						} else {
+							// Set a potentially dynamic expression.
+							attributes[attributeKey] = scopeExpression(attributeExpression);
+						}
 
-					// For events, pass the event handler and component data.
-					if (attributeKeyFirst === 64) {
-						attributes[attributeKey].value = `[${attributes[attributeKey].value},data]`;
+						// For events, pass the event handler and component data.
+						if (attributeKeyFirst === 64) {
+							attributes[attributeKey].value = `[${attributes[attributeKey].value},data]`;
+						}
 					}
 				}
 			}
