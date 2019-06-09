@@ -974,7 +974,7 @@
 				var _loop = function _loop(key) {
 					var value = nodeData[key];
 
-					if (key[0] === "@") {
+					if (key.charCodeAt(0) === 64) {
 						MoonEvents[key] = value;
 						element.addEventListener(key.slice(1), function (event) {
 							var info = MoonEvents[key];
@@ -1201,7 +1201,7 @@
 						for (var key in nodeNewData) {
 							var value = nodeNewData[key];
 
-							if (key[0] === "@") {
+							if (key.charCodeAt(0) === 64) {
 								// Update the event listener.
 								nodeOldElement.MoonEvents[key] = value;
 							} else if (key !== "children") {

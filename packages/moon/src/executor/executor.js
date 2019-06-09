@@ -48,7 +48,7 @@ function executeCreate(node) {
 		for (let key in nodeData) {
 			const value = nodeData[key];
 
-			if (key[0] === "@") {
+			if (key.charCodeAt(0) === 64) {
 				MoonEvents[key] = value;
 
 				element.addEventListener(key.slice(1), (event) => {
@@ -280,7 +280,7 @@ function executePatch(patches) {
 				for (let key in nodeNewData) {
 					const value = nodeNewData[key];
 
-					if (key[0] === "@") {
+					if (key.charCodeAt(0) === 64) {
 						// Update the event listener.
 						nodeOldElement.MoonEvents[key] = value;
 					} else if (key !== "children") {
