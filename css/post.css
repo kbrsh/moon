@@ -1,14 +1,18 @@
 .main {
+	margin-top: 35px;
 	justify-content: space-between;
 	width: 100%;
 }
 
 .side {
+	max-width: 350px;
+	margin-right: 35px;
+	margin-bottom: 35px;
 	flex-direction: column;
 }
 
 .side h6, .side p {
-	margin: 1.424791px;
+	margin-bottom: 7px;
 }
 
 .side a {
@@ -20,25 +24,42 @@
 	color: hsl(260, 100%, 49%);
 }
 
-h1, h2, h3, h4, h5, h6, p, pre, img {
+.content {
+	max-width: 700px;
+}
+
+.content h1, .content h2, .content h3, .content h4, .content h5, .content h6, .content p, .content pre, .content img, .content ol, .content ul, .example {
 	width: 100%;
+	margin-bottom: 35px;
+}
+
+pre {
+	padding: 14px;
+}
+
+pre code {
+	padding: 0;
 }
 
 code {
-	padding: 4.1px;
+	padding: 3.5px;
+}
+
+ol, ul {
+	list-style: inside;
 }
 
 .example {
-	width: 100%;
 	flex-direction: column;
 	background-color: hsl(0, 0%, 87%);
 }
 
-.example input {
-	width: 287.237071px;
-	background-color: hsl(0, 0%, 74%);
+.example * {
+	margin: 7px;
 }
 
-.example button {
-	max-width: 168.962983px;
+.example input {
+	max-width: 350px;
+	padding: 7px;
+	background-color: hsl(0, 0%, 74%);
 }

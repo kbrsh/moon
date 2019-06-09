@@ -1,12 +1,15 @@
 body {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
 	background: hsl(0, 0%, 100%);
 	color: hsl(0, 0%, 10%);
 	font-family: -apple-system, BlinkMacSystemFont, Avenir, "Avenir Next", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 }
 
 .container {
-	margin-left: auto;
-	margin-right: auto;
+	max-width: 1050px;
+	margin: 35px;
 }
 
 .nav {
@@ -24,26 +27,36 @@ body {
 	font-weight: 200;
 }
 
+.nav-items a {
+	margin-left: 14px;
+}
+
 h1, h2, h3 {
 	font-weight: 600;
 }
 
 button {
-	padding: 11.9px;
-	border-radius: 4.1px;
+	width: 161px;
+	padding-top: 7px;
+	padding-bottom: 7px;
+	border-radius: 3.5px;
 	font-weight: 700;
 	background-color: hsl(0, 0%, 74%);
 	color: hsl(0, 0%, 10%);
+	transition: background-color .1s ease;
 }
 
-button:focus {
+button:hover, button:focus {
 	outline: none;
-	border: 1.4px solid hsl(0, 0%, 61%);
+	background-color: hsl(0, 0%, 81%);
+}
+
+button:active {
+	background-color: hsl(0, 0%, 67%);
 }
 
 pre {
 	position: relative;
-	padding: 11.9px;
 	background: hsl(200, 14%, 23%);
 }
 
@@ -54,8 +67,6 @@ code {
 }
 
 pre code {
-	display: inline-block;
-	width: 100%;
 	color: hsl(200, 14%, 74%);
 	background: hsl(200, 14%, 23%);
 	white-space: pre-wrap;

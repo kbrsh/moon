@@ -15,13 +15,9 @@ div {
 	flex-wrap: wrap;
 }
 
-button, code, input, textarea {
-	padding: 7px;
-}
-
-button, div, h1, h2, h3, h4, h5, h6, img, input, li, ol, p, pre, textarea, ul, video {
-	width: auto;
-	margin: 7px;
+button, code, div, h1, h2, h3, h4, h5, h6, img, input, li, ol, p, pre, textarea, ul, video {
+	margin: 0;
+	padding: 0;
 	border: none;
 }
 
@@ -69,92 +65,4 @@ a {
 	color: hsl(200, 100%, 10%);
 	border-bottom: 1px solid hsl(200, 100%, 10%);
 	text-decoration: none;
-}
-
-.x-0 {
-	max-width: 7px;
-}
-
-.x-1 {
-	max-width: 11.9px;
-}
-
-.x-2 {
-	max-width: 20.23px;
-}
-
-.x-3 {
-	max-width: 34.391px;
-}
-
-.x-4 {
-	max-width: 58.4647px;
-}
-
-.x-5 {
-	max-width: 99.38999px;
-}
-
-.x-6 {
-	max-width: 168.962983px;
-}
-
-.x-7 {
-	max-width: 287.237071px;
-}
-
-.x-8 {
-	max-width: 488.303021px;
-}
-
-.x-9 {
-	max-width: 830.115135px;
-}
-
-.x-10 {
-	max-width: 1411.19573px;
-}
-
-.s-0 {
-	margin: 7px;
-}
-
-.s-1 {
-	margin: 11.9px;
-}
-
-.s-2 {
-	margin: 20.23px;
-}
-
-.s-3 {
-	margin: 34.391px;
-}
-
-.s-4 {
-	margin: 58.4647px;
-}
-
-.s-5 {
-	margin: 99.38999px;
-}
-
-.s-6 {
-	margin: 168.962983px;
-}
-
-.s-7 {
-	margin: 287.237071px;
-}
-
-.s-8 {
-	margin: 488.303021px;
-}
-
-.s-9 {
-	margin: 830.115135px;
-}
-
-.s-10 {
-	margin: 1411.19573px;
 }

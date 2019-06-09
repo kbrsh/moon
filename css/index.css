@@ -7,62 +7,56 @@ html, body {
 	color: hsl(0, 0%, 100%);
 }
 
-#head {
+.head {
+	justify-content: center;
+	max-width: 700px;
 	margin-left: auto;
 	margin-right: auto;
 	text-align: center;
 }
 
-#head a:nth-child(3) button {
+.head img {
+	width: 140px;
+	height: 140px;
+	margin-top: 70px;
+	margin-bottom: 21px;
+}
+
+.head h1 {
+	margin-bottom: 21px;
+}
+
+.head a {
+	border: none;
+}
+
+.head a:nth-child(3) button {
+	margin-right: 14px;
 	background-color: hsl(260, 100%, 36%);
 	color: hsl(260, 100%, 100%);
 }
 
-#head a:nth-child(3) button:focus {
-	border-color: hsl(260, 100%, 49%);
+.head a:nth-child(3) button:hover, .head a:nth-child(3) button:focus {
+	background-color: hsl(260, 100%, 29%);
 }
 
-#head a:nth-child(4) button {
-	background: hsl(0, 0%, 36%);
-	color: hsl(0, 0%, 100%);
+.head a:nth-child(3) button:active {
+	background-color: hsl(260, 100%, 43%);
 }
 
-#head a:nth-child(4) button:focus {
-	border-color: hsl(0, 0%, 49%);
-}
-
-.feature h3 {
-	font-weight: 700;
-	letter-spacing: 5px;
-}
-
-.feature p {
-	font-weight: 200;
-}
-
-.example-container {
-	justify-content: space-between;
-}
-
-.example-container, .code {
-	margin: 0;
-}
-
-.code pre {
-	width: 100%;
-}
-
-#example {
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	background-color: hsl(0, 0%, 23%);
-}
-
-#example input {
-	color: hsl(0, 0%, 100%);
+.head a:nth-child(4) button {
 	background-color: hsl(0, 0%, 36%);
+	color: hsl(260, 100%, 100%);
 }
+
+.head a:nth-child(4) button:hover, .head a:nth-child(4) button:focus {
+	background-color: hsl(0, 0%, 29%);
+}
+
+.head a:nth-child(4) button:active {
+	background-color: hsl(0, 0%, 43%);
+}
+
 
 @media screen and (max-width: 768px) {
 	#head h1 {
