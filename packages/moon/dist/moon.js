@@ -82,7 +82,7 @@
 	 * undefined.
 	 */
 
-	var attributeRE = /([\w\d-_:@]*)(?:=(?:("[^"]*"|'[^']*')|{([^{}]*)}))?/g;
+	var attributeRE = /([\w\d-_:@*]*)(?:=(?:("[^"]*"|'[^']*')|{([^{}]*)}))?/g;
 	/**
 	 * Capture the variables in expressions to scope them within the data
 	 * parameter. This ignores property names and deep object accesses.
@@ -94,6 +94,11 @@
 	 */
 
 	var textRE = /&amp;|&gt;|&lt;|&nbsp;|&quot;|\\|"|\n|\r/g;
+	/**
+	 * Capture checkbox and radio types
+	 */
+
+	var inputGroupRE = /checkbox|radio/;
 	/**
 	 * List of global variables to ignore in expression scoping
 	 */
@@ -319,7 +324,8 @@
 				var attributesText = nameExec[2];
 				var closeSlash = nameExec[3];
 				var attributes = {};
-				var attributeExec = void 0; // Keep matching for new attribute key/value pairs until there are no
+				var attributeExec = void 0;
+				var bindData = void 0; // Keep matching for new attribute key/value pairs until there are no
 				// more in the attribute text.
 
 				while ((attributeExec = attributeRE.exec(attributesText)) !== null) {
@@ -336,9 +342,13 @@
 						// loop.
 						attributeRE.lastIndex += 1;
 					} else {
-						// Store the key/value pair using the matched value or
+						var attributeKeyFirst = attributeKey.charCodeAt(0); // Store the key/value pair using the matched value or
 						// expression.
-						if (attributeExpression === undefined) {
+
+						if (attributeKeyFirst === 42) {
+							// For two-way data binding, store the bound data.
+							bindData = attributeKey.slice(1);
+						} else if (attributeExpression === undefined) {
 							attributes[attributeKey] = {
 								value: attributeValue === undefined ? "\"\"" : attributeValue,
 								isStatic: true
@@ -348,10 +358,37 @@
 						} // For events, pass the event handler and component data.
 
 
-						if (attributeKey.charCodeAt(0) === 64) {
+						if (attributeKeyFirst === 64) {
 							attributes[attributeKey].value = "[" + attributes[attributeKey].value + ",data]";
 						}
 					}
+				} // Handle two-way data binding.
+
+
+				if (bindData !== undefined) {
+					var bindType = attributes.type;
+					var bindAttribute = void 0;
+					var bindEvent = void 0;
+
+					if (bindType && inputGroupRE.test(bindType.value)) {
+						bindAttribute = "checked";
+						bindEvent = "@change";
+					} else if (name === "select") {
+						bindAttribute = "value";
+						bindEvent = "@change";
+					} else {
+						bindAttribute = "value";
+						bindEvent = "@input";
+					}
+
+					attributes[bindAttribute] = {
+						value: "data." + bindData,
+						isStatic: false
+					};
+					attributes[bindEvent] = {
+						value: "[function(me){Moon.set({\"" + bindData + "\":me.target." + bindAttribute + "});},data]",
+						isStatic: true
+					};
 				} // Append an opening tag token with the name, attributes, and optional
 				// self-closing slash.
 
@@ -995,7 +1032,16 @@
 			(function () {
 				var nodeData = node.data; // Create a DOM element.
 
-				element = document.createElement(node.name); // Store DOM events.
+				element = document.createElement(node.name); // Recursively append children.
+
+				var nodeDataChildren = nodeData.children;
+
+				for (var i = 0; i < nodeDataChildren.length; i++) {
+					var childOld = executeCreate(nodeDataChildren[i]);
+					element.appendChild(childOld.element);
+					children.push(childOld);
+				} // Store DOM events.
+
 
 				var MoonEvents = element.MoonEvents = {}; // Set data, events, and attributes.
 
@@ -1008,10 +1054,10 @@
 							var info = MoonEvents[key];
 							info[0](event, info[1]);
 						});
-					} else if (key !== "children" && value !== false) {
+					} else if (key !== "children") {
 						if (key in element) {
 							element[key] = value;
-						} else {
+						} else if (value !== false) {
 							element.setAttribute(key, value);
 						}
 					}
@@ -1019,15 +1065,6 @@
 
 				for (var key in nodeData) {
 					_loop(key);
-				} // Recursively append children.
-
-
-				var nodeDataChildren = nodeData.children;
-
-				for (var i = 0; i < nodeDataChildren.length; i++) {
-					var childOld = executeCreate(nodeDataChildren[i]);
-					element.appendChild(childOld.element);
-					children.push(childOld);
 				}
 			})();
 		} // Return an old node with a reference to the immutable node and mutable
@@ -1239,10 +1276,10 @@
 							} else if (key !== "children") {
 								// Remove the attribute if the value is false, and update it
 								// otherwise.
-								if (value === false) {
-									nodeOldElement.removeAttribute(key);
-								} else if (key in nodeOldElement) {
+								if (key in nodeOldElement) {
 									nodeOldElement[key] = value;
+								} else if (value === false) {
+									nodeOldElement.removeAttribute(key);
 								} else {
 									nodeOldElement.setAttribute(key, value);
 								}

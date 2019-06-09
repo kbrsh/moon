@@ -16,7 +16,7 @@ const nameRE = /<([\w\d-_]+)([^>]*?)(\/?)>/g;
  * due to the limits of regular expressions. One or both of them can be
  * undefined.
  */
-const attributeRE = /([\w\d-_:@]*)(?:=(?:("[^"]*"|'[^']*')|{([^{}]*)}))?/g;
+const attributeRE = /([\w\d-_:@*]*)(?:=(?:("[^"]*"|'[^']*')|{([^{}]*)}))?/g;
 
 /**
  * Capture the variables in expressions to scope them within the data
@@ -28,6 +28,11 @@ const expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_
  * Capture special characters in text that need to be escaped.
  */
 const textRE = /&amp;|&gt;|&lt;|&nbsp;|&quot;|\\|"|\n|\r/g;
+
+/**
+ * Capture checkbox and radio types
+ */
+const inputGroupRE = /checkbox|radio/;
 
 /**
  * List of global variables to ignore in expression scoping
@@ -260,6 +265,7 @@ export function lex(input) {
 			const closeSlash = nameExec[3];
 			const attributes = {};
 			let attributeExec;
+			let bindData;
 
 			// Keep matching for new attribute key/value pairs until there are no
 			// more in the attribute text.
@@ -280,9 +286,14 @@ export function lex(input) {
 					// loop.
 					attributeRE.lastIndex += 1;
 				} else {
+					const attributeKeyFirst = attributeKey.charCodeAt(0);
+
 					// Store the key/value pair using the matched value or
 					// expression.
-					if (attributeExpression === undefined) {
+					if (attributeKeyFirst === 42) {
+						// For two-way data binding, store the bound data.
+						bindData = attributeKey.slice(1);
+					} else if (attributeExpression === undefined) {
 						attributes[attributeKey] = {
 							value: attributeValue === undefined ? "\"\"" : attributeValue,
 							isStatic: true
@@ -292,10 +303,38 @@ export function lex(input) {
 					}
 
 					// For events, pass the event handler and component data.
-					if (attributeKey.charCodeAt(0) === 64) {
+					if (attributeKeyFirst === 64) {
 						attributes[attributeKey].value = `[${attributes[attributeKey].value},data]`;
 					}
 				}
+			}
+
+			// Handle two-way data binding.
+			if (bindData !== undefined) {
+				const bindType = attributes.type;
+				let bindAttribute;
+				let bindEvent;
+
+				if (bindType && inputGroupRE.test(bindType.value)) {
+					bindAttribute = "checked";
+					bindEvent = "@change";
+				} else if (name === "select") {
+					bindAttribute = "value";
+					bindEvent = "@change";
+				} else {
+					bindAttribute = "value";
+					bindEvent = "@input";
+				}
+
+				attributes[bindAttribute] = {
+					value: "data." + bindData,
+					isStatic: false
+				};
+
+				attributes[bindEvent] = {
+					value: `[function(me){Moon.set({"${bindData}":me.target.${bindAttribute}});},data]`,
+					isStatic: true
+				};
 			}
 
 			// Append an opening tag token with the name, attributes, and optional

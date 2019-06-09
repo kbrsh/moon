@@ -41,6 +41,16 @@ function executeCreate(node) {
 		// Create a DOM element.
 		element = document.createElement(node.name);
 
+		// Recursively append children.
+		const nodeDataChildren = nodeData.children;
+
+		for (let i = 0; i < nodeDataChildren.length; i++) {
+			const childOld = executeCreate(nodeDataChildren[i]);
+
+			element.appendChild(childOld.element);
+			children.push(childOld);
+		}
+
 		// Store DOM events.
 		const MoonEvents = element.MoonEvents = {};
 
@@ -55,23 +65,13 @@ function executeCreate(node) {
 					const info = MoonEvents[key];
 					info[0](event, info[1]);
 				});
-			} else if (key !== "children" && value !== false) {
+			} else if (key !== "children") {
 				if (key in element) {
 					element[key] = value;
-				} else {
+				} else if (value !== false) {
 					element.setAttribute(key, value);
 				}
 			}
-		}
-
-		// Recursively append children.
-		const nodeDataChildren = nodeData.children;
-
-		for (let i = 0; i < nodeDataChildren.length; i++) {
-			const childOld = executeCreate(nodeDataChildren[i]);
-
-			element.appendChild(childOld.element);
-			children.push(childOld);
 		}
 	}
 
@@ -290,10 +290,10 @@ function executePatch(patches) {
 					} else if (key !== "children") {
 						// Remove the attribute if the value is false, and update it
 						// otherwise.
-						if (value === false) {
-							nodeOldElement.removeAttribute(key);
-						} else if (key in nodeOldElement) {
+						if (key in nodeOldElement) {
 							nodeOldElement[key] = value;
+						} else if (value === false) {
+							nodeOldElement.removeAttribute(key);
 						} else {
 							nodeOldElement.setAttribute(key, value);
 						}
