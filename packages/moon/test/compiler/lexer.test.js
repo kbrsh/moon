@@ -47,11 +47,11 @@ test("lex expression", () => {
 });
 
 test("lex attributes", () => {
-	expect(lex(`<div id="test-id" class='test-class' for='input' dynamic={true} local={$local} self>`)).toEqual([{"attributes": {"id": {"value": "\"test-id\"", "isStatic": true}, "className": {"value": "'test-class'", "isStatic": true}, "htmlFor": {"value": "'input'", "isStatic": true}, "dynamic": {"value": "true", "isStatic": true}, "local": {"value": "$local", "isStatic": false}, "self": {"value": "\"\"", "isStatic": true}}, "closed": false, "type": "tagOpen", "value": "div"}]);
+	expect(lex(`<div id="test-id" class='test-class' for='input' dynamic={true} local={$local} self>`)).toEqual([{"attributes": {"id": {"value": "\"test-id\"", "isStatic": true}, "className": {"value": "'test-class'", "isStatic": true}, "htmlFor": {"value": "'input'", "isStatic": true}, "dynamic": {"value": "true", "isStatic": true}, "local": {"value": "$local", "isStatic": false}, "self": {"value": "true", "isStatic": true}}, "closed": false, "type": "tagOpen", "value": "div"}]);
 });
 
 test("lex events", () => {
-	expect(lex(`<div id="test-id" class='test-class' dynamic={true} self @event={doSomething}>`)).toEqual([{"attributes": {"id": {"value": "\"test-id\"", "isStatic": true}, "className": {"value": "'test-class'", "isStatic": true}, dynamic: {"value": "true", "isStatic": true}, "@event": {"value": "[data.doSomething,data]", "isStatic": false}, self: {"value": "\"\"", "isStatic": true}}, "closed": false, "type": "tagOpen", "value": "div"}]);
+	expect(lex(`<div id="test-id" class='test-class' dynamic={true} self @event={doSomething}>`)).toEqual([{"attributes": {"id": {"value": "\"test-id\"", "isStatic": true}, "className": {"value": "'test-class'", "isStatic": true}, dynamic: {"value": "true", "isStatic": true}, "@event": {"value": "[data.doSomething,data]", "isStatic": false}, self: {"value": "true", "isStatic": true}}, "closed": false, "type": "tagOpen", "value": "div"}]);
 });
 
 test("lex comments", () => {

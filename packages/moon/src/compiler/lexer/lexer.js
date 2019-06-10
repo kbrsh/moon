@@ -63,9 +63,7 @@ function escapeText(text) {
  * Normalize an attribute key to a DOM property.
  *
  * Moon attribute keys should follow camelCase by convention instead of using
- * standard HTML attribute keys. However, standard HTML attributes are
- * supported. They should typically be used for custom attributes, data-*
- * attributes, or aria-* attributes.
+ * standard HTML attribute keys.
  *
  * @param {string} key
  * @returns {string} Normalized key
@@ -279,24 +277,24 @@ export function lex(input) {
 					// expression can have empty matches and create an infinite
 					// loop.
 					attributeRE.lastIndex += 1;
+				} else if (attributeKey.charCodeAt(0) === 64) {
+					// For events, pass the event handler and component data. Event
+					// handlers are assumed to be dynamic because the component data
+					// can change.
+					attributes[attributeKey] = {
+						value: `[${scopeExpression(attributeExpression).value},data]`,
+						isStatic: false
+					};
+				} else if (attributeExpression === undefined) {
+					// Set a static key-value pair. When a value isn't provided,
+					// the attribute is considered a Boolean value set to true.
+					attributes[attributeKey] = {
+						value: attributeValue === undefined ? "true" : attributeValue,
+						isStatic: true
+					};
 				} else {
-					// Store the key/value pair using the matched value or
-					// expression.
-					if (attributeExpression === undefined) {
-						// Set a static key-value pair.
-						attributes[attributeKey] = {
-							value: attributeValue === undefined ? "\"\"" : attributeValue,
-							isStatic: true
-						};
-					} else {
-						// Set a potentially dynamic expression.
-						attributes[attributeKey] = scopeExpression(attributeExpression);
-					}
-
-					// For events, pass the event handler and component data.
-					if (attributeKey.charCodeAt(0) === 64) {
-						attributes[attributeKey].value = `[${attributes[attributeKey].value},data]`;
-					}
+					// Set a potentially dynamic expression.
+					attributes[attributeKey] = scopeExpression(attributeExpression);
 				}
 			}
 

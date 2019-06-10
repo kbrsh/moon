@@ -130,9 +130,7 @@
 	 * Normalize an attribute key to a DOM property.
 	 *
 	 * Moon attribute keys should follow camelCase by convention instead of using
-	 * standard HTML attribute keys. However, standard HTML attributes are
-	 * supported. They should typically be used for custom attributes, data-*
-	 * attributes, or aria-* attributes.
+	 * standard HTML attribute keys.
 	 *
 	 * @param {string} key
 	 * @returns {string} Normalized key
@@ -335,24 +333,24 @@
 						// expression can have empty matches and create an infinite
 						// loop.
 						attributeRE.lastIndex += 1;
+					} else if (attributeKey.charCodeAt(0) === 64) {
+						// For events, pass the event handler and component data. Event
+						// handlers are assumed to be dynamic because the component data
+						// can change.
+						attributes[attributeKey] = {
+							value: "[" + scopeExpression(attributeExpression).value + ",data]",
+							isStatic: false
+						};
+					} else if (attributeExpression === undefined) {
+						// Set a static key-value pair. When a value isn't provided,
+						// the attribute is considered a Boolean value set to true.
+						attributes[attributeKey] = {
+							value: attributeValue === undefined ? "true" : attributeValue,
+							isStatic: true
+						};
 					} else {
-						// Store the key/value pair using the matched value or
-						// expression.
-						if (attributeExpression === undefined) {
-							// Set a static key-value pair.
-							attributes[attributeKey] = {
-								value: attributeValue === undefined ? "\"\"" : attributeValue,
-								isStatic: true
-							};
-						} else {
-							// Set a potentially dynamic expression.
-							attributes[attributeKey] = scopeExpression(attributeExpression);
-						} // For events, pass the event handler and component data.
-
-
-						if (attributeKey.charCodeAt(0) === 64) {
-							attributes[attributeKey].value = "[" + attributes[attributeKey].value + ",data]";
-						}
+						// Set a potentially dynamic expression.
+						attributes[attributeKey] = scopeExpression(attributeExpression);
 					}
 				} // Append an opening tag token with the name, attributes, and optional
 				// self-closing slash.
@@ -1008,23 +1006,36 @@
 				} // Store DOM events.
 
 
-				var MoonEvents = element.MoonEvents = {}; // Set data, events, and attributes.
+				var MoonEvents = element.MoonEvents = {};
+				var MoonListeners = element.MoonListeners = {}; // Set data, events, and attributes.
 
 				var _loop = function _loop(key) {
 					var value = nodeData[key];
 
 					if (key.charCodeAt(0) === 64) {
+						// Set an event listener.
 						MoonEvents[key] = value;
-						element.addEventListener(key.slice(1), function (event) {
+
+						var MoonListener = MoonListeners[key] = function (event) {
 							var info = MoonEvents[key];
 							info[0](event, info[1]);
-						});
-					} else if (key !== "children") {
-						if (key in element) {
-							element[key] = value;
-						} else if (value !== false) {
-							element.setAttribute(key, value);
+						};
+
+						element.addEventListener(key.slice(1), MoonListener);
+					} else if (key === "ariaset" || key === "dataset" || key === "style") {
+						// Set aria-*, data-*, and style attributes.
+						var set = element[key];
+
+						for (var setKey in value) {
+							if (key === "ariaset") {
+								element.setAttribute("aria-" + setKey, value[setKey]);
+							} else {
+								set[setKey] = value[setKey];
+							}
 						}
+					} else if (key !== "children") {
+						// Set an attribute.
+						element[key] = value;
 					}
 				};
 
@@ -1230,23 +1241,44 @@
 						var nodeOldNodeData = _nodeOld.node.data;
 						var nodeOldElement = _nodeOld.element;
 						var _nodeNew = patch.nodeNew;
-						var nodeNewData = _nodeNew.data; // Set attributes on the DOM element.
+						var nodeNewData = _nodeNew.data; // Update attributes on the DOM element.
 
 						for (var key in nodeNewData) {
-							var value = nodeNewData[key];
+							var valueOld = nodeOldNodeData[key];
+							var valueNew = nodeNewData[key];
 
-							if (key.charCodeAt(0) === 64) {
-								// Update the event listener.
-								nodeOldElement.MoonEvents[key] = value;
-							} else if (key !== "children") {
-								// Remove the attribute if the value is false, and update it
-								// otherwise.
-								if (key in nodeOldElement) {
-									nodeOldElement[key] = value;
-								} else if (value === false) {
-									nodeOldElement.removeAttribute(key);
-								} else {
-									nodeOldElement.setAttribute(key, value);
+							if (valueOld !== valueNew) {
+								if (key.charCodeAt(0) === 64) {
+									// Update the event listener.
+									nodeOldElement.MoonEvents[key] = valueNew;
+								} else if (key === "ariaset" || key === "dataset" || key === "style") {
+									// Update aria-*, data-*, and style attributes.
+									var set = nodeOldElement[key];
+
+									for (var setKey in valueNew) {
+										if (key === "ariaset") {
+											nodeOldElement.setAttribute("aria-" + setKey, valueNew[setKey]);
+										} else {
+											set[setKey] = valueNew[setKey];
+										}
+									}
+
+									if (valueOld !== undefined) {
+										for (var _setKey in valueOld) {
+											if (!(_setKey in valueNew)) {
+												if (key === "ariaset") {
+													nodeOldElement.removeAttribute("aria-" + _setKey);
+												} else if (key === "dataset") {
+													delete set[_setKey];
+												} else {
+													set[_setKey] = "";
+												}
+											}
+										}
+									}
+								} else if (key !== "children") {
+									// Update the attribute.
+									nodeOldElement[key] = valueNew;
 								}
 							}
 						} // Remove old attributes.
@@ -1254,7 +1286,28 @@
 
 						for (var _key in nodeOldNodeData) {
 							if (!(_key in nodeNewData)) {
-								nodeOldElement.removeAttribute(_key);
+								var _valueOld = nodeOldNodeData[_key];
+
+								if (_key.charCodeAt(0) === 64) {
+									// Remove the old event listener.
+									delete nodeOldElement.MoonEvents[_key];
+									nodeOldElement.removeEventListener(nodeOldElement.MoonListeners[_key]);
+								} else if (_key === "ariaset" || _key === "dataset" || _key === "style") {
+									// Remove all aria-*, data-*, and style attributes.
+									var _set = nodeOldElement[_key];
+
+									for (var _setKey2 in _valueOld) {
+										if (_key === "ariaset") {
+											nodeOldElement.removeAttribute("aria-" + _setKey2);
+										} else if (_key === "dataset") {
+											delete _set[_setKey2];
+										} else {
+											_set[_setKey2] = "";
+										}
+									}
+								} else {
+									nodeOldElement.removeAttribute(_key);
+								}
 							}
 						}
 

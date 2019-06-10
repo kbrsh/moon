@@ -53,24 +53,39 @@ function executeCreate(node) {
 
 		// Store DOM events.
 		const MoonEvents = element.MoonEvents = {};
+		const MoonListeners = element.MoonListeners = {};
 
 		// Set data, events, and attributes.
 		for (let key in nodeData) {
 			const value = nodeData[key];
 
 			if (key.charCodeAt(0) === 64) {
+				// Set an event listener.
 				MoonEvents[key] = value;
-
-				element.addEventListener(key.slice(1), (event) => {
+				const MoonListener = MoonListeners[key] = (event) => {
 					const info = MoonEvents[key];
 					info[0](event, info[1]);
-				});
-			} else if (key !== "children") {
-				if (key in element) {
-					element[key] = value;
-				} else if (value !== false) {
-					element.setAttribute(key, value);
+				};
+
+				element.addEventListener(key.slice(1), MoonListener);
+			} else if (
+				key === "ariaset" ||
+				key === "dataset" ||
+				key === "style"
+			) {
+				// Set aria-*, data-*, and style attributes.
+				const set = element[key];
+
+				for (let setKey in value) {
+					if (key === "ariaset") {
+						element.setAttribute("aria-" + setKey, value[setKey]);
+					} else {
+						set[setKey] = value[setKey];
+					}
 				}
+			} else if (key !== "children") {
+				// Set an attribute.
+				element[key] = value;
 			}
 		}
 	}
@@ -280,22 +295,47 @@ function executePatch(patches) {
 				const nodeNew = patch.nodeNew;
 				const nodeNewData = nodeNew.data;
 
-				// Set attributes on the DOM element.
+				// Update attributes on the DOM element.
 				for (let key in nodeNewData) {
-					const value = nodeNewData[key];
+					const valueOld = nodeOldNodeData[key];
+					const valueNew = nodeNewData[key];
 
-					if (key.charCodeAt(0) === 64) {
-						// Update the event listener.
-						nodeOldElement.MoonEvents[key] = value;
-					} else if (key !== "children") {
-						// Remove the attribute if the value is false, and update it
-						// otherwise.
-						if (key in nodeOldElement) {
-							nodeOldElement[key] = value;
-						} else if (value === false) {
-							nodeOldElement.removeAttribute(key);
-						} else {
-							nodeOldElement.setAttribute(key, value);
+					if (valueOld !== valueNew) {
+						if (key.charCodeAt(0) === 64) {
+							// Update the event listener.
+							nodeOldElement.MoonEvents[key] = valueNew;
+						} else if (
+							key === "ariaset" ||
+							key === "dataset" ||
+							key === "style"
+						) {
+							// Update aria-*, data-*, and style attributes.
+							const set = nodeOldElement[key];
+
+							for (let setKey in valueNew) {
+								if (key === "ariaset") {
+									nodeOldElement.setAttribute("aria-" + setKey, valueNew[setKey]);
+								} else {
+									set[setKey] = valueNew[setKey];
+								}
+							}
+
+							if (valueOld !== undefined) {
+								for (let setKey in valueOld) {
+									if (!(setKey in valueNew)) {
+										if (key === "ariaset") {
+											nodeOldElement.removeAttribute("aria-" + setKey);
+										} else if (key === "dataset") {
+											delete set[setKey];
+										} else {
+											set[setKey] = "";
+										}
+									}
+								}
+							}
+						} else if (key !== "children") {
+							// Update the attribute.
+							nodeOldElement[key] = valueNew;
 						}
 					}
 				}
@@ -303,7 +343,32 @@ function executePatch(patches) {
 				// Remove old attributes.
 				for (let key in nodeOldNodeData) {
 					if (!(key in nodeNewData)) {
-						nodeOldElement.removeAttribute(key);
+						const valueOld = nodeOldNodeData[key];
+
+						if (key.charCodeAt(0) === 64) {
+							// Remove the old event listener.
+							delete nodeOldElement.MoonEvents[key];
+							nodeOldElement.removeEventListener(nodeOldElement.MoonListeners[key]);
+						} else if (
+							key === "ariaset" ||
+							key === "dataset" ||
+							key === "style"
+						) {
+							// Remove all aria-*, data-*, and style attributes.
+							const set = nodeOldElement[key];
+
+							for (let setKey in valueOld) {
+								if (key === "ariaset") {
+									nodeOldElement.removeAttribute("aria-" + setKey);
+								} else if (key === "dataset") {
+									delete set[setKey];
+								} else {
+									set[setKey] = "";
+								}
+							}
+						} else {
+							nodeOldElement.removeAttribute(key);
+						}
 					}
 				}
 
