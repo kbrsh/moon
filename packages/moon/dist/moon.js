@@ -82,7 +82,7 @@
 	 * undefined.
 	 */
 
-	var attributeRE = /([\w\d-_:@*]*)(?:=(?:("[^"]*"|'[^']*')|{([^{}]*)}))?/g;
+	var attributeRE = /([\w\d-_:@]*)(?:=(?:("[^"]*"|'[^']*')|{([^{}]*)}))?/g;
 	/**
 	 * Capture the variables in expressions to scope them within the data
 	 * parameter. This ignores property names and deep object accesses.
@@ -94,11 +94,6 @@
 	 */
 
 	var textRE = /&amp;|&gt;|&lt;|&nbsp;|&quot;|\\|"|\n|\r/g;
-	/**
-	 * Capture checkbox and radio types
-	 */
-
-	var inputGroupRE = /checkbox|radio/;
 	/**
 	 * List of global variables to ignore in expression scoping
 	 */
@@ -324,8 +319,7 @@
 				var attributesText = nameExec[2];
 				var closeSlash = nameExec[3];
 				var attributes = {};
-				var attributeExec = void 0;
-				var bindData = void 0; // Keep matching for new attribute key/value pairs until there are no
+				var attributeExec = void 0; // Keep matching for new attribute key/value pairs until there are no
 				// more in the attribute text.
 
 				while ((attributeExec = attributeRE.exec(attributesText)) !== null) {
@@ -342,57 +336,24 @@
 						// loop.
 						attributeRE.lastIndex += 1;
 					} else {
-						var attributeKeyFirst = attributeKey.charCodeAt(0); // Store the key/value pair using the matched value or
+						// Store the key/value pair using the matched value or
 						// expression.
-
-						if (attributeKeyFirst === 42) {
-							// For two-way data binding, store the bound data.
-							bindData = attributeKey.slice(1);
+						if (attributeExpression === undefined) {
+							// Set a static key-value pair.
+							attributes[attributeKey] = {
+								value: attributeValue === undefined ? "\"\"" : attributeValue,
+								isStatic: true
+							};
 						} else {
-							if (attributeExpression === undefined) {
-								// Set a static key-value pair.
-								attributes[attributeKey] = {
-									value: attributeValue === undefined ? "\"\"" : attributeValue,
-									isStatic: true
-								};
-							} else {
-								// Set a potentially dynamic expression.
-								attributes[attributeKey] = scopeExpression(attributeExpression);
-							} // For events, pass the event handler and component data.
+							// Set a potentially dynamic expression.
+							attributes[attributeKey] = scopeExpression(attributeExpression);
+						} // For events, pass the event handler and component data.
 
 
-							if (attributeKeyFirst === 64) {
-								attributes[attributeKey].value = "[" + attributes[attributeKey].value + ",data]";
-							}
+						if (attributeKey.charCodeAt(0) === 64) {
+							attributes[attributeKey].value = "[" + attributes[attributeKey].value + ",data]";
 						}
 					}
-				} // Handle two-way data binding.
-
-
-				if (bindData !== undefined) {
-					var bindType = attributes.type;
-					var bindAttribute = void 0;
-					var bindEvent = void 0;
-
-					if (bindType && inputGroupRE.test(bindType.value)) {
-						bindAttribute = "checked";
-						bindEvent = "@change";
-					} else if (name === "select") {
-						bindAttribute = "value";
-						bindEvent = "@change";
-					} else {
-						bindAttribute = "value";
-						bindEvent = "@input";
-					}
-
-					attributes[bindAttribute] = {
-						value: "data." + bindData,
-						isStatic: false
-					};
-					attributes[bindEvent] = {
-						value: "[function(me){Moon.set({\"" + bindData + "\":me.target." + bindAttribute + "});},data]",
-						isStatic: true
-					};
 				} // Append an opening tag token with the name, attributes, and optional
 				// self-closing slash.
 
