@@ -82,7 +82,7 @@
 	 * undefined.
 	 */
 
-	var attributeRE = /([\w\d-_:@]*)(?:=(?:("[^"]*"|'[^']*')|{([^{}]*)}))?/g;
+	var attributeRE = /([\w\d-_:@]*)(?:=(?:("[^"]*"|'[^']*')|{([^=]*)}))?/g;
 	/**
 	 * Capture the variables in expressions to scope them within the data
 	 * parameter. This ignores property names and deep object accesses.
