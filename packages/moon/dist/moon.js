@@ -366,13 +366,23 @@
 			} else if (_char === "{") {
 				// If a sequence of characters begins with "{", process it as an
 				// expression token.
-				var expression = ""; // Consume the input until the end of the expression.
+				var expression = ""; // Keep a stack of opened objects.
+
+				var opened = 0; // Consume the input until the end of the expression.
 
 				for (i += 1; i < input.length; i++) {
 					var _char2 = input[i];
 
-					if (_char2 === "}") {
-						break;
+					if (_char2 === "{") {
+						opened += 1;
+						expression += _char2;
+					} else if (_char2 === "}") {
+						if (opened === 0) {
+							break;
+						} else {
+							opened -= 1;
+							expression += _char2;
+						}
 					} else {
 						expression += _char2;
 					}

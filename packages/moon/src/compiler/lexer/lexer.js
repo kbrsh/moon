@@ -313,12 +313,23 @@ export function lex(input) {
 			// expression token.
 			let expression = "";
 
+			// Keep a stack of opened objects.
+			let opened = 0;
+
 			// Consume the input until the end of the expression.
 			for (i += 1; i < input.length; i++) {
 				const char = input[i];
 
-				if (char === "}") {
-					break;
+				if (char === "{") {
+					opened += 1;
+					expression += char;
+				} else if (char === "}") {
+					if (opened === 0) {
+						break;
+					} else {
+						opened -= 1;
+						expression += char;
+					}
 				} else {
 					expression += char;
 				}

@@ -43,7 +43,7 @@ test("lex text inside tag", () => {
 })
 
 test("lex expression", () => {
-	expect(lex(`{data + 1}`)).toEqual([{"attributes": {"": {"value": "data.data + 1", isStatic: false}}, "closed": true, "type": "tagOpen", "value": "text"}]);
+	expect(lex(`{data + 1 + {foo: true, bar: false}}`)).toEqual([{"attributes": {"": {"value": "data.data + 1 + {foo: true, bar: false}", isStatic: false}}, "closed": true, "type": "tagOpen", "value": "text"}]);
 });
 
 test("lex attributes", () => {
