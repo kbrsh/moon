@@ -76,14 +76,6 @@
 
 	var nameRE = /<([\w\d-_]+)([^>]*?)(\/?)>/g;
 	/**
-	 * Capture a key, value, and expression from a list of whitespace-separated
-	 * attributes. There cannot be a value and an expression, but both are captured
-	 * due to the limits of regular expressions. One or both of them can be
-	 * undefined.
-	 */
-
-	var attributeRE = /([\w\d-_:@]*)(?:=(?:("[^"]*"|'[^']*')|{([^=]*)}))?/g;
-	/**
 	 * Capture the variables in expressions to scope them within the data
 	 * parameter. This ignores property names and deep object accesses.
 	 */
@@ -114,6 +106,14 @@
 		"\n": "\\n",
 		"\r": "\\r"
 	};
+	/*
+	 * Map from attribute keys to equivalent DOM properties.
+	 */
+
+	var normalizeAttributeKeyMap = {
+		"class": "className",
+		"for": "htmlFor"
+	};
 	/**
 	 * Escape text to make it usable in a JavaScript string literal.
 	 *
@@ -138,17 +138,8 @@
 
 
 	function normalizeAttributeKey(key) {
-		switch (key) {
-			case "class":
-				return "className";
-
-			case "for":
-				return "htmlFor";
-
-			default:
-				// Other keys should ideally be camelCased.
-				return key;
-		}
+		var normalizedAttributeKey = normalizeAttributeKeyMap[key];
+		return normalizedAttributeKey === undefined ? key : normalizedAttributeKey;
 	}
 	/**
 	 * Scope an expression to use variables within the `data` object.
@@ -316,41 +307,109 @@
 				var name = nameExec[1];
 				var attributesText = nameExec[2];
 				var closeSlash = nameExec[3];
-				var attributes = {};
-				var attributeExec = void 0; // Keep matching for new attribute key/value pairs until there are no
-				// more in the attribute text.
+				var attributes = {}; // Match attributes.
 
-				while ((attributeExec = attributeRE.exec(attributesText)) !== null) {
-					// Store the match and captured groups.
-					var attributeMatch = attributeExec[0];
-					var attributeKey = normalizeAttributeKey(attributeExec[1]);
-					var attributeValue = attributeExec[2];
-					var attributeExpression = attributeExec[3];
+				for (var j = 0; j < attributesText.length; j++) {
+					var charAttribute = attributesText[j];
 
-					if (attributeMatch.length === 0) {
-						// If nothing is matched, continue searching from the next
-						// character. This is required because the attribute regular
-						// expression can have empty matches and create an infinite
-						// loop.
-						attributeRE.lastIndex += 1;
-					} else if (attributeKey.charCodeAt(0) === 64) {
-						// For events, pass the event handler and component data. Event
-						// handlers are assumed to be dynamic because the component data
-						// can change.
-						attributes[attributeKey] = {
-							value: "[" + scopeExpression(attributeExpression).value + ",data]",
-							isStatic: false
-						};
-					} else if (attributeExpression === undefined) {
-						// Set a static key-value pair. When a value isn't provided,
-						// the attribute is considered a Boolean value set to true.
-						attributes[attributeKey] = {
-							value: attributeValue === undefined ? "true" : attributeValue,
-							isStatic: true
-						};
-					} else {
-						// Set a potentially dynamic expression.
-						attributes[attributeKey] = scopeExpression(attributeExpression);
+					if (!whitespaceRE.test(charAttribute)) {
+						var attributeKey = "";
+						var attributeValue = "true"; // Match an attribute key.
+
+						for (; j < attributesText.length; j++) {
+							charAttribute = attributesText[j];
+
+							if (whitespaceRE.test(charAttribute)) {
+								break;
+							} else if (charAttribute === "=") {
+								attributeValue = "";
+								break;
+							} else {
+								attributeKey += charAttribute;
+							}
+						} // Normalize the attribute key.
+
+
+						attributeKey = normalizeAttributeKey(attributeKey); // Match an attribute value if it exists.
+
+						if (attributeValue.length === 0) {
+							// Find a matching end quote.
+							var quote = attributesText[++j];
+
+							if (quote === "{") {
+								// For expressions, ensure that the correct closing
+								// delimiter is used.
+								quote = "}";
+							} else {
+								// For strings, add the first quote to the value.
+								attributeValue += quote;
+							} // Skip over the first quote.
+
+
+							j += 1; // Keep a stack of opened objects.
+
+							var opened = 0; // Iterate through the value.
+
+							for (; j < attributesText.length; j++) {
+								charAttribute = attributesText[j];
+
+								if (charAttribute === "{") {
+									// Found an open object, keep track of it.
+									opened += 1;
+									attributeValue += charAttribute;
+								} else if (charAttribute === quote) {
+									// Found a potential ending quote.
+									if (quote === "}") {
+										// If the value is an expression, ensure that all
+										// objects are closed.
+										if (opened === 0) {
+											if (attributeKey.charCodeAt(0) === 64) {
+												// For events, pass the event handler and component data. Event
+												// handlers are assumed to be dynamic because the component data
+												// can change.
+												attributes[attributeKey] = {
+													value: "[" + scopeExpression(attributeValue).value + ",data]",
+													isStatic: false
+												};
+											} else {
+												// Set a potentially dynamic expression.
+												attributes[attributeKey] = scopeExpression(attributeValue);
+											} // Exit on the quote.
+
+
+											break;
+										} else {
+											// If all objects aren't yet closed, mark one as closed.
+											attributeValue += charAttribute;
+											opened -= 1;
+										}
+									} else {
+										// If the value is a string, add the closing quote.
+										attributeValue += charAttribute; // Set a static key-value pair.
+
+										attributes[attributeKey] = {
+											value: attributeValue,
+											isStatic: true
+										}; // Exit on the quote.
+
+										break;
+									}
+								} else {
+									// Append characters to the value.
+									attributeValue += charAttribute;
+								}
+							} // Skip over the closing quote.
+
+
+							j += 1;
+						} else {
+							// When a value isn't provided, the attribute is considered a
+							// Boolean value set to true.
+							attributes[attributeKey] = {
+								value: attributeValue,
+								isStatic: true
+							};
+						}
 					}
 				} // Append an opening tag token with the name, attributes, and optional
 				// self-closing slash.
@@ -368,19 +427,19 @@
 				// expression token.
 				var expression = ""; // Keep a stack of opened objects.
 
-				var opened = 0; // Consume the input until the end of the expression.
+				var _opened = 0; // Consume the input until the end of the expression.
 
 				for (i += 1; i < input.length; i++) {
 					var _char2 = input[i];
 
 					if (_char2 === "{") {
-						opened += 1;
+						_opened += 1;
 						expression += _char2;
 					} else if (_char2 === "}") {
-						if (opened === 0) {
+						if (_opened === 0) {
 							break;
 						} else {
-							opened -= 1;
+							_opened -= 1;
 							expression += _char2;
 						}
 					} else {
