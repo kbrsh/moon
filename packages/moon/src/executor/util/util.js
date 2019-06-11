@@ -42,7 +42,6 @@ export function removeAttributeSet(key, value, exclude, element) {
 					break;
 				default:
 					element.style[key] = "";
-					break;
 			}
 		}
 	}

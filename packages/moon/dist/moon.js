@@ -91,6 +91,14 @@
 	 */
 
 	var globals = ["NaN", "false", "in", "null", "this", "true", "typeof", "undefined", "window"];
+	/*
+	 * Map from attribute keys to equivalent DOM properties.
+	 */
+
+	var normalizeAttributeKeyMap = {
+		"class": "className",
+		"for": "htmlFor"
+	};
 	/**
 	 * Map from special characters to a safe format for JavaScript string literals.
 	 */
@@ -106,48 +114,12 @@
 		"\n": "\\n",
 		"\r": "\\r"
 	};
-	/*
-	 * Map from attribute keys to equivalent DOM properties.
-	 */
-
-	var normalizeAttributeKeyMap = {
-		"class": "className",
-		"for": "htmlFor"
-	};
-	/**
-	 * Escape text to make it usable in a JavaScript string literal.
-	 *
-	 * @param {string} text
-	 * @returns {string} Escaped text
-	 */
-
-	function escapeText(text) {
-		return text.replace(textRE, function (match) {
-			return escapeTextMap[match];
-		});
-	}
-	/**
-	 * Normalize an attribute key to a DOM property.
-	 *
-	 * Moon attribute keys should follow camelCase by convention instead of using
-	 * standard HTML attribute keys.
-	 *
-	 * @param {string} key
-	 * @returns {string} Normalized key
-	 */
-
-
-	function normalizeAttributeKey(key) {
-		var normalizedAttributeKey = normalizeAttributeKeyMap[key];
-		return normalizedAttributeKey === undefined ? key : normalizedAttributeKey;
-	}
 	/**
 	 * Scope an expression to use variables within the `data` object.
 	 *
 	 * @param {string} expression
 	 * @returns {Object} Scoped expression and static status
 	 */
-
 
 	function scopeExpression(expression) {
 		var isStatic = true;
@@ -327,10 +299,17 @@
 							} else {
 								attributeKey += charAttribute;
 							}
-						} // Normalize the attribute key.
+						} // Normalize the attribute key. Moon attribute keys should
+						// follow camelCase by convention instead of using standard HTML
+						// attribute keys.
 
 
-						attributeKey = normalizeAttributeKey(attributeKey); // Match an attribute value if it exists.
+						var attributeKeyNormalized = normalizeAttributeKeyMap[attributeKey];
+
+						if (attributeKeyNormalized !== undefined) {
+							attributeKey = attributeKeyNormalized;
+						} // Match an attribute value if it exists.
+
 
 						if (attributeValue.length === 0) {
 							// Find a matching end quote.
@@ -480,7 +459,9 @@
 						value: "text",
 						attributes: {
 							"": {
-								value: "\"" + escapeText(text) + "\"",
+								value: "\"" + text.replace(textRE, function (match) {
+									return escapeTextMap[match];
+								}) + "\"",
 								isStatic: true
 							}
 						},
@@ -793,6 +774,12 @@
 		var variable = "m" + generateVariable;
 		var attributes = element.attributes;
 		var dataLocals = attributes[""].value.split(",");
+		var dataName = defaultValue(attributes.name, {
+			value: "\"span\""
+		}).value;
+		var dataData = defaultValue(attributes.data, {
+			value: "{}"
+		}).value;
 		var dataArray = attributes.of;
 		var dataObject = attributes["in"];
 		var dataKey;
@@ -804,11 +791,11 @@
 
 		if (generateChild.isStatic) {
 			// If the body is static, then use a static node in place of it.
-			body = variable + ".push(m[" + staticNodes.length + "]);";
+			body = variable + ".children.push(m[" + staticNodes.length + "]);";
 			staticNodes.push(generateChild);
 		} else {
 			// If the body is dynamic, then use the dynamic node in the loop body.
-			body = "" + generateChild.prelude + variable + ".push(" + generateChild.node + ");";
+			body = "" + generateChild.prelude + variable + ".children.push(" + generateChild.node + ");";
 		}
 
 		if (dataArray === undefined) {
@@ -836,8 +823,8 @@
 		}
 
 		return {
-			prelude: "var " + variable + "=[];" + prelude,
-			node: "{type:" + types.element + ",name:\"span\",data:{children:" + variable + "}}",
+			prelude: "var " + variable + "=" + dataData + ";" + variable + ".children=[];" + prelude,
+			node: "{type:" + types.element + ",name:" + dataName + ",data:" + variable + "}",
 			isStatic: false
 		};
 	}
@@ -1024,7 +1011,6 @@
 
 					default:
 						element.style[key] = "";
-						break;
 				}
 			}
 		}

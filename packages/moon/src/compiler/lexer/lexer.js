@@ -26,6 +26,14 @@ const textRE = /&amp;|&gt;|&lt;|&nbsp;|&quot;|\\|"|\n|\r/g;
  */
 const globals = ["NaN", "false", "in", "null", "this", "true", "typeof", "undefined", "window"];
 
+/*
+ * Map from attribute keys to equivalent DOM properties.
+ */
+const normalizeAttributeKeyMap = {
+	"class": "className",
+	"for": "htmlFor"
+};
+
 /**
  * Map from special characters to a safe format for JavaScript string literals.
  */
@@ -40,41 +48,6 @@ const escapeTextMap = {
 	"\n": "\\n",
 	"\r": "\\r"
 };
-
-/*
- * Map from attribute keys to equivalent DOM properties.
- */
-const normalizeAttributeKeyMap = {
-	"class": "className",
-	"for": "htmlFor"
-};
-
-/**
- * Escape text to make it usable in a JavaScript string literal.
- *
- * @param {string} text
- * @returns {string} Escaped text
- */
-function escapeText(text) {
-	return text.replace(textRE, (match) => escapeTextMap[match]);
-}
-
-/**
- * Normalize an attribute key to a DOM property.
- *
- * Moon attribute keys should follow camelCase by convention instead of using
- * standard HTML attribute keys.
- *
- * @param {string} key
- * @returns {string} Normalized key
- */
-function normalizeAttributeKey(key) {
-	const normalizedAttributeKey = normalizeAttributeKeyMap[key];
-
-	return normalizedAttributeKey === undefined ?
-		key :
-		normalizedAttributeKey;
-}
 
 /**
  * Scope an expression to use variables within the `data` object.
@@ -276,8 +249,14 @@ export function lex(input) {
 						}
 					}
 
-					// Normalize the attribute key.
-					attributeKey = normalizeAttributeKey(attributeKey);
+					// Normalize the attribute key. Moon attribute keys should
+					// follow camelCase by convention instead of using standard HTML
+					// attribute keys.
+					const attributeKeyNormalized = normalizeAttributeKeyMap[attributeKey];
+
+					if (attributeKeyNormalized !== undefined) {
+						attributeKey = attributeKeyNormalized;
+					}
 
 					// Match an attribute value if it exists.
 					if (attributeValue.length === 0) {
@@ -437,7 +416,7 @@ export function lex(input) {
 					value: "text",
 					attributes: {
 						"": {
-							value: `"${escapeText(text)}"`,
+							value: `"${text.replace(textRE, (match) => escapeTextMap[match])}"`,
 							isStatic: true
 						}
 					},

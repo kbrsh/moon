@@ -1,6 +1,7 @@
 import { generateNode } from "../generator";
 import { types } from "../../../util/util";
 import { generateVariable, setGenerateVariable } from "../util/globals";
+import { defaultValue } from "../../../util/util";
 
 /**
  * Generates code for a node from a `for` element.
@@ -13,6 +14,8 @@ export function generateNodeFor(element, staticNodes) {
 	const variable = "m" + generateVariable;
 	const attributes = element.attributes;
 	const dataLocals = attributes[""].value.split(",");
+	const dataName = defaultValue(attributes.name, {value: "\"span\""}).value;
+	const dataData = defaultValue(attributes.data, {value: "{}"}).value;
 	let dataArray = attributes.of;
 	let dataObject = attributes.in;
 	let dataKey;
@@ -31,11 +34,11 @@ export function generateNodeFor(element, staticNodes) {
 
 	if (generateChild.isStatic) {
 		// If the body is static, then use a static node in place of it.
-		body = `${variable}.push(m[${staticNodes.length}]);`;
+		body = `${variable}.children.push(m[${staticNodes.length}]);`;
 		staticNodes.push(generateChild);
 	} else {
 		// If the body is dynamic, then use the dynamic node in the loop body.
-		body = `${generateChild.prelude}${variable}.push(${generateChild.node});`;
+		body = `${generateChild.prelude}${variable}.children.push(${generateChild.node});`;
 	}
 
 	if (dataArray === undefined) {
@@ -63,8 +66,8 @@ export function generateNodeFor(element, staticNodes) {
 	}
 
 	return {
-		prelude: `var ${variable}=[];${prelude}`,
-		node: `{type:${types.element},name:"span",data:{children:${variable}}}`,
+		prelude: `var ${variable}=${dataData};${variable}.children=[];${prelude}`,
+		node: `{type:${types.element},name:${dataName},data:${variable}}`,
 		isStatic: false
 	};
 }
