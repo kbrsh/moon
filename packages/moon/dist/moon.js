@@ -979,6 +979,58 @@
 	}
 
 	/**
+	 * Update an ariaset, dataset, or style attribute.
+	 *
+	 * @param {string} key
+	 * @param {Object} value
+	 * @param {Object} element
+	 */
+	function updateAttributeSet(key, value, element) {
+		if (key === "ariaset") {
+			// Set aria-* attributes.
+			for (var setKey in value) {
+				element.setAttribute("aria-" + setKey, value[setKey]);
+			}
+		} else {
+			// Set data-* and style attributes.
+			var set = element[key];
+
+			for (var _setKey in value) {
+				set[_setKey] = value[_setKey];
+			}
+		}
+	}
+	/**
+	 * Remove all the keys from an ariaset, dataset, or style attribute that aren't
+	 * in `exclude`.
+	 *
+	 * @param {string} key
+	 * @param {string} value
+	 * @param {Object} exclude
+	 * @param {Object} element
+	 */
+
+	function removeAttributeSet(key, value, exclude, element) {
+		for (var setKey in value) {
+			if (!(setKey in exclude)) {
+				switch (key) {
+					case "ariaset":
+						element.removeAttribute("aria-" + setKey);
+						break;
+
+					case "dataset":
+						delete element.dataset[key];
+						break;
+
+					default:
+						element.style[key] = "";
+						break;
+				}
+			}
+		}
+	}
+
+	/**
 	 * Global data
 	 */
 	var data = {};
@@ -1093,15 +1145,7 @@
 						element.addEventListener(key.slice(1), MoonListener);
 					} else if (key === "ariaset" || key === "dataset" || key === "style") {
 						// Set aria-*, data-*, and style attributes.
-						var set = element[key];
-
-						for (var setKey in value) {
-							if (key === "ariaset") {
-								element.setAttribute("aria-" + setKey, value[setKey]);
-							} else {
-								set[setKey] = value[setKey];
-							}
-						}
+						updateAttributeSet(key, value, element);
 					} else if (key !== "children") {
 						// Set an attribute.
 						element[key] = value;
@@ -1322,28 +1366,10 @@
 									nodeOldElement.MoonEvents[key] = valueNew;
 								} else if (key === "ariaset" || key === "dataset" || key === "style") {
 									// Update aria-*, data-*, and style attributes.
-									var set = nodeOldElement[key];
-
-									for (var setKey in valueNew) {
-										if (key === "ariaset") {
-											nodeOldElement.setAttribute("aria-" + setKey, valueNew[setKey]);
-										} else {
-											set[setKey] = valueNew[setKey];
-										}
-									}
+									updateAttributeSet(key, valueNew, nodeOldElement);
 
 									if (valueOld !== undefined) {
-										for (var _setKey in valueOld) {
-											if (!(_setKey in valueNew)) {
-												if (key === "ariaset") {
-													nodeOldElement.removeAttribute("aria-" + _setKey);
-												} else if (key === "dataset") {
-													delete set[_setKey];
-												} else {
-													set[_setKey] = "";
-												}
-											}
-										}
+										removeAttributeSet(key, valueOld, valueNew, nodeOldElement);
 									}
 								} else if (key !== "children") {
 									// Update the attribute.
@@ -1355,25 +1381,13 @@
 
 						for (var _key in nodeOldNodeData) {
 							if (!(_key in nodeNewData)) {
-								var _valueOld = nodeOldNodeData[_key];
-
 								if (_key.charCodeAt(0) === 64) {
 									// Remove the old event listener.
 									delete nodeOldElement.MoonEvents[_key];
 									nodeOldElement.removeEventListener(nodeOldElement.MoonListeners[_key]);
 								} else if (_key === "ariaset" || _key === "dataset" || _key === "style") {
 									// Remove all aria-*, data-*, and style attributes.
-									var _set = nodeOldElement[_key];
-
-									for (var _setKey2 in _valueOld) {
-										if (_key === "ariaset") {
-											nodeOldElement.removeAttribute("aria-" + _setKey2);
-										} else if (_key === "dataset") {
-											delete _set[_setKey2];
-										} else {
-											_set[_setKey2] = "";
-										}
-									}
+									removeAttributeSet(_key, nodeOldNodeData[_key], {}, nodeOldElement);
 								} else {
 									nodeOldElement.removeAttribute(_key);
 								}

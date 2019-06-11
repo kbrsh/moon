@@ -1,3 +1,4 @@
+import { updateAttributeSet, removeAttributeSet } from "./util/util";
 import { components, data, setViewNew, viewCurrent, viewNew, viewOld } from "../util/globals";
 import { types } from "../util/util";
 
@@ -74,15 +75,7 @@ function executeCreate(node) {
 				key === "style"
 			) {
 				// Set aria-*, data-*, and style attributes.
-				const set = element[key];
-
-				for (let setKey in value) {
-					if (key === "ariaset") {
-						element.setAttribute("aria-" + setKey, value[setKey]);
-					} else {
-						set[setKey] = value[setKey];
-					}
-				}
+				updateAttributeSet(key, value, element);
 			} else if (key !== "children") {
 				// Set an attribute.
 				element[key] = value;
@@ -310,28 +303,10 @@ function executePatch(patches) {
 							key === "style"
 						) {
 							// Update aria-*, data-*, and style attributes.
-							const set = nodeOldElement[key];
-
-							for (let setKey in valueNew) {
-								if (key === "ariaset") {
-									nodeOldElement.setAttribute("aria-" + setKey, valueNew[setKey]);
-								} else {
-									set[setKey] = valueNew[setKey];
-								}
-							}
+							updateAttributeSet(key, valueNew, nodeOldElement);
 
 							if (valueOld !== undefined) {
-								for (let setKey in valueOld) {
-									if (!(setKey in valueNew)) {
-										if (key === "ariaset") {
-											nodeOldElement.removeAttribute("aria-" + setKey);
-										} else if (key === "dataset") {
-											delete set[setKey];
-										} else {
-											set[setKey] = "";
-										}
-									}
-								}
+								removeAttributeSet(key, valueOld, valueNew, nodeOldElement);
 							}
 						} else if (key !== "children") {
 							// Update the attribute.
@@ -343,8 +318,6 @@ function executePatch(patches) {
 				// Remove old attributes.
 				for (let key in nodeOldNodeData) {
 					if (!(key in nodeNewData)) {
-						const valueOld = nodeOldNodeData[key];
-
 						if (key.charCodeAt(0) === 64) {
 							// Remove the old event listener.
 							delete nodeOldElement.MoonEvents[key];
@@ -355,17 +328,7 @@ function executePatch(patches) {
 							key === "style"
 						) {
 							// Remove all aria-*, data-*, and style attributes.
-							const set = nodeOldElement[key];
-
-							for (let setKey in valueOld) {
-								if (key === "ariaset") {
-									nodeOldElement.removeAttribute("aria-" + setKey);
-								} else if (key === "dataset") {
-									delete set[setKey];
-								} else {
-									set[setKey] = "";
-								}
-							}
+							removeAttributeSet(key, nodeOldNodeData[key], {}, nodeOldElement);
 						} else {
 							nodeOldElement.removeAttribute(key);
 						}
