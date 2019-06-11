@@ -35,17 +35,11 @@ export function defaultValue(value, fallback) {
  * @returns {Object} Full object with default key/value pairs
  */
 export function defaultObject(obj, fallback) {
-	let full = {};
-
-	for (let key in obj) {
-		full[key] = obj[key];
-	}
-
 	for (let key in fallback) {
 		if (!(key in obj)) {
-			full[key] = fallback[key];
+			obj[key] = fallback[key];
 		}
 	}
 
-	return full;
+	return obj;
 }

@@ -50,19 +50,13 @@
 	 */
 
 	function defaultObject(obj, fallback) {
-		var full = {};
-
-		for (var key in obj) {
-			full[key] = obj[key];
-		}
-
-		for (var _key in fallback) {
-			if (!(_key in obj)) {
-				full[_key] = fallback[_key];
+		for (var key in fallback) {
+			if (!(key in obj)) {
+				obj[key] = fallback[key];
 			}
 		}
 
-		return full;
+		return obj;
 	}
 
 	/**
