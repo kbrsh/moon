@@ -56,7 +56,7 @@ export default function Moon(options) {
 
 	// Create a wrapper view function that maps data to the compiled view
 	// function. The compiled view function takes `m`, which holds static nodes.
-	// The data is also processed so that `options` acts as a default.
+	// The data is also processed so that `dataDefault` acts as a default.
 	const viewComponent = (data) => {
 		for (let key in dataDefault) {
 			if (!(key in data)) {
@@ -101,7 +101,7 @@ export default function Moon(options) {
 			children: []
 		});
 		setViewCurrent(viewComponent);
-		execute(options);
+		execute(dataDefault);
 	} else {
 		// Store it as a component if no `root` is given.
 		components[name] = viewComponent;
