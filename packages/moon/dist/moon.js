@@ -40,24 +40,6 @@
 	function defaultValue(value, fallback) {
 		return value === undefined ? fallback : value;
 	}
-	/**
-	 * Returns an object using default fallback key/value pairs if they are
-	 * undefined.
-	 *
-	 * @param {Object} obj
-	 * @param {Object} fallback
-	 * @returns {Object} Full object with default key/value pairs
-	 */
-
-	function defaultObject(obj, fallback) {
-		for (var key in fallback) {
-			if (!(key in obj)) {
-				obj[key] = fallback[key];
-			}
-		}
-
-		return obj;
-	}
 
 	/**
 	 * Capture whitespace-only text.
@@ -1582,7 +1564,13 @@
 		// The data is also processed so that `options` acts as a default.
 
 		var viewComponent = function viewComponent(data) {
-			return view(m[name], defaultObject(data, options));
+			for (var key in options) {
+				if (!(key in data)) {
+					data[key] = options[key];
+				}
+			}
+
+			return view(m[name], data);
 		};
 
 		if (name === "Root") {

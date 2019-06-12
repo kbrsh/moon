@@ -25,21 +25,3 @@ export function error(message) {
 export function defaultValue(value, fallback) {
 	return value === undefined ? fallback : value;
 }
-
-/**
- * Returns an object using default fallback key/value pairs if they are
- * undefined.
- *
- * @param {Object} obj
- * @param {Object} fallback
- * @returns {Object} Full object with default key/value pairs
- */
-export function defaultObject(obj, fallback) {
-	for (let key in fallback) {
-		if (!(key in obj)) {
-			obj[key] = fallback[key];
-		}
-	}
-
-	return obj;
-}

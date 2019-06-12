@@ -4,7 +4,7 @@ import { generate } from "./compiler/generator/generator";
 import { compile } from "./compiler/compiler";
 import { execute } from "./executor/executor";
 import { components, data, m, setViewCurrent, setViewOld } from "./util/globals";
-import { defaultObject, defaultValue, error, types } from "./util/util";
+import { defaultValue, error, types } from "./util/util";
 
 /**
  * Moon
@@ -55,7 +55,15 @@ export default function Moon(options) {
 	// Create a wrapper view function that maps data to the compiled view
 	// function. The compiled view function takes `m`, which holds static nodes.
 	// The data is also processed so that `options` acts as a default.
-	const viewComponent = (data) => view(m[name], defaultObject(data, options));
+	const viewComponent = (data) => {
+		for (let key in options) {
+			if (!(key in data)) {
+				data[key] = options[key];
+			}
+		}
+
+		return view(m[name], data);
+	};
 
 	if (name === "Root") {
 		// Mount to the `root` element and begin execution when the component is
