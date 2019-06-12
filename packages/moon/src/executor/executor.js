@@ -1,4 +1,4 @@
-import { updateAttributeSet, removeAttributeSet } from "./util/util";
+import { setEvent, updateAttributeSet, removeAttributeSet } from "./util/util";
 import { components, data, viewCurrent, viewOld } from "../util/globals";
 import { types } from "../util/util";
 
@@ -69,13 +69,7 @@ function executeCreate(node) {
 
 			if (key.charCodeAt(0) === 64) {
 				// Set an event listener.
-				MoonEvents[key] = value;
-				const MoonListener = MoonListeners[key] = (event) => {
-					const info = MoonEvents[key];
-					info[0](event, info[1]);
-				};
-
-				element.addEventListener(key.slice(1), MoonListener);
+				setEvent(key, value, MoonEvents, MoonListeners, element);
 			} else if (
 				key === "ariaset" ||
 				key === "dataset" ||
@@ -326,7 +320,21 @@ function executePatch(patches) {
 
 			case patchTypes.updateDataEvent: {
 				// Update an event.
-				patch.nodeOldElement.MoonEvents[patch.keyNew] = patch.valueNew;
+				const keyNew = patch.keyNew;
+				const nodeOldElement = patch.nodeOldElement;
+				const MoonEvents = nodeOldElement.MoonEvents;
+
+				if (MoonEvents[keyNew] === undefined) {
+					setEvent(
+						keyNew,
+						patch.valueNew,
+						MoonEvents,
+						nodeOldElement.MoonListeners,
+						nodeOldElement
+					);
+				} else {
+					MoonEvents[keyNew] = patch.valueNew;
+				}
 
 				break;
 			}
@@ -349,9 +357,12 @@ function executePatch(patches) {
 				// Remove an event.
 				const keyOld = patch.keyOld;
 				const nodeOldElement = patch.nodeOldElement;
+				const MoonListeners = nodeOldElement.MoonListeners;
+
+				nodeOldElement.removeEventListener(MoonListeners[keyOld]);
 
 				delete nodeOldElement.MoonEvents[keyOld];
-				nodeOldElement.removeEventListener(nodeOldElement.MoonListeners[keyOld]);
+				delete MoonListeners[keyOld];
 
 				break;
 			}

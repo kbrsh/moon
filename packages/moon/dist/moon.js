@@ -1009,6 +1009,23 @@
 			}
 		}
 	}
+	/**
+	 * Set an event listener on an element.
+	 *
+	 * @param {string} type
+	 * @param {Array} info
+	 * @param {Object} MoonEvents
+	 * @param {Object} MoonListeners
+	 * @param {Object} element
+	 */
+
+	function setEvent(type, info, MoonEvents, MoonListeners, element) {
+		MoonEvents[type] = info;
+		element.addEventListener(type.slice(1), MoonListeners[type] = function (event) {
+			var info = MoonEvents[type];
+			info[0](event, info[1]);
+		});
+	}
 
 	/**
 	 * Global data
@@ -1091,49 +1108,36 @@
 			// Create a text node using the text content from the default key.
 			element = document.createTextNode(node.data[""]);
 		} else {
-			(function () {
-				var nodeData = node.data; // Create a DOM element.
+			var nodeData = node.data; // Create a DOM element.
 
-				element = document.createElement(node.name); // Recursively append children.
+			element = document.createElement(node.name); // Recursively append children.
 
-				var nodeDataChildren = nodeData.children;
+			var nodeDataChildren = nodeData.children;
 
-				for (var i = 0; i < nodeDataChildren.length; i++) {
-					var childOld = executeCreate(nodeDataChildren[i]);
-					element.appendChild(childOld.element);
-					children.push(childOld);
-				} // Store DOM events.
+			for (var i = 0; i < nodeDataChildren.length; i++) {
+				var childOld = executeCreate(nodeDataChildren[i]);
+				element.appendChild(childOld.element);
+				children.push(childOld);
+			} // Store DOM events.
 
 
-				var MoonEvents = element.MoonEvents = {};
-				var MoonListeners = element.MoonListeners = {}; // Set data, events, and attributes.
+			var MoonEvents = element.MoonEvents = {};
+			var MoonListeners = element.MoonListeners = {}; // Set data, events, and attributes.
 
-				var _loop = function _loop(key) {
-					var value = nodeData[key];
+			for (var key in nodeData) {
+				var value = nodeData[key];
 
-					if (key.charCodeAt(0) === 64) {
-						// Set an event listener.
-						MoonEvents[key] = value;
-
-						var MoonListener = MoonListeners[key] = function (event) {
-							var info = MoonEvents[key];
-							info[0](event, info[1]);
-						};
-
-						element.addEventListener(key.slice(1), MoonListener);
-					} else if (key === "ariaset" || key === "dataset" || key === "style") {
-						// Set aria-*, data-*, and style attributes.
-						updateAttributeSet(key, value, element);
-					} else if (key !== "children") {
-						// Set an attribute.
-						element[key] = value;
-					}
-				};
-
-				for (var key in nodeData) {
-					_loop(key);
+				if (key.charCodeAt(0) === 64) {
+					// Set an event listener.
+					setEvent(key, value, MoonEvents, MoonListeners, element);
+				} else if (key === "ariaset" || key === "dataset" || key === "style") {
+					// Set aria-*, data-*, and style attributes.
+					updateAttributeSet(key, value, element);
+				} else if (key !== "children") {
+					// Set an attribute.
+					element[key] = value;
 				}
-			})();
+			}
 		} // Return an old node with a reference to the immutable node and mutable
 		// element. This is to help performance and allow static nodes to be reused.
 
@@ -1357,7 +1361,16 @@
 				case patchTypes.updateDataEvent:
 					{
 						// Update an event.
-						patch.nodeOldElement.MoonEvents[patch.keyNew] = patch.valueNew;
+						var keyNew = patch.keyNew;
+						var nodeOldElement = patch.nodeOldElement;
+						var MoonEvents = nodeOldElement.MoonEvents;
+
+						if (MoonEvents[keyNew] === undefined) {
+							setEvent(keyNew, patch.valueNew, MoonEvents, nodeOldElement.MoonListeners, nodeOldElement);
+						} else {
+							MoonEvents[keyNew] = patch.valueNew;
+						}
+
 						break;
 					}
 
@@ -1379,9 +1392,13 @@
 					{
 						// Remove an event.
 						var keyOld = patch.keyOld;
-						var nodeOldElement = patch.nodeOldElement;
-						delete nodeOldElement.MoonEvents[keyOld];
-						nodeOldElement.removeEventListener(nodeOldElement.MoonListeners[keyOld]);
+						var _nodeOldElement = patch.nodeOldElement;
+						var MoonListeners = _nodeOldElement.MoonListeners;
+
+						_nodeOldElement.removeEventListener(MoonListeners[keyOld]);
+
+						delete _nodeOldElement.MoonEvents[keyOld];
+						delete MoonListeners[keyOld];
 						break;
 					}
 
@@ -1434,11 +1451,11 @@
 					{
 						// Replaces an old node with a new node.
 						var _nodeOld = patch.nodeOld;
-						var _nodeOldElement = _nodeOld.element;
+						var _nodeOldElement2 = _nodeOld.element;
 						var _nodeOldNew = patch.nodeOldNew;
 						var nodeOldNewElement = _nodeOldNew.element;
 
-						_nodeOldElement.parentNode.replaceChild(nodeOldNewElement, _nodeOldElement);
+						_nodeOldElement2.parentNode.replaceChild(nodeOldNewElement, _nodeOldElement2);
 
 						_nodeOld.element = nodeOldNewElement;
 						_nodeOld.node = _nodeOldNew.node;

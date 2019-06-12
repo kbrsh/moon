@@ -46,3 +46,21 @@ export function removeAttributeSet(key, value, exclude, element) {
 		}
 	}
 }
+
+/**
+ * Set an event listener on an element.
+ *
+ * @param {string} type
+ * @param {Array} info
+ * @param {Object} MoonEvents
+ * @param {Object} MoonListeners
+ * @param {Object} element
+ */
+export function setEvent(type, info, MoonEvents, MoonListeners, element) {
+	MoonEvents[type] = info;
+
+	element.addEventListener(type.slice(1), MoonListeners[type] = (event) => {
+		const info = MoonEvents[type];
+		info[0](event, info[1]);
+	});
+}
