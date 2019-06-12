@@ -1524,31 +1524,32 @@
 	 * recreate the view. In Moon, the view is defined as a function over data, and
 	 * components are just helper functions.
 	 *
-	 * The data can have a `root` property with an element. Moon will automatically
-	 * create the component and append it to the root element provided if the
-	 * component name is "Root". This makes the data the source of true state that
-	 * is accessible for updates by every component.
+	 * The options can have a `root` property with an element. Moon will
+	 * automatically create the component and append it to the root element
+	 * provided if the component name is "Root". This makes the data the source of
+	 * true state that is accessible for updates by every component.
 	 *
-	 * The data must have a `view` property with a string template or precompiled
-	 * functions.
+	 * The options must have a `view` property with a string template or
+	 * precompiled functions.
 	 *
-	 * The rest of the data is custom and can be thought of as a default. This data
-	 * is immutable, and the component updates global data instead of having local
+	 * The `data` option is custom and can be thought of as a default. This data is
+	 * immutable, and the component updates global data instead of having local
 	 * state.
 	 *
 	 * @param {Object} options
 	 * @param {string} [options.name]
-	 * @param {Node|string} [options.root]
+	 * @param {Object|string} [options.root]
+	 * @param {Object} [options.data]
 	 * @param {Object|string} options.view
 	 */
 
 	function Moon(options) {
 		// Handle the optional `name` parameter.
-		var name = defaultValue(options.name, "Root");
-		delete options.name; // Ensure the view is defined, and compile it if needed.
+		var name = defaultValue(options.name, "Root"); // Handle the optional default `data`.
+
+		var dataDefault = defaultValue(options.data, {}); // Ensure the view is defined, and compile it if needed.
 
 		var view = options.view;
-		delete options.view;
 
 		if ("development" === "development" && view === undefined) {
 			error("The " + name + " component requires a \"view\" property.");
@@ -1564,9 +1565,9 @@
 		// The data is also processed so that `options` acts as a default.
 
 		var viewComponent = function viewComponent(data) {
-			for (var key in options) {
+			for (var key in dataDefault) {
 				if (!(key in data)) {
-					data[key] = options[key];
+					data[key] = dataDefault[key];
 				}
 			}
 
@@ -1576,8 +1577,11 @@
 		if (name === "Root") {
 			// Mount to the `root` element and begin execution when the component is
 			// the "Root" component.
-			var root = typeof options.root === "string" ? document.querySelector(options.root) : options.root;
-			delete options.root;
+			var root = options.root;
+
+			if (typeof root === "string") {
+				root = document.querySelector(root);
+			}
 
 			if ("development" === "development" && root === undefined) {
 				error("The \"Root\" component requires a \"root\" property.");
