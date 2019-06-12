@@ -6,7 +6,7 @@ export const data = {};
 /**
  * Global views
  */
-export let viewOld, viewNew, viewCurrent;
+export let viewOld, viewCurrent;
 
 /**
  * Global component store
@@ -25,15 +25,6 @@ export const m = {};
  */
 export function setViewOld(viewOldNew) {
 	viewOld = viewOldNew;
-}
-
-/**
- * Set new view to a new object.
- *
- * @param {Object} viewOld
- */
-export function setViewNew(viewNewNew) {
-	viewNew = viewNewNew;
 }
 
 /**

@@ -1,5 +1,5 @@
 import { updateAttributeSet, removeAttributeSet } from "./util/util";
-import { components, data, setViewNew, viewCurrent, viewNew, viewOld } from "../util/globals";
+import { components, data, viewCurrent, viewOld } from "../util/globals";
 import { types } from "../util/util";
 
 /**
@@ -17,10 +17,17 @@ let executeQueue = [];
  */
 const patchTypes = {
 	updateText: 0,
-	updateData: 1,
-	appendNode: 2,
-	removeNode: 3,
-	replaceNode: 4
+	updateNode: 1,
+	updateDataEvent: 2,
+	updateDataSet: 3,
+	updateDataProperty: 4,
+	removeDataEvent: 5,
+	removeDataSet: 6,
+	removeDataSetExclude: 7,
+	removeDataProperty: 8,
+	appendNode: 9,
+	removeNode: 10,
+	replaceNode: 11
 };
 
 /**
@@ -93,56 +100,17 @@ function executeCreate(node) {
 }
 
 /**
- * Walks through the view and executes components.
+ * Executes a component until it returns a usable node.
  *
- * @param {Array} nodes
- * @param {Array} parents
- * @param {Array} indexes
+ * @param {Object} node
+ * @returns {Object} executed component node
  */
-function executeView(nodes, parents, indexes) {
-	while (true) {
-		let node = nodes.pop();
-		const parent = parents.pop();
-		const index = indexes.pop();
-
-		if (node.type === types.component) {
-			// Execute the component to get the component view.
-			node = components[node.name](node.data);
-
-			// Set the root view or current node to the new component view.
-			if (parent === null) {
-				setViewNew(node);
-			} else {
-				parent.data.children[index] = node;
-			}
-		}
-
-		// Execute the views of the children.
-		const children = node.data.children;
-
-		for (let i = 0; i < children.length; i++) {
-			nodes.push(children[i]);
-			parents.push(node);
-			indexes.push(i);
-		}
-
-		if (nodes.length === 0) {
-			// Move to the diff phase if there is nothing left to do.
-			executeDiff([viewOld], [viewNew], []);
-
-			break;
-		} else if (performance.now() - executeStart >= 16) {
-			// If the current frame doesn't have sufficient time left to keep
-			// running then continue executing the view in the next frame.
-			requestAnimationFrame(() => {
-				executeStart = performance.now();
-
-				executeView(nodes, parents, indexes);
-			});
-
-			break;
-		}
+function executeComponent(node) {
+	while (node.type === types.component) {
+		node = components[node.name](node.data);
 	}
+
+	return node;
 }
 
 /**
@@ -157,7 +125,7 @@ function executeDiff(nodesOld, nodesNew, patches) {
 	while (true) {
 		const nodeOld = nodesOld.pop();
 		const nodeOldNode = nodeOld.node;
-		const nodeNew = nodesNew.pop();
+		const nodeNew = executeComponent(nodesNew.pop());
 
 		// If they have the same reference (hoisted) then skip diffing.
 		if (nodeOldNode !== nodeNew) {
@@ -167,32 +135,102 @@ function executeDiff(nodesOld, nodesNew, patches) {
 				patches.push({
 					type: patchTypes.replaceNode,
 					nodeOld,
-					nodeNew,
-					nodeParent: null
+					nodeOldNew: executeCreate(nodeNew)
 				});
 			} else if (nodeOldNode.type === types.text) {
 				// If they both are text, then update the text content.
-				if (nodeOldNode.data[""] !== nodeNew.data[""]) {
+				const nodeNewText = nodeNew.data[""];
+
+				if (nodeOldNode.data[""] !== nodeNewText) {
 					patches.push({
 						type: patchTypes.updateText,
 						nodeOld,
 						nodeNew,
-						nodeParent: null
+						nodeNewText
 					});
 				}
 			} else {
 				// If they both are normal elements, then update attributes, update
 				// events, and diff the children for appends, deletes, or recursive
 				// updates.
+
+				// Push a patch to change the node reference on the old node.
 				patches.push({
-					type: patchTypes.updateData,
+					type: patchTypes.updateNode,
 					nodeOld,
-					nodeNew,
-					nodeParent: null
+					nodeNew
 				});
 
+				// Diff data.
+				const nodeOldElement = nodeOld.element;
+				const nodeOldNodeData = nodeOldNode.data;
+				const nodeNewData = nodeNew.data;
+
+				for (let keyNew in nodeNewData) {
+					const valueOld = nodeOldNodeData[keyNew];
+					const valueNew = nodeNewData[keyNew];
+
+					if (valueOld !== valueNew && keyNew !== "children") {
+						let type;
+
+						if (keyNew.charCodeAt(0) === 64) {
+							type = patchTypes.updateDataEvent;
+						} else if (
+							keyNew === "ariaset" ||
+							keyNew === "dataset" ||
+							keyNew === "style"
+						) {
+							type = patchTypes.updateDataSet;
+
+							if (valueOld !== undefined) {
+								patches.push({
+									type: patchTypes.removeDataSetExclude,
+									keyNew,
+									valueOld,
+									valueNew,
+									nodeOldElement
+								});
+							}
+						} else {
+							type = patchTypes.updateDataProperty;
+						}
+
+						patches.push({
+							type,
+							keyNew,
+							valueNew,
+							nodeOldElement
+						});
+					}
+				}
+
+				for (let keyOld in nodeOldNodeData) {
+					if (!(keyOld in nodeNewData)) {
+						let type;
+
+						if (keyOld.charCodeAt(0) === 64) {
+							type = patchTypes.removeDataEvent;
+						} else if (
+							keyOld === "ariaset" ||
+							keyOld === "dataset" ||
+							keyOld === "style"
+						) {
+							type = patchTypes.removeDataSet;
+						} else {
+							type = patchTypes.removeDataProperty;
+						}
+
+						patches.push({
+							type,
+							keyOld,
+							valueOld: nodeOldNodeData[keyOld],
+							nodeOldElement
+						});
+					}
+				}
+
 				const childrenOld = nodeOld.children;
-				const childrenNew = nodeNew.data.children;
+				const childrenNew = nodeNewData.children;
 
 				const childrenOldLength = childrenOld.length;
 				const childrenNewLength = childrenNew.length;
@@ -215,8 +253,6 @@ function executeDiff(nodesOld, nodesNew, patches) {
 					for (let i = childrenNewLength; i < childrenOldLength; i++) {
 						patches.push({
 							type: patchTypes.removeNode,
-							nodeOld: childrenOld[i],
-							nodeNew: null,
 							nodeParent: nodeOld
 						});
 					}
@@ -231,8 +267,7 @@ function executeDiff(nodesOld, nodesNew, patches) {
 					for (let i = childrenOldLength; i < childrenNewLength; i++) {
 						patches.push({
 							type: patchTypes.appendNode,
-							nodeOld: null,
-							nodeNew: childrenNew[i],
+							nodeOldNew: executeCreate(executeComponent(childrenNew[i])),
 							nodeParent: nodeOld
 						});
 					}
@@ -272,70 +307,69 @@ function executePatch(patches) {
 			case patchTypes.updateText: {
 				// Update text of a node with new text.
 				const nodeOld = patch.nodeOld;
-				const nodeNew = patch.nodeNew;
 
-				nodeOld.element.data = nodeNew.data[""];
-				nodeOld.node = nodeNew;
+				nodeOld.element.data = patch.nodeNewText;
+				nodeOld.node = patch.nodeNew;
 
 				break;
 			}
 
-			case patchTypes.updateData: {
-				// Set attributes and events of a node with new data.
-				const nodeOld = patch.nodeOld;
-				const nodeOldNodeData = nodeOld.node.data;
-				const nodeOldElement = nodeOld.element;
-				const nodeNew = patch.nodeNew;
-				const nodeNewData = nodeNew.data;
+			case patchTypes.updateNode: {
+				// Update the reference of an old node.
+				patch.nodeOld.node = patch.nodeNew;
 
-				// Update attributes on the DOM element.
-				for (let key in nodeNewData) {
-					const valueOld = nodeOldNodeData[key];
-					const valueNew = nodeNewData[key];
+				break;
+			}
 
-					if (valueOld !== valueNew) {
-						if (key.charCodeAt(0) === 64) {
-							// Update the event listener.
-							nodeOldElement.MoonEvents[key] = valueNew;
-						} else if (
-							key === "ariaset" ||
-							key === "dataset" ||
-							key === "style"
-						) {
-							// Update aria-*, data-*, and style attributes.
-							updateAttributeSet(key, valueNew, nodeOldElement);
+			case patchTypes.updateDataEvent: {
+				// Update an event.
+				patch.nodeOldElement.MoonEvents[patch.keyNew] = patch.valueNew;
 
-							if (valueOld !== undefined) {
-								removeAttributeSet(key, valueOld, valueNew, nodeOldElement);
-							}
-						} else if (key !== "children") {
-							// Update the attribute.
-							nodeOldElement[key] = valueNew;
-						}
-					}
-				}
+				break;
+			}
 
-				// Remove old attributes.
-				for (let key in nodeOldNodeData) {
-					if (!(key in nodeNewData)) {
-						if (key.charCodeAt(0) === 64) {
-							// Remove the old event listener.
-							delete nodeOldElement.MoonEvents[key];
-							nodeOldElement.removeEventListener(nodeOldElement.MoonListeners[key]);
-						} else if (
-							key === "ariaset" ||
-							key === "dataset" ||
-							key === "style"
-						) {
-							// Remove all aria-*, data-*, and style attributes.
-							removeAttributeSet(key, nodeOldNodeData[key], {}, nodeOldElement);
-						} else {
-							nodeOldElement.removeAttribute(key);
-						}
-					}
-				}
+			case patchTypes.updateDataSet: {
+				// Update a set attribute.
+				updateAttributeSet(patch.keyNew, patch.valueNew, patch.nodeOldElement);
 
-				nodeOld.node = nodeNew;
+				break;
+			}
+
+			case patchTypes.updateDataProperty: {
+				// Update a DOM property.
+				patch.nodeOldElement[patch.keyNew] = patch.valueNew;
+
+				break;
+			}
+
+			case patchTypes.removeDataEvent: {
+				// Remove an event.
+				const keyOld = patch.keyOld;
+				const nodeOldElement = patch.nodeOldElement;
+
+				delete nodeOldElement.MoonEvents[keyOld];
+				nodeOldElement.removeEventListener(nodeOldElement.MoonListeners[keyOld]);
+
+				break;
+			}
+
+			case patchTypes.removeDataSet: {
+				// Remove a set property.
+				removeAttributeSet(patch.keyOld, patch.valueOld, {}, patch.nodeOldElement);
+
+				break;
+			}
+
+			case patchTypes.removeDataSetExclude: {
+				// Remove a set property while excluding new values.
+				removeAttributeSet(patch.keyOld, patch.valueOld, patch.valueNew, patch.nodeOldElement);
+
+				break;
+			}
+
+			case patchTypes.removeDataProperty: {
+				// Remove a DOM property.
+				patch.nodeOldElement.removeAttribute(patch.keyOld);
 
 				break;
 			}
@@ -343,7 +377,7 @@ function executePatch(patches) {
 			case patchTypes.appendNode: {
 				// Append a node to the parent.
 				const nodeParent = patch.nodeParent;
-				const nodeOldNew = executeCreate(patch.nodeNew);
+				const nodeOldNew = patch.nodeOldNew;
 
 				nodeParent.element.appendChild(nodeOldNew.element);
 				nodeParent.children.push(nodeOldNew);
@@ -369,8 +403,7 @@ function executePatch(patches) {
 				// Replaces an old node with a new node.
 				const nodeOld = patch.nodeOld;
 				const nodeOldElement = nodeOld.element;
-				const nodeNew = patch.nodeNew;
-				const nodeOldNew = executeCreate(nodeNew);
+				const nodeOldNew = patch.nodeOldNew;
 				const nodeOldNewElement = nodeOldNew.element;
 
 				nodeOldElement.parentNode.replaceChild(nodeOldNewElement, nodeOldElement);
@@ -415,30 +448,23 @@ function executeNext() {
 		data[key] = dataNew[key];
 	}
 
-	// Begin executing the view.
-	const viewNew = viewCurrent(data);
-
-	setViewNew(viewNew);
-	executeView([viewNew], [null], [0]);
+	// Begin the diff phase.
+	executeDiff([viewOld], [viewCurrent(data)], []);
 }
 
 /**
  * Executor
  *
- * The executor runs in three phases.
+ * The executor runs in two phases.
  *
- * 1. View
- * 2. Diff
- * 3. Patch
- *
- * The view phase consists of walking the new tree and executing components.
- * This is done over multiple frames because component views can be slow, and
- * component trees can also be large enough to require it.
+ * 1. Diff
+ * 2. Patch
  *
  * The diff phase consists of walking the old and new tree while finding
  * differences. The differences are pushed as individual patches to a global
- * list of them. This is run over multiple frames because finding differences
- * between large component trees can take a while, especially from long lists.
+ * list of them. Components are also executed in this phase. This is run over
+ * multiple frames because finding differences between large component trees
+ * can take a while, especially from long lists.
  *
  * The patch phase consists of iterating through the patches and applying all
  * of them to mutate the DOM. These boil down to primitive DOM operations that

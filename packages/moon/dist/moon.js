@@ -1018,7 +1018,7 @@
 	 * Global views
 	 */
 
-	var viewOld, viewNew, viewCurrent;
+	var viewOld, viewCurrent;
 	/**
 	 * Global component store
 	 */
@@ -1037,15 +1037,6 @@
 
 	function setViewOld(viewOldNew) {
 		viewOld = viewOldNew;
-	}
-	/**
-	 * Set new view to a new object.
-	 *
-	 * @param {Object} viewOld
-	 */
-
-	function setViewNew(viewNewNew) {
-		viewNew = viewNewNew;
 	}
 	/**
 	 * Set current view to a new function.
@@ -1073,10 +1064,17 @@
 
 	var patchTypes = {
 		updateText: 0,
-		updateData: 1,
-		appendNode: 2,
-		removeNode: 3,
-		replaceNode: 4
+		updateNode: 1,
+		updateDataEvent: 2,
+		updateDataSet: 3,
+		updateDataProperty: 4,
+		removeDataEvent: 5,
+		removeDataSet: 6,
+		removeDataSetExclude: 7,
+		removeDataProperty: 8,
+		appendNode: 9,
+		removeNode: 10,
+		replaceNode: 11
 	};
 	/**
 	 * Creates an old reference node from a view node.
@@ -1147,54 +1145,19 @@
 		};
 	}
 	/**
-	 * Walks through the view and executes components.
+	 * Executes a component until it returns a usable node.
 	 *
-	 * @param {Array} nodes
-	 * @param {Array} parents
-	 * @param {Array} indexes
+	 * @param {Object} node
+	 * @returns {Object} executed component node
 	 */
 
 
-	function executeView(nodes, parents, indexes) {
-		while (true) {
-			var node = nodes.pop();
-			var parent = parents.pop();
-			var index = indexes.pop();
-
-			if (node.type === types.component) {
-				// Execute the component to get the component view.
-				node = components[node.name](node.data); // Set the root view or current node to the new component view.
-
-				if (parent === null) {
-					setViewNew(node);
-				} else {
-					parent.data.children[index] = node;
-				}
-			} // Execute the views of the children.
-
-
-			var children = node.data.children;
-
-			for (var i = 0; i < children.length; i++) {
-				nodes.push(children[i]);
-				parents.push(node);
-				indexes.push(i);
-			}
-
-			if (nodes.length === 0) {
-				// Move to the diff phase if there is nothing left to do.
-				executeDiff([viewOld], [viewNew], []);
-				break;
-			} else if (performance.now() - executeStart >= 16) {
-				// If the current frame doesn't have sufficient time left to keep
-				// running then continue executing the view in the next frame.
-				requestAnimationFrame(function () {
-					executeStart = performance.now();
-					executeView(nodes, parents, indexes);
-				});
-				break;
-			}
+	function executeComponent(node) {
+		while (node.type === types.component) {
+			node = components[node.name](node.data);
 		}
+
+		return node;
 	}
 	/**
 	 * Finds changes between a new and old tree and creates a list of patches to
@@ -1210,7 +1173,7 @@
 		while (true) {
 			var nodeOld = nodesOld.pop();
 			var nodeOldNode = nodeOld.node;
-			var nodeNew = nodesNew.pop(); // If they have the same reference (hoisted) then skip diffing.
+			var nodeNew = executeComponent(nodesNew.pop()); // If they have the same reference (hoisted) then skip diffing.
 
 			if (nodeOldNode !== nodeNew) {
 				if (nodeOldNode.name !== nodeNew.name) {
@@ -1219,31 +1182,92 @@
 					patches.push({
 						type: patchTypes.replaceNode,
 						nodeOld: nodeOld,
-						nodeNew: nodeNew,
-						nodeParent: null
+						nodeOldNew: executeCreate(nodeNew)
 					});
 				} else if (nodeOldNode.type === types.text) {
 					// If they both are text, then update the text content.
-					if (nodeOldNode.data[""] !== nodeNew.data[""]) {
+					var nodeNewText = nodeNew.data[""];
+
+					if (nodeOldNode.data[""] !== nodeNewText) {
 						patches.push({
 							type: patchTypes.updateText,
 							nodeOld: nodeOld,
 							nodeNew: nodeNew,
-							nodeParent: null
+							nodeNewText: nodeNewText
 						});
 					}
 				} else {
 					// If they both are normal elements, then update attributes, update
 					// events, and diff the children for appends, deletes, or recursive
 					// updates.
+					// Push a patch to change the node reference on the old node.
 					patches.push({
-						type: patchTypes.updateData,
+						type: patchTypes.updateNode,
 						nodeOld: nodeOld,
-						nodeNew: nodeNew,
-						nodeParent: null
-					});
+						nodeNew: nodeNew
+					}); // Diff data.
+
+					var nodeOldElement = nodeOld.element;
+					var nodeOldNodeData = nodeOldNode.data;
+					var nodeNewData = nodeNew.data;
+
+					for (var keyNew in nodeNewData) {
+						var valueOld = nodeOldNodeData[keyNew];
+						var valueNew = nodeNewData[keyNew];
+
+						if (valueOld !== valueNew && keyNew !== "children") {
+							var type = void 0;
+
+							if (keyNew.charCodeAt(0) === 64) {
+								type = patchTypes.updateDataEvent;
+							} else if (keyNew === "ariaset" || keyNew === "dataset" || keyNew === "style") {
+								type = patchTypes.updateDataSet;
+
+								if (valueOld !== undefined) {
+									patches.push({
+										type: patchTypes.removeDataSetExclude,
+										keyNew: keyNew,
+										valueOld: valueOld,
+										valueNew: valueNew,
+										nodeOldElement: nodeOldElement
+									});
+								}
+							} else {
+								type = patchTypes.updateDataProperty;
+							}
+
+							patches.push({
+								type: type,
+								keyNew: keyNew,
+								valueNew: valueNew,
+								nodeOldElement: nodeOldElement
+							});
+						}
+					}
+
+					for (var keyOld in nodeOldNodeData) {
+						if (!(keyOld in nodeNewData)) {
+							var _type = void 0;
+
+							if (keyOld.charCodeAt(0) === 64) {
+								_type = patchTypes.removeDataEvent;
+							} else if (keyOld === "ariaset" || keyOld === "dataset" || keyOld === "style") {
+								_type = patchTypes.removeDataSet;
+							} else {
+								_type = patchTypes.removeDataProperty;
+							}
+
+							patches.push({
+								type: _type,
+								keyOld: keyOld,
+								valueOld: nodeOldNodeData[keyOld],
+								nodeOldElement: nodeOldElement
+							});
+						}
+					}
+
 					var childrenOld = nodeOld.children;
-					var childrenNew = nodeNew.data.children;
+					var childrenNew = nodeNewData.children;
 					var childrenOldLength = childrenOld.length;
 					var childrenNewLength = childrenNew.length;
 
@@ -1265,8 +1289,6 @@
 						for (var _i2 = childrenNewLength; _i2 < childrenOldLength; _i2++) {
 							patches.push({
 								type: patchTypes.removeNode,
-								nodeOld: childrenOld[_i2],
-								nodeNew: null,
 								nodeParent: nodeOld
 							});
 						}
@@ -1281,8 +1303,7 @@
 						for (var _i4 = childrenOldLength; _i4 < childrenNewLength; _i4++) {
 							patches.push({
 								type: patchTypes.appendNode,
-								nodeOld: null,
-								nodeNew: childrenNew[_i4],
+								nodeOldNew: executeCreate(executeComponent(childrenNew[_i4])),
 								nodeParent: nodeOld
 							});
 						}
@@ -1321,60 +1342,67 @@
 					{
 						// Update text of a node with new text.
 						var nodeOld = patch.nodeOld;
-						var nodeNew = patch.nodeNew;
-						nodeOld.element.data = nodeNew.data[""];
-						nodeOld.node = nodeNew;
+						nodeOld.element.data = patch.nodeNewText;
+						nodeOld.node = patch.nodeNew;
 						break;
 					}
 
-				case patchTypes.updateData:
+				case patchTypes.updateNode:
 					{
-						// Set attributes and events of a node with new data.
-						var _nodeOld = patch.nodeOld;
-						var nodeOldNodeData = _nodeOld.node.data;
-						var nodeOldElement = _nodeOld.element;
-						var _nodeNew = patch.nodeNew;
-						var nodeNewData = _nodeNew.data; // Update attributes on the DOM element.
+						// Update the reference of an old node.
+						patch.nodeOld.node = patch.nodeNew;
+						break;
+					}
 
-						for (var key in nodeNewData) {
-							var valueOld = nodeOldNodeData[key];
-							var valueNew = nodeNewData[key];
+				case patchTypes.updateDataEvent:
+					{
+						// Update an event.
+						patch.nodeOldElement.MoonEvents[patch.keyNew] = patch.valueNew;
+						break;
+					}
 
-							if (valueOld !== valueNew) {
-								if (key.charCodeAt(0) === 64) {
-									// Update the event listener.
-									nodeOldElement.MoonEvents[key] = valueNew;
-								} else if (key === "ariaset" || key === "dataset" || key === "style") {
-									// Update aria-*, data-*, and style attributes.
-									updateAttributeSet(key, valueNew, nodeOldElement);
+				case patchTypes.updateDataSet:
+					{
+						// Update a set attribute.
+						updateAttributeSet(patch.keyNew, patch.valueNew, patch.nodeOldElement);
+						break;
+					}
 
-									if (valueOld !== undefined) {
-										removeAttributeSet(key, valueOld, valueNew, nodeOldElement);
-									}
-								} else if (key !== "children") {
-									// Update the attribute.
-									nodeOldElement[key] = valueNew;
-								}
-							}
-						} // Remove old attributes.
+				case patchTypes.updateDataProperty:
+					{
+						// Update a DOM property.
+						patch.nodeOldElement[patch.keyNew] = patch.valueNew;
+						break;
+					}
 
+				case patchTypes.removeDataEvent:
+					{
+						// Remove an event.
+						var keyOld = patch.keyOld;
+						var nodeOldElement = patch.nodeOldElement;
+						delete nodeOldElement.MoonEvents[keyOld];
+						nodeOldElement.removeEventListener(nodeOldElement.MoonListeners[keyOld]);
+						break;
+					}
 
-						for (var _key in nodeOldNodeData) {
-							if (!(_key in nodeNewData)) {
-								if (_key.charCodeAt(0) === 64) {
-									// Remove the old event listener.
-									delete nodeOldElement.MoonEvents[_key];
-									nodeOldElement.removeEventListener(nodeOldElement.MoonListeners[_key]);
-								} else if (_key === "ariaset" || _key === "dataset" || _key === "style") {
-									// Remove all aria-*, data-*, and style attributes.
-									removeAttributeSet(_key, nodeOldNodeData[_key], {}, nodeOldElement);
-								} else {
-									nodeOldElement.removeAttribute(_key);
-								}
-							}
-						}
+				case patchTypes.removeDataSet:
+					{
+						// Remove a set property.
+						removeAttributeSet(patch.keyOld, patch.valueOld, {}, patch.nodeOldElement);
+						break;
+					}
 
-						_nodeOld.node = _nodeNew;
+				case patchTypes.removeDataSetExclude:
+					{
+						// Remove a set property while excluding new values.
+						removeAttributeSet(patch.keyOld, patch.valueOld, patch.valueNew, patch.nodeOldElement);
+						break;
+					}
+
+				case patchTypes.removeDataProperty:
+					{
+						// Remove a DOM property.
+						patch.nodeOldElement.removeAttribute(patch.keyOld);
 						break;
 					}
 
@@ -1382,7 +1410,7 @@
 					{
 						// Append a node to the parent.
 						var nodeParent = patch.nodeParent;
-						var nodeOldNew = executeCreate(patch.nodeNew);
+						var nodeOldNew = patch.nodeOldNew;
 						nodeParent.element.appendChild(nodeOldNew.element);
 						nodeParent.children.push(nodeOldNew);
 						break;
@@ -1405,19 +1433,16 @@
 				case patchTypes.replaceNode:
 					{
 						// Replaces an old node with a new node.
-						var _nodeOld2 = patch.nodeOld;
-						var _nodeOldElement = _nodeOld2.element;
-						var _nodeNew2 = patch.nodeNew;
-
-						var _nodeOldNew = executeCreate(_nodeNew2);
-
+						var _nodeOld = patch.nodeOld;
+						var _nodeOldElement = _nodeOld.element;
+						var _nodeOldNew = patch.nodeOldNew;
 						var nodeOldNewElement = _nodeOldNew.element;
 
 						_nodeOldElement.parentNode.replaceChild(nodeOldNewElement, _nodeOldElement);
 
-						_nodeOld2.element = nodeOldNewElement;
-						_nodeOld2.node = _nodeOldNew.node;
-						_nodeOld2.children = _nodeOldNew.children;
+						_nodeOld.element = nodeOldNewElement;
+						_nodeOld.node = _nodeOldNew.node;
+						_nodeOld.children = _nodeOldNew.children;
 						break;
 					}
 			}
@@ -1450,30 +1475,24 @@
 
 		for (var key in dataNew) {
 			data[key] = dataNew[key];
-		} // Begin executing the view.
+		} // Begin the diff phase.
 
 
-		var viewNew = viewCurrent(data);
-		setViewNew(viewNew);
-		executeView([viewNew], [null], [0]);
+		executeDiff([viewOld], [viewCurrent(data)], []);
 	}
 	/**
 	 * Executor
 	 *
-	 * The executor runs in three phases.
+	 * The executor runs in two phases.
 	 *
-	 * 1. View
-	 * 2. Diff
-	 * 3. Patch
-	 *
-	 * The view phase consists of walking the new tree and executing components.
-	 * This is done over multiple frames because component views can be slow, and
-	 * component trees can also be large enough to require it.
+	 * 1. Diff
+	 * 2. Patch
 	 *
 	 * The diff phase consists of walking the old and new tree while finding
 	 * differences. The differences are pushed as individual patches to a global
-	 * list of them. This is run over multiple frames because finding differences
-	 * between large component trees can take a while, especially from long lists.
+	 * list of them. Components are also executed in this phase. This is run over
+	 * multiple frames because finding differences between large component trees
+	 * can take a while, especially from long lists.
 	 *
 	 * The patch phase consists of iterating through the patches and applying all
 	 * of them to mutate the DOM. These boil down to primitive DOM operations that
