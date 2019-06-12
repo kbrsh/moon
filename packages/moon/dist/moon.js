@@ -1176,9 +1176,9 @@
 			var nodeNew = executeComponent(nodesNew.pop()); // If they have the same reference (hoisted) then skip diffing.
 
 			if (nodeOldNode !== nodeNew) {
-				if (nodeOldNode.name !== nodeNew.name) {
-					// If they have different names, then replace the old node with the
-					// new one.
+				if (nodeOldNode.type !== nodeNew.type || nodeOldNode.name !== nodeNew.name) {
+					// If they have different types or names, then replace the old node
+					// with the new one.
 					patches.push({
 						type: patchTypes.replaceNode,
 						nodeOld: nodeOld,
