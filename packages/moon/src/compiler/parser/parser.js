@@ -16,7 +16,7 @@ function ParseError(message, start, end, next) {
  * Returns a full parse error message only if Moon is in development mode.
  *
  * @param {string} message
- * @returns {string} Conditional error message
+ * @returns {string} conditional error message
  */
 function parseErrorMessage(message) {
 	/* istanbul ignore next */
@@ -34,7 +34,7 @@ function parseErrorMessage(message) {
  * @param {number} start
  * @param {number} end
  * @param {Object[]} tokens
- * @returns {Object} Abstract syntax tree or ParseError
+ * @returns {Object} abstract syntax tree or ParseError
  */
 function parseElements(start, end, tokens) {
 	const length = end - start;
@@ -91,7 +91,7 @@ function parseElements(start, end, tokens) {
  * @param {number} start
  * @param {number} end
  * @param {Object[]} tokens
- * @returns {Object} Abstract syntax tree or ParseError
+ * @returns {Object} abstract syntax tree or ParseError
  */
 function parseElement(start, end, tokens) {
 	const tokenFirst = tokens[start];
@@ -191,7 +191,7 @@ function parseElement(start, end, tokens) {
  * type.
  *
  * @param {Object[]} tokens
- * @returns {Object} Abstract syntax tree or ParseError
+ * @returns {Object} abstract syntax tree or ParseError
  */
 export function parse(tokens) {
 	const tree = parseElement(0, tokens.length, tokens);

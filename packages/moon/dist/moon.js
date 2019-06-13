@@ -125,7 +125,7 @@
 	 * Scope an expression to use variables within the `md` object.
 	 *
 	 * @param {string} expression
-	 * @returns {Object} Scoped expression and static status
+	 * @returns {Object} scoped expression and static status
 	 */
 
 	function scopeExpression(expression) {
@@ -150,7 +150,7 @@
 	 * Convert a token into a string, accounting for `<text/>` components.
 	 *
 	 * @param {Object} token
-	 * @returns {string} Token converted into a string
+	 * @returns {string} token converted into a string
 	 */
 
 
@@ -217,7 +217,7 @@
 	 * lexer appends the new token to a cumulative list and eventually returns it.
 	 *
 	 * @param {string} input
-	 * @returns {Object[]} List of tokens
+	 * @returns {Object[]} list of tokens
 	 */
 
 
@@ -499,7 +499,7 @@
 	 * Returns a full parse error message only if Moon is in development mode.
 	 *
 	 * @param {string} message
-	 * @returns {string} Conditional error message
+	 * @returns {string} conditional error message
 	 */
 
 
@@ -518,7 +518,7 @@
 	 * @param {number} start
 	 * @param {number} end
 	 * @param {Object[]} tokens
-	 * @returns {Object} Abstract syntax tree or ParseError
+	 * @returns {Object} abstract syntax tree or ParseError
 	 */
 
 
@@ -567,7 +567,7 @@
 	 * @param {number} start
 	 * @param {number} end
 	 * @param {Object[]} tokens
-	 * @returns {Object} Abstract syntax tree or ParseError
+	 * @returns {Object} abstract syntax tree or ParseError
 	 */
 
 
@@ -644,7 +644,7 @@
 	 * type.
 	 *
 	 * @param {Object[]} tokens
-	 * @returns {Object} Abstract syntax tree or ParseError
+	 * @returns {Object} abstract syntax tree or ParseError
 	 */
 
 
@@ -885,7 +885,7 @@
 	 * @param {number} index
 	 * @param {number} variable
 	 * @param {Array} staticParts
-	 * @returns {Object} Prelude code, view function code, static status, and variable
+	 * @returns {Object} prelude code, view function code, static status, and variable
 	 */
 
 	function generateNode(element, parent, index, variable, staticParts) {
@@ -997,7 +997,7 @@
 	 * representation of the stack.
 	 *
 	 * @param {Object} element
-	 * @returns {string} View function code
+	 * @returns {string} view function code
 	 */
 
 	function generate(element) {
@@ -1017,6 +1017,13 @@
 			return "if(ms[0]===undefined){" + staticParts.join("") + "}" + prelude + "return " + node + ";";
 		}
 	}
+
+	/**
+	 * Compiles an input into a function that returns a Moon view node.
+	 *
+	 * @param {string} input
+	 * @returns {string} view function code
+	 */
 
 	function compile(input) {
 		return generate(parse(lex(input)));

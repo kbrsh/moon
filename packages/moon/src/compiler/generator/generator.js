@@ -11,7 +11,7 @@ import { types } from "../../util/util";
  * @param {number} index
  * @param {number} variable
  * @param {Array} staticParts
- * @returns {Object} Prelude code, view function code, static status, and variable
+ * @returns {Object} prelude code, view function code, static status, and variable
  */
 export function generateNode(element, parent, index, variable, staticParts) {
 	const name = element.name;
@@ -140,7 +140,7 @@ export function generateNode(element, parent, index, variable, staticParts) {
  * representation of the stack.
  *
  * @param {Object} element
- * @returns {string} View function code
+ * @returns {string} view function code
  */
 export function generate(element) {
 	// Store static parts.

@@ -53,7 +53,7 @@ const escapeTextMap = {
  * Scope an expression to use variables within the `md` object.
  *
  * @param {string} expression
- * @returns {Object} Scoped expression and static status
+ * @returns {Object} scoped expression and static status
  */
 function scopeExpression(expression) {
 	let isStatic = true;
@@ -80,7 +80,7 @@ function scopeExpression(expression) {
  * Convert a token into a string, accounting for `<text/>` components.
  *
  * @param {Object} token
- * @returns {string} Token converted into a string
+ * @returns {string} token converted into a string
  */
 export function tokenString(token) {
 	if (token.type === "tagOpen") {
@@ -152,7 +152,7 @@ function lexError(message, input, index) {
  * lexer appends the new token to a cumulative list and eventually returns it.
  *
  * @param {string} input
- * @returns {Object[]} List of tokens
+ * @returns {Object[]} list of tokens
  */
 export function lex(input) {
 	// Remove leading and trailing whitespace because the lexer should only
