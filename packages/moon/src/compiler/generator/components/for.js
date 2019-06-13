@@ -31,6 +31,7 @@ export function generateNodeFor(element, variable, staticParts) {
 	);
 
 	let body;
+	variable = generateChild.variable;
 
 	if (generateChild.isStatic) {
 		// If the body is static, then use a static node in place of it.
@@ -63,7 +64,7 @@ export function generateNodeFor(element, variable, staticParts) {
 		// Generate a `for` loop over an array. The first local is the value and
 		// the second is the key (index).
 		dataArray = dataArray.value;
-		dataKey = dataLocals.length === 2 ? dataLocals[1] : "mi";
+		dataKey = dataLocals.length === 2 ? dataLocals[1] : ("m" + variable++);
 		dataValue = dataLocals[0];
 		prelude = `for(var ${dataKey}=0;${dataKey}<${dataArray}.length;${dataKey}++){var ${dataValue}=${dataArray}[${dataKey}];${body}}`;
 	}
@@ -82,6 +83,6 @@ export function generateNodeFor(element, variable, staticParts) {
 		prelude: `var ${variableFor}=[];${prelude}`,
 		node: `m(${types.element},${dataName},${dataData},${variableFor})`,
 		isStatic: false,
-		variable: generateChild.variable
+		variable
 	};
 }

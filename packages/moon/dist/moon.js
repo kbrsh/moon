@@ -826,6 +826,7 @@
 		var prelude;
 		var generateChild = generateNode(element.children[0], element, 0, variable + 1, staticParts);
 		var body;
+		variable = generateChild.variable;
 
 		if (generateChild.isStatic) {
 			// If the body is static, then use a static node in place of it.
@@ -856,7 +857,7 @@
 			// Generate a `for` loop over an array. The first local is the value and
 			// the second is the key (index).
 			dataArray = dataArray.value;
-			dataKey = dataLocals.length === 2 ? dataLocals[1] : "mi";
+			dataKey = dataLocals.length === 2 ? dataLocals[1] : "m" + variable++;
 			dataValue = dataLocals[0];
 			prelude = "for(var " + dataKey + "=0;" + dataKey + "<" + dataArray + ".length;" + dataKey + "++){var " + dataValue + "=" + dataArray + "[" + dataKey + "];" + body + "}";
 		}
@@ -873,7 +874,7 @@
 			prelude: "var " + variableFor + "=[];" + prelude,
 			node: "m(" + types.element + "," + dataName + "," + dataData + "," + variableFor + ")",
 			isStatic: false,
-			variable: generateChild.variable
+			variable: variable
 		};
 	}
 
