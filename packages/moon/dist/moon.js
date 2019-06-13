@@ -1222,21 +1222,22 @@
 	function executeView(nodes) {
 		while (true) {
 			var node = nodes.pop();
-			var children = node.children;
+			var nodeChildren = node.children;
 
 			while (node.type === types.component) {
 				// Execute the component to get the component view.
-				var nodeComponent = components[node.name](m, node.data, children, ms[node.name]); // Update the node to reflect the component view.
+				var nodeName = node.name;
+				var nodeComponent = components[nodeName](m, node.data, nodeChildren, ms[nodeName]); // Update the node to reflect the component view.
 
 				node.type = nodeComponent.type;
 				node.name = nodeComponent.name;
 				node.data = nodeComponent.data;
-				children = node.children = nodeComponent.children;
+				nodeChildren = node.children = nodeComponent.children;
 			} // Execute the views of the children.
 
 
-			for (var i = 0; i < children.length; i++) {
-				nodes.push(children[i]);
+			for (var i = 0; i < nodeChildren.length; i++) {
+				nodes.push(nodeChildren[i]);
 			}
 
 			if (nodes.length === 0) {

@@ -80,27 +80,28 @@ function executeCreate(node) {
 function executeView(nodes) {
 	while (true) {
 		const node = nodes.pop();
-		let children = node.children;
+		let nodeChildren = node.children;
 
 		while (node.type === types.component) {
 			// Execute the component to get the component view.
-			const nodeComponent = components[node.name](
+			const nodeName = node.name;
+			const nodeComponent = components[nodeName](
 				m,
 				node.data,
-				children,
-				ms[node.name]
+				nodeChildren,
+				ms[nodeName]
 			);
 
 			// Update the node to reflect the component view.
 			node.type = nodeComponent.type;
 			node.name = nodeComponent.name;
 			node.data = nodeComponent.data;
-			children = node.children = nodeComponent.children;
+			nodeChildren = node.children = nodeComponent.children;
 		}
 
 		// Execute the views of the children.
-		for (let i = 0; i < children.length; i++) {
-			nodes.push(children[i]);
+		for (let i = 0; i < nodeChildren.length; i++) {
+			nodes.push(nodeChildren[i]);
 		}
 
 		if (nodes.length === 0) {
