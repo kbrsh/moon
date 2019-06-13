@@ -87,7 +87,7 @@ export function generateNode(element, parent, index, staticNodes) {
 			} else {
 				// If the whole current node is dynamic and the child node is
 				// static, then use a static node in place of the static child.
-				data += separator + `m[${staticNodes.length}]`;
+				data += separator + `ms[${staticNodes.length}]`;
 
 				staticNodes.push(generateChild);
 			}
@@ -100,7 +100,7 @@ export function generateNode(element, parent, index, staticNodes) {
 
 	return {
 		prelude,
-		node: `{type:${type},name:"${name}",data:${data}}}`,
+		node: `m(${type},"${name}",${data}})`,
 		isStatic
 	};
 }
@@ -134,17 +134,17 @@ export function generate(element) {
 
 	if (isStatic) {
 		// Account for a static root node.
-		return `if(m[0]===undefined){${prelude}m[0]=${node};}return m[0];`;
+		return `if(ms[0]===undefined){${prelude}ms[0]=${node};}return ms[0];`;
 	} else if (staticNodes.length === 0) {
 		return `${prelude}return ${node};`;
 	} else {
 		// Generate static nodes only once at the start.
-		let staticCode = `if(m[0]===undefined){`;
+		let staticCode = `if(ms[0]===undefined){`;
 
 		for (let i = 0; i < staticNodes.length; i++) {
 			const staticNode = staticNodes[i];
 
-			staticCode += `${staticNode.prelude}m[${i}]=${staticNode.node};`;
+			staticCode += `${staticNode.prelude}ms[${i}]=${staticNode.node};`;
 		}
 
 		staticCode += "}";

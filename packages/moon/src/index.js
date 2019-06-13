@@ -3,8 +3,8 @@ import { parse } from "./compiler/parser/parser";
 import { generate } from "./compiler/generator/generator";
 import { compile } from "./compiler/compiler";
 import { execute } from "./executor/executor";
-import { components, data, m, setViewCurrent, setViewOld } from "./util/globals";
-import { defaultValue, error, types } from "./util/util";
+import { components, data, ms, setViewCurrent, setViewOld } from "./util/globals";
+import { defaultValue, error, m, NodeOld, types } from "./util/util";
 
 /**
  * Moon
@@ -48,11 +48,11 @@ export default function Moon(options) {
 	}
 
 	if (typeof view === "string") {
-		view = new Function("m", "data", compile(view));
+		view = new Function("m", "ms", "data", compile(view));
 	}
 
 	// Create a list of static nodes for the view function.
-	m[name] = [];
+	ms[name] = [];
 
 	// Create a wrapper view function that maps data to the compiled view
 	// function. The compiled view function takes `m`, which holds static nodes.
@@ -64,7 +64,7 @@ export default function Moon(options) {
 			}
 		}
 
-		return view(m[name], data);
+		return view(m, ms[name], data);
 	};
 
 	if (name === "Root") {
@@ -91,15 +91,15 @@ export default function Moon(options) {
 			dataNode[rootAttribute.name] = rootAttribute.value;
 		}
 
-		setViewOld({
-			node: {
+		setViewOld(new NodeOld(
+			{
 				type: types.element,
 				name: root.tagName.toLowerCase(),
 				data: dataNode
 			},
-			element: root,
-			children: []
-		});
+			root,
+			[]
+		));
 		setViewCurrent(viewComponent);
 		execute(dataDefault);
 	} else {

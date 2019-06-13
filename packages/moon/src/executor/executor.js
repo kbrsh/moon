@@ -1,6 +1,6 @@
 import { setEvent, updateAttributeSet, removeAttributeSet } from "./util/util";
 import { components, data, viewCurrent, viewNew, viewOld, setViewNew } from "../util/globals";
-import { types } from "../util/util";
+import { NodeOld, types } from "../util/util";
 
 /**
  * Start time
@@ -68,11 +68,7 @@ function executeCreate(node) {
 
 	// Return an old node with a reference to the immutable node and mutable
 	// element. This is to help performance and allow static nodes to be reused.
-	return {
-		node,
-		element,
-		children
-	};
+	return new NodeOld(node, element, children);
 }
 
 /**
@@ -182,7 +178,7 @@ function executePatch(nodeOld, nodeNew) {
 				const valueOld = nodeOldNodeData[keyNew];
 				const valueNew = nodeNewData[keyNew];
 
-				if (valueOld !== valueNew && keyNew !== "children") {
+				if (keyNew !== "children" && valueOld !== valueNew) {
 					if (keyNew.charCodeAt(0) === 64) {
 						// Update an event.
 						const MoonEvents = nodeOldElement.MoonEvents;

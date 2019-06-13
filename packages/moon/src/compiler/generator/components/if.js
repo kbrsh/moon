@@ -16,7 +16,7 @@ function generateClause(variable, element, staticNodes) {
 
 	if (generateBody.isStatic) {
 		// If the clause is static, then use a static node in place of it.
-		clause = `${variable}=m[${staticNodes.length}];`;
+		clause = `${variable}=ms[${staticNodes.length}];`;
 
 		staticNodes.push(generateBody);
 	} else {
@@ -78,11 +78,11 @@ export function generateNodeIf(element, parent, index, staticNodes) {
 
 	// Generate an empty `else` clause represented by an empty text node.
 	if (emptyElseClause) {
-		prelude += `else{${variable}=m[${staticNodes.length}];}`;
+		prelude += `else{${variable}=ms[${staticNodes.length}];}`;
 
 		staticNodes.push({
 			prelude: "",
-			node: `{type:${types.text},name:"text",data:{"":"",children:[]}}`,
+			node: `m(${types.text},"text",{"":"",children:[]})`,
 			isStatic: true
 		});
 	}

@@ -16,7 +16,7 @@ export const components = {};
 /**
  * Global static component views
  */
-export const m = {};
+export const ms = {};
 
 /**
  * Set old view to a new object.

@@ -22,6 +22,24 @@
 		component: 2
 	};
 	/**
+	 * Old Node Constructor
+	 */
+
+	function NodeOld(node, element, children) {
+		this.node = node;
+		this.element = element;
+		this.children = children;
+	}
+	/**
+	 * New Node Constructor
+	 */
+
+	function NodeNew(type, name, data) {
+		this.type = type;
+		this.name = name;
+		this.data = data;
+	}
+	/**
 	 * Logs an error message to the console.
 	 * @param {string} message
 	 */
@@ -39,6 +57,17 @@
 
 	function defaultValue(value, fallback) {
 		return value === undefined ? fallback : value;
+	}
+	/**
+	 * Returns a new node.
+	 *
+	 * @param {Number} type
+	 * @param {String} name
+	 * @param {Object} data
+	 */
+
+	function m(type, name, data) {
+		return new NodeNew(type, name, data);
 	}
 
 	/**
@@ -667,7 +696,7 @@
 
 		if (generateBody.isStatic) {
 			// If the clause is static, then use a static node in place of it.
-			clause = variable + "=m[" + staticNodes.length + "];";
+			clause = variable + "=ms[" + staticNodes.length + "];";
 			staticNodes.push(generateBody);
 		} else {
 			// If the clause is dynamic, then use the dynamic node.
@@ -723,10 +752,10 @@
 
 
 		if (emptyElseClause) {
-			prelude += "else{" + variable + "=m[" + staticNodes.length + "];}";
+			prelude += "else{" + variable + "=ms[" + staticNodes.length + "];}";
 			staticNodes.push({
 				prelude: "",
-				node: "{type:" + types.text + ",name:\"text\",data:{\"\":\"\",children:[]}}",
+				node: "m(" + types.text + ",\"text\",{\"\":\"\",children:[]})",
 				isStatic: true
 			});
 		}
@@ -767,7 +796,7 @@
 
 		if (generateChild.isStatic) {
 			// If the body is static, then use a static node in place of it.
-			body = variable + ".children.push(m[" + staticNodes.length + "]);";
+			body = variable + ".children.push(ms[" + staticNodes.length + "]);";
 			staticNodes.push(generateChild);
 		} else {
 			// If the body is dynamic, then use the dynamic node in the loop body.
@@ -800,7 +829,7 @@
 
 		return {
 			prelude: "var " + variable + "=" + dataData + ";" + variable + ".children=[];" + prelude,
-			node: "{type:" + types.element + ",name:" + dataName + ",data:" + variable + "}",
+			node: "m(" + types.element + "," + dataName + "," + variable + ")",
 			isStatic: false
 		};
 	}
@@ -878,7 +907,7 @@
 				} else {
 					// If the whole current node is dynamic and the child node is
 					// static, then use a static node in place of the static child.
-					data += separator + ("m[" + staticNodes.length + "]");
+					data += separator + ("ms[" + staticNodes.length + "]");
 					staticNodes.push(_generateChild);
 				}
 
@@ -890,7 +919,7 @@
 
 		return {
 			prelude: prelude,
-			node: "{type:" + type + ",name:\"" + name + "\",data:" + data + "}}",
+			node: "m(" + type + ",\"" + name + "\"," + data + "})",
 			isStatic: isStatic
 		};
 	}
@@ -920,16 +949,16 @@
 
 		if (isStatic) {
 			// Account for a static root node.
-			return "if(m[0]===undefined){" + prelude + "m[0]=" + node + ";}return m[0];";
+			return "if(ms[0]===undefined){" + prelude + "ms[0]=" + node + ";}return ms[0];";
 		} else if (staticNodes.length === 0) {
 			return prelude + "return " + node + ";";
 		} else {
 			// Generate static nodes only once at the start.
-			var staticCode = "if(m[0]===undefined){";
+			var staticCode = "if(ms[0]===undefined){";
 
 			for (var i = 0; i < staticNodes.length; i++) {
 				var staticNode = staticNodes[i];
-				staticCode += staticNode.prelude + "m[" + i + "]=" + staticNode.node + ";";
+				staticCode += staticNode.prelude + "ms[" + i + "]=" + staticNode.node + ";";
 			}
 
 			staticCode += "}";
@@ -1027,7 +1056,7 @@
 	 * Global static component views
 	 */
 
-	var m = {};
+	var ms = {};
 	/**
 	 * Set old view to a new object.
 	 *
@@ -1115,11 +1144,7 @@
 		// element. This is to help performance and allow static nodes to be reused.
 
 
-		return {
-			node: node,
-			element: element,
-			children: children
-		};
+		return new NodeOld(node, element, children);
 	}
 	/**
 	 * Executes a view, including all components.
@@ -1220,7 +1245,7 @@
 					var valueOld = nodeOldNodeData[keyNew];
 					var valueNew = nodeNewData[keyNew];
 
-					if (valueOld !== valueNew && keyNew !== "children") {
+					if (keyNew !== "children" && valueOld !== valueNew) {
 						if (keyNew.charCodeAt(0) === 64) {
 							// Update an event.
 							var MoonEvents = nodeOldElement.MoonEvents;
@@ -1405,11 +1430,11 @@
 		}
 
 		if (typeof view === "string") {
-			view = new Function("m", "data", compile(view));
+			view = new Function("m", "ms", "data", compile(view));
 		} // Create a list of static nodes for the view function.
 
 
-		m[name] = []; // Create a wrapper view function that maps data to the compiled view
+		ms[name] = []; // Create a wrapper view function that maps data to the compiled view
 		// function. The compiled view function takes `m`, which holds static nodes.
 		// The data is also processed so that `dataDefault` acts as a default.
 
@@ -1420,7 +1445,7 @@
 				}
 			}
 
-			return view(m[name], data);
+			return view(m, ms[name], data);
 		};
 
 		if (name === "Root") {
@@ -1447,15 +1472,11 @@
 				dataNode[rootAttribute.name] = rootAttribute.value;
 			}
 
-			setViewOld({
-				node: {
-					type: types.element,
-					name: root.tagName.toLowerCase(),
-					data: dataNode
-				},
-				element: root,
-				children: []
-			});
+			setViewOld(new NodeOld({
+				type: types.element,
+				name: root.tagName.toLowerCase(),
+				data: dataNode
+			}, root, []));
 			setViewCurrent(viewComponent);
 			execute(dataDefault);
 		} else {

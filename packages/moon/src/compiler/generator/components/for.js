@@ -34,7 +34,7 @@ export function generateNodeFor(element, staticNodes) {
 
 	if (generateChild.isStatic) {
 		// If the body is static, then use a static node in place of it.
-		body = `${variable}.children.push(m[${staticNodes.length}]);`;
+		body = `${variable}.children.push(ms[${staticNodes.length}]);`;
 		staticNodes.push(generateChild);
 	} else {
 		// If the body is dynamic, then use the dynamic node in the loop body.
@@ -67,7 +67,7 @@ export function generateNodeFor(element, staticNodes) {
 
 	return {
 		prelude: `var ${variable}=${dataData};${variable}.children=[];${prelude}`,
-		node: `{type:${types.element},name:${dataName},data:${variable}}`,
+		node: `m(${types.element},${dataName},${variable})`,
 		isStatic: false
 	};
 }
