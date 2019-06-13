@@ -1237,8 +1237,12 @@
 			} // Execute the views of the children.
 
 
-			for (var i = 0; i < nodeChildren.length; i++) {
-				nodes.push(nodeChildren[i]);
+			var nodeChildrenLength = nodeChildren.length;
+
+			if (nodeChildrenLength !== 0) {
+				for (var i = 0; i < nodeChildrenLength; i++) {
+					nodes.push(nodeChildren[i]);
+				}
 			}
 
 			if (nodes.length === 0) {

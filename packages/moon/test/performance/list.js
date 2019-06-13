@@ -22,6 +22,7 @@ function element(parent) {
 		attributes: [{name: "id", value: "test"}],
 		parentNode: parent === undefined ? element(true) : {},
 		appendChild: function() {},
+		removeChild: function() {},
 		replaceChild: function() {}
 	};
 }
@@ -45,5 +46,6 @@ Moon({
 });
 
 for (var i = 0; i < 10000; i++) {
-	Moon.set({ list: Moon.get.list.concat([7]) });
+	//Moon.set({ list: Moon.get.list.concat([7]) });
+	Moon.set({ list: [] });
 }
