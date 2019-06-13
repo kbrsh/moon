@@ -1,9 +1,4 @@
 /**
- * Global data
- */
-export const data = {};
-
-/**
  * Global views
  */
 export let viewOld, viewCurrent, viewNew;
@@ -12,6 +7,16 @@ export let viewOld, viewCurrent, viewNew;
  * Global component store
  */
 export const components = {};
+
+/**
+ * Global data
+ */
+export const md = {};
+
+/**
+ * Global children
+ */
+export const mc = [];
 
 /**
  * Global static component views
@@ -35,7 +40,6 @@ export function setViewOld(viewOldNew) {
 export function setViewCurrent(viewCurrentNew) {
 	viewCurrent = viewCurrentNew;
 }
-
 
 /**
  * Set new view to a new object.

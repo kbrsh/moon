@@ -129,7 +129,7 @@ module.exports = function (name, input) {
 		outputJS = inputJS.replace("export default", "const _moonOptions=");
 	}
 
-	outputJS = "import Moon from \"moon\";" + outputJS + "_moonOptions.name=\"" + name + "\";_moonOptions.view=function(m,ms,data){" + Moon.generate(tree) + "};Moon(_moonOptions);";
+	outputJS = "import Moon from \"moon\";" + outputJS + "_moonOptions.name=\"" + name + "\";_moonOptions.view=function(m,md,mc,ms,data){" + Moon.generate(tree) + "};Moon(_moonOptions);";
 	return {
 		js: outputJS,
 		css: outputCSS

@@ -19,10 +19,11 @@ export function NodeOld(node, element, children) {
 /**
  * New Node Constructor
  */
-export function NodeNew(type, name, data) {
+export function NodeNew(type, name, data, children) {
 	this.type = type;
 	this.name = name;
 	this.data = data;
+	this.children = children;
 }
 
 /**
@@ -47,10 +48,11 @@ export function defaultValue(value, fallback) {
 /**
  * Returns a new node.
  *
- * @param {Number} type
- * @param {String} name
+ * @param {number} type
+ * @param {string} name
  * @param {Object} data
+ * @param {Array} children
  */
-export function m(type, name, data) {
-	return new NodeNew(type, name, data);
+export function m(type, name, data, children) {
+	return new NodeNew(type, name, data, children);
 }

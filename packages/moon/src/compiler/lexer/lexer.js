@@ -50,7 +50,7 @@ const escapeTextMap = {
 };
 
 /**
- * Scope an expression to use variables within the `data` object.
+ * Scope an expression to use variables within the `md` object.
  *
  * @param {string} expression
  * @returns {Object} Scoped expression and static status
@@ -66,7 +66,7 @@ function scopeExpression(expression) {
 		} else {
 			// Return a dynamic match if there is a dynamic name or a local.
 			isStatic = false;
-			return name[0] === "$" ? name : "data." + name;
+			return name[0] === "$" ? name : "md." + name;
 		}
 	});
 
@@ -80,7 +80,7 @@ function scopeExpression(expression) {
  * Convert a token into a string, accounting for `<text/>` components.
  *
  * @param {Object} token
- * @returns {String} Token converted into a string
+ * @returns {string} Token converted into a string
  */
 export function tokenString(token) {
 	if (token.type === "tagOpen") {
@@ -293,11 +293,13 @@ export function lex(input) {
 									// objects are closed.
 									if (opened === 0) {
 										if (attributeKey.charCodeAt(0) === 64) {
-											// For events, pass the event handler and component data. Event
-											// handlers are assumed to be dynamic because the component data
-											// can change.
+											// For events, pass the event handler,
+											// component data, and component children.
+											// Event handlers are assumed to be dynamic
+											// because the component data or children can
+											// change.
 											attributes[attributeKey] = {
-												value: `[${scopeExpression(attributeValue).value},data]`,
+												value: `[${scopeExpression(attributeValue).value},md,mc]`,
 												isStatic: false
 											};
 										} else {
@@ -308,7 +310,8 @@ export function lex(input) {
 										// Exit on the quote.
 										break;
 									} else {
-										// If all objects aren't yet closed, mark one as closed.
+										// If all objects aren't yet closed, mark one as
+										// closed.
 										attributeValue += charAttribute;
 										opened -= 1;
 									}

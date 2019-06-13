@@ -34,10 +34,11 @@
 	 * New Node Constructor
 	 */
 
-	function NodeNew(type, name, data) {
+	function NodeNew(type, name, data, children) {
 		this.type = type;
 		this.name = name;
 		this.data = data;
+		this.children = children;
 	}
 	/**
 	 * Logs an error message to the console.
@@ -61,13 +62,14 @@
 	/**
 	 * Returns a new node.
 	 *
-	 * @param {Number} type
-	 * @param {String} name
+	 * @param {number} type
+	 * @param {string} name
 	 * @param {Object} data
+	 * @param {Array} children
 	 */
 
-	function m(type, name, data) {
-		return new NodeNew(type, name, data);
+	function m(type, name, data, children) {
+		return new NodeNew(type, name, data, children);
 	}
 
 	/**
@@ -120,7 +122,7 @@
 		"\r": "\\r"
 	};
 	/**
-	 * Scope an expression to use variables within the `data` object.
+	 * Scope an expression to use variables within the `md` object.
 	 *
 	 * @param {string} expression
 	 * @returns {Object} Scoped expression and static status
@@ -136,7 +138,7 @@
 			} else {
 				// Return a dynamic match if there is a dynamic name or a local.
 				isStatic = false;
-				return name[0] === "$" ? name : "data." + name;
+				return name[0] === "$" ? name : "md." + name;
 			}
 		});
 		return {
@@ -148,7 +150,7 @@
 	 * Convert a token into a string, accounting for `<text/>` components.
 	 *
 	 * @param {Object} token
-	 * @returns {String} Token converted into a string
+	 * @returns {string} Token converted into a string
 	 */
 
 
@@ -348,11 +350,13 @@
 										// objects are closed.
 										if (opened === 0) {
 											if (attributeKey.charCodeAt(0) === 64) {
-												// For events, pass the event handler and component data. Event
-												// handlers are assumed to be dynamic because the component data
-												// can change.
+												// For events, pass the event handler,
+												// component data, and component children.
+												// Event handlers are assumed to be dynamic
+												// because the component data or children can
+												// change.
 												attributes[attributeKey] = {
-													value: "[" + scopeExpression(attributeValue).value + ",data]",
+													value: "[" + scopeExpression(attributeValue).value + ",md,mc]",
 													isStatic: false
 												};
 											} else {
@@ -363,7 +367,8 @@
 
 											break;
 										} else {
-											// If all objects aren't yet closed, mark one as closed.
+											// If all objects aren't yet closed, mark one as
+											// closed.
 											attributeValue += charAttribute;
 											opened -= 1;
 										}
@@ -668,42 +673,65 @@
 	}
 
 	/**
-	 * Global variable number
-	 */
-	var generateVariable;
-	/**
-	 * Set variable number to a new number.
+	 * Generates code for a node from an `element` element.
 	 *
-	 * @param {number} newGenerateVariable
+	 * @param {Object} element
+	 * @param {number} variable
+	 * @param {Array} staticParts
+	 * @returns {Object} prelude code, view function code, static status, and variable
 	 */
 
-	function setGenerateVariable(newGenerateVariable) {
-		generateVariable = newGenerateVariable;
+	function generateNodeElement(element, variable, staticParts) {
+		var attributes = element.attributes;
+		var name = attributes.name;
+		var data = attributes.data;
+		var children = attributes.children;
+		var dataIsStatic = data.isStatic;
+		var isStatic = name.isStatic && dataIsStatic && children.isStatic;
+		var dataValue = data.value;
+
+		if (!isStatic && dataIsStatic) {
+			var staticVariable = staticParts.length;
+			staticParts.push("ms[" + staticVariable + "]=" + dataValue + ";");
+			dataValue = "ms[" + staticVariable + "]";
+		}
+
+		return {
+			prelude: "",
+			node: "m(" + types.element + "," + name.value + "," + dataValue + "," + children.value + ")",
+			isStatic: isStatic,
+			variable: variable
+		};
 	}
 
 	/**
 	 * Generates code for an `if`/`else-if`/`else` clause body.
 	 *
-	 * @param {number} variable
+	 * @param {number} variableIf
 	 * @param {Object} element
-	 * @param {Array} staticNodes
-	 * @returns {string} clause body
+	 * @param {number} variable
+	 * @param {Array} staticParts
+	 * @returns {string} clause body and variable
 	 */
 
-	function generateClause(variable, element, staticNodes) {
-		var generateBody = generateNode(element.children[0], element, 0, staticNodes);
+	function generateClause(variableIf, element, variable, staticParts) {
+		var generateBody = generateNode(element.children[0], element, 0, variable, staticParts);
 		var clause;
 
 		if (generateBody.isStatic) {
 			// If the clause is static, then use a static node in place of it.
-			clause = variable + "=ms[" + staticNodes.length + "];";
-			staticNodes.push(generateBody);
+			var staticVariable = staticParts.length;
+			staticParts.push(generateBody.prelude + "ms[" + staticVariable + "]=" + generateBody.node + ";");
+			clause = variableIf + "=ms[" + staticVariable + "];";
 		} else {
 			// If the clause is dynamic, then use the dynamic node.
-			clause = "" + generateBody.prelude + variable + "=" + generateBody.node + ";";
+			clause = "" + generateBody.prelude + variableIf + "=" + generateBody.node + ";";
 		}
 
-		return clause;
+		return {
+			clause: clause,
+			variable: generateBody.variable
+		};
 	}
 	/**
 	 * Generates code for a node from an `if` element.
@@ -711,18 +739,20 @@
 	 * @param {Object} element
 	 * @param {Object} parent
 	 * @param {number} index
-	 * @param {Array} staticNodes
-	 * @returns {Object} Prelude code, view function code, and static status
+	 * @param {number} variable
+	 * @param {Array} staticParts
+	 * @returns {Object} prelude code, view function code, static status, and variable
 	 */
 
 
-	function generateNodeIf(element, parent, index, staticNodes) {
-		var variable = "m" + generateVariable;
+	function generateNodeIf(element, parent, index, variable, staticParts) {
+		var variableIf = "m" + variable;
 		var prelude = "";
-		var emptyElseClause = true;
-		setGenerateVariable(generateVariable + 1); // Generate the initial `if` clause.
+		var emptyElseClause = true; // Generate the initial `if` clause.
 
-		prelude += "var " + variable + ";if(" + element.attributes[""].value + "){" + generateClause(variable, element, staticNodes) + "}"; // Search for `else-if` and `else` clauses if there are siblings.
+		var clauseIf = generateClause(variableIf, element, variable + 1, staticParts);
+		prelude += "var " + variableIf + ";if(" + element.attributes[""].value + "){" + clauseIf.clause + "}";
+		variable = clauseIf.variable; // Search for `else-if` and `else` clauses if there are siblings.
 
 		if (parent !== null) {
 			var siblings = parent.children;
@@ -732,13 +762,17 @@
 
 				if (sibling.name === "else-if") {
 					// Generate the `else-if` clause.
-					prelude += "else if(" + sibling.attributes[""].value + "){" + generateClause(variable, sibling, staticNodes) + "}"; // Remove the `else-if` clause so that it isn't generated
+					var clauseElseIf = generateClause(variableIf, sibling, variable, staticParts);
+					prelude += "else if(" + sibling.attributes[""].value + "){" + clauseElseIf.clause + "}";
+					variable = clauseElseIf.variable; // Remove the `else-if` clause so that it isn't generated
 					// individually by the parent.
 
 					siblings.splice(i, 1);
 				} else if (sibling.name === "else") {
 					// Generate the `else` clause.
-					prelude += "else{" + generateClause(variable, sibling, staticNodes) + "}"; // Skip generating the empty `else` clause.
+					var clauseElse = generateClause(variableIf, sibling, variable, staticParts);
+					prelude += "else{" + clauseElse.clause + "}";
+					variable = clauseElse.variable; // Skip generating the empty `else` clause.
 
 					emptyElseClause = false; // Remove the `else` clause so that it isn't generated
 					// individually by the parent.
@@ -752,18 +786,16 @@
 
 
 		if (emptyElseClause) {
-			prelude += "else{" + variable + "=ms[" + staticNodes.length + "];}";
-			staticNodes.push({
-				prelude: "",
-				node: "m(" + types.text + ",\"text\",{\"\":\"\",children:[]})",
-				isStatic: true
-			});
+			var staticVariable = staticParts.length;
+			staticParts.push("ms[" + staticVariable + "]=m(" + types.text + ",\"text\",{\"\":\"\"},[]);");
+			prelude += "else{" + variableIf + "=ms[" + staticVariable + "];}";
 		}
 
 		return {
 			prelude: prelude,
-			node: variable,
-			isStatic: false
+			node: variableIf,
+			isStatic: false,
+			variable: variable
 		};
 	}
 
@@ -771,36 +803,38 @@
 	 * Generates code for a node from a `for` element.
 	 *
 	 * @param {Object} element
-	 * @param {Array} staticNodes
-	 * @returns {Object} Prelude code, view function code, and static status
+	 * @param {number} variable
+	 * @param {Array} staticParts
+	 * @returns {Object} prelude code, view function code, static status, and variable
 	 */
 
-	function generateNodeFor(element, staticNodes) {
-		var variable = "m" + generateVariable;
+	function generateNodeFor(element, variable, staticParts) {
+		var variableFor = "m" + variable;
 		var attributes = element.attributes;
 		var dataLocals = attributes[""].value.split(",");
 		var dataName = defaultValue(attributes.name, {
 			value: "\"span\""
 		}).value;
 		var dataData = defaultValue(attributes.data, {
-			value: "{}"
-		}).value;
+			value: "{}",
+			isStatic: true
+		});
 		var dataArray = attributes.of;
 		var dataObject = attributes["in"];
 		var dataKey;
 		var dataValue;
 		var prelude;
-		setGenerateVariable(generateVariable + 1);
-		var generateChild = generateNode(element.children[0], element, 0, staticNodes);
+		var generateChild = generateNode(element.children[0], element, 0, variable + 1, staticParts);
 		var body;
 
 		if (generateChild.isStatic) {
 			// If the body is static, then use a static node in place of it.
-			body = variable + ".children.push(ms[" + staticNodes.length + "]);";
-			staticNodes.push(generateChild);
+			var staticVariable = staticParts.length;
+			staticParts.push(generateChild.prelude + "ms[" + staticVariable + "]=" + generateChild.node + ";");
+			body = variableFor + ".push(ms[" + staticVariable + "]);";
 		} else {
 			// If the body is dynamic, then use the dynamic node in the loop body.
-			body = "" + generateChild.prelude + variable + ".children.push(" + generateChild.node + ");";
+			body = "" + generateChild.prelude + variableFor + ".push(" + generateChild.node + ");";
 		}
 
 		if (dataArray === undefined) {
@@ -827,10 +861,19 @@
 			prelude = "for(var " + dataKey + "=0;" + dataKey + "<" + dataArray + ".length;" + dataKey + "++){var " + dataValue + "=" + dataArray + "[" + dataKey + "];" + body + "}";
 		}
 
+		if (dataData.isStatic) {
+			var _staticVariable = staticParts.length;
+			staticParts.push("ms[" + _staticVariable + "]=" + dataData.value + ";");
+			dataData = "ms[" + _staticVariable + "]";
+		} else {
+			dataData = dataData.value;
+		}
+
 		return {
-			prelude: "var " + variable + "=" + dataData + ";" + variable + ".children=[];" + prelude,
-			node: "m(" + types.element + "," + dataName + "," + variable + ")",
-			isStatic: false
+			prelude: "var " + variableFor + "=[];" + prelude,
+			node: "m(" + types.element + "," + dataName + "," + dataData + "," + variableFor + ")",
+			isStatic: false,
+			variable: generateChild.variable
 		};
 	}
 
@@ -840,19 +883,23 @@
 	 * @param {Object} element
 	 * @param {Object} parent
 	 * @param {number} index
-	 * @param {Array} staticNodes
-	 * @returns {Object} Prelude code, view function code, and static status
+	 * @param {number} variable
+	 * @param {Array} staticParts
+	 * @returns {Object} Prelude code, view function code, static status, and variable
 	 */
 
-	function generateNode(element, parent, index, staticNodes) {
+	function generateNode(element, parent, index, variable, staticParts) {
 		var name = element.name;
 		var type;
-		var isStatic = true; // Generate the correct type number for the given name.
+		var staticData = true;
+		var staticChildren = true; // Generate the correct type number for the given name.
 
-		if (name === "if") {
-			return generateNodeIf(element, parent, index, staticNodes);
+		if (name === "element") {
+			return generateNodeElement(element, variable, staticParts);
+		} else if (name === "if") {
+			return generateNodeIf(element, parent, index, variable, staticParts);
 		} else if (name === "for") {
-			return generateNodeFor(element, staticNodes);
+			return generateNodeFor(element, variable, staticParts);
 		} else if (name === "text") {
 			type = types.text;
 		} else if (name[0] === name[0].toLowerCase()) {
@@ -864,63 +911,80 @@
 		var attributes = element.attributes;
 		var prelude = "";
 		var data = "{";
+		var children = "[";
 		var separator = "";
 
 		for (var attribute in attributes) {
-			var attributeValue = attributes[attribute]; // Mark the current node as dynamic if there are any events or dynamic
-			// attributes.
+			var attributeValue = attributes[attribute]; // Mark the data as dynamic if there are any dynamic attributes.
 
-			if (attribute[0] === "@" || !attributeValue.isStatic) {
-				isStatic = false;
+			if (!attributeValue.isStatic) {
+				staticData = false;
 			}
 
 			data += separator + "\"" + attribute + "\":" + attributeValue.value;
 			separator = ",";
 		}
 
-		if (attributes.children === undefined) {
-			// Generate children if they are not in the element data.
-			var children = element.children;
-			var generateChildren = [];
-			data += separator + "children:[";
-			separator = "";
+		data += "}"; // Generate children.
 
-			for (var i = 0; i < children.length; i++) {
-				var generateChild = generateNode(children[i], element, i, staticNodes); // Mark the current node as dynamic if any child is dynamic.
+		var elementChildren = element.children;
+		var generateChildren = [];
+		separator = "";
 
-				if (!generateChild.isStatic) {
-					isStatic = false;
-				}
+		for (var i = 0; i < elementChildren.length; i++) {
+			var generateChild = generateNode(elementChildren[i], element, i, variable, staticParts); // Mark the children as dynamic if any child is dynamic.
 
-				generateChildren.push(generateChild);
+			if (!generateChild.isStatic) {
+				staticChildren = false;
+			} // Update the variable counter.
+
+
+			variable = generateChild.variable;
+			generateChildren.push(generateChild);
+		} // Mark the node as static if the data and children are static.
+
+
+		var isStatic = staticData && staticChildren;
+
+		for (var _i = 0; _i < generateChildren.length; _i++) {
+			var _generateChild = generateChildren[_i];
+
+			if (isStatic || !_generateChild.isStatic) {
+				// If the whole current node is static or the current node and child
+				// node are dynamic, then append the child as a part of the node as
+				// usual.
+				prelude += _generateChild.prelude;
+				children += separator + _generateChild.node;
+			} else {
+				// If the whole current node is dynamic and the child node is static,
+				// then use a static node in place of the static child.
+				var staticVariable = staticParts.length;
+				staticParts.push(_generateChild.prelude + "ms[" + staticVariable + "]=" + _generateChild.node + ";");
+				children += separator + ("ms[" + staticVariable + "]");
 			}
 
-			for (var _i = 0; _i < generateChildren.length; _i++) {
-				var _generateChild = generateChildren[_i];
+			separator = ",";
+		}
 
-				if (isStatic || !_generateChild.isStatic) {
-					// If the whole current node is static or the current node and
-					// child node are dynamic, then append the child as a part of the
-					// node as usual.
-					prelude += _generateChild.prelude;
-					data += separator + _generateChild.node;
-				} else {
-					// If the whole current node is dynamic and the child node is
-					// static, then use a static node in place of the static child.
-					data += separator + ("ms[" + staticNodes.length + "]");
-					staticNodes.push(_generateChild);
-				}
+		children += "]";
 
-				separator = ",";
-			}
-
-			data += "]";
+		if (staticData && !staticChildren) {
+			// If only the data is static, hoist it out.
+			var _staticVariable = staticParts.length;
+			staticParts.push("ms[" + _staticVariable + "]=" + data + ";");
+			data = "ms[" + _staticVariable + "]";
+		} else if (!staticData && staticChildren) {
+			// If only the children are static, hoist them out.
+			var _staticVariable2 = staticParts.length;
+			staticParts.push("ms[" + _staticVariable2 + "]=" + children + ";");
+			children = "ms[" + _staticVariable2 + "]";
 		}
 
 		return {
 			prelude: prelude,
-			node: "m(" + type + ",\"" + name + "\"," + data + "})",
-			isStatic: isStatic
+			node: "m(" + type + ",\"" + name + "\"," + data + "," + children + ")",
+			isStatic: isStatic,
+			variable: variable
 		};
 	}
 	/**
@@ -937,12 +1001,10 @@
 	 */
 
 	function generate(element) {
-		// Store static nodes.
-		var staticNodes = []; // Reset generator variable.
+		// Store static parts.
+		var staticParts = []; // Generate the root node and get the prelude and node code.
 
-		setGenerateVariable(0); // Generate the root node and get the prelude and node code.
-
-		var _generateNode = generateNode(element, null, 0, staticNodes),
+		var _generateNode = generateNode(element, null, 0, 0, staticParts),
 				prelude = _generateNode.prelude,
 				node = _generateNode.node,
 				isStatic = _generateNode.isStatic;
@@ -950,19 +1012,9 @@
 		if (isStatic) {
 			// Account for a static root node.
 			return "if(ms[0]===undefined){" + prelude + "ms[0]=" + node + ";}return ms[0];";
-		} else if (staticNodes.length === 0) {
-			return prelude + "return " + node + ";";
 		} else {
-			// Generate static nodes only once at the start.
-			var staticCode = "if(ms[0]===undefined){";
-
-			for (var i = 0; i < staticNodes.length; i++) {
-				var staticNode = staticNodes[i];
-				staticCode += staticNode.prelude + "ms[" + i + "]=" + staticNode.node + ";";
-			}
-
-			staticCode += "}";
-			return "" + staticCode + prelude + "return " + node + ";";
+			// Generate static parts only once at the start.
+			return "if(ms[0]===undefined){" + staticParts.join("") + "}" + prelude + "return " + node + ";";
 		}
 	}
 
@@ -1034,24 +1086,29 @@
 		MoonEvents[type] = info;
 		element.addEventListener(type.slice(1), MoonListeners[type] = function (event) {
 			var info = MoonEvents[type];
-			info[0](event, info[1]);
+			info[0](event, info[1], info[2]);
 		});
 	}
 
 	/**
-	 * Global data
-	 */
-	var data = {};
-	/**
 	 * Global views
 	 */
-
 	var viewOld, viewCurrent, viewNew;
 	/**
 	 * Global component store
 	 */
 
 	var components = {};
+	/**
+	 * Global data
+	 */
+
+	var md = {};
+	/**
+	 * Global children
+	 */
+
+	var mc = [];
 	/**
 	 * Global static component views
 	 */
@@ -1110,21 +1167,22 @@
 			// Create a text node using the text content from the default key.
 			element = document.createTextNode(node.data[""]);
 		} else {
-			var nodeData = node.data; // Create a DOM element.
-
+			// Create a DOM element.
 			element = document.createElement(node.name); // Recursively append children.
 
-			var nodeDataChildren = nodeData.children;
+			var nodeChildren = node.children;
 
-			for (var i = 0; i < nodeDataChildren.length; i++) {
-				var childOld = executeCreate(nodeDataChildren[i]);
+			for (var i = 0; i < nodeChildren.length; i++) {
+				var childOld = executeCreate(nodeChildren[i]);
 				element.appendChild(childOld.element);
 				children.push(childOld);
 			} // Store DOM events.
 
 
 			var MoonEvents = element.MoonEvents = {};
-			var MoonListeners = element.MoonListeners = {}; // Set data, events, and attributes.
+			var MoonListeners = element.MoonListeners = {}; // Set data.
+
+			var nodeData = node.data;
 
 			for (var key in nodeData) {
 				var value = nodeData[key];
@@ -1135,7 +1193,7 @@
 				} else if (key === "ariaset" || key === "dataset" || key === "style") {
 					// Set aria-*, data-*, and style attributes.
 					updateAttributeSet(key, value, element);
-				} else if (key !== "children") {
+				} else {
 					// Set an attribute.
 					element[key] = value;
 				}
@@ -1157,18 +1215,18 @@
 	function executeView(nodes) {
 		while (true) {
 			var node = nodes.pop();
+			var children = node.children;
 
 			while (node.type === types.component) {
 				// Execute the component to get the component view.
-				var nodeComponent = components[node.name](node.data); // Update the node to reflect the component view.
+				var nodeComponent = components[node.name](m, node.data, children, ms[node.name]); // Update the node to reflect the component view.
 
 				node.type = nodeComponent.type;
 				node.name = nodeComponent.name;
 				node.data = nodeComponent.data;
+				children = node.children = nodeComponent.children;
 			} // Execute the views of the children.
 
-
-			var children = node.data.children;
 
 			for (var i = 0; i < children.length; i++) {
 				nodes.push(children[i]);
@@ -1224,9 +1282,12 @@
 			if (nodeOldNode.type !== nodeNew.type || nodeOldNode.name !== nodeNew.name) {
 				// If the types or name aren't the same, then replace the old node
 				// with the new one.
+				var nodeOldElement = nodeOld.element;
 				var nodeOldNew = executeCreate(nodeNew);
-				nodeOld.element = nodeOldNew.element;
+				var nodeOldNewElement = nodeOldNew.element;
+				nodeOld.element = nodeOldNewElement;
 				nodeOld.children = nodeOldNew.children;
+				nodeOldElement.parentNode.replaceChild(nodeOldElement, nodeOldNewElement);
 			} else if (nodeOldNode.type === types.text) {
 				// If they both are text, then update the text content.
 				var nodeNewText = nodeNew.data[""];
@@ -1236,100 +1297,108 @@
 				}
 			} else {
 				// If they are both elements, then update the data.
-				var nodeOldElement = nodeOld.element;
+				var _nodeOldElement = nodeOld.element;
 				var nodeOldNodeData = nodeOldNode.data;
-				var nodeNewData = nodeNew.data; // First, go through all new data and update all of the existing data
-				// to match.
+				var nodeNewData = nodeNew.data;
 
-				for (var keyNew in nodeNewData) {
-					var valueOld = nodeOldNodeData[keyNew];
-					var valueNew = nodeNewData[keyNew];
+				if (nodeOldNodeData !== nodeNewData) {
+					// First, go through all new data and update all of the existing data
+					// to match.
+					for (var keyNew in nodeNewData) {
+						var valueOld = nodeOldNodeData[keyNew];
+						var valueNew = nodeNewData[keyNew];
 
-					if (keyNew !== "children" && valueOld !== valueNew) {
-						if (keyNew.charCodeAt(0) === 64) {
-							// Update an event.
-							var MoonEvents = nodeOldElement.MoonEvents;
+						if (valueOld !== valueNew) {
+							if (keyNew.charCodeAt(0) === 64) {
+								// Update an event.
+								var MoonEvents = _nodeOldElement.MoonEvents;
 
-							if (MoonEvents[keyNew] === undefined) {
-								// If the event doesn't exist, add a new event listener.
-								setEvent(keyNew, valueNew, MoonEvents, nodeOldElement.MoonListeners, nodeOldElement);
+								if (MoonEvents[keyNew] === undefined) {
+									// If the event doesn't exist, add a new event listener.
+									setEvent(keyNew, valueNew, MoonEvents, _nodeOldElement.MoonListeners, _nodeOldElement);
+								} else {
+									// If it does exist, update the existing event handler.
+									MoonEvents[keyNew] = valueNew;
+								}
+							} else if (keyNew === "ariaset" || keyNew === "dataset" || keyNew === "style") {
+								// If it is a set attribute, update all values in the set.
+								updateAttributeSet(keyNew, valueNew, _nodeOldElement);
+
+								if (valueOld !== undefined) {
+									// If there was an old set, remove all old set attributes
+									// while excluding any new ones that still exist.
+									removeAttributeSet(keyNew, valueOld, valueNew, _nodeOldElement);
+								}
 							} else {
-								// If it does exist, update the existing event handler.
-								MoonEvents[keyNew] = valueNew;
+								// Update a DOM property.
+								_nodeOldElement[keyNew] = valueNew;
 							}
-						} else if (keyNew === "ariaset" || keyNew === "dataset" || keyNew === "style") {
-							// If it is a set attribute, update all values in the set.
-							updateAttributeSet(keyNew, valueNew, nodeOldElement);
-
-							if (valueOld !== undefined) {
-								// If there was an old set, remove all old set attributes
-								// while excluding any new ones that still exist.
-								removeAttributeSet(keyNew, valueOld, valueNew, nodeOldElement);
-							}
-						} else {
-							// Update a DOM property.
-							nodeOldElement[keyNew] = valueNew;
 						}
-					}
-				} // Next, go through all of the old data and remove data that isn't in
-				// the new data.
+					} // Next, go through all of the old data and remove data that isn't in
+					// the new data.
 
 
-				for (var keyOld in nodeOldNodeData) {
-					if (!(keyOld in nodeNewData)) {
-						if (keyOld.charCodeAt(0) === 64) {
-							// Remove an event.
-							var MoonListeners = nodeOldElement.MoonListeners; // Remove the event listener from the DOM.
+					for (var keyOld in nodeOldNodeData) {
+						if (!(keyOld in nodeNewData)) {
+							if (keyOld.charCodeAt(0) === 64) {
+								// Remove an event.
+								var MoonListeners = _nodeOldElement.MoonListeners; // Remove the event listener from the DOM.
 
-							nodeOldElement.removeEventListener(MoonListeners[keyOld]); // Remove both the event listener and event handler.
+								_nodeOldElement.removeEventListener(MoonListeners[keyOld]); // Remove both the event listener and event handler.
 
-							MoonListeners[keyOld] = undefined;
-							nodeOldElement.MoonEvents[keyOld] = undefined;
-						} else if (keyOld === "ariaset" || keyOld === "dataset" || keyOld === "style") {
-							// If it is a set attribute, remove all old values from the
-							// set and exclude nothing.
-							removeAttributeSet(keyOld, nodeOldNodeData[keyOld], {}, nodeOldElement);
-						} else {
-							// Remove a DOM property.
-							nodeOldElement.removeAttribute(keyOld);
+
+								MoonListeners[keyOld] = undefined;
+								_nodeOldElement.MoonEvents[keyOld] = undefined;
+							} else if (keyOld === "ariaset" || keyOld === "dataset" || keyOld === "style") {
+								// If it is a set attribute, remove all old values from the
+								// set and exclude nothing.
+								removeAttributeSet(keyOld, nodeOldNodeData[keyOld], {}, _nodeOldElement);
+							} else {
+								// Remove a DOM property.
+								_nodeOldElement.removeAttribute(keyOld);
+							}
 						}
 					}
 				} // Recursively patch children.
 
 
 				var childrenOld = nodeOld.children;
-				var childrenNew = nodeNewData.children;
-				var childrenOldLength = childrenOld.length;
-				var childrenNewLength = childrenNew.length;
+				var childrenNew = nodeNew.children;
 
-				if (childrenOldLength === childrenNewLength) {
-					// If the children have the same length then update both as
-					// usual.
-					for (var i = 0; i < childrenOldLength; i++) {
-						executePatch(childrenOld[i], childrenNew[i]);
-					}
-				} else if (childrenOldLength > childrenNewLength) {
-					// If there are more old children than new children, update the
-					// corresponding ones and remove the extra old children.
-					for (var _i = 0; _i < childrenNewLength; _i++) {
-						executePatch(childrenOld[_i], childrenNew[_i]);
-					}
+				if (childrenOld !== childrenNew) {
+					var childrenOldLength = childrenOld.length;
+					var childrenNewLength = childrenNew.length;
 
-					for (var _i2 = childrenNewLength; _i2 < childrenOldLength; _i2++) {
-						nodeOldElement.removeChild(childrenOld.pop().element);
-					}
-				} else {
-					// If there are more new children than old children, update the
-					// corresponding ones and append the extra new children.
-					for (var _i3 = 0; _i3 < childrenOldLength; _i3++) {
-						executePatch(childrenOld[_i3], childrenNew[_i3]);
-					}
+					if (childrenOldLength === childrenNewLength) {
+						// If the children have the same length then update both as
+						// usual.
+						for (var i = 0; i < childrenOldLength; i++) {
+							executePatch(childrenOld[i], childrenNew[i]);
+						}
+					} else if (childrenOldLength > childrenNewLength) {
+						// If there are more old children than new children, update the
+						// corresponding ones and remove the extra old children.
+						for (var _i = 0; _i < childrenNewLength; _i++) {
+							executePatch(childrenOld[_i], childrenNew[_i]);
+						}
 
-					for (var _i4 = childrenOldLength; _i4 < childrenNewLength; _i4++) {
-						var _nodeOldNew = executeCreate(childrenNew[_i4]);
+						for (var _i2 = childrenNewLength; _i2 < childrenOldLength; _i2++) {
+							_nodeOldElement.removeChild(childrenOld.pop().element);
+						}
+					} else {
+						// If there are more new children than old children, update the
+						// corresponding ones and append the extra new children.
+						for (var _i3 = 0; _i3 < childrenOldLength; _i3++) {
+							executePatch(childrenOld[_i3], childrenNew[_i3]);
+						}
 
-						childrenOld.push(_nodeOldNew);
-						nodeOldElement.appendChild(_nodeOldNew.element);
+						for (var _i4 = childrenOldLength; _i4 < childrenNewLength; _i4++) {
+							var _nodeOldNew = executeCreate(childrenNew[_i4]);
+
+							childrenOld.push(_nodeOldNew);
+
+							_nodeOldElement.appendChild(_nodeOldNew.element);
+						}
 					}
 				}
 			}
@@ -1345,11 +1414,11 @@
 		var dataNew = executeQueue[0]; // Merge new data into current data.
 
 		for (var key in dataNew) {
-			data[key] = dataNew[key];
+			md[key] = dataNew[key];
 		} // Begin the view phase.
 
 
-		setViewNew(viewCurrent(data));
+		setViewNew(viewCurrent(m, md, mc, ms.Root));
 		executeView([viewNew]);
 	}
 	/**
@@ -1394,9 +1463,9 @@
 	 *
 	 * Creates a new Moon component or root based on given options. Each Moon
 	 * component is independent and has no knowledge of the parent. A component is
-	 * a function mapping data to a view. The component can update global data to
-	 * recreate the view. In Moon, the view is defined as a function over data, and
-	 * components are just helper functions.
+	 * a function mapping data and children to a view. The component can update
+	 * global data to recreate the view. In Moon, the view is defined as a function
+	 * over data and children, and components are just helper functions.
 	 *
 	 * The options can have a `root` property with an element. Moon will
 	 * automatically create the component and append it to the root element
@@ -1419,9 +1488,9 @@
 
 	function Moon(options) {
 		// Handle the optional `name` parameter.
-		var name = defaultValue(options.name, "Root"); // Handle the optional default `data`.
+		var name = defaultValue(options.name, "Root"); // Store the default data.
 
-		var dataDefault = defaultValue(options.data, {}); // Ensure the view is defined, and compile it if needed.
+		var dataDefault = options.data; // Ensure the view is defined, and compile it if needed.
 
 		var view = options.view;
 
@@ -1430,22 +1499,20 @@
 		}
 
 		if (typeof view === "string") {
-			view = new Function("m", "ms", "data", compile(view));
+			view = new Function("m", "md", "mc", "ms", compile(view));
 		} // Create a list of static nodes for the view function.
 
 
-		ms[name] = []; // Create a wrapper view function that maps data to the compiled view
-		// function. The compiled view function takes `m`, which holds static nodes.
-		// The data is also processed so that `dataDefault` acts as a default.
+		ms[name] = []; // Create a wrapper view function that processes default data if needed.
 
-		var viewComponent = function viewComponent(data) {
+		var viewComponent = dataDefault === undefined ? view : function (m, md, mc, ms) {
 			for (var key in dataDefault) {
-				if (!(key in data)) {
-					data[key] = dataDefault[key];
+				if (!(key in md)) {
+					md[key] = dataDefault[key];
 				}
 			}
 
-			return view(m, ms[name], data);
+			return view(m, md, mc, ms);
 		};
 
 		if (name === "Root") {
@@ -1463,22 +1530,16 @@
 
 
 			var rootAttributes = root.attributes;
-			var dataNode = {
-				children: []
-			};
+			var dataNode = {};
 
 			for (var i = 0; i < rootAttributes.length; i++) {
 				var rootAttribute = rootAttributes[i];
 				dataNode[rootAttribute.name] = rootAttribute.value;
 			}
 
-			setViewOld(new NodeOld({
-				type: types.element,
-				name: root.tagName.toLowerCase(),
-				data: dataNode
-			}, root, []));
+			setViewOld(new NodeOld(new NodeNew(types.element, root.tagName.toLowerCase(), dataNode, []), root, []));
 			setViewCurrent(viewComponent);
-			execute(dataDefault);
+			execute(defaultValue(dataDefault, {}));
 		} else {
 			// Store it as a component if no `root` is given.
 			components[name] = viewComponent;
@@ -1489,7 +1550,7 @@
 	Moon.generate = generate;
 	Moon.compile = compile;
 	Moon.components = components;
-	Moon.get = data;
+	Moon.get = md;
 	Moon.set = execute;
 
 	return Moon;

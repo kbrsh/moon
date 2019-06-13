@@ -1,6 +1,6 @@
 import { setEvent, updateAttributeSet, removeAttributeSet } from "./util/util";
-import { components, data, viewCurrent, viewNew, viewOld, setViewNew } from "../util/globals";
-import { NodeOld, types } from "../util/util";
+import { components, md, mc, ms, viewCurrent, viewNew, viewOld, setViewNew } from "../util/globals";
+import { m, NodeOld, types } from "../util/util";
 
 /**
  * Start time
@@ -26,16 +26,14 @@ function executeCreate(node) {
 		// Create a text node using the text content from the default key.
 		element = document.createTextNode(node.data[""]);
 	} else {
-		const nodeData = node.data;
-
 		// Create a DOM element.
 		element = document.createElement(node.name);
 
 		// Recursively append children.
-		const nodeDataChildren = nodeData.children;
+		const nodeChildren = node.children;
 
-		for (let i = 0; i < nodeDataChildren.length; i++) {
-			const childOld = executeCreate(nodeDataChildren[i]);
+		for (let i = 0; i < nodeChildren.length; i++) {
+			const childOld = executeCreate(nodeChildren[i]);
 
 			element.appendChild(childOld.element);
 			children.push(childOld);
@@ -45,7 +43,9 @@ function executeCreate(node) {
 		const MoonEvents = element.MoonEvents = {};
 		const MoonListeners = element.MoonListeners = {};
 
-		// Set data, events, and attributes.
+		// Set data.
+		const nodeData = node.data;
+
 		for (let key in nodeData) {
 			const value = nodeData[key];
 
@@ -59,7 +59,7 @@ function executeCreate(node) {
 			) {
 				// Set aria-*, data-*, and style attributes.
 				updateAttributeSet(key, value, element);
-			} else if (key !== "children") {
+			} else {
 				// Set an attribute.
 				element[key] = value;
 			}
@@ -80,20 +80,25 @@ function executeCreate(node) {
 function executeView(nodes) {
 	while (true) {
 		const node = nodes.pop();
+		let children = node.children;
 
 		while (node.type === types.component) {
 			// Execute the component to get the component view.
-			const nodeComponent = components[node.name](node.data);
+			const nodeComponent = components[node.name](
+				m,
+				node.data,
+				children,
+				ms[node.name]
+			);
 
 			// Update the node to reflect the component view.
 			node.type = nodeComponent.type;
 			node.name = nodeComponent.name;
 			node.data = nodeComponent.data;
+			children = node.children = nodeComponent.children;
 		}
 
 		// Execute the views of the children.
-		const children = node.data.children;
-
 		for (let i = 0; i < children.length; i++) {
 			nodes.push(children[i]);
 		}
@@ -155,10 +160,17 @@ function executePatch(nodeOld, nodeNew) {
 		) {
 			// If the types or name aren't the same, then replace the old node
 			// with the new one.
+			const nodeOldElement = nodeOld.element;
 			const nodeOldNew = executeCreate(nodeNew);
+			const nodeOldNewElement = nodeOldNew.element;
 
-			nodeOld.element = nodeOldNew.element;
+			nodeOld.element = nodeOldNewElement;
 			nodeOld.children = nodeOldNew.children;
+
+			nodeOldElement.parentNode.replaceChild(
+				nodeOldElement,
+				nodeOldNewElement
+			);
 		} else if (nodeOldNode.type === types.text) {
 			// If they both are text, then update the text content.
 			const nodeNewText = nodeNew.data[""];
@@ -172,114 +184,118 @@ function executePatch(nodeOld, nodeNew) {
 			const nodeOldNodeData = nodeOldNode.data;
 			const nodeNewData = nodeNew.data;
 
-			// First, go through all new data and update all of the existing data
-			// to match.
-			for (let keyNew in nodeNewData) {
-				const valueOld = nodeOldNodeData[keyNew];
-				const valueNew = nodeNewData[keyNew];
+			if (nodeOldNodeData !== nodeNewData) {
+				// First, go through all new data and update all of the existing data
+				// to match.
+				for (let keyNew in nodeNewData) {
+					const valueOld = nodeOldNodeData[keyNew];
+					const valueNew = nodeNewData[keyNew];
 
-				if (keyNew !== "children" && valueOld !== valueNew) {
-					if (keyNew.charCodeAt(0) === 64) {
-						// Update an event.
-						const MoonEvents = nodeOldElement.MoonEvents;
+					if (valueOld !== valueNew) {
+						if (keyNew.charCodeAt(0) === 64) {
+							// Update an event.
+							const MoonEvents = nodeOldElement.MoonEvents;
 
-						if (MoonEvents[keyNew] === undefined) {
-							// If the event doesn't exist, add a new event listener.
-							setEvent(
-								keyNew,
-								valueNew,
-								MoonEvents,
-								nodeOldElement.MoonListeners,
-								nodeOldElement
-							);
+							if (MoonEvents[keyNew] === undefined) {
+								// If the event doesn't exist, add a new event listener.
+								setEvent(
+									keyNew,
+									valueNew,
+									MoonEvents,
+									nodeOldElement.MoonListeners,
+									nodeOldElement
+								);
+							} else {
+								// If it does exist, update the existing event handler.
+								MoonEvents[keyNew] = valueNew;
+							}
+						} else if (
+							keyNew === "ariaset" ||
+							keyNew === "dataset" ||
+							keyNew === "style"
+						) {
+							// If it is a set attribute, update all values in the set.
+							updateAttributeSet(keyNew, valueNew, nodeOldElement);
+
+							if (valueOld !== undefined) {
+								// If there was an old set, remove all old set attributes
+								// while excluding any new ones that still exist.
+								removeAttributeSet(keyNew, valueOld, valueNew, nodeOldElement);
+							}
 						} else {
-							// If it does exist, update the existing event handler.
-							MoonEvents[keyNew] = valueNew;
+							// Update a DOM property.
+							nodeOldElement[keyNew] = valueNew;
 						}
-					} else if (
-						keyNew === "ariaset" ||
-						keyNew === "dataset" ||
-						keyNew === "style"
-					) {
-						// If it is a set attribute, update all values in the set.
-						updateAttributeSet(keyNew, valueNew, nodeOldElement);
-
-						if (valueOld !== undefined) {
-							// If there was an old set, remove all old set attributes
-							// while excluding any new ones that still exist.
-							removeAttributeSet(keyNew, valueOld, valueNew, nodeOldElement);
-						}
-					} else {
-						// Update a DOM property.
-						nodeOldElement[keyNew] = valueNew;
 					}
 				}
-			}
 
-			// Next, go through all of the old data and remove data that isn't in
-			// the new data.
-			for (let keyOld in nodeOldNodeData) {
-				if (!(keyOld in nodeNewData)) {
-					if (keyOld.charCodeAt(0) === 64) {
-						// Remove an event.
-						const MoonListeners = nodeOldElement.MoonListeners;
+				// Next, go through all of the old data and remove data that isn't in
+				// the new data.
+				for (let keyOld in nodeOldNodeData) {
+					if (!(keyOld in nodeNewData)) {
+						if (keyOld.charCodeAt(0) === 64) {
+							// Remove an event.
+							const MoonListeners = nodeOldElement.MoonListeners;
 
-						// Remove the event listener from the DOM.
-						nodeOldElement.removeEventListener(MoonListeners[keyOld]);
+							// Remove the event listener from the DOM.
+							nodeOldElement.removeEventListener(MoonListeners[keyOld]);
 
-						// Remove both the event listener and event handler.
-						MoonListeners[keyOld] = undefined;
-						nodeOldElement.MoonEvents[keyOld] = undefined;
-					} else if (
-						keyOld === "ariaset" ||
-						keyOld === "dataset" ||
-						keyOld === "style"
-					) {
-						// If it is a set attribute, remove all old values from the
-						// set and exclude nothing.
-						removeAttributeSet(keyOld, nodeOldNodeData[keyOld], {}, nodeOldElement);
-					} else {
-						// Remove a DOM property.
-						nodeOldElement.removeAttribute(keyOld);
+							// Remove both the event listener and event handler.
+							MoonListeners[keyOld] = undefined;
+							nodeOldElement.MoonEvents[keyOld] = undefined;
+						} else if (
+							keyOld === "ariaset" ||
+							keyOld === "dataset" ||
+							keyOld === "style"
+						) {
+							// If it is a set attribute, remove all old values from the
+							// set and exclude nothing.
+							removeAttributeSet(keyOld, nodeOldNodeData[keyOld], {}, nodeOldElement);
+						} else {
+							// Remove a DOM property.
+							nodeOldElement.removeAttribute(keyOld);
+						}
 					}
 				}
 			}
 
 			// Recursively patch children.
 			const childrenOld = nodeOld.children;
-			const childrenNew = nodeNewData.children;
+			const childrenNew = nodeNew.children;
 
-			const childrenOldLength = childrenOld.length;
-			const childrenNewLength = childrenNew.length;
+			if (childrenOld !== childrenNew) {
+				const childrenOldLength = childrenOld.length;
+				const childrenNewLength = childrenNew.length;
 
-			if (childrenOldLength === childrenNewLength) {
-				// If the children have the same length then update both as
-				// usual.
-				for (let i = 0; i < childrenOldLength; i++) {
-					executePatch(childrenOld[i], childrenNew[i]);
-				}
-			} else if (childrenOldLength > childrenNewLength) {
-				// If there are more old children than new children, update the
-				// corresponding ones and remove the extra old children.
-				for (let i = 0; i < childrenNewLength; i++) {
-					executePatch(childrenOld[i], childrenNew[i]);
-				}
+				if (childrenOldLength === childrenNewLength) {
+					// If the children have the same length then update both as
+					// usual.
+					for (let i = 0; i < childrenOldLength; i++) {
+						executePatch(childrenOld[i], childrenNew[i]);
+					}
+				} else if (childrenOldLength > childrenNewLength) {
+					// If there are more old children than new children, update the
+					// corresponding ones and remove the extra old children.
+					for (let i = 0; i < childrenNewLength; i++) {
+						executePatch(childrenOld[i], childrenNew[i]);
+					}
 
-				for (let i = childrenNewLength; i < childrenOldLength; i++) {
-					nodeOldElement.removeChild(childrenOld.pop().element);
-				}
-			} else {
-				// If there are more new children than old children, update the
-				// corresponding ones and append the extra new children.
-				for (let i = 0; i < childrenOldLength; i++) {
-					executePatch(childrenOld[i], childrenNew[i]);
-				}
+					for (let i = childrenNewLength; i < childrenOldLength; i++) {
+						nodeOldElement.removeChild(childrenOld.pop().element);
+					}
+				} else {
+					// If there are more new children than old children, update the
+					// corresponding ones and append the extra new children.
+					for (let i = 0; i < childrenOldLength; i++) {
+						executePatch(childrenOld[i], childrenNew[i]);
+					}
 
-				for (let i = childrenOldLength; i < childrenNewLength; i++) {
-					const nodeOldNew = executeCreate(childrenNew[i]);
+					for (let i = childrenOldLength; i < childrenNewLength; i++) {
+						const nodeOldNew = executeCreate(childrenNew[i]);
 
-					childrenOld.push(nodeOldNew);
-					nodeOldElement.appendChild(nodeOldNew.element);
+						childrenOld.push(nodeOldNew);
+						nodeOldElement.appendChild(nodeOldNew.element);
+					}
 				}
 			}
 		}
@@ -295,11 +311,11 @@ function executeNext() {
 
 	// Merge new data into current data.
 	for (let key in dataNew) {
-		data[key] = dataNew[key];
+		md[key] = dataNew[key];
 	}
 
 	// Begin the view phase.
-	setViewNew(viewCurrent(data));
+	setViewNew(viewCurrent(m, md, mc, ms.Root));
 	executeView([viewNew]);
 }
 

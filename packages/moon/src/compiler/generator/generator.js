@@ -1,6 +1,6 @@
+import { generateNodeElement } from "./components/element";
 import { generateNodeIf } from "./components/if";
 import { generateNodeFor } from "./components/for";
-import { setGenerateVariable } from "./util/globals";
 import { types } from "../../util/util";
 
 /**
@@ -9,19 +9,23 @@ import { types } from "../../util/util";
  * @param {Object} element
  * @param {Object} parent
  * @param {number} index
- * @param {Array} staticNodes
- * @returns {Object} Prelude code, view function code, and static status
+ * @param {number} variable
+ * @param {Array} staticParts
+ * @returns {Object} Prelude code, view function code, static status, and variable
  */
-export function generateNode(element, parent, index, staticNodes) {
+export function generateNode(element, parent, index, variable, staticParts) {
 	const name = element.name;
 	let type;
-	let isStatic = true;
+	let staticData = true;
+	let staticChildren = true;
 
 	// Generate the correct type number for the given name.
-	if (name === "if") {
-		return generateNodeIf(element, parent, index, staticNodes);
+	if (name === "element") {
+		return generateNodeElement(element, variable, staticParts);
+	} else if (name === "if") {
+		return generateNodeIf(element, parent, index, variable, staticParts);
 	} else if (name === "for") {
-		return generateNodeFor(element, staticNodes);
+		return generateNodeFor(element, variable, staticParts);
 	} else if (name === "text") {
 		type = types.text;
 	} else if (name[0] === name[0].toLowerCase()) {
@@ -33,75 +37,96 @@ export function generateNode(element, parent, index, staticNodes) {
 	const attributes = element.attributes;
 	let prelude = "";
 	let data = "{";
+	let children = "[";
 	let separator = "";
 
 	for (let attribute in attributes) {
 		const attributeValue = attributes[attribute];
 
-		// Mark the current node as dynamic if there are any events or dynamic
-		// attributes.
-		if (
-			attribute[0] === "@" ||
-			!attributeValue.isStatic
-		) {
-			isStatic = false;
+		// Mark the data as dynamic if there are any dynamic attributes.
+		if (!attributeValue.isStatic) {
+			staticData = false;
 		}
 
 		data += `${separator}"${attribute}":${attributeValue.value}`;
 		separator = ",";
 	}
 
-	if (attributes.children === undefined) {
-		// Generate children if they are not in the element data.
-		const children = element.children;
-		let generateChildren = [];
+	data += "}";
 
-		data += separator + "children:[";
-		separator = "";
+	// Generate children.
+	const elementChildren = element.children;
+	let generateChildren = [];
+	separator = "";
 
-		for (let i = 0; i < children.length; i++) {
-			const generateChild = generateNode(
-				children[i],
-				element,
-				i,
-				staticNodes
-			);
+	for (let i = 0; i < elementChildren.length; i++) {
+		const generateChild = generateNode(
+			elementChildren[i],
+			element,
+			i,
+			variable,
+			staticParts
+		);
 
-			// Mark the current node as dynamic if any child is dynamic.
-			if (!generateChild.isStatic) {
-				isStatic = false;
-			}
-
-			generateChildren.push(generateChild);
+		// Mark the children as dynamic if any child is dynamic.
+		if (!generateChild.isStatic) {
+			staticChildren = false;
 		}
 
-		for (let i = 0; i < generateChildren.length; i++) {
-			const generateChild = generateChildren[i];
+		// Update the variable counter.
+		variable = generateChild.variable;
 
-			if (isStatic || !generateChild.isStatic) {
-				// If the whole current node is static or the current node and
-				// child node are dynamic, then append the child as a part of the
-				// node as usual.
-				prelude += generateChild.prelude;
-				data += separator + generateChild.node;
-			} else {
-				// If the whole current node is dynamic and the child node is
-				// static, then use a static node in place of the static child.
-				data += separator + `ms[${staticNodes.length}]`;
+		generateChildren.push(generateChild);
+	}
 
-				staticNodes.push(generateChild);
-			}
+	// Mark the node as static if the data and children are static.
+	const isStatic = staticData && staticChildren;
 
-			separator = ",";
+	for (let i = 0; i < generateChildren.length; i++) {
+		const generateChild = generateChildren[i];
+
+		if (isStatic || !generateChild.isStatic) {
+			// If the whole current node is static or the current node and child
+			// node are dynamic, then append the child as a part of the node as
+			// usual.
+			prelude += generateChild.prelude;
+			children += separator + generateChild.node;
+		} else {
+			// If the whole current node is dynamic and the child node is static,
+			// then use a static node in place of the static child.
+			const staticVariable = staticParts.length;
+
+			staticParts.push(`${generateChild.prelude}ms[${staticVariable}]=${generateChild.node};`);
+
+			children += separator + `ms[${staticVariable}]`;
 		}
 
-		data += "]";
+		separator = ",";
+	}
+
+	children += "]";
+
+	if (staticData && !staticChildren) {
+		// If only the data is static, hoist it out.
+		const staticVariable = staticParts.length;
+
+		staticParts.push(`ms[${staticVariable}]=${data};`);
+
+		data = `ms[${staticVariable}]`;
+	} else if (!staticData && staticChildren) {
+		// If only the children are static, hoist them out.
+		const staticVariable = staticParts.length;
+
+		staticParts.push(`ms[${staticVariable}]=${children};`);
+
+		children = `ms[${staticVariable}]`;
 	}
 
 	return {
 		prelude,
-		node: `m(${type},"${name}",${data}})`,
-		isStatic
+		node: `m(${type},"${name}",${data},${children})`,
+		isStatic,
+		variable
 	};
 }
 
@@ -118,37 +143,23 @@ export function generateNode(element, parent, index, staticNodes) {
  * @returns {string} View function code
  */
 export function generate(element) {
-	// Store static nodes.
-	const staticNodes = [];
-
-	// Reset generator variable.
-	setGenerateVariable(0);
+	// Store static parts.
+	const staticParts = [];
 
 	// Generate the root node and get the prelude and node code.
 	const { prelude, node, isStatic } = generateNode(
 		element,
 		null,
 		0,
-		staticNodes
+		0,
+		staticParts
 	);
 
 	if (isStatic) {
 		// Account for a static root node.
 		return `if(ms[0]===undefined){${prelude}ms[0]=${node};}return ms[0];`;
-	} else if (staticNodes.length === 0) {
-		return `${prelude}return ${node};`;
 	} else {
-		// Generate static nodes only once at the start.
-		let staticCode = `if(ms[0]===undefined){`;
-
-		for (let i = 0; i < staticNodes.length; i++) {
-			const staticNode = staticNodes[i];
-
-			staticCode += `${staticNode.prelude}ms[${i}]=${staticNode.node};`;
-		}
-
-		staticCode += "}";
-
-		return `${staticCode}${prelude}return ${node};`;
+		// Generate static parts only once at the start.
+		return `if(ms[0]===undefined){${staticParts.join("")}}${prelude}return ${node};`;
 	}
 }

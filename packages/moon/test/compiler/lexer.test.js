@@ -43,7 +43,7 @@ test("lex text inside tag", () => {
 })
 
 test("lex expression", () => {
-	expect(lex(`{data + 1 + {foo: true, bar: false}}`)).toEqual([{"attributes": {"": {"value": "data.data + 1 + {foo: true, bar: false}", isStatic: false}}, "closed": true, "type": "tagOpen", "value": "text"}]);
+	expect(lex(`{data + 1 + {foo: true, bar: false}}`)).toEqual([{"attributes": {"": {"value": "md.data + 1 + {foo: true, bar: false}", isStatic: false}}, "closed": true, "type": "tagOpen", "value": "text"}]);
 });
 
 test("lex attributes", () => {
@@ -51,7 +51,7 @@ test("lex attributes", () => {
 });
 
 test("lex events", () => {
-	expect(lex(`<div id="test-id" class='test-class' dynamic={true} self @event={doSomething}>`)).toEqual([{"attributes": {"id": {"value": "\"test-id\"", "isStatic": true}, "className": {"value": "'test-class'", "isStatic": true}, dynamic: {"value": "true", "isStatic": true}, "@event": {"value": "[data.doSomething,data]", "isStatic": false}, self: {"value": "true", "isStatic": true}}, "closed": false, "type": "tagOpen", "value": "div"}]);
+	expect(lex(`<div id="test-id" class='test-class' dynamic={true} self @event={doSomething}>`)).toEqual([{"attributes": {"id": {"value": "\"test-id\"", "isStatic": true}, "className": {"value": "'test-class'", "isStatic": true}, dynamic: {"value": "true", "isStatic": true}, "@event": {"value": "[md.doSomething,md,mc]", "isStatic": false}, self: {"value": "true", "isStatic": true}}, "closed": false, "type": "tagOpen", "value": "div"}]);
 });
 
 test("lex comments", () => {
@@ -65,7 +65,7 @@ test("opening tag token to string", () => {
 
 test("opening tag token with attributes to string", () => {
 	const input = `<div id="test-id" className='test-class' expression={dynamic}>`;
-	expect(tokenString(lex(input)[0])).toBe(input.replace("dynamic", "data.dynamic"));
+	expect(tokenString(lex(input)[0])).toBe(input.replace("dynamic", "md.dynamic"));
 });
 
 test("self-closing tag token to string", () => {
@@ -75,7 +75,7 @@ test("self-closing tag token to string", () => {
 
 test("self-closing tag token with attributes to string", () => {
 	const input = `<input id="test-id" className='test-class' expression={dynamic}/>`;
-	expect(tokenString(lex(input)[0])).toBe(input.replace("dynamic", "data.dynamic"));
+	expect(tokenString(lex(input)[0])).toBe(input.replace("dynamic", "md.dynamic"));
 });
 
 test("closing tag token to string", () => {
@@ -90,7 +90,7 @@ test("text token to string", () => {
 
 test("expression token to string", () => {
 	const input = `{dynamic + 1}`;
-	expect(tokenString(lex(input)[0])).toBe(input.replace("dynamic", "data.dynamic"));
+	expect(tokenString(lex(input)[0])).toBe(input.replace("dynamic", "md.dynamic"));
 });
 
 test("lex error from unclosed opening bracket", () => {

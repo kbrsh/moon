@@ -61,6 +61,6 @@ export function setEvent(type, info, MoonEvents, MoonListeners, element) {
 
 	element.addEventListener(type.slice(1), MoonListeners[type] = (event) => {
 		const info = MoonEvents[type];
-		info[0](event, info[1]);
+		info[0](event, info[1], info[2]);
 	});
 }

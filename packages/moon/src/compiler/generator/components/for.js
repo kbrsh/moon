@@ -1,44 +1,47 @@
 import { generateNode } from "../generator";
 import { types } from "../../../util/util";
-import { generateVariable, setGenerateVariable } from "../util/globals";
 import { defaultValue } from "../../../util/util";
 
 /**
  * Generates code for a node from a `for` element.
  *
  * @param {Object} element
- * @param {Array} staticNodes
- * @returns {Object} Prelude code, view function code, and static status
+ * @param {number} variable
+ * @param {Array} staticParts
+ * @returns {Object} prelude code, view function code, static status, and variable
  */
-export function generateNodeFor(element, staticNodes) {
-	const variable = "m" + generateVariable;
+export function generateNodeFor(element, variable, staticParts) {
+	const variableFor = "m" + variable;
 	const attributes = element.attributes;
 	const dataLocals = attributes[""].value.split(",");
 	const dataName = defaultValue(attributes.name, {value: "\"span\""}).value;
-	const dataData = defaultValue(attributes.data, {value: "{}"}).value;
+	let dataData = defaultValue(attributes.data, {value: "{}", isStatic: true});
 	let dataArray = attributes.of;
 	let dataObject = attributes.in;
 	let dataKey;
 	let dataValue;
 	let prelude;
 
-	setGenerateVariable(generateVariable + 1);
-
 	const generateChild = generateNode(
 		element.children[0],
 		element,
 		0,
-		staticNodes
+		variable + 1,
+		staticParts
 	);
+
 	let body;
 
 	if (generateChild.isStatic) {
 		// If the body is static, then use a static node in place of it.
-		body = `${variable}.children.push(ms[${staticNodes.length}]);`;
-		staticNodes.push(generateChild);
+		const staticVariable = staticParts.length;
+
+		staticParts.push(`${generateChild.prelude}ms[${staticVariable}]=${generateChild.node};`);
+
+		body = `${variableFor}.push(ms[${staticVariable}]);`;
 	} else {
 		// If the body is dynamic, then use the dynamic node in the loop body.
-		body = `${generateChild.prelude}${variable}.children.push(${generateChild.node});`;
+		body = `${generateChild.prelude}${variableFor}.push(${generateChild.node});`;
 	}
 
 	if (dataArray === undefined) {
@@ -65,9 +68,20 @@ export function generateNodeFor(element, staticNodes) {
 		prelude = `for(var ${dataKey}=0;${dataKey}<${dataArray}.length;${dataKey}++){var ${dataValue}=${dataArray}[${dataKey}];${body}}`;
 	}
 
+	if (dataData.isStatic) {
+		const staticVariable = staticParts.length;
+
+		staticParts.push(`ms[${staticVariable}]=${dataData.value};`);
+
+		dataData = `ms[${staticVariable}]`;
+	} else {
+		dataData = dataData.value;
+	}
+
 	return {
-		prelude: `var ${variable}=${dataData};${variable}.children=[];${prelude}`,
-		node: `m(${types.element},${dataName},${variable})`,
-		isStatic: false
+		prelude: `var ${variableFor}=[];${prelude}`,
+		node: `m(${types.element},${dataName},${dataData},${variableFor})`,
+		isStatic: false,
+		variable: generateChild.variable
 	};
 }
