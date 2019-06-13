@@ -92,12 +92,12 @@ export default function Moon(options) {
 		}
 
 		setViewOld({
-			element: root,
 			node: {
 				type: types.element,
 				name: root.tagName.toLowerCase(),
 				data: dataNode
 			},
+			element: root,
 			children: []
 		});
 		setViewCurrent(viewComponent);
