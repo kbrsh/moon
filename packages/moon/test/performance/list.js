@@ -46,6 +46,5 @@ Moon({
 });
 
 for (var i = 0; i < 10000; i++) {
-	//Moon.set({ list: Moon.get.list.concat([7]) });
-	Moon.set({ list: [] });
+	Moon.set({ list: Moon.get.list.concat([7]) });
 }
