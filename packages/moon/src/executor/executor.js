@@ -74,8 +74,7 @@ function executeCreate(node) {
 /**
  * Executes a view, including all components.
  *
- * @param {Array} nodesOld
- * @param {Array} nodesNew
+ * @param {Array} nodes
  */
 function executeView(nodes) {
 	while (true) {
