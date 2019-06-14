@@ -79,21 +79,17 @@ export function generateNode(element, parent, index, variable, staticParts) {
 		generateChildren.push(generateChild);
 	}
 
-	// Mark the node as static if the data and children are static.
-	const isStatic = staticData && staticChildren;
-
 	for (let i = 0; i < generateChildren.length; i++) {
 		const generateChild = generateChildren[i];
 
-		if (isStatic || !generateChild.isStatic) {
-			// If the whole current node is static or the current node and child
-			// node are dynamic, then append the child as a part of the node as
-			// usual.
+		if (staticChildren || !generateChild.isStatic) {
+			// If the children are static or the children and child node are
+			// dynamic, then append the child as a part of the node as usual.
 			prelude += generateChild.prelude;
 			children += separator + generateChild.node;
 		} else {
-			// If the whole current node is dynamic and the child node is static,
-			// then use a static node in place of the static child.
+			// If the children are dynamic and the child node is static, then use
+			// a static node in place of the static child.
 			const staticVariable = staticParts.length;
 
 			staticParts.push(`${generateChild.prelude}ms[${staticVariable}]=${generateChild.node};`);
@@ -125,7 +121,7 @@ export function generateNode(element, parent, index, variable, staticParts) {
 	return {
 		prelude,
 		node: `m(${type},"${name}",${data},${children})`,
-		isStatic,
+		isStatic: staticData && staticChildren,
 		variable
 	};
 }

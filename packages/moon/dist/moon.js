@@ -942,23 +942,19 @@
 
 			variable = generateChild.variable;
 			generateChildren.push(generateChild);
-		} // Mark the node as static if the data and children are static.
-
-
-		var isStatic = staticData && staticChildren;
+		}
 
 		for (var _i = 0; _i < generateChildren.length; _i++) {
 			var _generateChild = generateChildren[_i];
 
-			if (isStatic || !_generateChild.isStatic) {
-				// If the whole current node is static or the current node and child
-				// node are dynamic, then append the child as a part of the node as
-				// usual.
+			if (staticChildren || !_generateChild.isStatic) {
+				// If the children are static or the children and child node are
+				// dynamic, then append the child as a part of the node as usual.
 				prelude += _generateChild.prelude;
 				children += separator + _generateChild.node;
 			} else {
-				// If the whole current node is dynamic and the child node is static,
-				// then use a static node in place of the static child.
+				// If the children are dynamic and the child node is static, then use
+				// a static node in place of the static child.
 				var staticVariable = staticParts.length;
 				staticParts.push(_generateChild.prelude + "ms[" + staticVariable + "]=" + _generateChild.node + ";");
 				children += separator + ("ms[" + staticVariable + "]");
@@ -984,7 +980,7 @@
 		return {
 			prelude: prelude,
 			node: "m(" + type + ",\"" + name + "\"," + data + "," + children + ")",
-			isStatic: isStatic,
+			isStatic: staticData && staticChildren,
 			variable: variable
 		};
 	}
