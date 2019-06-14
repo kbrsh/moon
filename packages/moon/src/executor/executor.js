@@ -1,5 +1,5 @@
 import { setEvent, updateAttributeSet, removeAttributeSet } from "./util/util";
-import { components, md, mc, ms, viewCurrent, viewNew, viewOld, setViewNew } from "../util/globals";
+import { components, md, mc, ms, viewNew, viewOld, setViewNew } from "../util/globals";
 import { m, NodeOld, types } from "../util/util";
 
 /**
@@ -319,7 +319,7 @@ function executeNext() {
 	}
 
 	// Begin the view phase.
-	setViewNew(viewCurrent(m, md, mc, ms.Root));
+	setViewNew(components.Root(m, md, mc, ms.Root));
 	executeView([viewNew]);
 }
 

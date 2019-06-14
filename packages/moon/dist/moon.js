@@ -1101,7 +1101,7 @@
 	/**
 	 * Global views
 	 */
-	var viewOld, viewCurrent, viewNew;
+	var viewOld, viewNew;
 	/**
 	 * Global component store
 	 */
@@ -1130,15 +1130,6 @@
 
 	function setViewOld(viewOldNew) {
 		viewOld = viewOldNew;
-	}
-	/**
-	 * Set current view to a new function.
-	 *
-	 * @param {Function} viewCurrentNew
-	 */
-
-	function setViewCurrent(viewCurrentNew) {
-		viewCurrent = viewCurrentNew;
 	}
 	/**
 	 * Set new view to a new object.
@@ -1430,7 +1421,7 @@
 		} // Begin the view phase.
 
 
-		setViewNew(viewCurrent(m, md, mc, ms.Root));
+		setViewNew(components.Root(m, md, mc, ms.Root));
 		executeView([viewNew]);
 	}
 	/**
@@ -1517,7 +1508,7 @@
 
 		ms[name] = []; // Create a wrapper view function that processes default data if needed.
 
-		var viewComponent = dataDefault === undefined ? view : function (m, md, mc, ms) {
+		components[name] = dataDefault === undefined ? view : function (m, md, mc, ms) {
 			for (var key in dataDefault) {
 				if (!(key in md)) {
 					md[key] = dataDefault[key];
@@ -1550,11 +1541,7 @@
 			}
 
 			setViewOld(new NodeOld(new NodeNew(types.element, root.tagName.toLowerCase(), dataNode, []), root, []));
-			setViewCurrent(viewComponent);
 			execute(defaultValue(dataDefault, {}));
-		} else {
-			// Store it as a component if no `root` is given.
-			components[name] = viewComponent;
 		}
 	}
 	Moon.lex = lex;

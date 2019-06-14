@@ -3,7 +3,7 @@ import { parse } from "./compiler/parser/parser";
 import { generate } from "./compiler/generator/generator";
 import { compile } from "./compiler/compiler";
 import { execute } from "./executor/executor";
-import { components, md, ms, setViewCurrent, setViewOld } from "./util/globals";
+import { components, md, ms, setViewOld } from "./util/globals";
 import { defaultValue, error, NodeNew, NodeOld, types } from "./util/util";
 
 /**
@@ -55,7 +55,7 @@ export default function Moon(options) {
 	ms[name] = [];
 
 	// Create a wrapper view function that processes default data if needed.
-	const viewComponent =
+	components[name] =
 		dataDefault === undefined ?
 		view :
 		(m, md, mc, ms) => {
@@ -100,11 +100,7 @@ export default function Moon(options) {
 			root,
 			[]
 		));
-		setViewCurrent(viewComponent);
 		execute(defaultValue(dataDefault, {}));
-	} else {
-		// Store it as a component if no `root` is given.
-		components[name] = viewComponent;
 	}
 }
 
