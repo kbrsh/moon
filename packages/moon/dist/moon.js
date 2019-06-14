@@ -369,8 +369,8 @@
 										} else {
 											// If all objects aren't yet closed, mark one as
 											// closed.
-											attributeValue += charAttribute;
 											opened -= 1;
+											attributeValue += charAttribute;
 										}
 									} else {
 										// If the value is a string, add the closing quote.
