@@ -13,6 +13,12 @@ let executeStart;
 let executeQueue = [];
 
 /**
+ * Moon DOM node
+ */
+Node.prototype.MoonEvents = null;
+Node.prototype.MoonListeners = null;
+
+/**
  * Creates an old reference node from a view node.
  *
  * @param {Object} node
