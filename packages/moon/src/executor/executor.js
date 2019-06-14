@@ -111,9 +111,6 @@ function executeView(nodes) {
 			// Move to the patch phase if there is nothing left to do.
 			executePatch(viewOld, viewNew);
 
-			// Remove the current execution from the queue.
-			executeQueue.shift();
-
 			// If there is new data in the execution queue, continue to it.
 			if (executeQueue.length !== 0) {
 				if (Date.now() - executeStart >= 16) {
@@ -310,8 +307,8 @@ function executePatch(nodeOld, nodeNew) {
  * Execute the next update in the execution queue.
  */
 function executeNext() {
-	// Get the next data update.
-	const dataNew = executeQueue[0];
+	// Store new data.
+	const dataNew = executeQueue.shift();
 
 	// Merge new data into current data.
 	for (let key in dataNew) {
