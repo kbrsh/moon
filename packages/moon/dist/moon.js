@@ -1664,17 +1664,7 @@
 		} // Create a list of static nodes for the view function.
 
 
-		ms[name] = []; // Create a wrapper view function that processes default data if needed.
-
-		components[name] = dataDefault === undefined ? view : function (m, md, mc, ms) {
-			for (var key in dataDefault) {
-				if (!(key in md)) {
-					md[key] = dataDefault[key];
-				}
-			}
-
-			return view(m, md, mc, ms);
-		};
+		ms[name] = [];
 
 		if (name === "Root") {
 			// Mount to the `root` element and begin execution when the component is
@@ -1687,8 +1677,10 @@
 
 			if ("development" === "development" && root === undefined) {
 				error("The \"Root\" component requires a \"root\" property.");
-			} // Start the root renderer.
+			} // Create the root component view.
 
+
+			components.Root = view; // Start the root renderer.
 
 			var rootAttributes = root.attributes;
 			var dataNode = {};
@@ -1700,6 +1692,17 @@
 
 			setViewOld(new NodeOld(new NodeNew(types.element, root.tagName.toLowerCase(), dataNode, []), root, []));
 			execute(defaultValue(dataDefault, {}));
+		} else {
+			// Create a wrapper view function that processes default data if needed.
+			components[name] = dataDefault === undefined ? view : function (m, md, mc, ms) {
+				for (var key in dataDefault) {
+					if (!(key in md)) {
+						md[key] = dataDefault[key];
+					}
+				}
+
+				return view(m, md, mc, ms);
+			};
 		}
 	}
 	Moon.lex = lex;

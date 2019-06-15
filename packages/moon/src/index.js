@@ -54,19 +54,6 @@ export default function Moon(options) {
 	// Create a list of static nodes for the view function.
 	ms[name] = [];
 
-	// Create a wrapper view function that processes default data if needed.
-	components[name] =
-		dataDefault === undefined ?
-		view :
-		(m, md, mc, ms) => {
-			for (let key in dataDefault) {
-				if (!(key in md)) {
-					md[key] = dataDefault[key];
-				}
-			}
-
-			return view(m, md, mc, ms);
-		};
 
 	if (name === "Root") {
 		// Mount to the `root` element and begin execution when the component is
@@ -80,6 +67,9 @@ export default function Moon(options) {
 		if (process.env.MOON_ENV === "development" && root === undefined) {
 			error("The \"Root\" component requires a \"root\" property.");
 		}
+
+		// Create the root component view.
+		components.Root = view;
 
 		// Start the root renderer.
 		const rootAttributes = root.attributes;
@@ -101,6 +91,20 @@ export default function Moon(options) {
 			[]
 		));
 		execute(defaultValue(dataDefault, {}));
+	} else {
+		// Create a wrapper view function that processes default data if needed.
+		components[name] =
+			dataDefault === undefined ?
+			view :
+			(m, md, mc, ms) => {
+				for (let key in dataDefault) {
+					if (!(key in md)) {
+						md[key] = dataDefault[key];
+					}
+				}
+
+				return view(m, md, mc, ms);
+			};
 	}
 }
 
