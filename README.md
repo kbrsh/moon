@@ -1,6 +1,6 @@
 <p align="center">
 	<a href="https://kbrsh.github.io/moon" target="_blank">
-		<img width="100" src="https://raw.githubusercontent.com/kbrsh/moon/gh-pages/img/logo.png">
+		<img width="125" src="https://raw.githubusercontent.com/kbrsh/moon/gh-pages/img/logo.png">
 	</a>
 </p>
 <h1 align="center">Moon</h1>
