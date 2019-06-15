@@ -11,26 +11,29 @@ Please ensure you have understood the guidelines before contributing, it helps k
 
 ### Development Setup
 
-Before you begin editing the code, make sure you have [Node](https://nodejs.org) v7.0.0+ installed. This is required for building Moon and running tests.
+Before you begin editing the code, make sure you have [Node](https://nodejs.org) installed. This is required for building Moon and running tests.
 
-1. Fork/Clone the repository
+1. Fork/clone the repository
 2. Install dependencies with `npm install`
 
 ### Development
 
-Now that you're all set up, you're ready to edit the code. All code you write should not be dependent on the browser *or* Node. It should be able to run in all Javascript environments.
+Now that you're all set up, you're ready to edit the code.
 
-1. Update files in the `src` folder
-2. If necessary, add tests in the `test` folder
-3. Build files with `npm run build`
-4. Ensure tests are running with `npm run test`
+Moon's source is split up into multiple packages. Each package has its own tests and build configuration. The development process usually looks like this:
+
+1. `cd` into the package you're working on.
+1. Update files in the `src` folder using a text editor.
+2. If necessary, add tests in the `test` folder.
+3. Build files with `npm run build`.
+4. Ensure tests are running with `npm run test`.
 
 ##### Scripts
 
 ```sh
-$ npm run build # builds files in "dist" folder
+$ npm run build # builds files in the `packages/[package]/dist` folders
 
-$ npm run test # runs tests in the browser
+$ npm run test # runs tests for all packages
 ```
 
 ##### Commits
@@ -38,19 +41,11 @@ $ npm run test # runs tests in the browser
 Commit messages should follow a format of:
 
 ```
-category: summary (info about issues fixed)
+summary of changes (reference issue/PR)
 
-body text with additional information if needed
+* body bullet points
+* additional information goes here
 ```
-
-Categories you can use are:
-
-* `breaking` - Indicates a breaking change
-* `feat` - Indicates adding a feature
-* `fix` - Indicates fixing a bug
-* `perf` - Indicates improving performance
-* `refactor` - Indicates refactoring of code
-* `docs` - Indicates updating documentation
 
 Information about issues fixed should include any issues fixed as a result of the commit, and should follow a format of:
 
@@ -59,10 +54,6 @@ Information about issues fixed should include any issues fixed as a result of th
 ```
 
 Be sure to put the number of the issue you fixed.
-
-##### File Structure
-
-TODO
 
 ### Submitting an Issue
 
