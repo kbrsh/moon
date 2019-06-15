@@ -8,9 +8,10 @@ import { defaultValue, types } from "../../../util/util";
  * @param {Object} element
  * @param {number} variable
  * @param {Array} staticParts
+ * @param {Object} staticPartsMap
  * @returns {Object} prelude code, view function code, static status, and variable
  */
-export function generateNodeFor(element, variable, staticParts) {
+export function generateNodeFor(element, variable, staticParts, staticPartsMap) {
 	const variableFor = "m" + variable;
 	const attributes = element.attributes;
 	const dataLocals = attributes[""].value.split(",");
@@ -27,7 +28,8 @@ export function generateNodeFor(element, variable, staticParts) {
 		element,
 		0,
 		variable + 1,
-		staticParts
+		staticParts,
+		staticPartsMap
 	);
 
 	let body;
@@ -35,7 +37,7 @@ export function generateNodeFor(element, variable, staticParts) {
 
 	if (generateChild.isStatic) {
 		// If the body is static, then use a static node in place of it.
-		body = `${variableFor}.push(${generateStaticPart(generateChild.prelude, generateChild.node, staticParts)});`;
+		body = `${variableFor}.push(${generateStaticPart(generateChild.prelude, generateChild.node, staticParts, staticPartsMap)});`;
 	} else {
 		// If the body is dynamic, then use the dynamic node in the loop body.
 		body = `${generateChild.prelude}${variableFor}.push(${generateChild.node});`;
@@ -66,7 +68,7 @@ export function generateNodeFor(element, variable, staticParts) {
 	}
 
 	if (dataData.isStatic) {
-		dataData = generateStaticPart("", dataData.value, staticParts);
+		dataData = generateStaticPart("", dataData.value, staticParts, staticPartsMap);
 	} else {
 		dataData = dataData.value;
 	}

@@ -678,11 +678,18 @@
 	 * @param {string} prelude
 	 * @param {string} part
 	 * @param {Array} staticParts
+	 * @param {Object} staticPartsMap
 	 * @returns {string} static variable
 	 */
-	function generateStaticPart(prelude, part, staticParts) {
-		var staticVariable = "ms[" + staticParts.length + "]";
-		staticParts.push("" + prelude + staticVariable + "=" + part + ";");
+	function generateStaticPart(prelude, part, staticParts, staticPartsMap) {
+		var staticPartsMapKey = prelude + part;
+		var staticVariable = staticPartsMap[staticPartsMapKey];
+
+		if (staticVariable === undefined) {
+			staticVariable = staticPartsMap[staticPartsMapKey] = "ms[" + staticParts.length + "]";
+			staticParts.push("" + prelude + staticVariable + "=" + part + ";");
+		}
+
 		return staticVariable;
 	}
 
@@ -692,10 +699,11 @@
 	 * @param {Object} element
 	 * @param {number} variable
 	 * @param {Array} staticParts
+	 * @param {Object} staticPartsMap
 	 * @returns {Object} prelude code, view function code, static status, and variable
 	 */
 
-	function generateNodeElement(element, variable, staticParts) {
+	function generateNodeElement(element, variable, staticParts, staticPartsMap) {
 		var attributes = element.attributes;
 		var name = attributes.name;
 		var data = attributes.data;
@@ -708,11 +716,11 @@
 
 		if (!isStatic) {
 			if (dataIsStatic) {
-				dataValue = generateStaticPart("", dataValue, staticParts);
+				dataValue = generateStaticPart("", dataValue, staticParts, staticPartsMap);
 			}
 
 			if (childrenIsStatic) {
-				childrenValue = generateStaticPart("", childrenValue, staticParts);
+				childrenValue = generateStaticPart("", childrenValue, staticParts, staticPartsMap);
 			}
 		}
 
@@ -731,16 +739,17 @@
 	 * @param {Object} element
 	 * @param {number} variable
 	 * @param {Array} staticParts
+	 * @param {Object} staticPartsMap
 	 * @returns {string} clause body and variable
 	 */
 
-	function generateClause(variableIf, element, variable, staticParts) {
-		var generateBody = generateNode(element.children[0], element, 0, variable, staticParts);
+	function generateClause(variableIf, element, variable, staticParts, staticPartsMap) {
+		var generateBody = generateNode(element.children[0], element, 0, variable, staticParts, staticPartsMap);
 		var clause;
 
 		if (generateBody.isStatic) {
 			// If the clause is static, then use a static node in place of it.
-			clause = variableIf + "=" + generateStaticPart(generateBody.prelude, generateBody.node, staticParts) + ";";
+			clause = variableIf + "=" + generateStaticPart(generateBody.prelude, generateBody.node, staticParts, staticPartsMap) + ";";
 		} else {
 			// If the clause is dynamic, then use the dynamic node.
 			clause = "" + generateBody.prelude + variableIf + "=" + generateBody.node + ";";
@@ -759,16 +768,17 @@
 	 * @param {number} index
 	 * @param {number} variable
 	 * @param {Array} staticParts
+	 * @param {Object} staticPartsMap
 	 * @returns {Object} prelude code, view function code, static status, and variable
 	 */
 
 
-	function generateNodeIf(element, parent, index, variable, staticParts) {
+	function generateNodeIf(element, parent, index, variable, staticParts, staticPartsMap) {
 		var variableIf = "m" + variable;
 		var prelude = "";
 		var emptyElseClause = true; // Generate the initial `if` clause.
 
-		var clauseIf = generateClause(variableIf, element, variable + 1, staticParts);
+		var clauseIf = generateClause(variableIf, element, variable + 1, staticParts, staticPartsMap);
 		prelude += "var " + variableIf + ";if(" + element.attributes[""].value + "){" + clauseIf.clause + "}";
 		variable = clauseIf.variable; // Search for `else-if` and `else` clauses if there are siblings.
 
@@ -780,7 +790,7 @@
 
 				if (sibling.name === "else-if") {
 					// Generate the `else-if` clause.
-					var clauseElseIf = generateClause(variableIf, sibling, variable, staticParts);
+					var clauseElseIf = generateClause(variableIf, sibling, variable, staticParts, staticPartsMap);
 					prelude += "else if(" + sibling.attributes[""].value + "){" + clauseElseIf.clause + "}";
 					variable = clauseElseIf.variable; // Remove the `else-if` clause so that it isn't generated
 					// individually by the parent.
@@ -788,7 +798,7 @@
 					siblings.splice(i, 1);
 				} else if (sibling.name === "else") {
 					// Generate the `else` clause.
-					var clauseElse = generateClause(variableIf, sibling, variable, staticParts);
+					var clauseElse = generateClause(variableIf, sibling, variable, staticParts, staticPartsMap);
 					prelude += "else{" + clauseElse.clause + "}";
 					variable = clauseElse.variable; // Skip generating the empty `else` clause.
 
@@ -804,9 +814,7 @@
 
 
 		if (emptyElseClause) {
-			var staticVariable = staticParts.length;
-			staticParts.push("ms[" + staticVariable + "]=m(" + types.text + ",\"text\",{\"\":\"\"},[]);");
-			prelude += "else{" + variableIf + "=ms[" + staticVariable + "];}";
+			prelude += "else{" + variableIf + "=" + generateStaticPart("", "m(" + types.text + ",\"text\",{\"\":\"\"},[])", staticParts, staticPartsMap) + ";}";
 		}
 
 		return {
@@ -823,10 +831,11 @@
 	 * @param {Object} element
 	 * @param {number} variable
 	 * @param {Array} staticParts
+	 * @param {Object} staticPartsMap
 	 * @returns {Object} prelude code, view function code, static status, and variable
 	 */
 
-	function generateNodeFor(element, variable, staticParts) {
+	function generateNodeFor(element, variable, staticParts, staticPartsMap) {
 		var variableFor = "m" + variable;
 		var attributes = element.attributes;
 		var dataLocals = attributes[""].value.split(",");
@@ -842,13 +851,13 @@
 		var dataKey;
 		var dataValue;
 		var prelude;
-		var generateChild = generateNode(element.children[0], element, 0, variable + 1, staticParts);
+		var generateChild = generateNode(element.children[0], element, 0, variable + 1, staticParts, staticPartsMap);
 		var body;
 		variable = generateChild.variable;
 
 		if (generateChild.isStatic) {
 			// If the body is static, then use a static node in place of it.
-			body = variableFor + ".push(" + generateStaticPart(generateChild.prelude, generateChild.node, staticParts) + ");";
+			body = variableFor + ".push(" + generateStaticPart(generateChild.prelude, generateChild.node, staticParts, staticPartsMap) + ");";
 		} else {
 			// If the body is dynamic, then use the dynamic node in the loop body.
 			body = "" + generateChild.prelude + variableFor + ".push(" + generateChild.node + ");";
@@ -879,7 +888,7 @@
 		}
 
 		if (dataData.isStatic) {
-			dataData = generateStaticPart("", dataData.value, staticParts);
+			dataData = generateStaticPart("", dataData.value, staticParts, staticPartsMap);
 		} else {
 			dataData = dataData.value;
 		}
@@ -900,21 +909,22 @@
 	 * @param {number} index
 	 * @param {number} variable
 	 * @param {Array} staticParts
+	 * @param {Object} staticPartsMap
 	 * @returns {Object} prelude code, view function code, static status, and variable
 	 */
 
-	function generateNode(element, parent, index, variable, staticParts) {
+	function generateNode(element, parent, index, variable, staticParts, staticPartsMap) {
 		var name = element.name;
 		var type;
 		var staticData = true;
 		var staticChildren = true; // Generate the correct type number for the given name.
 
 		if (name === "element") {
-			return generateNodeElement(element, variable, staticParts);
+			return generateNodeElement(element, variable, staticParts, staticPartsMap);
 		} else if (name === "if") {
-			return generateNodeIf(element, parent, index, variable, staticParts);
+			return generateNodeIf(element, parent, index, variable, staticParts, staticPartsMap);
 		} else if (name === "for") {
-			return generateNodeFor(element, variable, staticParts);
+			return generateNodeFor(element, variable, staticParts, staticPartsMap);
 		} else if (name === "text") {
 			type = types.text;
 		} else if (name[0] === name[0].toLowerCase()) {
@@ -947,7 +957,7 @@
 		separator = "";
 
 		for (var i = 0; i < elementChildren.length; i++) {
-			var generateChild = generateNode(elementChildren[i], element, i, variable, staticParts); // Mark the children as dynamic if any child is dynamic.
+			var generateChild = generateNode(elementChildren[i], element, i, variable, staticParts, staticPartsMap); // Mark the children as dynamic if any child is dynamic.
 
 			if (!generateChild.isStatic) {
 				staticChildren = false;
@@ -969,7 +979,7 @@
 			} else {
 				// If the children are dynamic and the child node is static, then use
 				// a static node in place of the static child.
-				children += separator + generateStaticPart(_generateChild.prelude, _generateChild.node, staticParts);
+				children += separator + generateStaticPart(_generateChild.prelude, _generateChild.node, staticParts, staticPartsMap);
 			}
 
 			separator = ",";
@@ -979,10 +989,10 @@
 
 		if (staticData && !staticChildren) {
 			// If only the data is static, hoist it out.
-			data = generateStaticPart("", data, staticParts);
+			data = generateStaticPart("", data, staticParts, staticPartsMap);
 		} else if (!staticData && staticChildren) {
 			// If only the children are static, hoist them out.
-			children = generateStaticPart("", children, staticParts);
+			children = generateStaticPart("", children, staticParts, staticPartsMap);
 		}
 
 		return {
@@ -1009,7 +1019,7 @@
 		// Store static parts.
 		var staticParts = []; // Generate the root node and get the prelude and node code.
 
-		var _generateNode = generateNode(element, null, 0, 0, staticParts),
+		var _generateNode = generateNode(element, null, 0, 0, staticParts, {}),
 				prelude = _generateNode.prelude,
 				node = _generateNode.node,
 				isStatic = _generateNode.isStatic;

@@ -9,15 +9,23 @@ import { types } from "../../../util/util";
  * @param {Object} element
  * @param {number} variable
  * @param {Array} staticParts
+ * @param {Object} staticPartsMap
  * @returns {string} clause body and variable
  */
-function generateClause(variableIf, element, variable, staticParts) {
-	const generateBody = generateNode(element.children[0], element, 0, variable, staticParts);
+function generateClause(variableIf, element, variable, staticParts, staticPartsMap) {
+	const generateBody = generateNode(
+		element.children[0],
+		element,
+		0,
+		variable,
+		staticParts,
+		staticPartsMap
+	);
 	let clause;
 
 	if (generateBody.isStatic) {
 		// If the clause is static, then use a static node in place of it.
-		clause = `${variableIf}=${generateStaticPart(generateBody.prelude, generateBody.node, staticParts)};`;
+		clause = `${variableIf}=${generateStaticPart(generateBody.prelude, generateBody.node, staticParts, staticPartsMap)};`;
 	} else {
 		// If the clause is dynamic, then use the dynamic node.
 		clause = `${generateBody.prelude}${variableIf}=${generateBody.node};`;
@@ -37,15 +45,16 @@ function generateClause(variableIf, element, variable, staticParts) {
  * @param {number} index
  * @param {number} variable
  * @param {Array} staticParts
+ * @param {Object} staticPartsMap
  * @returns {Object} prelude code, view function code, static status, and variable
  */
-export function generateNodeIf(element, parent, index, variable, staticParts) {
+export function generateNodeIf(element, parent, index, variable, staticParts, staticPartsMap) {
 	const variableIf = "m" + variable;
 	let prelude = "";
 	let emptyElseClause = true;
 
 	// Generate the initial `if` clause.
-	const clauseIf = generateClause(variableIf, element, variable + 1, staticParts);
+	const clauseIf = generateClause(variableIf, element, variable + 1, staticParts, staticPartsMap);
 
 	prelude += `var ${variableIf};if(${element.attributes[""].value}){${clauseIf.clause}}`;
 	variable = clauseIf.variable;
@@ -59,7 +68,7 @@ export function generateNodeIf(element, parent, index, variable, staticParts) {
 
 			if (sibling.name === "else-if") {
 				// Generate the `else-if` clause.
-				const clauseElseIf = generateClause(variableIf, sibling, variable, staticParts);
+				const clauseElseIf = generateClause(variableIf, sibling, variable, staticParts, staticPartsMap);
 
 				prelude += `else if(${sibling.attributes[""].value}){${clauseElseIf.clause}}`;
 				variable = clauseElseIf.variable;
@@ -69,7 +78,7 @@ export function generateNodeIf(element, parent, index, variable, staticParts) {
 				siblings.splice(i, 1);
 			} else if (sibling.name === "else") {
 				// Generate the `else` clause.
-				const clauseElse = generateClause(variableIf, sibling, variable, staticParts);
+				const clauseElse = generateClause(variableIf, sibling, variable, staticParts, staticPartsMap);
 
 				prelude += `else{${clauseElse.clause}}`;
 				variable = clauseElse.variable;
@@ -88,11 +97,7 @@ export function generateNodeIf(element, parent, index, variable, staticParts) {
 
 	// Generate an empty `else` clause represented by an empty text node.
 	if (emptyElseClause) {
-		const staticVariable = staticParts.length;
-
-		staticParts.push(`ms[${staticVariable}]=m(${types.text},"text",{"":""},[]);`);
-
-		prelude += `else{${variableIf}=ms[${staticVariable}];}`;
+		prelude += `else{${variableIf}=${generateStaticPart("", `m(${types.text},"text",{"":""},[])`, staticParts, staticPartsMap)};}`;
 	}
 
 	return {

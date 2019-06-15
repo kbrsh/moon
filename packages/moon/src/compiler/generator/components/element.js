@@ -7,9 +7,10 @@ import { types } from "../../../util/util";
  * @param {Object} element
  * @param {number} variable
  * @param {Array} staticParts
+ * @param {Object} staticPartsMap
  * @returns {Object} prelude code, view function code, static status, and variable
  */
-export function generateNodeElement(element, variable, staticParts) {
+export function generateNodeElement(element, variable, staticParts, staticPartsMap) {
 	const attributes = element.attributes;
 	const name = attributes.name;
 	const data = attributes.data;
@@ -22,11 +23,11 @@ export function generateNodeElement(element, variable, staticParts) {
 
 	if (!isStatic) {
 		if (dataIsStatic) {
-			dataValue = generateStaticPart("", dataValue, staticParts);
+			dataValue = generateStaticPart("", dataValue, staticParts, staticPartsMap);
 		}
 
 		if (childrenIsStatic) {
-			childrenValue = generateStaticPart("", childrenValue, staticParts);
+			childrenValue = generateStaticPart("", childrenValue, staticParts, staticPartsMap);
 		}
 	}
 

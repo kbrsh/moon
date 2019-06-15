@@ -12,9 +12,10 @@ import { types } from "../../util/util";
  * @param {number} index
  * @param {number} variable
  * @param {Array} staticParts
+ * @param {Object} staticPartsMap
  * @returns {Object} prelude code, view function code, static status, and variable
  */
-export function generateNode(element, parent, index, variable, staticParts) {
+export function generateNode(element, parent, index, variable, staticParts, staticPartsMap) {
 	const name = element.name;
 	let type;
 	let staticData = true;
@@ -22,11 +23,11 @@ export function generateNode(element, parent, index, variable, staticParts) {
 
 	// Generate the correct type number for the given name.
 	if (name === "element") {
-		return generateNodeElement(element, variable, staticParts);
+		return generateNodeElement(element, variable, staticParts, staticPartsMap);
 	} else if (name === "if") {
-		return generateNodeIf(element, parent, index, variable, staticParts);
+		return generateNodeIf(element, parent, index, variable, staticParts, staticPartsMap);
 	} else if (name === "for") {
-		return generateNodeFor(element, variable, staticParts);
+		return generateNodeFor(element, variable, staticParts, staticPartsMap);
 	} else if (name === "text") {
 		type = types.text;
 	} else if (name[0] === name[0].toLowerCase()) {
@@ -66,7 +67,8 @@ export function generateNode(element, parent, index, variable, staticParts) {
 			element,
 			i,
 			variable,
-			staticParts
+			staticParts,
+			staticPartsMap
 		);
 
 		// Mark the children as dynamic if any child is dynamic.
@@ -91,7 +93,12 @@ export function generateNode(element, parent, index, variable, staticParts) {
 		} else {
 			// If the children are dynamic and the child node is static, then use
 			// a static node in place of the static child.
-			children += separator + generateStaticPart(generateChild.prelude, generateChild.node, staticParts);
+			children += separator + generateStaticPart(
+				generateChild.prelude,
+				generateChild.node,
+				staticParts,
+				staticPartsMap
+			);
 		}
 
 		separator = ",";
@@ -101,10 +108,10 @@ export function generateNode(element, parent, index, variable, staticParts) {
 
 	if (staticData && !staticChildren) {
 		// If only the data is static, hoist it out.
-		data = generateStaticPart("", data, staticParts);
+		data = generateStaticPart("", data, staticParts, staticPartsMap);
 	} else if (!staticData && staticChildren) {
 		// If only the children are static, hoist them out.
-		children = generateStaticPart("", children, staticParts);
+		children = generateStaticPart("", children, staticParts, staticPartsMap);
 	}
 
 	return {
@@ -137,7 +144,8 @@ export function generate(element) {
 		null,
 		0,
 		0,
-		staticParts
+		staticParts,
+		{}
 	);
 
 	if (isStatic) {
