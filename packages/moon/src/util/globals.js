@@ -1,7 +1,7 @@
 /**
- * Global views
+ * Global old view
  */
-export let viewOld, viewNew;
+export let viewOld;
 
 /**
  * Global component store
@@ -30,13 +30,4 @@ export const ms = {};
  */
 export function setViewOld(viewOldNew) {
 	viewOld = viewOldNew;
-}
-
-/**
- * Set new view to a new object.
- *
- * @param {Object} viewNewNew
- */
-export function setViewNew(viewNewNew) {
-	viewNew = viewNewNew;
 }

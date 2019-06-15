@@ -1,11 +1,11 @@
 /**
  * Update an ariaset, dataset, or style attribute.
  *
+ * @param {Object} element
  * @param {string} key
  * @param {Object} value
- * @param {Object} element
  */
-export function updateAttributeSet(key, value, element) {
+export function updateDataSet(element, key, value) {
 	if (key === "ariaset") {
 		// Set aria-* attributes.
 		for (let setKey in value) {
@@ -25,12 +25,12 @@ export function updateAttributeSet(key, value, element) {
  * Remove all the keys from an ariaset, dataset, or style attribute that aren't
  * in `exclude`.
  *
+ * @param {Object} element
  * @param {string} key
  * @param {string} value
  * @param {Object} exclude
- * @param {Object} element
  */
-export function removeAttributeSet(key, value, exclude, element) {
+export function removeDataSet(element, key, value, exclude) {
 	for (let setKey in value) {
 		if (!(setKey in exclude)) {
 			switch (key) {
@@ -45,22 +45,4 @@ export function removeAttributeSet(key, value, exclude, element) {
 			}
 		}
 	}
-}
-
-/**
- * Set an event listener on an element.
- *
- * @param {string} type
- * @param {Array} info
- * @param {Object} MoonEvents
- * @param {Object} MoonListeners
- * @param {Object} element
- */
-export function setEvent(type, info, MoonEvents, MoonListeners, element) {
-	MoonEvents[type] = info;
-
-	element.addEventListener(type.slice(1), MoonListeners[type] = (event) => {
-		const info = MoonEvents[type];
-		info[0](event, info[1], info[2]);
-	});
 }
