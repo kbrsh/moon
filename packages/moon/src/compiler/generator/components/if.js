@@ -1,4 +1,5 @@
 import { generateNode } from "../generator";
+import { generateStaticPart } from "../util/util";
 import { types } from "../../../util/util";
 
 /**
@@ -16,11 +17,7 @@ function generateClause(variableIf, element, variable, staticParts) {
 
 	if (generateBody.isStatic) {
 		// If the clause is static, then use a static node in place of it.
-		const staticVariable = staticParts.length;
-
-		staticParts.push(`${generateBody.prelude}ms[${staticVariable}]=${generateBody.node};`);
-
-		clause = `${variableIf}=ms[${staticVariable}];`;
+		clause = `${variableIf}=${generateStaticPart(generateBody.prelude, generateBody.node, staticParts)};`;
 	} else {
 		// If the clause is dynamic, then use the dynamic node.
 		clause = `${generateBody.prelude}${variableIf}=${generateBody.node};`;

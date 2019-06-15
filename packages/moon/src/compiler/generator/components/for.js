@@ -1,6 +1,6 @@
 import { generateNode } from "../generator";
-import { types } from "../../../util/util";
-import { defaultValue } from "../../../util/util";
+import { generateStaticPart } from "../util/util";
+import { defaultValue, types } from "../../../util/util";
 
 /**
  * Generates code for a node from a `for` element.
@@ -35,11 +35,7 @@ export function generateNodeFor(element, variable, staticParts) {
 
 	if (generateChild.isStatic) {
 		// If the body is static, then use a static node in place of it.
-		const staticVariable = staticParts.length;
-
-		staticParts.push(`${generateChild.prelude}ms[${staticVariable}]=${generateChild.node};`);
-
-		body = `${variableFor}.push(ms[${staticVariable}]);`;
+		body = `${variableFor}.push(${generateStaticPart(generateChild.prelude, generateChild.node, staticParts)});`;
 	} else {
 		// If the body is dynamic, then use the dynamic node in the loop body.
 		body = `${generateChild.prelude}${variableFor}.push(${generateChild.node});`;
@@ -70,11 +66,7 @@ export function generateNodeFor(element, variable, staticParts) {
 	}
 
 	if (dataData.isStatic) {
-		const staticVariable = staticParts.length;
-
-		staticParts.push(`ms[${staticVariable}]=${dataData.value};`);
-
-		dataData = `ms[${staticVariable}]`;
+		dataData = generateStaticPart("", dataData.value, staticParts);
 	} else {
 		dataData = dataData.value;
 	}

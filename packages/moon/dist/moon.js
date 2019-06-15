@@ -673,6 +673,20 @@
 	}
 
 	/**
+	 * Generates a static part.
+	 *
+	 * @param {string} prelude
+	 * @param {string} part
+	 * @param {Array} staticParts
+	 * @returns {string} static variable
+	 */
+	function generateStaticPart(prelude, part, staticParts) {
+		var staticVariable = "ms[" + staticParts.length + "]";
+		staticParts.push("" + prelude + staticVariable + "=" + part + ";");
+		return staticVariable;
+	}
+
+	/**
 	 * Generates code for a node from an `element` element.
 	 *
 	 * @param {Object} element
@@ -687,18 +701,24 @@
 		var data = attributes.data;
 		var children = attributes.children;
 		var dataIsStatic = data.isStatic;
-		var isStatic = name.isStatic && dataIsStatic && children.isStatic;
+		var childrenIsStatic = children.isStatic;
+		var isStatic = name.isStatic && dataIsStatic && childrenIsStatic;
 		var dataValue = data.value;
+		var childrenValue = children.value;
 
-		if (!isStatic && dataIsStatic) {
-			var staticVariable = staticParts.length;
-			staticParts.push("ms[" + staticVariable + "]=" + dataValue + ";");
-			dataValue = "ms[" + staticVariable + "]";
+		if (!isStatic) {
+			if (dataIsStatic) {
+				dataValue = generateStaticPart("", dataValue, staticParts);
+			}
+
+			if (childrenIsStatic) {
+				childrenValue = generateStaticPart("", childrenValue, staticParts);
+			}
 		}
 
 		return {
 			prelude: "",
-			node: "m(" + types.element + "," + name.value + "," + dataValue + "," + children.value + ")",
+			node: "m(" + types.element + "," + name.value + "," + dataValue + "," + childrenValue + ")",
 			isStatic: isStatic,
 			variable: variable
 		};
@@ -720,9 +740,7 @@
 
 		if (generateBody.isStatic) {
 			// If the clause is static, then use a static node in place of it.
-			var staticVariable = staticParts.length;
-			staticParts.push(generateBody.prelude + "ms[" + staticVariable + "]=" + generateBody.node + ";");
-			clause = variableIf + "=ms[" + staticVariable + "];";
+			clause = variableIf + "=" + generateStaticPart(generateBody.prelude, generateBody.node, staticParts) + ";";
 		} else {
 			// If the clause is dynamic, then use the dynamic node.
 			clause = "" + generateBody.prelude + variableIf + "=" + generateBody.node + ";";
@@ -830,9 +848,7 @@
 
 		if (generateChild.isStatic) {
 			// If the body is static, then use a static node in place of it.
-			var staticVariable = staticParts.length;
-			staticParts.push(generateChild.prelude + "ms[" + staticVariable + "]=" + generateChild.node + ";");
-			body = variableFor + ".push(ms[" + staticVariable + "]);";
+			body = variableFor + ".push(" + generateStaticPart(generateChild.prelude, generateChild.node, staticParts) + ");";
 		} else {
 			// If the body is dynamic, then use the dynamic node in the loop body.
 			body = "" + generateChild.prelude + variableFor + ".push(" + generateChild.node + ");";
@@ -863,9 +879,7 @@
 		}
 
 		if (dataData.isStatic) {
-			var _staticVariable = staticParts.length;
-			staticParts.push("ms[" + _staticVariable + "]=" + dataData.value + ";");
-			dataData = "ms[" + _staticVariable + "]";
+			dataData = generateStaticPart("", dataData.value, staticParts);
 		} else {
 			dataData = dataData.value;
 		}
@@ -955,9 +969,7 @@
 			} else {
 				// If the children are dynamic and the child node is static, then use
 				// a static node in place of the static child.
-				var staticVariable = staticParts.length;
-				staticParts.push(_generateChild.prelude + "ms[" + staticVariable + "]=" + _generateChild.node + ";");
-				children += separator + ("ms[" + staticVariable + "]");
+				children += separator + generateStaticPart(_generateChild.prelude, _generateChild.node, staticParts);
 			}
 
 			separator = ",";
@@ -967,14 +979,10 @@
 
 		if (staticData && !staticChildren) {
 			// If only the data is static, hoist it out.
-			var _staticVariable = staticParts.length;
-			staticParts.push("ms[" + _staticVariable + "]=" + data + ";");
-			data = "ms[" + _staticVariable + "]";
+			data = generateStaticPart("", data, staticParts);
 		} else if (!staticData && staticChildren) {
 			// If only the children are static, hoist them out.
-			var _staticVariable2 = staticParts.length;
-			staticParts.push("ms[" + _staticVariable2 + "]=" + children + ";");
-			children = "ms[" + _staticVariable2 + "]";
+			children = generateStaticPart("", children, staticParts);
 		}
 
 		return {

@@ -1,6 +1,7 @@
 import { generateNodeElement } from "./components/element";
 import { generateNodeIf } from "./components/if";
 import { generateNodeFor } from "./components/for";
+import { generateStaticPart } from "./util/util";
 import { types } from "../../util/util";
 
 /**
@@ -90,11 +91,7 @@ export function generateNode(element, parent, index, variable, staticParts) {
 		} else {
 			// If the children are dynamic and the child node is static, then use
 			// a static node in place of the static child.
-			const staticVariable = staticParts.length;
-
-			staticParts.push(`${generateChild.prelude}ms[${staticVariable}]=${generateChild.node};`);
-
-			children += separator + `ms[${staticVariable}]`;
+			children += separator + generateStaticPart(generateChild.prelude, generateChild.node, staticParts);
 		}
 
 		separator = ",";
@@ -104,18 +101,10 @@ export function generateNode(element, parent, index, variable, staticParts) {
 
 	if (staticData && !staticChildren) {
 		// If only the data is static, hoist it out.
-		const staticVariable = staticParts.length;
-
-		staticParts.push(`ms[${staticVariable}]=${data};`);
-
-		data = `ms[${staticVariable}]`;
+		data = generateStaticPart("", data, staticParts);
 	} else if (!staticData && staticChildren) {
 		// If only the children are static, hoist them out.
-		const staticVariable = staticParts.length;
-
-		staticParts.push(`ms[${staticVariable}]=${children};`);
-
-		children = `ms[${staticVariable}]`;
+		children = generateStaticPart("", children, staticParts);
 	}
 
 	return {

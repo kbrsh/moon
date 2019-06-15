@@ -1,3 +1,4 @@
+import { generateStaticPart } from "../util/util";
 import { types } from "../../../util/util";
 
 /**
@@ -13,22 +14,25 @@ export function generateNodeElement(element, variable, staticParts) {
 	const name = attributes.name;
 	const data = attributes.data;
 	const children = attributes.children;
-
 	const dataIsStatic = data.isStatic;
-	const isStatic = name.isStatic && dataIsStatic && children.isStatic;
+	const childrenIsStatic = children.isStatic;
+	const isStatic = name.isStatic && dataIsStatic && childrenIsStatic;
 	let dataValue = data.value;
+	let childrenValue = children.value;
 
-	if (!isStatic && dataIsStatic) {
-		const staticVariable = staticParts.length;
+	if (!isStatic) {
+		if (dataIsStatic) {
+			dataValue = generateStaticPart("", dataValue, staticParts);
+		}
 
-		staticParts.push(`ms[${staticVariable}]=${dataValue};`);
-
-		dataValue = `ms[${staticVariable}]`;
+		if (childrenIsStatic) {
+			childrenValue = generateStaticPart("", childrenValue, staticParts);
+		}
 	}
 
 	return {
 		prelude: "",
-		node: `m(${types.element},${name.value},${dataValue},${children.value})`,
+		node: `m(${types.element},${name.value},${dataValue},${childrenValue})`,
 		isStatic,
 		variable
 	};
