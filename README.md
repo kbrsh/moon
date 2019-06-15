@@ -1,4 +1,8 @@
-<p align="center"><a href="https://kbrsh.github.io/moon" target="_blank"><img width="100" src="https://raw.githubusercontent.com/kbrsh/moon/gh-pages/img/logo.png"></a></p>
+<p align="center">
+	<a href="https://kbrsh.github.io/moon" target="_blank">
+		<img width="100" src="https://raw.githubusercontent.com/kbrsh/moon/gh-pages/img/logo.png">
+	</a>
+</p>
 <h1 align="center">Moon</h1>
 <p align="center">The minimal & fast UI library.</p>
 <p align="center">
@@ -6,9 +10,6 @@
 	<a href="https://codecov.io/gh/kbrsh/moon"><img src="https://codecov.io/gh/kbrsh/moon/branch/master/graph/badge.svg" alt="Code Coverage"></a>
 	<a href="https://moon-slack.herokuapp.com"><img src="https://moon-slack.herokuapp.com/badge.svg" alt="Slack"></a>
 	<a href="https://kbrsh.github.io/license"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
-</p>
-<p align="center">
-	<a href="https://saucelabs.com/u/KingPixil"><img src="https://saucelabs.com/browser-matrix/KingPixil.svg" alt="Browser Support Table"></a>
 </p>
 
 ### Summary
@@ -20,7 +21,7 @@
 
 ### About
 
-Moon is a JavaScript library with a minimal API and fast view compiler. It splits up a web application into two parts: the view and the data. The view is responsible for displaying the data to the user. Moon compiles the view into a JavaScript program running on a 3kb runtime capable of creating, updating, and destroying the view. The data is a simple object with access to the Moon API for updating itself.
+Moon is a JavaScript library with a minimal API and fast view compiler. It splits up a web application into two parts: the view and the data. The view is responsible for displaying the data to the user, and can be thought of as a function of data. Moon compiles the view into a JavaScript program running on a 3kb runtime capable of updating the view as data changes. The data is a simple object with access to the Moon API for updating itself through events.
 
 ### Usage
 
