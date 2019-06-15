@@ -14,14 +14,14 @@
 
 ### Summary
 
-- :tada: Small file size (3kb minified + gzip)
-- :zap: Blazing fast performance
-- :rocket: Minimal & intuitive API
-- :hammer: Compose with components
+- :tada: Small file size (4kb minified + gzip)
+- :zap: Blazing fast & asynchronous rendering
+- :rocket: Intuitive & consistent API
+- :hammer: Functional & declarative view model
 
 ### About
 
-Moon is a JavaScript library with a minimal API and fast view compiler. It splits up a web application into two parts: the view and the data. The view is responsible for displaying the data to the user, and can be thought of as a function of data. Moon compiles the view into a JavaScript program running on a 3kb runtime capable of updating the view as data changes. The data is a simple object with access to the Moon API for updating itself through events.
+Moon is a JavaScript library with a minimal API and fast view compiler. It splits up a web application into two parts: the view and the data. The view is responsible for displaying the data to the user, and can be thought of as a function of data. Moon compiles the view into a JavaScript program running on a 4kb runtime capable of updating the view as data changes. The data is a simple object with access to the Moon API for updating itself through events.
 
 ### Usage
 
