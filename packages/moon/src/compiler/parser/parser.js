@@ -60,7 +60,7 @@ function parseElements(start, end, tokens) {
 
 				if (!(elements instanceof ParseError)) {
 					// Combine the first element with the rest of the elements.
-					let elementsAll = [element];
+					const elementsAll = [element];
 
 					for (let i = 0; i < elements.length; i++) {
 						elementsAll.push(elements[i]);

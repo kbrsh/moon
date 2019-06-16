@@ -99,7 +99,7 @@ export function tokenString(token) {
 			let tag = "<" + token.value;
 			const attributes = token.attributes;
 
-			for (let attributeKey in attributes) {
+			for (const attributeKey in attributes) {
 				const attributeValue = attributes[attributeKey];
 				tag += ` ${attributeKey}=${attributeValue.isStatic ? attributeValue.value : `{${attributeValue.value}}`}`;
 			}
@@ -159,7 +159,7 @@ export function lex(input) {
 	// accept one element as an input, and whitespace counts as text.
 	input = input.trim();
 
-	let tokens = [];
+	const tokens = [];
 
 	for (let i = 0; i < input.length;) {
 		const char = input[i];

@@ -42,7 +42,7 @@ export function generateNode(element, parent, index, variable, staticParts, stat
 	let children = "[";
 	let separator = "";
 
-	for (let attribute in attributes) {
+	for (const attribute in attributes) {
 		const attributeValue = attributes[attribute];
 
 		// Mark the data as dynamic if there are any dynamic attributes.
@@ -58,7 +58,7 @@ export function generateNode(element, parent, index, variable, staticParts, stat
 
 	// Generate children.
 	const elementChildren = element.children;
-	let generateChildren = [];
+	const generateChildren = [];
 	separator = "";
 
 	for (let i = 0; i < elementChildren.length; i++) {

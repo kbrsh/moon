@@ -1,23 +1,23 @@
 {
-  "name": "moon-cli",
-  "version": "1.0.0-beta.2",
-  "description": "Moon project generator",
-  "main": "dist/moon-cli.min.js",
-  "bin": {
-    "moon": "dist/moon-cli.min.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kbrsh/moon.git"
-  },
-  "keywords": [
-    "moon",
-    "cli"
-  ],
-  "author": "Kabir Shah",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/kbrsh/moon/issues"
-  },
-  "homepage": "https://github.com/kbrsh/moon#readme"
+	"name": "moon-cli",
+	"version": "1.0.0-beta.2",
+	"description": "Moon project generator",
+	"main": "dist/moon-cli.min.js",
+	"bin": {
+		"moon": "dist/moon-cli.min.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/kbrsh/moon.git"
+	},
+	"keywords": [
+		"moon",
+		"cli"
+	],
+	"author": "Kabir Shah",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/kbrsh/moon/issues"
+	},
+	"homepage": "https://github.com/kbrsh/moon#readme"
 }

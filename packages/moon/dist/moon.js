@@ -1172,15 +1172,34 @@
 
 	Node.prototype.MoonEvent = null;
 	/**
+	 * Executes a component and modifies it to be the result of the component view.
+	 *
+	 * @param {Object} node
+	 */
+
+	function executeComponent(node) {
+		while (node.type === types.component) {
+			// Execute the component to get the component view.
+			var nodeName = node.name;
+			var nodeComponent = components[nodeName](m, node.data, node.children, ms[nodeName]); // Update the node to reflect the component view.
+
+			node.type = nodeComponent.type;
+			node.name = nodeComponent.name;
+			node.data = nodeComponent.data;
+			node.children = nodeComponent.children;
+		}
+	}
+	/**
 	 * Creates an old reference node from a view node.
 	 *
 	 * @param {Object} node
 	 * @returns {Object} node to be used as an old node
 	 */
 
+
 	function executeCreate(node) {
-		var element;
 		var children = [];
+		var element;
 
 		if (node.type === types.text) {
 			// Create a text node using the text content from the default key.
@@ -1192,7 +1211,9 @@
 			var nodeChildren = node.children;
 
 			for (var i = 0; i < nodeChildren.length; i++) {
-				var childOld = executeCreate(nodeChildren[i]);
+				var childNew = nodeChildren[i];
+				executeComponent(childNew);
+				var childOld = executeCreate(childNew);
 				children.push(childOld);
 				element.appendChild(childOld.element);
 			} // Set data.
@@ -1226,25 +1247,6 @@
 
 
 		return new NodeOld(node, element, children);
-	}
-	/**
-	 * Executes a component and modifies it to be the result of the component view.
-	 *
-	 * @param {Object} node
-	 */
-
-
-	function executeComponent(node) {
-		while (node.type === types.component) {
-			// Execute the component to get the component view.
-			var nodeName = node.name;
-			var nodeComponent = components[nodeName](m, node.data, node.children, ms[nodeName]); // Update the node to reflect the component view.
-
-			node.type = nodeComponent.type;
-			node.name = nodeComponent.name;
-			node.data = nodeComponent.data;
-			node.children = nodeComponent.children;
-		}
 	}
 	/**
 	 * Executes a view and finds differences between nodes.

@@ -97,7 +97,7 @@ export default function Moon(options) {
 			dataDefault === undefined ?
 			view :
 			(m, md, mc, ms) => {
-				for (let key in dataDefault) {
+				for (const key in dataDefault) {
 					if (!(key in md)) {
 						md[key] = dataDefault[key];
 					}

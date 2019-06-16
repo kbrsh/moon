@@ -8,14 +8,14 @@
 export function updateDataSet(element, key, value) {
 	if (key === "ariaset") {
 		// Set aria-* attributes.
-		for (let setKey in value) {
+		for (const setKey in value) {
 			element.setAttribute("aria-" + setKey, value[setKey]);
 		}
 	} else {
 		// Set data-* and style attributes.
 		const set = element[key];
 
-		for (let setKey in value) {
+		for (const setKey in value) {
 			set[setKey] = value[setKey];
 		}
 	}
@@ -31,7 +31,7 @@ export function updateDataSet(element, key, value) {
  * @param {Object} exclude
  */
 export function removeDataSet(element, key, value, exclude) {
-	for (let setKey in value) {
+	for (const setKey in value) {
 		if (!(setKey in exclude)) {
 			switch (key) {
 				case "ariaset":

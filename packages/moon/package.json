@@ -1,24 +1,24 @@
 {
-  "name": "moon",
-  "version": "1.0.0-beta.2",
-  "description": "The minimal & fast UI library",
-  "main": "dist/moon.min.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kbrsh/moon.git"
-  },
-  "keywords": [
-    "moon",
-    "user interface",
-    "UI",
-    "view",
-    "model",
-    "library"
-  ],
-  "author": "Kabir Shah",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/kbrsh/moon/issues"
-  },
-  "homepage": "https://github.com/kbrsh/moon#readme"
+	"name": "moon",
+	"version": "1.0.0-beta.2",
+	"description": "The minimal & fast UI library",
+	"main": "dist/moon.min.js",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/kbrsh/moon.git"
+	},
+	"keywords": [
+		"moon",
+		"user interface",
+		"UI",
+		"view",
+		"model",
+		"library"
+	],
+	"author": "Kabir Shah",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/kbrsh/moon/issues"
+	},
+	"homepage": "https://github.com/kbrsh/moon#readme"
 }

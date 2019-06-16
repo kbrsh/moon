@@ -10,7 +10,7 @@ let executeStart;
 /**
  * Execution queue
  */
-let executeQueue = [];
+const executeQueue = [];
 
 /**
  * Patch types
@@ -45,14 +45,38 @@ MoonEvent.prototype.handleEvent = function(event) {
 Node.prototype.MoonEvent = null;
 
 /**
+ * Executes a component and modifies it to be the result of the component view.
+ *
+ * @param {Object} node
+ */
+function executeComponent(node) {
+	while (node.type === types.component) {
+		// Execute the component to get the component view.
+		const nodeName = node.name;
+		const nodeComponent = components[nodeName](
+			m,
+			node.data,
+			node.children,
+			ms[nodeName]
+		);
+
+		// Update the node to reflect the component view.
+		node.type = nodeComponent.type;
+		node.name = nodeComponent.name;
+		node.data = nodeComponent.data;
+		node.children = nodeComponent.children;
+	}
+}
+
+/**
  * Creates an old reference node from a view node.
  *
  * @param {Object} node
  * @returns {Object} node to be used as an old node
  */
 function executeCreate(node) {
+	const children = [];
 	let element;
-	let children = [];
 
 	if (node.type === types.text) {
 		// Create a text node using the text content from the default key.
@@ -65,7 +89,11 @@ function executeCreate(node) {
 		const nodeChildren = node.children;
 
 		for (let i = 0; i < nodeChildren.length; i++) {
-			const childOld = executeCreate(nodeChildren[i]);
+			const childNew = nodeChildren[i];
+
+			executeComponent(childNew);
+
+			const childOld = executeCreate(childNew);
 
 			children.push(childOld);
 			element.appendChild(childOld.element);
@@ -74,7 +102,7 @@ function executeCreate(node) {
 		// Set data.
 		const nodeData = node.data;
 
-		for (let key in nodeData) {
+		for (const key in nodeData) {
 			const value = nodeData[key];
 
 			if (key.charCodeAt(0) === 64) {
@@ -104,30 +132,6 @@ function executeCreate(node) {
 	// Return an old node with a reference to the immutable node and mutable
 	// element. This is to help performance and allow static nodes to be reused.
 	return new NodeOld(node, element, children);
-}
-
-/**
- * Executes a component and modifies it to be the result of the component view.
- *
- * @param {Object} node
- */
-function executeComponent(node) {
-	while (node.type === types.component) {
-		// Execute the component to get the component view.
-		const nodeName = node.name;
-		const nodeComponent = components[nodeName](
-			m,
-			node.data,
-			node.children,
-			ms[nodeName]
-		);
-
-		// Update the node to reflect the component view.
-		node.type = nodeComponent.type;
-		node.name = nodeComponent.name;
-		node.data = nodeComponent.data;
-		node.children = nodeComponent.children;
-	}
 }
 
 /**
@@ -190,7 +194,7 @@ function executeDiff(nodesOld, nodesNew, patches) {
 				if (nodeOldNodeData !== nodeNewData) {
 					// First, go through all new data and update all of the existing data
 					// to match.
-					for (let keyNew in nodeNewData) {
+					for (const keyNew in nodeNewData) {
 						const valueOld = nodeOldNodeData[keyNew];
 						const valueNew = nodeNewData[keyNew];
 
@@ -259,7 +263,7 @@ function executeDiff(nodesOld, nodesNew, patches) {
 
 					// Next, go through all of the old data and remove data that isn't in
 					// the new data.
-					for (let keyOld in nodeOldNodeData) {
+					for (const keyOld in nodeOldNodeData) {
 						if (!(keyOld in nodeNewData)) {
 							if (keyOld.charCodeAt(0) === 64) {
 								// Remove an event.
@@ -495,7 +499,7 @@ function executeNext() {
 	const dataNew = executeQueue[0];
 
 	// Merge new data into current data.
-	for (let key in dataNew) {
+	for (const key in dataNew) {
 		md[key] = dataNew[key];
 	}
 

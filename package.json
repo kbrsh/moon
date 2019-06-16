@@ -1,29 +1,29 @@
 {
-  "name": "moon",
-  "version": "1.0.0-beta.2",
-  "description": "The minimal & fast UI library",
-  "scripts": {
-    "build": "node build/build.js",
-    "test": "MOON_ENV=\"development\" jest"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kbrsh/moon.git"
-  },
-  "author": "Kabir Shah",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/kbrsh/moon/issues"
-  },
-  "homepage": "https://github.com/kbrsh/moon#readme",
-  "devDependencies": {
-    "@babel/core": "^7.4.3",
-    "@babel/preset-env": "^7.4.3",
-    "gzip-size": "^5.0.0",
-    "jest": "^24.6.0",
-    "rollup": "^1.8.0",
-    "rollup-plugin-babel": "^4.3.2",
-    "rollup-plugin-eslint": "^5.1.0",
-    "uglify-js": "^3.5.3"
-  }
+	"name": "moon",
+	"version": "1.0.0-beta.2",
+	"description": "The minimal & fast UI library",
+	"scripts": {
+		"build": "node build/build.js",
+		"test": "MOON_ENV=\"development\" jest"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/kbrsh/moon.git"
+	},
+	"author": "Kabir Shah",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/kbrsh/moon/issues"
+	},
+	"homepage": "https://github.com/kbrsh/moon#readme",
+	"devDependencies": {
+		"@babel/core": "^7.4.3",
+		"@babel/preset-env": "^7.4.3",
+		"gzip-size": "^5.0.0",
+		"jest": "^24.6.0",
+		"rollup": "^1.8.0",
+		"rollup-plugin-babel": "^4.3.2",
+		"rollup-plugin-eslint": "^5.1.0",
+		"uglify-js": "^3.5.3"
+	}
 }

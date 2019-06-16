@@ -11,7 +11,7 @@ for (let i = 0; i < packages.length; i++) {
 		const packageJSONPath = path.join(package, "package.json");
 		const packageJSON = JSON.parse(fs.readFileSync(packageJSONPath, "utf8"));
 		packageJSON.version = version;
-		fs.writeFileSync(packageJSONPath, JSON.stringify(packageJSON, null, 3));
+		fs.writeFileSync(packageJSONPath, JSON.stringify(packageJSON, null, "\t"));
 	}
 }
 
