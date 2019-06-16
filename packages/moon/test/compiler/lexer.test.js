@@ -50,6 +50,10 @@ test("lex attributes", () => {
 	expect(lex(`<div id="test-id" class='test-class' for='input' dynamic={true} local={$local} nested={{foo: {bar: true}, baz: false}} self>`)).toEqual([{"attributes": {"id": {"value": "\"test-id\"", "isStatic": true}, "className": {"value": "'test-class'", "isStatic": true}, "htmlFor": {"value": "'input'", "isStatic": true}, "dynamic": {"value": "true", "isStatic": true}, "local": {"value": "$local", "isStatic": false}, "self": {"value": "true", "isStatic": true}, "nested": {"value": "{foo: {bar: true}, baz: false}", "isStatic": true}}, "closed": false, "type": "tagOpen", "value": "div"}]);
 });
 
+test("lex `children` data reference", () => {
+	expect(lex(`<div data={children}></div>`)).toEqual([{"attributes": {"data": {"isStatic": false, "value": "mc"}}, "closed": false, "type": "tagOpen", "value": "div"}, {"type": "tagClose", "value": "div"}]);
+});
+
 test("lex events", () => {
 	expect(lex(`<div id="test-id" class='test-class' dynamic={true} self @event={doSomething}>`)).toEqual([{"attributes": {"id": {"value": "\"test-id\"", "isStatic": true}, "className": {"value": "'test-class'", "isStatic": true}, dynamic: {"value": "true", "isStatic": true}, "@event": {"value": "[md.doSomething,md,mc]", "isStatic": false}, self: {"value": "true", "isStatic": true}}, "closed": false, "type": "tagOpen", "value": "div"}]);
 });

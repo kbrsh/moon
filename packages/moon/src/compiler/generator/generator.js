@@ -39,72 +39,84 @@ export function generateNode(element, parent, index, variable, staticParts, stat
 	const attributes = element.attributes;
 	let prelude = "";
 	let data = "{";
-	let children = "[";
+	let children = "";
 	let separator = "";
 
 	for (const attribute in attributes) {
 		const attributeValue = attributes[attribute];
 
-		// Mark the data as dynamic if there are any dynamic attributes.
-		if (!attributeValue.isStatic) {
-			staticData = false;
-		}
+		// A `children` attribute takes place of component children.
+		if (attribute === "children") {
+			if (!attributeValue.isStatic) {
+				staticChildren = false;
+			}
 
-		data += `${separator}"${attribute}":${attributeValue.value}`;
-		separator = ",";
+			children = attributeValue.value;
+		} else {
+			// Mark the data as dynamic if there are any dynamic attributes.
+			if (!attributeValue.isStatic) {
+				staticData = false;
+			}
+
+			data += `${separator}"${attribute}":${attributeValue.value}`;
+			separator = ",";
+		}
 	}
 
 	data += "}";
 
-	// Generate children.
-	const elementChildren = element.children;
-	const generateChildren = [];
-	separator = "";
+	// Generate children if they weren't provided in an attribute.
+	if (attributes.children === undefined) {
+		const elementChildren = element.children;
+		const generateChildren = [];
+		children += "[";
+		separator = "";
 
-	for (let i = 0; i < elementChildren.length; i++) {
-		const generateChild = generateNode(
-			elementChildren[i],
-			element,
-			i,
-			variable,
-			staticParts,
-			staticPartsMap
-		);
-
-		// Mark the children as dynamic if any child is dynamic.
-		if (!generateChild.isStatic) {
-			staticChildren = false;
-		}
-
-		// Update the variable counter.
-		variable = generateChild.variable;
-
-		generateChildren.push(generateChild);
-	}
-
-	for (let i = 0; i < generateChildren.length; i++) {
-		const generateChild = generateChildren[i];
-
-		if (staticChildren || !generateChild.isStatic) {
-			// If the children are static or the children and child node are
-			// dynamic, then append the child as a part of the node as usual.
-			prelude += generateChild.prelude;
-			children += separator + generateChild.node;
-		} else {
-			// If the children are dynamic and the child node is static, then use
-			// a static node in place of the static child.
-			children += separator + generateStaticPart(
-				generateChild.prelude,
-				generateChild.node,
+		for (let i = 0; i < elementChildren.length; i++) {
+			const generateChild = generateNode(
+				elementChildren[i],
+				element,
+				i,
+				variable,
 				staticParts,
 				staticPartsMap
 			);
+
+			// Mark the children as dynamic if any child is dynamic.
+			if (!generateChild.isStatic) {
+				staticChildren = false;
+			}
+
+			// Update the variable counter.
+			variable = generateChild.variable;
+
+			generateChildren.push(generateChild);
 		}
 
-		separator = ",";
-	}
+		for (let i = 0; i < generateChildren.length; i++) {
+			const generateChild = generateChildren[i];
 
-	children += "]";
+			if (staticChildren || !generateChild.isStatic) {
+				// If the children are static or the children and child node are
+				// dynamic, then append the child as a part of the node as usual.
+				prelude += generateChild.prelude;
+				children += separator + generateChild.node;
+			} else {
+				// If the children are dynamic and the child node is static, then use
+				// a static node in place of the static child.
+				children += separator + generateStaticPart(
+					generateChild.prelude,
+					generateChild.node,
+					staticParts,
+					staticPartsMap
+				);
+			}
+
+			separator = ",";
+		}
+
+		children += "]";
+	}
 
 	if (staticData && !staticChildren) {
 		// If only the data is static, hoist it out.

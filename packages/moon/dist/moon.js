@@ -138,7 +138,14 @@
 			} else {
 				// Return a dynamic match if there is a dynamic name or a local.
 				isStatic = false;
-				return name[0] === "$" ? name : "md." + name;
+
+				if (name[0] === "$") {
+					return name;
+				} else if (name === "children") {
+					return "mc";
+				} else {
+					return "md." + name;
+				}
 			}
 		});
 		return {
@@ -936,56 +943,68 @@
 		var attributes = element.attributes;
 		var prelude = "";
 		var data = "{";
-		var children = "[";
+		var children = "";
 		var separator = "";
 
 		for (var attribute in attributes) {
-			var attributeValue = attributes[attribute]; // Mark the data as dynamic if there are any dynamic attributes.
+			var attributeValue = attributes[attribute]; // A `children` attribute takes place of component children.
 
-			if (!attributeValue.isStatic) {
-				staticData = false;
-			}
+			if (attribute === "children") {
+				if (!attributeValue.isStatic) {
+					staticChildren = false;
+				}
 
-			data += separator + "\"" + attribute + "\":" + attributeValue.value;
-			separator = ",";
-		}
-
-		data += "}"; // Generate children.
-
-		var elementChildren = element.children;
-		var generateChildren = [];
-		separator = "";
-
-		for (var i = 0; i < elementChildren.length; i++) {
-			var generateChild = generateNode(elementChildren[i], element, i, variable, staticParts, staticPartsMap); // Mark the children as dynamic if any child is dynamic.
-
-			if (!generateChild.isStatic) {
-				staticChildren = false;
-			} // Update the variable counter.
-
-
-			variable = generateChild.variable;
-			generateChildren.push(generateChild);
-		}
-
-		for (var _i = 0; _i < generateChildren.length; _i++) {
-			var _generateChild = generateChildren[_i];
-
-			if (staticChildren || !_generateChild.isStatic) {
-				// If the children are static or the children and child node are
-				// dynamic, then append the child as a part of the node as usual.
-				prelude += _generateChild.prelude;
-				children += separator + _generateChild.node;
+				children = attributeValue.value;
 			} else {
-				// If the children are dynamic and the child node is static, then use
-				// a static node in place of the static child.
-				children += separator + generateStaticPart(_generateChild.prelude, _generateChild.node, staticParts, staticPartsMap);
-			}
+				// Mark the data as dynamic if there are any dynamic attributes.
+				if (!attributeValue.isStatic) {
+					staticData = false;
+				}
 
-			separator = ",";
+				data += separator + "\"" + attribute + "\":" + attributeValue.value;
+				separator = ",";
+			}
 		}
 
-		children += "]";
+		data += "}"; // Generate children if they weren't provided in an attribute.
+
+		if (attributes.children === undefined) {
+			var elementChildren = element.children;
+			var generateChildren = [];
+			children += "[";
+			separator = "";
+
+			for (var i = 0; i < elementChildren.length; i++) {
+				var generateChild = generateNode(elementChildren[i], element, i, variable, staticParts, staticPartsMap); // Mark the children as dynamic if any child is dynamic.
+
+				if (!generateChild.isStatic) {
+					staticChildren = false;
+				} // Update the variable counter.
+
+
+				variable = generateChild.variable;
+				generateChildren.push(generateChild);
+			}
+
+			for (var _i = 0; _i < generateChildren.length; _i++) {
+				var _generateChild = generateChildren[_i];
+
+				if (staticChildren || !_generateChild.isStatic) {
+					// If the children are static or the children and child node are
+					// dynamic, then append the child as a part of the node as usual.
+					prelude += _generateChild.prelude;
+					children += separator + _generateChild.node;
+				} else {
+					// If the children are dynamic and the child node is static, then use
+					// a static node in place of the static child.
+					children += separator + generateStaticPart(_generateChild.prelude, _generateChild.node, staticParts, staticPartsMap);
+				}
+
+				separator = ",";
+			}
+
+			children += "]";
+		}
 
 		if (staticData && !staticChildren) {
 			// If only the data is static, hoist it out.

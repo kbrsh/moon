@@ -66,7 +66,14 @@ function scopeExpression(expression) {
 		} else {
 			// Return a dynamic match if there is a dynamic name or a local.
 			isStatic = false;
-			return name[0] === "$" ? name : "md." + name;
+
+			if (name[0] === "$") {
+				return name;
+			} else if (name === "children") {
+				return "mc";
+			} else {
+				return "md." + name;
+			}
 		}
 	});
 

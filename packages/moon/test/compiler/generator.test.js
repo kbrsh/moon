@@ -34,6 +34,20 @@ test("generate dynamic attributes", () => {
 	);
 });
 
+test("generate static children attribute", () => {
+	assertGenerate(
+		"<div foo={bar} children={[]}></div>",
+		"if(ms[0]===undefined){ms[0]=[];}return m(0,\"div\",{\"foo\":md.bar},ms[0]);"
+	);
+});
+
+test("generate dynamic children attribute", () => {
+	assertGenerate(
+		"<div children={children}></div>",
+		"if(ms[0]===undefined){ms[0]={};}return m(0,\"div\",ms[0],mc);"
+	);
+});
+
 test("generate events", () => {
 	assertGenerate(
 		"<div><h1 id='bar' class={foo} @click={doSomething}>Test</h1><p>test {message}</p></div>",
