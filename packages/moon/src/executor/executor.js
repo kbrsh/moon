@@ -419,7 +419,7 @@ function executePatch(patches) {
 
 			case patchTypes.replaceNode: {
 				// Replace an old element with a new one.
-				patch.elementParent.replaceChild(patch.elementOld, patch.elementNew);
+				patch.elementParent.replaceChild(patch.elementNew, patch.elementOld);
 
 				break;
 			}

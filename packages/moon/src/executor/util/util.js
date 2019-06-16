@@ -38,10 +38,10 @@ export function removeDataSet(element, key, value, exclude) {
 					element.removeAttribute("aria-" + setKey);
 					break;
 				case "dataset":
-					delete element.dataset[key];
+					delete element.dataset[setKey];
 					break;
 				default:
-					element.style[key] = "";
+					element.style[setKey] = "";
 			}
 		}
 	}

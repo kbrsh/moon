@@ -1104,11 +1104,11 @@
 						break;
 
 					case "dataset":
-						delete element.dataset[key];
+						delete element.dataset[setKey];
 						break;
 
 					default:
-						element.style[key] = "";
+						element.style[setKey] = "";
 				}
 			}
 		}
@@ -1536,7 +1536,7 @@
 				case patchTypes.replaceNode:
 					{
 						// Replace an old element with a new one.
-						patch.elementParent.replaceChild(patch.elementOld, patch.elementNew);
+						patch.elementParent.replaceChild(patch.elementNew, patch.elementOld);
 						break;
 					}
 

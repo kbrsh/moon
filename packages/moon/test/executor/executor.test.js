@@ -43,7 +43,7 @@ function verify(list) {
 		const item = list[i];
 		const element = span.childNodes[i];
 
-		if (i % 2 === 0) {
+		if (item % 2 === 0) {
 			expect(element.tagName).toEqual("P");
 			expect(element.lang).toEqual("en");
 			expect(element.className).toEqual(item.toString());
@@ -67,7 +67,7 @@ function verify(list) {
 			expect(eventResult.children).toEqual([]);
 
 			eventResult = undefined;
-		} else if (i % 3 === 0) {
+		} else if (item % 3 === 0) {
 			expect(element.tagName).toEqual("P");
 			expect(element.lang).toEqual("en");
 			expect(element.className).toEqual(item.toString());
@@ -105,8 +105,13 @@ function verify(list) {
 			expect(element.style.color).toEqual("");
 			expect(element.style.background).toEqual("");
 			expect(element.style.fontSize).toEqual("");
-			expect(element.MoonEvent["@click"]).toBeUndefined();
 			expect(element.textContent).toEqual(`${item}${i}`);
+
+			if (element.MoonEvent) {
+				expect(element.MoonEvent["@click"]).toBeUndefined();
+			} else {
+				expect(element.MoonEvent).toBeNull();
+			}
 
 			element.click();
 
@@ -126,6 +131,35 @@ function assertExecute(before, after) {
 	verify(after);
 }
 
-test("[]", () => {
-	assertExecute([0], [0]);
-});
+// Replace
+for (let i of [2, 3, 5]) {
+	for (let j of [2, 3, 5]) {
+		test(`[${i}] -> [${j}]`, () => {
+			assertExecute([i], [j]);
+		});
+	}
+}
+
+// Append
+for (let i of [2, 3, 5]) {
+	for (let j of [2, 3, 5]) {
+		const before = [i];
+		const after = [j, j + 1, j + 2, j + 3, j * 2];
+
+		test(`[${before.toString()}] -> [${after.toString()}]`, () => {
+			assertExecute(before, after);
+		});
+	}
+}
+
+// Remove
+for (let i of [2, 3, 5]) {
+	for (let j of [2, 3, 5]) {
+		const before = [i, i + 1, i + 2, i + 3, i * 2];
+		const after = [j];
+
+		test(`[${before.toString()}] -> [${after.toString()}]`, () => {
+			assertExecute(before, after);
+		});
+	}
+}
