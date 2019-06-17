@@ -1,5 +1,10 @@
 /**
- * Update an ariaset, dataset, or style attribute.
+ * Cache for default property values
+ */
+const removeDataPropertyCache = {};
+
+/**
+ * Update an ariaset, dataset, or style property.
  *
  * @param {Object} element
  * @param {string} key
@@ -22,7 +27,25 @@ export function updateDataSet(element, key, value) {
 }
 
 /**
- * Remove all the keys from an ariaset, dataset, or style attribute that aren't
+ * Remove a data property.
+ *
+ * @param {Object} element
+ * @param {string} key
+ */
+export function removeDataProperty(element, name, key) {
+	const defaultName =
+		name in removeDataPropertyCache ?
+		removeDataPropertyCache[name] :
+		(removeDataPropertyCache[name] = {});
+
+	element[key] =
+		key in defaultName ?
+		defaultName[key] :
+		(defaultName[key] = document.createElement(name)[key]);
+}
+
+/**
+ * Remove all the keys from an ariaset, dataset, or style property that aren't
  * in `exclude`.
  *
  * @param {Object} element

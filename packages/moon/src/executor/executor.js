@@ -1,4 +1,4 @@
-import { updateDataSet, removeDataSet } from "./util/util";
+import { updateDataSet, removeDataProperty, removeDataSet } from "./util/util";
 import { components, md, mc, ms, viewOld } from "../util/globals";
 import { m, NodeOld, types } from "../util/util";
 
@@ -151,13 +151,16 @@ function executeDiff(nodesOld, nodesNew, patches) {
 		executeComponent(nodeNew);
 
 		if (nodeOldNode !== nodeNew) {
+			const nodeOldNodeType = nodeOldNode.type;
+			const nodeOldNodeName = nodeOldNode.name;
+
 			// Update the old node reference. This doesn't affect the rest of the
 			// patch because it uses `nodeOldNode` instead of direct property access.
 			nodeOld.node = nodeNew;
 
 			if (
-				nodeOldNode.type !== nodeNew.type ||
-				nodeOldNode.name !== nodeNew.name
+				nodeOldNodeType !== nodeNew.type ||
+				nodeOldNodeName !== nodeNew.name
 			) {
 				// If the types or name aren't the same, then replace the old node
 				// with the new one.
@@ -174,7 +177,7 @@ function executeDiff(nodesOld, nodesNew, patches) {
 					elementNew: nodeOldNewElement,
 					elementParent: nodeOldElement.parentNode
 				});
-			} else if (nodeOldNode.type === types.text) {
+			} else if (nodeOldNodeType === types.text) {
 				// If they both are text, then update the text content.
 				const nodeNewText = nodeNew.data[""];
 
@@ -187,13 +190,14 @@ function executeDiff(nodesOld, nodesNew, patches) {
 				}
 			} else {
 				// If they are both elements, then update the data.
-				const nodeOldElement = nodeOld.element;
 				const nodeOldNodeData = nodeOldNode.data;
 				const nodeNewData = nodeNew.data;
 
 				if (nodeOldNodeData !== nodeNewData) {
 					// First, go through all new data and update all of the existing data
 					// to match.
+					const nodeOldElement = nodeOld.element;
+
 					for (const keyNew in nodeNewData) {
 						const valueOld = nodeOldNodeData[keyNew];
 						const valueNew = nodeNewData[keyNew];
@@ -292,6 +296,7 @@ function executeDiff(nodesOld, nodesNew, patches) {
 								patches.push({
 									type: patchTypes.removeDataProperty,
 									element: nodeOldElement,
+									name: nodeOldNodeName,
 									key: keyOld
 								});
 							}
@@ -299,11 +304,13 @@ function executeDiff(nodesOld, nodesNew, patches) {
 					}
 				}
 
-				// Recursively patch children.
+				// Diff children.
 				const childrenOld = nodeOld.children;
 				const childrenNew = nodeNew.children;
 
 				if (childrenOld !== childrenNew) {
+					const nodeOldElement = nodeOld.element;
+
 					const childrenOldLength = childrenOld.length;
 					const childrenNewLength = childrenNew.length;
 
@@ -465,7 +472,7 @@ function executePatch(patches) {
 
 			case patchTypes.removeDataProperty: {
 				// Remove a DOM property.
-				patch.element.removeAttribute(patch.key);
+				removeDataProperty(patch.element, patch.name, patch.key);
 
 				break;
 			}

@@ -1,8 +1,9 @@
 import Moon from "../../src/index";
 
-const root = document.createElement("div");
+let root = document.createElement("span");
 let eventResult;
 window.requestAnimationFrame = (fn) => fn();
+document.body.appendChild(root);
 
 function handler(event, data, children) {
 	eventResult = { event, data, children };
@@ -20,21 +21,25 @@ Moon({
 					<p lang="en" class={$item} id={$item} ariaset={{hidden: false, different: true}} dataset={{foo: "bar", different: true}} style={{color: "red", fontSize: "20px"}} @click={handler}>{$item} {$index}</p>
 				</else-if>
 				<else>
-					<h6 lang="en">{$item} {$index}</h6>
+					<p lang="en">{$item} {$index}</p>
 				</else>
 			</for>
 		</div>
-	`
+	`,
+	data: {
+		handler
+	}
 });
 
 Moon({
 	root,
-	view: "<ExecutorTest list={list} handler={handler}/>",
+	view: "<ExecutorTest list={list}/>",
 	data: {
-		list: [],
-		handler
+		list: []
 	}
 });
+
+root = document.body.firstChild;
 
 function verify(list) {
 	const span = root.firstChild;
@@ -92,7 +97,7 @@ function verify(list) {
 
 			eventResult = undefined;
 		} else {
-			expect(element.tagName).toEqual("H6");
+			expect(element.tagName).toEqual("P");
 			expect(element.lang).toEqual("en");
 			expect(element.className).toEqual("");
 			expect(element.id).toEqual("");

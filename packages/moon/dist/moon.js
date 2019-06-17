@@ -1064,12 +1064,17 @@
 	}
 
 	/**
-	 * Update an ariaset, dataset, or style attribute.
+	 * Cache for default property values
+	 */
+	var removeDataPropertyCache = {};
+	/**
+	 * Update an ariaset, dataset, or style property.
 	 *
 	 * @param {Object} element
 	 * @param {string} key
 	 * @param {Object} value
 	 */
+
 	function updateDataSet(element, key, value) {
 		if (key === "ariaset") {
 			// Set aria-* attributes.
@@ -1086,7 +1091,18 @@
 		}
 	}
 	/**
-	 * Remove all the keys from an ariaset, dataset, or style attribute that aren't
+	 * Remove a data property.
+	 *
+	 * @param {Object} element
+	 * @param {string} key
+	 */
+
+	function removeDataProperty(element, name, key) {
+		var defaultName = name in removeDataPropertyCache ? removeDataPropertyCache[name] : removeDataPropertyCache[name] = {};
+		return key in defaultName ? defaultName[key] : defaultName[key] = document.createElement(name)[key];
+	}
+	/**
+	 * Remove all the keys from an ariaset, dataset, or style property that aren't
 	 * in `exclude`.
 	 *
 	 * @param {Object} element
@@ -1285,11 +1301,13 @@
 			executeComponent(nodeNew);
 
 			if (nodeOldNode !== nodeNew) {
-				// Update the old node reference. This doesn't affect the rest of the
+				var nodeOldNodeType = nodeOldNode.type;
+				var nodeOldNodeName = nodeOldNode.name; // Update the old node reference. This doesn't affect the rest of the
 				// patch because it uses `nodeOldNode` instead of direct property access.
+
 				nodeOld.node = nodeNew;
 
-				if (nodeOldNode.type !== nodeNew.type || nodeOldNode.name !== nodeNew.name) {
+				if (nodeOldNodeType !== nodeNew.type || nodeOldNodeName !== nodeNew.name) {
 					// If the types or name aren't the same, then replace the old node
 					// with the new one.
 					var nodeOldElement = nodeOld.element;
@@ -1303,7 +1321,7 @@
 						elementNew: nodeOldNewElement,
 						elementParent: nodeOldElement.parentNode
 					});
-				} else if (nodeOldNode.type === types.text) {
+				} else if (nodeOldNodeType === types.text) {
 					// If they both are text, then update the text content.
 					var nodeNewText = nodeNew.data[""];
 
@@ -1316,13 +1334,14 @@
 					}
 				} else {
 					// If they are both elements, then update the data.
-					var _nodeOldElement = nodeOld.element;
 					var nodeOldNodeData = nodeOldNode.data;
 					var nodeNewData = nodeNew.data;
 
 					if (nodeOldNodeData !== nodeNewData) {
 						// First, go through all new data and update all of the existing data
 						// to match.
+						var _nodeOldElement = nodeOld.element;
+
 						for (var keyNew in nodeNewData) {
 							var valueOld = nodeOldNodeData[keyNew];
 							var valueNew = nodeNewData[keyNew];
@@ -1413,18 +1432,20 @@
 									patches.push({
 										type: patchTypes.removeDataProperty,
 										element: _nodeOldElement,
+										name: nodeOldNodeName,
 										key: keyOld
 									});
 								}
 							}
 						}
-					} // Recursively patch children.
+					} // Diff children.
 
 
 					var childrenOld = nodeOld.children;
 					var childrenNew = nodeNew.children;
 
 					if (childrenOld !== childrenNew) {
+						var _nodeOldElement2 = nodeOld.element;
 						var childrenOldLength = childrenOld.length;
 						var childrenNewLength = childrenNew.length;
 
@@ -1447,7 +1468,7 @@
 								patches.push({
 									type: patchTypes.removeNode,
 									element: childrenOld.pop().element,
-									elementParent: _nodeOldElement
+									elementParent: _nodeOldElement2
 								});
 							}
 						} else {
@@ -1468,7 +1489,7 @@
 								patches.push({
 									type: patchTypes.appendNode,
 									element: _nodeOldNew.element,
-									elementParent: _nodeOldElement
+									elementParent: _nodeOldElement2
 								});
 							}
 						}
@@ -1581,7 +1602,7 @@
 				case patchTypes.removeDataProperty:
 					{
 						// Remove a DOM property.
-						patch.element.removeAttribute(patch.key);
+						removeDataProperty(patch.element, patch.name, patch.key);
 						break;
 					}
 
