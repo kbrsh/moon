@@ -5,6 +5,15 @@ let eventResult;
 window.requestAnimationFrame = (fn) => fn();
 document.body.appendChild(root);
 
+function shuffle(arr) {
+	for (let i = arr.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[arr[i], arr[j]] = [arr[j], arr[i]];
+	}
+
+	return arr;
+}
+
 function handler(event, data, children) {
 	eventResult = { event, data, children };
 }
@@ -167,4 +176,14 @@ for (let i of [2, 3, 5]) {
 			assertExecute(before, after);
 		});
 	}
+}
+
+// Fuzz
+for (let i of Array.from({ length: 100 })) {
+	const before = shuffle(Array.from({ length: Math.floor(Math.random() * 100) }).map(x => Math.floor(Math.random() * 25)));
+	const after = shuffle(Array.from({ length: Math.floor(Math.random() * 100) }).map(x => Math.floor(Math.random() * 25)));
+
+	test(`fuzz [${before.toString()}] -> [${after.toString()}]`, () => {
+		assertExecute(before, after);
+	});
 }
