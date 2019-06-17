@@ -838,10 +838,6 @@
 			value: "{}",
 			isStatic: true
 		};
-		var dataArray = attributes.of;
-		var dataObject = attributes["in"];
-		var dataKey;
-		var dataValue;
 		var prelude;
 		var generateChild = generateNode(element.children[0], element, 0, variable + 1, staticParts, staticPartsMap);
 		var body;
@@ -855,16 +851,15 @@
 			body = "" + generateChild.prelude + variableFor + ".push(" + generateChild.node + ");";
 		}
 
-		if (dataArray === undefined) {
+		if ("in" in attributes) {
 			// Generate a `for` loop over an object. The first local is the key and
 			// the second is the value.
+			var dataObject = attributes["in"].value;
+			var dataKey = dataLocals[0];
 			var dataObjectValue;
-			dataObject = dataObject.value;
-			dataKey = dataLocals[0];
 
 			if (dataLocals.length === 2) {
-				dataValue = dataLocals[1];
-				dataObjectValue = "var " + dataValue + "=" + dataObject + "[" + dataKey + "];";
+				dataObjectValue = "var " + dataLocals[1] + "=" + dataObject + "[" + dataKey + "];";
 			} else {
 				dataObjectValue = "";
 			}
@@ -873,10 +868,11 @@
 		} else {
 			// Generate a `for` loop over an array. The first local is the value and
 			// the second is the key (index).
-			dataArray = dataArray.value;
-			dataKey = dataLocals.length === 2 ? dataLocals[1] : "m" + variable++;
-			dataValue = dataLocals[0];
-			prelude = "for(var " + dataKey + "=0;" + dataKey + "<" + dataArray + ".length;" + dataKey + "++){var " + dataValue + "=" + dataArray + "[" + dataKey + "];" + body + "}";
+			var dataArray = attributes.of.value;
+
+			var _dataKey = dataLocals.length === 2 ? dataLocals[1] : "m" + variable++;
+
+			prelude = "for(var " + _dataKey + "=0;" + _dataKey + "<" + dataArray + ".length;" + _dataKey + "++){var " + dataLocals[0] + "=" + dataArray + "[" + _dataKey + "];" + body + "}";
 		}
 
 		if (dataData.isStatic) {

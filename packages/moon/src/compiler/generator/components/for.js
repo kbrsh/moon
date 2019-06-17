@@ -17,10 +17,6 @@ export function generateNodeFor(element, variable, staticParts, staticPartsMap) 
 	const dataLocals = attributes[""].value.split(",");
 	const dataName = "name" in attributes ? attributes.name.value : "\"span\"";
 	let dataData = "data" in attributes ? attributes.data : { value: "{}", isStatic: true };
-	let dataArray = attributes.of;
-	let dataObject = attributes.in;
-	let dataKey;
-	let dataValue;
 	let prelude;
 
 	const generateChild = generateNode(
@@ -43,16 +39,15 @@ export function generateNodeFor(element, variable, staticParts, staticPartsMap) 
 		body = `${generateChild.prelude}${variableFor}.push(${generateChild.node});`;
 	}
 
-	if (dataArray === undefined) {
+	if ("in" in attributes) {
 		// Generate a `for` loop over an object. The first local is the key and
 		// the second is the value.
+		const dataObject = attributes.in.value;
+		const dataKey = dataLocals[0];
 		let dataObjectValue;
-		dataObject = dataObject.value;
-		dataKey = dataLocals[0];
 
 		if (dataLocals.length === 2) {
-			dataValue = dataLocals[1];
-			dataObjectValue = `var ${dataValue}=${dataObject}[${dataKey}];`;
+			dataObjectValue = `var ${dataLocals[1]}=${dataObject}[${dataKey}];`;
 		} else {
 			dataObjectValue = "";
 		}
@@ -61,10 +56,9 @@ export function generateNodeFor(element, variable, staticParts, staticPartsMap) 
 	} else {
 		// Generate a `for` loop over an array. The first local is the value and
 		// the second is the key (index).
-		dataArray = dataArray.value;
-		dataKey = dataLocals.length === 2 ? dataLocals[1] : ("m" + variable++);
-		dataValue = dataLocals[0];
-		prelude = `for(var ${dataKey}=0;${dataKey}<${dataArray}.length;${dataKey}++){var ${dataValue}=${dataArray}[${dataKey}];${body}}`;
+		const dataArray = attributes.of.value;
+		const dataKey = dataLocals.length === 2 ? dataLocals[1] : ("m" + variable++);
+		prelude = `for(var ${dataKey}=0;${dataKey}<${dataArray}.length;${dataKey}++){var ${dataLocals[0]}=${dataArray}[${dataKey}];${body}}`;
 	}
 
 	if (dataData.isStatic) {
