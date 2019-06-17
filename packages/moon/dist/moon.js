@@ -1099,7 +1099,7 @@
 
 	function removeDataProperty(element, name, key) {
 		var defaultName = name in removeDataPropertyCache ? removeDataPropertyCache[name] : removeDataPropertyCache[name] = {};
-		return key in defaultName ? defaultName[key] : defaultName[key] = document.createElement(name)[key];
+		element[key] = key in defaultName ? defaultName[key] : defaultName[key] = document.createElement(name)[key];
 	}
 	/**
 	 * Remove all the keys from an ariaset, dataset, or style property that aren't
