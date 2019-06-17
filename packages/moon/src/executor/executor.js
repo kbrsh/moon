@@ -211,19 +211,19 @@ function executeDiff(nodesOld, nodesNew, patches) {
 									nodeOldElementMoonEvent = nodeOldElement.MoonEvent = new MoonEvent();
 								}
 
-								if (nodeOldElementMoonEvent[keyNew] === undefined) {
-									// If the event doesn't exist, add a new event listener.
+								if (keyNew in nodeOldElementMoonEvent) {
+									// If the event exists, update the existing event handler.
 									patches.push({
-										type: patchTypes.setDataEvent,
-										element: nodeOldElement,
+										type: patchTypes.updateDataEvent,
 										elementMoonEvent: nodeOldElementMoonEvent,
 										key: keyNew,
 										value: valueNew
 									});
 								} else {
-									// If it does exist, update the existing event handler.
+									// If the event doesn't exist, add a new event listener.
 									patches.push({
-										type: patchTypes.updateDataEvent,
+										type: patchTypes.setDataEvent,
+										element: nodeOldElement,
 										elementMoonEvent: nodeOldElementMoonEvent,
 										key: keyNew,
 										value: valueNew
@@ -242,7 +242,7 @@ function executeDiff(nodesOld, nodesNew, patches) {
 									value: valueNew
 								});
 
-								if (valueOld !== undefined) {
+								if (keyNew in nodeOldNodeData) {
 									// If there was an old set, remove all old set attributes
 									// while excluding any new ones that still exist.
 									patches.push({
@@ -482,7 +482,7 @@ function executePatch(patches) {
 				const elementMoonEvent = patch.elementMoonEvent;
 				const key = patch.key;
 
-				elementMoonEvent[key] = undefined;
+				delete elementMoonEvent[key];
 				patch.element.removeEventListener(key.slice(1), elementMoonEvent);
 
 				break;

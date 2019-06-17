@@ -66,7 +66,7 @@ export function generateNode(element, parent, index, variable, staticParts, stat
 	data += "}";
 
 	// Generate children if they weren't provided in an attribute.
-	if (attributes.children === undefined) {
+	if (!("children" in attributes)) {
 		const elementChildren = element.children;
 		const generateChildren = [];
 		children += "[";
@@ -162,9 +162,9 @@ export function generate(element) {
 
 	if (isStatic) {
 		// Account for a static root node.
-		return `if(ms[0]===undefined){${prelude}ms[0]=${node};}return ms[0];`;
+		return `if(!(0 in ms)){${prelude}ms[0]=${node};}return ms[0];`;
 	} else {
 		// Generate static parts only once at the start.
-		return `if(ms[0]===undefined){${staticParts.join("")}}${prelude}return ${node};`;
+		return `if(!(0 in ms)){${staticParts.join("")}}${prelude}return ${node};`;
 	}
 }

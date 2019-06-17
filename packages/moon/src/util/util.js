@@ -35,17 +35,6 @@ export function error(message) {
 }
 
 /**
- * Returns a value or a default fallback if the value is undefined.
- *
- * @param value
- * @param fallback
- * @returns Value or default fallback
- */
-export function defaultValue(value, fallback) {
-	return value === undefined ? fallback : value;
-}
-
-/**
  * Returns a new node.
  *
  * @param {number} type

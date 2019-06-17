@@ -1,6 +1,6 @@
 import { generateNode } from "../generator";
 import { generateStaticPart } from "../util/util";
-import { defaultValue, types } from "../../../util/util";
+import { types } from "../../../util/util";
 
 /**
  * Generates code for a node from a `for` element.
@@ -15,8 +15,8 @@ export function generateNodeFor(element, variable, staticParts, staticPartsMap) 
 	const variableFor = "m" + variable;
 	const attributes = element.attributes;
 	const dataLocals = attributes[""].value.split(",");
-	const dataName = defaultValue(attributes.name, {value: "\"span\""}).value;
-	let dataData = defaultValue(attributes.data, {value: "{}", isStatic: true});
+	const dataName = "name" in attributes ? attributes.name.value : "\"span\"";
+	let dataData = "data" in attributes ? attributes.data : { value: "{}", isStatic: true };
 	let dataArray = attributes.of;
 	let dataObject = attributes.in;
 	let dataKey;

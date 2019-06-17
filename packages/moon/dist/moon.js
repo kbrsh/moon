@@ -49,17 +49,6 @@
 		console.error("[Moon] ERROR: " + message);
 	}
 	/**
-	 * Returns a value or a default fallback if the value is undefined.
-	 *
-	 * @param value
-	 * @param fallback
-	 * @returns Value or default fallback
-	 */
-
-	function defaultValue(value, fallback) {
-		return value === undefined ? fallback : value;
-	}
-	/**
 	 * Returns a new node.
 	 *
 	 * @param {number} type
@@ -318,10 +307,8 @@
 						// attribute keys.
 
 
-						var attributeKeyNormalized = normalizeAttributeKeyMap[attributeKey];
-
-						if (attributeKeyNormalized !== undefined) {
-							attributeKey = attributeKeyNormalized;
+						if (attributeKey in normalizeAttributeKeyMap) {
+							attributeKey = normalizeAttributeKeyMap[attributeKey];
 						} // Match an attribute value if it exists.
 
 
@@ -690,14 +677,14 @@
 	 */
 	function generateStaticPart(prelude, part, staticParts, staticPartsMap) {
 		var staticPartsMapKey = prelude + part;
-		var staticVariable = staticPartsMap[staticPartsMapKey];
 
-		if (staticVariable === undefined) {
-			staticVariable = staticPartsMap[staticPartsMapKey] = "ms[" + staticParts.length + "]";
+		if (staticPartsMapKey in staticPartsMap) {
+			return staticPartsMap[staticPartsMapKey];
+		} else {
+			var staticVariable = staticPartsMap[staticPartsMapKey] = "ms[" + staticParts.length + "]";
 			staticParts.push("" + prelude + staticVariable + "=" + part + ";");
+			return staticVariable;
 		}
-
-		return staticVariable;
 	}
 
 	/**
@@ -846,13 +833,11 @@
 		var variableFor = "m" + variable;
 		var attributes = element.attributes;
 		var dataLocals = attributes[""].value.split(",");
-		var dataName = defaultValue(attributes.name, {
-			value: "\"span\""
-		}).value;
-		var dataData = defaultValue(attributes.data, {
+		var dataName = "name" in attributes ? attributes.name.value : "\"span\"";
+		var dataData = "data" in attributes ? attributes.data : {
 			value: "{}",
 			isStatic: true
-		});
+		};
 		var dataArray = attributes.of;
 		var dataObject = attributes["in"];
 		var dataKey;
@@ -968,7 +953,7 @@
 
 		data += "}"; // Generate children if they weren't provided in an attribute.
 
-		if (attributes.children === undefined) {
+		if (!("children" in attributes)) {
 			var elementChildren = element.children;
 			var generateChildren = [];
 			children += "[";
@@ -1045,10 +1030,10 @@
 
 		if (isStatic) {
 			// Account for a static root node.
-			return "if(ms[0]===undefined){" + prelude + "ms[0]=" + node + ";}return ms[0];";
+			return "if(!(0 in ms)){" + prelude + "ms[0]=" + node + ";}return ms[0];";
 		} else {
 			// Generate static parts only once at the start.
-			return "if(ms[0]===undefined){" + staticParts.join("") + "}" + prelude + "return " + node + ";";
+			return "if(!(0 in ms)){" + staticParts.join("") + "}" + prelude + "return " + node + ";";
 		}
 	}
 
@@ -1355,19 +1340,19 @@
 										nodeOldElementMoonEvent = _nodeOldElement.MoonEvent = new MoonEvent();
 									}
 
-									if (nodeOldElementMoonEvent[keyNew] === undefined) {
-										// If the event doesn't exist, add a new event listener.
+									if (keyNew in nodeOldElementMoonEvent) {
+										// If the event exists, update the existing event handler.
 										patches.push({
-											type: patchTypes.setDataEvent,
-											element: _nodeOldElement,
+											type: patchTypes.updateDataEvent,
 											elementMoonEvent: nodeOldElementMoonEvent,
 											key: keyNew,
 											value: valueNew
 										});
 									} else {
-										// If it does exist, update the existing event handler.
+										// If the event doesn't exist, add a new event listener.
 										patches.push({
-											type: patchTypes.updateDataEvent,
+											type: patchTypes.setDataEvent,
+											element: _nodeOldElement,
 											elementMoonEvent: nodeOldElementMoonEvent,
 											key: keyNew,
 											value: valueNew
@@ -1382,7 +1367,7 @@
 										value: valueNew
 									});
 
-									if (valueOld !== undefined) {
+									if (keyNew in nodeOldNodeData) {
 										// If there was an old set, remove all old set attributes
 										// while excluding any new ones that still exist.
 										patches.push({
@@ -1611,7 +1596,7 @@
 						// Remove an event listener.
 						var _elementMoonEvent = patch.elementMoonEvent;
 						var _key = patch.key;
-						_elementMoonEvent[_key] = undefined;
+						delete _elementMoonEvent[_key];
 						patch.element.removeEventListener(_key.slice(1), _elementMoonEvent);
 						break;
 					}
@@ -1709,9 +1694,7 @@
 
 	function Moon(options) {
 		// Handle the optional `name` parameter.
-		var name = defaultValue(options.name, "Root"); // Store the default data.
-
-		var dataDefault = options.data; // Ensure the view is defined, and compile it if needed.
+		var name = "name" in options ? options.name : "Root"; // Ensure the view is defined, and compile it if needed.
 
 		var view = options.view;
 
@@ -1751,18 +1734,24 @@
 			}
 
 			setViewOld(new NodeOld(new NodeNew(types.element, root.tagName.toLowerCase(), dataNode, []), root, []));
-			execute(defaultValue(dataDefault, {}));
+			execute("data" in options ? options.data : {});
 		} else {
 			// Create a wrapper view function that processes default data if needed.
-			components[name] = dataDefault === undefined ? view : function (m, md, mc, ms) {
-				for (var key in dataDefault) {
-					if (!(key in md)) {
-						md[key] = dataDefault[key];
-					}
-				}
+			if ("data" in options) {
+				var dataDefault = options.data;
 
-				return view(m, md, mc, ms);
-			};
+				components[name] = function (m, md, mc, ms) {
+					for (var key in dataDefault) {
+						if (!(key in md)) {
+							md[key] = dataDefault[key];
+						}
+					}
+
+					return view(m, md, mc, ms);
+				};
+			} else {
+				components[name] = view;
+			}
 		}
 	}
 	Moon.lex = lex;

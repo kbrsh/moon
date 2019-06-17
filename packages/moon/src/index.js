@@ -4,7 +4,7 @@ import { generate } from "./compiler/generator/generator";
 import { compile } from "./compiler/compiler";
 import { execute } from "./executor/executor";
 import { components, md, ms, setViewOld } from "./util/globals";
-import { defaultValue, error, NodeNew, NodeOld, types } from "./util/util";
+import { error, NodeNew, NodeOld, types } from "./util/util";
 
 /**
  * Moon
@@ -35,10 +35,7 @@ import { defaultValue, error, NodeNew, NodeOld, types } from "./util/util";
  */
 export default function Moon(options) {
 	// Handle the optional `name` parameter.
-	const name = defaultValue(options.name, "Root");
-
-	// Store the default data.
-	const dataDefault = options.data;
+	const name = "name" in options ? options.name : "Root";
 
 	// Ensure the view is defined, and compile it if needed.
 	let view = options.view;
@@ -90,13 +87,13 @@ export default function Moon(options) {
 			root,
 			[]
 		));
-		execute(defaultValue(dataDefault, {}));
+		execute("data" in options ? options.data : {});
 	} else {
 		// Create a wrapper view function that processes default data if needed.
-		components[name] =
-			dataDefault === undefined ?
-			view :
-			(m, md, mc, ms) => {
+		if ("data" in options) {
+			const dataDefault = options.data;
+
+			components[name] = (m, md, mc, ms) => {
 				for (const key in dataDefault) {
 					if (!(key in md)) {
 						md[key] = dataDefault[key];
@@ -105,6 +102,9 @@ export default function Moon(options) {
 
 				return view(m, md, mc, ms);
 			};
+		} else {
+			components[name] = view;
+		}
 	}
 }
 

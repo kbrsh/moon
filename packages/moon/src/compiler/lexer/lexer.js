@@ -259,10 +259,8 @@ export function lex(input) {
 					// Normalize the attribute key. Moon attribute keys should
 					// follow camelCase by convention instead of using standard HTML
 					// attribute keys.
-					const attributeKeyNormalized = normalizeAttributeKeyMap[attributeKey];
-
-					if (attributeKeyNormalized !== undefined) {
-						attributeKey = attributeKeyNormalized;
+					if (attributeKey in normalizeAttributeKeyMap) {
+						attributeKey = normalizeAttributeKeyMap[attributeKey];
 					}
 
 					// Match an attribute value if it exists.
