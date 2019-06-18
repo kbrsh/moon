@@ -33,15 +33,10 @@ export function updateDataSet(element, key, value) {
  * @param {string} key
  */
 export function removeDataProperty(element, name, key) {
-	const defaultName =
-		name in removeDataPropertyCache ?
-		removeDataPropertyCache[name] :
-		(removeDataPropertyCache[name] = {});
-
 	element[key] =
-		key in defaultName ?
-		defaultName[key] :
-		(defaultName[key] = document.createElement(name)[key]);
+		name in removeDataPropertyCache ?
+		removeDataPropertyCache[name][key] :
+		(removeDataPropertyCache[name] = document.createElement(name))[key];
 }
 
 /**
