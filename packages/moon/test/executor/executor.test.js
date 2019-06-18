@@ -3,7 +3,6 @@ import Moon from "../../src/index";
 let root = document.createElement("span");
 let eventResult;
 window.requestAnimationFrame = (fn) => fn();
-root.setAttribute("id", "root");
 document.body.appendChild(root);
 
 function shuffle(arr) {
