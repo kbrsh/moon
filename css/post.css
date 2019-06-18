@@ -39,10 +39,12 @@ pre {
 
 pre code {
 	padding: 0;
+	border-radius: 0;
 }
 
 code {
-	padding: 3.5px;
+	padding: 2px;
+	border-radius: 3.5px;
 }
 
 ol, ul {
