@@ -16,12 +16,12 @@
 }
 
 .side a {
-	color: hsl(0, 0%, 36%);
+	color: hsl(0, 0%, 57%);
 	border: none;
 }
 
 .side a#active {
-	color: hsl(260, 100%, 49%);
+	color: hsl(260, 100%, 57%);
 }
 
 .content {
@@ -51,7 +51,7 @@ ol, ul {
 
 .example {
 	flex-direction: column;
-	background-color: hsl(0, 0%, 87%);
+	background-color: hsl(0, 0%, 93%);
 }
 
 .example * {
@@ -61,5 +61,5 @@ ol, ul {
 .example input {
 	max-width: 350px;
 	padding: 7px;
-	background-color: hsl(0, 0%, 74%);
+	background-color: hsl(0, 0%, 86%);
 }

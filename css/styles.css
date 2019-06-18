@@ -3,7 +3,7 @@ body {
 	flex-wrap: wrap;
 	justify-content: center;
 	background: hsl(0, 0%, 100%);
-	color: hsl(0, 0%, 10%);
+	color: hsl(0, 0%, 14%);
 	font-family: -apple-system, BlinkMacSystemFont, Avenir, "Avenir Next", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 }
 
@@ -19,7 +19,7 @@ body {
 }
 
 .nav a {
-	color: hsl(0, 0%, 10%);
+	color: hsl(0, 0%, 14%);
 	border: none;
 }
 
@@ -41,34 +41,35 @@ button {
 	padding-bottom: 7px;
 	border-radius: 3.5px;
 	font-weight: 700;
-	background-color: hsl(0, 0%, 74%);
-	color: hsl(0, 0%, 10%);
+	background-color: hsl(0, 0%, 86%);
+	color: hsl(0, 0%, 14%);
 	transition: background-color .1s ease;
 }
 
 button:hover, button:focus {
 	outline: none;
-	background-color: hsl(0, 0%, 81%);
+	background-color: hsl(0, 0%, 93%);
 }
 
 button:active {
-	background-color: hsl(0, 0%, 67%);
+	background-color: hsl(0, 0%, 79%);
 }
 
 pre {
 	position: relative;
-	background: hsl(200, 14%, 23%);
+	background-color: hsl(200, 29%, 14%);
 }
 
 code {
+	font-family: "Inconsolata", monospace;
 	color: hsl(200, 14%, 10%);
-	background: hsl(200, 14%, 87%);
+	background-color: hsl(200, 29%, 86%);
 	tab-size: 3;
 }
 
 pre code {
 	color: hsl(200, 14%, 74%);
-	background: hsl(200, 14%, 23%);
+	background-color: hsl(200, 29%, 14%);
 	white-space: pre-wrap;
 	word-break: break-all;
 }
@@ -79,29 +80,29 @@ pre code::after {
 	right: 7px;
 	content: attr(lang);
 	font-size: 14.5px;
-	color: hsl(200, 14%, 49%);
+	color: hsl(200, 14%, 43%);
 }
 
 pre code .red {
-	color: hsl(0, 29%, 61%);
+	color: hsl(0, 29%, 57%);
 }
 
 pre code .orange {
-	color: hsl(20, 29%, 61%);
+	color: hsl(20, 29%, 57%);
 }
 
 pre code .green {
-	color: hsl(100, 29%, 61%);
+	color: hsl(100, 14%, 57%);
 }
 
 pre code .blue {
-	color: hsl(200, 29%, 61%);
+	color: hsl(200, 29%, 57%);
 }
 
 pre code .purple {
-	color: hsl(300, 14%, 61%);
+	color: hsl(300, 14%, 57%);
 }
 
 pre code .gray {
-	color: hsl(200, 14%, 49%);
+	color: hsl(200, 14%, 43%);
 }

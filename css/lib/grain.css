@@ -5,8 +5,8 @@
 html, body {
 	margin: 0;
 	padding: 0;
-	background: hsl(0, 0%, 100%);
-	color: hsl(0, 0%, 10%);
+	background-color: hsl(0, 0%, 100%);
+	color: hsl(0, 0%, 14%);
 	font-size: 19.89px;
 }
 
@@ -62,7 +62,7 @@ button, code, input, pre, textarea {
 }
 
 a {
-	color: hsl(200, 100%, 10%);
-	border-bottom: 1px solid hsl(200, 100%, 10%);
+	color: hsl(200, 100%, 14%);
+	border-bottom: 1px solid hsl(200, 100%, 14%);
 	text-decoration: none;
 }
