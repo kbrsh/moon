@@ -33,6 +33,8 @@ Moon({
 					<p lang="en">{$item} {$index}</p>
 				</else>
 			</for>
+			<h1>Moon</h1>
+			<p @click={handler} @dblclick={handler}>Partially static.</p>
 		</div>
 	`,
 	data: {
@@ -187,3 +189,49 @@ for (let i of Array.from({ length: 100 })) {
 		assertExecute(before, after);
 	});
 }
+
+// Time slicing
+test(`time slice [0, 1, 2, 3, 4, 5, 6, 7] -> [7, 6, 5, 4, 3, 2, 1, 0]`, done => {
+	const DateNow = window.Date.now;
+	let time = 0;
+
+	window.requestAnimationFrame = (fn) => {
+		setTimeout(fn, 0);
+		window.requestAnimationFrame = (fn) => fn();
+	};
+	window.Date.now = () => {
+		// Speed up time.
+		time += 1000;
+
+		return time;
+	};
+
+	Moon.set({
+		list: [0, 1, 2, 3, 4, 5, 6, 7]
+	});
+
+	Moon.set({
+		list: [7, 6, 5, 4, 3, 2, 1, 0]
+	});
+
+	setTimeout(() => {
+		window.requestAnimationFrame = (fn) => {
+			setTimeout(fn, 0);
+			window.requestAnimationFrame = (fn) => fn();
+		};
+		window.Date.now = () => 0; /* Stop time. */
+
+		Moon.set({
+			list: [0, 1, 2, 3, 4, 5, 6, 7]
+		});
+
+		Moon.set({
+			list: [7, 6, 5, 4, 3, 2, 1, 0]
+		});
+
+		setTimeout(() => {
+			assertExecute([7, 6, 5, 4, 3, 2, 1, 0], [7, 6, 5, 4, 3, 2, 1, 0]);
+			done();
+		}, 0);
+	}, 0);
+});

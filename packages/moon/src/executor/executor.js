@@ -305,12 +305,12 @@ function executeDiff(nodesOld, nodesNew, patches) {
 				}
 
 				// Diff children.
-				const childrenOld = nodeOld.children;
 				const childrenNew = nodeNew.children;
 
-				if (childrenOld !== childrenNew) {
+				if (nodeOldNode.children !== childrenNew) {
 					const nodeOldElement = nodeOld.element;
 
+					const childrenOld = nodeOld.children;
 					const childrenOldLength = childrenOld.length;
 					const childrenNewLength = childrenNew.length;
 

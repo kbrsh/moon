@@ -1422,11 +1422,11 @@
 					} // Diff children.
 
 
-					var childrenOld = nodeOld.children;
 					var childrenNew = nodeNew.children;
 
-					if (childrenOld !== childrenNew) {
+					if (nodeOldNode.children !== childrenNew) {
 						var _nodeOldElement2 = nodeOld.element;
+						var childrenOld = nodeOld.children;
 						var childrenOldLength = childrenOld.length;
 						var childrenNewLength = childrenNew.length;
 
