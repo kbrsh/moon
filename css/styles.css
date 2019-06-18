@@ -57,19 +57,25 @@ button:active {
 
 pre {
 	position: relative;
+	padding: 14px;
 	background-color: hsl(200, 29%, 14%);
+	border-radius: 3.5px;
 }
 
 code {
+	padding: 2px;
 	font-family: "Inconsolata", monospace;
 	color: hsl(200, 14%, 10%);
 	background-color: hsl(200, 29%, 86%);
+	border-radius: 3.5px;
 	tab-size: 3;
 }
 
 pre code {
+	padding: 0;
 	color: hsl(200, 14%, 74%);
 	background-color: hsl(200, 29%, 14%);
+	border-radius: 0;
 	white-space: pre-wrap;
 	word-break: break-all;
 }

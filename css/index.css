@@ -1,5 +1,5 @@
 html, body {
-	background: hsl(0, 0%, 0%);
+	background: hsl(260, 14%, 14%);
 	color: hsl(0, 0%, 100%);
 }
 
@@ -45,16 +45,16 @@ html, body {
 }
 
 .head a:nth-child(4) button {
-	background-color: hsl(0, 0%, 14%);
-	color: hsl(260, 100%, 100%);
+	background-color: hsl(260, 14%, 29%);
+	color: hsl(260, 14%, 100%);
 }
 
 .head a:nth-child(4) button:hover, .head a:nth-child(4) button:focus {
-	background-color: hsl(0, 0%, 21%);
+	background-color: hsl(260, 14%, 36%);
 }
 
 .head a:nth-child(4) button:active {
-	background-color: hsl(0, 0%, 7%);
+	background-color: hsl(260, 14%, 22%);
 }
 
 @media screen and (max-width: 768px) {
