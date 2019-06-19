@@ -8,6 +8,7 @@ body {
 }
 
 .container {
+	width: 100%;
 	max-width: 1050px;
 	margin: 35px;
 }
