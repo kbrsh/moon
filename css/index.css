@@ -1,5 +1,5 @@
 html, body {
-	background: hsl(260, 14%, 14%);
+	background: url("../img/stars.png"), linear-gradient(hsl(260, 100%, 7%), hsl(200, 100%, 7%)) fixed;
 	color: hsl(0, 0%, 100%);
 }
 
@@ -32,29 +32,21 @@ html, body {
 
 .head a:nth-child(3) button {
 	margin-right: 14px;
-	background-color: hsl(260, 100%, 43%);
+	background-color: hsl(260, 100%, 57%);
 	color: hsl(260, 100%, 100%);
 }
 
 .head a:nth-child(3) button:hover, .head a:nth-child(3) button:focus {
-	background-color: hsl(260, 100%, 50%);
-}
-
-.head a:nth-child(3) button:active {
-	background-color: hsl(260, 100%, 36%);
+	background-color: hsl(260, 100%, 64%);
 }
 
 .head a:nth-child(4) button {
-	background-color: hsl(260, 14%, 29%);
+	background-color: hsl(260, 100%, 29%);
 	color: hsl(260, 14%, 100%);
 }
 
 .head a:nth-child(4) button:hover, .head a:nth-child(4) button:focus {
-	background-color: hsl(260, 14%, 36%);
-}
-
-.head a:nth-child(4) button:active {
-	background-color: hsl(260, 14%, 22%);
+	background-color: hsl(260, 100%, 36%);
 }
 
 @media screen and (max-width: 768px) {
