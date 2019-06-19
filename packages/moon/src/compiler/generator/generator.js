@@ -1,7 +1,7 @@
 import { generateNodeElement } from "./components/element";
 import { generateNodeIf } from "./components/if";
 import { generateNodeFor } from "./components/for";
-import { generateStaticPart } from "./util/util";
+import { generateStaticPart, generateValue } from "./util/util";
 import { types } from "../../util/util";
 
 /**
@@ -11,11 +11,12 @@ import { types } from "../../util/util";
  * @param {Object} parent
  * @param {number} index
  * @param {number} variable
+ * @param {Array} locals
  * @param {Array} staticParts
  * @param {Object} staticPartsMap
  * @returns {Object} prelude code, view function code, static status, and variable
  */
-export function generateNode(element, parent, index, variable, staticParts, staticPartsMap) {
+export function generateNode(element, parent, index, variable, locals, staticParts, staticPartsMap) {
 	const name = element.name;
 	let type;
 	let staticData = true;
@@ -23,11 +24,11 @@ export function generateNode(element, parent, index, variable, staticParts, stat
 
 	// Generate the correct type number for the given name.
 	if (name === "element") {
-		return generateNodeElement(element, variable, staticParts, staticPartsMap);
+		return generateNodeElement(element, variable, locals, staticParts, staticPartsMap);
 	} else if (name === "if") {
-		return generateNodeIf(element, parent, index, variable, staticParts, staticPartsMap);
+		return generateNodeIf(element, parent, index, variable, locals, staticParts, staticPartsMap);
 	} else if (name === "for") {
-		return generateNodeFor(element, variable, staticParts, staticPartsMap);
+		return generateNodeFor(element, variable, locals, staticParts, staticPartsMap);
 	} else if (name === "text") {
 		type = types.text;
 	} else if (name[0] === name[0].toLowerCase()) {
@@ -42,11 +43,11 @@ export function generateNode(element, parent, index, variable, staticParts, stat
 	let children = "";
 	let separator = "";
 
-	for (const attribute in attributes) {
-		const attributeValue = attributes[attribute];
+	for (const attributeKey in attributes) {
+		const attributeValue = generateValue(attributeKey, attributes[attributeKey], locals);
 
 		// A `children` attribute takes place of component children.
-		if (attribute === "children") {
+		if (attributeKey === "children") {
 			if (!attributeValue.isStatic) {
 				staticChildren = false;
 			}
@@ -58,7 +59,7 @@ export function generateNode(element, parent, index, variable, staticParts, stat
 				staticData = false;
 			}
 
-			data += `${separator}"${attribute}":${attributeValue.value}`;
+			data += `${separator}"${attributeKey}":${attributeValue.value}`;
 			separator = ",";
 		}
 	}
@@ -78,6 +79,7 @@ export function generateNode(element, parent, index, variable, staticParts, stat
 				element,
 				i,
 				variable,
+				locals,
 				staticParts,
 				staticPartsMap
 			);
@@ -90,6 +92,7 @@ export function generateNode(element, parent, index, variable, staticParts, stat
 			// Update the variable counter.
 			variable = generateChild.variable;
 
+			// Keep track of generated children.
 			generateChildren.push(generateChild);
 		}
 
@@ -156,6 +159,7 @@ export function generate(element) {
 		null,
 		0,
 		0,
+		[],
 		staticParts,
 		{}
 	);

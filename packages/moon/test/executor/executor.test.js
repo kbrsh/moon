@@ -22,15 +22,15 @@ Moon({
 	name: "ExecutorTest",
 	view: `
 		<div>
-			<for={$item, $index} of={list}>
-				<if={$item % 2 === 0}>
-					<p lang="en" class={$item} ariaset={{hidden: false, removeme: true}} dataset={{foo: "bar", removeme: true}} style={{color: "red", background: "blue"}} @click={handler}>{$item} {$index}</p>
+			<for={item, index} of={list}>
+				<if={item % 2 === 0}>
+					<p lang="en" class={item} ariaset={{hidden: false, removeme: true}} dataset={{foo: "bar", removeme: true}} style={{color: "red", background: "blue"}} @click={handler}>{item} {index}</p>
 				</if>
-				<else-if={$item % 3 === 0}>
-					<p lang="en" class={$item} id={$item} ariaset={{hidden: false, different: true}} dataset={{foo: "bar", different: true}} style={{color: "red", fontSize: "20px"}} @click={handler}>{$item} {$index}</p>
+				<else-if={item % 3 === 0}>
+					<p lang="en" class={item} id={item} ariaset={{hidden: false, different: true}} dataset={{foo: "bar", different: true}} style={{color: "red", fontSize: "20px"}} @click={handler}>{item} {index}</p>
 				</else-if>
 				<else>
-					<p lang="en">{$item} {$index}</p>
+					<p lang="en">{item} {index}</p>
 				</else>
 			</for>
 			<h1>Moon</h1>

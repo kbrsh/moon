@@ -67,21 +67,10 @@
 
 	var whitespaceRE = /^\s+$/;
 	/**
-	 * Capture the variables in expressions to scope them within the data
-	 * parameter. This ignores property names and deep object accesses.
-	 */
-
-	var expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
-	/**
 	 * Capture special characters in text that need to be escaped.
 	 */
 
 	var textRE = /&amp;|&gt;|&lt;|&nbsp;|&quot;|\\|"|\n|\r/g;
-	/**
-	 * List of global variables to ignore in expression scoping
-	 */
-
-	var globals = ["NaN", "false", "function", "in", "null", "this", "true", "typeof", "undefined", "window"];
 	/*
 	 * Map from attribute keys to equivalent DOM properties.
 	 */
@@ -106,44 +95,11 @@
 		"\r": "\\r"
 	};
 	/**
-	 * Scope an expression to use variables within the `md` object.
-	 *
-	 * @param {string} expression
-	 * @returns {Object} scoped expression and static status
-	 */
-
-	function scopeExpression(expression) {
-		var isStatic = true;
-		var value = expression.replace(expressionRE, function (match, name) {
-			if (name === undefined || globals.indexOf(name) !== -1) {
-				// Return a static match if there are no dynamic names or if it is a
-				// global variable.
-				return match;
-			} else {
-				// Return a dynamic match if there is a dynamic name or a local.
-				isStatic = false;
-
-				if (name[0] === "$") {
-					return name;
-				} else if (name === "children") {
-					return "mc";
-				} else {
-					return "md." + name;
-				}
-			}
-		});
-		return {
-			value: value,
-			isStatic: isStatic
-		};
-	}
-	/**
 	 * Convert a token into a string, accounting for `<text/>` components.
 	 *
 	 * @param {Object} token
 	 * @returns {string} token converted into a string
 	 */
-
 
 	function tokenString(token) {
 		if (token.type === "tagOpen") {
@@ -152,10 +108,10 @@
 				// and doesn't need the quotes. If not, it was an expression and
 				// needs to be formatted with curly braces.
 
-				if (content.isStatic) {
-					return content.value.slice(1, -1);
-				} else {
+				if (content.isExpression) {
 					return "{" + content.value + "}";
+				} else {
+					return content.value.slice(1, -1);
 				}
 			} else {
 				var tag = "<" + token.value;
@@ -163,7 +119,7 @@
 
 				for (var attributeKey in attributes) {
 					var attributeValue = attributes[attributeKey];
-					tag += " " + attributeKey + "=" + (attributeValue.isStatic ? attributeValue.value : "{" + attributeValue.value + "}");
+					tag += " " + attributeKey + "=" + (attributeValue.isExpression ? "{" + attributeValue.value + "}" : attributeValue.value);
 				}
 
 				if (token.closed) {
@@ -374,21 +330,11 @@
 										// If the value is an expression, ensure that all
 										// objects are closed.
 										if (_opened === 0) {
-											if (attributeKey.charCodeAt(0) === 64) {
-												// For events, pass the event handler,
-												// component data, and component children.
-												// Event handlers are assumed to be dynamic
-												// because the component data or children can
-												// change.
-												attributes[attributeKey] = {
-													value: "[" + scopeExpression(attributeValue).value + ",md,mc]",
-													isStatic: false
-												};
-											} else {
-												// Set a potentially dynamic expression.
-												attributes[attributeKey] = scopeExpression(attributeValue);
-											} // Exit on the quote.
-
+											// Set a potentially dynamic expression.
+											attributes[attributeKey] = {
+												value: attributeValue,
+												isExpression: true
+											}; // Exit on the quote.
 
 											break;
 										} else {
@@ -403,7 +349,7 @@
 
 										attributes[attributeKey] = {
 											value: attributeValue,
-											isStatic: true
+											isExpression: false
 										}; // Exit on the quote.
 
 										break;
@@ -418,7 +364,7 @@
 							// Boolean value set to true.
 							attributes[attributeKey] = {
 								value: attributeValue,
-								isStatic: true
+								isExpression: true
 							};
 						}
 					}
@@ -463,7 +409,10 @@
 					type: "tagOpen",
 					value: "text",
 					attributes: {
-						"": scopeExpression(expression)
+						"": {
+							value: expression,
+							isExpression: true
+						}
 					},
 					closed: true
 				});
@@ -493,7 +442,7 @@
 								value: "\"" + text.replace(textRE, function (match) {
 									return escapeTextMap[match];
 								}) + "\"",
-								isStatic: true
+								isExpression: false
 							}
 						},
 						closed: true
@@ -694,6 +643,60 @@
 	}
 
 	/**
+	 * Capture the variables in expressions to scope them within the data
+	 * parameter. This ignores property names and deep object accesses.
+	 */
+	var expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
+	/**
+	 * List of global variables to ignore in expression scoping
+	 */
+
+	var globals = ["NaN", "false", "function", "in", "null", "this", "true", "typeof", "undefined", "window"];
+	/**
+	 * Generates a static value or an expression using `md` or `mc`.
+	 *
+	 * @param {string} expression
+	 * @returns {Object} generated value and static status
+	 */
+
+	function generateValue(key, value, locals) {
+		var valueValue = value.value;
+		var valueIsStatic = true;
+
+		if (value.isExpression) {
+			valueValue = valueValue.replace(expressionRE, function (match, name) {
+				if (name === undefined || globals.indexOf(name) !== -1) {
+					// Return a static match if there are no dynamic names or if it is a
+					// global variable.
+					return match;
+				} else {
+					// Return a dynamic match if there is a local, dynamic name, data
+					// reference, or children reference.
+					valueIsStatic = false;
+
+					if (locals.indexOf(name) !== -1) {
+						return name;
+					} else if (name === "data") {
+						return "md";
+					} else if (name === "children") {
+						return "mc";
+					} else {
+						return "md." + name;
+					}
+				}
+			});
+		}
+
+		if (key.charCodeAt(0) === 64) {
+			valueValue = "[" + valueValue + ",md,mc]";
+		}
+
+		return {
+			value: valueValue,
+			isStatic: valueIsStatic
+		};
+	}
+	/**
 	 * Generates a static part.
 	 *
 	 * @param {string} prelude
@@ -702,6 +705,7 @@
 	 * @param {Object} staticPartsMap
 	 * @returns {string} static variable
 	 */
+
 	function generateStaticPart(prelude, part, staticParts, staticPartsMap) {
 		var staticPartsMapKey = prelude + part;
 
@@ -719,16 +723,17 @@
 	 *
 	 * @param {Object} element
 	 * @param {number} variable
+	 * @param {Array} locals
 	 * @param {Array} staticParts
 	 * @param {Object} staticPartsMap
 	 * @returns {Object} prelude code, view function code, static status, and variable
 	 */
 
-	function generateNodeElement(element, variable, staticParts, staticPartsMap) {
+	function generateNodeElement(element, variable, locals, staticParts, staticPartsMap) {
 		var attributes = element.attributes;
-		var name = attributes.name;
-		var data = attributes.data;
-		var children = attributes.children;
+		var name = generateValue("name", attributes.name, locals);
+		var data = generateValue("data", attributes.data, locals);
+		var children = generateValue("children", attributes.children, locals);
 		var dataIsStatic = data.isStatic;
 		var childrenIsStatic = children.isStatic;
 		var isStatic = name.isStatic && dataIsStatic && childrenIsStatic;
@@ -759,13 +764,14 @@
 	 * @param {number} variableIf
 	 * @param {Object} element
 	 * @param {number} variable
+	 * @param {Array} locals
 	 * @param {Array} staticParts
 	 * @param {Object} staticPartsMap
 	 * @returns {string} clause body and variable
 	 */
 
-	function generateClause(variableIf, element, variable, staticParts, staticPartsMap) {
-		var generateBody = generateNode(element.children[0], element, 0, variable, staticParts, staticPartsMap);
+	function generateClause(variableIf, element, variable, locals, staticParts, staticPartsMap) {
+		var generateBody = generateNode(element.children[0], element, 0, variable, locals, staticParts, staticPartsMap);
 		var clause;
 
 		if (generateBody.isStatic) {
@@ -788,19 +794,20 @@
 	 * @param {Object} parent
 	 * @param {number} index
 	 * @param {number} variable
+	 * @param {Array} locals
 	 * @param {Array} staticParts
 	 * @param {Object} staticPartsMap
 	 * @returns {Object} prelude code, view function code, static status, and variable
 	 */
 
 
-	function generateNodeIf(element, parent, index, variable, staticParts, staticPartsMap) {
+	function generateNodeIf(element, parent, index, variable, locals, staticParts, staticPartsMap) {
 		var variableIf = "m" + variable;
 		var prelude = "";
 		var emptyElseClause = true; // Generate the initial `if` clause.
 
-		var clauseIf = generateClause(variableIf, element, variable + 1, staticParts, staticPartsMap);
-		prelude += "var " + variableIf + ";if(" + element.attributes[""].value + "){" + clauseIf.clause + "}";
+		var clauseIf = generateClause(variableIf, element, variable + 1, locals, staticParts, staticPartsMap);
+		prelude += "var " + variableIf + ";if(" + generateValue("", element.attributes[""], locals).value + "){" + clauseIf.clause + "}";
 		variable = clauseIf.variable; // Search for `else-if` and `else` clauses if there are siblings.
 
 		if (parent !== null) {
@@ -811,15 +818,15 @@
 
 				if (sibling.name === "else-if") {
 					// Generate the `else-if` clause.
-					var clauseElseIf = generateClause(variableIf, sibling, variable, staticParts, staticPartsMap);
-					prelude += "else if(" + sibling.attributes[""].value + "){" + clauseElseIf.clause + "}";
+					var clauseElseIf = generateClause(variableIf, sibling, variable, locals, staticParts, staticPartsMap);
+					prelude += "else if(" + generateValue("", sibling.attributes[""], locals).value + "){" + clauseElseIf.clause + "}";
 					variable = clauseElseIf.variable; // Remove the `else-if` clause so that it isn't generated
 					// individually by the parent.
 
 					siblings.splice(i, 1);
 				} else if (sibling.name === "else") {
 					// Generate the `else` clause.
-					var clauseElse = generateClause(variableIf, sibling, variable, staticParts, staticPartsMap);
+					var clauseElse = generateClause(variableIf, sibling, variable, locals, staticParts, staticPartsMap);
 					prelude += "else{" + clauseElse.clause + "}";
 					variable = clauseElse.variable; // Skip generating the empty `else` clause.
 
@@ -851,22 +858,26 @@
 	 *
 	 * @param {Object} element
 	 * @param {number} variable
+	 * @param {Array} locals
 	 * @param {Array} staticParts
 	 * @param {Object} staticPartsMap
 	 * @returns {Object} prelude code, view function code, static status, and variable
 	 */
 
-	function generateNodeFor(element, variable, staticParts, staticPartsMap) {
+	function generateNodeFor(element, variable, locals, staticParts, staticPartsMap) {
 		var variableFor = "m" + variable;
 		var attributes = element.attributes;
-		var dataLocals = attributes[""].value.split(",");
+		var dataLocals = attributes[""].value.split(",").map(function (local) {
+			return local.trim();
+		});
+		locals = locals.concat(dataLocals);
 		var dataName = "name" in attributes ? attributes.name.value : "\"span\"";
-		var dataData = "data" in attributes ? attributes.data : {
+		var dataData = "data" in attributes ? generateValue("data", attributes.data, locals) : {
 			value: "{}",
 			isStatic: true
 		};
 		var prelude;
-		var generateChild = generateNode(element.children[0], element, 0, variable + 1, staticParts, staticPartsMap);
+		var generateChild = generateNode(element.children[0], element, 0, variable + 1, locals, staticParts, staticPartsMap);
 		var body;
 		variable = generateChild.variable;
 
@@ -881,7 +892,7 @@
 		if ("in" in attributes) {
 			// Generate a `for` loop over an object. The first local is the key and
 			// the second is the value.
-			var dataObject = attributes["in"].value;
+			var dataObject = generateValue("in", attributes["in"], locals).value;
 			var dataKey = dataLocals[0];
 			var dataObjectValue;
 
@@ -895,7 +906,7 @@
 		} else {
 			// Generate a `for` loop over an array. The first local is the value and
 			// the second is the key (index).
-			var dataArray = attributes.of.value;
+			var dataArray = generateValue("of", attributes.of, locals).value;
 
 			var _dataKey = dataLocals.length === 2 ? dataLocals[1] : "m" + variable++;
 
@@ -923,23 +934,24 @@
 	 * @param {Object} parent
 	 * @param {number} index
 	 * @param {number} variable
+	 * @param {Array} locals
 	 * @param {Array} staticParts
 	 * @param {Object} staticPartsMap
 	 * @returns {Object} prelude code, view function code, static status, and variable
 	 */
 
-	function generateNode(element, parent, index, variable, staticParts, staticPartsMap) {
+	function generateNode(element, parent, index, variable, locals, staticParts, staticPartsMap) {
 		var name = element.name;
 		var type;
 		var staticData = true;
 		var staticChildren = true; // Generate the correct type number for the given name.
 
 		if (name === "element") {
-			return generateNodeElement(element, variable, staticParts, staticPartsMap);
+			return generateNodeElement(element, variable, locals, staticParts, staticPartsMap);
 		} else if (name === "if") {
-			return generateNodeIf(element, parent, index, variable, staticParts, staticPartsMap);
+			return generateNodeIf(element, parent, index, variable, locals, staticParts, staticPartsMap);
 		} else if (name === "for") {
-			return generateNodeFor(element, variable, staticParts, staticPartsMap);
+			return generateNodeFor(element, variable, locals, staticParts, staticPartsMap);
 		} else if (name === "text") {
 			type = types.text;
 		} else if (name[0] === name[0].toLowerCase()) {
@@ -954,10 +966,10 @@
 		var children = "";
 		var separator = "";
 
-		for (var attribute in attributes) {
-			var attributeValue = attributes[attribute]; // A `children` attribute takes place of component children.
+		for (var attributeKey in attributes) {
+			var attributeValue = generateValue(attributeKey, attributes[attributeKey], locals); // A `children` attribute takes place of component children.
 
-			if (attribute === "children") {
+			if (attributeKey === "children") {
 				if (!attributeValue.isStatic) {
 					staticChildren = false;
 				}
@@ -969,7 +981,7 @@
 					staticData = false;
 				}
 
-				data += separator + "\"" + attribute + "\":" + attributeValue.value;
+				data += separator + "\"" + attributeKey + "\":" + attributeValue.value;
 				separator = ",";
 			}
 		}
@@ -983,14 +995,15 @@
 			separator = "";
 
 			for (var i = 0; i < elementChildren.length; i++) {
-				var generateChild = generateNode(elementChildren[i], element, i, variable, staticParts, staticPartsMap); // Mark the children as dynamic if any child is dynamic.
+				var generateChild = generateNode(elementChildren[i], element, i, variable, locals, staticParts, staticPartsMap); // Mark the children as dynamic if any child is dynamic.
 
 				if (!generateChild.isStatic) {
 					staticChildren = false;
 				} // Update the variable counter.
 
 
-				variable = generateChild.variable;
+				variable = generateChild.variable; // Keep track of generated children.
+
 				generateChildren.push(generateChild);
 			}
 
@@ -1046,7 +1059,7 @@
 		// Store static parts.
 		var staticParts = []; // Generate the root node and get the prelude and node code.
 
-		var _generateNode = generateNode(element, null, 0, 0, staticParts, {}),
+		var _generateNode = generateNode(element, null, 0, 0, [], staticParts, {}),
 				prelude = _generateNode.prelude,
 				node = _generateNode.node,
 				isStatic = _generateNode.isStatic;

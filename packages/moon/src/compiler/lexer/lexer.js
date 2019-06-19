@@ -6,20 +6,9 @@ import { error } from "../../util/util";
 const whitespaceRE = /^\s+$/;
 
 /**
- * Capture the variables in expressions to scope them within the data
- * parameter. This ignores property names and deep object accesses.
- */
-const expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
-
-/**
  * Capture special characters in text that need to be escaped.
  */
 const textRE = /&amp;|&gt;|&lt;|&nbsp;|&quot;|\\|"|\n|\r/g;
-
-/**
- * List of global variables to ignore in expression scoping
- */
-const globals = ["NaN", "false", "function", "in", "null", "this", "true", "typeof", "undefined", "window"];
 
 /*
  * Map from attribute keys to equivalent DOM properties.
@@ -45,40 +34,6 @@ const escapeTextMap = {
 };
 
 /**
- * Scope an expression to use variables within the `md` object.
- *
- * @param {string} expression
- * @returns {Object} scoped expression and static status
- */
-function scopeExpression(expression) {
-	let isStatic = true;
-
-	const value = expression.replace(expressionRE, (match, name) => {
-		if (name === undefined || globals.indexOf(name) !== -1) {
-			// Return a static match if there are no dynamic names or if it is a
-			// global variable.
-			return match;
-		} else {
-			// Return a dynamic match if there is a dynamic name or a local.
-			isStatic = false;
-
-			if (name[0] === "$") {
-				return name;
-			} else if (name === "children") {
-				return "mc";
-			} else {
-				return "md." + name;
-			}
-		}
-	});
-
-	return {
-		value,
-		isStatic
-	};
-}
-
-/**
  * Convert a token into a string, accounting for `<text/>` components.
  *
  * @param {Object} token
@@ -92,10 +47,10 @@ export function tokenString(token) {
 			// If the text content is surrounded with quotes, it was normal text
 			// and doesn't need the quotes. If not, it was an expression and
 			// needs to be formatted with curly braces.
-			if (content.isStatic) {
-				return content.value.slice(1, -1);
-			} else {
+			if (content.isExpression) {
 				return `{${content.value}}`;
+			} else {
+				return content.value.slice(1, -1);
 			}
 		} else {
 			let tag = "<" + token.value;
@@ -103,7 +58,7 @@ export function tokenString(token) {
 
 			for (const attributeKey in attributes) {
 				const attributeValue = attributes[attributeKey];
-				tag += ` ${attributeKey}=${attributeValue.isStatic ? attributeValue.value : `{${attributeValue.value}}`}`;
+				tag += ` ${attributeKey}=${attributeValue.isExpression ? `{${attributeValue.value}}` : attributeValue.value}`;
 			}
 
 			if (token.closed) {
@@ -335,20 +290,11 @@ export function lex(input) {
 									// If the value is an expression, ensure that all
 									// objects are closed.
 									if (opened === 0) {
-										if (attributeKey.charCodeAt(0) === 64) {
-											// For events, pass the event handler,
-											// component data, and component children.
-											// Event handlers are assumed to be dynamic
-											// because the component data or children can
-											// change.
-											attributes[attributeKey] = {
-												value: `[${scopeExpression(attributeValue).value},md,mc]`,
-												isStatic: false
-											};
-										} else {
-											// Set a potentially dynamic expression.
-											attributes[attributeKey] = scopeExpression(attributeValue);
-										}
+										// Set a potentially dynamic expression.
+										attributes[attributeKey] = {
+											value: attributeValue,
+											isExpression: true
+										};
 
 										// Exit on the quote.
 										break;
@@ -365,7 +311,7 @@ export function lex(input) {
 									// Set a static key-value pair.
 									attributes[attributeKey] = {
 										value: attributeValue,
-										isStatic: true
+										isExpression: false
 									};
 
 									// Exit on the quote.
@@ -381,7 +327,7 @@ export function lex(input) {
 						// Boolean value set to true.
 						attributes[attributeKey] = {
 							value: attributeValue,
-							isStatic: true
+							isExpression: true
 						};
 					}
 				}
@@ -428,7 +374,10 @@ export function lex(input) {
 				type: "tagOpen",
 				value: "text",
 				attributes: {
-					"": scopeExpression(expression)
+					"": {
+						value: expression,
+						isExpression: true
+					}
 				},
 				closed: true
 			});
@@ -458,7 +407,7 @@ export function lex(input) {
 					attributes: {
 						"": {
 							value: `"${text.replace(textRE, (match) => escapeTextMap[match])}"`,
-							isStatic: true
+							isExpression: false
 						}
 					},
 					closed: true

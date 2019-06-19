@@ -13,7 +13,7 @@ test("lex self closing tag", () => {
 });
 
 test("lex text", () => {
-	expect(lex(`text test`)).toEqual([{"attributes": {"": {"value": "\"text test\"", "isStatic": true}}, "closed": true, "type": "tagOpen", "value": "text"}]);
+	expect(lex(`text test`)).toEqual([{"attributes": {"": {"value": "\"text test\"", "isExpression": false}}, "closed": true, "type": "tagOpen", "value": "text"}]);
 });
 
 test("lex text inside tag", () => {
@@ -30,7 +30,7 @@ test("lex text inside tag", () => {
 			"attributes": {
 				"": {
 					"value": "\"text\"",
-					"isStatic": true
+					"isExpression": false
 				}
 			},
 			"closed": true
@@ -43,19 +43,19 @@ test("lex text inside tag", () => {
 })
 
 test("lex expression", () => {
-	expect(lex(`{data + 1 + {foo: true, bar: false}}`)).toEqual([{"attributes": {"": {"value": "md.data + 1 + {foo: true, bar: false}", isStatic: false}}, "closed": true, "type": "tagOpen", "value": "text"}]);
+	expect(lex(`{data + 1 + {foo: true, bar: false}}`)).toEqual([{"attributes": {"": {"value": "data + 1 + {foo: true, bar: false}", "isExpression": true}}, "closed": true, "type": "tagOpen", "value": "text"}]);
 });
 
 test("lex attributes", () => {
-	expect(lex(`<div id="test-id" class='test-class' for='input' dynamic={true} local={$local} fn={() => true} nested={{foo: {bar: true}, baz: false}} self>`)).toEqual([{"attributes": {"id": {"value": "\"test-id\"", "isStatic": true}, "className": {"value": "'test-class'", "isStatic": true}, "htmlFor": {"value": "'input'", "isStatic": true}, "dynamic": {"value": "true", "isStatic": true}, "local": {"value": "$local", "isStatic": false}, "fn": {"value": "() => true", "isStatic": true}, "self": {"value": "true", "isStatic": true}, "nested": {"value": "{foo: {bar: true}, baz: false}", "isStatic": true}}, "closed": false, "type": "tagOpen", "value": "div"}]);
+	expect(lex(`<div id="test-id" class='test-class' for='input' dynamic={true} local={$local} fn={() => true} nested={{foo: {bar: true}, baz: false}} self>`)).toEqual([{"attributes": {"id": {"value": "\"test-id\"", "isExpression": false}, "className": {"value": "'test-class'", "isExpression": false}, "htmlFor": {"value": "'input'", "isExpression": false}, "dynamic": {"value": "true", "isExpression": true}, "local": {"value": "$local", "isExpression": true}, "fn": {"value": "() => true", "isExpression": true}, "self": {"value": "true", "isExpression": true}, "nested": {"value": "{foo: {bar: true}, baz: false}", "isExpression": true}}, "closed": false, "type": "tagOpen", "value": "div"}]);
 });
 
 test("lex `children` data reference", () => {
-	expect(lex(`<div data={children}></div>`)).toEqual([{"attributes": {"data": {"isStatic": false, "value": "mc"}}, "closed": false, "type": "tagOpen", "value": "div"}, {"type": "tagClose", "value": "div"}]);
+	expect(lex(`<div data={children}></div>`)).toEqual([{"attributes": {"data": {"isExpression": true, "value": "children"}}, "closed": false, "type": "tagOpen", "value": "div"}, {"type": "tagClose", "value": "div"}]);
 });
 
 test("lex events", () => {
-	expect(lex(`<div id="test-id" class='test-class' dynamic={true} self @event={doSomething}>`)).toEqual([{"attributes": {"id": {"value": "\"test-id\"", "isStatic": true}, "className": {"value": "'test-class'", "isStatic": true}, dynamic: {"value": "true", "isStatic": true}, "@event": {"value": "[md.doSomething,md,mc]", "isStatic": false}, self: {"value": "true", "isStatic": true}}, "closed": false, "type": "tagOpen", "value": "div"}]);
+	expect(lex(`<div id="test-id" class='test-class' dynamic={true} self @event={doSomething}>`)).toEqual([{"attributes": {"id": {"value": "\"test-id\"", "isExpression": false}, "className": {"value": "'test-class'", "isExpression": false}, "dynamic": {"value": "true", "isExpression": true}, "@event": {"value": "doSomething", "isExpression": true}, "self": {"value": "true", "isExpression": true}}, "closed": false, "type": "tagOpen", "value": "div"}]);
 });
 
 test("lex comments", () => {
@@ -69,7 +69,7 @@ test("opening tag token to string", () => {
 
 test("opening tag token with attributes to string", () => {
 	const input = `<div id="test-id" className='test-class' expression={dynamic}>`;
-	expect(tokenString(lex(input)[0])).toBe(input.replace("dynamic", "md.dynamic"));
+	expect(tokenString(lex(input)[0])).toBe(input.replace("dynamic", "dynamic"));
 });
 
 test("self-closing tag token to string", () => {
@@ -79,7 +79,7 @@ test("self-closing tag token to string", () => {
 
 test("self-closing tag token with attributes to string", () => {
 	const input = `<input id="test-id" className='test-class' expression={dynamic}/>`;
-	expect(tokenString(lex(input)[0])).toBe(input.replace("dynamic", "md.dynamic"));
+	expect(tokenString(lex(input)[0])).toBe(input.replace("dynamic", "dynamic"));
 });
 
 test("closing tag token to string", () => {
@@ -94,7 +94,7 @@ test("text token to string", () => {
 
 test("expression token to string", () => {
 	const input = `{dynamic + 1}`;
-	expect(tokenString(lex(input)[0])).toBe(input.replace("dynamic", "md.dynamic"));
+	expect(tokenString(lex(input)[0])).toBe(input.replace("dynamic", "dynamic"));
 });
 
 test("lex error from unclosed opening bracket", () => {

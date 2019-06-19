@@ -1,4 +1,4 @@
-import { generateStaticPart } from "../util/util";
+import { generateStaticPart, generateValue } from "../util/util";
 import { types } from "../../../util/util";
 
 /**
@@ -6,15 +6,16 @@ import { types } from "../../../util/util";
  *
  * @param {Object} element
  * @param {number} variable
+ * @param {Array} locals
  * @param {Array} staticParts
  * @param {Object} staticPartsMap
  * @returns {Object} prelude code, view function code, static status, and variable
  */
-export function generateNodeElement(element, variable, staticParts, staticPartsMap) {
+export function generateNodeElement(element, variable, locals, staticParts, staticPartsMap) {
 	const attributes = element.attributes;
-	const name = attributes.name;
-	const data = attributes.data;
-	const children = attributes.children;
+	const name = generateValue("name", attributes.name, locals);
+	const data = generateValue("data", attributes.data, locals);
+	const children = generateValue("children", attributes.children, locals);
 	const dataIsStatic = data.isStatic;
 	const childrenIsStatic = children.isStatic;
 	const isStatic = name.isStatic && dataIsStatic && childrenIsStatic;

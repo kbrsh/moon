@@ -34,6 +34,13 @@ test("generate dynamic attributes", () => {
 	);
 });
 
+test("generate dynamic data attribute", () => {
+	assertGenerate(
+		"<div foo={bar} bar={data}></div>",
+		"if(!(0 in ms)){ms[0]=[];}return m(0,\"div\",{\"foo\":md.bar,\"bar\":md},ms[0]);"
+	);
+});
+
 test("generate static children attribute", () => {
 	assertGenerate(
 		"<div foo={bar} children={[]}></div>",
@@ -169,63 +176,63 @@ test("generate nested if/else-if/else node", () => {
 
 test("generate static for-of node", () => {
 	assertGenerate(
-		"<for={$item} of={list}><p>test</p></for>",
-		"if(!(0 in ms)){ms[0]=m(0,\"p\",{},[m(1,\"text\",{\"\":\"test\"},[])]);ms[1]={};}var m0=[];for(var m1=0;m1<md.list.length;m1++){var $item=md.list[m1];m0.push(ms[0]);}return m(0,\"span\",ms[1],m0);"
+		"<for={item} of={list}><p>test</p></for>",
+		"if(!(0 in ms)){ms[0]=m(0,\"p\",{},[m(1,\"text\",{\"\":\"test\"},[])]);ms[1]={};}var m0=[];for(var m1=0;m1<md.list.length;m1++){var item=md.list[m1];m0.push(ms[0]);}return m(0,\"span\",ms[1],m0);"
 	);
 });
 
 test("generate for-of node", () => {
 	assertGenerate(
-		"<for={$item} of={list}><p>{$item}</p></for>",
-		"if(!(0 in ms)){ms[0]=[];ms[1]={};}var m0=[];for(var m1=0;m1<md.list.length;m1++){var $item=md.list[m1];m0.push(m(0,\"p\",ms[1],[m(1,\"text\",{\"\":$item},ms[0])]));}return m(0,\"span\",ms[1],m0);"
+		"<for={item} of={list}><p>{item}</p></for>",
+		"if(!(0 in ms)){ms[0]=[];ms[1]={};}var m0=[];for(var m1=0;m1<md.list.length;m1++){var item=md.list[m1];m0.push(m(0,\"p\",ms[1],[m(1,\"text\",{\"\":item},ms[0])]));}return m(0,\"span\",ms[1],m0);"
 	);
 });
 
 test("generate for-of node with index", () => {
 	assertGenerate(
-		"<for={$item,$index} of={list}><p>{$item} {$index}</p></for>",
-		"if(!(0 in ms)){ms[0]=[];ms[1]={};}var m0=[];for(var $index=0;$index<md.list.length;$index++){var $item=md.list[$index];m0.push(m(0,\"p\",ms[1],[m(1,\"text\",{\"\":$item},ms[0]),m(1,\"text\",{\"\":$index},ms[0])]));}return m(0,\"span\",ms[1],m0);"
+		"<for={item,index} of={list}><p>{item} {index}</p></for>",
+		"if(!(0 in ms)){ms[0]=[];ms[1]={};}var m0=[];for(var index=0;index<md.list.length;index++){var item=md.list[index];m0.push(m(0,\"p\",ms[1],[m(1,\"text\",{\"\":item},ms[0]),m(1,\"text\",{\"\":index},ms[0])]));}return m(0,\"span\",ms[1],m0);"
 	);
 });
 
 test("generate static for-in node", () => {
 	assertGenerate(
-		"<for={$key} in={obj}><p>test</p></for>",
-		"if(!(0 in ms)){ms[0]=m(0,\"p\",{},[m(1,\"text\",{\"\":\"test\"},[])]);ms[1]={};}var m0=[];for(var $key in md.obj){m0.push(ms[0]);}return m(0,\"span\",ms[1],m0);"
+		"<for={key} in={obj}><p>test</p></for>",
+		"if(!(0 in ms)){ms[0]=m(0,\"p\",{},[m(1,\"text\",{\"\":\"test\"},[])]);ms[1]={};}var m0=[];for(var key in md.obj){m0.push(ms[0]);}return m(0,\"span\",ms[1],m0);"
 	);
 });
 
 test("generate for-in node", () => {
 	assertGenerate(
-		"<for={$key} in={obj}><p>{$key}</p></for>",
-		"if(!(0 in ms)){ms[0]=[];ms[1]={};}var m0=[];for(var $key in md.obj){m0.push(m(0,\"p\",ms[1],[m(1,\"text\",{\"\":$key},ms[0])]));}return m(0,\"span\",ms[1],m0);"
+		"<for={key} in={obj}><p>{key}</p></for>",
+		"if(!(0 in ms)){ms[0]=[];ms[1]={};}var m0=[];for(var key in md.obj){m0.push(m(0,\"p\",ms[1],[m(1,\"text\",{\"\":key},ms[0])]));}return m(0,\"span\",ms[1],m0);"
 	);
 });
 
 test("generate for-in node with value", () => {
 	assertGenerate(
-		"<for={$key,$value} in={obj}><p>{$key} {$value}</p></for>",
-		"if(!(0 in ms)){ms[0]=[];ms[1]={};}var m0=[];for(var $key in md.obj){var $value=md.obj[$key];m0.push(m(0,\"p\",ms[1],[m(1,\"text\",{\"\":$key},ms[0]),m(1,\"text\",{\"\":$value},ms[0])]));}return m(0,\"span\",ms[1],m0);"
+		"<for={key,value} in={obj}><p>{key} {value}</p></for>",
+		"if(!(0 in ms)){ms[0]=[];ms[1]={};}var m0=[];for(var key in md.obj){var value=md.obj[key];m0.push(m(0,\"p\",ms[1],[m(1,\"text\",{\"\":key},ms[0]),m(1,\"text\",{\"\":value},ms[0])]));}return m(0,\"span\",ms[1],m0);"
 	);
 });
 
 test("generate nested for nodes", () => {
 	assertGenerate(
-		"<for={$item,$index} of={list}><for={$key,$value} in={$item}><p>{$item} {$index} {$key} {$value}</p></for></for>",
-		"if(!(0 in ms)){ms[0]=[];ms[1]={};}var m0=[];for(var $index=0;$index<md.list.length;$index++){var $item=md.list[$index];var m1=[];for(var $key in $item){var $value=$item[$key];m1.push(m(0,\"p\",ms[1],[m(1,\"text\",{\"\":$item},ms[0]),m(1,\"text\",{\"\":$index},ms[0]),m(1,\"text\",{\"\":$key},ms[0]),m(1,\"text\",{\"\":$value},ms[0])]));}m0.push(m(0,\"span\",ms[1],m1));}return m(0,\"span\",ms[1],m0);"
+		"<for={item,index} of={list}><for={key,value} in={item}><p>{item} {index} {key} {value}</p></for></for>",
+		"if(!(0 in ms)){ms[0]=[];ms[1]={};}var m0=[];for(var index=0;index<md.list.length;index++){var item=md.list[index];var m1=[];for(var key in item){var value=item[key];m1.push(m(0,\"p\",ms[1],[m(1,\"text\",{\"\":item},ms[0]),m(1,\"text\",{\"\":index},ms[0]),m(1,\"text\",{\"\":key},ms[0]),m(1,\"text\",{\"\":value},ms[0])]));}m0.push(m(0,\"span\",ms[1],m1));}return m(0,\"span\",ms[1],m0);"
 	);
 });
 
 test("generate for node with static custom element", () => {
 	assertGenerate(
-		"<for={$item,$index} of={list} name='h1' data={{ custom: true }}><p>{$item} {$index}</p></for>",
-		"if(!(0 in ms)){ms[0]=[];ms[1]={};ms[2]={ custom: true };}var m0=[];for(var $index=0;$index<md.list.length;$index++){var $item=md.list[$index];m0.push(m(0,\"p\",ms[1],[m(1,\"text\",{\"\":$item},ms[0]),m(1,\"text\",{\"\":$index},ms[0])]));}return m(0,'h1',ms[2],m0);"
+		"<for={item,index} of={list} name='h1' data={{ custom: true }}><p>{item} {index}</p></for>",
+		"if(!(0 in ms)){ms[0]=[];ms[1]={};ms[2]={ custom: true };}var m0=[];for(var index=0;index<md.list.length;index++){var item=md.list[index];m0.push(m(0,\"p\",ms[1],[m(1,\"text\",{\"\":item},ms[0]),m(1,\"text\",{\"\":index},ms[0])]));}return m(0,'h1',ms[2],m0);"
 	);
 });
 
 test("generate for node with dynamic custom element", () => {
 	assertGenerate(
-		"<for={$item,$index} of={list} name='h1' data={{ custom: dynamic }}><p>{$item} {$index}</p></for>",
-		"if(!(0 in ms)){ms[0]=[];ms[1]={};}var m0=[];for(var $index=0;$index<md.list.length;$index++){var $item=md.list[$index];m0.push(m(0,\"p\",ms[1],[m(1,\"text\",{\"\":$item},ms[0]),m(1,\"text\",{\"\":$index},ms[0])]));}return m(0,'h1',{ custom: md.dynamic },m0);"
+		"<for={item,index} of={list} name='h1' data={{ custom: dynamic }}><p>{item} {index}</p></for>",
+		"if(!(0 in ms)){ms[0]=[];ms[1]={};}var m0=[];for(var index=0;index<md.list.length;index++){var item=md.list[index];m0.push(m(0,\"p\",ms[1],[m(1,\"text\",{\"\":item},ms[0]),m(1,\"text\",{\"\":index},ms[0])]));}return m(0,'h1',{ custom: md.dynamic },m0);"
 	);
 });

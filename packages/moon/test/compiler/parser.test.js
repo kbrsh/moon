@@ -19,7 +19,7 @@ test("parse text element", () => {
 		"attributes": {
 			"": {
 				value: `"test text"`,
-				isStatic: true
+				isExpression: false
 			}
 		},
 		"children": []
@@ -35,7 +35,7 @@ test("parse nested elements", () => {
 	`)).toEqual({
 		"name": "div",
 		"attributes": {
-			"dynamic": {"value": "true", "isStatic": true}
+			"dynamic": {"value": "true", "isExpression": true}
 		},
 		"children": [
 			{
@@ -45,7 +45,7 @@ test("parse nested elements", () => {
 					{
 						"name": "text",
 						"attributes": {
-							"": {"value": "\"Title\"", "isStatic": true}
+							"": {"value": "\"Title\"", "isExpression": false}
 						},
 						"children": []
 					}
@@ -54,13 +54,13 @@ test("parse nested elements", () => {
 			{
 				"name": "p",
 				"attributes": {
-					"color": {"value": "\"blue\"", "isStatic": true}
+					"color": {"value": "\"blue\"", "isExpression": false}
 				},
 				"children": [
 					{
 						"name": "text",
 						"attributes": {
-							"": {"value": "\"Text\"", "isStatic": true}
+							"": {"value": "\"Text\"", "isExpression": false}
 						},
 						"children": []
 					}
