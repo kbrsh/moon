@@ -19,7 +19,7 @@ const textRE = /&amp;|&gt;|&lt;|&nbsp;|&quot;|\\|"|\n|\r/g;
 /**
  * List of global variables to ignore in expression scoping
  */
-const globals = ["NaN", "false", "in", "null", "this", "true", "typeof", "undefined", "window"];
+const globals = ["NaN", "false", "function", "in", "null", "this", "true", "typeof", "undefined", "window"];
 
 /*
  * Map from attribute keys to equivalent DOM properties.

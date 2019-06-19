@@ -81,7 +81,7 @@
 	 * List of global variables to ignore in expression scoping
 	 */
 
-	var globals = ["NaN", "false", "in", "null", "this", "true", "typeof", "undefined", "window"];
+	var globals = ["NaN", "false", "function", "in", "null", "this", "true", "typeof", "undefined", "window"];
 	/*
 	 * Map from attribute keys to equivalent DOM properties.
 	 */
