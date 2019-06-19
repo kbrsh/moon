@@ -67,11 +67,6 @@
 
 	var whitespaceRE = /^\s+$/;
 	/**
-	 * Capture the tag name, attribute text, and closing slash from an opening tag.
-	 */
-
-	var nameRE = /<([\w\d-_]+)([^>]*?)(\/?)>/g;
-	/**
 	 * Capture the variables in expressions to scope them within the data
 	 * parameter. This ignores property names and deep object accesses.
 	 */
@@ -263,26 +258,62 @@
 
 					i = _closeIndex + 3;
 					continue;
-				} // Set the last searched index of the tag name regular expression to
-				// the index of the character currently being processed. Since it is
-				// being executed on the whole input, this is required for getting the
-				// correct match and having better performance.
+				} // Hold information about the name, attributes, and closing slash.
 
 
-				nameRE.lastIndex = i; // Execute the tag name regular expression on the input and store the
-				// match and captured groups.
+				var name = "";
+				var attributesText = "";
+				var closed = false;
+				var attributes = {}; // Keep track of if the lexer is scanning the name or attribute text.
 
-				var nameExec = nameRE.exec(input);
+				var isName = true; // Keep a stack of opened objects. When lexing a tag, objects and
+				// expressions can have the `>` character, and it is important that
+				// they are skipped over until they are the end of a tag.
 
-				if ("development" === "development" && nameExec === null) {
-					lexError("Lexer expected a valid opening or self-closing tag.", input, i);
-				}
+				var opened = 0; // Skip over the input and lex until the end of the tag.
 
-				var nameMatch = nameExec[0];
-				var name = nameExec[1];
-				var attributesText = nameExec[2];
-				var closeSlash = nameExec[3];
-				var attributes = {}; // Match attributes.
+				for (i++; i < input.length; i++) {
+					var charName = input[i]; // Keep track of opened and closed objects.
+
+					if (charName === "{") {
+						opened += 1;
+					} else if (charName === "}") {
+						opened -= 1;
+					}
+
+					if (
+					/* Ensure all objects/expressions are closed. */
+					opened === 0 && (
+					/* Check for a normal closing angle bracket. */
+					charName === ">" ||
+					/* Check for a closing slash followed by an angle bracket and
+					 * skip over the slash. */
+					charName === "/" && input[i + 1] === ">" && (closed = true) && (i += 1))) {
+						// Skip over the closing angle bracket.
+						i += 1;
+						break;
+					} else if (isName) {
+						if (charName === " ") {
+							// If lexing the name and the character is whitespace, stop
+							// lexing the name.
+							isName = false;
+						} else if (charName === "=") {
+							// If the character is an equals sign, stop lexing the name
+							// and add it to the attribute text because it is an empty
+							// key attribute.
+							isName = false;
+							attributesText += charName;
+						} else {
+							// Add on text as part of the name.
+							name += charName;
+						}
+					} else {
+						// If not lexing the name, add on extra text as part of the
+						// attributes of the tag.
+						attributesText += charName;
+					}
+				} // Match attributes.
+
 
 				for (var j = 0; j < attributesText.length; j++) {
 					var charAttribute = attributesText[j];
@@ -328,21 +359,21 @@
 
 							j += 1; // Keep a stack of opened objects.
 
-							var opened = 0; // Iterate through the value.
+							var _opened = 0; // Iterate through the value.
 
 							for (; j < attributesText.length; j++) {
 								charAttribute = attributesText[j];
 
 								if (charAttribute === "{") {
 									// Found an open object, keep track of it.
-									opened += 1;
+									_opened += 1;
 									attributeValue += charAttribute;
 								} else if (charAttribute === quote) {
 									// Found a potential ending quote.
 									if (quote === "}") {
 										// If the value is an expression, ensure that all
 										// objects are closed.
-										if (opened === 0) {
+										if (_opened === 0) {
 											if (attributeKey.charCodeAt(0) === 64) {
 												// For events, pass the event handler,
 												// component data, and component children.
@@ -363,7 +394,7 @@
 										} else {
 											// If all objects aren't yet closed, mark one as
 											// closed.
-											opened -= 1;
+											_opened -= 1;
 											attributeValue += charAttribute;
 										}
 									} else {
@@ -381,10 +412,7 @@
 									// Append characters to the value.
 									attributeValue += charAttribute;
 								}
-							} // Skip over the closing quote.
-
-
-							j += 1;
+							}
 						} else {
 							// When a value isn't provided, the attribute is considered a
 							// Boolean value set to true.
@@ -395,34 +423,33 @@
 						}
 					}
 				} // Append an opening tag token with the name, attributes, and optional
-				// self-closing slash.
+				// self-closing slash status.
 
 
 				tokens.push({
 					type: "tagOpen",
 					value: name,
 					attributes: attributes,
-					closed: closeSlash === "/"
+					closed: closed
 				});
-				i += nameMatch.length;
 			} else if (_char === "{") {
 				// If a sequence of characters begins with "{", process it as an
 				// expression token.
 				var expression = ""; // Keep a stack of opened objects.
 
-				var _opened = 0; // Consume the input until the end of the expression.
+				var _opened2 = 0; // Consume the input until the end of the expression.
 
 				for (i += 1; i < input.length; i++) {
 					var _char2 = input[i];
 
 					if (_char2 === "{") {
-						_opened += 1;
+						_opened2 += 1;
 						expression += _char2;
 					} else if (_char2 === "}") {
-						if (_opened === 0) {
+						if (_opened2 === 0) {
 							break;
 						} else {
-							_opened -= 1;
+							_opened2 -= 1;
 							expression += _char2;
 						}
 					} else {

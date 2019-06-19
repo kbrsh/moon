@@ -6,11 +6,6 @@ import { error } from "../../util/util";
 const whitespaceRE = /^\s+$/;
 
 /**
- * Capture the tag name, attribute text, and closing slash from an opening tag.
- */
-const nameRE = /<([\w\d-_]+)([^>]*?)(\/?)>/g;
-
-/**
  * Capture the variables in expressions to scope them within the data
  * parameter. This ignores property names and deep object accesses.
  */
@@ -214,25 +209,67 @@ export function lex(input) {
 				continue;
 			}
 
-			// Set the last searched index of the tag name regular expression to
-			// the index of the character currently being processed. Since it is
-			// being executed on the whole input, this is required for getting the
-			// correct match and having better performance.
-			nameRE.lastIndex = i;
-
-			// Execute the tag name regular expression on the input and store the
-			// match and captured groups.
-			const nameExec = nameRE.exec(input);
-
-			if (process.env.MOON_ENV === "development" && nameExec === null) {
-				lexError("Lexer expected a valid opening or self-closing tag.", input, i);
-			}
-
-			const nameMatch = nameExec[0];
-			const name = nameExec[1];
-			const attributesText = nameExec[2];
-			const closeSlash = nameExec[3];
+			// Hold information about the name, attributes, and closing slash.
+			let name = "";
+			let attributesText = "";
+			let closed = false;
 			const attributes = {};
+
+			// Keep track of if the lexer is scanning the name or attribute text.
+			let isName = true;
+
+			// Keep a stack of opened objects. When lexing a tag, objects and
+			// expressions can have the `>` character, and it is important that
+			// they are skipped over until they are the end of a tag.
+			let opened = 0;
+
+			// Skip over the input and lex until the end of the tag.
+			for (i++; i < input.length; i++) {
+				const charName = input[i];
+
+				// Keep track of opened and closed objects.
+				if (charName === "{") {
+					opened += 1;
+				} else if (charName === "}") {
+					opened -= 1;
+				}
+
+				if (
+					/* Ensure all objects/expressions are closed. */
+					(opened === 0) &&
+					(
+						/* Check for a normal closing angle bracket. */
+						(charName === ">") ||
+						/* Check for a closing slash followed by an angle bracket and
+						 * skip over the slash. */
+						(charName === "/" && input[i + 1] === ">" && (closed = true) && (i += 1))
+					)
+				) {
+					// Skip over the closing angle bracket.
+					i += 1;
+
+					break;
+				} else if (isName) {
+					if (charName === " ") {
+						// If lexing the name and the character is whitespace, stop
+						// lexing the name.
+						isName = false;
+					} else if (charName === "=") {
+						// If the character is an equals sign, stop lexing the name
+						// and add it to the attribute text because it is an empty
+						// key attribute.
+						isName = false;
+						attributesText += charName;
+					} else {
+						// Add on text as part of the name.
+						name += charName;
+					}
+				} else {
+					// If not lexing the name, add on extra text as part of the
+					// attributes of the tag.
+					attributesText += charName;
+				}
+			}
 
 			// Match attributes.
 			for (let j = 0; j < attributesText.length; j++) {
@@ -250,6 +287,7 @@ export function lex(input) {
 							break;
 						} else if (charAttribute === "=") {
 							attributeValue = "";
+
 							break;
 						} else {
 							attributeKey += charAttribute;
@@ -338,9 +376,6 @@ export function lex(input) {
 								attributeValue += charAttribute;
 							}
 						}
-
-						// Skip over the closing quote.
-						j += 1;
 					} else {
 						// When a value isn't provided, the attribute is considered a
 						// Boolean value set to true.
@@ -353,15 +388,13 @@ export function lex(input) {
 			}
 
 			// Append an opening tag token with the name, attributes, and optional
-			// self-closing slash.
+			// self-closing slash status.
 			tokens.push({
 				type: "tagOpen",
 				value: name,
 				attributes,
-				closed: closeSlash  === "/"
+				closed
 			});
-
-			i += nameMatch.length;
 		} else if (char === "{") {
 			// If a sequence of characters begins with "{", process it as an
 			// expression token.

@@ -47,7 +47,7 @@ test("lex expression", () => {
 });
 
 test("lex attributes", () => {
-	expect(lex(`<div id="test-id" class='test-class' for='input' dynamic={true} local={$local} nested={{foo: {bar: true}, baz: false}} self>`)).toEqual([{"attributes": {"id": {"value": "\"test-id\"", "isStatic": true}, "className": {"value": "'test-class'", "isStatic": true}, "htmlFor": {"value": "'input'", "isStatic": true}, "dynamic": {"value": "true", "isStatic": true}, "local": {"value": "$local", "isStatic": false}, "self": {"value": "true", "isStatic": true}, "nested": {"value": "{foo: {bar: true}, baz: false}", "isStatic": true}}, "closed": false, "type": "tagOpen", "value": "div"}]);
+	expect(lex(`<div id="test-id" class='test-class' for='input' dynamic={true} local={$local} fn={() => true} nested={{foo: {bar: true}, baz: false}} self>`)).toEqual([{"attributes": {"id": {"value": "\"test-id\"", "isStatic": true}, "className": {"value": "'test-class'", "isStatic": true}, "htmlFor": {"value": "'input'", "isStatic": true}, "dynamic": {"value": "true", "isStatic": true}, "local": {"value": "$local", "isStatic": false}, "fn": {"value": "() => true", "isStatic": true}, "self": {"value": "true", "isStatic": true}, "nested": {"value": "{foo: {bar: true}, baz: false}", "isStatic": true}}, "closed": false, "type": "tagOpen", "value": "div"}]);
 });
 
 test("lex `children` data reference", () => {
@@ -101,20 +101,6 @@ test("lex error from unclosed opening bracket", () => {
 	console.error = jest.fn();
 
 	expect(Array.isArray(lex("<div><"))).toBe(true);
-	expect(console.error).toBeCalled();
-});
-
-test("lex error from invalid opening tag", () => {
-	console.error = jest.fn();
-
-	expect(() => {lex("<div");}).toThrow();
-	expect(console.error).toBeCalled();
-});
-
-test("lex error from invalid self-closing tag", () => {
-	console.error = jest.fn();
-
-	expect(() => {lex("<input/");}).toThrow();
 	expect(console.error).toBeCalled();
 });
 
