@@ -3,25 +3,25 @@
 	justify-content: space-between;
 }
 
-.editor {
-	flex-direction: column;
-	width: 100%;
-	max-width: 518px;
-}
-
-.editor div {
+#editor div {
 	display: block;
 }
 
-#editor-mvl, #editor-javascript {
-	min-height: 350px;
+#editor, #editor .CodeMirror {
+	width: 100%;
+	max-width: 518px;
+	height: 700px;
+}
+
+#editor .CodeMirror {
+	padding: 7px;
 }
 
 #result {
 	width: 100%;
 	max-width: 518px;
 	height: 700px;
-	background: red;
+	border: 1px solid hsl(200, 14%, 71%);
 }
 
 .cm-s-nox.CodeMirror {

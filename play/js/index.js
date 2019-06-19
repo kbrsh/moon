@@ -1,23 +1,36 @@
 var MoonMVL = module.exports;
 
-function merge(obj1, obj2) {
-	for (var key in obj2) {
-		obj1[key] = obj2[key];
-	}
-
-	return obj1;
-}
-
 var config = {
 	theme: "nox",
+	mode: "htmlmixed",
+	value: "<div>Hello Moon!</div>",
 	lineNumbers: true,
 	indentWithTabs: true
 };
 
-var MVLEditor = CodeMirror(document.getElementById("editor-mvl"), merge(config, {
-	mode: "htmlmixed"
-}));
+var editor = CodeMirror(document.getElementById("editor"), config);
+var result = document.getElementById("result");
 
-var JSEditor = CodeMirror(document.getElementById("editor-javascript"), merge(config, {
-	mode: "javascript"
-}));
+function render() {
+	var value = editor.getValue();
+	var compiled = MoonMVL("Component", value);
+	result.srcdoc = `
+		<!DOCTYPE html>
+		<html>
+			<head>
+				<title>Moon | Playground Result</title>
+
+				<style>${compiled.css}</style>
+			</head>
+			<body>
+				<div id="root"></div>
+				<script src="/play/js/lib/moon.js"></script>
+				<script>${compiled.js.replace(`import Moon from "moon";`, "")}</script>
+				<script>Moon({ root: "#root", view: "<Component/>" });</script>
+			</body>
+		</html>
+	`;
+}
+
+editor.on("change", render);
+render();
