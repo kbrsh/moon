@@ -2,12 +2,12 @@
  * Capture the variables in expressions to scope them within the data
  * parameter. This ignores property names and deep object accesses.
  */
-const expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
+export const expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
 
 /**
  * List of global variables to ignore in expression scoping
  */
-const globals = ["NaN", "false", "function", "in", "null", "this", "true", "typeof", "undefined", "window"];
+export const globals = ["Infinity", "NaN", "break", "case", "catch", "class", "const", "continue", "default", "delete", "do", "else", "extends", "false", "finally", "for", "function", "if", "in", "instanceof", "let", "new", "null", "return", "super", "switch", "this", "throw", "true", "try", "typeof", "undefined", "var", "void", "while", "window"];
 
 /**
  * Generates a static value or an expression using `md` or `mc`.

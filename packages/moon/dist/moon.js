@@ -651,7 +651,7 @@
 	 * List of global variables to ignore in expression scoping
 	 */
 
-	var globals = ["NaN", "false", "function", "in", "null", "this", "true", "typeof", "undefined", "window"];
+	var globals = ["Infinity", "NaN", "break", "case", "catch", "class", "const", "continue", "default", "delete", "do", "else", "extends", "false", "finally", "for", "function", "if", "in", "instanceof", "let", "new", "null", "return", "super", "switch", "this", "throw", "true", "try", "typeof", "undefined", "var", "void", "while", "window"];
 	/**
 	 * Generates a static value or an expression using `md` or `mc`.
 	 *
@@ -865,63 +865,70 @@
 	 */
 
 	function generateNodeFor(element, variable, locals, staticParts, staticPartsMap) {
-		var variableFor = "m" + variable;
+		var variableForChildren = "m" + variable;
+		var variableForChild = "m" + (variable + 1);
+		var variableForKey = "m" + (variable + 2);
 		var attributes = element.attributes;
-		var dataLocals = attributes[""].value.split(",").map(function (local) {
-			return local.trim();
-		});
-		locals = locals.concat(dataLocals);
-		var dataName = "name" in attributes ? attributes.name.value : "\"span\"";
-		var dataData = "data" in attributes ? generateValue("data", attributes.data, locals) : {
+		var parameters = attributes[""].value;
+		var name = "name" in attributes ? attributes.name.value : "\"span\"";
+		var data = "data" in attributes ? generateValue("data", attributes.data, locals) : {
 			value: "{}",
 			isStatic: true
-		};
-		var prelude;
-		var generateChild = generateNode(element.children[0], element, 0, variable + 1, locals, staticParts, staticPartsMap);
-		var body;
+		}; // Extract locals from the child parameters.
+
+		var local;
+
+		while ((local = expressionRE.exec(parameters)) !== null) {
+			local = local[1];
+
+			if (name !== undefined && globals.indexOf(name) === -1 && locals.indexOf(name) === -1) {
+				locals = locals.concat([local]);
+			}
+		} // Generate the child and pass the parameters as locals.
+
+
+		var generateChild = generateNode(element.children[0], element, 0, variable + 3, locals, staticParts, staticPartsMap); // Generate the child function.
+
+		var childFunction;
 		variable = generateChild.variable;
 
 		if (generateChild.isStatic) {
-			// If the body is static, then use a static node in place of it.
-			body = variableFor + ".push(" + generateStaticPart(generateChild.prelude, generateChild.node, staticParts, staticPartsMap) + ");";
+			// If the child is static, then use a static node in place of it.
+			childFunction = "return " + generateStaticPart(generateChild.prelude, generateChild.node, staticParts, staticPartsMap) + ";";
 		} else {
-			// If the body is dynamic, then use the dynamic node in the loop body.
-			body = "" + generateChild.prelude + variableFor + ".push(" + generateChild.node + ");";
+			// If the child is dynamic, then use the dynamic node in the loop body.
+			childFunction = generateChild.prelude + "return " + generateChild.node + ";";
 		}
+
+		childFunction = "var " + variableForChild + "=function(" + parameters + "){" + childFunction + "};"; // Generate the iterable, loop, and arguments for the child function.
+
+		var iterable;
+		var loop;
+		var args;
 
 		if ("in" in attributes) {
 			// Generate a `for` loop over an object. The first local is the key and
 			// the second is the value.
-			var dataObject = generateValue("in", attributes["in"], locals).value;
-			var dataKey = dataLocals[0];
-			var dataObjectValue;
-
-			if (dataLocals.length === 2) {
-				dataObjectValue = "var " + dataLocals[1] + "=" + dataObject + "[" + dataKey + "];";
-			} else {
-				dataObjectValue = "";
-			}
-
-			prelude = "for(var " + dataKey + " in " + dataObject + "){" + dataObjectValue + body + "}";
+			iterable = generateValue("in", attributes["in"], locals).value;
+			loop = "for(var " + variableForKey + " in " + iterable + "){";
+			args = variableForKey + "," + iterable + "[" + variableForKey + "]";
 		} else {
 			// Generate a `for` loop over an array. The first local is the value and
 			// the second is the key (index).
-			var dataArray = generateValue("of", attributes.of, locals).value;
-
-			var _dataKey = dataLocals.length === 2 ? dataLocals[1] : "m" + variable++;
-
-			prelude = "for(var " + _dataKey + "=0;" + _dataKey + "<" + dataArray + ".length;" + _dataKey + "++){var " + dataLocals[0] + "=" + dataArray + "[" + _dataKey + "];" + body + "}";
+			iterable = generateValue("of", attributes.of, locals).value;
+			loop = "for(var " + variableForKey + "=0;" + variableForKey + "<" + iterable + ".length;" + variableForKey + "++){";
+			args = iterable + "[" + variableForKey + "]," + variableForKey;
 		}
 
-		if (dataData.isStatic) {
-			dataData = generateStaticPart("", dataData.value, staticParts, staticPartsMap);
+		if (data.isStatic) {
+			data = generateStaticPart("", data.value, staticParts, staticPartsMap);
 		} else {
-			dataData = dataData.value;
+			data = data.value;
 		}
 
 		return {
-			prelude: "var " + variableFor + "=[];" + prelude,
-			node: "m(" + types.element + "," + dataName + "," + dataData + "," + variableFor + ")",
+			prelude: "var " + variableForChildren + "=[];" + childFunction + loop + variableForChildren + ".push(" + variableForChild + "(" + args + "));}",
+			node: "m(" + types.element + "," + name + "," + data + "," + variableForChildren + ")",
 			isStatic: false,
 			variable: variable
 		};
