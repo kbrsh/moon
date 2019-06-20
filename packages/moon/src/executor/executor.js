@@ -48,24 +48,21 @@ Node.prototype.MoonEvent = null;
  * Executes a component and modifies it to be the result of the component view.
  *
  * @param {Object} node
+ * @returns {Object} component result
  */
 function executeComponent(node) {
 	while (node.type === types.component) {
-		// Execute the component to get the component view.
+		// Execute the component to get the component view and update the node.
 		const nodeName = node.name;
-		const nodeComponent = components[nodeName](
+		node = components[nodeName](
 			m,
 			node.data,
 			node.children,
 			ms[nodeName]
 		);
-
-		// Update the node to reflect the component view.
-		node.type = nodeComponent.type;
-		node.name = nodeComponent.name;
-		node.data = nodeComponent.data;
-		node.children = nodeComponent.children;
 	}
+
+	return node;
 }
 
 /**
@@ -89,11 +86,7 @@ function executeCreate(node) {
 		const nodeChildren = node.children;
 
 		for (let i = 0; i < nodeChildren.length; i++) {
-			const childNew = nodeChildren[i];
-
-			executeComponent(childNew);
-
-			const childOld = executeCreate(childNew);
+			const childOld = executeCreate(executeComponent(nodeChildren[i]));
 
 			children.push(childOld);
 			element.appendChild(childOld.element);
@@ -145,10 +138,7 @@ function executeDiff(nodesOld, nodesNew, patches) {
 	while (true) {
 		const nodeOld = nodesOld.pop();
 		const nodeOldNode = nodeOld.node;
-		const nodeNew = nodesNew.pop();
-
-		// Execute any potential components.
-		executeComponent(nodeNew);
+		const nodeNew = executeComponent(nodesNew.pop());
 
 		if (nodeOldNode !== nodeNew) {
 			const nodeOldNodeType = nodeOldNode.type;
@@ -345,11 +335,7 @@ function executeDiff(nodesOld, nodesNew, patches) {
 						}
 
 						for (let i = childrenOldLength; i < childrenNewLength; i++) {
-							const childNew = childrenNew[i];
-
-							executeComponent(childNew);
-
-							const nodeOldNew = executeCreate(childNew);
+							const nodeOldNew = executeCreate(executeComponent(childrenNew[i]));
 
 							childrenOld.push(nodeOldNew);
 							patches.push({

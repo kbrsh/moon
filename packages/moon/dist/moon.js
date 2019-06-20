@@ -1237,19 +1237,17 @@
 	 * Executes a component and modifies it to be the result of the component view.
 	 *
 	 * @param {Object} node
+	 * @returns {Object} component result
 	 */
 
 	function executeComponent(node) {
 		while (node.type === types.component) {
-			// Execute the component to get the component view.
+			// Execute the component to get the component view and update the node.
 			var nodeName = node.name;
-			var nodeComponent = components[nodeName](m, node.data, node.children, ms[nodeName]); // Update the node to reflect the component view.
-
-			node.type = nodeComponent.type;
-			node.name = nodeComponent.name;
-			node.data = nodeComponent.data;
-			node.children = nodeComponent.children;
+			node = components[nodeName](m, node.data, node.children, ms[nodeName]);
 		}
+
+		return node;
 	}
 	/**
 	 * Creates an old reference node from a view node.
@@ -1273,9 +1271,7 @@
 			var nodeChildren = node.children;
 
 			for (var i = 0; i < nodeChildren.length; i++) {
-				var childNew = nodeChildren[i];
-				executeComponent(childNew);
-				var childOld = executeCreate(childNew);
+				var childOld = executeCreate(executeComponent(nodeChildren[i]));
 				children.push(childOld);
 				element.appendChild(childOld.element);
 			} // Set data.
@@ -1323,9 +1319,7 @@
 		while (true) {
 			var nodeOld = nodesOld.pop();
 			var nodeOldNode = nodeOld.node;
-			var nodeNew = nodesNew.pop(); // Execute any potential components.
-
-			executeComponent(nodeNew);
+			var nodeNew = executeComponent(nodesNew.pop());
 
 			if (nodeOldNode !== nodeNew) {
 				var nodeOldNodeType = nodeOldNode.type;
@@ -1507,10 +1501,7 @@
 							}
 
 							for (var _i4 = childrenOldLength; _i4 < childrenNewLength; _i4++) {
-								var childNew = childrenNew[_i4];
-								executeComponent(childNew);
-
-								var _nodeOldNew = executeCreate(childNew);
+								var _nodeOldNew = executeCreate(executeComponent(childrenNew[_i4]));
 
 								childrenOld.push(_nodeOldNew);
 								patches.push({
