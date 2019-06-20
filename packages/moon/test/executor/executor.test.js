@@ -190,20 +190,13 @@ for (let i of Array.from({ length: 100 })) {
 	});
 }
 
-// Time slicing
-test(`time slice [0, 1, 2, 3, 4, 5, 6, 7] -> [7, 6, 5, 4, 3, 2, 1, 0]`, done => {
+// Batching
+test(`batch [0, 1, 2, 3, 4, 5, 6, 7] -> [7, 6, 5, 4, 3, 2, 1, 0]`, done => {
 	const DateNow = window.Date.now;
 	let time = 0;
 
 	window.requestAnimationFrame = (fn) => {
 		setTimeout(fn, 0);
-		window.requestAnimationFrame = (fn) => fn();
-	};
-	window.Date.now = () => {
-		// Speed up time.
-		time += 1000;
-
-		return time;
 	};
 
 	Moon.set({
@@ -215,12 +208,6 @@ test(`time slice [0, 1, 2, 3, 4, 5, 6, 7] -> [7, 6, 5, 4, 3, 2, 1, 0]`, done => 
 	});
 
 	setTimeout(() => {
-		window.requestAnimationFrame = (fn) => {
-			setTimeout(fn, 0);
-			window.requestAnimationFrame = (fn) => fn();
-		};
-		window.Date.now = () => 0; /* Stop time. */
-
 		Moon.set({
 			list: [0, 1, 2, 3, 4, 5, 6, 7]
 		});
@@ -230,6 +217,7 @@ test(`time slice [0, 1, 2, 3, 4, 5, 6, 7] -> [7, 6, 5, 4, 3, 2, 1, 0]`, done => 
 		});
 
 		setTimeout(() => {
+			window.requestAnimationFrame = (fn) => fn();
 			assertExecute([7, 6, 5, 4, 3, 2, 1, 0], [7, 6, 5, 4, 3, 2, 1, 0]);
 			done();
 		}, 0);
