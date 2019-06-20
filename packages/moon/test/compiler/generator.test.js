@@ -236,3 +236,10 @@ test("generate for node with dynamic custom element", () => {
 		"if(!(0 in ms)){ms[0]=[];ms[1]={};}var m0=[];var m1=function(item,index){return m(0,\"p\",ms[1],[m(1,\"text\",{\"\":item},ms[0]),m(1,\"text\",{\"\":index},ms[0])]);};for(var m2=0;m2<md.list.length;m2++){m0.push(m1(md.list[m2],m2));}return m(0,'h1',{ custom: md.dynamic },m0);"
 	);
 });
+
+test("generate for node with duplicate local", () => {
+	assertGenerate(
+		"<for={item} of={list}><for={item} of={list}><for={window} of={list}><for={not: 'foo'} of={list}>{item}</for></for></for></for>",
+		"if(!(0 in ms)){ms[0]=[];ms[1]={};}var m0=[];var m1=function(item){var m3=[];var m4=function(item){var m6=[];var m7=function(window){var m9=[];var m10=function(not: 'foo'){return m(1,\"text\",{\"\":item},ms[0]);};for(var m11=0;m11<md.list.length;m11++){m9.push(m10(md.list[m11],m11));}return m(0,\"span\",ms[1],m9);};for(var m8=0;m8<md.list.length;m8++){m6.push(m7(md.list[m8],m8));}return m(0,\"span\",ms[1],m6);};for(var m5=0;m5<md.list.length;m5++){m3.push(m4(md.list[m5],m5));}return m(0,\"span\",ms[1],m3);};for(var m2=0;m2<md.list.length;m2++){m0.push(m1(md.list[m2],m2));}return m(0,\"span\",ms[1],m0);"
+	);
+});

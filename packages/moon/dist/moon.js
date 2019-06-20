@@ -881,7 +881,7 @@
 		while ((local = expressionRE.exec(parameters)) !== null) {
 			local = local[1];
 
-			if (name !== undefined && globals.indexOf(name) === -1 && locals.indexOf(name) === -1) {
+			if (local !== undefined && globals.indexOf(local) === -1 && locals.indexOf(local) === -1) {
 				locals = locals.concat([local]);
 			}
 		} // Generate the child and pass the parameters as locals.
