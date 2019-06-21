@@ -1470,7 +1470,7 @@
 		// Update the data.
 		for (var key in dataNew) {
 			md[key] = dataNew[key];
-		} // Execute the next function in the queue if none are scheduled yet.
+		} // Schedule patching if nothing is executing next.
 
 
 		if (!executing) {
