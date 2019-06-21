@@ -1,6 +1,8 @@
 /* Start Moon Source */
 /* End Moon Source */
 
+function Node() {}
+
 var console = {
 	log: function() {},
 	error: function() {}
@@ -46,7 +48,7 @@ Moon({
 
 Moon({
 	root: "#root",
-	view: `<for={$item} of={list}><Item item={$item}/></for>`,
+	view: `<for={item} of={list}><Item item={item}/></for>`,
 	data: {list: [1, 2, 3]}
 });
 
