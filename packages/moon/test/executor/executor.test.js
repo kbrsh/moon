@@ -1,8 +1,7 @@
-import Moon from "../../src/index";
+import Moon from "moon/src/index.js";
 
 let root = document.createElement("span");
 let eventResult;
-window.requestAnimationFrame = (fn) => fn();
 document.body.appendChild(root);
 
 function shuffle(arr) {
@@ -14,13 +13,13 @@ function shuffle(arr) {
 	return arr;
 }
 
-function handler(event, data, children) {
-	eventResult = { event, data, children };
+function handler(m) {
+	eventResult = m;
+	return {};
 }
 
-Moon({
-	name: "ExecutorTest",
-	view: `
+function ExecutorTest({ list }) {
+	return (
 		<div>
 			<for={item, index} of={list}>
 				<if={item % 2 === 0}>
@@ -36,18 +35,19 @@ Moon({
 			<h1>Moon</h1>
 			<p @click={handler} @dblclick={handler}>Partially static.</p>
 		</div>
-	`,
-	data: {
-		handler
-	}
-});
+	);
+}
 
-Moon({
-	root,
-	view: "<ExecutorTest list={list}/>",
-	data: {
-		list: []
-	}
+function Root({ list }) {
+	return {
+		list,
+		view: (<ExecutorTest list={list}/>)
+	};
+}
+
+Moon(Root, {
+	list: Moon.data.driver([]),
+	view: Moon.view.driver(root)
 });
 
 root = document.body.firstChild;
@@ -78,9 +78,8 @@ function verify(list) {
 
 			element.click();
 
-			expect(eventResult.event.constructor).toEqual(MouseEvent);
-			expect(eventResult.data).toEqual({ list, handler });
-			expect(eventResult.children).toEqual([]);
+			expect(eventResult.view.constructor).toEqual(MouseEvent);
+			expect(eventResult.list).toEqual(list);
 
 			eventResult = undefined;
 		} else if (item % 3 === 0) {
@@ -102,9 +101,8 @@ function verify(list) {
 
 			element.click();
 
-			expect(eventResult.event.constructor).toEqual(MouseEvent);
-			expect(eventResult.data).toEqual({ list, handler });
-			expect(eventResult.children).toEqual([]);
+			expect(eventResult.view.constructor).toEqual(MouseEvent);
+			expect(eventResult.list).toEqual(list);
 
 			eventResult = undefined;
 		} else {
@@ -137,12 +135,12 @@ function verify(list) {
 }
 
 function assertExecute(before, after) {
-	Moon.set({
-		list: before
+	Moon.execute(() => {
+		return Root({ list: before });
 	});
 	verify(before);
-	Moon.set({
-		list: after
+	Moon.execute(() => {
+		return Root({ list: after });
 	});
 	verify(after);
 }
@@ -189,37 +187,3 @@ for (let i of Array.from({ length: 100 })) {
 		assertExecute(before, after);
 	});
 }
-
-// Batching
-test(`batch [0, 1, 2, 3, 4, 5, 6, 7] -> [7, 6, 5, 4, 3, 2, 1, 0]`, done => {
-	const DateNow = window.Date.now;
-	let time = 0;
-
-	window.requestAnimationFrame = (fn) => {
-		setTimeout(fn, 0);
-	};
-
-	Moon.set({
-		list: [0, 1, 2, 3, 4, 5, 6, 7]
-	});
-
-	Moon.set({
-		list: [7, 6, 5, 4, 3, 2, 1, 0]
-	});
-
-	setTimeout(() => {
-		Moon.set({
-			list: [0, 1, 2, 3, 4, 5, 6, 7]
-		});
-
-		Moon.set({
-			list: [7, 6, 5, 4, 3, 2, 1, 0]
-		});
-
-		setTimeout(() => {
-			window.requestAnimationFrame = (fn) => fn();
-			assertExecute([7, 6, 5, 4, 3, 2, 1, 0], [7, 6, 5, 4, 3, 2, 1, 0]);
-			done();
-		}, 0);
-	}, 0);
-});

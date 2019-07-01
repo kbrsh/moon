@@ -1,5 +1,5 @@
 /**
- * Moon v1.0.0-beta.2
+ * Moon vundefined
  * Copyright 2016-2019 Kabir Shah
  * Released under the MIT License
  * https://kbrsh.github.io/moon
@@ -14,13 +14,106 @@
 	"use strict";
 
 	/**
+	 * Data driver
+	 *
+	 * The application components are usually a function of data. This data holds
+	 * application state. Every time an application is executed, it is passed new
+	 * data and returns driver outputs that correspond to it. These driver outputs
+	 * should be fast, pure, functions that are cheap to call and easy to optimize
+	 * through caching and memoization.
+	 */
+	var data = {
+		driver: function driver(data) {
+			return {
+				input: function input() {
+					// Return the stored data as input.
+					return data;
+				},
+				output: function output(dataNew) {
+					// Update the stored data when it is an output.
+					data = dataNew;
+				}
+			};
+		}
+	};
+
+	/**
 	 * View node types.
 	 */
 	var types = {
 		element: 0,
-		text: 1,
-		component: 2
+		text: 1
 	};
+	/**
+	 * Logs an error message to the console.
+	 * @param {string} message
+	 */
+
+	function error(message) {
+		console.error("[Moon] ERROR: " + message);
+	}
+
+	/**
+	 * Execution drivers.
+	 */
+
+	var executeDrivers;
+	/**
+	 * Sets the execution drivers to new drivers.
+	 *
+	 * @param {Object} executeDriversNew
+	 */
+
+	function setExecuteDrivers(executeDriversNew) {
+		executeDrivers = executeDriversNew;
+	}
+	/**
+	 * Executor
+	 *
+	 * The executor is responsible for providing an interface for applications to
+	 * interact with drivers. Drivers have an input and output function. The input
+	 * function is responsible for reading data from the outside world and
+	 * providing it to the application. On the other hand, the output function
+	 * takes the output of an application meant for the driver and performs an
+	 * action that changes the outside world: an effect.
+	 *
+	 * An application runs on the Moon while drivers update the Earth.
+	 *
+	 * @param {Function} root
+	 */
+
+	function execute(root) {
+		// Get inputs from all drivers.
+		var executeInput = {};
+
+		for (var executeDriver in executeDrivers) {
+			if ("development" === "development" && !("input" in executeDrivers[executeDriver])) {
+				error("Use of a driver without an \"input\" function.\n\nAttempted to execute a driver to receive inputs:\n\t" + executeDriver + "\n\nReceived a driver without an \"input\" function:\n\t" + executeDrivers[executeDriver] + "\n\nExpected the driver to be an object with \"input\" and \"output\" functions.");
+			}
+
+			executeInput[executeDriver] = executeDrivers[executeDriver].input();
+		} // Get the application output.
+
+
+		var executeOutput = root(executeInput); // Execute drivers with the outputs.
+
+		for (var _executeDriver in executeOutput) {
+			if ("development" === "development" && !(_executeDriver in executeDrivers)) {
+				error("Use of an unknown driver.\n\nAttempted to execute an application function:\n\t" + root.name + "\n\n\tThe function attempted to output to a driver:\n\t\t" + _executeDriver + ": " + executeOutput[_executeDriver] + "\n\nReceived an undefined value when fetching the driver from the given drivers.\n\nExpected the driver to be defined.");
+			}
+
+			if ("development" === "development" && !("output" in executeDrivers[_executeDriver])) {
+				error("Use of a driver without an \"output\" function.\n\nAttempted to execute a driver to receive outputs:\n\t" + _executeDriver + "\n\nReceived a driver without an \"output\" function:\n\t" + executeDrivers[_executeDriver] + "\n\nExpected the driver to be an object with \"input\" and \"output\" functions.");
+			}
+
+			executeDrivers[_executeDriver].output(executeOutput[_executeDriver]);
+		}
+	}
+
+	/**
+	 * Cache for default property values
+	 */
+	var removeDataPropertyCache = {};
 	/**
 	 * Old Node Constructor
 	 */
@@ -41,14 +134,6 @@
 		this.children = children;
 	}
 	/**
-	 * Logs an error message to the console.
-	 * @param {string} message
-	 */
-
-	function error(message) {
-		console.error("[Moon] ERROR: " + message);
-	}
-	/**
 	 * Returns a new node.
 	 *
 	 * @param {number} type
@@ -60,1041 +145,6 @@
 	function m(type, name, data, children) {
 		return new NodeNew(type, name, data, children);
 	}
-
-	/**
-	 * Capture whitespace-only text.
-	 */
-
-	var whitespaceRE = /^\s+$/;
-	/**
-	 * Capture special characters in text that need to be escaped.
-	 */
-
-	var textRE = /&amp;|&gt;|&lt;|&nbsp;|&quot;|\\|"|\n|\r/g;
-	/*
-	 * Map from attribute keys to equivalent DOM properties.
-	 */
-
-	var normalizeAttributeKeyMap = {
-		"class": "className",
-		"for": "htmlFor"
-	};
-	/**
-	 * Map from special characters to a safe format for JavaScript string literals.
-	 */
-
-	var escapeTextMap = {
-		"&amp;": "&",
-		"&gt;": ">",
-		"&lt;": "<",
-		"&nbsp;": " ",
-		"&quot;": "\\\"",
-		"\\": "\\\\",
-		"\"": "\\\"",
-		"\n": "\\n",
-		"\r": "\\r"
-	};
-	/**
-	 * Convert a token into a string, accounting for `<text/>` components.
-	 *
-	 * @param {Object} token
-	 * @returns {string} token converted into a string
-	 */
-
-	function tokenString(token) {
-		if (token.type === "tagOpen") {
-			if (token.value === "text") {
-				var content = token.attributes[""]; // If the text content is surrounded with quotes, it was normal text
-				// and doesn't need the quotes. If not, it was an expression and
-				// needs to be formatted with curly braces.
-
-				if (content.isExpression) {
-					return "{" + content.value + "}";
-				} else {
-					return content.value.slice(1, -1);
-				}
-			} else {
-				var tag = "<" + token.value;
-				var attributes = token.attributes;
-
-				for (var attributeKey in attributes) {
-					var attributeValue = attributes[attributeKey];
-					tag += " " + attributeKey + "=" + (attributeValue.isExpression ? "{" + attributeValue.value + "}" : attributeValue.value);
-				}
-
-				if (token.closed) {
-					tag += "/";
-				}
-
-				return tag + ">";
-			}
-		} else {
-			return "</" + token.value + ">";
-		}
-	}
-	/**
-	 * Logs a lexer error message to the console along with the surrounding
-	 * characters.
-	 *
-	 * @param {string} message
-	 * @param {string} input
-	 * @param {number} index
-	 */
-
-	function lexError(message, input, index) {
-		var lexMessage = message + "\n\n"; // Show input characters surrounding the source of the error.
-
-		for (var i = Math.max(0, index - 16); i < Math.min(index + 16, input.length); i++) {
-			lexMessage += input[i];
-		}
-
-		error(lexMessage);
-	}
-	/**
-	 * Lexer
-	 *
-	 * The lexer is responsible for taking an input view template and converting it
-	 * into a list of tokens. To make the parser's job easier, it does some extra
-	 * processing and handles tag names, attribute key/value pairs, and converting
-	 * text into `<text/>` components.
-	 *
-	 * It works by running through the input text and checking for specific initial
-	 * characters such as "<", "{", or any text. After identifying the type of
-	 * token, it processes each part individually until the end of the token. The
-	 * lexer appends the new token to a cumulative list and eventually returns it.
-	 *
-	 * @param {string} input
-	 * @returns {Object[]} list of tokens
-	 */
-
-
-	function lex(input) {
-		// Remove leading and trailing whitespace because the lexer should only
-		// accept one element as an input, and whitespace counts as text.
-		input = input.trim();
-		var tokens = [];
-
-		for (var i = 0; i < input.length;) {
-			var _char = input[i];
-
-			if (_char === "<") {
-				var charNext = input[i + 1];
-
-				if ("development" === "development" && charNext === undefined) {
-					lexError("Lexer expected a character after \"<\".", input, i);
-					break;
-				}
-
-				if (charNext === "/") {
-					// Append a closing tag token if a sequence of characters begins
-					// with "</".
-					var closeIndex = input.indexOf(">", i + 2);
-
-					var _name = input.slice(i + 2, closeIndex);
-
-					if ("development" === "development" && closeIndex === -1) {
-						lexError("Lexer expected a closing \">\" after \"</\".", input, i);
-						break;
-					}
-
-					tokens.push({
-						type: "tagClose",
-						value: _name
-					});
-					i = closeIndex + 1;
-					continue;
-				} else if (charNext === "!" && input[i + 2] === "-" && input[i + 3] === "-") {
-					// Ignore input if a sequence of characters begins with "<!--".
-					var _closeIndex = input.indexOf("-->", i + 4);
-
-					if ("development" === "development" && _closeIndex === -1) {
-						lexError("Lexer expected a closing \"-->\" after \"<!--\".", input, i);
-						break;
-					}
-
-					i = _closeIndex + 3;
-					continue;
-				} // Hold information about the name, attributes, and closing slash.
-
-
-				var name = "";
-				var attributesText = "";
-				var closed = false;
-				var attributes = {}; // Keep track of if the lexer is scanning the name or attribute text.
-
-				var isName = true; // Keep a stack of opened objects. When lexing a tag, objects and
-				// expressions can have the `>` character, and it is important that
-				// they are skipped over until they are the end of a tag.
-
-				var opened = 0; // Skip over the input and lex until the end of the tag.
-
-				for (i++; i < input.length; i++) {
-					var charName = input[i]; // Keep track of opened and closed objects.
-
-					if (charName === "{") {
-						opened += 1;
-					} else if (charName === "}") {
-						opened -= 1;
-					}
-
-					if (
-					/* Ensure all objects/expressions are closed. */
-					opened === 0 && (
-					/* Check for a normal closing angle bracket. */
-					charName === ">" ||
-					/* Check for a closing slash followed by an angle bracket and
-					 * skip over the slash. */
-					charName === "/" && input[i + 1] === ">" && (closed = true) && (i += 1))) {
-						// Skip over the closing angle bracket.
-						i += 1;
-						break;
-					} else if (isName) {
-						if (charName === " ") {
-							// If lexing the name and the character is whitespace, stop
-							// lexing the name.
-							isName = false;
-						} else if (charName === "=") {
-							// If the character is an equals sign, stop lexing the name
-							// and add it to the attribute text because it is an empty
-							// key attribute.
-							isName = false;
-							attributesText += charName;
-						} else {
-							// Add on text as part of the name.
-							name += charName;
-						}
-					} else {
-						// If not lexing the name, add on extra text as part of the
-						// attributes of the tag.
-						attributesText += charName;
-					}
-				} // Match attributes.
-
-
-				for (var j = 0; j < attributesText.length; j++) {
-					var charAttribute = attributesText[j];
-
-					if (!whitespaceRE.test(charAttribute)) {
-						var attributeKey = "";
-						var attributeValue = "true"; // Match an attribute key.
-
-						for (; j < attributesText.length; j++) {
-							charAttribute = attributesText[j];
-
-							if (whitespaceRE.test(charAttribute)) {
-								break;
-							} else if (charAttribute === "=") {
-								attributeValue = "";
-								break;
-							} else {
-								attributeKey += charAttribute;
-							}
-						} // Normalize the attribute key. Moon attribute keys should
-						// follow camelCase by convention instead of using standard HTML
-						// attribute keys.
-
-
-						if (attributeKey in normalizeAttributeKeyMap) {
-							attributeKey = normalizeAttributeKeyMap[attributeKey];
-						} // Match an attribute value if it exists.
-
-
-						if (attributeValue.length === 0) {
-							// Find a matching end quote.
-							var quote = attributesText[++j];
-
-							if (quote === "{") {
-								// For expressions, ensure that the correct closing
-								// delimiter is used.
-								quote = "}";
-							} else {
-								// For strings, add the first quote to the value.
-								attributeValue += quote;
-							} // Skip over the first quote.
-
-
-							j += 1; // Keep a stack of opened objects.
-
-							var _opened = 0; // Iterate through the value.
-
-							for (; j < attributesText.length; j++) {
-								charAttribute = attributesText[j];
-
-								if (charAttribute === "{") {
-									// Found an open object, keep track of it.
-									_opened += 1;
-									attributeValue += charAttribute;
-								} else if (charAttribute === quote) {
-									// Found a potential ending quote.
-									if (quote === "}") {
-										// If the value is an expression, ensure that all
-										// objects are closed.
-										if (_opened === 0) {
-											// Set a potentially dynamic expression.
-											attributes[attributeKey] = {
-												value: attributeValue,
-												isExpression: true
-											}; // Exit on the quote.
-
-											break;
-										} else {
-											// If all objects aren't yet closed, mark one as
-											// closed.
-											_opened -= 1;
-											attributeValue += charAttribute;
-										}
-									} else {
-										// If the value is a string, add the closing quote.
-										attributeValue += charAttribute; // Set a static key-value pair.
-
-										attributes[attributeKey] = {
-											value: attributeValue,
-											isExpression: false
-										}; // Exit on the quote.
-
-										break;
-									}
-								} else {
-									// Append characters to the value.
-									attributeValue += charAttribute;
-								}
-							}
-						} else {
-							// When a value isn't provided, the attribute is considered a
-							// Boolean value set to true.
-							attributes[attributeKey] = {
-								value: attributeValue,
-								isExpression: true
-							};
-						}
-					}
-				} // Append an opening tag token with the name, attributes, and optional
-				// self-closing slash status.
-
-
-				tokens.push({
-					type: "tagOpen",
-					value: name,
-					attributes: attributes,
-					closed: closed
-				});
-			} else if (_char === "{") {
-				// If a sequence of characters begins with "{", process it as an
-				// expression token.
-				var expression = ""; // Keep a stack of opened objects.
-
-				var _opened2 = 0; // Consume the input until the end of the expression.
-
-				for (i += 1; i < input.length; i++) {
-					var _char2 = input[i];
-
-					if (_char2 === "{") {
-						_opened2 += 1;
-						expression += _char2;
-					} else if (_char2 === "}") {
-						if (_opened2 === 0) {
-							break;
-						} else {
-							_opened2 -= 1;
-							expression += _char2;
-						}
-					} else {
-						expression += _char2;
-					}
-				} // Append the expression as a `<text/>` element with the appropriate
-				// text content attribute.
-
-
-				tokens.push({
-					type: "tagOpen",
-					value: "text",
-					attributes: {
-						"": {
-							value: expression,
-							isExpression: true
-						}
-					},
-					closed: true
-				});
-				i += 1;
-			} else {
-				// If nothing has matched at this point, process the input as text.
-				var text = ""; // Consume the input until the start of a new tag or expression.
-
-				for (; i < input.length; i++) {
-					var _char3 = input[i];
-
-					if (_char3 === "<" || _char3 === "{") {
-						break;
-					} else {
-						text += _char3;
-					}
-				} // Append the text as a `<text/>` element with the appropriate text
-				// content attribute if it isn't only whitespace.
-
-
-				if (!whitespaceRE.test(text)) {
-					tokens.push({
-						type: "tagOpen",
-						value: "text",
-						attributes: {
-							"": {
-								value: "\"" + text.replace(textRE, function (match) {
-									return escapeTextMap[match];
-								}) + "\"",
-								isExpression: false
-							}
-						},
-						closed: true
-					});
-				}
-			}
-		}
-
-		return tokens;
-	}
-
-	/**
-	 * Stores an error message, a slice of tokens associated with the error, and a
-	 * related error for later reporting.
-	 */
-
-	function ParseError(message, start, end, next) {
-		this.message = message;
-		this.start = start;
-		this.end = end;
-		this.next = next;
-	}
-	/**
-	 * Returns a full parse error message only if Moon is in development mode.
-	 *
-	 * @param {string} message
-	 * @returns {string} conditional error message
-	 */
-
-
-	function parseErrorMessage(message) {
-		/* istanbul ignore next */
-		return "development" === "development" ? message : "";
-	}
-	/**
-	 * Given a start index, end index, and a list of tokens, return a tree after
-	 * matching against the following grammar:
-	 *
-	 * Elements -> Empty | Element Elements
-	 *
-	 * The parsing algorithm is explained in more detail in the `parse` function.
-	 *
-	 * @param {number} start
-	 * @param {number} end
-	 * @param {Object[]} tokens
-	 * @returns {Object} abstract syntax tree or ParseError
-	 */
-
-
-	function parseElements(start, end, tokens) {
-		var length = end - start;
-		var error;
-
-		if (length === 0) {
-			return [];
-		} else {
-			for (var elementEnd = start + 1; elementEnd <= end; elementEnd++) {
-				var element = parseElement(start, elementEnd, tokens);
-
-				if (element instanceof ParseError) {
-					// Store the latest error in parsing an element. This will be the
-					// error with the largest possible match if all of the input tokens
-					// fail to match.
-					error = element;
-				} else {
-					var elements = parseElements(elementEnd, end, tokens);
-
-					if (!(elements instanceof ParseError)) {
-						// Combine the first element with the rest of the elements.
-						var elementsAll = [element];
-
-						for (var i = 0; i < elements.length; i++) {
-							elementsAll.push(elements[i]);
-						}
-
-						return elementsAll;
-					}
-				}
-			}
-
-			return new ParseError(parseErrorMessage("Parser expected valid elements but encountered an error."), start, end, error);
-		}
-	}
-	/**
-	 * Given a start index, end index, and a list of tokens, return a tree after
-	 * matching against the following grammar:
-	 *
-	 * Element -> TagSelfClosing | TagOpen Elements TagClose
-	 *
-	 * The parsing algorithm is explained in more detail in the `parse` function.
-	 *
-	 * @param {number} start
-	 * @param {number} end
-	 * @param {Object[]} tokens
-	 * @returns {Object} abstract syntax tree or ParseError
-	 */
-
-
-	function parseElement(start, end, tokens) {
-		var tokenFirst = tokens[start];
-		var tokenLast = tokens[end - 1];
-		var length = end - start;
-
-		if (length === 0) {
-			// Return an error because this parser does not accept empty inputs.
-			return new ParseError(parseErrorMessage("Parser expected an element but received nothing."), start, end);
-		} else if (length === 1) {
-			// The next alternate only matches on inputs with one token.
-			if (tokenFirst.type === "tagOpen" && tokenFirst.closed === true) {
-				// Verify that the single token is a self-closing tag, and return a
-				// new element without children.
-				return {
-					name: tokenFirst.value,
-					attributes: tokenFirst.attributes,
-					children: []
-				};
-			} else {
-				return new ParseError(parseErrorMessage("Parser expected a self-closing tag or text."), start, end);
-			}
-		} else {
-			// If the input size is greater than one, it must be a full element with
-			// both opening and closing tags that match.
-			if (tokenFirst.type === "tagOpen" && tokenLast.type === "tagClose" && tokenFirst.value === tokenLast.value) {
-				// Attempt to parse the inner contents as children. They must be valid
-				// for the element parse to succeed.
-				var children = parseElements(start + 1, end - 1, tokens);
-
-				if (children instanceof ParseError) {
-					return new ParseError(parseErrorMessage("Parser expected valid child elements but encountered an error."), start, end, children);
-				} else {
-					return {
-						name: tokenFirst.value,
-						attributes: tokenFirst.attributes,
-						children: children
-					};
-				}
-			} else {
-				return new ParseError(parseErrorMessage("Parser expected an element with matching opening and closing tags."), start, end);
-			}
-		}
-	}
-	/**
-	 * Parser
-	 *
-	 * The parser is responsible for taking a list of tokens to return an abstract
-	 * syntax tree of a view template. The start and end index are passed around
-	 * because it is a recursive function that is called on various sections of the
-	 * tokens. Instead of passing down slices of the tokens, it is much more
-	 * efficient to keep the same reference and pass new ranges. The start index is
-	 * inclusive, and the end index is exclusive.
-	 *
-	 * The parser is built up of other parsers, including `parseElement()` and
-	 * `parseElements()`. Each parser is responsible for taking an input with a
-	 * length within a certain range. A parser has a set of alternates that are
-	 * matched *exactly* to the input. Each alternate distributes the input in
-	 * various ways across other parsers in every possible way. If an alternate
-	 * matches, it is returned as a new node in the tree. If it doesn't, and any
-	 * other alternates don't match either, then it returns an error.
-	 *
-	 * The simplest possible parser takes an input and ensures that it matches a
-	 * certain sequence of tokens. This parser is built from the following
-	 * structure:
-	 *
-	 * Element -> TagSelfClosing | TagOpen Elements TagClose
-	 * Elements -> Empty | Element Elements
-	 *
-	 * In this case, `TagSelfClosing`, `TagOpen`, and `TagClose` are primitive
-	 * parsers that ensure that the input token matches their respective token
-	 * type.
-	 *
-	 * @param {Object[]} tokens
-	 * @returns {Object} abstract syntax tree or ParseError
-	 */
-
-
-	function parse(tokens) {
-		var tree = parseElement(0, tokens.length, tokens);
-
-		if ("development" === "development" && tree instanceof ParseError) {
-			// Append error messages and print all of them with their corresponding
-			// locations in the source.
-			var parseErrors = "";
-			var parseError = tree;
-
-			do {
-				parseErrors += "\n\n" + parseError.message + "\n"; // Collect the tokens responsible for the error as well as the
-				// surrounding tokens.
-
-				for (var i = Math.max(0, parseError.start - 2); i < Math.min(parseError.end + 2, tokens.length); i++) {
-					parseErrors += tokenString(tokens[i]);
-				}
-			} while ((parseError = parseError.next) !== undefined);
-
-			error("Parser failed to process the view." + parseErrors);
-		}
-
-		return tree;
-	}
-
-	/**
-	 * Capture the variables in expressions to scope them within the data
-	 * parameter. This ignores property names and deep object accesses.
-	 */
-	var expressionRE = /"[^"]*"|'[^']*'|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
-	/**
-	 * List of global variables to ignore in expression scoping
-	 */
-
-	var globals = ["Infinity", "NaN", "break", "case", "catch", "class", "const", "continue", "default", "delete", "do", "else", "extends", "false", "finally", "for", "function", "if", "in", "instanceof", "let", "new", "null", "return", "super", "switch", "this", "throw", "true", "try", "typeof", "undefined", "var", "void", "while", "window"];
-	/**
-	 * Generates a static value or an expression using `md` or `mc`.
-	 *
-	 * @param {string} expression
-	 * @returns {Object} generated value and static status
-	 */
-
-	function generateValue(key, value, locals) {
-		var valueValue = value.value;
-		var valueIsStatic = true;
-
-		if (value.isExpression) {
-			valueValue = valueValue.replace(expressionRE, function (match, name) {
-				if (name === undefined || globals.indexOf(name) !== -1) {
-					// Return a static match if there are no dynamic names or if it is a
-					// global variable.
-					return match;
-				} else {
-					// Return a dynamic match if there is a local, dynamic name, data
-					// reference, or children reference.
-					valueIsStatic = false;
-
-					if (locals.indexOf(name) !== -1) {
-						return name;
-					} else if (name === "data") {
-						return "md";
-					} else if (name === "children") {
-						return "mc";
-					} else {
-						return "md." + name;
-					}
-				}
-			});
-		}
-
-		if (key.charCodeAt(0) === 64) {
-			valueValue = "[" + valueValue + ",md,mc]";
-		}
-
-		return {
-			value: valueValue,
-			isStatic: valueIsStatic
-		};
-	}
-	/**
-	 * Generates a static part.
-	 *
-	 * @param {string} prelude
-	 * @param {string} part
-	 * @param {Array} staticParts
-	 * @param {Object} staticPartsMap
-	 * @returns {string} static variable
-	 */
-
-	function generateStaticPart(prelude, part, staticParts, staticPartsMap) {
-		var staticPartsMapKey = prelude + part;
-
-		if (staticPartsMapKey in staticPartsMap) {
-			return staticPartsMap[staticPartsMapKey];
-		} else {
-			var staticVariable = staticPartsMap[staticPartsMapKey] = "ms[" + staticParts.length + "]";
-			staticParts.push("" + prelude + staticVariable + "=" + part + ";");
-			return staticVariable;
-		}
-	}
-
-	/**
-	 * Generates code for a node from an `element` element.
-	 *
-	 * @param {Object} element
-	 * @param {number} variable
-	 * @param {Array} locals
-	 * @param {Array} staticParts
-	 * @param {Object} staticPartsMap
-	 * @returns {Object} prelude code, view function code, static status, and variable
-	 */
-
-	function generateNodeElement(element, variable, locals, staticParts, staticPartsMap) {
-		var attributes = element.attributes;
-		var name = generateValue("name", attributes.name, locals);
-		var data = generateValue("data", attributes.data, locals);
-		var children = generateValue("children", attributes.children, locals);
-		var dataIsStatic = data.isStatic;
-		var childrenIsStatic = children.isStatic;
-		var isStatic = name.isStatic && dataIsStatic && childrenIsStatic;
-		var dataValue = data.value;
-		var childrenValue = children.value;
-
-		if (!isStatic) {
-			if (dataIsStatic) {
-				dataValue = generateStaticPart("", dataValue, staticParts, staticPartsMap);
-			}
-
-			if (childrenIsStatic) {
-				childrenValue = generateStaticPart("", childrenValue, staticParts, staticPartsMap);
-			}
-		}
-
-		return {
-			prelude: "",
-			node: "m(" + types.element + "," + name.value + "," + dataValue + "," + childrenValue + ")",
-			isStatic: isStatic,
-			variable: variable
-		};
-	}
-
-	/**
-	 * Generates code for an `if`/`else-if`/`else` clause body.
-	 *
-	 * @param {number} variableIf
-	 * @param {Object} element
-	 * @param {number} variable
-	 * @param {Array} locals
-	 * @param {Array} staticParts
-	 * @param {Object} staticPartsMap
-	 * @returns {string} clause body and variable
-	 */
-
-	function generateClause(variableIf, element, variable, locals, staticParts, staticPartsMap) {
-		var generateBody = generateNode(element.children[0], element, 0, variable, locals, staticParts, staticPartsMap);
-		var clause;
-
-		if (generateBody.isStatic) {
-			// If the clause is static, then use a static node in place of it.
-			clause = variableIf + "=" + generateStaticPart(generateBody.prelude, generateBody.node, staticParts, staticPartsMap) + ";";
-		} else {
-			// If the clause is dynamic, then use the dynamic node.
-			clause = "" + generateBody.prelude + variableIf + "=" + generateBody.node + ";";
-		}
-
-		return {
-			clause: clause,
-			variable: generateBody.variable
-		};
-	}
-	/**
-	 * Generates code for a node from an `if` element.
-	 *
-	 * @param {Object} element
-	 * @param {Object} parent
-	 * @param {number} index
-	 * @param {number} variable
-	 * @param {Array} locals
-	 * @param {Array} staticParts
-	 * @param {Object} staticPartsMap
-	 * @returns {Object} prelude code, view function code, static status, and variable
-	 */
-
-
-	function generateNodeIf(element, parent, index, variable, locals, staticParts, staticPartsMap) {
-		var variableIf = "m" + variable;
-		var prelude = "";
-		var emptyElseClause = true; // Generate the initial `if` clause.
-
-		var clauseIf = generateClause(variableIf, element, variable + 1, locals, staticParts, staticPartsMap);
-		prelude += "var " + variableIf + ";if(" + generateValue("", element.attributes[""], locals).value + "){" + clauseIf.clause + "}";
-		variable = clauseIf.variable; // Search for `else-if` and `else` clauses if there are siblings.
-
-		if (parent !== null) {
-			var siblings = parent.children;
-
-			for (var i = index + 1; i < siblings.length;) {
-				var sibling = siblings[i];
-
-				if (sibling.name === "else-if") {
-					// Generate the `else-if` clause.
-					var clauseElseIf = generateClause(variableIf, sibling, variable, locals, staticParts, staticPartsMap);
-					prelude += "else if(" + generateValue("", sibling.attributes[""], locals).value + "){" + clauseElseIf.clause + "}";
-					variable = clauseElseIf.variable; // Remove the `else-if` clause so that it isn't generated
-					// individually by the parent.
-
-					siblings.splice(i, 1);
-				} else if (sibling.name === "else") {
-					// Generate the `else` clause.
-					var clauseElse = generateClause(variableIf, sibling, variable, locals, staticParts, staticPartsMap);
-					prelude += "else{" + clauseElse.clause + "}";
-					variable = clauseElse.variable; // Skip generating the empty `else` clause.
-
-					emptyElseClause = false; // Remove the `else` clause so that it isn't generated
-					// individually by the parent.
-
-					siblings.splice(i, 1);
-				} else {
-					break;
-				}
-			}
-		} // Generate an empty `else` clause represented by an empty text node.
-
-
-		if (emptyElseClause) {
-			prelude += "else{" + variableIf + "=" + generateStaticPart("", "m(" + types.text + ",\"text\",{\"\":\"\"},[])", staticParts, staticPartsMap) + ";}";
-		}
-
-		return {
-			prelude: prelude,
-			node: variableIf,
-			isStatic: false,
-			variable: variable
-		};
-	}
-
-	/**
-	 * Generates code for a node from a `for` element.
-	 *
-	 * @param {Object} element
-	 * @param {number} variable
-	 * @param {Array} locals
-	 * @param {Array} staticParts
-	 * @param {Object} staticPartsMap
-	 * @returns {Object} prelude code, view function code, static status, and variable
-	 */
-
-	function generateNodeFor(element, variable, locals, staticParts, staticPartsMap) {
-		var variableForChildren = "m" + variable;
-		var variableForChild = "m" + (variable + 1);
-		var variableForKey = "m" + (variable + 2);
-		var attributes = element.attributes;
-		var parameters = attributes[""].value;
-		var name = "name" in attributes ? attributes.name.value : "\"span\"";
-		var data = "data" in attributes ? generateValue("data", attributes.data, locals) : {
-			value: "{}",
-			isStatic: true
-		}; // Extract locals from the child parameters.
-
-		var local;
-
-		while ((local = expressionRE.exec(parameters)) !== null) {
-			local = local[1];
-
-			if (local !== undefined && globals.indexOf(local) === -1 && locals.indexOf(local) === -1) {
-				locals = locals.concat([local]);
-			}
-		} // Generate the child and pass the parameters as locals.
-
-
-		var generateChild = generateNode(element.children[0], element, 0, variable + 3, locals, staticParts, staticPartsMap); // Generate the child function.
-
-		var childFunction;
-		variable = generateChild.variable;
-
-		if (generateChild.isStatic) {
-			// If the child is static, then use a static node in place of it.
-			childFunction = "return " + generateStaticPart(generateChild.prelude, generateChild.node, staticParts, staticPartsMap) + ";";
-		} else {
-			// If the child is dynamic, then use the dynamic node in the loop body.
-			childFunction = generateChild.prelude + "return " + generateChild.node + ";";
-		}
-
-		childFunction = "var " + variableForChild + "=function(" + parameters + "){" + childFunction + "};"; // Generate the iterable, loop, and arguments for the child function.
-
-		var iterable;
-		var loop;
-		var args;
-
-		if ("in" in attributes) {
-			// Generate a `for` loop over an object. The first local is the key and
-			// the second is the value.
-			iterable = generateValue("in", attributes["in"], locals).value;
-			loop = "for(var " + variableForKey + " in " + iterable + "){";
-			args = variableForKey + "," + iterable + "[" + variableForKey + "]";
-		} else {
-			// Generate a `for` loop over an array. The first local is the value and
-			// the second is the key (index).
-			iterable = generateValue("of", attributes.of, locals).value;
-			loop = "for(var " + variableForKey + "=0;" + variableForKey + "<" + iterable + ".length;" + variableForKey + "++){";
-			args = iterable + "[" + variableForKey + "]," + variableForKey;
-		}
-
-		if (data.isStatic) {
-			data = generateStaticPart("", data.value, staticParts, staticPartsMap);
-		} else {
-			data = data.value;
-		}
-
-		return {
-			prelude: "var " + variableForChildren + "=[];" + childFunction + loop + variableForChildren + ".push(" + variableForChild + "(" + args + "));}",
-			node: "m(" + types.element + "," + name + "," + data + "," + variableForChildren + ")",
-			isStatic: false,
-			variable: variable
-		};
-	}
-
-	/**
-	 * Generates code for a node from an element.
-	 *
-	 * @param {Object} element
-	 * @param {Object} parent
-	 * @param {number} index
-	 * @param {number} variable
-	 * @param {Array} locals
-	 * @param {Array} staticParts
-	 * @param {Object} staticPartsMap
-	 * @returns {Object} prelude code, view function code, static status, and variable
-	 */
-
-	function generateNode(element, parent, index, variable, locals, staticParts, staticPartsMap) {
-		var name = element.name;
-		var type;
-		var staticData = true;
-		var staticChildren = true; // Generate the correct type number for the given name.
-
-		if (name === "element") {
-			return generateNodeElement(element, variable, locals, staticParts, staticPartsMap);
-		} else if (name === "if") {
-			return generateNodeIf(element, parent, index, variable, locals, staticParts, staticPartsMap);
-		} else if (name === "for") {
-			return generateNodeFor(element, variable, locals, staticParts, staticPartsMap);
-		} else if (name === "text") {
-			type = types.text;
-		} else if (name[0] === name[0].toLowerCase()) {
-			type = types.element;
-		} else {
-			type = types.component;
-		}
-
-		var attributes = element.attributes;
-		var prelude = "";
-		var data = "{";
-		var children = "";
-		var separator = "";
-
-		for (var attributeKey in attributes) {
-			var attributeValue = generateValue(attributeKey, attributes[attributeKey], locals); // A `children` attribute takes place of component children.
-
-			if (attributeKey === "children") {
-				if (!attributeValue.isStatic) {
-					staticChildren = false;
-				}
-
-				children = attributeValue.value;
-			} else {
-				// Mark the data as dynamic if there are any dynamic attributes.
-				if (!attributeValue.isStatic) {
-					staticData = false;
-				}
-
-				data += separator + "\"" + attributeKey + "\":" + attributeValue.value;
-				separator = ",";
-			}
-		}
-
-		data += "}"; // Generate children if they weren't provided in an attribute.
-
-		if (!("children" in attributes)) {
-			var elementChildren = element.children;
-			var generateChildren = [];
-			children += "[";
-			separator = "";
-
-			for (var i = 0; i < elementChildren.length; i++) {
-				var generateChild = generateNode(elementChildren[i], element, i, variable, locals, staticParts, staticPartsMap); // Mark the children as dynamic if any child is dynamic.
-
-				if (!generateChild.isStatic) {
-					staticChildren = false;
-				} // Update the variable counter.
-
-
-				variable = generateChild.variable; // Keep track of generated children.
-
-				generateChildren.push(generateChild);
-			}
-
-			for (var _i = 0; _i < generateChildren.length; _i++) {
-				var _generateChild = generateChildren[_i];
-
-				if (staticChildren || !_generateChild.isStatic) {
-					// If the children are static or the children and child node are
-					// dynamic, then append the child as a part of the node as usual.
-					prelude += _generateChild.prelude;
-					children += separator + _generateChild.node;
-				} else {
-					// If the children are dynamic and the child node is static, then use
-					// a static node in place of the static child.
-					children += separator + generateStaticPart(_generateChild.prelude, _generateChild.node, staticParts, staticPartsMap);
-				}
-
-				separator = ",";
-			}
-
-			children += "]";
-		}
-
-		if (staticData && !staticChildren) {
-			// If only the data is static, hoist it out.
-			data = generateStaticPart("", data, staticParts, staticPartsMap);
-		} else if (!staticData && staticChildren) {
-			// If only the children are static, hoist them out.
-			children = generateStaticPart("", children, staticParts, staticPartsMap);
-		}
-
-		return {
-			prelude: prelude,
-			node: "m(" + type + ",\"" + name + "\"," + data + "," + children + ")",
-			isStatic: staticData && staticChildren,
-			variable: variable
-		};
-	}
-	/**
-	 * Generator
-	 *
-	 * The generator is responsible for generating a function that creates a view.
-	 * A view could be represented as a normal set of recursive function calls, but
-	 * it uses lightweight objects to represent them instead. This allows the
-	 * executor to execute the function over multiple frames with its own
-	 * representation of the stack.
-	 *
-	 * @param {Object} element
-	 * @returns {string} view function code
-	 */
-
-	function generate(element) {
-		// Store static parts.
-		var staticParts = []; // Generate the root node and get the prelude and node code.
-
-		var _generateNode = generateNode(element, null, 0, 0, [], staticParts, {}),
-				prelude = _generateNode.prelude,
-				node = _generateNode.node,
-				isStatic = _generateNode.isStatic;
-
-		if (isStatic) {
-			// Account for a static root node.
-			return "if(!(0 in ms)){" + prelude + "ms[0]=" + node + ";}return ms[0];";
-		} else {
-			// Generate static parts only once at the start.
-			return "if(!(0 in ms)){" + staticParts.join("") + "}" + prelude + "return " + node + ";";
-		}
-	}
-
-	/**
-	 * Compiles an input into a function that returns a Moon view node.
-	 *
-	 * @param {string} input
-	 * @returns {string} view function code
-	 */
-
-	function compile(input) {
-		return generate(parse(lex(input)));
-	}
-
-	/**
-	 * Cache for default property values
-	 */
-	var removeDataPropertyCache = {};
 	/**
 	 * Update an ariaset, dataset, or style property.
 	 *
@@ -1158,44 +208,10 @@
 	}
 
 	/**
-	 * Global old view
-	 */
-	var viewOld;
-	/**
-	 * Global component store
+	 * Current view event data
 	 */
 
-	var components = {};
-	/**
-	 * Global data
-	 */
-
-	var md = {};
-	/**
-	 * Global children
-	 */
-
-	var mc = [];
-	/**
-	 * Global static component views
-	 */
-
-	var ms = {};
-	/**
-	 * Set old view to a new object.
-	 *
-	 * @param {Object} viewOld
-	 */
-
-	function setViewOld(viewOldNew) {
-		viewOld = viewOldNew;
-	}
-
-	/**
-	 * Execution status
-	 */
-
-	var executing = false;
+	var viewEvent;
 	/**
 	 * Moon event
 	 *
@@ -1205,28 +221,12 @@
 
 	function MoonEvent() {}
 
-	MoonEvent.prototype.handleEvent = function (event) {
-		var info = this["@" + event.type];
-		info[0](event, info[1], info[2]);
+	MoonEvent.prototype.handleEvent = function (viewEventNew) {
+		viewEvent = viewEventNew;
+		execute(this["@" + viewEvent.type]);
 	};
 
 	Node.prototype.MoonEvent = null;
-	/**
-	 * Executes a component and modifies it to be the result of the component view.
-	 *
-	 * @param {Object} node
-	 * @returns {Object} component result
-	 */
-
-	function executeComponent(node) {
-		while (node.type === types.component) {
-			// Execute the component to get the component view and update the node.
-			var nodeName = node.name;
-			node = components[nodeName](m, node.data, node.children, ms[nodeName]);
-		}
-
-		return node;
-	}
 	/**
 	 * Creates an old reference node from a view node.
 	 *
@@ -1234,8 +234,7 @@
 	 * @returns {Object} node to be used as an old node
 	 */
 
-
-	function executeCreate(node) {
+	function viewCreate(node) {
 		var children = [];
 		var element;
 
@@ -1249,7 +248,7 @@
 			var nodeChildren = node.children;
 
 			for (var i = 0; i < nodeChildren.length; i++) {
-				var childOld = executeCreate(executeComponent(nodeChildren[i]));
+				var childOld = viewCreate(nodeChildren[i]);
 				children.push(childOld);
 				element.appendChild(childOld.element);
 			} // Set data.
@@ -1285,17 +284,16 @@
 		return new NodeOld(node, element, children);
 	}
 	/**
-	 * Patches an old node into a new node by executing components, finding
-	 * differences, and applying changes to the DOM.
+	 * Patches an old node into a new node finding differences and applying
+	 * changes to the DOM.
 	 *
 	 * @param {Object} nodeOld
 	 * @param {Object} nodeNew
 	 */
 
 
-	function executePatch(nodeOld, nodeNew) {
+	function viewPatch(nodeOld, nodeNew) {
 		var nodeOldNode = nodeOld.node;
-		nodeNew = executeComponent(nodeNew);
 
 		if (nodeOldNode !== nodeNew) {
 			var nodeOldNodeType = nodeOldNode.type;
@@ -1308,7 +306,7 @@
 				// If the types or name aren't the same, then replace the old node
 				// with the new one.
 				var nodeOldElement = nodeOld.element;
-				var nodeOldNew = executeCreate(nodeNew);
+				var nodeOldNew = viewCreate(nodeNew);
 				var nodeOldNewElement = nodeOldNew.element;
 				nodeOld.element = nodeOldNewElement;
 				nodeOld.children = nodeOldNew.children;
@@ -1402,7 +400,7 @@
 						// If the children have the same length then update both as
 						// usual.
 						for (var i = 0; i < childrenOldLength; i++) {
-							executePatch(childrenOld[i], childrenNew[i]);
+							viewPatch(childrenOld[i], childrenNew[i]);
 						}
 					} else {
 						var _nodeOldElement2 = nodeOld.element;
@@ -1411,7 +409,7 @@
 							// If there are more old children than new children, update the
 							// corresponding ones and remove the extra old children.
 							for (var _i = 0; _i < childrenNewLength; _i++) {
-								executePatch(childrenOld[_i], childrenNew[_i]);
+								viewPatch(childrenOld[_i], childrenNew[_i]);
 							}
 
 							for (var _i2 = childrenNewLength; _i2 < childrenOldLength; _i2++) {
@@ -1421,11 +419,11 @@
 							// If there are more new children than old children, update the
 							// corresponding ones and append the extra new children.
 							for (var _i3 = 0; _i3 < childrenOldLength; _i3++) {
-								executePatch(childrenOld[_i3], childrenNew[_i3]);
+								viewPatch(childrenOld[_i3], childrenNew[_i3]);
 							}
 
 							for (var _i4 = childrenOldLength; _i4 < childrenNewLength; _i4++) {
-								var _nodeOldNew = executeCreate(executeComponent(childrenNew[_i4]));
+								var _nodeOldNew = viewCreate(childrenNew[_i4]);
 
 								childrenOld.push(_nodeOldNew);
 
@@ -1438,21 +436,15 @@
 		}
 	}
 	/**
-	 * Executor
+	 * View driver
 	 *
-	 * The executor is responsible for updating the DOM and rendering views. The
-	 * view is a function of data. This data includes application state, browser
-	 * events, and can include other views as well (children). Every time the view
-	 * is rendered, it is passed new data and returns a view that corresponds to
-	 * it. These views should be fast, pure, functions that are cheap to call and
-	 * easy to optimize through caching and memoization.
-	 *
-	 * The patch consists of walking the new tree and executing components and
-	 * finding differences between the trees. At the same time, the old tree is
-	 * changed to include references to the new one. The DOM is updated to reflect
-	 * these changes as well. Ideally, the DOM would provide an API for creating
-	 * lightweight elements and render directly from a virtual DOM, but Moon uses
-	 * the imperative API for updating it instead.
+	 * The view driver is responsible for updating the DOM and rendering views.
+	 * The patch consists of walking the new tree and finding differences between
+	 * the trees. At the same time, the old tree is changed to include references
+	 * to the new one. The DOM is updated to reflect these changes as well.
+	 * Ideally, the DOM would provide an API for creating lightweight elements and
+	 * render directly from a virtual DOM, but Moon uses the imperative API for
+	 * updating it instead.
 	 *
 	 * Since views can easily be cached, Moon skips over patches if the old and new
 	 * nodes are equal. This is also why views should be pure and immutable. They
@@ -1461,124 +453,95 @@
 	 * more memory, but Moon nodes are heavily optimized to work well with
 	 * JavaScript engines, and immutability opens up the opportunity to use
 	 * standard functional techniques for caching.
-	 *
-	 * @param {Object} dataNew
 	 */
 
 
-	function execute(dataNew) {
-		// Update the data.
-		for (var key in dataNew) {
-			md[key] = dataNew[key];
-		} // Schedule patching if nothing is executing next.
+	var view = {
+		m: m,
+		driver: function driver(root) {
+			// Accept query strings as well as DOM elements.
+			if (typeof root === "string") {
+				root = document.querySelector(root);
+			} // Capture old data from the root element's attributes.
 
 
-		if (!executing) {
-			executing = true;
-			requestAnimationFrame(function () {
-				executePatch(viewOld, components.Root(m, md, mc, ms.Root));
-				executing = false;
-			});
+			var rootAttributes = root.attributes;
+			var dataOld = {};
+
+			for (var i = 0; i < rootAttributes.length; i++) {
+				var rootAttribute = rootAttributes[i];
+				dataOld[rootAttribute.name] = rootAttribute.value;
+			} // Create an old node from the root element.
+
+
+			var viewOld = new NodeOld(new NodeNew(types.element, root.tagName.toLowerCase(), dataOld, []), root, []);
+			return {
+				input: function input() {
+					// Return the current event data as input.
+					return viewEvent;
+				},
+				output: function output(viewNew) {
+					// When given a new view, patch the old view into the new one,
+					// updating the DOM in the process.
+					viewPatch(viewOld, viewNew);
+				}
+			};
 		}
-	}
+	};
 
 	/**
 	 * Moon
 	 *
-	 * Creates a new Moon component or root based on given options. Each Moon
-	 * component is independent and has no knowledge of the parent. A component is
-	 * a function mapping data and children to a view. The component can update
-	 * global data to recreate the view. In Moon, the view is defined as a function
-	 * over data and children, and components are just helper functions.
+	 * Creates a new Moon application based on a root application and drivers. A
+	 * Moon application takes inputs and returns outputs -- it's just a function.
+	 * The input and output effects are created by drivers, individual modules
+	 * responsible for controlling the outside world. Ideally, these would be
+	 * standard and implemented by the browser, operating system, and computer
+	 * itself.
 	 *
-	 * The options can have a `root` property with an element. Moon will
-	 * automatically create the component and append it to the root element
-	 * provided if the component name is "Root". This makes the data the source of
-	 * true state that is accessible for updates by every component.
+	 * Drivers control things like state data, the DOM view, timing events,
+	 * animation frames, HTTP requests, dates, audio, etc. They are all implemented
+	 * separately from Moon, but Moon ships with data and view drivers by default.
+	 * A driver is an object with input and output functions. The input function
+	 * reads data from the outside world and returns it, while the output function
+	 * takes the driver output returned by the application and performs effects on
+	 * the outside world.
 	 *
-	 * The options must have a `view` property with a string template or
-	 * precompiled functions.
+	 * Instead of components, Moon views are just functions. They usually take a
+	 * `data` object as a parameter and return Moon elements, but can technically
+	 * be implemented with any structure.
 	 *
-	 * The `data` option is custom and can be thought of as a default. This data is
-	 * immutable, and the component updates global data instead of having local
-	 * state.
+	 * When events occur, they are detected by the application, and it returns the
+	 * value of an event handler instead. These happen with events from any driver.
+	 * Event handlers are applications as well, but since everything is a function,
+	 * they can use the root application within their own implementation.
 	 *
-	 * @param {Object} options
-	 * @param {string} [options.name]
-	 * @param {Object|string} [options.root]
-	 * @param {Object} [options.data]
-	 * @param {Object|string} options.view
+	 * Essentially, Moon aims to remove unnecessary abstractions like local state,
+	 * imperative event handlers, or reactive state subscriptions. Instead, it
+	 * embraces a purely functional approach with support for drivers to interact
+	 * with the imperative API often offered by the containing environment.
+	 *
+	 * @param {Function} root
+	 * @param {Object} drivers
 	 */
 
-	function Moon(options) {
-		// Handle the optional `name` parameter.
-		var name = "name" in options ? options.name : "Root"; // Ensure the view is defined, and compile it if needed.
-
-		var view = options.view;
-
-		if ("development" === "development" && view === undefined) {
-			error("The " + name + " component requires a \"view\" property.");
+	function Moon(root, drivers) {
+		// Handle invalid types.
+		if ("development" === "development" && typeof root !== "function") {
+			error("Root parameter with an invalid type.\n\nAttempted to execute the \"root\" parameter as an application.\n\nReceived an invalid root argument:\n\t" + root + "\n\n\tThe given root has an invalid type:\n\t\t" + typeof root + "\n\nExpected the root to be a function that takes driver inputs as parameters and returns driver outputs.");
 		}
 
-		if (typeof view === "string") {
-			view = new Function("m", "md", "mc", "ms", compile(view));
-		} // Create a list of static nodes for the view function.
+		if ("development" === "development" && typeof drivers !== "object") {
+			error("Drivers parameter with an invalid type.\n\nAttempted to store the \"drivers\" parameter for use during execution.\n\nReceived an invalid drivers argument:\n\t" + drivers + "\n\n\tThe given drivers have an invalid type:\n\t\t" + typeof drivers + "\n\nExpected the drivers to be an object with keys as driver names and values as functions that take driver inputs as parameters and return driver outputs.");
+		} // Begin execution.
 
 
-		ms[name] = [];
-
-		if (name === "Root") {
-			// Mount to the `root` element and begin execution when the component is
-			// the "Root" component.
-			var root = options.root;
-
-			if (typeof root === "string") {
-				root = document.querySelector(root);
-			}
-
-			if ("development" === "development" && root === undefined) {
-				error("The \"Root\" component requires a \"root\" property.");
-			} // Create the root component view.
-
-
-			components.Root = view; // Start the root renderer.
-
-			var rootAttributes = root.attributes;
-			var dataNode = {};
-
-			for (var i = 0; i < rootAttributes.length; i++) {
-				var rootAttribute = rootAttributes[i];
-				dataNode[rootAttribute.name] = rootAttribute.value;
-			}
-
-			setViewOld(new NodeOld(new NodeNew(types.element, root.tagName.toLowerCase(), dataNode, []), root, []));
-			execute("data" in options ? options.data : {});
-		} else {
-			// Create a wrapper view function that processes default data if needed.
-			if ("data" in options) {
-				var dataDefault = options.data;
-
-				components[name] = function (m, md, mc, ms) {
-					for (var key in dataDefault) {
-						if (!(key in md)) {
-							md[key] = dataDefault[key];
-						}
-					}
-
-					return view(m, md, mc, ms);
-				};
-			} else {
-				components[name] = view;
-			}
-		}
+		setExecuteDrivers(drivers);
+		execute(root);
 	}
-	Moon.lex = lex;
-	Moon.parse = parse;
-	Moon.generate = generate;
-	Moon.compile = compile;
-	Moon.components = components;
-	Moon.get = md;
-	Moon.set = execute;
+	Moon.data = data;
+	Moon.view = view;
+	Moon.execute = execute;
 
 	return Moon;
 }));

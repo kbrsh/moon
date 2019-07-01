@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
- * Moon CLI v1.0.0-beta.2
+ * Moon CLI vundefined
  * Copyright 2016-2019 Kabir Shah
  * Released under the MIT License
  * https://kbrsh.github.io/moon
  */
 (function () {
-	'use strict';
+	"use strict";
 
 	var fs = require("fs");
 

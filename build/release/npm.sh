@@ -1,1 +1,1 @@
-for d in ./packages/*; do (cd "$d" && npm publish); done
+for d in ./packages/moon*; do (cd "$d" && npm publish); done

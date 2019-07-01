@@ -1,117 +1,78 @@
-import { lex } from "./compiler/lexer/lexer";
-import { parse } from "./compiler/parser/parser";
-import { generate } from "./compiler/generator/generator";
-import { compile } from "./compiler/compiler";
-import { execute } from "./executor/executor";
-import { components, md, ms, setViewOld } from "./util/globals";
-import { error, NodeNew, NodeOld, types } from "./util/util";
+import data from "moon/src/drivers/data/data";
+import view from "moon/src/drivers/view/view";
+import { execute, setExecuteDrivers } from "moon/src/executor/executor";
+import { error } from "util/util";
 
 /**
  * Moon
  *
- * Creates a new Moon component or root based on given options. Each Moon
- * component is independent and has no knowledge of the parent. A component is
- * a function mapping data and children to a view. The component can update
- * global data to recreate the view. In Moon, the view is defined as a function
- * over data and children, and components are just helper functions.
+ * Creates a new Moon application based on a root application and drivers. A
+ * Moon application takes inputs and returns outputs -- it's just a function.
+ * The input and output effects are created by drivers, individual modules
+ * responsible for controlling the outside world. Ideally, these would be
+ * standard and implemented by the browser, operating system, and computer
+ * itself.
  *
- * The options can have a `root` property with an element. Moon will
- * automatically create the component and append it to the root element
- * provided if the component name is "Root". This makes the data the source of
- * true state that is accessible for updates by every component.
+ * Drivers control things like state data, the DOM view, timing events,
+ * animation frames, HTTP requests, dates, audio, etc. They are all implemented
+ * separately from Moon, but Moon ships with data and view drivers by default.
+ * A driver is an object with input and output functions. The input function
+ * reads data from the outside world and returns it, while the output function
+ * takes the driver output returned by the application and performs effects on
+ * the outside world.
  *
- * The options must have a `view` property with a string template or
- * precompiled functions.
+ * Instead of components, Moon views are just functions. They usually take a
+ * `data` object as a parameter and return Moon elements, but can technically
+ * be implemented with any structure.
  *
- * The `data` option is custom and can be thought of as a default. This data is
- * immutable, and the component updates global data instead of having local
- * state.
+ * When events occur, they are detected by the application, and it returns the
+ * value of an event handler instead. These happen with events from any driver.
+ * Event handlers are applications as well, but since everything is a function,
+ * they can use the root application within their own implementation.
  *
- * @param {Object} options
- * @param {string} [options.name]
- * @param {Object|string} [options.root]
- * @param {Object} [options.data]
- * @param {Object|string} options.view
+ * Essentially, Moon aims to remove unnecessary abstractions like local state,
+ * imperative event handlers, or reactive state subscriptions. Instead, it
+ * embraces a purely functional approach with support for drivers to interact
+ * with the imperative API often offered by the containing environment.
+ *
+ * @param {Function} root
+ * @param {Object} drivers
  */
-export default function Moon(options) {
-	// Handle the optional `name` parameter.
-	const name = "name" in options ? options.name : "Root";
+export default function Moon(root, drivers) {
+	// Handle invalid types.
+	if (process.env.MOON_ENV === "development" && typeof root !== "function") {
+		error(`Root parameter with an invalid type.
 
-	// Ensure the view is defined, and compile it if needed.
-	let view = options.view;
+Attempted to execute the "root" parameter as an application.
 
-	if (process.env.MOON_ENV === "development" && view === undefined) {
-		error(`The ${name} component requires a "view" property.`);
+Received an invalid root argument:
+	${root}
+
+	The given root has an invalid type:
+		${typeof root}
+
+Expected the root to be a function that takes driver inputs as parameters and returns driver outputs.`);
 	}
 
-	if (typeof view === "string") {
-		view = new Function("m", "md", "mc", "ms", compile(view));
+	if (process.env.MOON_ENV === "development" && typeof drivers !== "object") {
+		error(`Drivers parameter with an invalid type.
+
+Attempted to store the "drivers" parameter for use during execution.
+
+Received an invalid drivers argument:
+	${drivers}
+
+	The given drivers have an invalid type:
+		${typeof drivers}
+
+Expected the drivers to be an object with keys as driver names and values as functions that take driver inputs as parameters and return driver outputs.`);
 	}
 
-	// Create a list of static nodes for the view function.
-	ms[name] = [];
-
-
-	if (name === "Root") {
-		// Mount to the `root` element and begin execution when the component is
-		// the "Root" component.
-		let root = options.root;
-
-		if (typeof root === "string") {
-			root = document.querySelector(root);
-		}
-
-		if (process.env.MOON_ENV === "development" && root === undefined) {
-			error("The \"Root\" component requires a \"root\" property.");
-		}
-
-		// Create the root component view.
-		components.Root = view;
-
-		// Start the root renderer.
-		const rootAttributes = root.attributes;
-		const dataNode = {};
-
-		for (let i = 0; i < rootAttributes.length; i++) {
-			const rootAttribute = rootAttributes[i];
-			dataNode[rootAttribute.name] = rootAttribute.value;
-		}
-
-		setViewOld(new NodeOld(
-			new NodeNew(
-				types.element,
-				root.tagName.toLowerCase(),
-				dataNode,
-				[]
-			),
-			root,
-			[]
-		));
-		execute("data" in options ? options.data : {});
-	} else {
-		// Create a wrapper view function that processes default data if needed.
-		if ("data" in options) {
-			const dataDefault = options.data;
-
-			components[name] = (m, md, mc, ms) => {
-				for (const key in dataDefault) {
-					if (!(key in md)) {
-						md[key] = dataDefault[key];
-					}
-				}
-
-				return view(m, md, mc, ms);
-			};
-		} else {
-			components[name] = view;
-		}
-	}
+	// Begin execution.
+	setExecuteDrivers(drivers);
+	execute(root);
 }
 
-Moon.lex = lex;
-Moon.parse = parse;
-Moon.generate = generate;
-Moon.compile = compile;
-Moon.components = components;
-Moon.get = md;
-Moon.set = execute;
+Moon.data = data;
+Moon.view = view;
+Moon.execute = execute;

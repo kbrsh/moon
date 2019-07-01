@@ -1,0 +1,20 @@
+{
+	"name": "moon-compiler",
+	"version": "1.0.0-beta.2",
+	"description": "Moon syntax compiler",
+	"main": "dist/moon-compiler.min.js",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/kbrsh/moon.git"
+	},
+	"keywords": [
+		"moon",
+		"compiler"
+	],
+	"author": "Kabir Shah",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/kbrsh/moon/issues"
+	},
+	"homepage": "https://github.com/kbrsh/moon#readme"
+}

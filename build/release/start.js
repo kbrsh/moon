@@ -6,12 +6,18 @@ const version = JSON.parse(fs.readFileSync("./package.json", "utf8")).version;
 const packages = fs.readdirSync("./packages");
 
 for (let i = 0; i < packages.length; i++) {
-	const package = path.join("./packages", packages[i]);
-	if (fs.statSync(package).isDirectory()) {
-		const packageJSONPath = path.join(package, "package.json");
-		const packageJSON = JSON.parse(fs.readFileSync(packageJSONPath, "utf8"));
-		packageJSON.version = version;
-		fs.writeFileSync(packageJSONPath, JSON.stringify(packageJSON, null, "\t"));
+	let package = packages[i];
+	if (package.slice(0, 4) === "moon") {
+		package = path.join("./packages", packages[i]);
+
+		if (fs.statSync(package).isDirectory()) {
+			const packageJSONPath = path.join(package, "package.json");
+			const packageJSON = JSON.parse(fs.readFileSync(packageJSONPath, "utf8"));
+
+			packageJSON.version = version;
+
+			fs.writeFileSync(packageJSONPath, JSON.stringify(packageJSON, null, "\t"));
+		}
 	}
 }
 
