@@ -1,3 +1,3 @@
-# Moon
+# Moon Compiler
 
-The minimal & fast UI library
+Compiler for Moon syntax

@@ -1,3 +1,3 @@
-# Moon
+# Moon Browser
 
-The minimal & fast UI library
+Browser compiler for Moon syntax
