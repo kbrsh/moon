@@ -2,11 +2,6 @@ import compile from "moon-compiler/src/index.js";
 import { error } from "util/util";
 
 /**
- * Async script sources
- */
-const scriptsAsync = [];
-
-/**
  * Head element
  */
 let head;
@@ -14,53 +9,54 @@ let head;
 /**
  * Script elements
  */
-let scripts;
+const scripts = [];
 
 /**
- * Load async scripts in the order they appear.
+ * Load scripts in the order they appear.
  */
 function load() {
-	if (scriptsAsync.length !== 0) {
-		const xhr = new XMLHttpRequest();
-		const src = scriptsAsync.shift();
+	if (scripts.length !== 0) {
+		const script = scripts.shift();
+		const src = script.src;
 
-		xhr.addEventListener("load", function() {
-			if (xhr.readyState === xhr.DONE) {
-				if (xhr.status === 0 || xhr.status === 200) {
-					const scriptNew = document.createElement("script");
-					scriptNew.text = compile(this.responseText);
-					head.appendChild(scriptNew);
-				} else {
-					error(`Failed to load script with source "${src}" and status ${xhr.status}.`);
+		if (src.length === 0) {
+			const scriptNew = document.createElement("script");
+			scriptNew.text = compile(script.text);
+			head.appendChild(scriptNew);
+			script.parentNode.removeChild(script);
+			load();
+		} else {
+			const xhr = new XMLHttpRequest();
+
+			xhr.addEventListener("load", function() {
+				if (xhr.readyState === xhr.DONE) {
+					if (xhr.status === 0 || xhr.status === 200) {
+						const scriptNew = document.createElement("script");
+						scriptNew.text = compile(this.responseText);
+						head.appendChild(scriptNew);
+					} else {
+						error(`Failed to load script with source "${src}" and status ${xhr.status}.`);
+					}
+
+					script.parentNode.removeChild(script);
+					load();
 				}
-
-				load();
-			}
-		});
-		xhr.open("GET", src, true);
-		xhr.send();
+			});
+			xhr.open("GET", src, true);
+			xhr.send();
+		}
 	}
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+	const scriptElements = document.querySelectorAll("script");
 	head = document.querySelector("head");
-	scripts = document.querySelectorAll("script");
 
-	for (let i = 0; i < scripts.length; i++) {
-		const script = scripts[i];
+	for (let i = 0; i < scriptElements.length; i++) {
+		const scriptElement = scriptElements[i];
 
-		if (script.type === "text/moon") {
-			const src = script.src;
-
-			if (src.length === 0) {
-				const scriptNew = document.createElement("script");
-				scriptNew.text = compile(script.text);
-				head.appendChild(scriptNew);
-			} else {
-				scriptsAsync.push(src);
-			}
-
-			script.parentNode.removeChild(script);
+		if (scriptElement.type === "text/moon") {
+			scripts.push(scriptElement);
 		}
 	}
 

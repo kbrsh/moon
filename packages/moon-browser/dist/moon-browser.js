@@ -1184,11 +1184,6 @@
 	}
 
 	/**
-	 * Async script sources
-	 */
-
-	var scriptsAsync = [];
-	/**
 	 * Head element
 	 */
 
@@ -1197,52 +1192,54 @@
 	 * Script elements
 	 */
 
-	var scripts;
+	var scripts = [];
 	/**
-	 * Load async scripts in the order they appear.
+	 * Load scripts in the order they appear.
 	 */
 
 	function load() {
-		if (scriptsAsync.length !== 0) {
-			var xhr = new XMLHttpRequest();
-			var src = scriptsAsync.shift();
-			xhr.addEventListener("load", function () {
-				if (xhr.readyState === xhr.DONE) {
-					if (xhr.status === 0 || xhr.status === 200) {
-						var scriptNew = document.createElement("script");
-						scriptNew.text = compile(this.responseText);
-						head.appendChild(scriptNew);
-					} else {
-						error("Failed to load script with source \"" + src + "\" and status " + xhr.status + ".");
-					}
+		if (scripts.length !== 0) {
+			var script = scripts.shift();
+			var src = script.src;
 
-					load();
-				}
-			});
-			xhr.open("GET", src, true);
-			xhr.send();
+			if (src.length === 0) {
+				var scriptNew = document.createElement("script");
+				scriptNew.text = compile(script.text);
+				head.appendChild(scriptNew);
+				script.parentNode.removeChild(script);
+				load();
+			} else {
+				var xhr = new XMLHttpRequest();
+				xhr.addEventListener("load", function () {
+					if (xhr.readyState === xhr.DONE) {
+						if (xhr.status === 0 || xhr.status === 200) {
+							var _scriptNew = document.createElement("script");
+
+							_scriptNew.text = compile(this.responseText);
+							head.appendChild(_scriptNew);
+						} else {
+							error("Failed to load script with source \"" + src + "\" and status " + xhr.status + ".");
+						}
+
+						script.parentNode.removeChild(script);
+						load();
+					}
+				});
+				xhr.open("GET", src, true);
+				xhr.send();
+			}
 		}
 	}
 
 	document.addEventListener("DOMContentLoaded", function () {
+		var scriptElements = document.querySelectorAll("script");
 		head = document.querySelector("head");
-		scripts = document.querySelectorAll("script");
 
-		for (var i = 0; i < scripts.length; i++) {
-			var script = scripts[i];
+		for (var i = 0; i < scriptElements.length; i++) {
+			var scriptElement = scriptElements[i];
 
-			if (script.type === "text/moon") {
-				var src = script.src;
-
-				if (src.length === 0) {
-					var scriptNew = document.createElement("script");
-					scriptNew.text = compile(script.text);
-					head.appendChild(scriptNew);
-				} else {
-					scriptsAsync.push(src);
-				}
-
-				script.parentNode.removeChild(script);
+			if (scriptElement.type === "text/moon") {
+				scripts.push(scriptElement);
 			}
 		}
 
