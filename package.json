@@ -1,7 +1,8 @@
 {
 	"name": "moon-root",
-	"private": true,
+	"version": "1.0.0-beta.3",
 	"description": "The minimal & fast UI library",
+	"private": true,
 	"scripts": {
 		"build": "node build/build.js",
 		"test": "MOON_ENV=\"development\" jest"

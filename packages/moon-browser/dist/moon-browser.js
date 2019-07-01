@@ -1,5 +1,5 @@
 /**
- * Moon Browser vundefined
+ * Moon Browser v1.0.0-beta.3
  * Copyright 2016-2019 Kabir Shah
  * Released under the MIT License
  * https://kbrsh.github.io/moon
