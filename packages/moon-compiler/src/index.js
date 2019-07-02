@@ -2,7 +2,7 @@ import { lex } from "moon-compiler/src/lexer/lexer";
 import parse from "moon-compiler/src/parser/parser";
 import generate from "moon-compiler/src/generator/generator";
 import { generateStaticPart } from "moon-compiler/src/generator/util/util";
-import { isQuote } from "moon-compiler/src/util/util";
+import { isQuote, whitespaceRE } from "moon-compiler/src/util/util";
 
 /**
  * Compiles a JavaScript file with Moon syntax.
@@ -17,66 +17,79 @@ export default function compile(input) {
 	for (let i = 0; i < input.length;) {
 		const char = input[i];
 
-		if (char === "(" && input[i + 1] === "<") {
+		if (char === "(") {
 			// Skip over the parenthesis.
 			output += char;
-			i += 1;
 
-			// Record the view.
-			let view = "";
-
-			// Store opened parentheses.
-			let opened = 0;
-
-			for (; i < input.length;) {
+			// Skip over whitespace.
+			for (i++; i < input.length; i++) {
 				const char = input[i];
 
-				if (char === ")" && opened === 0) {
-					break;
-				} else if (isQuote(char, input[i - 1])) {
-					// Skip over strings.
-					view += char;
-
-					for (i++; i < input.length; i++) {
-						const charString = input[i];
-
-						// Add the string contents to the output.
-						view += charString;
-
-						if (isQuote(charString, input[i - 1]) && charString === char) {
-							// Skip over the closing quote.
-							i += 1;
-
-							// Exit after the closing quote.
-							break;
-						}
-					}
+				if (whitespaceRE.test(char)) {
+					output += char;
 				} else {
-					if (char === "(") {
-						opened += 1;
-					} else if (char === ")") {
-						opened -= 1;
-					}
-
-					view += char;
-					i += 1;
+					break;
 				}
 			}
 
-			const staticParts = [];
-			const staticPartsMap = {};
-			const result = generate(parse(lex(view)), null, 0, variable, staticParts, staticPartsMap);
+			// Check if is a view.
+			if (input[i] === "<") {
+				// Record the view.
+				let view = "";
 
-			variable = result.variable;
+				// Store opened parentheses.
+				let opened = 0;
 
-			if (result.isStatic) {
-				// Generate a static output.
-				const staticPart = generateStaticPart(result.prelude, result.node, variable, staticParts, staticPartsMap);
-				variable = staticPart.variable;
-				output += `(function(){if(${staticPart.variableStatic}===undefined){${staticParts[0].variablePart}}return ${staticPart.variableStatic};})()`;
-			} else {
-				// Add the prelude to the last seen block and the node in place of the expression.
-				output += `(function(){${staticParts.length === 0 ? "" : `if(${staticParts[0].variableStatic}===undefined){${staticParts.map(staticPart => staticPart.variablePart).join("")}}`}${result.prelude}return ${result.node};})()`;
+				for (; i < input.length;) {
+					const char = input[i];
+
+					if (char === ")" && opened === 0) {
+						break;
+					} else if (isQuote(char, input[i - 1])) {
+						// Skip over strings.
+						view += char;
+
+						for (i++; i < input.length; i++) {
+							const charString = input[i];
+
+							// Add the string contents to the output.
+							view += charString;
+
+							if (isQuote(charString, input[i - 1]) && charString === char) {
+								// Skip over the closing quote.
+								i += 1;
+
+								// Exit after the closing quote.
+								break;
+							}
+						}
+					} else {
+						if (char === "(") {
+							opened += 1;
+						} else if (char === ")") {
+							opened -= 1;
+						}
+
+						view += char;
+						i += 1;
+					}
+				}
+
+				const staticParts = [];
+				const staticPartsMap = {};
+				const result = generate(parse(lex(view)), null, 0, variable, staticParts, staticPartsMap);
+
+				variable = result.variable;
+
+				if (result.isStatic) {
+					// Generate a static output.
+					const staticPart = generateStaticPart(result.prelude, result.node, variable, staticParts, staticPartsMap);
+					variable = staticPart.variable;
+					output += `(function(){if(${staticPart.variableStatic}===undefined){${staticParts[0].variablePart}}return ${staticPart.variableStatic};})()`;
+				} else {
+					// Add the prelude to the last seen block and the node in place of the expression.
+					output += `(function(){${staticParts.length === 0 ? "" : `if(${staticParts[0].variableStatic}===undefined){${staticParts.map(staticPart => staticPart.variablePart).join("")}}`}${result.prelude}return ${result.node};})()`;
+				}
 			}
 		} else if (isQuote(char, input[i - 1])) {
 			// If there is a string in the code, skip over it.

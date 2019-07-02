@@ -1,4 +1,10 @@
 /**
+ * Capture whitespace-only text.
+ */
+export const whitespaceRE = /^\s+$/;
+
+
+/**
  * See if a character is an unescaped quote.
  *
  * @param {string} char

@@ -14,12 +14,17 @@
 	"use strict";
 
 	/**
+	 * Capture whitespace-only text.
+	 */
+	var whitespaceRE = /^\s+$/;
+	/**
 	 * See if a character is an unescaped quote.
 	 *
 	 * @param {string} char
 	 * @param {string} charPrevious
 	 * @returns {Boolean} quote status
 	 */
+
 	function isQuote(_char, charPrevious) {
 		return charPrevious !== "\\" && (_char === "\"" || _char === "'" || _char === "`");
 	}
@@ -40,11 +45,6 @@
 		console.error("[Moon] ERROR: " + message);
 	}
 
-	/**
-	 * Capture whitespace-only text.
-	 */
-
-	var whitespaceRE = /^\s+$/;
 	/**
 	 * Capture special characters in text that need to be escaped.
 	 */
@@ -1051,63 +1051,76 @@
 		for (var i = 0; i < input.length;) {
 			var _char = input[i];
 
-			if (_char === "(" && input[i + 1] === "<") {
+			if (_char === "(") {
 				// Skip over the parenthesis.
-				output += _char;
-				i += 1; // Record the view.
+				output += _char; // Skip over whitespace.
 
-				var view = ""; // Store opened parentheses.
-
-				var opened = 0;
-
-				for (; i < input.length;) {
+				for (i++; i < input.length; i++) {
 					var _char2 = input[i];
 
-					if (_char2 === ")" && opened === 0) {
-						break;
-					} else if (isQuote(_char2, input[i - 1])) {
-						// Skip over strings.
-						view += _char2;
-
-						for (i++; i < input.length; i++) {
-							var charString = input[i]; // Add the string contents to the output.
-
-							view += charString;
-
-							if (isQuote(charString, input[i - 1]) && charString === _char2) {
-								// Skip over the closing quote.
-								i += 1; // Exit after the closing quote.
-
-								break;
-							}
-						}
+					if (whitespaceRE.test(_char2)) {
+						output += _char2;
 					} else {
-						if (_char2 === "(") {
-							opened += 1;
-						} else if (_char2 === ")") {
-							opened -= 1;
-						}
-
-						view += _char2;
-						i += 1;
+						break;
 					}
-				}
+				} // Check if is a view.
 
-				var staticParts = [];
-				var staticPartsMap = {};
-				var result = generate(parse(lex(view)), null, 0, variable, staticParts, staticPartsMap);
-				variable = result.variable;
 
-				if (result.isStatic) {
-					// Generate a static output.
-					var staticPart = generateStaticPart(result.prelude, result.node, variable, staticParts, staticPartsMap);
-					variable = staticPart.variable;
-					output += "(function(){if(" + staticPart.variableStatic + "===undefined){" + staticParts[0].variablePart + "}return " + staticPart.variableStatic + ";})()";
-				} else {
-					// Add the prelude to the last seen block and the node in place of the expression.
-					output += "(function(){" + (staticParts.length === 0 ? "" : "if(" + staticParts[0].variableStatic + "===undefined){" + staticParts.map(function (staticPart) {
-						return staticPart.variablePart;
-					}).join("") + "}") + result.prelude + "return " + result.node + ";})()";
+				if (input[i] === "<") {
+					// Record the view.
+					var view = ""; // Store opened parentheses.
+
+					var opened = 0;
+
+					for (; i < input.length;) {
+						var _char3 = input[i];
+
+						if (_char3 === ")" && opened === 0) {
+							break;
+						} else if (isQuote(_char3, input[i - 1])) {
+							// Skip over strings.
+							view += _char3;
+
+							for (i++; i < input.length; i++) {
+								var charString = input[i]; // Add the string contents to the output.
+
+								view += charString;
+
+								if (isQuote(charString, input[i - 1]) && charString === _char3) {
+									// Skip over the closing quote.
+									i += 1; // Exit after the closing quote.
+
+									break;
+								}
+							}
+						} else {
+							if (_char3 === "(") {
+								opened += 1;
+							} else if (_char3 === ")") {
+								opened -= 1;
+							}
+
+							view += _char3;
+							i += 1;
+						}
+					}
+
+					var staticParts = [];
+					var staticPartsMap = {};
+					var result = generate(parse(lex(view)), null, 0, variable, staticParts, staticPartsMap);
+					variable = result.variable;
+
+					if (result.isStatic) {
+						// Generate a static output.
+						var staticPart = generateStaticPart(result.prelude, result.node, variable, staticParts, staticPartsMap);
+						variable = staticPart.variable;
+						output += "(function(){if(" + staticPart.variableStatic + "===undefined){" + staticParts[0].variablePart + "}return " + staticPart.variableStatic + ";})()";
+					} else {
+						// Add the prelude to the last seen block and the node in place of the expression.
+						output += "(function(){" + (staticParts.length === 0 ? "" : "if(" + staticParts[0].variableStatic + "===undefined){" + staticParts.map(function (staticPart) {
+							return staticPart.variablePart;
+						}).join("") + "}") + result.prelude + "return " + result.node + ";})()";
+					}
 				}
 			} else if (isQuote(_char, input[i - 1])) {
 				// If there is a string in the code, skip over it.
@@ -1128,10 +1141,10 @@
 			} else if (_char === "/" && input[i + 1] === "/") {
 				// Skip over the line.
 				for (; i < input.length; i++) {
-					var _char3 = input[i];
-					output += _char3;
+					var _char4 = input[i];
+					output += _char4;
 
-					if (_char3 === "\n") {
+					if (_char4 === "\n") {
 						// Skip over the newline.
 						i += 1; // Exit after the newline.
 
@@ -1144,10 +1157,10 @@
 				i += 2;
 
 				for (; i < input.length; i++) {
-					var _char4 = input[i];
-					output += _char4;
+					var _char5 = input[i];
+					output += _char5;
 
-					if (_char4 === "*" && input[i + 1] === "/") {
+					if (_char5 === "*" && input[i + 1] === "/") {
 						// Skip over the closing delimiter.
 						output += "/";
 						i += 2; // Exit after the comment.

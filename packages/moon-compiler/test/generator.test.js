@@ -283,3 +283,12 @@ test("generate other complex nested expressions inside views", () => {
 		"var m0;((function(){if(m0===undefined){m0=[Moon.view.m(1,\"text\",{\"\":\"Test\"},[])];}return Moon.view.m(0,\"h1\",{\"test\":(1 + ('hello\\'' + `world\\\"`))},m0);})())"
 	);
 });
+
+test("generate views with surrounding whitespace", () => {
+	assertGenerate(
+		`(
+			<p>Moon</p>
+		)`,
+		"var m0;(\n\t\t\t(function(){if(m0===undefined){m0=Moon.view.m(0,\"p\",{},[Moon.view.m(1,\"text\",{\"\":\"Moon\"},[])]);}return m0;})())"
+	);
+});

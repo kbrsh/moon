@@ -1,10 +1,5 @@
-import { isQuote } from "moon-compiler/src/util/util";
+import { isQuote, whitespaceRE } from "moon-compiler/src/util/util";
 import { error } from "util/util";
-
-/**
- * Capture whitespace-only text.
- */
-const whitespaceRE = /^\s+$/;
 
 /**
  * Capture special characters in text that need to be escaped.
