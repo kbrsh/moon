@@ -6,5 +6,5 @@
  * @returns {Boolean} quote status
  */
 export function isQuote(char, charPrevious) {
-	return charPrevious !== "\\" && (char === "\"" || char === "'");
+	return charPrevious !== "\\" && (char === "\"" || char === "'" || char === "`");
 }

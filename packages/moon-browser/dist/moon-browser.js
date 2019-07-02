@@ -15,7 +15,7 @@
 	 * @returns {Boolean} quote status
 	 */
 	function isQuote(_char, charPrevious) {
-		return charPrevious !== "\\" && (_char === "\"" || _char === "'");
+		return charPrevious !== "\\" && (_char === "\"" || _char === "'" || _char === "`");
 	}
 
 	/**
