@@ -46,8 +46,16 @@ test("lex expression", () => {
 	expect(lex(`{data + 1 + {foo: true, bar: false}}`)).toEqual([{"attributes": {"": {"value": "data + 1 + {foo: true, bar: false}", "isStatic": false}}, "closed": true, "type": "tagOpen", "value": "text"}]);
 });
 
+test("lex expression with strings", () => {
+	expect(lex(`{"}{test\\""}`)).toEqual([{"attributes": {"": {"isStatic": false, "value": "\"}{test\\\"\""}}, "closed": true, "type": "tagOpen", "value": "text"}]);
+});
+
 test("lex attributes", () => {
 	expect(lex(`<div id="test-id" class='test-class' for='input' dynamic={true} local={$local} fn={() => true} nested={{foo: {bar: true}, baz: false}} self>`)).toEqual([{"attributes": {"id": {"value": "\"test-id\"", "isStatic": true}, "className": {"value": "'test-class'", "isStatic": true}, "htmlFor": {"value": "'input'", "isStatic": true}, "dynamic": {"value": "true", "isStatic": false}, "local": {"value": "$local", "isStatic": false}, "fn": {"value": "() => true", "isStatic": false}, "self": {"value": "true", "isStatic": true}, "nested": {"value": "{foo: {bar: true}, baz: false}", "isStatic": false}}, "closed": false, "type": "tagOpen", "value": "div"}]);
+});
+
+test("lex attributes with strings", () => {
+	expect(lex(`<div id={"}{test\\""}></div>`)).toEqual([{"attributes": {"id": {"isStatic": false, "value": "\"}{test\\\"\""}}, "closed": false, "type": "tagOpen", "value": "div"}, {"type": "tagClose", "value": "div"}]);
 });
 
 test("lex `children` data reference", () => {

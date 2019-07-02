@@ -17,13 +17,13 @@ export default function compile(input) {
 	for (let i = 0; i < input.length;) {
 		const char = input[i];
 
-		if (char === "(") {
+		if (char === "(" && input[i + 1] === "<") {
 			// Skip over the parenthesis.
 			output += char;
 			i += 1;
 
-			// Record the expression.
-			let expression = "";
+			// Record the view.
+			let view = "";
 
 			// Store opened parentheses.
 			let opened = 0;
@@ -35,13 +35,13 @@ export default function compile(input) {
 					break;
 				} else if (isQuote(char, input[i - 1])) {
 					// Skip over strings.
-					expression += char;
+					view += char;
 
 					for (i++; i < input.length; i++) {
 						const charString = input[i];
 
 						// Add the string contents to the output.
-						expression += charString;
+						view += charString;
 
 						if (isQuote(charString, input[i - 1]) && charString === char) {
 							// Skip over the closing quote.
@@ -58,34 +58,25 @@ export default function compile(input) {
 						opened -= 1;
 					}
 
-					expression += char;
+					view += char;
 					i += 1;
 				}
 			}
 
-			// Remove surrounding whitespace.
-			expression = expression.trim();
+			const staticParts = [];
+			const staticPartsMap = {};
+			const result = generate(parse(lex(view)), null, 0, variable, staticParts, staticPartsMap);
 
-			if (expression[0] === "<") {
-				// If it is a Moon view, then lex, parse, and generate code for it.
-				const staticParts = [];
-				const staticPartsMap = {};
-				const result = generate(parse(lex(expression)), null, 0, variable, staticParts, staticPartsMap);
+			variable = result.variable;
 
-				variable = result.variable;
-
-				if (result.isStatic) {
-					// Generate a static output.
-					const staticPart = generateStaticPart(result.prelude, result.node, variable, staticParts, staticPartsMap);
-					variable = staticPart.variable;
-					output += `(function(){if(${staticPart.variableStatic}===undefined){${staticParts[0].variablePart}}return ${staticPart.variableStatic};})()`;
-				} else {
-					// Add the prelude to the last seen block and the node in place of the expression.
-					output += `(function(){${staticParts.length === 0 ? "" : `if(${staticParts[0].variableStatic}===undefined){${staticParts.map(staticPart => staticPart.variablePart).join("")}}`}${result.prelude}return ${result.node};})()`;
-				}
+			if (result.isStatic) {
+				// Generate a static output.
+				const staticPart = generateStaticPart(result.prelude, result.node, variable, staticParts, staticPartsMap);
+				variable = staticPart.variable;
+				output += `(function(){if(${staticPart.variableStatic}===undefined){${staticParts[0].variablePart}}return ${staticPart.variableStatic};})()`;
 			} else {
-				// If not, then add it to the output as a normal expression.
-				output += expression;
+				// Add the prelude to the last seen block and the node in place of the expression.
+				output += `(function(){${staticParts.length === 0 ? "" : `if(${staticParts[0].variableStatic}===undefined){${staticParts.map(staticPart => staticPart.variablePart).join("")}}`}${result.prelude}return ${result.node};})()`;
 			}
 		} else if (isQuote(char, input[i - 1])) {
 			// If there is a string in the code, skip over it.

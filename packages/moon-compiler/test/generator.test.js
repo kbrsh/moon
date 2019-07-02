@@ -241,3 +241,45 @@ test("generate for node with duplicate local", () => {
 		"var m0,m1,m2,m3,m4,m5,m6,m7,m8,m9,m10,m11,m12,m13;((function(){if(m12===undefined){m12=[];m13={};}m0=[];m1=function(item){m3=[];m4=function(item){m6=[];m7=function(window){m9=[];m10=function(not: 'foo'){return Moon.view.m(1,\"text\",{\"\":item},m12);};for(m11=0;m11<list.length;m11++){m9.push(m10(list[m11],m11));}return Moon.view.m(0,\"span\",m13,m9);};for(m8=0;m8<list.length;m8++){m6.push(m7(list[m8],m8));}return Moon.view.m(0,\"span\",m13,m6);};for(m5=0;m5<list.length;m5++){m3.push(m4(list[m5],m5));}return Moon.view.m(0,\"span\",m13,m3);};for(m2=0;m2<list.length;m2++){m0.push(m1(list[m2],m2));}return Moon.view.m(0,\"span\",m13,m0);})())"
 	);
 });
+
+test("generate with comments", () => {
+	const code = `// (<h1>not converted</h1>)\n`;
+	assertGenerate(code, code);
+});
+
+test("generate with multiline comments", () => {
+	const code = `/*\n(<h1>not converted</h1>)\n*/`;
+	assertGenerate(code, code);
+});
+
+test("generate with double quote strings", () => {
+	const code = `"(<h1>not converted</h1>)"`;
+	assertGenerate(code, code);
+});
+
+test("generate with single quote strings", () => {
+	const code = `'(<h1>not converted</h1>)'`;
+	assertGenerate(code, code);
+});
+
+test("generate with template strings", () => {
+	const code = "`(<h1>not converted</h1>)`";
+	assertGenerate(code, code);
+});
+
+test("generate other expressions", () => {
+	const code = "(1 + 1)";
+	assertGenerate(code, code);
+});
+
+test("generate other complex nested expressions", () => {
+	const code = "(1 + ('hello\'' + `world\\\"`))";
+	assertGenerate(code, code);
+});
+
+test("generate other complex nested expressions inside views", () => {
+	assertGenerate(
+		"(<h1 test={(1 + ('hello\\'' + `world\\\"`))}>Test</h1>)",
+		"var m0;((function(){if(m0===undefined){m0=[Moon.view.m(1,\"text\",{\"\":\"Test\"},[])];}return Moon.view.m(0,\"h1\",{\"test\":(1 + ('hello\\'' + `world\\\"`))},m0);})())"
+	);
+});

@@ -306,10 +306,9 @@ export function lex(input) {
 								attributeValue += charAttribute;
 
 								for (j++; j < attributesText.length; j++) {
-									const charString = attributesText[j];
-
 									// Add everything inside the string to the attribute
 									// value.
+									const charString = attributesText[j];
 									attributeValue += charString;
 
 									if (isQuote(charString, attributesText[j - 1]) && charString === charAttribute) {

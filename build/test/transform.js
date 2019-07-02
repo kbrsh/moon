@@ -3,6 +3,6 @@ const compile = require("../../packages/moon-compiler/dist/moon-compiler.min.js"
 
 module.exports = {
 	process(src) {
-		return babel.transformSync(compile(src), {});
+		return babel.transformSync(compile(src), { sourceMaps: true });
 	}
 };

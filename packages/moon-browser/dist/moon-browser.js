@@ -316,9 +316,9 @@
 									attributeValue += charAttribute;
 
 									for (j++; j < attributesText.length; j++) {
-										var _charString = attributesText[j]; // Add everything inside the string to the attribute
+										// Add everything inside the string to the attribute
 										// value.
-
+										var _charString = attributesText[j];
 										attributeValue += _charString;
 
 										if (isQuote(_charString, attributesText[j - 1]) && _charString === charAttribute) {
@@ -1045,12 +1045,12 @@
 		for (var i = 0; i < input.length;) {
 			var _char = input[i];
 
-			if (_char === "(") {
+			if (_char === "(" && input[i + 1] === "<") {
 				// Skip over the parenthesis.
 				output += _char;
-				i += 1; // Record the expression.
+				i += 1; // Record the view.
 
-				var expression = ""; // Store opened parentheses.
+				var view = ""; // Store opened parentheses.
 
 				var opened = 0;
 
@@ -1061,12 +1061,12 @@
 						break;
 					} else if (isQuote(_char2, input[i - 1])) {
 						// Skip over strings.
-						expression += _char2;
+						view += _char2;
 
 						for (i++; i < input.length; i++) {
 							var charString = input[i]; // Add the string contents to the output.
 
-							expression += charString;
+							view += charString;
 
 							if (isQuote(charString, input[i - 1]) && charString === _char2) {
 								// Skip over the closing quote.
@@ -1082,35 +1082,26 @@
 							opened -= 1;
 						}
 
-						expression += _char2;
+						view += _char2;
 						i += 1;
 					}
-				} // Remove surrounding whitespace.
+				}
 
+				var staticParts = [];
+				var staticPartsMap = {};
+				var result = generate(parse(lex(view)), null, 0, variable, staticParts, staticPartsMap);
+				variable = result.variable;
 
-				expression = expression.trim();
-
-				if (expression[0] === "<") {
-					// If it is a Moon view, then lex, parse, and generate code for it.
-					var staticParts = [];
-					var staticPartsMap = {};
-					var result = generate(parse(lex(expression)), null, 0, variable, staticParts, staticPartsMap);
-					variable = result.variable;
-
-					if (result.isStatic) {
-						// Generate a static output.
-						var staticPart = generateStaticPart(result.prelude, result.node, variable, staticParts, staticPartsMap);
-						variable = staticPart.variable;
-						output += "(function(){if(" + staticPart.variableStatic + "===undefined){" + staticParts[0].variablePart + "}return " + staticPart.variableStatic + ";})()";
-					} else {
-						// Add the prelude to the last seen block and the node in place of the expression.
-						output += "(function(){" + (staticParts.length === 0 ? "" : "if(" + staticParts[0].variableStatic + "===undefined){" + staticParts.map(function (staticPart) {
-							return staticPart.variablePart;
-						}).join("") + "}") + result.prelude + "return " + result.node + ";})()";
-					}
+				if (result.isStatic) {
+					// Generate a static output.
+					var staticPart = generateStaticPart(result.prelude, result.node, variable, staticParts, staticPartsMap);
+					variable = staticPart.variable;
+					output += "(function(){if(" + staticPart.variableStatic + "===undefined){" + staticParts[0].variablePart + "}return " + staticPart.variableStatic + ";})()";
 				} else {
-					// If not, then add it to the output as a normal expression.
-					output += expression;
+					// Add the prelude to the last seen block and the node in place of the expression.
+					output += "(function(){" + (staticParts.length === 0 ? "" : "if(" + staticParts[0].variableStatic + "===undefined){" + staticParts.map(function (staticPart) {
+						return staticPart.variablePart;
+					}).join("") + "}") + result.prelude + "return " + result.node + ";})()";
 				}
 			} else if (isQuote(_char, input[i - 1])) {
 				// If there is a string in the code, skip over it.
