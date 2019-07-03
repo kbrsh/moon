@@ -85,7 +85,7 @@
 		"\r": "\\r"
 	};
 	/**
-	 * See if an expression is static.
+	 * Check if an expression is static.
 	 *
 	 * @param {string} expression
 	 * @returns {Boolean} static status
