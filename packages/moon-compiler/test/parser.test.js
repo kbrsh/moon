@@ -35,7 +35,7 @@ test("parse nested elements", () => {
 	`)).toEqual({
 		"name": "div",
 		"attributes": {
-			"dynamic": {"value": "true", "isStatic": false}
+			"dynamic": {"value": "true", "isStatic": true}
 		},
 		"children": [
 			{

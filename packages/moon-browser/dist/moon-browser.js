@@ -40,10 +40,21 @@
 	}
 
 	/**
+	 * Capture the variables in expressions to scope them within the data
+	 * parameter. This ignores property names and deep object accesses.
+	 */
+
+	var expressionRE = /"[^"]*"|'[^']*'|`[^`]*`|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
+	/**
 	 * Capture special characters in text that need to be escaped.
 	 */
 
 	var textRE = /&amp;|&gt;|&lt;|&nbsp;|&quot;|\\|"|\n|\r/g;
+	/**
+	 * List of global variables to ignore in expression scoping
+	 */
+
+	var globals = ["Infinity", "NaN", "break", "case", "catch", "class", "const", "continue", "default", "delete", "do", "else", "extends", "false", "finally", "for", "function", "if", "in", "instanceof", "let", "new", "null", "return", "super", "switch", "this", "throw", "true", "try", "typeof", "undefined", "var", "void", "while", "window"];
 	/*
 	 * Map from attribute keys to equivalent DOM properties.
 	 */
@@ -68,23 +79,48 @@
 		"\r": "\\r"
 	};
 	/**
+	 * See if an expression is static.
+	 *
+	 * @param {string} expression
+	 * @returns {Boolean} static status
+	 */
+
+	function expressionIsStatic(expression) {
+		var result;
+
+		while ((result = expressionRE.exec(expression)) !== null) {
+			var name = result[1];
+
+			if (name !== undefined && globals.indexOf(name) === -1) {
+				// Reset the last matched index to prevent some sneaky bugs that can
+				// cause the function to become nondeterministic.
+				expressionRE.lastIndex = 0;
+				return false;
+			}
+		}
+
+		expressionRE.lastIndex = 0;
+		return true;
+	}
+	/**
 	 * Convert a token into a string, accounting for `<text/>` components.
 	 *
 	 * @param {Object} token
 	 * @returns {string} token converted into a string
 	 */
 
+
 	function tokenString(token) {
 		if (token.type === "tagOpen") {
 			if (token.value === "text") {
-				var content = token.attributes[""]; // If the text content is surrounded with quotes, it was normal text
+				var content = token.attributes[""].value; // If the text content is surrounded with quotes, it was normal text
 				// and doesn't need the quotes. If not, it was an expression and
 				// needs to be formatted with curly braces.
 
-				if (content.isStatic) {
-					return content.value.slice(1, -1);
+				if (content[0] === "\"" && content[content.length - 1] === "\"") {
+					return content.slice(1, -1);
 				} else {
-					return "{" + content.value + "}";
+					return "{" + content + "}";
 				}
 			} else {
 				var tag = "<" + token.value;
@@ -332,10 +368,10 @@
 										// If the value is an expression, ensure that all
 										// objects are closed.
 										if (_opened === 0) {
-											// Set a dynamic expression.
+											// Set a potentially dynamic expression.
 											attributes[attributeKey] = {
 												value: attributeValue,
-												isStatic: false
+												isStatic: expressionIsStatic(attributeValue)
 											}; // Exit on the quote.
 
 											break;
@@ -431,7 +467,7 @@
 					attributes: {
 						"": {
 							value: expression,
-							isStatic: false
+							isStatic: expressionIsStatic(expression)
 						}
 					},
 					closed: true

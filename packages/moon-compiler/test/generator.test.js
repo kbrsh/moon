@@ -280,7 +280,7 @@ test("generate other complex nested expressions", () => {
 test("generate other complex nested expressions inside views", () => {
 	assertGenerate(
 		"(<h1 test={(1 + ('hello\\'' + `world\\\"`))}>Test</h1>)",
-		"var m0;((function(){if(m0===undefined){m0=[Moon.view.m(1,\"text\",{\"\":\"Test\"},[])];}return Moon.view.m(0,\"h1\",{\"test\":(1 + ('hello\\'' + `world\\\"`))},m0);})())"
+		"var m0;((function(){if(m0===undefined){m0=Moon.view.m(0,\"h1\",{\"test\":(1 + ('hello\\'' + `world\\\"`))},[Moon.view.m(1,\"text\",{\"\":\"Test\"},[])]);}return m0;})())"
 	);
 });
 

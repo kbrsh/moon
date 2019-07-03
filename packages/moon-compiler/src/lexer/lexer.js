@@ -2,9 +2,20 @@ import { isQuote, whitespaceRE } from "moon-compiler/src/util/util";
 import { error } from "util/util";
 
 /**
+ * Capture the variables in expressions to scope them within the data
+ * parameter. This ignores property names and deep object accesses.
+ */
+const expressionRE = /"[^"]*"|'[^']*'|`[^`]*`|\d+[a-zA-Z$_]\w*|\.[a-zA-Z$_]\w*|[a-zA-Z$_]\w*:|([a-zA-Z$_]\w*)/g;
+
+/**
  * Capture special characters in text that need to be escaped.
  */
 const textRE = /&amp;|&gt;|&lt;|&nbsp;|&quot;|\\|"|\n|\r/g;
+
+/**
+ * List of global variables to ignore in expression scoping
+ */
+const globals = ["Infinity", "NaN", "break", "case", "catch", "class", "const", "continue", "default", "delete", "do", "else", "extends", "false", "finally", "for", "function", "if", "in", "instanceof", "let", "new", "null", "return", "super", "switch", "this", "throw", "true", "try", "typeof", "undefined", "var", "void", "while", "window"];
 
 /*
  * Map from attribute keys to equivalent DOM properties.
@@ -30,6 +41,32 @@ const escapeTextMap = {
 };
 
 /**
+ * See if an expression is static.
+ *
+ * @param {string} expression
+ * @returns {Boolean} static status
+ */
+function expressionIsStatic(expression) {
+	let result;
+
+	while ((result = expressionRE.exec(expression)) !== null) {
+		const name = result[1];
+
+		if (name !== undefined && globals.indexOf(name) === -1) {
+			// Reset the last matched index to prevent some sneaky bugs that can
+			// cause the function to become nondeterministic.
+			expressionRE.lastIndex = 0;
+
+			return false;
+		}
+	}
+
+	expressionRE.lastIndex = 0;
+
+	return true;
+}
+
+/**
  * Convert a token into a string, accounting for `<text/>` components.
  *
  * @param {Object} token
@@ -38,15 +75,15 @@ const escapeTextMap = {
 export function tokenString(token) {
 	if (token.type === "tagOpen") {
 		if (token.value === "text") {
-			const content = token.attributes[""];
+			const content = token.attributes[""].value;
 
 			// If the text content is surrounded with quotes, it was normal text
 			// and doesn't need the quotes. If not, it was an expression and
 			// needs to be formatted with curly braces.
-			if (content.isStatic) {
-				return content.value.slice(1, -1);
+			if (content[0] === "\"" && content[content.length - 1] === "\"") {
+				return content.slice(1, -1);
 			} else {
-				return `{${content.value}}`;
+				return `{${content}}`;
 			}
 		} else {
 			let tag = "<" + token.value;
@@ -317,10 +354,10 @@ export function lex(input) {
 									// If the value is an expression, ensure that all
 									// objects are closed.
 									if (opened === 0) {
-										// Set a dynamic expression.
+										// Set a potentially dynamic expression.
 										attributes[attributeKey] = {
 											value: attributeValue,
-											isStatic: false
+											isStatic: expressionIsStatic(attributeValue)
 										};
 
 										// Exit on the quote.
@@ -422,7 +459,7 @@ export function lex(input) {
 				attributes: {
 					"": {
 						value: expression,
-						isStatic: false
+						isStatic: expressionIsStatic(expression)
 					}
 				},
 				closed: true
