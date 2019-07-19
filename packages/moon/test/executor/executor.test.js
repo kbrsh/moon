@@ -1,7 +1,8 @@
-import Moon from "moon/src/index.js";
+import Moon from "moon/src/index";
 
 let root = document.createElement("span");
 let eventResult;
+root.id = "app";
 document.body.appendChild(root);
 
 function shuffle(arr) {
@@ -13,7 +14,12 @@ function shuffle(arr) {
 	return arr;
 }
 
-function handler(m) {
+function handler1(m) {
+	eventResult = m;
+	return {};
+}
+
+function handler2(m) {
 	eventResult = m;
 	return {};
 }
@@ -23,17 +29,17 @@ function ExecutorTest({ list }) {
 		<div>
 			<for={item, index} of={list}>
 				<if={item % 2 === 0}>
-					<p lang="en" class={item} ariaset={{hidden: false, removeme: true}} dataset={{foo: "bar", removeme: true}} style={{color: "red", background: "blue"}} @click={handler}>{item} {index}</p>
+					<p lang="en" class={item} ariaset={{hidden: false, removeme: true}} dataset={{foo: "bar", removeme: true}} style={{color: "red", background: "blue"}} @click={handler1}>{item} {index}</p>
 				</if>
 				<else-if={item % 3 === 0}>
-					<p lang="en" class={item} id={item} ariaset={{hidden: false, different: true}} dataset={{foo: "bar", different: true}} style={{color: "red", fontSize: "20px"}} @click={handler}>{item} {index}</p>
+					<p lang="en" class={item} id={item} ariaset={{hidden: false, different: true}} dataset={{foo: "bar", different: true}} style={{color: "red", fontSize: "20px"}} @click={handler2}>{item} {index}</p>
 				</else-if>
 				<else>
 					<p lang="en">{item} {index}</p>
 				</else>
 			</for>
 			<h1>Moon</h1>
-			<p @click={handler} @dblclick={handler}>Partially static.</p>
+			<p @click={handler1} @dblclick={handler2}>Partially static.</p>
 		</div>
 	);
 }
@@ -45,10 +51,12 @@ function Root({ list }) {
 	};
 }
 
-Moon(Root, {
+Moon.use({
 	list: Moon.data.driver([]),
 	view: Moon.view.driver(root)
 });
+
+Moon.run(Root);
 
 root = document.body.firstChild;
 
@@ -135,11 +143,11 @@ function verify(list) {
 }
 
 function assertExecute(before, after) {
-	Moon.execute(() => {
+	Moon.run(() => {
 		return Root({ list: before });
 	});
 	verify(before);
-	Moon.execute(() => {
+	Moon.run(() => {
 		return Root({ list: after });
 	});
 	verify(after);

@@ -1,5 +1,5 @@
-import { execute } from "moon/src/executor/executor";
-import { m, NodeNew, NodeOld, removeDataProperty, removeDataSet, updateDataSet } from "moon/src/drivers/view/util/util";
+import run from "moon/src/run";
+import { m, NodeNew, NodeOld, removeDataProperty, removeDataSet, updateDataSet } from "moon/src/view/util/util";
 import { types } from "util/util";
 
 /**
@@ -17,7 +17,7 @@ function MoonEvent() {}
 
 MoonEvent.prototype.handleEvent = function(viewEventNew) {
 	viewEvent = viewEventNew;
-	execute(this["@" + viewEvent.type]);
+	run(this["@" + viewEvent.type]);
 };
 
 Node.prototype.MoonEvent = null;

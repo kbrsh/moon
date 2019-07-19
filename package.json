@@ -22,10 +22,9 @@
 		"@babel/preset-env": "^7.4.3",
 		"gzip-size": "^5.0.0",
 		"jest": "^24.6.0",
-		"rollup": "^1.8.0",
+		"rollup": "^1.17.0",
 		"rollup-plugin-babel": "^4.3.2",
 		"rollup-plugin-eslint": "^5.1.0",
-		"rollup-plugin-includepaths": "^0.2.3",
-		"uglify-js": "^3.5.3"
+		"uglify-js": "^3.6.0"
 	}
 }

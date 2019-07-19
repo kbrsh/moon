@@ -1,8 +1,7 @@
-import { lex } from "moon-compiler/src/lexer/lexer";
-import parse from "moon-compiler/src/parser/parser";
+import compiler from "moon-compiler/src/index";
 
 function parseTest(input) {
-	return parse(lex(input));
+	return compiler.parse(compiler.lex(input));
 }
 
 test("parse empty element", () => {

@@ -1,7 +1,7 @@
-import compile from "moon-compiler/src/index";
+import compiler from "moon-compiler/src/index";
 
 function assertGenerate(input, output) {
-	expect(compile(input)).toEqual(output);
+	expect(compiler.compile(input)).toEqual(output);
 }
 
 test("generate static element", () => {

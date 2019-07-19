@@ -54,59 +54,93 @@
 	}
 
 	/**
-	 * Execution drivers.
+	 * Application drivers
 	 */
 
-	var executeDrivers;
+	var drivers;
 	/**
-	 * Sets the execution drivers to new drivers.
+	 * Sets the application drivers to new drivers.
 	 *
-	 * @param {Object} executeDriversNew
+	 * @param {Object} driversNew
 	 */
 
-	function setExecuteDrivers(executeDriversNew) {
-		executeDrivers = executeDriversNew;
+	function use(driversNew) {
+		// Handle invalid drivers type.
+		if ("development" === "development" && typeof driversNew !== "object") {
+			error("Drivers parameter with an invalid type.\n\nAttempted to store the \"drivers\" parameter for use during execution.\n\nReceived an invalid drivers argument:\n\t" + driversNew + "\n\n\tThe given drivers have an invalid type:\n\t\t" + typeof driversNew + "\n\nExpected the drivers to be an object with keys as driver names and values as drivers.");
+		}
+
+		drivers = driversNew;
 	}
+
 	/**
-	 * Executor
+	 * Run
 	 *
-	 * The executor is responsible for providing an interface for applications to
-	 * interact with drivers. Drivers have an input and output function. The input
-	 * function is responsible for reading data from the outside world and
-	 * providing it to the application. On the other hand, the output function
-	 * takes the output of an application meant for the driver and performs an
-	 * action that changes the outside world: an effect.
+	 * Creates a new Moon application based on a root application and drivers. A
+	 * Moon application takes inputs and returns outputs -- it's just a function.
+	 * The input and output effects are created by drivers, individual modules
+	 * responsible for controlling the outside world. Ideally, these would be
+	 * standard and implemented by the browser, operating system, and computer
+	 * itself.
 	 *
-	 * An application runs on the Moon while drivers update the Earth.
+	 * Drivers control things like state data, the DOM view, timing events,
+	 * animation frames, HTTP requests, dates, audio, etc. They are all implemented
+	 * separately from Moon, but Moon comes with some drivers by default. A driver
+	 * is an object with input and output functions. The input function reads data
+	 * from the outside world and returns it, while the output function takes the
+	 * driver output returned by the application and performs effects on the
+	 * outside world.
+	 *
+	 * Instead of components, Moon views are just functions. They usually take a
+	 * `data` object as a parameter and return Moon elements, but can technically
+	 * be implemented with any structure.
+	 *
+	 * When events occur, they are detected by the application, and it returns the
+	 * value of an event handler instead. These happen with events from any driver.
+	 * Event handlers are applications as well, but since everything is a function,
+	 * they can use the root application within their own implementation.
+	 *
+	 * Essentially, Moon aims to remove unnecessary abstractions like local state,
+	 * imperative event handlers, or reactive state subscriptions. Instead, it
+	 * embraces a purely functional approach with support for drivers to interact
+	 * with the imperative API often offered by the containing environment.
+	 *
+	 * The application runs on the Moon while drivers update the Earth.
 	 *
 	 * @param {Function} root
+	 * @param {Object} drivers
 	 */
 
-	function execute(root) {
-		// Get inputs from all drivers.
-		var executeInput = {};
+	function run(root) {
+		// Handle invalid root type.
+		if ("development" === "development" && typeof root !== "function") {
+			error("Root parameter with an invalid type.\n\nAttempted to execute the \"root\" parameter as an application.\n\nReceived an invalid root argument:\n\t" + root + "\n\n\tThe given root has an invalid type:\n\t\t" + typeof root + "\n\nExpected the root to be a function that takes driver inputs as parameters and returns driver outputs.");
+		} // Get inputs from all drivers.
 
-		for (var executeDriver in executeDrivers) {
-			if ("development" === "development" && !("input" in executeDrivers[executeDriver])) {
-				error("Use of a driver without an \"input\" function.\n\nAttempted to execute a driver to receive inputs:\n\t" + executeDriver + "\n\nReceived a driver without an \"input\" function:\n\t" + executeDrivers[executeDriver] + "\n\nExpected the driver to be an object with \"input\" and \"output\" functions.");
+
+		var input = {};
+
+		for (var driver in drivers) {
+			if ("development" === "development" && !("input" in drivers[driver])) {
+				error("Use of a driver without an \"input\" function.\n\nAttempted to execute a driver to receive inputs:\n\t" + driver + "\n\nReceived a driver without an \"input\" function:\n\t" + drivers[driver] + "\n\nExpected the driver to be an object with \"input\" and \"output\" functions.");
 			}
 
-			executeInput[executeDriver] = executeDrivers[executeDriver].input();
+			input[driver] = drivers[driver].input();
 		} // Get the application output.
 
 
-		var executeOutput = root(executeInput); // Execute drivers with the outputs.
+		var output = root(input); // Execute drivers with the outputs.
 
-		for (var _executeDriver in executeOutput) {
-			if ("development" === "development" && !(_executeDriver in executeDrivers)) {
-				error("Use of an unknown driver.\n\nAttempted to execute an application function:\n\t" + root.name + "\n\n\tThe function attempted to output to a driver:\n\t\t" + _executeDriver + ": " + executeOutput[_executeDriver] + "\n\nReceived an undefined value when fetching the driver from the given drivers.\n\nExpected the driver to be defined.");
+		for (var _driver in output) {
+			if ("development" === "development" && !(_driver in drivers)) {
+				error("Use of an unknown driver.\n\nAttempted to execute an application function:\n\t" + root.name + "\n\n\tThe function attempted to output to a driver:\n\t\t" + _driver + ": " + drivers[_driver] + "\n\nReceived an undefined value when fetching the driver from the given drivers.\n\nExpected the driver to be defined.");
 			}
 
-			if ("development" === "development" && !("output" in executeDrivers[_executeDriver])) {
-				error("Use of a driver without an \"output\" function.\n\nAttempted to execute a driver to receive outputs:\n\t" + _executeDriver + "\n\nReceived a driver without an \"output\" function:\n\t" + executeDrivers[_executeDriver] + "\n\nExpected the driver to be an object with \"input\" and \"output\" functions.");
+			if ("development" === "development" && !("output" in drivers[_driver])) {
+				error("Use of a driver without an \"output\" function.\n\nAttempted to execute a driver to receive outputs:\n\t" + _driver + "\n\nReceived a driver without an \"output\" function:\n\t" + drivers[_driver] + "\n\nExpected the driver to be an object with \"input\" and \"output\" functions.");
 			}
 
-			executeDrivers[_executeDriver].output(executeOutput[_executeDriver]);
+			drivers[_driver].output(output[_driver]);
 		}
 	}
 
@@ -223,7 +257,7 @@
 
 	MoonEvent.prototype.handleEvent = function (viewEventNew) {
 		viewEvent = viewEventNew;
-		execute(this["@" + viewEvent.type]);
+		run(this["@" + viewEvent.type]);
 	};
 
 	Node.prototype.MoonEvent = null;
@@ -489,59 +523,12 @@
 		}
 	};
 
-	/**
-	 * Moon
-	 *
-	 * Creates a new Moon application based on a root application and drivers. A
-	 * Moon application takes inputs and returns outputs -- it's just a function.
-	 * The input and output effects are created by drivers, individual modules
-	 * responsible for controlling the outside world. Ideally, these would be
-	 * standard and implemented by the browser, operating system, and computer
-	 * itself.
-	 *
-	 * Drivers control things like state data, the DOM view, timing events,
-	 * animation frames, HTTP requests, dates, audio, etc. They are all implemented
-	 * separately from Moon, but Moon ships with data and view drivers by default.
-	 * A driver is an object with input and output functions. The input function
-	 * reads data from the outside world and returns it, while the output function
-	 * takes the driver output returned by the application and performs effects on
-	 * the outside world.
-	 *
-	 * Instead of components, Moon views are just functions. They usually take a
-	 * `data` object as a parameter and return Moon elements, but can technically
-	 * be implemented with any structure.
-	 *
-	 * When events occur, they are detected by the application, and it returns the
-	 * value of an event handler instead. These happen with events from any driver.
-	 * Event handlers are applications as well, but since everything is a function,
-	 * they can use the root application within their own implementation.
-	 *
-	 * Essentially, Moon aims to remove unnecessary abstractions like local state,
-	 * imperative event handlers, or reactive state subscriptions. Instead, it
-	 * embraces a purely functional approach with support for drivers to interact
-	 * with the imperative API often offered by the containing environment.
-	 *
-	 * @param {Function} root
-	 * @param {Object} drivers
-	 */
+	var index = {
+		data: data,
+		run: run,
+		use: use,
+		view: view
+	};
 
-	function Moon(root, drivers) {
-		// Handle invalid types.
-		if ("development" === "development" && typeof root !== "function") {
-			error("Root parameter with an invalid type.\n\nAttempted to execute the \"root\" parameter as an application.\n\nReceived an invalid root argument:\n\t" + root + "\n\n\tThe given root has an invalid type:\n\t\t" + typeof root + "\n\nExpected the root to be a function that takes driver inputs as parameters and returns driver outputs.");
-		}
-
-		if ("development" === "development" && typeof drivers !== "object") {
-			error("Drivers parameter with an invalid type.\n\nAttempted to store the \"drivers\" parameter for use during execution.\n\nReceived an invalid drivers argument:\n\t" + drivers + "\n\n\tThe given drivers have an invalid type:\n\t\t" + typeof drivers + "\n\nExpected the drivers to be an object with keys as driver names and values as functions that take driver inputs as parameters and return driver outputs.");
-		} // Begin execution.
-
-
-		setExecuteDrivers(drivers);
-		execute(root);
-	}
-	Moon.data = data;
-	Moon.view = view;
-	Moon.execute = execute;
-
-	return Moon;
+	return index;
 }));

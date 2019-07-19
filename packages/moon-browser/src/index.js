@@ -1,4 +1,4 @@
-import compile from "moon-compiler/src/index.js";
+import compiler from "moon-compiler/src/index";
 import { error } from "util/util";
 
 /**
@@ -21,7 +21,7 @@ function load() {
 
 		if (src.length === 0) {
 			const scriptNew = document.createElement("script");
-			scriptNew.text = compile(script.text);
+			scriptNew.text = compiler.compile(script.text);
 			head.appendChild(scriptNew);
 			script.parentNode.removeChild(script);
 			load();
@@ -32,7 +32,7 @@ function load() {
 				if (xhr.readyState === xhr.DONE) {
 					if (xhr.status === 0 || xhr.status === 200) {
 						const scriptNew = document.createElement("script");
-						scriptNew.text = compile(this.responseText);
+						scriptNew.text = compiler.compile(this.responseText);
 						head.appendChild(scriptNew);
 					} else {
 						error(`Failed to load script with source "${src}" and status ${xhr.status}.`);

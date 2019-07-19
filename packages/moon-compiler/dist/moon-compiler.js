@@ -6,7 +6,7 @@
  */
 (function(root, factory) {
 	if (typeof module === "undefined") {
-		root.MoonCompile = factory();
+		root.MoonCompiler = factory();
 	} else {
 		module.exports = factory();
 	}
@@ -1229,5 +1229,12 @@
 		return prelude + output;
 	}
 
-	return compile;
+	var index = {
+		compile: compile,
+		generate: generate,
+		lex: lex,
+		parse: parse
+	};
+
+	return index;
 }));

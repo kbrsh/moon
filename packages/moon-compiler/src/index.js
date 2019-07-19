@@ -10,7 +10,7 @@ import { isQuote, whitespaceRE } from "moon-compiler/src/util/util";
  * @param {string} input
  * @returns {string} file code
  */
-export default function compile(input) {
+function compile(input) {
 	let output = "";
 	let variable = 0;
 
@@ -165,3 +165,10 @@ export default function compile(input) {
 
 	return prelude + output;
 }
+
+export default {
+	compile,
+	generate,
+	lex,
+	parse
+};
