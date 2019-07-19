@@ -1,36 +1,36 @@
 .main {
-	margin-top: 35px;
+	margin-top: 36px;
 	justify-content: space-between;
 	width: 100%;
 }
 
 .side {
-	max-width: 350px;
-	margin-right: 35px;
-	margin-bottom: 35px;
+	max-width: 351px;
+	margin-right: 36px;
+	margin-bottom: 36px;
 	flex-direction: column;
 }
 
 .side h6 {
-	margin-bottom: 7px;
+	margin-bottom: 6px;
 }
 
 .side a {
-	color: hsl(0, 0%, 57%);
+	color: hsl(0, 0%, 51%);
 	border: none;
 }
 
 .side a#active {
-	color: hsl(260, 100%, 57%);
+	color: hsl(260, 100%, 51%);
 }
 
 .content {
-	max-width: 700px;
+	max-width: 703px;
 }
 
-.content h1, .content h2, .content h3, .content h4, .content h5, .content h6, .content p, .content pre, .content img, .content ol, .content ul, .example {
+.content h1, .content h2, .content h3, .content h5, .content p, .content pre, .content img, .content ol, .content ul, .example {
 	width: 100%;
-	margin-bottom: 35px;
+	margin-bottom: 36px;
 }
 
 ol, ul {
@@ -39,15 +39,16 @@ ol, ul {
 
 .example {
 	flex-direction: column;
-	background-color: hsl(0, 0%, 93%);
+	background-color: hsl(0, 0%, 94%);
 }
 
 .example * {
-	margin: 7px;
+	margin: 6px;
 }
 
 .example input {
-	max-width: 350px;
-	padding: 7px;
-	background-color: hsl(0, 0%, 86%);
+	max-width: 351px;
+	padding: 6px;
+	background-color: hsl(0, 0%, 88%);
+	border-radius: 3px;
 }

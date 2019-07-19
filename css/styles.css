@@ -9,8 +9,8 @@ body {
 
 .container {
 	width: 100%;
-	max-width: 1050px;
-	margin: 35px;
+	max-width: 1081px;
+	margin: 36px;
 }
 
 .nav {
@@ -28,8 +28,8 @@ body {
 	font-weight: 200;
 }
 
-.nav-items a {
-	margin-left: 14px;
+.nav-items a:not(:first-child) {
+	margin-left: 15px;
 }
 
 h1, h2, h3 {
@@ -37,45 +37,45 @@ h1, h2, h3 {
 }
 
 button {
-	width: 161px;
-	padding-top: 7px;
-	padding-bottom: 7px;
-	border-radius: 3.5px;
+	width: 153px;
+	padding-top: 6px;
+	padding-bottom: 6px;
+	border-radius: 3px;
 	font-weight: 700;
-	background-color: hsl(0, 0%, 86%);
+	background-color: hsl(0, 0%, 88%);
 	color: hsl(0, 0%, 14%);
 	transition: background-color .1s ease;
 }
 
 button:hover, button:focus {
 	outline: none;
-	background-color: hsl(0, 0%, 93%);
+	background-color: hsl(0, 0%, 82%);
 }
 
 button:active {
-	background-color: hsl(0, 0%, 79%);
+	background-color: hsl(0, 0%, 86%);
 }
 
 pre {
 	position: relative;
-	padding: 14px;
-	background-color: hsl(200, 29%, 14%);
-	border-radius: 3.5px;
+	padding: 15px;
+	background-color: hsl(200, 31%, 14%);
+	border-radius: 3px;
 }
 
 code {
-	padding: 2px;
+	padding: 3px;
 	font-family: "Inconsolata", monospace;
-	color: hsl(200, 14%, 10%);
-	background-color: hsl(200, 29%, 86%);
-	border-radius: 3.5px;
+	color: hsl(200, 31%, 14%);
+	background-color: hsl(200, 14%, 86%);
+	border-radius: 3px;
 	tab-size: 3;
 }
 
 pre code {
 	padding: 0;
-	color: hsl(200, 14%, 74%);
-	background-color: hsl(200, 29%, 14%);
+	color: hsl(200, 14%, 65%);
+	background-color: hsl(200, 31%, 14%);
 	border-radius: 0;
 	white-space: pre-wrap;
 	word-break: break-all;
@@ -83,33 +83,33 @@ pre code {
 
 pre code::after {
 	position: absolute;
-	top: 7px;
-	right: 7px;
+	top: 6px;
+	right: 6px;
 	content: attr(lang);
-	font-size: 14.5px;
-	color: hsl(200, 14%, 43%);
+	font-size: 15px;
+	color: hsl(200, 31%, 29%);
 }
 
 pre code .red {
-	color: hsl(0, 29%, 57%);
+	color: hsl(0, 31%, 55%);
 }
 
 pre code .orange {
-	color: hsl(20, 29%, 57%);
+	color: hsl(20, 31%, 55%);
 }
 
 pre code .green {
-	color: hsl(100, 14%, 57%);
+	color: hsl(100, 14%, 55%);
 }
 
 pre code .blue {
-	color: hsl(200, 29%, 57%);
+	color: hsl(200, 31%, 55%);
 }
 
 pre code .purple {
-	color: hsl(300, 14%, 57%);
+	color: hsl(300, 14%, 55%);
 }
 
 pre code .gray {
-	color: hsl(200, 14%, 43%);
+	color: hsl(200, 31%, 29%);
 }

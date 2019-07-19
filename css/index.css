@@ -1,5 +1,5 @@
 html, body {
-	background: url("../img/stars.png"), linear-gradient(hsl(260, 100%, 7%), hsl(200, 100%, 7%)) fixed;
+	background: url("../img/stars.png"), linear-gradient(hsl(260, 100%, 6%), hsl(200, 100%, 6%)) fixed;
 	color: hsl(0, 0%, 100%);
 }
 
@@ -9,16 +9,16 @@ html, body {
 
 .head {
 	justify-content: center;
-	max-width: 700px;
+	max-width: 703px;
 	margin-left: auto;
 	margin-right: auto;
 	text-align: center;
 }
 
 .head img {
-	width: 140px;
-	height: 140px;
-	margin-top: 70px;
+	width: 136px;
+	height: 136px;
+	margin-top: 78px;
 	margin-bottom: 21px;
 }
 
@@ -31,26 +31,20 @@ html, body {
 }
 
 .head a:nth-child(3) button {
-	margin-right: 14px;
-	background-color: hsl(260, 100%, 57%);
+	margin-right: 15px;
+	background-color: hsl(260, 100%, 51%);
 	color: hsl(260, 100%, 100%);
 }
 
 .head a:nth-child(3) button:hover, .head a:nth-child(3) button:focus {
-	background-color: hsl(260, 100%, 64%);
+	background-color: hsl(260, 100%, 57%);
 }
 
 .head a:nth-child(4) button {
-	background-color: hsl(260, 100%, 29%);
+	background-color: hsl(260, 100%, 31%);
 	color: hsl(260, 14%, 100%);
 }
 
 .head a:nth-child(4) button:hover, .head a:nth-child(4) button:focus {
-	background-color: hsl(260, 100%, 36%);
-}
-
-@media screen and (max-width: 768px) {
-	#head h1 {
-		font-size: 37.009px;
-	}
+	background-color: hsl(260, 100%, 37%);
 }
