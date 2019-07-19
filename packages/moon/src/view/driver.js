@@ -1,5 +1,7 @@
 import run from "moon/src/run";
-import { m, NodeNew, NodeOld, removeDataProperty, removeDataSet, updateDataSet } from "moon/src/view/util/util";
+import NodeOld from "moon/src/view/NodeOld";
+import NodeNew from "moon/src/view/NodeNew";
+import { removeDataProperty, removeDataSet, updateDataSet } from "moon/src/view/util";
 import { types } from "util/util";
 
 /**
@@ -266,45 +268,42 @@ function viewPatch(nodeOld, nodeNew) {
  * JavaScript engines, and immutability opens up the opportunity to use
  * standard functional techniques for caching.
  */
-export default {
-	m,
-	driver(root) {
-		// Accept query strings as well as DOM elements.
-		if (typeof root === "string") {
-			root = document.querySelector(root);
-		}
-
-		// Capture old data from the root element's attributes.
-		const rootAttributes = root.attributes;
-		const dataOld = {};
-
-		for (let i = 0; i < rootAttributes.length; i++) {
-			const rootAttribute = rootAttributes[i];
-			dataOld[rootAttribute.name] = rootAttribute.value;
-		}
-
-		// Create an old node from the root element.
-		const viewOld = new NodeOld(
-			new NodeNew(
-				types.element,
-				root.tagName.toLowerCase(),
-				dataOld,
-				[]
-			),
-			root,
-			[]
-		);
-
-		return {
-			input() {
-				// Return the current event data as input.
-				return viewEvent;
-			},
-			output(viewNew) {
-				// When given a new view, patch the old view into the new one,
-				// updating the DOM in the process.
-				viewPatch(viewOld, viewNew);
-			}
-		};
+export default function driver(root) {
+	// Accept query strings as well as DOM elements.
+	if (typeof root === "string") {
+		root = document.querySelector(root);
 	}
-};
+
+	// Capture old data from the root element's attributes.
+	const rootAttributes = root.attributes;
+	const dataOld = {};
+
+	for (let i = 0; i < rootAttributes.length; i++) {
+		const rootAttribute = rootAttributes[i];
+		dataOld[rootAttribute.name] = rootAttribute.value;
+	}
+
+	// Create an old node from the root element.
+	const viewOld = new NodeOld(
+		new NodeNew(
+			types.element,
+			root.tagName.toLowerCase(),
+			dataOld,
+			[]
+		),
+		root,
+		[]
+	);
+
+	return {
+		input() {
+			// Return the current event data as input.
+			return viewEvent;
+		},
+		output(viewNew) {
+			// When given a new view, patch the old view into the new one,
+			// updating the DOM in the process.
+			viewPatch(viewOld, viewNew);
+		}
+	};
+}

@@ -22,19 +22,21 @@
 	 * should be fast, pure, functions that are cheap to call and easy to optimize
 	 * through caching and memoization.
 	 */
+	function driver(data) {
+		return {
+			input: function input() {
+				// Return the stored data as input.
+				return data;
+			},
+			output: function output(dataNew) {
+				// Update the stored data when it is an output.
+				data = dataNew;
+			}
+		};
+	}
+
 	var data = {
-		driver: function driver(data) {
-			return {
-				input: function input() {
-					// Return the stored data as input.
-					return data;
-				},
-				output: function output(dataNew) {
-					// Update the stored data when it is an output.
-					data = dataNew;
-				}
-			};
-		}
+		driver: driver
 	};
 
 	/**
@@ -145,40 +147,28 @@
 	}
 
 	/**
-	 * Cache for default property values
-	 */
-	var removeDataPropertyCache = {};
-	/**
 	 * Old Node Constructor
 	 */
-
 	function NodeOld(node, element, children) {
 		this.node = node;
 		this.element = element;
 		this.children = children;
 	}
+
 	/**
 	 * New Node Constructor
 	 */
-
 	function NodeNew(type, name, data, children) {
 		this.type = type;
 		this.name = name;
 		this.data = data;
 		this.children = children;
 	}
-	/**
-	 * Returns a new node.
-	 *
-	 * @param {number} type
-	 * @param {string} name
-	 * @param {Object} data
-	 * @param {Array} children
-	 */
 
-	function m(type, name, data, children) {
-		return new NodeNew(type, name, data, children);
-	}
+	/**
+	 * Cache for default property values
+	 */
+	var removeDataPropertyCache = {};
 	/**
 	 * Update an ariaset, dataset, or style property.
 	 *
@@ -490,37 +480,52 @@
 	 */
 
 
+	function driver$1(root) {
+		// Accept query strings as well as DOM elements.
+		if (typeof root === "string") {
+			root = document.querySelector(root);
+		} // Capture old data from the root element's attributes.
+
+
+		var rootAttributes = root.attributes;
+		var dataOld = {};
+
+		for (var i = 0; i < rootAttributes.length; i++) {
+			var rootAttribute = rootAttributes[i];
+			dataOld[rootAttribute.name] = rootAttribute.value;
+		} // Create an old node from the root element.
+
+
+		var viewOld = new NodeOld(new NodeNew(types.element, root.tagName.toLowerCase(), dataOld, []), root, []);
+		return {
+			input: function input() {
+				// Return the current event data as input.
+				return viewEvent;
+			},
+			output: function output(viewNew) {
+				// When given a new view, patch the old view into the new one,
+				// updating the DOM in the process.
+				viewPatch(viewOld, viewNew);
+			}
+		};
+	}
+
+	/**
+	 * Returns a new node.
+	 *
+	 * @param {number} type
+	 * @param {string} name
+	 * @param {Object} data
+	 * @param {Array} children
+	 */
+
+	function m(type, name, data, children) {
+		return new NodeNew(type, name, data, children);
+	}
+
 	var view = {
-		m: m,
-		driver: function driver(root) {
-			// Accept query strings as well as DOM elements.
-			if (typeof root === "string") {
-				root = document.querySelector(root);
-			} // Capture old data from the root element's attributes.
-
-
-			var rootAttributes = root.attributes;
-			var dataOld = {};
-
-			for (var i = 0; i < rootAttributes.length; i++) {
-				var rootAttribute = rootAttributes[i];
-				dataOld[rootAttribute.name] = rootAttribute.value;
-			} // Create an old node from the root element.
-
-
-			var viewOld = new NodeOld(new NodeNew(types.element, root.tagName.toLowerCase(), dataOld, []), root, []);
-			return {
-				input: function input() {
-					// Return the current event data as input.
-					return viewEvent;
-				},
-				output: function output(viewNew) {
-					// When given a new view, patch the old view into the new one,
-					// updating the DOM in the process.
-					viewPatch(viewOld, viewNew);
-				}
-			};
-		}
+		driver: driver$1,
+		m: m
 	};
 
 	var index = {

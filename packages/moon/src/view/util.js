@@ -4,37 +4,6 @@
 const removeDataPropertyCache = {};
 
 /**
- * Old Node Constructor
- */
-export function NodeOld(node, element, children) {
-	this.node = node;
-	this.element = element;
-	this.children = children;
-}
-
-/**
- * New Node Constructor
- */
-export function NodeNew(type, name, data, children) {
-	this.type = type;
-	this.name = name;
-	this.data = data;
-	this.children = children;
-}
-
-/**
- * Returns a new node.
- *
- * @param {number} type
- * @param {string} name
- * @param {Object} data
- * @param {Array} children
- */
-export function m(type, name, data, children) {
-	return new NodeNew(type, name, data, children);
-}
-
-/**
  * Update an ariaset, dataset, or style property.
  *
  * @param {Object} element
