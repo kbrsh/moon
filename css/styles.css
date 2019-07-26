@@ -4,7 +4,7 @@ body {
 	justify-content: center;
 	background: hsl(0, 0%, 100%);
 	color: hsl(0, 0%, 14%);
-	font-family: -apple-system, BlinkMacSystemFont, Avenir, "Avenir Next", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+	font-family: "HK Grotesk", sans-serif;
 }
 
 .container {
@@ -25,15 +25,15 @@ body {
 }
 
 .nav-home {
-	font-weight: 200;
+	font-weight: normal;
 }
 
 .nav-items a:not(:first-child) {
 	margin-left: 15px;
 }
 
-h1, h2, h3 {
-	font-weight: 600;
+h1, h2, h3, h5 {
+	font-weight: bold;
 }
 
 button {
@@ -41,7 +41,8 @@ button {
 	padding-top: 6px;
 	padding-bottom: 6px;
 	border-radius: 3px;
-	font-weight: 700;
+	font-family: "HK Grotesk", sans-serif;
+	font-weight: bold;
 	background-color: hsl(0, 0%, 88%);
 	color: hsl(0, 0%, 14%);
 	transition: background-color .1s ease;
@@ -112,4 +113,16 @@ pre code .purple {
 
 pre code .gray {
 	color: hsl(200, 31%, 29%);
+}
+
+@font-face {
+	font-family: "HK Grotesk";
+	src: url("/css/fonts/HKGrotesk-Regular.otf") format("opentype");
+	font-weight: normal;
+}
+
+@font-face {
+	font-family: "HK Grotesk";
+	src: url("/css/fonts/HKGrotesk-Bold.otf") format("opentype");
+	font-weight: bold;
 }
