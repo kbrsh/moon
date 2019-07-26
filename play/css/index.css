@@ -9,118 +9,118 @@
 
 #editor, #editor .CodeMirror {
 	width: 100%;
-	max-width: 518px;
-	height: 700px;
+	max-width: 528px;
+	height: 703px;
 }
 
 #editor .CodeMirror {
-	padding: 7px;
+	padding: 6px;
 }
 
 #result {
 	width: 100%;
-	max-width: 518px;
-	height: 700px;
-	border: 1px solid hsl(200, 14%, 71%);
+	max-width: 528px;
+	height: 703px;
+	border: 1px solid hsl(200, 14%, 65%);
 }
 
 .cm-s-nox.CodeMirror {
-	color: hsl(200, 14%, 71%);
-	background: hsl(200, 29%, 14%);
-	font-size: 14.529915px;
+	color: hsl(200, 14%, 65%);
+	background: hsl(200, 31%, 14%);
+	font-size: 15px;
 }
 
 .cm-s-nox div.CodeMirror-selected {
-	background: hsla(200, 29%, 29%, 0.93);
+	background: hsla(200, 31%, 29%, 0.92);
 }
 
 .cm-s-nox .CodeMirror-line::selection, .cm-s-nox .CodeMirror-line > span::selection, .cm-s-nox .CodeMirror-line > span > span::selection {
-	background: hsla(200, 29%, 29%, 0.93);
+	background: hsla(200, 31%, 29%, 0.92);
 }
 
 .cm-s-nox .CodeMirror-line::-moz-selection, .cm-s-nox .CodeMirror-line > span::-moz-selection, .cm-s-nox .CodeMirror-line > span > span::-moz-selection {
-	background: hsla(200, 29%, 29%, 0.93);
+	background: hsla(200, 31%, 29%, 0.92);
 }
 
 .cm-s-nox .CodeMirror-gutters {
-	background: hsl(200, 29%, 14%);
-	border-right: 14px;
+	background: hsl(200, 31%, 14%);
+	border-right: 15px;
 }
 
 .cm-s-nox .CodeMirror-guttermarker {
-	color: hsl(200, 14%, 43%);
+	color: hsl(200, 31%, 29%);
 }
 
 .cm-s-nox .CodeMirror-guttermarker-subtle {
-	color: hsl(200, 14%, 43%);
+	color: hsl(200, 31%, 29%);
 }
 
 .cm-s-nox .CodeMirror-linenumber {
-	color: hsl(200, 14%, 43%);
+	color: hsl(200, 31%, 29%);
 }
 
 .cm-s-nox .CodeMirror-cursor {
-	border-left: 1px solid hsl(200, 14%, 71%);
+	border-left: 1px solid hsl(200, 14%, 65%);
 }
 
 .cm-s-nox span.cm-comment {
-	color: hsl(200, 14%, 43%);
+	color: hsl(200, 31%, 29%);
 }
 
 .cm-s-nox span.cm-atom {
-	color: hsl(20, 29%, 57%);
+	color: hsl(20, 31%, 55%);
 }
 
 .cm-s-nox span.cm-number {
-	color: hsl(20, 29%, 57%);
+	color: hsl(20, 31%, 55%);
 }
 
 .cm-s-nox span.cm-property {
-	color: hsl(0, 29%, 57%);
+	color: hsl(0, 31%, 55%);
 }
 
 .cm-s-nox span.cm-attribute,
 .cm-s-nox span.cm-keyword {
-	color: hsl(300, 14%, 57%);
+	color: hsl(300, 14%, 55%);
 }
 
 .cm-s-nox span.cm-builtin {
-	color: hsl(170, 29%, 57%);
+	color: hsl(170, 31%, 55%);
 }
 
 .cm-s-nox span.cm-string {
-	color: hsl(100, 14%, 57%);
+	color: hsl(100, 14%, 55%);
 }
 
 .cm-s-nox span.cm-variable,
 .cm-s-nox span.cm-variable-2,
 .cm-s-nox span.cm-variable-3 {
-	color: hsl(200, 14%, 71%);
+	color: hsl(200, 14%, 65%);
 }
 
 .cm-s-nox span.cm-def {
-	color: hsl(200, 29%, 57%);
+	color: hsl(200, 31%, 55%);
 }
 
 .cm-s-nox span.cm-bracket {
-	color: hsl(200, 14%, 43%);
+	color: hsl(200, 14%, 51%);
 }
 
 .cm-s-nox span.cm-tag {
-	color: hsl(0, 29%, 57%);
+	color: hsl(200, 31%, 55%);
 }
 
 .cm-s-nox span.cm-header {
-	color: hsl(300, 14%, 57%);
+	color: hsl(300, 14%, 55%);
 }
 
 .cm-s-nox span.cm-link {
-	color: hsl(300, 14%, 57%);
+	color: hsl(300, 14%, 55%);
 }
 
 .cm-s-nox span.cm-error {
-	background: hsl(0, 29%, 57%);
-	color: hsl(200, 14%, 71%);
+	background: hsl(0, 31%, 55%);
+	color: hsl(200, 14%, 65%);
 }
 
 .cm-s-nox .CodeMirror-activeline-background {
@@ -129,6 +129,5 @@
 
 .cm-s-nox .CodeMirror-matchingbracket {
 	text-decoration: underline;
-	color: hsl(200, 14%, 71%) !important;
+	color: hsl(200, 14%, 65%) !important;
 }
-
