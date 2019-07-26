@@ -64,7 +64,11 @@ const Todos = ({ data }) => (
 Moon.use({
 	data: Moon.data.driver({
 		todo: "",
-		todos: ["Learn Moon", "Take a nap", "Go shopping"]
+		todos: [
+			"Learn Moon",
+			"Take a nap",
+			"Go shopping"
+		]
 	}),
 	view: Moon.view.driver("#root")
 });
