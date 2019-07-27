@@ -7,6 +7,8 @@ Moon is more than just a JavaScript library — it's a new paradigm for applicat
 
 An application is defined as a function that uses the concept of **drivers**, functions that access the real world to provide information and perform effects. Using drivers, an application takes driver inputs and returns driver outputs. It's a simple concept but it brings endless potential. Pure functions bring clarity and immutability to application code, making it concise, modular, and easy to reason about.
 
+The majority of JavaScript libraries today are based on a view that changes based on state. In practice, however, web applications are much more complex and often need to perform side effects along with updating the view. These include audio, HTTP requests, routing, timing events, DOM manipulation, etc. While most other libraries have these features as second-class citizens, Moon handles all effects with drivers.
+
 At its' core, Moon is a runtime that calls drivers and runs a functional application in the imperative browser environment. It uses drivers to get information from the real world and provides them as input to an application function. The function outputs data to various drivers, and Moon sends calls the drivers with the output to perform effects on the real world.
 
 ```js
@@ -54,7 +56,9 @@ Moon.run(Root);
 
 Since Moon's only job is to provide a runtime for a functional application, it weighs less than **1kb minified and gzipped**. Even with the built-in drivers, it still stays around the 1kb mark. The lightweight runtime means that browsers won't have to parse and run multiple megabytes of JavaScript, a practice that is quickly becoming the status quo.
 
-The **view driver** is a default driver built into Moon. It uses a variety of techniques to optimize JavaScript performance for JIT (Just In Time) compilation. Under the hood, the view driver takes a **virtual DOM tree** as output from an application. This tree is highly optimized to have the same shape to allow for fast property access and node creation. The virtual DOM diffing algorithm was designed to run efficient transformations that make changes while touching the DOM as little as possible.
+The view driver is a default driver built into Moon. It uses a variety of techniques to optimize JavaScript performance for JIT (Just In Time) compilation. Under the hood, the view driver takes a virtual DOM tree as output from an application. This tree is highly optimized to have the same shape to allow for fast property access and node creation. The virtual DOM diffing algorithm was designed to run efficient transformations that make changes while touching the DOM as little as possible.
+
+Since **view components are pure functions** in Moon, developers can choose to optimize specific components by using standard functional programming techniques such as memoization or caching. The view driver skips over nodes that stay the same over multiple renders. This combined with the purity of components opens up a lot of potential for optimization.
 
 Using optimized algorithms and data structures, Moon runs faster than most user interface libraries while sustaining a lightweight footprint.
 
