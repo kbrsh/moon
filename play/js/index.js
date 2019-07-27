@@ -82,10 +82,18 @@ Moon.run(({ data }) => {
 	indentWithTabs: true
 };
 
+var code = window.location.hash;
+
+if (code.length > 0) {
+	config.value = decodeURIComponent(code.slice(1));
+}
+
 var editor = CodeMirror(document.getElementById("editor"), config);
 var result = document.getElementById("result");
 
 function render() {
+	var value = editor.getValue();
+
 	result.srcdoc = `
 		<!DOCTYPE html>
 		<html>
@@ -95,10 +103,12 @@ function render() {
 			<body>
 				<div id="root"></div>
 				<script src="/play/js/lib/moon.js"></script>
-				<script>${MoonCompiler.compile(editor.getValue())}</script>
+				<script>${MoonCompiler.compile(value)}</script>
 			</body>
 		</html>
 	`;
+
+	window.location.hash = encodeURIComponent(value);
 }
 
 editor.on("change", render);
