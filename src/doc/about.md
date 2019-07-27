@@ -5,7 +5,7 @@ order: 0
 
 Moon is more than just a JavaScript library — it's a new paradigm for application development based on pure functions.
 
-An application is defined as a function that uses the concept of **drivers**, functions that access the real world to provide information and perform effects. Using drivers, an application takes driver inputs and returns driver outputs. It's a simple concept but it brings endless potential. Pure functions bring clarity and immutability to application code, making it concise, modular, and easy to reason about.
+An application is defined as a function that uses the concept of **drivers**, functions that access the real world to provide information and perform effects. Using drivers, an application takes driver inputs and returns driver outputs. It's a simple concept with endless potential. Pure functions bring clarity and immutability to application code, making it concise, modular, and easy to reason about.
 
 The majority of JavaScript libraries today are based on a view that changes based on state. In practice, however, web applications are much more complex and often need to perform side effects along with updating the view. These include audio, HTTP requests, routing, timing events, DOM manipulation, etc. While most other libraries have these features as second-class citizens, Moon handles all effects with drivers.
 
