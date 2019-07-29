@@ -103,7 +103,9 @@ Moon.<span class="blue">run</span>(Root);
 <p>Since <strong>view components are pure functions</strong> in Moon, developers can choose to optimize specific components by using standard functional programming techniques such as memoization or caching. The view driver skips over nodes that stay the same over multiple renders. This combined with the purity of components opens up a lot of potential for optimization.</p>
 <p>Using optimized algorithms and data structures, Moon runs faster than most user interface libraries while sustaining a lightweight footprint.</p>
 <h2 id="functional-declarative">Functional &amp; Declarative</h2>
-<p>TODO</p>
+<p>Many user interface libraries in the JavaScript landscape claim to be declarative but almost never encorporate purely functional ideas. Instead, they have imperative methods of updating state to update views, using function calls like <code>set</code> or reactive object property setters. These may be convenient at times, but often lead to bugs because of mutation. To get around this, they support a myriad of different libraries for immutability, leading to fragmentation and confusion for tooling.</p>
+<p>Moon is different, and was designed from scratch with a novel approach to web applications, treating an them as a function of driver inputs. All outputs to the browser, including the view, state, and HTTP requests, are all functions of driver inputs that capture data from outside sources and user input. There are no setter methods to learn, no lifecycle hooks to handle effects, and no need for a fragmented ecosystem of state management libraries.</p>
+<p>Instead, developers write functions that return outputs based on user events and driver inputs, and they have the freedom to create custom effects with their own drivers.</p>
 <h2 id="intuitive-consistent">Intuitive &amp; Consistent</h2>
 <p>TODO</p>
 
