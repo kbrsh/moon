@@ -73,11 +73,9 @@ Moon.use({
 	view: Moon.view.driver("#root")
 });
 
-Moon.run(({ data }) => {
-	return {
-		view: (<Todos data={data}/>)
-	};
-});`,
+Moon.run(({ data }) => ({
+	view: (<Todos data={data}/>)
+}));`,
 	lineNumbers: true,
 	indentWithTabs: true
 };
