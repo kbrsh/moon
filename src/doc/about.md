@@ -68,7 +68,27 @@ Many user interface libraries in the JavaScript landscape claim to be declarativ
 
 Moon is different, and was designed from scratch with a novel approach to web applications, treating an them as a function of driver inputs. All outputs to the browser, including the view, state, and HTTP requests, are all functions of driver inputs that capture data from outside sources and user input. There are no setter methods to learn, no lifecycle hooks to handle effects, and no need for a fragmented ecosystem of state management libraries.
 
-Instead, developers write functions that return outputs based on user events and driver inputs, and they have the freedom to create custom effects with their own drivers.
+Instead, developers write functions that return outputs based on user events and driver inputs, and they have the freedom to create custom effects with their own drivers. State is often stored in a single state tree rather than being spread across local and global state. For example, the entire state of an application might be represented as:
+
+```js
+{
+	state: "loading",
+	user: {
+		name: "",
+		picture: ""
+	},
+	posts: {
+		state: "loaded",
+		list: [],
+		selected: null
+	},
+	theme: "dark"
+}
+```
+
+Rather than creating "smart" components with general local state, components are "dumb" and only encode view data. For example, instead of a `Toggle` component handling local state, it would only provide an event where the relevant global state `theme` would change.
+
+One state tree means one source of truth for an application. Developers can quickly glance at the state of the whole application and have complete flexibility on the structure and type of the state. This declarative model of applications allows for modular code consisting of pure functions that focus on the "what" instead of the "how".
 
 ## Intuitive & Consistent
 

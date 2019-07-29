@@ -105,7 +105,23 @@ Moon.<span class="blue">run</span>(Root);
 <h2 id="functional-declarative">Functional &amp; Declarative</h2>
 <p>Many user interface libraries in the JavaScript landscape claim to be declarative but almost never encorporate purely functional ideas. Instead, they have imperative methods of updating state to update views, using function calls like <code>set</code> or reactive object property setters. These may be convenient at times, but often lead to bugs because of mutation. To get around this, they support a myriad of different libraries for immutability, leading to fragmentation and confusion for tooling.</p>
 <p>Moon is different, and was designed from scratch with a novel approach to web applications, treating an them as a function of driver inputs. All outputs to the browser, including the view, state, and HTTP requests, are all functions of driver inputs that capture data from outside sources and user input. There are no setter methods to learn, no lifecycle hooks to handle effects, and no need for a fragmented ecosystem of state management libraries.</p>
-<p>Instead, developers write functions that return outputs based on user events and driver inputs, and they have the freedom to create custom effects with their own drivers.</p>
+<p>Instead, developers write functions that return outputs based on user events and driver inputs, and they have the freedom to create custom effects with their own drivers. State is often stored in a single state tree rather than being spread across local and global state. For example, the entire state of an application might be represented as:</p>
+<pre><code lang="js">{
+    state: <span class="green">&quot;loading&quot;</span>,
+    user: {
+        name: <span class="green">&quot;&quot;</span>,
+        picture: <span class="green">&quot;&quot;</span>
+    },
+    posts: {
+        state: <span class="green">&quot;loaded&quot;</span>,
+        list: [],
+        selected: null
+    },
+    theme: <span class="green">&quot;dark&quot;</span>
+}
+</code></pre>
+<p>Rather than creating &quot;smart&quot; components with general local state, components are &quot;dumb&quot; and only encode view data. For example, instead of a <code>Toggle</code> component handling local state, it would only provide an event where the relevant global state <code>theme</code> would change.</p>
+<p>One state tree means one source of truth for an application. Developers can quickly glance at the state of the whole application and have complete flexibility on the structure and type of the state. This declarative model of applications allows for modular code consisting of pure functions that focus on the &quot;what&quot; instead of the &quot;how&quot;.</p>
 <h2 id="intuitive-consistent">Intuitive &amp; Consistent</h2>
 <p>TODO</p>
 
