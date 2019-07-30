@@ -92,4 +92,47 @@ One state tree means one source of truth for an application. Developers can quic
 
 ## Intuitive & Consistent
 
-TODO
+Moon's API only consists of two functions for initialization along with the APIs of individual drivers. The rest of an application is made from composing functions. Developers have the freedom to structure projects however they'd like. Since functions are just JavaScript, they can be split up across files and imported like anything else.
+
+Meanwhile, other APIs often have a multitude of functions for managing different effects and state, and they usually require a well-defined type and structure for parameters. In addition, other view templating languages are inconsistent. They accept different types for different parts of a template and usually create a learning barrier by introducing concepts like directives, flow control, and implicit children flattening.
+
+Views in Moon are based on HTML, a familiar language for defining documents. The language is an alternative syntax for function calls that can help structure views in a more organized fashion. Components in Moon are functions that return views, and they are called with the same syntax as tags since everything ends up being a function call. All control flow concepts are implemented as built-in components. They can be thought of as function calls, but they're compiled to their more efficient counterparts for performance.
+
+```js
+// Moon View
+const paragraph = (<p class="blue">Hello World!</p>);
+const Box = (<Box type="alert">Something went wrong!</Box>);
+
+// Compiled to JS
+var m0, m1;
+
+var paragraph = (function() {
+	if (m0 === undefined) {
+		// Static nodes are created once here.
+		m0 = Moon.view.m(0, "p", { className: "blue" }, [
+			Moon.view.m(1, "text", { "": "Hello World!" }, [])
+		]);
+	}
+
+	return m0;
+})();
+
+var Box = (function() {
+	if (m1 === undefined) {
+		// Static nodes are created once here. `<Box/>` is compiled to a function
+		// call, and it should return a view.
+		m1 = Box({
+			type: "alert",
+			children: [Moon.view.m(1, "text", { "": "Something went wrong!" }, [])]
+		});
+	}
+
+	return m1;
+})();
+```
+
+## Conclusion
+
+In Moon, an application is just a function with inputs and outputs handled by drivers. The concept's simplicity allows for a fast implementation with a small footprint, both of which constantly get overlooked in web development today. Functional programming brings clarity and composability to applications, and single state trees can lead to a clear mental model of a complex application. It also leads to a minimal API, required only to initialize a functional application in the imperative browser environment.
+
+In essence, applications run on the Moon while drivers update the Earth.
