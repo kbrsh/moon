@@ -64,7 +64,7 @@ Using optimized algorithms and data structures, Moon runs faster than most user 
 
 ## Functional & Declarative
 
-Many user interface libraries in the JavaScript landscape claim to be declarative but seldom incorporate purely functional ideas. Instead, they have imperative methods of updating state to update views, using function calls like `set` or reactive object property setters. These may be convenient at times, but often lead to bugs because of mutation. To get around this, they support a myriad of different libraries for immutability, leading to fragmentation and confusion for tooling.
+Many user interface libraries in the JavaScript landscape claim to be declarative but seldom incorporate purely functional ideas. Instead, they have imperative methods of updating state to update views, using function calls like `set` or reactive object property setters. These may be convenient at times, but often lead to bugs because of mutation. To get around this, they support a myriad of different libraries for immutability, leading to tooling fragmentation and confusion.
 
 Moon is different, and was designed from scratch with a novel approach to web applications, treating them as a function of driver inputs. All outputs to the browser, including the view, state, and HTTP requests, are all functions of driver inputs that capture data from outside sources and user input. There are no setter methods to learn, no lifecycle hooks to handle effects, and no need for a fragmented ecosystem of state management libraries.
 
@@ -94,21 +94,22 @@ One state tree means one source of truth for an application. Developers can quic
 
 Moon's API only consists of two functions for initialization along with the APIs of individual drivers. The rest of an application is made from composing functions. Developers have the freedom to structure projects however they'd like. Since functions are just JavaScript, they can be split up across files and imported like anything else.
 
-Meanwhile, other APIs often have a multitude of functions for managing different effects and state, and they usually require a well-defined type and structure for parameters. In addition, other view templating languages are inconsistent. They accept different types for different parts of a template and usually create a learning barrier by introducing concepts like directives, flow control, and implicit children flattening.
+Meanwhile, other APIs often have a multitude of functions for managing different effects and state, and they usually require a well-defined type and structure for parameters. In addition, other view templating languages are inconsistent. They accept different types for different parts of a template and impose a learning barrier by introducing concepts like directives, flow control, and implicit children flattening.
 
-Views in Moon are based on HTML, a familiar language for defining documents. The language is an alternative syntax for function calls that can help structure views in a more organized fashion. Components in Moon are functions that return views, and they are called with the same syntax as tags since everything ends up being a function call. All control flow concepts are implemented as built-in components. They can be thought of as function calls, but they're compiled to their more efficient counterparts for performance.
+Views in Moon are based on HTML, a familiar language for defining documents. The language is an alternative syntax for function calls that can help structure views in a more organized fashion. Components in Moon are pure functions that return views, and they are called with the same syntax as tags. All control flow concepts are implemented as built-in components. They can be thought of as function calls, but they're compiled to their more efficient counterparts for performance.
 
 ```js
 // Moon View
 const paragraph = (<p class="blue">Hello World!</p>);
-const Box = (<Box type="alert">Something went wrong!</Box>);
+const box = (<Box type="alert">Something went wrong!</Box>);
+const posts = (<for={post} of={posts}>{post}</for>);
 
 // Compiled to JS
-var m0, m1;
+var m0, m1, m2, m3, m4, m5, m6;
 
 var paragraph = (function() {
 	if (m0 === undefined) {
-		// Static nodes are created once here.
+		// Static nodes are defined here.
 		m0 = Moon.view.m(0, "p", { className: "blue" }, [
 			Moon.view.m(1, "text", { "": "Hello World!" }, [])
 		]);
@@ -117,10 +118,9 @@ var paragraph = (function() {
 	return m0;
 })();
 
-var Box = (function() {
+var box = (function() {
 	if (m1 === undefined) {
-		// Static nodes are created once here. `<Box/>` is compiled to a function
-		// call, and it should return a view.
+		// `<Box/>` is a function call.
 		m1 = Box({
 			type: "alert",
 			children: [Moon.view.m(1, "text", { "": "Something went wrong!" }, [])]
@@ -128,6 +128,25 @@ var Box = (function() {
 	}
 
 	return m1;
+})();
+
+var posts = (function() {
+	if (m5 === undefined) {
+		m5 = [];
+		m6 = {};
+	}
+
+	m2 = [];
+	m3 = function(post) {
+		return Moon.view.m(1, "text", { "": post }, m5);
+	};
+
+	// `<for>` gets compiled to a `for` loop for efficiency.
+	for (m4 = 0; m4 < posts.length; m4++) {
+		m2.push(m3(posts[m4], m4));
+	}
+
+	return Moon.view.m(0, "span", m6, m2);
 })();
 ```
 

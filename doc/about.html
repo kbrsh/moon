@@ -103,7 +103,7 @@ Moon.<span class="blue">run</span>(Root);
 <p>Since <strong>view components are pure functions</strong> in Moon, developers can choose to optimize specific components by using standard functional programming techniques such as memoization or caching. The view driver skips over nodes that stay the same over multiple renders. This combined with the purity of components opens up a lot of potential for optimization.</p>
 <p>Using optimized algorithms and data structures, Moon runs faster than most user interface libraries while sustaining a lightweight footprint.</p>
 <h2 id="functional-declarative">Functional &amp; Declarative</h2>
-<p>Many user interface libraries in the JavaScript landscape claim to be declarative but seldom incorporate purely functional ideas. Instead, they have imperative methods of updating state to update views, using function calls like <code>set</code> or reactive object property setters. These may be convenient at times, but often lead to bugs because of mutation. To get around this, they support a myriad of different libraries for immutability, leading to fragmentation and confusion for tooling.</p>
+<p>Many user interface libraries in the JavaScript landscape claim to be declarative but seldom incorporate purely functional ideas. Instead, they have imperative methods of updating state to update views, using function calls like <code>set</code> or reactive object property setters. These may be convenient at times, but often lead to bugs because of mutation. To get around this, they support a myriad of different libraries for immutability, leading to tooling fragmentation and confusion.</p>
 <p>Moon is different, and was designed from scratch with a novel approach to web applications, treating them as a function of driver inputs. All outputs to the browser, including the view, state, and HTTP requests, are all functions of driver inputs that capture data from outside sources and user input. There are no setter methods to learn, no lifecycle hooks to handle effects, and no need for a fragmented ecosystem of state management libraries.</p>
 <p>Instead, developers write functions that return outputs based on user events and driver inputs, and they have the freedom to create custom effects with their own drivers. State is often stored in a single state tree rather than being spread across local and global state. For example, the entire state of an application might be represented as:</p>
 <pre><code lang="js">{
@@ -115,7 +115,7 @@ Moon.<span class="blue">run</span>(Root);
     posts: {
         state: <span class="green">&quot;loaded&quot;</span>,
         list: [],
-        selected: null
+        selected: <span class="orange">null</span>
     },
     theme: <span class="green">&quot;dark&quot;</span>
 }
@@ -124,18 +124,19 @@ Moon.<span class="blue">run</span>(Root);
 <p>One state tree means one source of truth for an application. Developers can quickly glance at the state of the whole application and have complete flexibility on the structure and type of the state. This declarative model of applications allows for modular code consisting of pure functions that focus on the &quot;what&quot; instead of the &quot;how&quot;.</p>
 <h2 id="intuitive-consistent">Intuitive &amp; Consistent</h2>
 <p>Moon&#39;s API only consists of two functions for initialization along with the APIs of individual drivers. The rest of an application is made from composing functions. Developers have the freedom to structure projects however they&#39;d like. Since functions are just JavaScript, they can be split up across files and imported like anything else.</p>
-<p>Meanwhile, other APIs often have a multitude of functions for managing different effects and state, and they usually require a well-defined type and structure for parameters. In addition, other view templating languages are inconsistent. They accept different types for different parts of a template and usually create a learning barrier by introducing concepts like directives, flow control, and implicit children flattening.</p>
-<p>Views in Moon are based on HTML, a familiar language for defining documents. The language is an alternative syntax for function calls that can help structure views in a more organized fashion. Components in Moon are functions that return views, and they are called with the same syntax as tags since everything ends up being a function call. All control flow concepts are implemented as built-in components. They can be thought of as function calls, but they&#39;re compiled to their more efficient counterparts for performance.</p>
+<p>Meanwhile, other APIs often have a multitude of functions for managing different effects and state, and they usually require a well-defined type and structure for parameters. In addition, other view templating languages are inconsistent. They accept different types for different parts of a template and impose a learning barrier by introducing concepts like directives, flow control, and implicit children flattening.</p>
+<p>Views in Moon are based on HTML, a familiar language for defining documents. The language is an alternative syntax for function calls that can help structure views in a more organized fashion. Components in Moon are pure functions that return views, and they are called with the same syntax as tags. All control flow concepts are implemented as built-in components. They can be thought of as function calls, but they&#39;re compiled to their more efficient counterparts for performance.</p>
 <pre><code lang="js"><span class="gray">// Moon View</span>
 <span class="purple">const </span><span class="orange">paragraph</span> = (<span class="red">&lt;p</span> <span class="orange">class</span>=<span class="green">&quot;blue&quot;</span><span class="red">&gt;</span>Hello World!<span class="red">&lt;/p</span><span class="red">&gt;</span>);
-<span class="purple">const </span><span class="orange">Box</span> = (<span class="red">&lt;Box</span> <span class="orange">type</span>=<span class="green">&quot;alert&quot;</span><span class="red">&gt;</span>Something went wrong!<span class="red">&lt;/Box</span><span class="red">&gt;</span>);
+<span class="purple">const </span><span class="orange">box</span> = (<span class="red">&lt;Box</span> <span class="orange">type</span>=<span class="green">&quot;alert&quot;</span><span class="red">&gt;</span>Something went wrong!<span class="red">&lt;/Box</span><span class="red">&gt;</span>);
+<span class="purple">const </span><span class="orange">posts</span> = (&lt;<span class="purple">for</span>={post} of={posts}&gt;{post}<span class="red">&lt;/<span class="purple">for</span></span><span class="red">&gt;</span>);
 
 <span class="gray">// Compiled to JS</span>
-<span class="purple">var</span> m0, m1;
+<span class="purple">var</span> m0, m1, m2, m3, m4, m5, m6;
 
 <span class="purple">var</span> paragraph = (<span class="purple">function</span>() {
     <span class="purple">if</span> (m0 === <span class="orange">undefined</span>) {
-        <span class="gray">// Static nodes are created once here.</span>
+        <span class="gray">// Static nodes are defined here.</span>
         m0 = Moon.view.<span class="blue">m</span>(<span class="orange">0</span>, <span class="green">&quot;p&quot;</span>, { className: <span class="green">&quot;blue&quot;</span> }, [
             Moon.view.<span class="blue">m</span>(<span class="orange">1</span>, <span class="green">&quot;text&quot;</span>, { <span class="green">&quot;&quot;</span>: <span class="green">&quot;Hello World!&quot;</span> }, [])
         ]);
@@ -144,10 +145,9 @@ Moon.<span class="blue">run</span>(Root);
     <span class="purple">return</span> m0;
 })();
 
-<span class="purple">var</span> Box = (<span class="purple">function</span>() {
+<span class="purple">var</span> box = (<span class="purple">function</span>() {
     <span class="purple">if</span> (m1 === <span class="orange">undefined</span>) {
-        <span class="gray">// Static nodes are created once here. <span class="green">`<span class="red">&lt;Box</span><span class="red">/&gt;</span>`</span> is compiled to a <span class="purple">function</span></span>
-        <span class="gray">// call, and it should <span class="purple">return</span> a view.</span>
+        <span class="gray">// <span class="green">`<span class="red">&lt;Box</span><span class="red">/&gt;</span>`</span> is a <span class="purple">function</span> call.</span>
         m1 = <span class="blue">Box</span>({
             type: <span class="green">&quot;alert&quot;</span>,
             children: [Moon.view.<span class="blue">m</span>(<span class="orange">1</span>, <span class="green">&quot;text&quot;</span>, { <span class="green">&quot;&quot;</span>: <span class="green">&quot;Something went wrong!&quot;</span> }, [])]
@@ -155,6 +155,25 @@ Moon.<span class="blue">run</span>(Root);
     }
 
     <span class="purple">return</span> m1;
+})();
+
+<span class="purple">var</span> posts = (<span class="purple">function</span>() {
+    <span class="purple">if</span> (m5 === <span class="orange">undefined</span>) {
+        m5 = [];
+        m6 = {};
+    }
+
+    m2 = [];
+    m3 = <span class="purple">function</span>(post) {
+        <span class="purple">return</span> Moon.view.<span class="blue">m</span>(<span class="orange">1</span>, <span class="green">&quot;text&quot;</span>, { <span class="green">&quot;&quot;</span>: post }, m5);
+    };
+
+    <span class="gray">// <span class="green">`<span class="red">&lt;<span class="purple">for</span></span><span class="red">&gt;</span>`</span> gets compiled to a <span class="green">`<span class="purple">for</span>`</span> loop <span class="purple">for</span> efficiency.</span>
+    <span class="purple">for</span> (m4 = <span class="orange">0</span>; m4 &lt; posts.length; m4++) {
+        m2.<span class="blue">push</span>(<span class="blue">m3</span>(posts[m4], m4));
+    }
+
+    <span class="purple">return</span> Moon.view.<span class="blue">m</span>(<span class="orange">0</span>, <span class="green">&quot;span&quot;</span>, m6, m2);
 })();
 </code></pre>
 <h2 id="conclusion">Conclusion</h2>
