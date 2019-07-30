@@ -9,7 +9,7 @@ An application is defined as a function that uses the concept of **drivers**, fu
 
 The majority of JavaScript libraries today are based on a view that changes based on state. In practice, however, web applications are much more complex and often need to perform side effects along with updating the view. These include audio, HTTP requests, routing, timing events, DOM manipulation, etc. While most other libraries have these features as second-class citizens, Moon handles all effects with drivers.
 
-At its' core, Moon is a runtime that calls drivers and runs a functional application in the imperative browser environment. It uses drivers to get information from the real world and provides them as input to an application function. The function outputs data to various drivers, and Moon calls the drivers with the output to perform effects on the real world.
+At its core, Moon is a runtime that calls drivers and runs a functional application in the imperative browser environment. It uses drivers to get information from the real world and provides them as input to an application function. The function outputs data to various drivers, and Moon calls the drivers with the output to perform effects on the real world.
 
 ```js
 // The increment event handler acts just like `Root`, and it can take driver
@@ -64,9 +64,9 @@ Using optimized algorithms and data structures, Moon runs faster than most user 
 
 ## Functional & Declarative
 
-Many user interface libraries in the JavaScript landscape claim to be declarative but almost never encorporate purely functional ideas. Instead, they have imperative methods of updating state to update views, using function calls like `set` or reactive object property setters. These may be convenient at times, but often lead to bugs because of mutation. To get around this, they support a myriad of different libraries for immutability, leading to fragmentation and confusion for tooling.
+Many user interface libraries in the JavaScript landscape claim to be declarative but seldom incorporate purely functional ideas. Instead, they have imperative methods of updating state to update views, using function calls like `set` or reactive object property setters. These may be convenient at times, but often lead to bugs because of mutation. To get around this, they support a myriad of different libraries for immutability, leading to fragmentation and confusion for tooling.
 
-Moon is different, and was designed from scratch with a novel approach to web applications, treating an them as a function of driver inputs. All outputs to the browser, including the view, state, and HTTP requests, are all functions of driver inputs that capture data from outside sources and user input. There are no setter methods to learn, no lifecycle hooks to handle effects, and no need for a fragmented ecosystem of state management libraries.
+Moon is different, and was designed from scratch with a novel approach to web applications, treating them as a function of driver inputs. All outputs to the browser, including the view, state, and HTTP requests, are all functions of driver inputs that capture data from outside sources and user input. There are no setter methods to learn, no lifecycle hooks to handle effects, and no need for a fragmented ecosystem of state management libraries.
 
 Instead, developers write functions that return outputs based on user events and driver inputs, and they have the freedom to create custom effects with their own drivers. State is often stored in a single state tree rather than being spread across local and global state. For example, the entire state of an application might be represented as:
 
@@ -133,6 +133,6 @@ var Box = (function() {
 
 ## Conclusion
 
-In Moon, an application is just a function with inputs and outputs handled by drivers. The concept's simplicity allows for a fast implementation with a small footprint, both of which constantly get overlooked in web development today. Functional programming brings clarity and composability to applications, and single state trees can lead to a clear mental model of a complex application. It also leads to a minimal API, required only to initialize a functional application in the imperative browser environment.
+In Moon, an application is a function with inputs and outputs handled by drivers. The concept's simplicity allows for a fast implementation with a small footprint, both of which constantly get overlooked in web development today. Functional programming brings clarity and composability to applications, and single state trees can lead to a clear mental model of a complex application. It also leads to a minimal API, required only to initialize a functional application in the imperative browser environment.
 
 In essence, applications run on the Moon while drivers update the Earth.
