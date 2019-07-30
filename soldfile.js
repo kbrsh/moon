@@ -3,7 +3,7 @@ const Handlebars = require("handlebars");
 
 const CODE_RE = /<code class="lang-(\w+)">([\w\d\s.,:#@$()\[\]\\{}!?+*\-/="'`&;]+)<\/code>/g;
 const STR_RE = /((?:&quot;)|'|`)((?:.|\n)*?)\1/g;
-const SPECIAL_RE = /\b(new|var|let|if|do|function|while|switch|for|foreach|in|continue|break|return)\b/g;
+const SPECIAL_RE = /\b(new|var|let|if|do|function|while|switch|for|foreach|in|continue|break|return|import|from|export|default)\b/g;
 const GLOBAL_VARIABLE_RE = /\b(document|window|Array|String|undefined|null|true|false|Object|this|Boolean|Function|Number|Math|\d+(?:\.\d+)?)\b/g;
 const CONST_RE = /\b(const )([\w\d]+)/g;
 const METHODS_RE = /\b([\w\d]+)\(/g;

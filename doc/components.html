@@ -183,7 +183,7 @@
 <h3 id="single-file-components">Single-file Components</h3>
 <p>A project using single-file components can be generated using <a href="./installation.html#cli">Moon CLI</a>. A single-file component has a view, styles, and data.</p>
 <p>The component can be imported anywhere for use with:</p>
-<pre><code lang="js">import Component from <span class="green">&quot;./components/Component.mvl&quot;</span>;
+<pre><code lang="js"><span class="purple">import</span> Component <span class="purple">from</span> <span class="green">&quot;./components/Component.mvl&quot;</span>;
 </code></pre>
 <h5 id="view">View</h5>
 <p>The main content of an <code>mvl</code> file is the view. Every element other than <code>script</code> and <code>style</code> will be part of the component view.</p>
@@ -200,7 +200,7 @@
 <h5 id="data">Data</h5>
 <p>If a <code>script</code> tag is present, the default export will be used as the data for the component.</p>
 <pre><code lang="mvl"><span class="red">&lt;script</span><span class="red">&gt;</span>
-    export default {
+    <span class="purple">export</span> <span class="purple">default</span> {
         name: <span class="green">&quot;Moon&quot;</span>,
         <span class="blue">updateName</span>() {
             <span class="orange">this</span>.<span class="blue">update</span>(<span class="green">&quot;name&quot;</span>, <span class="green">&quot;New Moon&quot;</span>);
@@ -219,7 +219,7 @@
 <span class="red">&lt;/style</span><span class="red">&gt;</span>
 
 <span class="red">&lt;script</span><span class="red">&gt;</span>
-    export default {
+    <span class="purple">export</span> <span class="purple">default</span> {
         name: <span class="green">&quot;Moon&quot;</span>,
         <span class="blue">updateName</span>() {
             <span class="orange">this</span>.<span class="blue">update</span>(<span class="green">&quot;name&quot;</span>, <span class="green">&quot;New Moon&quot;</span>);
