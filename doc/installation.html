@@ -55,24 +55,31 @@
 				</div>
 				<div class="content">
 					<h1>Installation</h1>
-					<p>Moon can be installed with a <code>&lt;script&gt;</code> tag or through <code>npm</code>.</p>
-<pre><code lang="html"><span class="red">&lt;script</span> <span class="orange">src</span>=<span class="green">&quot;https:<span class="gray">//unpkg.com/moon&quot;</span><span class="red">&gt;</span><span class="red">&lt;/script</span><span class="red">&gt;</span></span>
+					<p>Moon can be installed with a <code>&lt;script&gt;</code> tag or through <code>npm</code>. The view driver uses an extension of the JavaScript language, similar to JSX, that adds HTML-like syntax for creating views.</p>
+<h2 id="cli">CLI</h2>
+<p>Moon CLI can generate a scalable application with support for:</p>
+<ul>
+<li>Moon view language</li>
+<li>Hot module reloading</li>
+<li>Next generation CSS and JavaScript</li>
+<li>Optimized production builds</li>
+</ul>
+<p>Moon CLI can be installed through <code>npm</code> and ran with <code>moon &lt;name&gt;</code>.</p>
+<pre><code lang="sh">npm install -g moon-cli
+moon my-app
+</code></pre>
+<h2 id="browser">Browser</h2>
+<p>For the browser, Moon provides a <code>moon-browser</code> module that compiles <code>&lt;script&gt;</code> tags with type <code>&quot;text/moon&quot;</code> to support the Moon view language.</p>
+<pre><code lang="html"><span class="red">&lt;script</span> <span class="orange">src</span>=<span class="green">&quot;https:<span class="gray">//unpkg.com/moon-browser&quot;</span><span class="red">&gt;</span><span class="red">&lt;/script</span><span class="red">&gt;</span></span>
+<span class="red">&lt;script</span> <span class="orange">src</span>=<span class="green">&quot;https:<span class="gray">//unpkg.com/moon&quot;</span><span class="red">&gt;</span><span class="red">&lt;/script</span><span class="red">&gt;</span></span>
+
+<span class="red">&lt;script</span> <span class="orange">type</span>=<span class="green">&quot;text/moon&quot;</span> <span class="orange">src</span>=<span class="green">&quot;scripts.js&quot;</span><span class="red">&gt;</span><span class="red">&lt;/script</span><span class="red">&gt;</span>
+<span class="red">&lt;script</span> <span class="orange">type</span>=<span class="green">&quot;text/moon&quot;</span><span class="red">&gt;</span>
+    <span class="purple">const </span><span class="orange">paragraph</span> = (<span class="red">&lt;p</span><span class="red">&gt;</span>Hello Moon!<span class="red">&lt;/p</span><span class="red">&gt;</span>);
+<span class="red">&lt;/script</span><span class="red">&gt;</span>
 </code></pre>
 <pre><code lang="sh">npm install moon
 </code></pre>
-<h3 id="cli">CLI</h3>
-<p>Moon CLI can generate a scalable application with support for:</p>
-<ul>
-<li>Multi-file components</li>
-<li>Hot module reloading</li>
-<li>Next generation CSS and JavaScript</li>
-<li>Highly optimized production builds</li>
-</ul>
-<p>Moon CLI can be installed through <code>npm</code> and ran with <code>moon &lt;name&gt;</code>.</p>
-<pre><code lang="sh">npm install moon-cli
-moon my-app
-</code></pre>
-<p>Further instructions will be displayed to get your app up and running. Refer to the documentation for more information on <a href="./components.html#multi-file-components">multi-file components</a>.</p>
 
 				</div>
 			</div>
