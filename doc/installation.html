@@ -76,7 +76,8 @@ npm install moon-compiler
 <h3 id="webpack">Webpack</h3>
 <pre><code lang="sh">npm install moon-loader
 </code></pre>
-<pre><code lang="js">module.exports = {
+<pre><code lang="js"><span class="gray">// webpack.config.js</span>
+module.exports = {
     module: {
         rules: [
             { test: /\.js/, use: <span class="green">&quot;moon-loader&quot;</span> }
@@ -105,8 +106,6 @@ npm install moon-compiler
 <span class="red">&lt;script</span> <span class="orange">type</span>=<span class="green">&quot;text/moon&quot;</span><span class="red">&gt;</span>
     <span class="purple">const </span><span class="orange">paragraph</span> = (<span class="red">&lt;p</span><span class="red">&gt;</span>Hello Moon!<span class="red">&lt;/p</span><span class="red">&gt;</span>);
 <span class="red">&lt;/script</span><span class="red">&gt;</span>
-</code></pre>
-<pre><code lang="sh">npm install moon
 </code></pre>
 
 				</div>

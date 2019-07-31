@@ -37,6 +37,7 @@ npm install moon-loader
 ```
 
 ```js
+// webpack.config.js
 module.exports = {
 	module: {
 		rules: [
@@ -75,8 +76,4 @@ Moon can be embedded in the browser directly with a script tag. To use the Moon 
 <script type="text/moon">
 	const paragraph = (<p>Hello Moon!</p>);
 </script>
-```
-
-```sh
-npm install moon
 ```
