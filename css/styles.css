@@ -91,7 +91,7 @@ pre code::after {
 	color: hsl(200, 31%, 29%);
 }
 
-pre code .red {
+pre code .red, pre code .red span {
 	color: hsl(0, 31%, 55%);
 }
 
@@ -99,7 +99,7 @@ pre code .orange {
 	color: hsl(20, 31%, 55%);
 }
 
-pre code .green {
+pre code .green, pre code .green span {
 	color: hsl(100, 14%, 55%);
 }
 
@@ -111,7 +111,7 @@ pre code .purple {
 	color: hsl(300, 14%, 55%);
 }
 
-pre code .gray {
+pre code .gray, pre code .gray span {
 	color: hsl(200, 31%, 29%);
 }
 

@@ -61,7 +61,7 @@
 <p>This is a root element where Moon&#39;s view driver will mount the view. For the following guide, along with the rest of the documentation, the above HTML is assumed.</p>
 <p>To get started with a basic todo view, add the following contents to a JavaScript file linked to the HTML page or a <code>&lt;script&gt;</code> tag.</p>
 <pre><code lang="js"><span class="purple">const </span><span class="orange">Todos</span> = ({ data }) =&gt; (
-    &lt;<span class="purple">for</span>={todo} of={data.todos} name=<span class="green">&quot;ul&quot;</span>&gt;
+    <span class="red">&lt;<span class="purple">for</span></span>={todo} <span class="orange">of</span>={data.todos} <span class="orange">name</span>=<span class="green">&quot;ul&quot;</span><span class="red">&gt;</span>
         <span class="red">&lt;li</span><span class="red">&gt;</span>{todo}<span class="red">&lt;/li</span><span class="red">&gt;</span>
     <span class="red">&lt;/<span class="purple">for</span></span><span class="red">&gt;</span>
 );
@@ -101,7 +101,7 @@ Moon.<span class="blue">run</span>(({ data }) =&gt; ({
         <span class="red">&lt;input</span> <span class="orange">type</span>=<span class="green">&quot;text&quot;</span> <span class="orange">value</span>={data.todo} <span class="orange">@input</span>={updateTodo}<span class="red">/&gt;</span>
         <span class="red">&lt;button</span> <span class="orange">@click</span>={createTodo}<span class="red">&gt;</span>Create<span class="red">&lt;/button</span><span class="red">&gt;</span>
 
-        &lt;<span class="purple">for</span>={todo} of={data.todos} name=<span class="green">&quot;ul&quot;</span>&gt;
+        <span class="red">&lt;<span class="purple">for</span></span>={todo} <span class="orange">of</span>={data.todos} <span class="orange">name</span>=<span class="green">&quot;ul&quot;</span><span class="red">&gt;</span>
             <span class="red">&lt;li</span><span class="red">&gt;</span>{todo}<span class="red">&lt;/li</span><span class="red">&gt;</span>
         <span class="red">&lt;/<span class="purple">for</span></span><span class="red">&gt;</span>
     <span class="red">&lt;/div</span><span class="red">&gt;</span>

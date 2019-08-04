@@ -11,7 +11,7 @@ const MULTILINE_COMMENT_RE  = /(\/\*.*\*\/)/g;
 const COMMENT_RE = /(\/\/.*)/g;
 const HTML_COMMENT_RE = /(\&lt;\!\-\-(?:(?:.|\n)*)\-\-\&gt;)/g;
 const HTML_ATTRIBUTE_RE = /(\S+)=["']?((?:.(?!["']?\s+(?:\S+)=|[>"']))+.)["']?/g;
-const HTML_TAG_RE = /(&lt;\/?[\w\d-]*?)(\s(?:.|\n)*?)?(\/?&gt;)/g;
+const HTML_TAG_RE = /(&lt;\/?[\w\d-]*?)((?:\s|=)(?:.|\n)*?)?(\/?&gt;)/g;
 
 Handlebars.registerHelper("ifeq", function(a, b, options) {
 	if (a === b) {
