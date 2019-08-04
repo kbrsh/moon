@@ -3,120 +3,53 @@ title: Data
 order: 3
 ---
 
-Every Moon component is a Moon instance with properties and methods that are defined in the component definition.
+The data driver is a driver that handles persistent state. It stores data in memory and provides it as driver input. For output, it accepts new data that it stores and provides on any subsequent runs.
 
-### Root
+Stored data can have any type, but is usually an object with different properties for storing different parts of application state.
 
-The root instance is created using `Moon({})`. This invocation creates a new component constructor and initializes it.
+## Configuration
+
+The `Moon.data.driver` is a function that takes initial data and returns a driver.
 
 ```js
-Moon({
-	view: "{foo} {bar}",
-	foo: 17,
-	bar: "baz",
-	log() {
-		// Properties are available under `this`
-		console.log(this.foo, this.bar);
-	}
+// Creates a data driver with the initial data as an object.
+Moon.data.driver({
+	count: 1,
+	user: null
 });
 ```
 
-The above instance has the user-defined properties `foo` and `bar` and the method `log`. Additionally, Moon defines builtin properties and methods on each component to provide utilities for creating, updating, and destroying it.
+## Input
 
-### Create
-
-To create the view and initialize all DOM elements, you use `instance.create(root)`. This method is meant to be used internally but can optionally be utilized in order to use a Moon component with an existing application.
+The data driver provides the current stored data as input.
 
 ```js
-new ComponentConstructor().create(document.getElementById("root"));
-```
+Moon.use({
+	data: Moon.data.driver(1)
+});
 
-### Update
-
-To update the view and properties of an instance you use `instance.update()`. This method updates data within the component and queues a view update.
-
-```js
-// Queue a view update
-this.update();
-
-// Update one property and queue a view update
-this.update("count", this.count + 1);
-
-// Update multiple properties and queue a view update
-this.update({
-	foo: "bar",
-	count: this.count + 1
+Moon.run(({ data }) => {
+	console.log(data); // => 1
+	return {};
 });
 ```
 
-### Destroy
+## Output
 
-To destroy a view and remove all DOM elements from the root you use `instance.destroy()`.
-
-```js
-this.destroy();
-```
-
-### On
-
-To add an event listener to an instance, you use `instance.on(event, handler)`. The `create`, `update`, and `destroy` events are fired when their corresponding methods are called.
+The data driver accepts new data as output and stores it. This is usually a completely new state to keep immutability and prevent bugs. However, the data can be mutated and returned again since the previous data is replaced with the new one.
 
 ```js
-this.on("create", function() {
-	console.log("Component created.");
+Moon.use({
+	data: Moon.data.driver({
+		count: 1,
+		user: null
+	})
 });
 
-this.on("update", function() {
-	console.log("Component updated.");
-});
-
-this.on("destroy", function() {
-	console.log("Component destroyed.");
-});
-
-this.on("custom", function() {
-	console.log("Custom event fired.");
-});
-```
-
-### Off
-
-To remove an event listener from an instance, you use `instance.off()`.
-
-```js
-// Remove all event listeners
-this.off();
-
-// Remove all event listeners for the "custom" event
-this.off("custom");
-
-// Remove `handler` from the "custom" event.
-this.off("custom", handler);
-```
-
-### Emit
-
-To emit an event, you use `instance.emit(event)`.
-
-```js
-// Emit the "custom" event
-this.emit("custom");
-
-
-// Emit the "custom" event with custom event data
-this.emit("custom", {
-	foo: "bar"
-});
-```
-
-### Lifecycle
-
-Rather than using `instance.on` for every lifecycle event (`create`, `update`, `destroy`), you can provide them in the component data.
-
-```js
-Moon({
-	onCreate() {},
-	onUpdate() {},
-	onDestroy() {}
+Moon.run(({ data }) => {
+	return {
+		count: data.count + 1,
+		user: "John Doe"
+	};
 });
 ```
