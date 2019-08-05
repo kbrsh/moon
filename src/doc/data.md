@@ -34,6 +34,8 @@ Moon.run(({ data }) => {
 });
 ```
 
+<a href="/play#Moon.use(%7B%0A%09data%3A%20Moon.data.driver(1)%0A%7D)%3B%0A%0AMoon.run((%7B%20data%20%7D)%20%3D>%20%7B%0A%09console.log(data)%3B%20%2F%2F%20%3D>%201%0A%09return%20%7B%7D%3B%0A%7D)%3B">Try it!</a>
+
 ## Output
 
 The data driver accepts new data as output and stores it. This is usually a completely new state to keep immutability and prevent bugs. However, the data can be mutated and returned again since the previous data is replaced with the new one.

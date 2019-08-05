@@ -40,6 +40,8 @@ Moon.run(() => {
 });
 ```
 
+<a href="/play#function%20handleClick(%7B%20view%20%7D)%20%7B%0A%09console.log(view)%3B%20%2F%2F%20MouseEvent%0A%09return%20%7B%7D%3B%0A%7D%0A%0AMoon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20(%3Cbutton%20%40click%3D%7BhandleClick%7D%3EClick%20Me!%3C%2Fbutton%3E)%0A%09%7D%3B%0A%7D)%3B">Try it!</a>
+
 ## Output
 
 The view driver accepts a new view as output and renders it to the DOM using a performant virtual DOM diffing algorithm. This should be a completely new virtual DOM. This keeps immutability and prevents bugs, as every view completely replaces the old one.
@@ -55,6 +57,8 @@ Moon.run(() => {
 	};
 });
 ```
+
+<a href="/play#Moon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20(%3Cp%3EHello%20Moon!%3C%2Fp%3E)%0A%09%7D%3B%0A%7D)%3B">Try it!</a>
 
 Moon views are often defined using the _Moon View Language_. The Moon view language is a template language based on HTML and adds support for data interpolation, events, and components.
 
@@ -94,6 +98,8 @@ const paragraph = (
 );
 ```
 
+<a href="/play#const%20calculateId%20%3D%20()%20%3D%3E%20Math.random()%3B%0A%0Aconst%20paragraph%20%3D%20(%0A%09%3Cdiv%0A%09%09%3D%22empty%22%0A%09%09id%3D%7BcalculateId()%7D%0A%09%09class%3D%22blue%22%0A%09%09empty%0A%09%09style%3D%7B%7B%20color%3A%20%22blue%22%20%7D%7D%0A%09%09dataset%3D%7B%7B%20foo%3A%20%22bar%22%20%7D%7D%0A%09%09ariaset%3D%7B%7B%20hidden%3A%20true%20%7D%7D%0A%09%3E%0A%09%09%3Cp%3EHello%20Moon!%3C%2Fp%3E%0A%09%3C%2Fdiv%3E%0A)%3B%0A%0AMoon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20paragraph%0A%09%7D%3B%0A%7D)%3B">Try it!</a>
+
 ### Text
 
 Text is plaintext with support for basic HTML escape codes, which include `&amp;`, `&gt;`, `&lt;`, `&nbsp;`, and `&quot;`. The rest can be encoded as anything that is valid in a JavaScript string.
@@ -105,6 +111,8 @@ const paragraph = (
 	<p>Hello {name}! The number of moons is: {count(planets) * 21.625}.</p>
 );
 ```
+
+<a href="/play#const%20count%20%3D%20arr%20%3D%3E%20arr.length%3B%0A%0Aconst%20name%20%3D%20%22Moon%22%3B%0Aconst%20planets%20%3D%20%5B%22Mercury%22%2C%20%22Venus%22%2C%20%22Earth%22%2C%20%22Mars%22%2C%20%22Jupiter%22%2C%20%22Saturn%22%2C%20%22Uranus%22%2C%20%22Neptune%22%5D%3B%0A%0Aconst%20paragraph%20%3D%20(%0A%09%3Cp%3EHello%20%7Bname%7D!%20The%20number%20of%20moons%20is%3A%20%7Bcount(planets)%20*%2021.625%7D.%3C%2Fp%3E%0A)%3B%0A%0AMoon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20paragraph%0A%09%7D%3B%0A%7D)%3B">Try it!</a>
 
 ### Events
 
@@ -128,6 +136,8 @@ Moon.run(() => {
 	};
 });
 ```
+
+<a href="/play#function%20handleClick(%7B%20view%20%7D)%20%7B%0A%09console.log(view)%3B%20%2F%2F%20MouseEvent%0A%09return%20%7B%0A%09%09view%3A%20(%3Cp%3ENew%20view!%3C%2Fp%3E)%0A%09%7D%3B%0A%7D%0A%0AMoon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20(%3Cbutton%20%40click%3D%7BhandleClick%7D%3EClick%20Me!%3C%2Fbutton%3E)%0A%09%7D%3B%0A%7D)%3B">Try it!</a>
 
 ### Components
 
@@ -159,6 +169,8 @@ const element = (
 */
 ```
 
+<a href="/play#const%20Component%20%3D%20data%20%3D%3E%20(%0A%09%3Cdiv%20class%3D%22container%22%20id%3D%7Bdata.id%7D%3E%0A%09%09%3Cdiv%20class%3D%22content%22%20children%3D%7Bdata.children%7D%3E%3C%2Fdiv%3E%0A%09%3C%2Fdiv%3E%0A)%3B%0A%0Aconst%20element%20%3D%20(%0A%09%3CComponent%20id%3D%22my-component%22%3E%0A%09%09%3Cp%3EHello%20Moon!%3C%2Fp%3E%0A%09%3C%2FComponent%3E%0A)%3B%0A%0AMoon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20element%0A%09%7D%3B%0A%7D)%3B">Try it!</a>
+
 ### Conditionals
 
 Elements can be rendered based on certain conditions using the `if`, `else-if`, and `else` components. These components only render their first child if the condition matches. `else-if` and `else` are not required, and `else` defaults to rendering an empty text element.
@@ -178,6 +190,8 @@ const conditional = (
 	</div>
 );
 ```
+
+<a href="/play#const%20foo%20%3D%20%22foo%22%3B%0Aconst%20condition%20%3D%20true%3B%0A%0Aconst%20conditional%20%3D%20(%0A%09%3Cdiv%3E%0A%09%09%3Cif%3D%7Bfoo%20%3D%3D%3D%20%22bar%22%7D%3E%0A%09%09%09%3Cp%3EFoo%20is%20bar!%3C%2Fp%3E%0A%09%09%3C%2Fif%3E%0A%09%09%3Celse-if%3D%7Bcondition%7D%3E%0A%09%09%09%3Cp%3ECondition%20is%20true!%3C%2Fp%3E%0A%09%09%3C%2Felse-if%3E%0A%09%09%3Celse%3E%0A%09%09%09%3Cp%3ECondition%20is%20false!%3C%2Fp%3E%0A%09%09%3C%2Felse%3E%0A%09%3C%2Fdiv%3E%0A)%3B%0A%0AMoon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20conditional%0A%09%7D%3B%0A%7D)%3B">Try it!</a>
 
 ### Loops
 
@@ -221,6 +235,8 @@ const loop = (
 	</for>
 );
 ```
+
+<a href="/play#const%20array%20%3D%20%5B%22Mercury%22%2C%20%22Venus%22%2C%20%22Earth%22%2C%20%22Mars%22%2C%20%22Jupiter%22%2C%20%22Saturn%22%2C%20%22Uranus%22%2C%20%22Neptune%22%5D%3B%0A%0A%2F%2F%20Name%20and%20data%20options%0Aconst%20loop%20%3D%20(%0A%09%3Cfor%3D%7Bvalue%7D%20of%3D%7Barray%7D%20name%3D%22ul%22%20data%3D%7B%7B%20class%3A%20%22blue%22%20%7D%7D%3E%0A%09%09%3Cli%3E%7Bvalue%7D%3C%2Fli%3E%0A%09%3C%2Ffor%3E%0A)%3B%0A%0AMoon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20loop%0A%09%7D%3B%0A%7D)%3B">Try it!</a>
 
 ### Under the Hood
 
