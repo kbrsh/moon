@@ -105,11 +105,12 @@ Moon.<span class="blue">run</span>(() =&gt; {
 </code></pre>
 <h3 id="tags">Tags</h3>
 <p>Tags return new view nodes, and they follow normal HTML tag names. They can also have data, which correspond to properties (not attributes) on DOM elements.</p>
-<p>Property names can be empty. Property values can also be empty, in which case they default to <code>true</code>. Otherwise, the values can be strings or interpolated JavaScript expressions. They are special syntax for function calls, where the content between tags is another property called <code>children</code>. This can contain other tags and text.</p>
+<p>Property names can be empty. Property values can also be empty, in which case they default to <code>true</code>. Otherwise, the values can be strings or interpolated JavaScript expressions surrounded by curly braces. They are special syntax for function calls, where the content between tags is another property called <code>children</code>. This can contain other tags and text.</p>
 <p>Additionally, Moon has special properties for <code>style</code> and <code>dataset</code>. Also, it adds <code>ariaset</code> instead of supporting <code>aria-*</code> attributes.</p>
 <pre><code lang="js"><span class="purple">const </span><span class="orange">paragraph</span> = (
     <span class="red">&lt;div</span>
         =<span class="green">&quot;empty&quot;</span>
+        <span class="orange">id</span>={<span class="blue">calculateId</span>()}
         <span class="orange">class</span>=<span class="green">&quot;blue&quot;</span>
         empty
         <span class="orange">style</span>={{ color: <span class="green">&quot;blue&quot;</span> }}
@@ -122,7 +123,10 @@ Moon.<span class="blue">run</span>(() =&gt; {
 </code></pre>
 <h3 id="text">Text</h3>
 <p>Text is plaintext with support for basic HTML escape codes, which include <code>&amp;amp;</code>, <code>&amp;gt;</code>, <code>&amp;lt;</code>, <code>&amp;nbsp;</code>, and <code>&amp;quot;</code>. The rest can be encoded as anything that is valid in a JavaScript string.</p>
-<pre><code lang="js"><span class="purple">const </span><span class="orange">paragraph</span> = (<span class="red">&lt;p</span><span class="red">&gt;</span>Hello { name }!<span class="red">&lt;/p</span><span class="red">&gt;</span>);
+<p>On top of that, it supports JavaScript expressions interpolated between curly braces.</p>
+<pre><code lang="js"><span class="purple">const </span><span class="orange">paragraph</span> = (
+    <span class="red">&lt;p</span><span class="red">&gt;</span>Hello {name}! The number of moons is: {<span class="blue">count</span>(planets) * <span class="orange">21.625</span>}.<span class="red">&lt;/p</span><span class="red">&gt;</span>
+);
 </code></pre>
 <h3 id="events">Events</h3>
 <p>Browser events such as <code>click</code> or <code>input</code> can be handled by creating an attribute prepended with <code>@</code> with one function as a value. This function will be ran like an application, with the DOM event available from the input from the <code>view</code> driver.</p>

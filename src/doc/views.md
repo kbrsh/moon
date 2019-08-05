@@ -74,7 +74,7 @@ const paragraph = <p>Hello Moon!</p>;
 
 Tags return new view nodes, and they follow normal HTML tag names. They can also have data, which correspond to properties (not attributes) on DOM elements.
 
-Property names can be empty. Property values can also be empty, in which case they default to `true`. Otherwise, the values can be strings or interpolated JavaScript expressions. They are special syntax for function calls, where the content between tags is another property called `children`. This can contain other tags and text.
+Property names can be empty. Property values can also be empty, in which case they default to `true`. Otherwise, the values can be strings or interpolated JavaScript expressions surrounded by curly braces. They are special syntax for function calls, where the content between tags is another property called `children`. This can contain other tags and text.
 
 Additionally, Moon has special properties for `style` and `dataset`. Also, it adds `ariaset` instead of supporting `aria-*` attributes.
 
@@ -82,6 +82,7 @@ Additionally, Moon has special properties for `style` and `dataset`. Also, it ad
 const paragraph = (
 	<div
 		="empty"
+		id={calculateId()}
 		class="blue"
 		empty
 		style={{ color: "blue" }}
@@ -97,8 +98,12 @@ const paragraph = (
 
 Text is plaintext with support for basic HTML escape codes, which include `&amp;`, `&gt;`, `&lt;`, `&nbsp;`, and `&quot;`. The rest can be encoded as anything that is valid in a JavaScript string.
 
+On top of that, it supports JavaScript expressions interpolated between curly braces.
+
 ```js
-const paragraph = (<p>Hello { name }!</p>);
+const paragraph = (
+	<p>Hello {name}! The number of moons is: {count(planets) * 21.625}.</p>
+);
 ```
 
 ### Events
