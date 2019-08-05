@@ -1,6 +1,6 @@
 ---
 title: Examples
-order: 6
+order: 5
 ---
 
 Here are some official Moon examples:
