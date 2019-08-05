@@ -3,184 +3,235 @@ title: Views
 order: 4
 ---
 
-Moon views are defined using the _Moon View Language_. The Moon view language is a template language based on HTML and adds support for data interpolation, events, and components.
+The view driver is a driver that handles visual output using the DOM in a browser. It uses a virtual DOM under the hood to ensure fast updates, and it works by replacing the old view with a new one.
 
-### Interpolation
+## Configuration
 
-Properties from instance data can be interpolated into the view using a pair of curly braces: `{}`.
-
-```mvl
-<div class={name}>
-	{message}
-</div>
-```
+The `Moon.data.view` is a function that takes a root element where views will be mounted. This can be a query selector or a direct reference to a DOM element. The view driver will replace this element with the view structure you provide.
 
 ```js
-Moon({
-	root: "#root",
-	name: "interpolation",
-	message: "Hello Moon!"
+// Creates a view driver that mounts on an existing element using a query
+// selector.
+Moon.view.driver("#root");
+
+// Creates a view driver that mounts on an existing element using a direct DOM
+// reference.
+Moon.view.driver(document.getElementById("root"));
+```
+
+## Input
+
+The view driver provides event information as input. This is useful for event handlers which return their own views, as they can have access to the DOM event information.
+
+```js
+function handleClick({ view }) {
+	console.log(view); // MouseEvent
+	return {};
+}
+
+Moon.use({
+	view: Moon.view.driver("#root")
+});
+
+Moon.run(() => {
+	return {
+		view: (<button @click={handleClick}>Click Me!</button>)
+	};
 });
 ```
 
-<div id="example-view-interpolation" class="example"></div>
+## Output
 
-<script>
-	var ViewInterpolation = Moon({
-		root: "#example-view-interpolation",
-		view: "<div class={name}>{message}</div>",
-		name: "interpolation",
-		message: "Hello Moon!"
-	});
-</script>
+The view driver accepts a new view as output and renders it to the DOM using a performant virtual DOM diffing algorithm. This should be a completely new virtual DOM. This keeps immutability and prevents bugs, as every view completely replaces the old one.
 
-Try entering `ViewInterpolation.update("message", "New Message!")` in the console to update the view.
+```js
+Moon.use({
+	view: Moon.view.driver("#root")
+});
+
+Moon.run(() => {
+	return {
+		view: (<p>Hello Moon!</p>)
+	};
+});
+```
+
+Moon views are often defined using the _Moon View Language_. The Moon view language is a template language based on HTML and adds support for data interpolation, events, and components.
+
+### JavaScript Syntax
+
+The Moon view language is a superset of JavaScript, and it allows a new type of expression. This expression returns view nodes, and must always be enclosed in parentheses.
+
+```js
+// Valid
+const paragraph = (<p>Hello Moon!</p>);
+
+// Invalid
+const paragraph = <p>Hello Moon!</p>;
+```
+
+### Tags
+
+Tags return new view nodes, and they follow normal HTML tag names. They can also have data, which correspond to properties (not attributes) on DOM elements.
+
+Property names can be empty. Property values can also be empty, in which case they default to `true`. Otherwise, the values can be strings or interpolated JavaScript expressions. They are special syntax for function calls, where the content between tags is another property called `children`. This can contain other tags and text.
+
+Additionally, Moon has special properties for `style` and `dataset`. Also, it adds `ariaset` instead of supporting `aria-*` attributes.
+
+```js
+const paragraph = (
+	<div
+		="empty"
+		class="blue"
+		empty
+		style={{ color: "blue" }}
+		dataset={{ foo: "bar" }}
+		ariaset={{ hidden: true }}
+	>
+		<p>Hello Moon!</p>
+	</div>
+);
+```
+
+### Text
+
+Text is plaintext with support for basic HTML escape codes, which include `&amp;`, `&gt;`, `&lt;`, `&nbsp;`, and `&quot;`. The rest can be encoded as anything that is valid in a JavaScript string.
+
+```js
+const paragraph = (<p>Hello { name }!</p>);
+```
 
 ### Events
 
-Browser events, component events, and lifecycle events can be handled by using an attribute starting with `@`.
-
-##### Browser Events
-
-Browser events such as `click` or `input` can be handled by creating an attribute prepended with `@` with one statement as a value. A special _local variable_ named `$event` will be available and holds the event object.
-
-```mvl
-<button @click={announce($event)}>
-	Make Announcement
-</button>
-```
+Browser events such as `click` or `input` can be handled by creating an attribute prepended with `@` with one function as a value. This function will be ran like an application, with the DOM event available from the input from the `view` driver.
 
 ```js
-Moon({
-	root: "#root",
-	announce($event) {
-		alert($event.target.tagName + " was clicked.");
-	}
+function handleClick({ view }) {
+	console.log(view); // MouseEvent
+	return {
+		view: (<p>New view!</p>)
+	};
+}
+
+Moon.use({
+	view: Moon.view.driver("#root")
+});
+
+Moon.run(() => {
+	return {
+		view: (<button @click={handleClick}>Click Me!</button>)
+	};
 });
 ```
 
-<div id="example-view-browser-events" class="example"></div>
+### Components
 
-<script>
-	Moon({
-		root: "#example-view-browser-events",
-		view: "<button @click={announce($event)}>Make Announcement</button>",
-		announce($event) {
-			alert($event.target.tagName + " was clicked.");
-		}
-	});
-</script>
+Components are functions of data objects that return view nodes. They are useful for making reusable parts of your view that can be configured through data. Since the data object is also passed children, components can also render children inside of their view node result.
 
-##### Bind Events
-
-The `bind` event is a special event used to bind an input value to a variable and a variable to the input value.
-
-```mvl
-<p>{text}</p>
-<input type="text" @bind={text}/>
-```
+Components should always start with an uppercase letter and return a view object so that Moon can detect which elements are components.
 
 ```js
-Moon({
-	root: "#root",
-	text: "Hello Moon!"
-});
+const Component = data => (
+	<div class="container" id={data.id}>
+		<div class="content" children={data.children}></div>
+	</div>
+);
+
+const element = (
+	<Component id="my-component">
+		<p>Hello Moon!</p>
+	</Component>
+);
+
+/*
+	Results in:
+
+	<div class="container" id="my-component">
+		<div class="content">
+			<p>Hello Moon!</p>
+		</div>
+	</div>
+*/
 ```
-
-<div id="example-view-bind-events" class="example"></div>
-
-<script>
-	var ViewBindEvents = Moon({
-		root: "#example-view-bind-events",
-		view: "<p>{text}</p><input type=\"text\" @bind={text}/>",
-		text: "Hello Moon!"
-	});
-</script>
-
-Try entering `ViewBindEvents.update("text", "New Text!")` in the console to update the view.
-
-##### Component Events
-
-Learn about component events in the [components section](./components.html).
 
 ### Conditionals
 
-Elements can be rendered based on certain conditions using the `If`, `ElseIf`, and `Else` components.
-
-```mvl
-<div If={condition}>
-	Condition is truthy.
-</div>
-<div Else>
-	Condition is falsy.
-</div>
-```
+Elements can be rendered based on certain conditions using the `if`, `else-if`, and `else` components. These components only render their first child if the condition matches. `else-if` and `else` are not required, and `else` defaults to rendering an empty text element.
 
 ```js
-Moon({
-	root: "#root",
-	condition: Math.random() <= 0.5 ? false : true
-});
+const conditional = (
+	<div>
+		<if={foo === "bar"}>
+			<p>Foo is bar!</p>
+		</if>
+		<else-if={condition}>
+			<p>Condition is true!</p>
+		</else-if>
+		<else>
+			<p>Condition is false!</p>
+		</else>
+	</div>
+);
 ```
-
-<div id="example-view-conditionals" class="example"></div>
-
-<script>
-	var ViewConditionals = Moon({
-		root: "#example-view-conditionals",
-		view: "<div If={condition}>Condition is truthy.</div><div Else>Condition is falsy.</div>",
-		condition: Math.random() <= 0.5 ? false : true
-	});
-</script>
-
-Try entering `ViewConditionals.update("condition", !ViewConditionals.condition)` in the console to update the view.
 
 ### Loops
 
-Elements can be rendered multiple times for every element in an array using the `For` component. The syntax for the main argument is `$element,$index in array`. The element and index are prefixed with `$`, meaning that they are _locals_ and not on the instance itself.
+Elements can be rendered multiple times for every element in an array using the `for` component. The empty property accepts two local variables that will be available to every child element. The `of` property will accept an array to iterate over, with the first local variable being the element of the array and the second being the index. The `in` property will accept an object to iterate over, with the first local being the key of the object, and the second being the value.
 
-```mvl
-<ul>
-	<li For={$item,$index in items}>
-		{$index}: {$item}
-	</li>
-</ul>
-```
+By default, `for` will render everything inside a `<span>` element. To customize this, you can use the `name` property to set the tag name. Also, you can use the `data` property to set the DOM property data.
 
 ```js
-Moon({
-	root: "#root",
-	items: ["foo", "bar", "baz"]
-});
+// Array
+const loop = (
+	<for={value} of={array}>
+		<p>{value}</p>
+	</for>
+);
+
+// Array with index local
+const loop = (
+	<for={value, index} of={array}>
+		<p>{index}: {value}</p>
+	</for>
+);
+
+// Object
+const loop = (
+	<for={key} in={object}>
+		<p>{key}</p>
+	</for>
+);
+
+// Object with value local
+const loop = (
+	<for={key, value} of={object}>
+		<p>{key}: {value}</p>
+	</for>
+);
+
+// Name and data options
+const loop = (
+	<for={value} of={array} name="ul" data={{ class: "blue" }}>
+		<li>{value}</li>
+	</for>
+);
 ```
 
-<div id="example-view-loops" class="example"></div>
+### Under the Hood
 
-<script>
-	var ViewLoops = Moon({
-		root: "#example-view-loops",
-		view: "<ul><li For={$item,$index in items}>{$index}: {$item}</li></ul>",
-		items: ["foo", "bar", "baz"]
-	});
-</script>
+View nodes are created with `Moon.view.m`. This is a function that takes a type, data, and children. Components are called with data, and one of the properties, `children`, contains child nodes.
 
-Try entering `ViewLoops.update("items", ViewLoops.items.reverse())` in the console to update the view.
+```js
+// Moon view language
+const paragraph = (<p class="blue">Hello Moon!</p>);
+const component = (<Component class="blue">Hello Moon!</Component>);
 
-### Alternate Syntax
+// Function calls
+const paragraph = Moon.view.m("p", { class: "blue" }, [
+	Moon.view.m("text", { "": "Hello Moon!" }, [])
+]);
 
-Since `If`, `ElseIf`, `Else`, and `For` are just components, you can use the normal [component syntax](./components.html).
-
-```mvl
-<If={condition}>
-	<p>Condition is truthy.</p>
-	<p>Multiple elements are allowed.</p>
-</If>
-<Else>
-	<p>Condition is falsy.</p>
-</Else>
-
-<For={$item,$index in items}>
-	<p>{$item}</p>
-	<p>{$index}</p>
-</For>
+const component = Component({ class: "blue", children: [
+	Moon.view.m("text", { "": "Hello Moon!" }, [])
+]});
 ```

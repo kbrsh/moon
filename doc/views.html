@@ -55,144 +55,188 @@
 				</div>
 				<div class="content">
 					<h1>Views</h1>
-					<p>Moon views are defined using the <em>Moon View Language</em>. The Moon view language is a template language based on HTML and adds support for data interpolation, events, and components.</p>
-<h3 id="interpolation">Interpolation</h3>
-<p>Properties from instance data can be interpolated into the view using a pair of curly braces: <code>{}</code>.</p>
-<pre><code lang="mvl"><span class="red">&lt;div</span> <span class="orange">class</span>={name}<span class="red">&gt;</span>
-    {message}
-<span class="red">&lt;/div</span><span class="red">&gt;</span>
+					<p>The view driver is a driver that handles visual output using the DOM in a browser. It uses a virtual DOM under the hood to ensure fast updates, and it works by replacing the old view with a new one.</p>
+<h2 id="configuration">Configuration</h2>
+<p>The <code>Moon.data.view</code> is a function that takes a root element where views will be mounted. This can be a query selector or a direct reference to a DOM element. The view driver will replace this element with the view structure you provide.</p>
+<pre><code lang="js"><span class="gray">// Creates a view driver that mounts on an existing element using a query</span>
+<span class="gray">// selector.</span>
+Moon.view.<span class="blue">driver</span>(<span class="green">&quot;#root&quot;</span>);
+
+<span class="gray">// Creates a view driver that mounts on an existing element using a direct DOM</span>
+<span class="gray">// reference.</span>
+Moon.view.<span class="blue">driver</span>(<span class="orange">document</span>.<span class="blue">getElementById</span>(<span class="green">&quot;root&quot;</span>));
 </code></pre>
-<pre><code lang="js"><span class="blue">Moon</span>({
-    root: <span class="green">&quot;#root&quot;</span>,
-    name: <span class="green">&quot;interpolation&quot;</span>,
-    message: <span class="green">&quot;Hello Moon!&quot;</span>
+<h2 id="input">Input</h2>
+<p>The view driver provides event information as input. This is useful for event handlers which return their own views, as they can have access to the DOM event information.</p>
+<pre><code lang="js"><span class="purple">function</span> <span class="blue">handleClick</span>({ view }) {
+    console.<span class="blue">log</span>(view); <span class="gray">// MouseEvent</span>
+    <span class="purple">return</span> {};
+}
+
+Moon.<span class="blue">use</span>({
+    view: Moon.view.<span class="blue">driver</span>(<span class="green">&quot;#root&quot;</span>)
+});
+
+Moon.<span class="blue">run</span>(() =&gt; {
+    <span class="purple">return</span> {
+        view: (<span class="red">&lt;button</span> <span class="orange">@click</span>={handleClick}<span class="red">&gt;</span>Click Me!<span class="red">&lt;/button</span><span class="red">&gt;</span>)
+    };
 });
 </code></pre>
-<div id="example-view-interpolation" class="example"></div>
+<h2 id="output">Output</h2>
+<p>The view driver accepts a new view as output and renders it to the DOM using a performant virtual DOM diffing algorithm. This should be a completely new virtual DOM. This keeps immutability and prevents bugs, as every view completely replaces the old one.</p>
+<pre><code lang="js">Moon.<span class="blue">use</span>({
+    view: Moon.view.<span class="blue">driver</span>(<span class="green">&quot;#root&quot;</span>)
+});
 
-<script>
-    var ViewInterpolation = Moon({
-        root: "#example-view-interpolation",
-        view: "<div class={name}>{message}</div>",
-        name: "interpolation",
-        message: "Hello Moon!"
-    });
-</script>
+Moon.<span class="blue">run</span>(() =&gt; {
+    <span class="purple">return</span> {
+        view: (<span class="red">&lt;p</span><span class="red">&gt;</span>Hello Moon!<span class="red">&lt;/p</span><span class="red">&gt;</span>)
+    };
+});
+</code></pre>
+<p>Moon views are often defined using the <em>Moon View Language</em>. The Moon view language is a template language based on HTML and adds support for data interpolation, events, and components.</p>
+<h3 id="javascript-syntax">JavaScript Syntax</h3>
+<p>The Moon view language is a superset of JavaScript, and it allows a new type of expression. This expression returns view nodes, and must always be enclosed in parentheses.</p>
+<pre><code lang="js"><span class="gray">// Valid</span>
+<span class="purple">const </span><span class="orange">paragraph</span> = (<span class="red">&lt;p</span><span class="red">&gt;</span>Hello Moon!<span class="red">&lt;/p</span><span class="red">&gt;</span>);
 
-<p>Try entering <code>ViewInterpolation.update(&quot;message&quot;, &quot;New Message!&quot;)</code> in the console to update the view.</p>
+<span class="gray">// Invalid</span>
+<span class="purple">const </span><span class="orange">paragraph</span> = <span class="red">&lt;p</span><span class="red">&gt;</span>Hello Moon!<span class="red">&lt;/p</span><span class="red">&gt;</span>;
+</code></pre>
+<h3 id="tags">Tags</h3>
+<p>Tags return new view nodes, and they follow normal HTML tag names. They can also have data, which correspond to properties (not attributes) on DOM elements.</p>
+<p>Property names can be empty. Property values can also be empty, in which case they default to <code>true</code>. Otherwise, the values can be strings or interpolated JavaScript expressions. They are special syntax for function calls, where the content between tags is another property called <code>children</code>. This can contain other tags and text.</p>
+<p>Additionally, Moon has special properties for <code>style</code> and <code>dataset</code>. Also, it adds <code>ariaset</code> instead of supporting <code>aria-*</code> attributes.</p>
+<pre><code lang="js"><span class="purple">const </span><span class="orange">paragraph</span> = (
+    <span class="red">&lt;div</span>
+        =<span class="green">&quot;empty&quot;</span>
+        <span class="orange">class</span>=<span class="green">&quot;blue&quot;</span>
+        empty
+        <span class="orange">style</span>={{ color: <span class="green">&quot;blue&quot;</span> }}
+        <span class="orange">dataset</span>={{ foo: <span class="green">&quot;bar&quot;</span> }}
+        <span class="orange">ariaset</span>={{ hidden: <span class="orange">true</span> }}
+    <span class="red">&gt;</span>
+        <span class="red">&lt;p</span><span class="red">&gt;</span>Hello Moon!<span class="red">&lt;/p</span><span class="red">&gt;</span>
+    <span class="red">&lt;/div</span><span class="red">&gt;</span>
+);
+</code></pre>
+<h3 id="text">Text</h3>
+<p>Text is plaintext with support for basic HTML escape codes, which include <code>&amp;amp;</code>, <code>&amp;gt;</code>, <code>&amp;lt;</code>, <code>&amp;nbsp;</code>, and <code>&amp;quot;</code>. The rest can be encoded as anything that is valid in a JavaScript string.</p>
+<pre><code lang="js"><span class="purple">const </span><span class="orange">paragraph</span> = (<span class="red">&lt;p</span><span class="red">&gt;</span>Hello { name }!<span class="red">&lt;/p</span><span class="red">&gt;</span>);
+</code></pre>
 <h3 id="events">Events</h3>
-<p>Browser events, component events, and lifecycle events can be handled by using an attribute starting with <code>@</code>.</p>
-<h5 id="browser-events">Browser Events</h5>
-<p>Browser events such as <code>click</code> or <code>input</code> can be handled by creating an attribute prepended with <code>@</code> with one statement as a value. A special <em>local variable</em> named <code>$event</code> will be available and holds the event object.</p>
-<pre><code lang="mvl"><span class="red">&lt;button</span> <span class="orange">@click</span>={<span class="blue">announce</span>($event)}<span class="red">&gt;</span>
-    Make Announcement
-<span class="red">&lt;/button</span><span class="red">&gt;</span>
-</code></pre>
-<pre><code lang="js"><span class="blue">Moon</span>({
-    root: <span class="green">&quot;#root&quot;</span>,
-    <span class="blue">announce</span>($event) {
-        <span class="blue">alert</span>($event.target.tagName + <span class="green">&quot; was clicked.&quot;</span>);
-    }
+<p>Browser events such as <code>click</code> or <code>input</code> can be handled by creating an attribute prepended with <code>@</code> with one function as a value. This function will be ran like an application, with the DOM event available from the input from the <code>view</code> driver.</p>
+<pre><code lang="js"><span class="purple">function</span> <span class="blue">handleClick</span>({ view }) {
+    console.<span class="blue">log</span>(view); <span class="gray">// MouseEvent</span>
+    <span class="purple">return</span> {
+        view: (<span class="red">&lt;p</span><span class="red">&gt;</span>New view!<span class="red">&lt;/p</span><span class="red">&gt;</span>)
+    };
+}
+
+Moon.<span class="blue">use</span>({
+    view: Moon.view.<span class="blue">driver</span>(<span class="green">&quot;#root&quot;</span>)
+});
+
+Moon.<span class="blue">run</span>(() =&gt; {
+    <span class="purple">return</span> {
+        view: (<span class="red">&lt;button</span> <span class="orange">@click</span>={handleClick}<span class="red">&gt;</span>Click Me!<span class="red">&lt;/button</span><span class="red">&gt;</span>)
+    };
 });
 </code></pre>
-<div id="example-view-browser-events" class="example"></div>
+<h3 id="components">Components</h3>
+<p>Components are functions of data objects that return view nodes. They are useful for making reusable parts of your view that can be configured through data. Since the data object is also passed children, components can also render children inside of their view node result.</p>
+<p>Components should always start with an uppercase letter and return a view object so that Moon can detect which elements are components.</p>
+<pre><code lang="js"><span class="purple">const </span><span class="orange">Component</span> = data =&gt; (
+    <span class="red">&lt;div</span> <span class="orange">class</span>=<span class="green">&quot;container&quot;</span> <span class="orange">id</span>={data.id}<span class="red">&gt;</span>
+        <span class="red">&lt;div</span> <span class="orange">class</span>=<span class="green">&quot;content&quot;</span> <span class="orange">children</span>={data.children}<span class="red">&gt;</span><span class="red">&lt;/div</span><span class="red">&gt;</span>
+    <span class="red">&lt;/div</span><span class="red">&gt;</span>
+);
 
-<script>
-    Moon({
-        root: "#example-view-browser-events",
-        view: "<button @click={announce($event)}>Make Announcement</button>",
-        announce($event) {
-            alert($event.target.tagName + " was clicked.");
-        }
-    });
-</script>
+<span class="purple">const </span><span class="orange">element</span> = (
+    <span class="red">&lt;Component</span> <span class="orange">id</span>=<span class="green">&quot;my-component&quot;</span><span class="red">&gt;</span>
+        <span class="red">&lt;p</span><span class="red">&gt;</span>Hello Moon!<span class="red">&lt;/p</span><span class="red">&gt;</span>
+    <span class="red">&lt;/Component</span><span class="red">&gt;</span>
+);
 
-<h5 id="bind-events">Bind Events</h5>
-<p>The <code>bind</code> event is a special event used to bind an input value to a variable and a variable to the input value.</p>
-<pre><code lang="mvl"><span class="red">&lt;p</span><span class="red">&gt;</span>{text}<span class="red">&lt;/p</span><span class="red">&gt;</span>
-<span class="red">&lt;input</span> <span class="orange">type</span>=<span class="green">&quot;text&quot;</span> <span class="orange">@bind</span>={text}<span class="red">/&gt;</span>
+<span class="gray">/*
+    Results <span class="purple">in</span>:
+
+    <span class="red">&lt;div</span> <span class="orange">class</span>=<span class="green">&quot;container&quot;</span> <span class="orange">id</span>=<span class="green">&quot;my-component&quot;</span><span class="red">&gt;</span>
+        <span class="red">&lt;div</span> <span class="orange">class</span>=<span class="green">&quot;content&quot;</span><span class="red">&gt;</span>
+            <span class="red">&lt;p</span><span class="red">&gt;</span>Hello Moon!<span class="red">&lt;/p</span><span class="red">&gt;</span>
+        <span class="red">&lt;/div</span><span class="red">&gt;</span>
+    <span class="red">&lt;/div</span><span class="red">&gt;</span>
+*/</span>
 </code></pre>
-<pre><code lang="js"><span class="blue">Moon</span>({
-    root: <span class="green">&quot;#root&quot;</span>,
-    text: <span class="green">&quot;Hello Moon!&quot;</span>
-});
-</code></pre>
-<div id="example-view-bind-events" class="example"></div>
-
-<script>
-    var ViewBindEvents = Moon({
-        root: "#example-view-bind-events",
-        view: "<p>{text}</p><input type=\"text\" @bind={text}/>",
-        text: "Hello Moon!"
-    });
-</script>
-
-<p>Try entering <code>ViewBindEvents.update(&quot;text&quot;, &quot;New Text!&quot;)</code> in the console to update the view.</p>
-<h5 id="component-events">Component Events</h5>
-<p>Learn about component events in the <a href="./components.html">components section</a>.</p>
 <h3 id="conditionals">Conditionals</h3>
-<p>Elements can be rendered based on certain conditions using the <code>If</code>, <code>ElseIf</code>, and <code>Else</code> components.</p>
-<pre><code lang="mvl"><span class="red">&lt;div</span> <span class="orange">If</span>={condition}<span class="red">&gt;</span>
-    Condition is truthy.
-<span class="red">&lt;/div</span><span class="red">&gt;</span>
-<span class="red">&lt;div</span> Else<span class="red">&gt;</span>
-    Condition is falsy.
-<span class="red">&lt;/div</span><span class="red">&gt;</span>
+<p>Elements can be rendered based on certain conditions using the <code>if</code>, <code>else-if</code>, and <code>else</code> components. These components only render their first child if the condition matches. <code>else-if</code> and <code>else</code> are not required, and <code>else</code> defaults to rendering an empty text element.</p>
+<pre><code lang="js"><span class="purple">const </span><span class="orange">conditional</span> = (
+    <span class="red">&lt;div</span><span class="red">&gt;</span>
+        <span class="red">&lt;<span class="purple">if</span></span>={foo <span class="orange">==</span>= <span class="green">&quot;bar&quot;</span>}<span class="red">&gt;</span>
+            <span class="red">&lt;p</span><span class="red">&gt;</span>Foo is bar!<span class="red">&lt;/p</span><span class="red">&gt;</span>
+        <span class="red">&lt;/<span class="purple">if</span></span><span class="red">&gt;</span>
+        <span class="red">&lt;else-<span class="purple">if</span></span>={condition}<span class="red">&gt;</span>
+            <span class="red">&lt;p</span><span class="red">&gt;</span>Condition is <span class="orange">true</span>!<span class="red">&lt;/p</span><span class="red">&gt;</span>
+        <span class="red">&lt;/else-<span class="purple">if</span></span><span class="red">&gt;</span>
+        <span class="red">&lt;else</span><span class="red">&gt;</span>
+            <span class="red">&lt;p</span><span class="red">&gt;</span>Condition is <span class="orange">false</span>!<span class="red">&lt;/p</span><span class="red">&gt;</span>
+        <span class="red">&lt;/else</span><span class="red">&gt;</span>
+    <span class="red">&lt;/div</span><span class="red">&gt;</span>
+);
 </code></pre>
-<pre><code lang="js"><span class="blue">Moon</span>({
-    root: <span class="green">&quot;#root&quot;</span>,
-    condition: <span class="orange">Math</span>.<span class="blue">random</span>() &lt;= <span class="orange">0.5</span> ? <span class="orange">false</span> : <span class="orange">true</span>
-});
-</code></pre>
-<div id="example-view-conditionals" class="example"></div>
-
-<script>
-    var ViewConditionals = Moon({
-        root: "#example-view-conditionals",
-        view: "<div If={condition}>Condition is truthy.</div><div Else>Condition is falsy.</div>",
-        condition: Math.random() <= 0.5 ? false : true
-    });
-</script>
-
-<p>Try entering <code>ViewConditionals.update(&quot;condition&quot;, !ViewConditionals.condition)</code> in the console to update the view.</p>
 <h3 id="loops">Loops</h3>
-<p>Elements can be rendered multiple times for every element in an array using the <code>For</code> component. The syntax for the main argument is <code>$element,$index in array</code>. The element and index are prefixed with <code>$</code>, meaning that they are <em>locals</em> and not on the instance itself.</p>
-<pre><code lang="mvl"><span class="red">&lt;ul</span><span class="red">&gt;</span>
-    <span class="red">&lt;li</span> <span class="orange">For</span>={$item,$index <span class="purple">in</span> items}<span class="red">&gt;</span>
-        {$index}: {$item}
-    <span class="red">&lt;/li</span><span class="red">&gt;</span>
-<span class="red">&lt;/ul</span><span class="red">&gt;</span>
+<p>Elements can be rendered multiple times for every element in an array using the <code>for</code> component. The empty property accepts two local variables that will be available to every child element. The <code>of</code> property will accept an array to iterate over, with the first local variable being the element of the array and the second being the index. The <code>in</code> property will accept an object to iterate over, with the first local being the key of the object, and the second being the value.</p>
+<p>By default, <code>for</code> will render everything inside a <code>&lt;span&gt;</code> element. To customize this, you can use the <code>name</code> property to set the tag name. Also, you can use the <code>data</code> property to set the DOM property data.</p>
+<pre><code lang="js"><span class="gray">// <span class="orange">Array</span></span>
+<span class="purple">const </span><span class="orange">loop</span> = (
+    <span class="red">&lt;<span class="purple">for</span></span>={value} <span class="orange">of</span>={array}<span class="red">&gt;</span>
+        <span class="red">&lt;p</span><span class="red">&gt;</span>{value}<span class="red">&lt;/p</span><span class="red">&gt;</span>
+    <span class="red">&lt;/<span class="purple">for</span></span><span class="red">&gt;</span>
+);
+
+<span class="gray">// <span class="orange">Array</span> with index local</span>
+<span class="purple">const </span><span class="orange">loop</span> = (
+    <span class="red">&lt;<span class="purple">for</span></span>={value, index} <span class="orange">of</span>={array}<span class="red">&gt;</span>
+        <span class="red">&lt;p</span><span class="red">&gt;</span>{index}: {value}<span class="red">&lt;/p</span><span class="red">&gt;</span>
+    <span class="red">&lt;/<span class="purple">for</span></span><span class="red">&gt;</span>
+);
+
+<span class="gray">// <span class="orange">Object</span></span>
+<span class="purple">const </span><span class="orange">loop</span> = (
+    <span class="red">&lt;<span class="purple">for</span></span>={key} <span class="orange"><span class="purple">in</span></span>={object}<span class="red">&gt;</span>
+        <span class="red">&lt;p</span><span class="red">&gt;</span>{key}<span class="red">&lt;/p</span><span class="red">&gt;</span>
+    <span class="red">&lt;/<span class="purple">for</span></span><span class="red">&gt;</span>
+);
+
+<span class="gray">// <span class="orange">Object</span> with value local</span>
+<span class="purple">const </span><span class="orange">loop</span> = (
+    <span class="red">&lt;<span class="purple">for</span></span>={key, value} <span class="orange">of</span>={object}<span class="red">&gt;</span>
+        <span class="red">&lt;p</span><span class="red">&gt;</span>{key}: {value}<span class="red">&lt;/p</span><span class="red">&gt;</span>
+    <span class="red">&lt;/<span class="purple">for</span></span><span class="red">&gt;</span>
+);
+
+<span class="gray">// Name and data options</span>
+<span class="purple">const </span><span class="orange">loop</span> = (
+    <span class="red">&lt;<span class="purple">for</span></span>={value} <span class="orange">of</span>={array} <span class="orange">name</span>=<span class="green">&quot;ul&quot;</span> <span class="orange">data</span>={{ class: <span class="green">&quot;blue&quot;</span> }}<span class="red">&gt;</span>
+        <span class="red">&lt;li</span><span class="red">&gt;</span>{value}<span class="red">&lt;/li</span><span class="red">&gt;</span>
+    <span class="red">&lt;/<span class="purple">for</span></span><span class="red">&gt;</span>
+);
 </code></pre>
-<pre><code lang="js"><span class="blue">Moon</span>({
-    root: <span class="green">&quot;#root&quot;</span>,
-    items: [<span class="green">&quot;foo&quot;</span>, <span class="green">&quot;bar&quot;</span>, <span class="green">&quot;baz&quot;</span>]
-});
-</code></pre>
-<div id="example-view-loops" class="example"></div>
+<h3 id="under-the-hood">Under the Hood</h3>
+<p>View nodes are created with <code>Moon.view.m</code>. This is a function that takes a type, data, and children. Components are called with data, and one of the properties, <code>children</code>, contains child nodes.</p>
+<pre><code lang="js"><span class="gray">// Moon view language</span>
+<span class="purple">const </span><span class="orange">paragraph</span> = (<span class="red">&lt;p</span> <span class="orange">class</span>=<span class="green">&quot;blue&quot;</span><span class="red">&gt;</span>Hello Moon!<span class="red">&lt;/p</span><span class="red">&gt;</span>);
+<span class="purple">const </span><span class="orange">component</span> = (<span class="red">&lt;Component</span> <span class="orange">class</span>=<span class="green">&quot;blue&quot;</span><span class="red">&gt;</span>Hello Moon!<span class="red">&lt;/Component</span><span class="red">&gt;</span>);
 
-<script>
-    var ViewLoops = Moon({
-        root: "#example-view-loops",
-        view: "<ul><li For={$item,$index in items}>{$index}: {$item}</li></ul>",
-        items: ["foo", "bar", "baz"]
-    });
-</script>
+<span class="gray">// <span class="orange">Function</span> calls</span>
+<span class="purple">const </span><span class="orange">paragraph</span> = Moon.view.<span class="blue">m</span>(<span class="green">&quot;p&quot;</span>, { class: <span class="green">&quot;blue&quot;</span> }, [
+    Moon.view.<span class="blue">m</span>(<span class="green">&quot;text&quot;</span>, { <span class="green">&quot;&quot;</span>: <span class="green">&quot;Hello Moon!&quot;</span> }, [])
+]);
 
-<p>Try entering <code>ViewLoops.update(&quot;items&quot;, ViewLoops.items.reverse())</code> in the console to update the view.</p>
-<h3 id="alternate-syntax">Alternate Syntax</h3>
-<p>Since <code>If</code>, <code>ElseIf</code>, <code>Else</code>, and <code>For</code> are just components, you can use the normal <a href="./components.html">component syntax</a>.</p>
-<pre><code lang="mvl"><span class="red">&lt;If</span>={condition}<span class="red">&gt;</span>
-    <span class="red">&lt;p</span><span class="red">&gt;</span>Condition is truthy.<span class="red">&lt;/p</span><span class="red">&gt;</span>
-    <span class="red">&lt;p</span><span class="red">&gt;</span>Multiple elements are allowed.<span class="red">&lt;/p</span><span class="red">&gt;</span>
-<span class="red">&lt;/If</span><span class="red">&gt;</span>
-<span class="red">&lt;Else</span><span class="red">&gt;</span>
-    <span class="red">&lt;p</span><span class="red">&gt;</span>Condition is falsy.<span class="red">&lt;/p</span><span class="red">&gt;</span>
-<span class="red">&lt;/Else</span><span class="red">&gt;</span>
-
-<span class="red">&lt;For</span>={$item,$index <span class="purple">in</span> items}<span class="red">&gt;</span>
-    <span class="red">&lt;p</span><span class="red">&gt;</span>{$item}<span class="red">&lt;/p</span><span class="red">&gt;</span>
-    <span class="red">&lt;p</span><span class="red">&gt;</span>{$index}<span class="red">&lt;/p</span><span class="red">&gt;</span>
-<span class="red">&lt;/For</span><span class="red">&gt;</span>
+<span class="purple">const </span><span class="orange">component</span> = <span class="blue">Component</span>({ class: <span class="green">&quot;blue&quot;</span>, children: [
+    Moon.view.<span class="blue">m</span>(<span class="green">&quot;text&quot;</span>, { <span class="green">&quot;&quot;</span>: <span class="green">&quot;Hello Moon!&quot;</span> }, [])
+]});
 </code></pre>
 
 				</div>

@@ -7,7 +7,7 @@ const SPECIAL_RE = /\b(new|var|let|if|do|function|while|switch|for|foreach|in|co
 const GLOBAL_VARIABLE_RE = /\b(document|window|Array|String|undefined|null|true|false|Object|this|Boolean|Function|Number|Math|\d+(?:\.\d+)?)\b/g;
 const CONST_RE = /\b(const )([\w\d]+)/g;
 const METHODS_RE = /\b([\w\d]+)\(/g;
-const MULTILINE_COMMENT_RE  = /(\/\*.*\*\/)/g;
+const MULTILINE_COMMENT_RE  = /(\/\*(.|\n)*\*\/)/g;
 const COMMENT_RE = /(\/\/.*)/g;
 const HTML_COMMENT_RE = /(\&lt;\!\-\-(?:(?:.|\n)*)\-\-\&gt;)/g;
 const HTML_ATTRIBUTE_RE = /(\S+)=["']?((?:.(?!["']?\s+(?:\S+)=|[>"']))+.)["']?/g;
