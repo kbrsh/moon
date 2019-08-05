@@ -30,17 +30,9 @@
 	}
 
 	/**
-	 * View node types.
-	 */
-	var types = {
-		element: 0,
-		text: 1
-	};
-	/**
 	 * Logs an error message to the console.
 	 * @param {string} message
 	 */
-
 	function error(message) {
 		console.error("[Moon] ERROR: " + message);
 	}
@@ -61,14 +53,6 @@
 	 */
 
 	var globals = ["Infinity", "NaN", "break", "case", "catch", "class", "const", "continue", "default", "delete", "do", "else", "extends", "false", "finally", "for", "function", "if", "in", "instanceof", "let", "new", "null", "return", "super", "switch", "this", "throw", "true", "try", "typeof", "undefined", "var", "void", "while", "window"];
-	/*
-	 * Map from attribute keys to equivalent DOM properties.
-	 */
-
-	var normalizeAttributeKeyMap = {
-		"class": "className",
-		"for": "htmlFor"
-	};
 	/**
 	 * Map from special characters to a safe format for JavaScript string literals.
 	 */
@@ -318,13 +302,6 @@
 							} else {
 								attributeKey += charAttribute;
 							}
-						} // Normalize the attribute key. Moon attribute keys should
-						// follow camelCase by convention instead of using standard HTML
-						// attribute keys.
-
-
-						if (attributeKey in normalizeAttributeKeyMap) {
-							attributeKey = normalizeAttributeKeyMap[attributeKey];
 						} // Match an attribute value if it exists.
 
 
@@ -711,7 +688,6 @@
 	 * @param {number} variable
 	 * @returns {Object} prelude code, view function code, static status, and variable
 	 */
-
 	function generateNodeElement(element, variable) {
 		var attributes = element.attributes;
 		var name = attributes.name;
@@ -719,7 +695,7 @@
 		var children = attributes.children;
 		return {
 			prelude: "",
-			node: "Moon.view.m(" + types.element + "," + name.value + "," + data.value + "," + children.value + ")",
+			node: "Moon.view.m(" + name.value + "," + data.value + "," + children.value + ")",
 			isStatic: name.isStatic && data.isStatic && children.isStatic,
 			variable: variable
 		};
@@ -841,7 +817,7 @@
 
 
 		if (emptyElseClause) {
-			var staticPart = generateStaticPart("", "Moon.view.m(" + types.text + ",\"text\",{\"\":\"\"},[])", variable, staticParts, staticPartsMap);
+			var staticPart = generateStaticPart("", "Moon.view.m(\"text\",{\"\":\"\"},[])", variable, staticParts, staticPartsMap);
 			variable = staticPart.variable;
 			prelude += "else{" + variableIf + "=" + staticPart.variableStatic + ";}";
 		}
@@ -920,7 +896,7 @@
 
 		return {
 			prelude: variableForChildren + "=[];" + childFunction + loop + variableForChildren + ".push(" + variableForChild + "(" + args + "));}",
-			node: "Moon.view.m(" + types.element + "," + ("name" in attributes ? attributes.name.value : "\"span\"") + "," + data + "," + variableForChildren + ")",
+			node: "Moon.view.m(" + ("name" in attributes ? attributes.name.value : "\"span\"") + "," + data + "," + variableForChildren + ")",
 			isStatic: false,
 			variable: variable
 		};
@@ -1040,15 +1016,7 @@
 				variable: variable
 			};
 		} else {
-			var type;
-
-			if (name === "text") {
-				type = types.text;
-			} else {
-				type = types.element;
-			} // Add braces around the data.
-
-
+			// Add braces around the data.
 			data = "{" + data + "}";
 
 			if (staticData && !staticChildren) {
@@ -1066,7 +1034,7 @@
 
 			return {
 				prelude: prelude,
-				node: "Moon.view.m(" + type + ",\"" + name + "\"," + data + "," + children + ")",
+				node: "Moon.view.m(\"" + name + "\"," + data + "," + children + ")",
 				isStatic: staticData && staticChildren,
 				variable: variable
 			};
