@@ -2,7 +2,6 @@ import run from "moon/src/run";
 import NodeOld from "moon/src/view/NodeOld";
 import NodeNew from "moon/src/view/NodeNew";
 import { removeDataProperty, removeDataSet, updateDataSet } from "moon/src/view/util";
-import { types } from "util/util";
 
 /**
  * Current view event data
@@ -31,15 +30,16 @@ Node.prototype.MoonEvent = null;
  * @returns {Object} node to be used as an old node
  */
 function viewCreate(node) {
+	const nodeName = node.name;
 	const children = [];
 	let element;
 
-	if (node.type === types.text) {
+	if (nodeName === "text") {
 		// Create a text node using the text content from the default key.
 		element = document.createTextNode(node.data[""]);
 	} else {
 		// Create a DOM element.
-		element = document.createElement(node.name);
+		element = document.createElement(nodeName);
 
 		// Recursively append children.
 		const nodeChildren = node.children;
@@ -74,8 +74,14 @@ function viewCreate(node) {
 			) {
 				// Set aria-*, data-*, and style attributes.
 				updateDataSet(element, key, value);
+			} else if (key === "class") {
+				// Set a className property.
+				element.className = value;
+			} else if (key === "for") {
+				// Set an htmlFor property.
+				element.htmlFor = value;
 			} else {
-				// Set an attribute.
+				// Set a DOM property.
 				element[key] = value;
 			}
 		}
@@ -97,17 +103,13 @@ function viewPatch(nodeOld, nodeNew) {
 	const nodeOldNode = nodeOld.node;
 
 	if (nodeOldNode !== nodeNew) {
-		const nodeOldNodeType = nodeOldNode.type;
 		const nodeOldNodeName = nodeOldNode.name;
 
 		// Update the old node reference. This doesn't affect the rest of the
 		// patch because it uses `nodeOldNode` instead of direct property access.
 		nodeOld.node = nodeNew;
 
-		if (
-			nodeOldNodeType !== nodeNew.type ||
-			nodeOldNodeName !== nodeNew.name
-		) {
+		if (nodeOldNodeName !== nodeNew.name) {
 			// If the types or name aren't the same, then replace the old node
 			// with the new one.
 			const nodeOldElement = nodeOld.element;
@@ -118,7 +120,7 @@ function viewPatch(nodeOld, nodeNew) {
 			nodeOld.children = nodeOldNew.children;
 
 			nodeOldElement.parentNode.replaceChild(nodeOldNewElement, nodeOldElement);
-		} else if (nodeOldNodeType === types.text) {
+		} else if (nodeOldNodeName === "text") {
 			// If they both are text, then update the text content.
 			const nodeNewText = nodeNew.data[""];
 
@@ -169,6 +171,12 @@ function viewPatch(nodeOld, nodeNew) {
 								// while excluding any new ones that still exist.
 								removeDataSet(nodeOldElement, keyNew, valueOld, valueNew);
 							}
+						} else if (keyNew === "class") {
+							// Update a className property.
+							nodeOldElement.className = valueNew;
+						} else if (keyNew === "for") {
+							// Update an htmlFor property.
+							nodeOldElement.htmlFor = valueNew;
 						} else {
 							// Update a DOM property.
 							nodeOldElement[keyNew] = valueNew;
@@ -194,6 +202,12 @@ function viewPatch(nodeOld, nodeNew) {
 							// If it is a set attribute, remove all old values from the
 							// set and exclude nothing.
 							removeDataSet(nodeOldElement, keyOld, nodeOldNodeData[keyOld], {});
+						} else if (keyOld === "class") {
+							// Remove a className property.
+							nodeOldElement.className = "";
+						} else if (keyOld === "for") {
+							// Remove an htmlFor property.
+							nodeOldElement.htmlFor = "";
 						} else {
 							// Remove a DOM property.
 							removeDataProperty(nodeOldElement, nodeOldNodeName, keyOld);
@@ -286,7 +300,6 @@ export default function driver(root) {
 	// Create an old node from the root element.
 	const viewOld = new NodeOld(
 		new NodeNew(
-			types.element,
 			root.tagName.toLowerCase(),
 			dataOld,
 			[]

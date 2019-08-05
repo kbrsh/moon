@@ -17,14 +17,6 @@ const textRE = /&amp;|&gt;|&lt;|&nbsp;|&quot;|\\|"|\n|\r/g;
  */
 const globals = ["Infinity", "NaN", "break", "case", "catch", "class", "const", "continue", "default", "delete", "do", "else", "extends", "false", "finally", "for", "function", "if", "in", "instanceof", "let", "new", "null", "return", "super", "switch", "this", "throw", "true", "try", "typeof", "undefined", "var", "void", "while", "window"];
 
-/*
- * Map from attribute keys to equivalent DOM properties.
- */
-const normalizeAttributeKeyMap = {
-	"class": "className",
-	"for": "htmlFor"
-};
-
 /**
  * Map from special characters to a safe format for JavaScript string literals.
  */
@@ -296,13 +288,6 @@ export function lex(input) {
 						} else {
 							attributeKey += charAttribute;
 						}
-					}
-
-					// Normalize the attribute key. Moon attribute keys should
-					// follow camelCase by convention instead of using standard HTML
-					// attribute keys.
-					if (attributeKey in normalizeAttributeKeyMap) {
-						attributeKey = normalizeAttributeKeyMap[attributeKey];
 					}
 
 					// Match an attribute value if it exists.

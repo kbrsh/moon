@@ -1,6 +1,5 @@
 import generate from "moon-compiler/src/generator/generator";
 import { generateStaticPart } from "moon-compiler/src/generator/util/util";
-import { types } from "util/util";
 
 /**
  * Generates code for an `if`/`else-if`/`else` clause body.
@@ -100,7 +99,7 @@ export default function generateNodeIf(element, parent, index, variable, staticP
 
 	// Generate an empty `else` clause represented by an empty text node.
 	if (emptyElseClause) {
-		const staticPart = generateStaticPart("", `Moon.view.m(${types.text},"text",{"":""},[])`, variable, staticParts, staticPartsMap);
+		const staticPart = generateStaticPart("", `Moon.view.m("text",{"":""},[])`, variable, staticParts, staticPartsMap);
 		variable = staticPart.variable;
 		prelude += `else{${variableIf}=${staticPart.variableStatic};}`;
 	}

@@ -1,5 +1,3 @@
-import { types } from "util/util";
-
 /**
  * Generates code for a node from an `element` element.
  *
@@ -15,7 +13,7 @@ export default function generateNodeElement(element, variable) {
 
 	return {
 		prelude: "",
-		node: `Moon.view.m(${types.element},${name.value},${data.value},${children.value})`,
+		node: `Moon.view.m(${name.value},${data.value},${children.value})`,
 		isStatic: name.isStatic && data.isStatic && children.isStatic,
 		variable
 	};

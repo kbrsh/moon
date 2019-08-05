@@ -1,6 +1,5 @@
 import generate from "moon-compiler/src/generator/generator";
 import { generateStaticPart } from "moon-compiler/src/generator/util/util";
-import { types } from "util/util";
 
 /**
  * Generates code for a node from a `for` element.
@@ -76,7 +75,7 @@ export default function generateNodeFor(element, variable, staticParts, staticPa
 
 	return {
 		prelude: `${variableForChildren}=[];${childFunction}${loop}${variableForChildren}.push(${variableForChild}(${args}));}`,
-		node: `Moon.view.m(${types.element},${"name" in attributes ? attributes.name.value : "\"span\""},${data},${variableForChildren})`,
+		node: `Moon.view.m(${"name" in attributes ? attributes.name.value : "\"span\""},${data},${variableForChildren})`,
 		isStatic: false,
 		variable
 	};

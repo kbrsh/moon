@@ -29,10 +29,10 @@ function ExecutorTest({ list }) {
 		<div>
 			<for={item, index} of={list}>
 				<if={item % 2 === 0}>
-					<p lang="en" class={item} ariaset={{hidden: false, removeme: true}} dataset={{foo: "bar", removeme: true}} style={{color: "red", background: "blue"}} @click={handler1}>{item} {index}</p>
+					<p lang="en" class={item} for={item} ariaset={{hidden: false, removeme: true}} dataset={{foo: "bar", removeme: true}} style={{color: "red", background: "blue"}} @click={handler1}>{item} {index}</p>
 				</if>
 				<else-if={item % 3 === 0}>
-					<p lang="en" class={item} id={item} ariaset={{hidden: false, different: true}} dataset={{foo: "bar", different: true}} style={{color: "red", fontSize: "20px"}} @click={handler2}>{item} {index}</p>
+					<p lang="en" class={item} for={item} id={item} ariaset={{hidden: false, different: true}} dataset={{foo: "bar", different: true}} style={{color: "red", fontSize: "20px"}} @click={handler2}>{item} {index}</p>
 				</else-if>
 				<else>
 					<p lang="en">{item} {index}</p>
@@ -71,6 +71,7 @@ function verify(list) {
 			expect(element.tagName).toEqual("P");
 			expect(element.lang).toEqual("en");
 			expect(element.className).toEqual(item.toString());
+			expect(element.htmlFor).toEqual(item);
 			expect(element.id).toEqual("");
 			expect(element.getAttribute("aria-hidden")).toEqual("false");
 			expect(element.getAttribute("aria-removeme")).toEqual("true");
@@ -94,6 +95,7 @@ function verify(list) {
 			expect(element.tagName).toEqual("P");
 			expect(element.lang).toEqual("en");
 			expect(element.className).toEqual(item.toString());
+			expect(element.htmlFor).toEqual(item);
 			expect(element.id).toEqual(item.toString());
 			expect(element.getAttribute("aria-hidden")).toEqual("false");
 			expect(element.getAttribute("aria-removeme")).toBeNull();
@@ -117,6 +119,7 @@ function verify(list) {
 			expect(element.tagName).toEqual("P");
 			expect(element.lang).toEqual("en");
 			expect(element.className).toEqual("");
+			expect(element.htmlFor === "" || element.htmlFor === undefined).toBeTruthy();
 			expect(element.id).toEqual("");
 			expect(element.getAttribute("aria-hidden")).toBeNull();
 			expect(element.getAttribute("aria-removeme")).toBeNull();

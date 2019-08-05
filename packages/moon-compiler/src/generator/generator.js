@@ -2,7 +2,6 @@ import generateNodeElement from "moon-compiler/src/generator/components/element"
 import generateNodeIf from "moon-compiler/src/generator/components/if";
 import generateNodeFor from "moon-compiler/src/generator/components/for";
 import { generateStaticPart } from "moon-compiler/src/generator/util/util";
-import { types } from "util/util";
 
 /**
  * Generator
@@ -133,14 +132,6 @@ export default function generate(element, parent, index, variable, staticParts, 
 			variable
 		};
 	} else {
-		let type;
-
-		if (name === "text") {
-			type = types.text;
-		} else {
-			type = types.element;
-		}
-
 		// Add braces around the data.
 		data = `{${data}}`;
 
@@ -158,7 +149,7 @@ export default function generate(element, parent, index, variable, staticParts, 
 
 		return {
 			prelude,
-			node: `Moon.view.m(${type},"${name}",${data},${children})`,
+			node: `Moon.view.m("${name}",${data},${children})`,
 			isStatic: staticData && staticChildren,
 			variable
 		};

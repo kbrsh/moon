@@ -40,17 +40,9 @@
 	};
 
 	/**
-	 * View node types.
-	 */
-	var types = {
-		element: 0,
-		text: 1
-	};
-	/**
 	 * Logs an error message to the console.
 	 * @param {string} message
 	 */
-
 	function error(message) {
 		console.error("[Moon] ERROR: " + message);
 	}
@@ -148,6 +140,10 @@
 
 	/**
 	 * Old Node Constructor
+	 *
+	 * @param {Object} node
+	 * @param {Object} element
+	 * @param {Array} children
 	 */
 	function NodeOld(node, element, children) {
 		this.node = node;
@@ -157,9 +153,12 @@
 
 	/**
 	 * New Node Constructor
+	 *
+	 * @param {string} name
+	 * @param {Object} data
+	 * @param {Array} children
 	 */
-	function NodeNew(type, name, data, children) {
-		this.type = type;
+	function NodeNew(name, data, children) {
 		this.name = name;
 		this.data = data;
 		this.children = children;
@@ -259,15 +258,16 @@
 	 */
 
 	function viewCreate(node) {
+		var nodeName = node.name;
 		var children = [];
 		var element;
 
-		if (node.type === types.text) {
+		if (nodeName === "text") {
 			// Create a text node using the text content from the default key.
 			element = document.createTextNode(node.data[""]);
 		} else {
 			// Create a DOM element.
-			element = document.createElement(node.name); // Recursively append children.
+			element = document.createElement(nodeName); // Recursively append children.
 
 			var nodeChildren = node.children;
 
@@ -296,8 +296,14 @@
 				} else if (key === "ariaset" || key === "dataset" || key === "style") {
 					// Set aria-*, data-*, and style attributes.
 					updateDataSet(element, key, value);
+				} else if (key === "class") {
+					// Set a className property.
+					element.className = value;
+				} else if (key === "for") {
+					// Set an htmlFor property.
+					element.htmlFor = value;
 				} else {
-					// Set an attribute.
+					// Set a DOM property.
 					element[key] = value;
 				}
 			}
@@ -320,13 +326,12 @@
 		var nodeOldNode = nodeOld.node;
 
 		if (nodeOldNode !== nodeNew) {
-			var nodeOldNodeType = nodeOldNode.type;
 			var nodeOldNodeName = nodeOldNode.name; // Update the old node reference. This doesn't affect the rest of the
 			// patch because it uses `nodeOldNode` instead of direct property access.
 
 			nodeOld.node = nodeNew;
 
-			if (nodeOldNodeType !== nodeNew.type || nodeOldNodeName !== nodeNew.name) {
+			if (nodeOldNodeName !== nodeNew.name) {
 				// If the types or name aren't the same, then replace the old node
 				// with the new one.
 				var nodeOldElement = nodeOld.element;
@@ -335,7 +340,7 @@
 				nodeOld.element = nodeOldNewElement;
 				nodeOld.children = nodeOldNew.children;
 				nodeOldElement.parentNode.replaceChild(nodeOldNewElement, nodeOldElement);
-			} else if (nodeOldNodeType === types.text) {
+			} else if (nodeOldNodeName === "text") {
 				// If they both are text, then update the text content.
 				var nodeNewText = nodeNew.data[""];
 
@@ -383,6 +388,12 @@
 									// while excluding any new ones that still exist.
 									removeDataSet(_nodeOldElement, keyNew, valueOld, valueNew);
 								}
+							} else if (keyNew === "class") {
+								// Update a className property.
+								_nodeOldElement.className = valueNew;
+							} else if (keyNew === "for") {
+								// Update an htmlFor property.
+								_nodeOldElement.htmlFor = valueNew;
 							} else {
 								// Update a DOM property.
 								_nodeOldElement[keyNew] = valueNew;
@@ -404,6 +415,12 @@
 								// If it is a set attribute, remove all old values from the
 								// set and exclude nothing.
 								removeDataSet(_nodeOldElement, keyOld, nodeOldNodeData[keyOld], {});
+							} else if (keyOld === "class") {
+								// Remove a className property.
+								_nodeOldElement.className = "";
+							} else if (keyOld === "for") {
+								// Remove an htmlFor property.
+								_nodeOldElement.htmlFor = "";
 							} else {
 								// Remove a DOM property.
 								removeDataProperty(_nodeOldElement, nodeOldNodeName, keyOld);
@@ -496,7 +513,7 @@
 		} // Create an old node from the root element.
 
 
-		var viewOld = new NodeOld(new NodeNew(types.element, root.tagName.toLowerCase(), dataOld, []), root, []);
+		var viewOld = new NodeOld(new NodeNew(root.tagName.toLowerCase(), dataOld, []), root, []);
 		return {
 			input: function input() {
 				// Return the current event data as input.
@@ -513,14 +530,13 @@
 	/**
 	 * Returns a new node.
 	 *
-	 * @param {number} type
 	 * @param {string} name
 	 * @param {Object} data
 	 * @param {Array} children
 	 */
 
-	function m(type, name, data, children) {
-		return new NodeNew(type, name, data, children);
+	function m(name, data, children) {
+		return new NodeNew(name, data, children);
 	}
 
 	var view = {
