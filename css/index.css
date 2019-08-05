@@ -48,3 +48,14 @@ html, body {
 .head a:nth-child(4) button:hover, .head a:nth-child(4) button:focus {
 	background-color: hsl(260, 100%, 37%);
 }
+
+.idea {
+	max-width: 703px;
+	margin-top: 210px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.idea p {
+	margin-bottom: 21px;
+}
