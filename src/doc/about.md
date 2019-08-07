@@ -52,16 +52,6 @@ Moon.run(Root);
 
 <a href="/play#%2F%2F%20The%20increment%20event%20handler%20acts%20just%20like%20%60Root%60%2C%20and%20it%20can%20take%20driver%0A%2F%2F%20inputs%20and%20returns%20driver%20outputs.%0Aconst%20increment%20%3D%20(%7B%20data%2C%20view%20%7D)%20%3D%3E%20%7B%0A%20%20%20%20const%20dataNew%20%3D%20data%20%2B%201%3B%0A%0A%20%20%20%20%2F%2F%20It%20returns%20data%20to%20the%20data%20driver%20to%20store%2C%20and%20a%20view%20to%20the%20view%20driver%0A%20%20%20%20%2F%2F%20to%20render.%0A%20%20%20%20return%20%7B%0A%20%20%20%20%20%20%20%20data%3A%20dataNew%2C%0A%20%20%20%20%20%20%20%20view%3A%20(%3CView%20data%3D%7BdataNew%7D%2F%3E)%0A%20%20%20%20%7D%3B%0A%7D%3B%0A%0A%2F%2F%20The%20view%20is%20a%20component%20that%20renders%20a%20button%20with%20a%20count.%0Aconst%20View%20%3D%20(%7B%20data%20%7D)%20%3D%3E%20(%3Cbutton%20%40click%3D%7Bincrement%7D%3E%7Bdata%7D%3C%2Fbutton%3E)%3B%0A%0Aconst%20Root%20%3D%20(%7B%20data%2C%20view%20%7D)%20%3D%3E%20%7B%0A%20%20%20%20%2F%2F%20This%20application%20receives%20input%20from%20the%20data%20and%20view%20drivers.%20The%20data%0A%20%20%20%20%2F%2F%20driver%20provides%20the%20count%20state%2C%20and%20the%20view%20driver%20provides%20event%0A%20%20%20%20%2F%2F%20information.%0A%0A%20%20%20%20%2F%2F%20In%20the%20beginning%2C%20the%20application%20only%20needs%20to%20output%20to%20the%20view%2C%20so%20it%0A%20%20%20%20%2F%2F%20specifies%20data%20to%20send%20to%20the%20view%20driver.%0A%20%20%20%20return%20%7B%0A%20%20%20%20%20%20%20%20view%3A%20(%3CView%20data%3D%7Bdata%7D%2F%3E)%0A%20%20%20%20%7D%3B%0A%7D%3B%0A%0A%2F%2F%20Initialize%20drivers.%0AMoon.use(%7B%0A%20%20%20%20data%3A%20Moon.data.driver(0)%2C%20%2F*%20The%20data%20driver%20holds%20state.%20*%2F%0A%20%20%20%20view%3A%20Moon.view.driver(%22%23root%22)%20%2F*%20The%20view%20driver%20handles%20changes%20to%20the%20DOM.%20*%2F%0A%7D)%3B%0A%0A%2F%2F%20Run%20the%20application.%0AMoon.run(Root)%3B">Try it!</a>
 
-## Tiny & Fast
-
-Since Moon's only job is to provide a runtime for a functional application, it weighs less than **1kb minified and gzipped**. Even with the built-in drivers, it still stays around the 1kb mark. The lightweight runtime means that browsers won't have to parse and run multiple megabytes of JavaScript, a practice that is quickly becoming the status quo.
-
-The view driver is a default driver built into Moon. It uses a variety of techniques to optimize JavaScript performance for JIT (Just In Time) compilation. Under the hood, the view driver takes a virtual DOM tree as output from an application. This tree is highly optimized to have the same shape to allow for fast property access and node creation. The virtual DOM diffing algorithm was designed to run efficient transformations that make changes while touching the DOM as little as possible.
-
-Since **view components are pure functions** in Moon, developers can choose to optimize specific components by using standard functional programming techniques such as memoization or caching. The view driver skips over nodes that stay the same over multiple renders. This combined with the purity of components opens up a lot of potential for optimization.
-
-Using optimized algorithms and data structures, Moon runs faster than most user interface libraries while sustaining a lightweight footprint.
-
 ## Functional & Declarative
 
 Many user interface libraries in the JavaScript landscape claim to be declarative but seldom incorporate purely functional ideas. Instead, they have imperative methods of updating state to update views, using function calls like `set` or reactive object property setters. These may be convenient at times, but often lead to bugs because of mutation. To get around this, they support a myriad of different libraries for immutability, leading to tooling fragmentation and confusion.
@@ -89,6 +79,19 @@ Instead, developers write functions that return outputs based on user events and
 Rather than creating "smart" components with general local state, components are "dumb" and only encode view data. For example, instead of a `Toggle` component handling local state, it would only provide an event where the relevant global state `theme` would change.
 
 One state tree means one source of truth for an application. Developers can quickly glance at the state of the whole application and have complete flexibility on the structure and type of the state. This declarative model of applications allows for modular code consisting of pure functions that focus on the "what" instead of the "how".
+
+## Tiny & Fast
+
+Since Moon's only job is to provide a runtime for a functional application, it weighs less than **1kb minified and gzipped**. Even with the built-in drivers, it still stays around the 1kb mark. The lightweight runtime means that browsers won't have to parse and run multiple megabytes of JavaScript, a practice that is quickly becoming the status quo.
+
+The view driver is a default driver built into Moon. It uses a variety of techniques to optimize JavaScript performance for JIT (Just In Time) compilation. Under the hood, the view driver takes a virtual DOM tree as output from an application. This tree is highly optimized to have the same shape to allow for fast property access and node creation. The virtual DOM diffing algorithm was designed to run efficient transformations that make changes while touching the DOM as little as possible.
+
+Since **view components are pure functions** in Moon, developers can choose to optimize specific components by using standard functional programming techniques such as memoization or caching. The view driver skips over nodes that stay the same over multiple renders. This combined with the purity of components opens up a lot of potential for optimization.
+
+Using optimized algorithms and data structures, Moon runs faster than most user interface libraries while sustaining a lightweight footprint.
+
+![Sizes of popular frameworks relative to Moon.](/img/size-large.png)
+<a class="linkImage" href="https://github.com/krausest/js-framework-benchmark">![Performance of popular frameworks relative to Moon.](/img/speed-large.png)</a>
 
 ## Intuitive & Consistent
 

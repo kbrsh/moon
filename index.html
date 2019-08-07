@@ -100,6 +100,44 @@ Moon.<span class="blue">run</span>(({ data, view }) =&gt; ({
 					<a class="feature-media-linkImage" href="https://github.com/krausest/js-framework-benchmark"><img class="feature-media-image" src="/img/speed.png" alt="Performance of popular frameworks relative to Moon."/></a>
 				</div>
 			</div>
+
+			<div class="feature">
+				<div class="feature-info">
+					<h2 class="feature-info-title">Intuitive & Consistent</h2>
+					<p>Moon has a very minimal API surface, used solely for initializing a runtime that allows for functional applications inside the imperative browser environment. The view language was designed to mimic HTML, a language familiar to most web developers.</p>
+					<p>Other view languages often have variadic arguments that can have any type for creating view nodes. They create abstractions like directives or special template syntax for control flow.</p>
+					<p>Moon's view language is consistent, where every tag is a function call. Components are just functions that return more nodes, and they are compiled to function calls like every other node. Control flow is implemented with components as well. In essence, it is JavaScript with syntactic sugar for function calls.</p>
+				</div>
+				<div class="feature-media">
+					<pre class="feature-media-code"><code lang="js"><span class="gray">// Moon View</span>
+<span class="purple">const </span><span class="orange">posts</span> = (
+    <span class="red">&lt;<span class="purple">for</span></span>={post} <span class="orange">of</span>={posts}<span class="red">&gt;</span>
+        <span class="red">&lt;Box</span> <span class="orange">id</span>=<span class="green">&quot;my-box&quot;</span><span class="red">&gt;</span>{post}<span class="red">&lt;/Box</span><span class="red">&gt;</span>
+    <span class="red">&lt;/<span class="purple">for</span></span><span class="red">&gt;</span>
+);
+
+<span class="gray">// Compiled to JS</span>
+<span class="purple">var</span> m0, m1, m2, m3, m4;
+<span class="purple">const </span><span class="orange">posts</span> = (<span class="purple">function</span>() {
+  <span class="purple">if</span> (m3 === <span class="orange">undefined</span>) {
+    m3 = [];
+    m4 = {};
+  }
+  m0 = [];
+  m1 = <span class="purple">function</span>(post) {
+    <span class="purple">return</span> <span class="blue">Box</span>({
+      id: <span class="green">&quot;my-box&quot;</span>,
+      children: [Moon.view.<span class="blue">m</span>(<span class="green">&quot;text&quot;</span>, { <span class="green">&quot;&quot;</span>: post }, m3)]
+    });
+  };
+  <span class="purple">for</span> (m2 = <span class="orange">0</span>; m2 &lt; posts.length; m2++) {
+    m0.<span class="blue">push</span>(<span class="blue">m1</span>(posts[m2], m2));
+  }
+  <span class="purple">return</span> Moon.view.<span class="blue">m</span>(<span class="green">&quot;span&quot;</span>, m4, m0);
+})();
+</code></pre>
+				</div>
+			</div>
 		</div>
 		<script src="./js/lib/moon.min.js"></script>
 		<script src="./js/index.js"></script>
