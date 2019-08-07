@@ -12,30 +12,6 @@ The majority of JavaScript libraries today are based on a view that changes base
 At its core, Moon is a runtime that calls drivers and runs a functional application in the imperative browser environment. It uses drivers to get information from the real world and provides them as input to an application function. The function outputs data to various drivers, and Moon calls the drivers with the output to perform effects on the real world.
 
 ```js
-const increment = ({ data, view }) => {
-	const dataNew = data + 1;
-
-	return {
-		data: dataNew,
-		view: (<View data={dataNew}/>)
-	};
-};
-
-const View = ({ data }) => (
-	<button @click={increment}>{data}</button>
-);
-
-Moon.use({
-	data: Moon.data.driver(0),
-	view: Moon.view.driver("#root")
-});
-
-Moon.run(({ data, view }) => ({
-	view: (<View data={data}/>)
-}));
-```
-
-```js
 // The increment event handler acts just like `Root`, and it can take driver
 // inputs and returns driver outputs.
 const increment = ({ data, view }) => {
