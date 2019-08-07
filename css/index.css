@@ -13,6 +13,29 @@ a {
 	border-color: hsl(200, 100%, 73%);
 }
 
+.linkPlain {
+	border: none;
+}
+
+.buttonPrimary {
+	margin-right: 15px;
+	background-color: hsl(260, 100%, 51%);
+	color: hsl(260, 100%, 100%);
+}
+
+.buttonPrimary:hover, .buttonPrimary:focus {
+	background-color: hsl(260, 100%, 57%);
+}
+
+.buttonSecondary {
+	background-color: hsl(260, 100%, 31%);
+	color: hsl(260, 14%, 100%);
+}
+
+.buttonSecondary:hover, .buttonSecondary:focus {
+	background-color: hsl(260, 100%, 37%);
+}
+
 .nav a {
 	color: hsl(0, 0%, 100%);
 }
@@ -34,29 +57,6 @@ a {
 
 .head h1 {
 	margin-bottom: 21px;
-}
-
-.head a {
-	border: none;
-}
-
-.head a:nth-child(3) button {
-	margin-right: 15px;
-	background-color: hsl(260, 100%, 51%);
-	color: hsl(260, 100%, 100%);
-}
-
-.head a:nth-child(3) button:hover, .head a:nth-child(3) button:focus {
-	background-color: hsl(260, 100%, 57%);
-}
-
-.head a:nth-child(4) button {
-	background-color: hsl(260, 100%, 31%);
-	color: hsl(260, 14%, 100%);
-}
-
-.head a:nth-child(4) button:hover, .head a:nth-child(4) button:focus {
-	background-color: hsl(260, 100%, 37%);
 }
 
 .idea {
@@ -92,10 +92,6 @@ a {
 	background: transparent;
 }
 
-.feature-media-linkImage {
-	border: none;
-}
-
 .feature-media-image {
 	max-width: 100%;
 	max-height: 210px;
@@ -103,4 +99,17 @@ a {
 	height: auto;
 	margin-bottom: 21px;
 	border-radius: 3px;
+}
+
+.jump {
+	justify-content: center;
+	max-width: 703px;
+	margin-top: 210px;
+	margin-bottom: 210px;
+}
+
+.jump-title {
+	width: 100%;
+	margin-bottom: 21px;
+	text-align: center;
 }
