@@ -55,6 +55,39 @@
 				<p>These functions take input from drivers and return output to drivers. Drivers can be responsible for things like views, state, audio, HTTP requests, routing, and timing events.</p>
 				<p>Applications run on the Moon, and drivers update the Earth.</p>
 			</div>
+
+			<div class="feature">
+				<div class="feature-info">
+					<h2 class="feature-info-title">Functional & Declarative</h2>
+					<p>In Moon, web applications are treated as functions that take driver inputs and return driver outputs. Drivers handle the interface between the output of your application and the browser so that it can stay pure and declarative.</p>
+					<p>On the contrary, other popular frameworks claim to be "declarative" but only treat the view as a function of state. However, they treat other ideas such as local component state or effects as afterthoughts, requiring imperative and impure code.</p>
+					<p><a href="/play#const%20increment%20%3D%20(%7B%20data%2C%20view%20%7D)%20%3D%3E%20%7B%0A%20%20%20%20const%20dataNew%20%3D%20data%20%2B%201%3B%0A%0A%20%20%20%20return%20%7B%0A%20%20%20%20%20%20%20%20data%3A%20dataNew%2C%0A%20%20%20%20%20%20%20%20view%3A%20(%3CView%20data%3D%7BdataNew%7D%2F%3E)%0A%20%20%20%20%7D%3B%0A%7D%3B%0A%0Aconst%20View%20%3D%20(%7B%20data%20%7D)%20%3D%3E%20(%0A%20%20%20%20%3Cbutton%20%40click%3D%7Bincrement%7D%3E%7Bdata%7D%3C%2Fbutton%3E%0A)%3B%0A%0AMoon.use(%7B%0A%20%20%20%20data%3A%20Moon.data.driver(0)%2C%0A%20%20%20%20view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run((%7B%20data%2C%20view%20%7D)%20%3D%3E%20(%7B%0A%20%20%20%20view%3A%20(%3CView%20data%3D%7Bdata%7D%2F%3E)%0A%7D))%3B">Try it!</a></p>
+				</div>
+				<div class="feature-media">
+					<pre class="feature-media-code"><code lang="js"><span class="purple">const </span><span class="orange">increment</span> = ({ data, view }) =&gt; {
+    <span class="purple">const </span><span class="orange">dataNew</span> = data + <span class="orange">1</span>;
+
+    <span class="purple">return</span> {
+        data: dataNew,
+        view: (<span class="red">&lt;View</span> <span class="orange">data</span>={dataNew}<span class="red">/&gt;</span>)
+    };
+};
+
+<span class="purple">const </span><span class="orange">View</span> = ({ data }) =&gt; (
+    <span class="red">&lt;button</span> <span class="orange">@click</span>={increment}<span class="red">&gt;</span>{data}<span class="red">&lt;/button</span><span class="red">&gt;</span>
+);
+
+Moon.<span class="blue">use</span>({
+    data: Moon.data.<span class="blue">driver</span>(<span class="orange">0</span>),
+    view: Moon.view.<span class="blue">driver</span>(<span class="green">&quot;#root&quot;</span>)
+});
+
+Moon.<span class="blue">run</span>(({ data, view }) =&gt; ({
+    view: (<span class="red">&lt;View</span> <span class="orange">data</span>={data}<span class="red">/&gt;</span>)
+}));
+</code></pre>
+				</div>
+			</div>
 		</div>
 		<script src="./js/lib/moon.min.js"></script>
 		<script src="./js/index.js"></script>

@@ -58,6 +58,28 @@
 <p>An application is defined as a function that uses the concept of <strong>drivers</strong>, functions that access the real world to provide information and perform effects. Using drivers, an application takes driver inputs and returns driver outputs. It&#39;s a simple concept with endless potential. Pure functions bring clarity and immutability to application code, making it concise, modular, and easy to reason about.</p>
 <p>The majority of JavaScript libraries today are based on a view that changes based on state. In practice, however, web applications are much more complex and often need to perform side effects along with updating the view. These include audio, HTTP requests, routing, timing events, DOM manipulation, etc. While most other libraries have these features as second-class citizens, Moon handles all effects with drivers.</p>
 <p>At its core, Moon is a runtime that calls drivers and runs a functional application in the imperative browser environment. It uses drivers to get information from the real world and provides them as input to an application function. The function outputs data to various drivers, and Moon calls the drivers with the output to perform effects on the real world.</p>
+<pre><code lang="js"><span class="purple">const </span><span class="orange">increment</span> = ({ data, view }) =&gt; {
+    <span class="purple">const </span><span class="orange">dataNew</span> = data + <span class="orange">1</span>;
+
+    <span class="purple">return</span> {
+        data: dataNew,
+        view: (<span class="red">&lt;View</span> <span class="orange">data</span>={dataNew}<span class="red">/&gt;</span>)
+    };
+};
+
+<span class="purple">const </span><span class="orange">View</span> = ({ data }) =&gt; (
+    <span class="red">&lt;button</span> <span class="orange">@click</span>={increment}<span class="red">&gt;</span>{data}<span class="red">&lt;/button</span><span class="red">&gt;</span>
+);
+
+Moon.<span class="blue">use</span>({
+    data: Moon.data.<span class="blue">driver</span>(<span class="orange">0</span>),
+    view: Moon.view.<span class="blue">driver</span>(<span class="green">&quot;#root&quot;</span>)
+});
+
+Moon.<span class="blue">run</span>(({ data, view }) =&gt; ({
+    view: (<span class="red">&lt;View</span> <span class="orange">data</span>={data}<span class="red">/&gt;</span>)
+}));
+</code></pre>
 <pre><code lang="js"><span class="gray">// The increment event handler acts just like <span class="green">`Root`</span>, and it can take driver</span>
 <span class="gray">// inputs and returns driver outputs.</span>
 <span class="purple">const </span><span class="orange">increment</span> = ({ data, view }) =&gt; {

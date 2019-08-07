@@ -3,6 +3,16 @@ html, body {
 	color: hsl(0, 0%, 100%);
 }
 
+p {
+	margin-bottom: 21px;
+	color: hsl(260, 100%, 94%);
+}
+
+a {
+	color: hsl(200, 100%, 73%);
+	border-color: hsl(200, 100%, 73%);
+}
+
 .nav a {
 	color: hsl(0, 0%, 100%);
 }
@@ -56,7 +66,28 @@ html, body {
 	margin-right: auto;
 }
 
-.idea p {
+.feature {
+	justify-content: space-between;
+	width: 100%;
+	margin-top: 210px;
+}
+
+.feature-info {
+	max-width: 528px;
+}
+
+.feature-info-title {
 	margin-bottom: 21px;
-	color: hsl(260, 100%, 94%);
+}
+
+.feature-media {
+	max-width: 528px;
+}
+
+.feature-media-code {
+	background: linear-gradient(135deg, hsl(200, 31%, 14%), hsl(210, 31%, 14%));
+}
+
+.feature-media-code code {
+	background: transparent;
 }
