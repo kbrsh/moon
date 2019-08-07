@@ -92,10 +92,15 @@ a {
 	background: transparent;
 }
 
+.feature-media-linkImage {
+	border: none;
+}
+
 .feature-media-image {
-	max-width: 528px;
+	max-width: 100%;
 	max-height: 210px;
 	width: auto;
 	height: auto;
+	margin-bottom: 21px;
 	border-radius: 3px;
 }
