@@ -91,3 +91,11 @@ a {
 .feature-media-code code {
 	background: transparent;
 }
+
+.feature-media-image {
+	max-width: 528px;
+	max-height: 210px;
+	width: auto;
+	height: auto;
+	border-radius: 3px;
+}
