@@ -85,7 +85,7 @@ a {
 }
 
 .feature-media-code {
-	background: linear-gradient(135deg, hsl(200, 31%, 14%), hsl(210, 31%, 14%));
+	background: hsl(215, 55%, 10%);
 }
 
 .feature-media-code code {
