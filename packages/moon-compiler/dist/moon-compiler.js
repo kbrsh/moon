@@ -1042,11 +1042,30 @@
 	}
 
 	/**
+	 * Returns the number of newlines in a string.
+	 *
+	 * @param {string} string
+	 * @returns {number} number of newlines
+	 */
+
+	function countNewlines(string) {
+		var count = 0;
+
+		for (var i = 0; i < string.length; i++) {
+			if (string[i] === "\n") {
+				count += 1;
+			}
+		}
+
+		return count;
+	}
+	/**
 	 * Compiles a JavaScript file with Moon syntax.
 	 *
 	 * @param {string} input
 	 * @returns {string} file code
 	 */
+
 
 	function compile(input) {
 		var output = "";
@@ -1112,18 +1131,28 @@
 					var staticParts = [];
 					var staticPartsMap = {};
 					var result = generate(parse(lex(view)), null, 0, variable, staticParts, staticPartsMap);
+					var resultCode = void 0;
 					variable = result.variable;
 
 					if (result.isStatic) {
 						// Generate a static output.
 						var staticPart = generateStaticPart(result.prelude, result.node, variable, staticParts, staticPartsMap);
 						variable = staticPart.variable;
-						output += "(function(){if(" + staticPart.variableStatic + "===undefined){" + staticParts[0].variablePart + "}return " + staticPart.variableStatic + ";})()";
+						resultCode = "(function(){if(" + staticPart.variableStatic + "===undefined){" + staticParts[0].variablePart + "}return " + staticPart.variableStatic + ";})()";
 					} else {
 						// Add the prelude to the last seen block and the node in place of the expression.
-						output += "(function(){" + (staticParts.length === 0 ? "" : "if(" + staticParts[0].variableStatic + "===undefined){" + staticParts.map(function (staticPart) {
+						resultCode = "(function(){" + (staticParts.length === 0 ? "" : "if(" + staticParts[0].variableStatic + "===undefined){" + staticParts.map(function (staticPart) {
 							return staticPart.variablePart;
 						}).join("") + "}") + result.prelude + "return " + result.node + ";})()";
+					} // Append result code to output.
+
+
+					output += resultCode; // Preserve newlines.
+
+					var newlines = countNewlines(view) - countNewlines(resultCode);
+
+					for (var _i = 0; _i < newlines; _i++) {
+						output += "\n";
 					}
 				}
 			} else if (isQuote(_char, input[i - 1])) {
@@ -1186,8 +1215,8 @@
 		if (variable !== 0) {
 			prelude += "var ";
 
-			for (var _i = 0; _i < variable; _i++) {
-				prelude += separator + "m" + _i;
+			for (var _i2 = 0; _i2 < variable; _i2++) {
+				prelude += separator + "m" + _i2;
 				separator = ",";
 			}
 

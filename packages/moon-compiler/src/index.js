@@ -5,6 +5,24 @@ import { generateStaticPart } from "moon-compiler/src/generator/util/util";
 import { isQuote, whitespaceRE } from "moon-compiler/src/util/util";
 
 /**
+ * Returns the number of newlines in a string.
+ *
+ * @param {string} string
+ * @returns {number} number of newlines
+ */
+function countNewlines(string) {
+	let count = 0;
+
+	for (let i = 0; i < string.length; i++) {
+		if (string[i] === "\n") {
+			count += 1;
+		}
+	}
+
+	return count;
+}
+
+/**
  * Compiles a JavaScript file with Moon syntax.
  *
  * @param {string} input
@@ -78,6 +96,7 @@ function compile(input) {
 				const staticParts = [];
 				const staticPartsMap = {};
 				const result = generate(parse(lex(view)), null, 0, variable, staticParts, staticPartsMap);
+				let resultCode;
 
 				variable = result.variable;
 
@@ -85,10 +104,20 @@ function compile(input) {
 					// Generate a static output.
 					const staticPart = generateStaticPart(result.prelude, result.node, variable, staticParts, staticPartsMap);
 					variable = staticPart.variable;
-					output += `(function(){if(${staticPart.variableStatic}===undefined){${staticParts[0].variablePart}}return ${staticPart.variableStatic};})()`;
+					resultCode = `(function(){if(${staticPart.variableStatic}===undefined){${staticParts[0].variablePart}}return ${staticPart.variableStatic};})()`;
 				} else {
 					// Add the prelude to the last seen block and the node in place of the expression.
-					output += `(function(){${staticParts.length === 0 ? "" : `if(${staticParts[0].variableStatic}===undefined){${staticParts.map(staticPart => staticPart.variablePart).join("")}}`}${result.prelude}return ${result.node};})()`;
+					resultCode = `(function(){${staticParts.length === 0 ? "" : `if(${staticParts[0].variableStatic}===undefined){${staticParts.map(staticPart => staticPart.variablePart).join("")}}`}${result.prelude}return ${result.node};})()`;
+				}
+
+				// Append result code to output.
+				output += resultCode;
+
+				// Preserve newlines.
+				const newlines = countNewlines(view) - countNewlines(resultCode);
+
+				for (let i = 0; i < newlines; i++) {
+					output += "\n";
 				}
 			}
 		} else if (isQuote(char, input[i - 1])) {
