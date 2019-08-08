@@ -31,7 +31,7 @@ function download(res) {
 	res.on("end", () => {
 		stream.end();
 
-		log("download", "template");
+		log("download", repo);
 		install(archivePath);
 	});
 }
@@ -45,7 +45,7 @@ function install(archivePath) {
 		exec(`tar -xzf ${archivePath} -C ${targetPath} --strip=1`, (err) => {
 			if (err) throw err;
 
-			log("install", "template");
+			log("install", targetPath);
 			clean(archivePath, targetPath);
 		});
 	});
@@ -55,7 +55,7 @@ function clean(archivePath, targetPath) {
 	fs.unlink(archivePath, (err) => {
 		if (err) throw err;
 
-		log("clean", "template");
+		log("clean", archivePath);
 		create(targetPath, targetPath);
 		log("success", `Generated project "${name}"`);
 		console.log(`To start, run:
@@ -81,6 +81,8 @@ function create(currentPath, targetPath) {
 		}
 	}
 }
+
+log("Moon", "Generating project");
 
 https.get(archive, (res) => {
 	if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location !== undefined) {

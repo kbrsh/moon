@@ -40,7 +40,7 @@
 		});
 		res.on("end", function () {
 			stream.end();
-			log("download", "template");
+			log("download", repo);
 			install(archivePath);
 		});
 	}
@@ -51,7 +51,7 @@
 			if (err) throw err;
 			exec("tar -xzf " + archivePath + " -C " + targetPath + " --strip=1", function (err) {
 				if (err) throw err;
-				log("install", "template");
+				log("install", targetPath);
 				clean(archivePath, targetPath);
 			});
 		});
@@ -60,7 +60,7 @@
 	function clean(archivePath, targetPath) {
 		fs.unlink(archivePath, function (err) {
 			if (err) throw err;
-			log("clean", "template");
+			log("clean", archivePath);
 			create(targetPath, targetPath);
 			log("success", "Generated project \"" + name + "\"");
 			console.log("To start, run:\n\tcd " + name + "\n\tnpm install\n\tnpm run dev");
@@ -83,6 +83,7 @@
 		}
 	}
 
+	log("Moon", "Generating project");
 	https.get(archive, function (res) {
 		if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location !== undefined) {
 			https.get(res.headers.location, function (redirectRes) {
