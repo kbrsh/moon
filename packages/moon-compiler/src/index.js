@@ -5,6 +5,54 @@ import { generateStaticPart } from "moon-compiler/src/generator/util/util";
 import { isQuote, whitespaceRE } from "moon-compiler/src/util/util";
 
 /**
+ * Map from integer to base64 value
+ */
+const base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+
+/**
+ * Returns a base64 VLQ encoded value of an integer.
+ *
+ * @param {number} num
+ * @returns {string} base64 VLQ encoded value
+ */
+function base64VLQ(num) {
+	let result = "";
+	num = num << 1;
+
+	do {
+		// Get five least significant bits.
+		let block = num & ((1 << 5) - 1);
+
+		// Shift off five least significant bits.
+		num = num >>> 5;
+
+		// Check for remaining bits, and set the continuation bit if there are.
+		if (num !== 0) {
+			block = block | (1 << 5);
+		}
+
+		// Append block to encoded result.
+		result += base64[block];
+	} while (num !== 0);
+
+	return result;
+}
+
+/**
+ * Returns mappings with an appended segment.
+ *
+ * @param {string} mappings
+ * @param {number} outputColumn
+ * @param {number} inputRow
+ * @param {number} inputColumn
+ * @returns {string} mappings with appended segment
+ */
+function mappingsAppendedSegment(mappings, outputColumn, inputRow, inputColumn) {
+	const charLast = mappings[mappings.length - 1];
+	return (charLast === undefined || charLast === ";" ? "" : ",") + base64VLQ(outputColumn) + base64VLQ(0) + base64VLQ(inputRow) + base64VLQ(inputColumn);
+}
+
+/**
  * Compiles a JavaScript file with Moon syntax.
  *
  * @param {string} input
@@ -163,7 +211,14 @@ function compile(input) {
 		prelude += ";";
 	}
 
-	return prelude + output;
+	return {
+		code: prelude + output,
+		map: {
+			version: 3,
+			names: [],
+			mappings
+		}
+	};
 }
 
 export default {

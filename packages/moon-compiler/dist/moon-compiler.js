@@ -1048,6 +1048,7 @@
 	 * @returns {string} file code
 	 */
 
+
 	function compile(input) {
 		var output = "";
 		var variable = 0;
@@ -1194,7 +1195,14 @@
 			prelude += ";";
 		}
 
-		return prelude + output;
+		return {
+			code: prelude + output,
+			map: {
+				version: 3,
+				names: [],
+				mappings: mappings
+			}
+		};
 	}
 
 	var index = {
