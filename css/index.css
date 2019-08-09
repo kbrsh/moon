@@ -21,6 +21,7 @@ a {
 	margin-right: 15px;
 	background-color: hsl(260, 100%, 51%);
 	color: hsl(260, 100%, 100%);
+	cursor: pointer;
 }
 
 .buttonPrimary:hover, .buttonPrimary:focus {
@@ -30,6 +31,7 @@ a {
 .buttonSecondary {
 	background-color: hsl(260, 100%, 31%);
 	color: hsl(260, 14%, 100%);
+	cursor: pointer;
 }
 
 .buttonSecondary:hover, .buttonSecondary:focus {
