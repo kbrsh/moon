@@ -1,6 +1,6 @@
 {
 	"name": "moon-root",
-	"version": "1.0.0-beta.3",
+	"version": "1.0.0-beta.4",
 	"description": "The minimal & fast UI library",
 	"private": true,
 	"scripts": {
