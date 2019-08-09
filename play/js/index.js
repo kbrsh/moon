@@ -100,7 +100,7 @@ function render() {
 			</head>
 			<body>
 				<div id="root"></div>
-				<script src="/play/js/lib/moon.js"></script>
+				<script src="/moon/play/js/lib/moon.js"></script>
 				<script>${MoonCompiler.compile(value)}</script>
 			</body>
 		</html>
