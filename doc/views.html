@@ -9,12 +9,12 @@
 
 		<title>Moon | Views</title>
 
-		<link rel="shortcut icon" href="../img/logo.png"/>
+		<link rel="shortcut icon" href="/moon/img/logo.png"/>
 
 		<link href="https://fonts.googleapis.com/css?family=Inconsolata&display=swap" rel="stylesheet">
-		<link rel="stylesheet" type="text/css" href="../css/lib/grain.css" />
-		<link rel="stylesheet" type="text/css" href="../css/styles.css" />
-		<link rel="stylesheet" type="text/css" href="../css/post.css" />
+		<link rel="stylesheet" type="text/css" href="/moon/css/lib/grain.css" />
+		<link rel="stylesheet" type="text/css" href="/moon/css/styles.css" />
+		<link rel="stylesheet" type="text/css" href="/moon/css/post.css" />
 
 		<script>
 			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -30,25 +30,25 @@
 		<div class="container">
 			<div class="nav">
 				<div class="nav-home">
-					<h2 class="nav-home"><a href="/">Moon</a></h2>
+					<h2 class="nav-home"><a href="/moon">Moon</a></h2>
 				</div>
 
 				<div class="nav-items">
-					<a href="/doc/guide.html">Guide</a>
-					<a href="/play">Playground</a>
-					<a href="/doc/examples.html">Examples</a>
+					<a href="/moon/doc/guide.html">Guide</a>
+					<a href="/moon/play">Playground</a>
+					<a href="/moon/doc/examples.html">Examples</a>
 					<a href="https://github.com/kbrsh/moon">GitHub</a>
 				</div>
 			</div>
 			<div class="main">
 				<div class="side">
 					<h5>DOCUMENTATION</h5>
-					<p><a href="./about.html">About</a></p>
-					<p><a href="./installation.html">Installation</a></p>
-					<p><a href="./guide.html">Guide</a></p>
-					<p><a href="./data.html">Data</a></p>
-					<p><a id="active" href="./views.html">Views</a></p>
-					<p><a href="./examples.html">Examples</a></p>
+					<p><a href="/moon/doc/about.html">About</a></p>
+					<p><a href="/moon/doc/installation.html">Installation</a></p>
+					<p><a href="/moon/doc/guide.html">Guide</a></p>
+					<p><a href="/moon/doc/data.html">Data</a></p>
+					<p><a id="active" href="/moon/doc/views.html">Views</a></p>
+					<p><a href="/moon/doc/examples.html">Examples</a></p>
 				</div>
 				<div class="content">
 					<h1>Views</h1>
@@ -80,7 +80,7 @@ Moon.<span class="blue">run</span>(() =&gt; {
     };
 });
 </code></pre>
-<p><a href="/play#function%20handleClick(%7B%20view%20%7D)%20%7B%0A%09console.log(view)%3B%20%2F%2F%20MouseEvent%0A%09return%20%7B%7D%3B%0A%7D%0A%0AMoon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20(%3Cbutton%20%40click%3D%7BhandleClick%7D%3EClick%20Me!%3C%2Fbutton%3E)%0A%09%7D%3B%0A%7D)%3B">Try it!</a></p>
+<p><a href="/moon/play#function%20handleClick(%7B%20view%20%7D)%20%7B%0A%09console.log(view)%3B%20%2F%2F%20MouseEvent%0A%09return%20%7B%7D%3B%0A%7D%0A%0AMoon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20(%3Cbutton%20%40click%3D%7BhandleClick%7D%3EClick%20Me!%3C%2Fbutton%3E)%0A%09%7D%3B%0A%7D)%3B">Try it!</a></p>
 <h2 id="output">Output</h2>
 <p>The view driver accepts a new view as output and renders it to the DOM using a performant virtual DOM diffing algorithm. This should be a completely new virtual DOM. This keeps immutability and prevents bugs, as every view completely replaces the old one.</p>
 <pre><code lang="js">Moon.<span class="blue">use</span>({
@@ -93,7 +93,7 @@ Moon.<span class="blue">run</span>(() =&gt; {
     };
 });
 </code></pre>
-<p><a href="/play#Moon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20(%3Cp%3EHello%20Moon!%3C%2Fp%3E)%0A%09%7D%3B%0A%7D)%3B">Try it!</a></p>
+<p><a href="/moon/play#Moon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20(%3Cp%3EHello%20Moon!%3C%2Fp%3E)%0A%09%7D%3B%0A%7D)%3B">Try it!</a></p>
 <p>Moon views are often defined using the <em>Moon View Language</em>. The Moon view language is a template language based on HTML and adds support for data interpolation, events, and components.</p>
 <h3 id="javascript-syntax">JavaScript Syntax</h3>
 <p>The Moon view language is a superset of JavaScript, and it allows a new type of expression. This expression returns view nodes, and must always be enclosed in parentheses.</p>
@@ -121,7 +121,7 @@ Moon.<span class="blue">run</span>(() =&gt; {
     <span class="red">&lt;/div</span><span class="red">&gt;</span>
 );
 </code></pre>
-<p><a href="/play#const%20calculateId%20%3D%20()%20%3D%3E%20Math.random()%3B%0A%0Aconst%20paragraph%20%3D%20(%0A%09%3Cdiv%0A%09%09%3D%22empty%22%0A%09%09id%3D%7BcalculateId()%7D%0A%09%09class%3D%22blue%22%0A%09%09empty%0A%09%09style%3D%7B%7B%20color%3A%20%22blue%22%20%7D%7D%0A%09%09dataset%3D%7B%7B%20foo%3A%20%22bar%22%20%7D%7D%0A%09%09ariaset%3D%7B%7B%20hidden%3A%20true%20%7D%7D%0A%09%3E%0A%09%09%3Cp%3EHello%20Moon!%3C%2Fp%3E%0A%09%3C%2Fdiv%3E%0A)%3B%0A%0AMoon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20paragraph%0A%09%7D%3B%0A%7D)%3B">Try it!</a></p>
+<p><a href="/moon/play#const%20calculateId%20%3D%20()%20%3D%3E%20Math.random()%3B%0A%0Aconst%20paragraph%20%3D%20(%0A%09%3Cdiv%0A%09%09%3D%22empty%22%0A%09%09id%3D%7BcalculateId()%7D%0A%09%09class%3D%22blue%22%0A%09%09empty%0A%09%09style%3D%7B%7B%20color%3A%20%22blue%22%20%7D%7D%0A%09%09dataset%3D%7B%7B%20foo%3A%20%22bar%22%20%7D%7D%0A%09%09ariaset%3D%7B%7B%20hidden%3A%20true%20%7D%7D%0A%09%3E%0A%09%09%3Cp%3EHello%20Moon!%3C%2Fp%3E%0A%09%3C%2Fdiv%3E%0A)%3B%0A%0AMoon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20paragraph%0A%09%7D%3B%0A%7D)%3B">Try it!</a></p>
 <h3 id="text">Text</h3>
 <p>Text is plaintext with support for basic HTML escape codes, which include <code>&amp;amp;</code>, <code>&amp;gt;</code>, <code>&amp;lt;</code>, <code>&amp;nbsp;</code>, and <code>&amp;quot;</code>. The rest can be encoded as anything that is valid in a JavaScript string.</p>
 <p>On top of that, it supports JavaScript expressions interpolated between curly braces.</p>
@@ -129,7 +129,7 @@ Moon.<span class="blue">run</span>(() =&gt; {
     <span class="red">&lt;p</span><span class="red">&gt;</span>Hello {name}! The number of moons is: {<span class="blue">count</span>(planets) * <span class="orange">21.625</span>}.<span class="red">&lt;/p</span><span class="red">&gt;</span>
 );
 </code></pre>
-<p><a href="/play#const%20count%20%3D%20arr%20%3D%3E%20arr.length%3B%0A%0Aconst%20name%20%3D%20%22Moon%22%3B%0Aconst%20planets%20%3D%20%5B%22Mercury%22%2C%20%22Venus%22%2C%20%22Earth%22%2C%20%22Mars%22%2C%20%22Jupiter%22%2C%20%22Saturn%22%2C%20%22Uranus%22%2C%20%22Neptune%22%5D%3B%0A%0Aconst%20paragraph%20%3D%20(%0A%09%3Cp%3EHello%20%7Bname%7D!%20The%20number%20of%20moons%20is%3A%20%7Bcount(planets)%20*%2021.625%7D.%3C%2Fp%3E%0A)%3B%0A%0AMoon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20paragraph%0A%09%7D%3B%0A%7D)%3B">Try it!</a></p>
+<p><a href="/moon/play#const%20count%20%3D%20arr%20%3D%3E%20arr.length%3B%0A%0Aconst%20name%20%3D%20%22Moon%22%3B%0Aconst%20planets%20%3D%20%5B%22Mercury%22%2C%20%22Venus%22%2C%20%22Earth%22%2C%20%22Mars%22%2C%20%22Jupiter%22%2C%20%22Saturn%22%2C%20%22Uranus%22%2C%20%22Neptune%22%5D%3B%0A%0Aconst%20paragraph%20%3D%20(%0A%09%3Cp%3EHello%20%7Bname%7D!%20The%20number%20of%20moons%20is%3A%20%7Bcount(planets)%20*%2021.625%7D.%3C%2Fp%3E%0A)%3B%0A%0AMoon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20paragraph%0A%09%7D%3B%0A%7D)%3B">Try it!</a></p>
 <h3 id="events">Events</h3>
 <p>Browser events such as <code>click</code> or <code>input</code> can be handled by creating an attribute prepended with <code>@</code> with one function as a value. This function will be ran like an application, with the DOM event available from the input from the <code>view</code> driver.</p>
 <pre><code lang="js"><span class="purple">function</span> <span class="blue">handleClick</span>({ view }) {
@@ -149,7 +149,7 @@ Moon.<span class="blue">run</span>(() =&gt; {
     };
 });
 </code></pre>
-<p><a href="/play#function%20handleClick(%7B%20view%20%7D)%20%7B%0A%09console.log(view)%3B%20%2F%2F%20MouseEvent%0A%09return%20%7B%0A%09%09view%3A%20(%3Cp%3ENew%20view!%3C%2Fp%3E)%0A%09%7D%3B%0A%7D%0A%0AMoon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20(%3Cbutton%20%40click%3D%7BhandleClick%7D%3EClick%20Me!%3C%2Fbutton%3E)%0A%09%7D%3B%0A%7D)%3B">Try it!</a></p>
+<p><a href="/moon/play#function%20handleClick(%7B%20view%20%7D)%20%7B%0A%09console.log(view)%3B%20%2F%2F%20MouseEvent%0A%09return%20%7B%0A%09%09view%3A%20(%3Cp%3ENew%20view!%3C%2Fp%3E)%0A%09%7D%3B%0A%7D%0A%0AMoon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20(%3Cbutton%20%40click%3D%7BhandleClick%7D%3EClick%20Me!%3C%2Fbutton%3E)%0A%09%7D%3B%0A%7D)%3B">Try it!</a></p>
 <h3 id="components">Components</h3>
 <p>Components are functions of data objects that return view nodes. They are useful for making reusable parts of your view that can be configured through data. Since the data object is also passed children, components can also render children inside of their view node result.</p>
 <p>Components should always start with an uppercase letter and return a view object so that Moon can detect which elements are components.</p>
@@ -175,7 +175,7 @@ Moon.<span class="blue">run</span>(() =&gt; {
     <span class="red">&lt;/div</span><span class="red">&gt;</span>
 */</span>
 </code></pre>
-<p><a href="/play#const%20Component%20%3D%20data%20%3D%3E%20(%0A%09%3Cdiv%20class%3D%22container%22%20id%3D%7Bdata.id%7D%3E%0A%09%09%3Cdiv%20class%3D%22content%22%20children%3D%7Bdata.children%7D%3E%3C%2Fdiv%3E%0A%09%3C%2Fdiv%3E%0A)%3B%0A%0Aconst%20element%20%3D%20(%0A%09%3CComponent%20id%3D%22my-component%22%3E%0A%09%09%3Cp%3EHello%20Moon!%3C%2Fp%3E%0A%09%3C%2FComponent%3E%0A)%3B%0A%0AMoon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20element%0A%09%7D%3B%0A%7D)%3B">Try it!</a></p>
+<p><a href="/moon/play#const%20Component%20%3D%20data%20%3D%3E%20(%0A%09%3Cdiv%20class%3D%22container%22%20id%3D%7Bdata.id%7D%3E%0A%09%09%3Cdiv%20class%3D%22content%22%20children%3D%7Bdata.children%7D%3E%3C%2Fdiv%3E%0A%09%3C%2Fdiv%3E%0A)%3B%0A%0Aconst%20element%20%3D%20(%0A%09%3CComponent%20id%3D%22my-component%22%3E%0A%09%09%3Cp%3EHello%20Moon!%3C%2Fp%3E%0A%09%3C%2FComponent%3E%0A)%3B%0A%0AMoon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20element%0A%09%7D%3B%0A%7D)%3B">Try it!</a></p>
 <h3 id="conditionals">Conditionals</h3>
 <p>Elements can be rendered based on certain conditions using the <code>if</code>, <code>else-if</code>, and <code>else</code> components. These components only render their first child if the condition matches. <code>else-if</code> and <code>else</code> are not required, and <code>else</code> defaults to rendering an empty text element.</p>
 <pre><code lang="js"><span class="purple">const </span><span class="orange">conditional</span> = (
@@ -192,7 +192,7 @@ Moon.<span class="blue">run</span>(() =&gt; {
     <span class="red">&lt;/div</span><span class="red">&gt;</span>
 );
 </code></pre>
-<p><a href="/play#const%20foo%20%3D%20%22foo%22%3B%0Aconst%20condition%20%3D%20true%3B%0A%0Aconst%20conditional%20%3D%20(%0A%09%3Cdiv%3E%0A%09%09%3Cif%3D%7Bfoo%20%3D%3D%3D%20%22bar%22%7D%3E%0A%09%09%09%3Cp%3EFoo%20is%20bar!%3C%2Fp%3E%0A%09%09%3C%2Fif%3E%0A%09%09%3Celse-if%3D%7Bcondition%7D%3E%0A%09%09%09%3Cp%3ECondition%20is%20true!%3C%2Fp%3E%0A%09%09%3C%2Felse-if%3E%0A%09%09%3Celse%3E%0A%09%09%09%3Cp%3ECondition%20is%20false!%3C%2Fp%3E%0A%09%09%3C%2Felse%3E%0A%09%3C%2Fdiv%3E%0A)%3B%0A%0AMoon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20conditional%0A%09%7D%3B%0A%7D)%3B">Try it!</a></p>
+<p><a href="/moon/play#const%20foo%20%3D%20%22foo%22%3B%0Aconst%20condition%20%3D%20true%3B%0A%0Aconst%20conditional%20%3D%20(%0A%09%3Cdiv%3E%0A%09%09%3Cif%3D%7Bfoo%20%3D%3D%3D%20%22bar%22%7D%3E%0A%09%09%09%3Cp%3EFoo%20is%20bar!%3C%2Fp%3E%0A%09%09%3C%2Fif%3E%0A%09%09%3Celse-if%3D%7Bcondition%7D%3E%0A%09%09%09%3Cp%3ECondition%20is%20true!%3C%2Fp%3E%0A%09%09%3C%2Felse-if%3E%0A%09%09%3Celse%3E%0A%09%09%09%3Cp%3ECondition%20is%20false!%3C%2Fp%3E%0A%09%09%3C%2Felse%3E%0A%09%3C%2Fdiv%3E%0A)%3B%0A%0AMoon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20conditional%0A%09%7D%3B%0A%7D)%3B">Try it!</a></p>
 <h3 id="loops">Loops</h3>
 <p>Elements can be rendered multiple times for every element in an array using the <code>for</code> component. The empty property accepts two local variables that will be available to every child element. The <code>of</code> property will accept an array to iterate over, with the first local variable being the element of the array and the second being the index. The <code>in</code> property will accept an object to iterate over, with the first local being the key of the object, and the second being the value.</p>
 <p>By default, <code>for</code> will render everything inside a <code>&lt;span&gt;</code> element. To customize this, you can use the <code>name</code> property to set the tag name. Also, you can use the <code>data</code> property to set the DOM property data.</p>
@@ -231,7 +231,7 @@ Moon.<span class="blue">run</span>(() =&gt; {
     <span class="red">&lt;/<span class="purple">for</span></span><span class="red">&gt;</span>
 );
 </code></pre>
-<p><a href="/play#const%20array%20%3D%20%5B%22Mercury%22%2C%20%22Venus%22%2C%20%22Earth%22%2C%20%22Mars%22%2C%20%22Jupiter%22%2C%20%22Saturn%22%2C%20%22Uranus%22%2C%20%22Neptune%22%5D%3B%0A%0A%2F%2F%20Name%20and%20data%20options%0Aconst%20loop%20%3D%20(%0A%09%3Cfor%3D%7Bvalue%7D%20of%3D%7Barray%7D%20name%3D%22ul%22%20data%3D%7B%7B%20class%3A%20%22blue%22%20%7D%7D%3E%0A%09%09%3Cli%3E%7Bvalue%7D%3C%2Fli%3E%0A%09%3C%2Ffor%3E%0A)%3B%0A%0AMoon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20loop%0A%09%7D%3B%0A%7D)%3B">Try it!</a></p>
+<p><a href="/moon/play#const%20array%20%3D%20%5B%22Mercury%22%2C%20%22Venus%22%2C%20%22Earth%22%2C%20%22Mars%22%2C%20%22Jupiter%22%2C%20%22Saturn%22%2C%20%22Uranus%22%2C%20%22Neptune%22%5D%3B%0A%0A%2F%2F%20Name%20and%20data%20options%0Aconst%20loop%20%3D%20(%0A%09%3Cfor%3D%7Bvalue%7D%20of%3D%7Barray%7D%20name%3D%22ul%22%20data%3D%7B%7B%20class%3A%20%22blue%22%20%7D%7D%3E%0A%09%09%3Cli%3E%7Bvalue%7D%3C%2Fli%3E%0A%09%3C%2Ffor%3E%0A)%3B%0A%0AMoon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20loop%0A%09%7D%3B%0A%7D)%3B">Try it!</a></p>
 <h3 id="under-the-hood">Under the Hood</h3>
 <p>View nodes are created with <code>Moon.view.m</code>. This is a function that takes a type, data, and children. Components are called with data, and one of the properties, <code>children</code>, contains child nodes.</p>
 <pre><code lang="js"><span class="gray">// Moon view language</span>

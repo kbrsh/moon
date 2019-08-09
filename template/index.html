@@ -9,11 +9,11 @@
 
 		<title>Moon</title>
 
-		<link rel="shortcut icon" href="./img/logo.png"/>
+		<link rel="shortcut icon" href="/moon/img/logo.png"/>
 
-		<link rel="stylesheet" type="text/css" href="./css/lib/grain.css" />
-		<link rel="stylesheet" type="text/css" href="./css/styles.css" />
-		<link rel="stylesheet" type="text/css" href="./css/index.css" />
+		<link rel="stylesheet" type="text/css" href="/moon/css/lib/grain.css" />
+		<link rel="stylesheet" type="text/css" href="/moon/css/styles.css" />
+		<link rel="stylesheet" type="text/css" href="/moon/css/index.css" />
 
 		<script>
 			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -29,13 +29,13 @@
 		<div class="container">
 			<div class="nav">
 				<div class="nav-home">
-					<h2 class="nav-home"><a href="/">Moon</a></h2>
+					<h2 class="nav-home"><a href="/moon">Moon</a></h2>
 				</div>
 
 				<div class="nav-items">
-					<a href="/doc/guide.html">Guide</a>
-					<a href="/play">Playground</a>
-					<a href="/doc/examples.html">Examples</a>
+					<a href="/moon/doc/guide.html">Guide</a>
+					<a href="/moon/play">Playground</a>
+					<a href="/moon/doc/examples.html">Examples</a>
 					<a href="https://github.com/kbrsh/moon">GitHub</a>
 				</div>
 			</div>
@@ -43,8 +43,8 @@
 			<div class="head">
 				<img src="./img/logo.png" alt="Moon Logo"/>
 				<h1>The minimal & fast library for functional user interfaces</h1>
-				<a class="linkPlain" href="/doc/guide.html"><button class="buttonPrimary">GET STARTED</button></a>
-				<a class="linkPlain" href="/play"><button class="buttonSecondary">PLAYGROUND</button></a>
+				<a class="linkPlain" href="/moon/doc/guide.html"><button class="buttonPrimary">GET STARTED</button></a>
+				<a class="linkPlain" href="/moon/play"><button class="buttonSecondary">PLAYGROUND</button></a>
 			</div>
 
 			<div class="idea">
@@ -61,7 +61,7 @@
 					<h2 class="feature-info-title">Functional & Declarative</h2>
 					<p>In Moon, web applications are treated as functions that take driver inputs and return driver outputs. Drivers handle the interface between the output of your application and the browser so that it can stay pure and declarative.</p>
 					<p>On the contrary, other popular frameworks claim to be "declarative" but only treat the view as a function of state. However, they treat other ideas such as local component state or effects as afterthoughts, requiring imperative and impure code.</p>
-					<p><a href="/play#const%20increment%20%3D%20(%7B%20data%2C%20view%20%7D)%20%3D%3E%20%7B%0A%20%20%20%20const%20dataNew%20%3D%20data%20%2B%201%3B%0A%0A%20%20%20%20return%20%7B%0A%20%20%20%20%20%20%20%20data%3A%20dataNew%2C%0A%20%20%20%20%20%20%20%20view%3A%20(%3CView%20data%3D%7BdataNew%7D%2F%3E)%0A%20%20%20%20%7D%3B%0A%7D%3B%0A%0Aconst%20View%20%3D%20(%7B%20data%20%7D)%20%3D%3E%20(%0A%20%20%20%20%3Cbutton%20%40click%3D%7Bincrement%7D%3E%7Bdata%7D%3C%2Fbutton%3E%0A)%3B%0A%0AMoon.use(%7B%0A%20%20%20%20data%3A%20Moon.data.driver(0)%2C%0A%20%20%20%20view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run((%7B%20data%2C%20view%20%7D)%20%3D%3E%20(%7B%0A%20%20%20%20view%3A%20(%3CView%20data%3D%7Bdata%7D%2F%3E)%0A%7D))%3B">Try it!</a></p>
+					<p><a href="/moon/play#const%20increment%20%3D%20(%7B%20data%2C%20view%20%7D)%20%3D%3E%20%7B%0A%20%20%20%20const%20dataNew%20%3D%20data%20%2B%201%3B%0A%0A%20%20%20%20return%20%7B%0A%20%20%20%20%20%20%20%20data%3A%20dataNew%2C%0A%20%20%20%20%20%20%20%20view%3A%20(%3CView%20data%3D%7BdataNew%7D%2F%3E)%0A%20%20%20%20%7D%3B%0A%7D%3B%0A%0Aconst%20View%20%3D%20(%7B%20data%20%7D)%20%3D%3E%20(%0A%20%20%20%20%3Cbutton%20%40click%3D%7Bincrement%7D%3E%7Bdata%7D%3C%2Fbutton%3E%0A)%3B%0A%0AMoon.use(%7B%0A%20%20%20%20data%3A%20Moon.data.driver(0)%2C%0A%20%20%20%20view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run((%7B%20data%2C%20view%20%7D)%20%3D%3E%20(%7B%0A%20%20%20%20view%3A%20(%3CView%20data%3D%7Bdata%7D%2F%3E)%0A%7D))%3B">Try it!</a></p>
 				</div>
 				<div class="feature-media">
 					<pre class="feature-media-code"><code lang="js"><span class="purple">const </span><span class="orange">increment</span> = ({ data, view }) =&gt; {
@@ -142,8 +142,8 @@ Moon.<span class="blue">run</span>(({ data, view }) =&gt; ({
 
 		<div class="jump">
 			<h2 class="jump-title">Jump into the guide to get started.</h2>
-			<a class="linkPlain" href="/doc/guide.html"><button class="buttonPrimary">GET STARTED</button></a>
-			<a class="linkPlain" href="/play"><button class="buttonSecondary">PLAYGROUND</button></a>
+			<a class="linkPlain" href="/moon/doc/guide.html"><button class="buttonPrimary">GET STARTED</button></a>
+			<a class="linkPlain" href="/moon/play"><button class="buttonSecondary">PLAYGROUND</button></a>
 		</div>
 	</body>
 </html>

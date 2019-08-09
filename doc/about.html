@@ -9,12 +9,12 @@
 
 		<title>Moon | About</title>
 
-		<link rel="shortcut icon" href="../img/logo.png"/>
+		<link rel="shortcut icon" href="/moon/img/logo.png"/>
 
 		<link href="https://fonts.googleapis.com/css?family=Inconsolata&display=swap" rel="stylesheet">
-		<link rel="stylesheet" type="text/css" href="../css/lib/grain.css" />
-		<link rel="stylesheet" type="text/css" href="../css/styles.css" />
-		<link rel="stylesheet" type="text/css" href="../css/post.css" />
+		<link rel="stylesheet" type="text/css" href="/moon/css/lib/grain.css" />
+		<link rel="stylesheet" type="text/css" href="/moon/css/styles.css" />
+		<link rel="stylesheet" type="text/css" href="/moon/css/post.css" />
 
 		<script>
 			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -30,25 +30,25 @@
 		<div class="container">
 			<div class="nav">
 				<div class="nav-home">
-					<h2 class="nav-home"><a href="/">Moon</a></h2>
+					<h2 class="nav-home"><a href="/moon">Moon</a></h2>
 				</div>
 
 				<div class="nav-items">
-					<a href="/doc/guide.html">Guide</a>
-					<a href="/play">Playground</a>
-					<a href="/doc/examples.html">Examples</a>
+					<a href="/moon/doc/guide.html">Guide</a>
+					<a href="/moon/play">Playground</a>
+					<a href="/moon/doc/examples.html">Examples</a>
 					<a href="https://github.com/kbrsh/moon">GitHub</a>
 				</div>
 			</div>
 			<div class="main">
 				<div class="side">
 					<h5>DOCUMENTATION</h5>
-					<p><a id="active" href="./about.html">About</a></p>
-					<p><a href="./installation.html">Installation</a></p>
-					<p><a href="./guide.html">Guide</a></p>
-					<p><a href="./data.html">Data</a></p>
-					<p><a href="./views.html">Views</a></p>
-					<p><a href="./examples.html">Examples</a></p>
+					<p><a id="active" href="/moon/doc/about.html">About</a></p>
+					<p><a href="/moon/doc/installation.html">Installation</a></p>
+					<p><a href="/moon/doc/guide.html">Guide</a></p>
+					<p><a href="/moon/doc/data.html">Data</a></p>
+					<p><a href="/moon/doc/views.html">Views</a></p>
+					<p><a href="/moon/doc/examples.html">Examples</a></p>
 				</div>
 				<div class="content">
 					<h1>About</h1>
@@ -93,7 +93,7 @@ Moon.<span class="blue">use</span>({
 <span class="gray">// Run the application.</span>
 Moon.<span class="blue">run</span>(Root);
 </code></pre>
-<p><a href="/play#%2F%2F%20The%20increment%20event%20handler%20acts%20just%20like%20%60Root%60%2C%20and%20it%20can%20take%20driver%0A%2F%2F%20inputs%20and%20returns%20driver%20outputs.%0Aconst%20increment%20%3D%20(%7B%20data%2C%20view%20%7D)%20%3D%3E%20%7B%0A%20%20%20%20const%20dataNew%20%3D%20data%20%2B%201%3B%0A%0A%20%20%20%20%2F%2F%20It%20returns%20data%20to%20the%20data%20driver%20to%20store%2C%20and%20a%20view%20to%20the%20view%20driver%0A%20%20%20%20%2F%2F%20to%20render.%0A%20%20%20%20return%20%7B%0A%20%20%20%20%20%20%20%20data%3A%20dataNew%2C%0A%20%20%20%20%20%20%20%20view%3A%20(%3CView%20data%3D%7BdataNew%7D%2F%3E)%0A%20%20%20%20%7D%3B%0A%7D%3B%0A%0A%2F%2F%20The%20view%20is%20a%20component%20that%20renders%20a%20button%20with%20a%20count.%0Aconst%20View%20%3D%20(%7B%20data%20%7D)%20%3D%3E%20(%3Cbutton%20%40click%3D%7Bincrement%7D%3E%7Bdata%7D%3C%2Fbutton%3E)%3B%0A%0Aconst%20Root%20%3D%20(%7B%20data%2C%20view%20%7D)%20%3D%3E%20%7B%0A%20%20%20%20%2F%2F%20This%20application%20receives%20input%20from%20the%20data%20and%20view%20drivers.%20The%20data%0A%20%20%20%20%2F%2F%20driver%20provides%20the%20count%20state%2C%20and%20the%20view%20driver%20provides%20event%0A%20%20%20%20%2F%2F%20information.%0A%0A%20%20%20%20%2F%2F%20In%20the%20beginning%2C%20the%20application%20only%20needs%20to%20output%20to%20the%20view%2C%20so%20it%0A%20%20%20%20%2F%2F%20specifies%20data%20to%20send%20to%20the%20view%20driver.%0A%20%20%20%20return%20%7B%0A%20%20%20%20%20%20%20%20view%3A%20(%3CView%20data%3D%7Bdata%7D%2F%3E)%0A%20%20%20%20%7D%3B%0A%7D%3B%0A%0A%2F%2F%20Initialize%20drivers.%0AMoon.use(%7B%0A%20%20%20%20data%3A%20Moon.data.driver(0)%2C%20%2F*%20The%20data%20driver%20holds%20state.%20*%2F%0A%20%20%20%20view%3A%20Moon.view.driver(%22%23root%22)%20%2F*%20The%20view%20driver%20handles%20changes%20to%20the%20DOM.%20*%2F%0A%7D)%3B%0A%0A%2F%2F%20Run%20the%20application.%0AMoon.run(Root)%3B">Try it!</a></p>
+<p><a href="/moon/play#%2F%2F%20The%20increment%20event%20handler%20acts%20just%20like%20%60Root%60%2C%20and%20it%20can%20take%20driver%0A%2F%2F%20inputs%20and%20returns%20driver%20outputs.%0Aconst%20increment%20%3D%20(%7B%20data%2C%20view%20%7D)%20%3D%3E%20%7B%0A%20%20%20%20const%20dataNew%20%3D%20data%20%2B%201%3B%0A%0A%20%20%20%20%2F%2F%20It%20returns%20data%20to%20the%20data%20driver%20to%20store%2C%20and%20a%20view%20to%20the%20view%20driver%0A%20%20%20%20%2F%2F%20to%20render.%0A%20%20%20%20return%20%7B%0A%20%20%20%20%20%20%20%20data%3A%20dataNew%2C%0A%20%20%20%20%20%20%20%20view%3A%20(%3CView%20data%3D%7BdataNew%7D%2F%3E)%0A%20%20%20%20%7D%3B%0A%7D%3B%0A%0A%2F%2F%20The%20view%20is%20a%20component%20that%20renders%20a%20button%20with%20a%20count.%0Aconst%20View%20%3D%20(%7B%20data%20%7D)%20%3D%3E%20(%3Cbutton%20%40click%3D%7Bincrement%7D%3E%7Bdata%7D%3C%2Fbutton%3E)%3B%0A%0Aconst%20Root%20%3D%20(%7B%20data%2C%20view%20%7D)%20%3D%3E%20%7B%0A%20%20%20%20%2F%2F%20This%20application%20receives%20input%20from%20the%20data%20and%20view%20drivers.%20The%20data%0A%20%20%20%20%2F%2F%20driver%20provides%20the%20count%20state%2C%20and%20the%20view%20driver%20provides%20event%0A%20%20%20%20%2F%2F%20information.%0A%0A%20%20%20%20%2F%2F%20In%20the%20beginning%2C%20the%20application%20only%20needs%20to%20output%20to%20the%20view%2C%20so%20it%0A%20%20%20%20%2F%2F%20specifies%20data%20to%20send%20to%20the%20view%20driver.%0A%20%20%20%20return%20%7B%0A%20%20%20%20%20%20%20%20view%3A%20(%3CView%20data%3D%7Bdata%7D%2F%3E)%0A%20%20%20%20%7D%3B%0A%7D%3B%0A%0A%2F%2F%20Initialize%20drivers.%0AMoon.use(%7B%0A%20%20%20%20data%3A%20Moon.data.driver(0)%2C%20%2F*%20The%20data%20driver%20holds%20state.%20*%2F%0A%20%20%20%20view%3A%20Moon.view.driver(%22%23root%22)%20%2F*%20The%20view%20driver%20handles%20changes%20to%20the%20DOM.%20*%2F%0A%7D)%3B%0A%0A%2F%2F%20Run%20the%20application.%0AMoon.run(Root)%3B">Try it!</a></p>
 <h2 id="functional-declarative">Functional &amp; Declarative</h2>
 <p>Many user interface libraries in the JavaScript landscape claim to be declarative but seldom incorporate purely functional ideas. Instead, they have imperative methods of updating state to update views, using function calls like <code>set</code> or reactive object property setters. These may be convenient at times, but often lead to bugs because of mutation. To get around this, they support a myriad of different libraries for immutability, leading to tooling fragmentation and confusion.</p>
 <p>Moon is different, and was designed from scratch with a novel approach to web applications, treating them as a function of driver inputs. All outputs to the browser, including the view, state, and HTTP requests, are all functions of driver inputs that capture data from outside sources and user input. There are no setter methods to learn, no lifecycle hooks to handle effects, and no need for a fragmented ecosystem of state management libraries.</p>
@@ -119,8 +119,8 @@ Moon.<span class="blue">run</span>(Root);
 <p>The view driver is a default driver built into Moon. It uses a variety of techniques to optimize JavaScript performance for JIT (Just In Time) compilation. Under the hood, the view driver takes a virtual DOM tree as output from an application. This tree is highly optimized to have the same shape to allow for fast property access and node creation. The virtual DOM diffing algorithm was designed to run efficient transformations that make changes while touching the DOM as little as possible.</p>
 <p>Since <strong>view components are pure functions</strong> in Moon, developers can choose to optimize specific components by using standard functional programming techniques such as memoization or caching. The view driver skips over nodes that stay the same over multiple renders. This combined with the purity of components opens up a lot of potential for optimization.</p>
 <p>Using optimized algorithms and data structures, Moon runs faster than most user interface libraries while sustaining a lightweight footprint.</p>
-<p><img src="/img/size-large.png" alt="Sizes of popular frameworks relative to Moon.">
-<a class="linkImage" href="https://github.com/krausest/js-framework-benchmark"><img src="/img/speed-large.png" alt="Performance of popular frameworks relative to Moon."></a></p>
+<p><img src="/moon/img/size-large.png" alt="Sizes of popular frameworks relative to Moon.">
+<a class="linkImage" href="https://github.com/krausest/js-framework-benchmark"><img src="/moon/img/speed-large.png" alt="Performance of popular frameworks relative to Moon."></a></p>
 <h2 id="intuitive-consistent">Intuitive &amp; Consistent</h2>
 <p>Moon&#39;s API only consists of two functions for initialization along with the APIs of individual drivers. The rest of an application is made from composing functions. Developers have the freedom to structure projects however they&#39;d like. Since functions are just JavaScript, they can be split up across files and imported like anything else.</p>
 <p>Meanwhile, other APIs often have a multitude of functions for managing different effects and state, and they usually require a well-defined type and structure for parameters. In addition, other view templating languages are inconsistent. They accept different types for different parts of a template and impose a learning barrier by introducing concepts like directives, flow control, and implicit children flattening.</p>

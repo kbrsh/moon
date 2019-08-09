@@ -9,12 +9,12 @@
 
 		<title>Moon | {{title}}</title>
 
-		<link rel="shortcut icon" href="../img/logo.png"/>
+		<link rel="shortcut icon" href="/moon/img/logo.png"/>
 
 		<link href="https://fonts.googleapis.com/css?family=Inconsolata&display=swap" rel="stylesheet">
-		<link rel="stylesheet" type="text/css" href="../css/lib/grain.css" />
-		<link rel="stylesheet" type="text/css" href="../css/styles.css" />
-		<link rel="stylesheet" type="text/css" href="../css/post.css" />
+		<link rel="stylesheet" type="text/css" href="/moon/css/lib/grain.css" />
+		<link rel="stylesheet" type="text/css" href="/moon/css/styles.css" />
+		<link rel="stylesheet" type="text/css" href="/moon/css/post.css" />
 
 		<script>
 			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -30,13 +30,13 @@
 		<div class="container">
 			<div class="nav">
 				<div class="nav-home">
-					<h2 class="nav-home"><a href="/">Moon</a></h2>
+					<h2 class="nav-home"><a href="/moon">Moon</a></h2>
 				</div>
 
 				<div class="nav-items">
-					<a href="/doc/guide.html">Guide</a>
-					<a href="/play">Playground</a>
-					<a href="/doc/examples.html">Examples</a>
+					<a href="/moon/doc/guide.html">Guide</a>
+					<a href="/moon/play">Playground</a>
+					<a href="/moon/doc/examples.html">Examples</a>
 					<a href="https://github.com/kbrsh/moon">GitHub</a>
 				</div>
 			</div>
@@ -45,9 +45,9 @@
 					<h5>DOCUMENTATION</h5>
 					{{#each posts.doc}}
 					{{#ifeq @root.file file}}
-					<p><a id="active" href="./{{file}}">{{title}}</a></p>
+					<p><a id="active" href="/moon/doc/{{file}}">{{title}}</a></p>
 					{{else}}
-					<p><a href="./{{file}}">{{title}}</a></p>
+					<p><a href="/moon/doc/{{file}}">{{title}}</a></p>
 					{{/ifeq}}
 					{{/each}}
 				</div>
