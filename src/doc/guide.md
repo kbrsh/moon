@@ -39,7 +39,7 @@ Moon.run(({ data }) => ({
 
 <a href="/moon/play#const%20Todos%20%3D%20(%7B%20data%20%7D)%20%3D%3E%20(%0A%09%3Cfor%3D%7Btodo%7D%20of%3D%7Bdata.todos%7D%20name%3D%22ul%22%3E%0A%09%09%3Cli%3E%7Btodo%7D%3C%2Fli%3E%0A%09%3C%2Ffor%3E%0A)%3B%0A%0AMoon.use(%7B%0A%09data%3A%20Moon.data.driver(%7B%0A%09%09todo%3A%20%22%22%2C%0A%09%09todos%3A%20%5B%0A%09%09%09%22Learn%20Moon%22%2C%0A%09%09%09%22Take%20a%20nap%22%2C%0A%09%09%09%22Go%20Shopping%22%0A%09%09%5D%0A%09%7D)%2C%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run((%7B%20data%20%7D)%20%3D%3E%20(%7B%0A%09view%3A%20(%3CTodos%20data%3D%7Bdata%7D%2F%3E)%0A%7D))%3B">Try it!</a>
 
-First of all, the `Todo` function returns a view using the Moon view language. It uses an HTML-like syntax for creating views based on components. In this case, `<for>` is a component. You'll notice how we pass `name="ul"`, which tells the `<for>` component to wrap the loop in a `ul` tag. Inside the loop, we render an `li` element. The curly braces `{}` are for interpolating JavaScript expressions.
+First of all, the `Todos` function returns a view using the Moon view language. It uses an HTML-like syntax for creating views based on components. In this case, `<for>` is a component. You'll notice how we pass `name="ul"`, which tells the `<for>` component to wrap the loop in a `ul` tag. Inside the loop, we render an `li` element. The curly braces `{}` are for interpolating JavaScript expressions.
 
 Everything in the view language is extra syntax for function calls. In the end, `<for>` and `<li>` boil down to a function call, like this:
 
