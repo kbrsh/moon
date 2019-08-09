@@ -1,5 +1,5 @@
 /**
- * Moon Compiler v1.0.0-beta.3
+ * Moon Compiler v1.0.0-beta.4
  * Copyright 2016-2019 Kabir Shah
  * Released under the MIT License
  * https://kbrsh.github.io/moon

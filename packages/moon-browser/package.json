@@ -1,6 +1,6 @@
 {
 	"name": "moon-browser",
-	"version": "1.0.0-beta.3",
+	"version": "1.0.0-beta.4",
 	"description": "Moon compiler for the browser",
 	"main": "dist/moon-browser.min.js",
 	"repository": {
