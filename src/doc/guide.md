@@ -3,113 +3,117 @@ title: Guide
 order: 2
 ---
 
-This guide will introduce you to the basics of Moon while creating a simple todo application. Get started by creating an `index.html` file with the following contents.
+This guide will introduce you to the basics of Moon while creating a simple todo application. Get started by [installing Moon](/doc/installation.html) and adding the following to the `<body>` of an HTML file. You can also follow along and load the examples in the [playground](/play).
 
 ```html
-<!DOCTYPE html>
-<html>
-	<head>
-		<title>Moon Todo</title>
-	</head>
-	<body>
-		<div id="root"></div>
-
-		<script id="view" type="text/mvl">
-			<!-- View -->
-		</script>
-
-		<script src="//unpkg.com/moon"></script>
-		<script>
-			// Data
-		</script>
-	</body>
-</html>
+<div id="root"></div>
 ```
 
-The view script is a special script of type `text/mvl`, meaning it uses the _Moon View Language_ to define the main view of the todo app. The data script is a script that will create the app and define the data that the view is responsible for displaying.
+This is a root element where Moon's view driver will mount the view. For the following guide, along with the rest of the documentation, the above HTML is assumed.
 
-For the following examples, along with the rest of the documentation, the above HTML file can be used. If a code sample is in `mvl`, you can assume that it goes under the view section. Likewise, if a code sample is in `js` you can assume it goes under the data section.
-
-To get started with a basic todo view, add the following contents to their corresponding sections.
-
-```mvl
-<ul>
-	<li For={$todo in todos}>{$todo.value}</li>
-</ul>
-```
+To get started with a basic todo view, add the following contents to a JavaScript file linked to the HTML page or a `<script>` tag.
 
 ```js
-Moon({
-	root: "#root",
-	view: document.getElementById("view").innerHTML,
-	todos: []
+const Todos = ({ data }) => (
+	<for={todo} of={data.todos} name="ul">
+		<li>{todo}</li>
+	</for>
+);
+
+Moon.use({
+	data: Moon.data.driver({
+		todo: "",
+		todos: [
+			"Learn Moon",
+			"Take a nap",
+			"Go Shopping"
+		]
+	}),
+	view: Moon.view.driver("#root")
+});
+
+Moon.run(({ data }) => ({
+	view: (<Todos data={data}/>)
+}));
+```
+
+<a href="/play#const%20Todos%20%3D%20(%7B%20data%20%7D)%20%3D%3E%20(%0A%09%3Cfor%3D%7Btodo%7D%20of%3D%7Bdata.todos%7D%20name%3D%22ul%22%3E%0A%09%09%3Cli%3E%7Btodo%7D%3C%2Fli%3E%0A%09%3C%2Ffor%3E%0A)%3B%0A%0AMoon.use(%7B%0A%09data%3A%20Moon.data.driver(%7B%0A%09%09todo%3A%20%22%22%2C%0A%09%09todos%3A%20%5B%0A%09%09%09%22Learn%20Moon%22%2C%0A%09%09%09%22Take%20a%20nap%22%2C%0A%09%09%09%22Go%20Shopping%22%0A%09%09%5D%0A%09%7D)%2C%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run((%7B%20data%20%7D)%20%3D%3E%20(%7B%0A%09view%3A%20(%3CTodos%20data%3D%7Bdata%7D%2F%3E)%0A%7D))%3B">Try it!</a>
+
+First of all, the `Todo` function returns a view using the Moon view language. It uses an HTML-like syntax for creating views based on components. In this case, `<for>` is a component. You'll notice how we pass `name="ul"`, which tells the `<for>` component to wrap the loop in a `ul` tag. Inside the loop, we render an `li` element. The curly braces `{}` are for interpolating JavaScript expressions.
+
+Everything in the view language is extra syntax for function calls. In the end, `<for>` and `<li>` boil down to a function call, like this:
+
+```js
+for({
+	name: "ul"
+	of: todos,
+	children: (todo) => li({ children: [ text({ "": todo }) ] })
 });
 ```
 
-The view is just like an HTML file, but the `For` attribute is special and provided by Moon. It is a _component_ using _directive syntax_, where a single element is passed as an argument. In this case, the `For` component will iterate through every item in the `todos` array and will alias it to a _local_ named `$todo`. For each of these, a new `<li>` element will be appended with the contents of `$todo.value`.
+However, Moon compiles it to a normal `for` loop for performance.
 
-Notice the single curly braces `{}`, they are there to _interpolate_ data from the data provided to `Moon`. In this case, we provide two options: `root` and `view` along with our own custom data: `todos`.
+Next, `Moon.use` is called with an object. This is how Moon configures **drivers**, programs that give input from the real world and handle output to the real world. In our case, we call it with two properties: `data` and `view`.
 
-The `root` option decides where the view will be created, and the `view` option defines what the view will be. The `todos` are just an empty array since the user will be responsible for creating them.
+The `data` input and output is handled by the Moon data driver, which gives data as input and can accept new data as output. It is responsible for storing data. We pass it with default data as configuration, storing the current new todo along with a list of all of the todos.
+
+The `view` input and output is handled by the Moon view driver, which gives event information as input and can accept a new view as output. It is responsible for providing a functional interface to the DOM, and uses a virtual DOM under the hood. We pass it the `#root` element to tell it where to mount.
 
 Now, an input can be added to the view to allow the user to create todos.
 
-```mvl
-<input type="text" @bind={value}/>
-<button @click={createTodo()}>Create</button>
+```js
+const Todos = ({ data }) => (
+	<div>
+		<input type="text" value={data.todo} @input={updateTodo}/>
+		<button @click={createTodo}>Create</button>
+
+		<for={todo} of={data.todos} name="ul">
+			<li>{todo}</li>
+		</for>
+	</div>
+);
 ```
 
-The `@` syntax in front of attribute names is for _events_: lifecycle events, browser events, and custom events. In this case, we are using the `@bind` and `@click` events. The `@bind` event binds the value of an input to a given variable and the value of the variable to the value of the input (two-way data binding). The `@click` event handles the browser click event and will call `createTodo()` when invoked.
+The `@` syntax in front of attribute names is for DOM events. In this case, we are using the `@input` and `@click` events. The `@input` event runs a handler when the value of an input changes. The `@click` event runs a handler whenever there is a click.
 
-Change the data section to match the following to hold a value and create a todo.
+Now we can add the event handlers.
 
 ```js
-Moon({
-	root: "#root",
-	view: document.getElementById("view").innerHTML,
-	value: "",
-	todos: [],
-	createTodo() {
-		this.todos.push({
-			value: this.value,
-			complete: false
-		});
+const updateTodo = ({ data, view }) => {
+	const dataNew = { ...data, todo: view.target.value };
 
-		this.update({
-			value: "",
-			todos: this.todos
-		});
-	}
-});
+	return {
+		data: dataNew,
+		view: (<Todos data={dataNew}/>)
+	};
+};
+
+const createTodo = ({ data }) => {
+	const dataNew = {
+		todo: "",
+		todos: [...data.todos, data.todo]
+	};
+
+	return {
+		data: dataNew,
+		view: (<Todos data={dataNew}/>)
+	};
+};
 ```
 
-Since the `value` property will be set by the `@bind` event, it will be available under `this` like all other properties. After pushing a new todo to the existing list of todos, we call the builtin method `update` with new values for `value` and `todos` to update the view.
+The event handlers have the same structure as the function we passed to `Moon.run`. Every time Moon runs a function, it gives it inputs from drivers and expects outputs for drivers. Event handlers are no different.
 
-<div id="example-guide" class="example"></div>
+For the `updateTodo` event handler, we get the event data using driver input from `view`. Using this, we make a copy of the data with the updated `todo`, and return new data along with a new view based on that data. These are handled by drivers to store the data and update the DOM for us.
 
-<script>
-	Moon({
-		root: "#example-guide",
-		view: "<ul><li For={$todo in todos}>{$todo.value}</li></ul><input type=\"text\" @bind={value}/><button @click={createTodo()}>Create</button>",
-		value: "",
-		todos: [],
-		createTodo: function() {
-			this.todos.push({
-				value: this.value,
-				complete: false
-			});
+For the `createTodo` event handler, we don't need the event data, only the current state data. Using this, we create a new `data` object with an empty `todo`. This will empty the input so that it doesn't retain the old value. We also create new `todos` using the current value of `data.todo`. We then return the new data along with a new view based on that data for drivers to handle.
 
-			this.update({
-				value: "",
-				todos: this.todos
-			});
-		}
-	});
-</script>
+<a href="/play#const%20updateTodo%20%3D%20(%7B%20data%2C%20view%20%7D)%20%3D%3E%20%7B%0A%09const%20dataNew%20%3D%20%7B%20...data%2C%20todo%3A%20view.target.value%20%7D%3B%0A%0A%09return%20%7B%0A%09%09data%3A%20dataNew%2C%0A%09%09view%3A%20(%3CTodos%20data%3D%7BdataNew%7D%2F%3E)%0A%09%7D%3B%0A%7D%3B%0A%0Aconst%20createTodo%20%3D%20(%7B%20data%20%7D)%20%3D%3E%20%7B%0A%09const%20dataNew%20%3D%20%7B%0A%09%09todo%3A%20%22%22%2C%0A%09%09todos%3A%20%5B...data.todos%2C%20data.todo%5D%0A%09%7D%3B%0A%0A%09return%20%7B%0A%09%09data%3A%20dataNew%2C%0A%09%09view%3A%20(%3CTodos%20data%3D%7BdataNew%7D%2F%3E)%0A%09%7D%3B%0A%7D%3B%0A%0Aconst%20Todos%20%3D%20(%7B%20data%20%7D)%20%3D%3E%20(%0A%09%3Cdiv%3E%0A%09%09%3Cinput%20type%3D%22text%22%20value%3D%7Bdata.todo%7D%20%40input%3D%7BupdateTodo%7D%2F%3E%0A%09%09%3Cbutton%20%40click%3D%7BcreateTodo%7D%3ECreate%3C%2Fbutton%3E%0A%0A%09%09%3Cfor%3D%7Btodo%7D%20of%3D%7Bdata.todos%7D%20name%3D%22ul%22%3E%0A%09%09%09%3Cli%3E%7Btodo%7D%3C%2Fli%3E%0A%09%09%3C%2Ffor%3E%0A%09%3C%2Fdiv%3E%0A)%3B%0A%0AMoon.use(%7B%0A%09data%3A%20Moon.data.driver(%7B%0A%09%09todo%3A%20%22%22%2C%0A%09%09todos%3A%20%5B%0A%09%09%09%22Learn%20Moon%22%2C%0A%09%09%09%22Take%20a%20nap%22%2C%0A%09%09%09%22Go%20Shopping%22%0A%09%09%5D%0A%09%7D)%2C%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run((%7B%20data%20%7D)%20%3D%3E%20(%7B%0A%09view%3A%20(%3CTodos%20data%3D%7Bdata%7D%2F%3E)%0A%7D))%3B">Try it!</a>
 
-This guide resulted in an extremely basic todo application, but can be extended to support more features. Try the following exercises to test your knowledge.
+This guide resulted in an extremely basic todo application, but can be extended to support more features. Try the following exercises to test your knowledge:
 
-* Add support for removing/completing todos using [events](./views.html#events) and [`If`](./views.html#conditionals).
+* Add support for removing/completing todos using [events](./views.html#events) and [`if`](./views.html#conditionals).
 * Add support for editing todos using the `@dblclick` event.
 * Add support for filtering todos using [data functions](./data.html).
-* Make the application more modular using [components](./components.html).
+* Make the application more modular using [components](./views.html#components).
+
+By default, the [playground](/play) has a fully functioning todo application that has a few more advanced features. Try extending it with what you've learned!

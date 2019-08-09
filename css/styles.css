@@ -1,12 +1,16 @@
 body {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
 	background: hsl(0, 0%, 100%);
-	color: hsl(0, 0%, 10%);
-	font-family: -apple-system, BlinkMacSystemFont, Avenir, "Avenir Next", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+	color: hsl(0, 0%, 14%);
+	font-family: "HK Grotesk", sans-serif;
 }
 
 .container {
-	margin-left: auto;
-	margin-right: auto;
+	width: 100%;
+	max-width: 1081px;
+	margin: 36px;
 }
 
 .nav {
@@ -16,81 +20,109 @@ body {
 }
 
 .nav a {
-	color: hsl(0, 0%, 10%);
+	color: hsl(0, 0%, 14%);
 	border: none;
 }
 
 .nav-home {
-	font-weight: 200;
+	font-weight: normal;
 }
 
-h1, h2, h3 {
-	font-weight: 600;
+.nav-items a:not(:last-child) {
+	margin-right: 15px;
+}
+
+h1, h2, h3, h5 {
+	font-weight: bold;
 }
 
 button {
-	padding: 11.9px;
-	border-radius: 4.1px;
-	font-weight: 700;
-	background-color: hsl(0, 0%, 74%);
-	color: hsl(0, 0%, 10%);
+	width: 153px;
+	padding-top: 6px;
+	padding-bottom: 6px;
+	border-radius: 3px;
+	font-family: "HK Grotesk", sans-serif;
+	font-weight: bold;
+	background-color: hsl(0, 0%, 88%);
+	color: hsl(0, 0%, 14%);
+	transition: background-color .1s ease;
 }
 
-button:focus {
+button:hover, button:focus {
 	outline: none;
-	border: 1.4px solid hsl(0, 0%, 61%);
+	background-color: hsl(0, 0%, 82%);
+}
+
+button:active {
+	background-color: hsl(0, 0%, 86%);
 }
 
 pre {
 	position: relative;
-	padding: 11.9px;
-	background: hsl(200, 14%, 23%);
+	padding: 15px;
+	background-color: hsl(200, 31%, 14%);
+	border-radius: 3px;
 }
 
 code {
-	color: hsl(200, 14%, 10%);
-	background: hsl(200, 14%, 87%);
+	padding: 3px;
+	font-family: "Inconsolata", monospace;
+	color: hsl(200, 31%, 14%);
+	background-color: hsl(200, 14%, 86%);
+	border-radius: 3px;
 	tab-size: 3;
 }
 
 pre code {
-	display: inline-block;
-	width: 100%;
-	color: hsl(200, 14%, 74%);
-	background: hsl(200, 14%, 23%);
+	padding: 0;
+	color: hsl(200, 14%, 65%);
+	background-color: hsl(200, 31%, 14%);
+	border-radius: 0;
 	white-space: pre-wrap;
 	word-break: break-all;
 }
 
 pre code::after {
 	position: absolute;
-	top: 7px;
-	right: 7px;
+	top: 6px;
+	right: 6px;
 	content: attr(lang);
-	font-size: 14.5px;
-	color: hsl(200, 14%, 49%);
+	font-size: 15px;
+	color: hsl(200, 31%, 29%);
 }
 
-pre code .red {
-	color: hsl(0, 29%, 61%);
+pre code .red, pre code .red span {
+	color: hsl(0, 31%, 55%);
 }
 
 pre code .orange {
-	color: hsl(20, 29%, 61%);
+	color: hsl(20, 31%, 55%);
 }
 
-pre code .green {
-	color: hsl(100, 29%, 61%);
+pre code .green, pre code .green span {
+	color: hsl(100, 14%, 55%);
 }
 
 pre code .blue {
-	color: hsl(200, 29%, 61%);
+	color: hsl(200, 31%, 55%);
 }
 
 pre code .purple {
-	color: hsl(300, 14%, 61%);
+	color: hsl(300, 14%, 55%);
 }
 
-pre code .gray {
-	color: hsl(200, 14%, 49%);
+pre code .gray, pre code .gray span {
+	color: hsl(200, 31%, 29%);
+}
+
+@font-face {
+	font-family: "HK Grotesk";
+	src: url("/css/fonts/HKGrotesk-Regular.otf") format("opentype");
+	font-weight: normal;
+}
+
+@font-face {
+	font-family: "HK Grotesk";
+	src: url("/css/fonts/HKGrotesk-Bold.otf") format("opentype");
+	font-weight: bold;
 }

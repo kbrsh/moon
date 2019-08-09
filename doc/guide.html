@@ -4,18 +4,17 @@
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<meta name="description" content="The minimal & fast UI library.">
+		<meta name="description" content="The minimal & fast library for functional user interfaces.">
 		<meta name="author" content="Kabir Shah">
 
 		<title>Moon | Guide</title>
 
 		<link rel="shortcut icon" href="../img/logo.png"/>
 
+		<link href="https://fonts.googleapis.com/css?family=Inconsolata&display=swap" rel="stylesheet">
 		<link rel="stylesheet" type="text/css" href="../css/lib/grain.css" />
 		<link rel="stylesheet" type="text/css" href="../css/styles.css" />
 		<link rel="stylesheet" type="text/css" href="../css/post.css" />
-
-		<script src="../js/lib/moon.min.js"></script>
 
 		<script>
 			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -28,127 +27,120 @@
 	</head>
 
 	<body>
-		<div id="post" class="container x-10">
+		<div class="container">
 			<div class="nav">
 				<div class="nav-home">
-					<h2 class="nav-home"><a href="../">Moon</a></h2>
+					<h2 class="nav-home"><a href="/">Moon</a></h2>
 				</div>
 
 				<div class="nav-items">
-					<p>
-						<a href="./guide.html" class="s-1">Guide</a>
-						<a href="./about.html" class="s-1">About</a>
-						<a href="./examples.html" class="s-1">Examples</a>
-						<a href="https://github.com/kbrsh/moon" class="s-1">GitHub</a>
-					</p>
+					<a href="/doc/guide.html">Guide</a>
+					<a href="/play">Playground</a>
+					<a href="/doc/examples.html">Examples</a>
+					<a href="https://github.com/kbrsh/moon">GitHub</a>
 				</div>
 			</div>
 			<div class="main">
-				<div class="side x-7">
-					<h6>Documentation</h6>
+				<div class="side">
+					<h5>DOCUMENTATION</h5>
 					<p><a href="./about.html">About</a></p>
 					<p><a href="./installation.html">Installation</a></p>
 					<p><a id="active" href="./guide.html">Guide</a></p>
 					<p><a href="./data.html">Data</a></p>
 					<p><a href="./views.html">Views</a></p>
-					<p><a href="./components.html">Components</a></p>
 					<p><a href="./examples.html">Examples</a></p>
 				</div>
-				<div class="content x-9">
+				<div class="content">
 					<h1>Guide</h1>
-					<p>This guide will introduce you to the basics of Moon while creating a simple todo application. Get started by creating an <code>index.html</code> file with the following contents.</p>
-<pre><code lang="html">&lt;!DOCTYPE html&gt;
-<span class="red">&lt;html</span><span class="red">&gt;</span>
-    <span class="red">&lt;head</span><span class="red">&gt;</span>
-        <span class="red">&lt;title</span><span class="red">&gt;</span>Moon Todo<span class="red">&lt;/title</span><span class="red">&gt;</span>
-    <span class="red">&lt;/head</span><span class="red">&gt;</span>
-    <span class="red">&lt;body</span><span class="red">&gt;</span>
-        <span class="red">&lt;div</span> <span class="orange">id</span>=<span class="green">&quot;root&quot;</span><span class="red">&gt;</span><span class="red">&lt;/div</span><span class="red">&gt;</span>
-
-        <span class="red">&lt;script</span> <span class="orange">id</span>=<span class="green">&quot;view&quot;</span> <span class="orange">type</span>=<span class="green">&quot;text/mvl&quot;</span><span class="red">&gt;</span>
-            <span class="gray">&lt;!-- View --&gt;</span>
-        <span class="red">&lt;/script</span><span class="red">&gt;</span>
-
-        <span class="red">&lt;script</span> <span class="orange">src</span>=<span class="green">&quot;<span class="gray">//unpkg.com/moon&quot;</span><span class="red">&gt;</span><span class="red">&lt;/script</span><span class="red">&gt;</span></span>
-        <span class="red">&lt;script</span><span class="red">&gt;</span>
-            <span class="gray">// Data</span>
-        <span class="red">&lt;/script</span><span class="red">&gt;</span>
-    <span class="red">&lt;/body</span><span class="red">&gt;</span>
-<span class="red">&lt;/html</span><span class="red">&gt;</span>
+					<p>This guide will introduce you to the basics of Moon while creating a simple todo application. Get started by <a href="/doc/installation.html">installing Moon</a> and adding the following to the <code>&lt;body&gt;</code> of an HTML file. You can also follow along and load the examples in the <a href="/play">playground</a>.</p>
+<pre><code lang="html"><span class="red">&lt;div</span> <span class="orange">id</span>=<span class="green">&quot;root&quot;</span><span class="red">&gt;</span><span class="red">&lt;/div</span><span class="red">&gt;</span>
 </code></pre>
-<p>The view script is a special script of type <code>text/mvl</code>, meaning it uses the <em>Moon View Language</em> to define the main view of the todo app. The data script is a script that will create the app and define the data that the view is responsible for displaying.</p>
-<p>For the following examples, along with the rest of the documentation, the above HTML file can be used. If a code sample is in <code>mvl</code>, you can assume that it goes under the view section. Likewise, if a code sample is in <code>js</code> you can assume it goes under the data section.</p>
-<p>To get started with a basic todo view, add the following contents to their corresponding sections.</p>
-<pre><code lang="mvl"><span class="red">&lt;ul</span><span class="red">&gt;</span>
-    <span class="red">&lt;li</span> <span class="orange">For</span>={$todo <span class="purple">in</span> todos}<span class="red">&gt;</span>{$todo.value}<span class="red">&lt;/li</span><span class="red">&gt;</span>
-<span class="red">&lt;/ul</span><span class="red">&gt;</span>
+<p>This is a root element where Moon&#39;s view driver will mount the view. For the following guide, along with the rest of the documentation, the above HTML is assumed.</p>
+<p>To get started with a basic todo view, add the following contents to a JavaScript file linked to the HTML page or a <code>&lt;script&gt;</code> tag.</p>
+<pre><code lang="js"><span class="purple">const </span><span class="orange">Todos</span> = ({ data }) =&gt; (
+    <span class="red">&lt;<span class="purple">for</span></span>={todo} <span class="orange">of</span>={data.todos} <span class="orange">name</span>=<span class="green">&quot;ul&quot;</span><span class="red">&gt;</span>
+        <span class="red">&lt;li</span><span class="red">&gt;</span>{todo}<span class="red">&lt;/li</span><span class="red">&gt;</span>
+    <span class="red">&lt;/<span class="purple">for</span></span><span class="red">&gt;</span>
+);
+
+Moon.<span class="blue">use</span>({
+    data: Moon.data.<span class="blue">driver</span>({
+        todo: <span class="green">&quot;&quot;</span>,
+        todos: [
+            <span class="green">&quot;Learn Moon&quot;</span>,
+            <span class="green">&quot;Take a nap&quot;</span>,
+            <span class="green">&quot;Go Shopping&quot;</span>
+        ]
+    }),
+    view: Moon.view.<span class="blue">driver</span>(<span class="green">&quot;#root&quot;</span>)
+});
+
+Moon.<span class="blue">run</span>(({ data }) =&gt; ({
+    view: (<span class="red">&lt;Todos</span> <span class="orange">data</span>={data}<span class="red">/&gt;</span>)
+}));
 </code></pre>
-<pre><code lang="js"><span class="blue">Moon</span>({
-    root: <span class="green">&quot;#root&quot;</span>,
-    view: <span class="orange">document</span>.<span class="blue">getElementById</span>(<span class="green">&quot;view&quot;</span>).innerHTML,
-    todos: []
+<p><a href="/play#const%20Todos%20%3D%20(%7B%20data%20%7D)%20%3D%3E%20(%0A%09%3Cfor%3D%7Btodo%7D%20of%3D%7Bdata.todos%7D%20name%3D%22ul%22%3E%0A%09%09%3Cli%3E%7Btodo%7D%3C%2Fli%3E%0A%09%3C%2Ffor%3E%0A)%3B%0A%0AMoon.use(%7B%0A%09data%3A%20Moon.data.driver(%7B%0A%09%09todo%3A%20%22%22%2C%0A%09%09todos%3A%20%5B%0A%09%09%09%22Learn%20Moon%22%2C%0A%09%09%09%22Take%20a%20nap%22%2C%0A%09%09%09%22Go%20Shopping%22%0A%09%09%5D%0A%09%7D)%2C%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run((%7B%20data%20%7D)%20%3D%3E%20(%7B%0A%09view%3A%20(%3CTodos%20data%3D%7Bdata%7D%2F%3E)%0A%7D))%3B">Try it!</a></p>
+<p>First of all, the <code>Todo</code> function returns a view using the Moon view language. It uses an HTML-like syntax for creating views based on components. In this case, <code>&lt;for&gt;</code> is a component. You&#39;ll notice how we pass <code>name=&quot;ul&quot;</code>, which tells the <code>&lt;for&gt;</code> component to wrap the loop in a <code>ul</code> tag. Inside the loop, we render an <code>li</code> element. The curly braces <code>{}</code> are for interpolating JavaScript expressions.</p>
+<p>Everything in the view language is extra syntax for function calls. In the end, <code>&lt;for&gt;</code> and <code>&lt;li&gt;</code> boil down to a function call, like this:</p>
+<pre><code lang="js"><span class="purple">for</span>({
+    name: <span class="green">&quot;ul&quot;</span>
+    of: todos,
+    children: (todo) =&gt; <span class="blue">li</span>({ children: [ <span class="blue">text</span>({ <span class="green">&quot;&quot;</span>: todo }) ] })
 });
 </code></pre>
-<p>The view is just like an HTML file, but the <code>For</code> attribute is special and provided by Moon. It is a <em>component</em> using <em>directive syntax</em>, where a single element is passed as an argument. In this case, the <code>For</code> component will iterate through every item in the <code>todos</code> array and will alias it to a <em>local</em> named <code>$todo</code>. For each of these, a new <code>&lt;li&gt;</code> element will be appended with the contents of <code>$todo.value</code>.</p>
-<p>Notice the single curly braces <code>{}</code>, they are there to <em>interpolate</em> data from the data provided to <code>Moon</code>. In this case, we provide two options: <code>root</code> and <code>view</code> along with our own custom data: <code>todos</code>.</p>
-<p>The <code>root</code> option decides where the view will be created, and the <code>view</code> option defines what the view will be. The <code>todos</code> are just an empty array since the user will be responsible for creating them.</p>
+<p>However, Moon compiles it to a normal <code>for</code> loop for performance.</p>
+<p>Next, <code>Moon.use</code> is called with an object. This is how Moon configures <strong>drivers</strong>, programs that give input from the real world and handle output to the real world. In our case, we call it with two properties: <code>data</code> and <code>view</code>.</p>
+<p>The <code>data</code> input and output is handled by the Moon data driver, which gives data as input and can accept new data as output. It is responsible for storing data. We pass it with default data as configuration, storing the current new todo along with a list of all of the todos.</p>
+<p>The <code>view</code> input and output is handled by the Moon view driver, which gives event information as input and can accept a new view as output. It is responsible for providing a functional interface to the DOM, and uses a virtual DOM under the hood. We pass it the <code>#root</code> element to tell it where to mount.</p>
 <p>Now, an input can be added to the view to allow the user to create todos.</p>
-<pre><code lang="mvl"><span class="red">&lt;input</span> <span class="orange">type</span>=<span class="green">&quot;text&quot;</span> <span class="orange">@bind</span>={value}<span class="red">/&gt;</span>
-<span class="red">&lt;button</span> <span class="orange">@click</span>={<span class="blue">createTodo</span>()}<span class="red">&gt;</span>Create<span class="red">&lt;/button</span><span class="red">&gt;</span>
+<pre><code lang="js"><span class="purple">const </span><span class="orange">Todos</span> = ({ data }) =&gt; (
+    <span class="red">&lt;div</span><span class="red">&gt;</span>
+        <span class="red">&lt;input</span> <span class="orange">type</span>=<span class="green">&quot;text&quot;</span> <span class="orange">value</span>={data.todo} <span class="orange">@input</span>={updateTodo}<span class="red">/&gt;</span>
+        <span class="red">&lt;button</span> <span class="orange">@click</span>={createTodo}<span class="red">&gt;</span>Create<span class="red">&lt;/button</span><span class="red">&gt;</span>
+
+        <span class="red">&lt;<span class="purple">for</span></span>={todo} <span class="orange">of</span>={data.todos} <span class="orange">name</span>=<span class="green">&quot;ul&quot;</span><span class="red">&gt;</span>
+            <span class="red">&lt;li</span><span class="red">&gt;</span>{todo}<span class="red">&lt;/li</span><span class="red">&gt;</span>
+        <span class="red">&lt;/<span class="purple">for</span></span><span class="red">&gt;</span>
+    <span class="red">&lt;/div</span><span class="red">&gt;</span>
+);
 </code></pre>
-<p>The <code>@</code> syntax in front of attribute names is for <em>events</em>: lifecycle events, browser events, and custom events. In this case, we are using the <code>@bind</code> and <code>@click</code> events. The <code>@bind</code> event binds the value of an input to a given variable and the value of the variable to the value of the input (two-way data binding). The <code>@click</code> event handles the browser click event and will call <code>createTodo()</code> when invoked.</p>
-<p>Change the data section to match the following to hold a value and create a todo.</p>
-<pre><code lang="js"><span class="blue">Moon</span>({
-    root: <span class="green">&quot;#root&quot;</span>,
-    view: <span class="orange">document</span>.<span class="blue">getElementById</span>(<span class="green">&quot;view&quot;</span>).innerHTML,
-    value: <span class="green">&quot;&quot;</span>,
-    todos: [],
-    <span class="blue">createTodo</span>() {
-        <span class="orange">this</span>.todos.<span class="blue">push</span>({
-            value: <span class="orange">this</span>.value,
-            complete: <span class="orange">false</span>
-        });
+<p>The <code>@</code> syntax in front of attribute names is for DOM events. In this case, we are using the <code>@input</code> and <code>@click</code> events. The <code>@input</code> event runs a handler when the value of an input changes. The <code>@click</code> event runs a handler whenever there is a click.</p>
+<p>Now we can add the event handlers.</p>
+<pre><code lang="js"><span class="purple">const </span><span class="orange">updateTodo</span> = ({ data, view }) =&gt; {
+    <span class="purple">const </span><span class="orange">dataNew</span> = { ...data, todo: view.target.value };
 
-        <span class="orange">this</span>.<span class="blue">update</span>({
-            value: <span class="green">&quot;&quot;</span>,
-            todos: <span class="orange">this</span>.todos
-        });
-    }
-});
+    <span class="purple">return</span> {
+        data: dataNew,
+        view: (<span class="red">&lt;Todos</span> <span class="orange">data</span>={dataNew}<span class="red">/&gt;</span>)
+    };
+};
+
+<span class="purple">const </span><span class="orange">createTodo</span> = ({ data }) =&gt; {
+    <span class="purple">const </span><span class="orange">dataNew</span> = {
+        todo: <span class="green">&quot;&quot;</span>,
+        todos: [...data.todos, data.todo]
+    };
+
+    <span class="purple">return</span> {
+        data: dataNew,
+        view: (<span class="red">&lt;Todos</span> <span class="orange">data</span>={dataNew}<span class="red">/&gt;</span>)
+    };
+};
 </code></pre>
-<p>Since the <code>value</code> property will be set by the <code>@bind</code> event, it will be available under <code>this</code> like all other properties. After pushing a new todo to the existing list of todos, we call the builtin method <code>update</code> with new values for <code>value</code> and <code>todos</code> to update the view.</p>
-<div id="example-guide" class="example"></div>
-
-<script>
-    Moon({
-        root: "#example-guide",
-        view: "<ul><li For={$todo in todos}>{$todo.value}</li></ul><input type=\"text\" @bind={value}/><button @click={createTodo()}>Create</button>",
-        value: "",
-        todos: [],
-        createTodo: function() {
-            this.todos.push({
-                value: this.value,
-                complete: false
-            });
-
-            this.update({
-                value: "",
-                todos: this.todos
-            });
-        }
-    });
-</script>
-
-<p>This guide resulted in an extremely basic todo application, but can be extended to support more features. Try the following exercises to test your knowledge.</p>
+<p>The event handlers have the same structure as the function we passed to <code>Moon.run</code>. Every time Moon runs a function, it gives it inputs from drivers and expects outputs for drivers. Event handlers are no different.</p>
+<p>For the <code>updateTodo</code> event handler, we get the event data using driver input from <code>view</code>. Using this, we make a copy of the data with the updated <code>todo</code>, and return new data along with a new view based on that data. These are handled by drivers to store the data and update the DOM for us.</p>
+<p>For the <code>createTodo</code> event handler, we don&#39;t need the event data, only the current state data. Using this, we create a new <code>data</code> object with an empty <code>todo</code>. This will empty the input so that it doesn&#39;t retain the old value. We also create new <code>todos</code> using the current value of <code>data.todo</code>. We then return the new data along with a new view based on that data for drivers to handle.</p>
+<p><a href="/play#const%20updateTodo%20%3D%20(%7B%20data%2C%20view%20%7D)%20%3D%3E%20%7B%0A%09const%20dataNew%20%3D%20%7B%20...data%2C%20todo%3A%20view.target.value%20%7D%3B%0A%0A%09return%20%7B%0A%09%09data%3A%20dataNew%2C%0A%09%09view%3A%20(%3CTodos%20data%3D%7BdataNew%7D%2F%3E)%0A%09%7D%3B%0A%7D%3B%0A%0Aconst%20createTodo%20%3D%20(%7B%20data%20%7D)%20%3D%3E%20%7B%0A%09const%20dataNew%20%3D%20%7B%0A%09%09todo%3A%20%22%22%2C%0A%09%09todos%3A%20%5B...data.todos%2C%20data.todo%5D%0A%09%7D%3B%0A%0A%09return%20%7B%0A%09%09data%3A%20dataNew%2C%0A%09%09view%3A%20(%3CTodos%20data%3D%7BdataNew%7D%2F%3E)%0A%09%7D%3B%0A%7D%3B%0A%0Aconst%20Todos%20%3D%20(%7B%20data%20%7D)%20%3D%3E%20(%0A%09%3Cdiv%3E%0A%09%09%3Cinput%20type%3D%22text%22%20value%3D%7Bdata.todo%7D%20%40input%3D%7BupdateTodo%7D%2F%3E%0A%09%09%3Cbutton%20%40click%3D%7BcreateTodo%7D%3ECreate%3C%2Fbutton%3E%0A%0A%09%09%3Cfor%3D%7Btodo%7D%20of%3D%7Bdata.todos%7D%20name%3D%22ul%22%3E%0A%09%09%09%3Cli%3E%7Btodo%7D%3C%2Fli%3E%0A%09%09%3C%2Ffor%3E%0A%09%3C%2Fdiv%3E%0A)%3B%0A%0AMoon.use(%7B%0A%09data%3A%20Moon.data.driver(%7B%0A%09%09todo%3A%20%22%22%2C%0A%09%09todos%3A%20%5B%0A%09%09%09%22Learn%20Moon%22%2C%0A%09%09%09%22Take%20a%20nap%22%2C%0A%09%09%09%22Go%20Shopping%22%0A%09%09%5D%0A%09%7D)%2C%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run((%7B%20data%20%7D)%20%3D%3E%20(%7B%0A%09view%3A%20(%3CTodos%20data%3D%7Bdata%7D%2F%3E)%0A%7D))%3B">Try it!</a></p>
+<p>This guide resulted in an extremely basic todo application, but can be extended to support more features. Try the following exercises to test your knowledge:</p>
 <ul>
-<li>Add support for removing/completing todos using <a href="./views.html#events">events</a> and <a href="./views.html#conditionals"><code>If</code></a>.</li>
+<li>Add support for removing/completing todos using <a href="./views.html#events">events</a> and <a href="./views.html#conditionals"><code>if</code></a>.</li>
 <li>Add support for editing todos using the <code>@dblclick</code> event.</li>
 <li>Add support for filtering todos using <a href="./data.html">data functions</a>.</li>
-<li>Make the application more modular using <a href="./components.html">components</a>.</li>
+<li>Make the application more modular using <a href="./views.html#components">components</a>.</li>
 </ul>
+<p>By default, the <a href="/play">playground</a> has a fully functioning todo application that has a few more advanced features. Try extending it with what you&#39;ve learned!</p>
 
 				</div>
-				<div class="x-5"></div>
 			</div>
 		</div>
 	</body>

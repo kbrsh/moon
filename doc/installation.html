@@ -4,18 +4,17 @@
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<meta name="description" content="The minimal & fast UI library.">
+		<meta name="description" content="The minimal & fast library for functional user interfaces.">
 		<meta name="author" content="Kabir Shah">
 
 		<title>Moon | Installation</title>
 
 		<link rel="shortcut icon" href="../img/logo.png"/>
 
+		<link href="https://fonts.googleapis.com/css?family=Inconsolata&display=swap" rel="stylesheet">
 		<link rel="stylesheet" type="text/css" href="../css/lib/grain.css" />
 		<link rel="stylesheet" type="text/css" href="../css/styles.css" />
 		<link rel="stylesheet" type="text/css" href="../css/post.css" />
-
-		<script src="../js/lib/moon.min.js"></script>
 
 		<script>
 			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -28,55 +27,85 @@
 	</head>
 
 	<body>
-		<div id="post" class="container x-10">
+		<div class="container">
 			<div class="nav">
 				<div class="nav-home">
-					<h2 class="nav-home"><a href="../">Moon</a></h2>
+					<h2 class="nav-home"><a href="/">Moon</a></h2>
 				</div>
 
 				<div class="nav-items">
-					<p>
-						<a href="./guide.html" class="s-1">Guide</a>
-						<a href="./about.html" class="s-1">About</a>
-						<a href="./examples.html" class="s-1">Examples</a>
-						<a href="https://github.com/kbrsh/moon" class="s-1">GitHub</a>
-					</p>
+					<a href="/doc/guide.html">Guide</a>
+					<a href="/play">Playground</a>
+					<a href="/doc/examples.html">Examples</a>
+					<a href="https://github.com/kbrsh/moon">GitHub</a>
 				</div>
 			</div>
 			<div class="main">
-				<div class="side x-7">
-					<h6>Documentation</h6>
+				<div class="side">
+					<h5>DOCUMENTATION</h5>
 					<p><a href="./about.html">About</a></p>
 					<p><a id="active" href="./installation.html">Installation</a></p>
 					<p><a href="./guide.html">Guide</a></p>
 					<p><a href="./data.html">Data</a></p>
 					<p><a href="./views.html">Views</a></p>
-					<p><a href="./components.html">Components</a></p>
 					<p><a href="./examples.html">Examples</a></p>
 				</div>
-				<div class="content x-9">
+				<div class="content">
 					<h1>Installation</h1>
-					<p>Moon can be installed with a <code>&lt;script&gt;</code> tag or through <code>npm</code>.</p>
-<pre><code lang="html"><span class="red">&lt;script</span> <span class="orange">src</span>=<span class="green">&quot;https:<span class="gray">//unpkg.com/moon&quot;</span><span class="red">&gt;</span><span class="red">&lt;/script</span><span class="red">&gt;</span></span>
-</code></pre>
-<pre><code lang="sh">npm install moon
-</code></pre>
-<h3 id="cli">CLI</h3>
+					<p>Moon can be installed with a <code>&lt;script&gt;</code> tag or through <code>npm</code>. The view driver uses an extension of the JavaScript language, similar to JSX, that adds HTML-like syntax for creating views.</p>
+<h2 id="cli">CLI</h2>
 <p>Moon CLI can generate a scalable application with support for:</p>
 <ul>
-<li>Multi-file components</li>
+<li>Moon view language</li>
 <li>Hot module reloading</li>
 <li>Next generation CSS and JavaScript</li>
-<li>Highly optimized production builds</li>
+<li>Optimized production builds</li>
 </ul>
 <p>Moon CLI can be installed through <code>npm</code> and ran with <code>moon &lt;name&gt;</code>.</p>
-<pre><code lang="sh">npm install moon-cli
+<pre><code lang="sh">npm install -g moon-cli
 moon my-app
 </code></pre>
-<p>Further instructions will be displayed to get your app up and running. Refer to the documentation for more information on <a href="./components.html#multi-file-components">multi-file components</a>.</p>
+<h2 id="npm">NPM</h2>
+<p>Moon can be manually installed through <code>npm</code>. To use the Moon view language with your build system, Moon provides a <code>moon-compiler</code> module along with modules for most bundlers, including Webpack and Rollup.</p>
+<pre><code lang="sh">npm install moon
+npm install moon-compiler
+</code></pre>
+<h3 id="webpack">Webpack</h3>
+<pre><code lang="sh">npm install moon-loader
+</code></pre>
+<pre><code lang="js"><span class="gray">// webpack.config.js</span>
+module.exports = {
+    module: {
+        rules: [
+            { test: /\.js/, use: <span class="green">&quot;moon-loader&quot;</span> }
+        ]
+    }
+};
+</code></pre>
+<h3 id="rollup">Rollup</h3>
+<pre><code lang="sh">npm install rollup-plugin-moon
+</code></pre>
+<pre><code lang="js"><span class="gray">// rollup.config.js</span>
+<span class="purple">import</span> MoonPlugin <span class="purple">from</span> <span class="green">&quot;rollup-plugin-moon&quot;</span>;
+
+<span class="purple">export</span> <span class="purple">default</span> {
+    plugins: [
+        <span class="blue">MoonPlugin</span>()
+    ]
+};
+</code></pre>
+<h2 id="browser">Browser</h2>
+<p>Moon can be embedded in the browser directly with a script tag. To use the Moon view language in the browser, Moon provides a <code>moon-browser</code> module that compiles <code>&lt;script&gt;</code> tags with type <code>&quot;text/moon&quot;</code>.</p>
+<pre><code lang="html"><span class="red">&lt;script</span> <span class="orange">src</span>=<span class="green">&quot;https:<span class="gray">//unpkg.com/moon&quot;</span><span class="red">&gt;</span><span class="red">&lt;/script</span><span class="red">&gt;</span></span>
+<span class="red">&lt;script</span> <span class="orange">src</span>=<span class="green">&quot;https:<span class="gray">//unpkg.com/moon-browser&quot;</span><span class="red">&gt;</span><span class="red">&lt;/script</span><span class="red">&gt;</span></span>
+
+<span class="red">&lt;script</span> <span class="orange">type</span>=<span class="green">&quot;text/moon&quot;</span> <span class="orange">src</span>=<span class="green">&quot;scripts.js&quot;</span><span class="red">&gt;</span><span class="red">&lt;/script</span><span class="red">&gt;</span>
+<span class="red">&lt;script</span> <span class="orange">type</span>=<span class="green">&quot;text/moon&quot;</span><span class="red">&gt;</span>
+    <span class="purple">const </span><span class="orange">paragraph</span> = (<span class="red">&lt;p</span><span class="red">&gt;</span>Hello Moon!<span class="red">&lt;/p</span><span class="red">&gt;</span>);
+<span class="red">&lt;/script</span><span class="red">&gt;</span>
+</code></pre>
 
 				</div>
-				<div class="x-5"></div>
 			</div>
 		</div>
 	</body>

@@ -4,18 +4,17 @@
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<meta name="description" content="The minimal & fast UI library.">
+		<meta name="description" content="The minimal & fast library for functional user interfaces.">
 		<meta name="author" content="Kabir Shah">
 
 		<title>Moon | About</title>
 
 		<link rel="shortcut icon" href="../img/logo.png"/>
 
+		<link href="https://fonts.googleapis.com/css?family=Inconsolata&display=swap" rel="stylesheet">
 		<link rel="stylesheet" type="text/css" href="../css/lib/grain.css" />
 		<link rel="stylesheet" type="text/css" href="../css/styles.css" />
 		<link rel="stylesheet" type="text/css" href="../css/post.css" />
-
-		<script src="../js/lib/moon.min.js"></script>
 
 		<script>
 			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -28,97 +27,159 @@
 	</head>
 
 	<body>
-		<div id="post" class="container x-10">
+		<div class="container">
 			<div class="nav">
 				<div class="nav-home">
-					<h2 class="nav-home"><a href="../">Moon</a></h2>
+					<h2 class="nav-home"><a href="/">Moon</a></h2>
 				</div>
 
 				<div class="nav-items">
-					<p>
-						<a href="./guide.html" class="s-1">Guide</a>
-						<a href="./about.html" class="s-1">About</a>
-						<a href="./examples.html" class="s-1">Examples</a>
-						<a href="https://github.com/kbrsh/moon" class="s-1">GitHub</a>
-					</p>
+					<a href="/doc/guide.html">Guide</a>
+					<a href="/play">Playground</a>
+					<a href="/doc/examples.html">Examples</a>
+					<a href="https://github.com/kbrsh/moon">GitHub</a>
 				</div>
 			</div>
 			<div class="main">
-				<div class="side x-7">
-					<h6>Documentation</h6>
+				<div class="side">
+					<h5>DOCUMENTATION</h5>
 					<p><a id="active" href="./about.html">About</a></p>
 					<p><a href="./installation.html">Installation</a></p>
 					<p><a href="./guide.html">Guide</a></p>
 					<p><a href="./data.html">Data</a></p>
 					<p><a href="./views.html">Views</a></p>
-					<p><a href="./components.html">Components</a></p>
 					<p><a href="./examples.html">Examples</a></p>
 				</div>
-				<div class="content x-9">
+				<div class="content">
 					<h1>About</h1>
-					<p>Moon is a JavaScript library with a minimal API and fast view compiler. It splits up a web application into two parts: the view and the data. The view is responsible for displaying the data to the user. Moon compiles the view into a JavaScript program running on a 3kb runtime capable of creating, updating, and destroying the view. The data is a simple object with access to the Moon API for updating itself.</p>
-<pre><code lang="mvl"><span class="red">&lt;p</span> <span class="orange">If</span>={condition}<span class="red">&gt;</span>{foo}<span class="red">&lt;/p</span><span class="red">&gt;</span>
-<span class="red">&lt;p</span> Else<span class="red">&gt;</span>{bar}<span class="red">&lt;/p</span><span class="red">&gt;</span>
+					<p>Moon is more than just a JavaScript library — it&#39;s a new paradigm for application development based on pure functions.</p>
+<p>An application is defined as a function that uses the concept of <strong>drivers</strong>, functions that access the real world to provide information and perform effects. Using drivers, an application takes driver inputs and returns driver outputs. It&#39;s a simple concept with endless potential. Pure functions bring clarity and immutability to application code, making it concise, modular, and easy to reason about.</p>
+<p>The majority of JavaScript libraries today are based on a view that changes based on state. In practice, however, web applications are much more complex and often need to perform side effects along with updating the view. These include audio, HTTP requests, routing, timing events, DOM manipulation, etc. While most other libraries have these features as second-class citizens, Moon handles all effects with drivers.</p>
+<p>At its core, Moon is a runtime that calls drivers and runs a functional application in the imperative browser environment. It uses drivers to get information from the real world and provides them as input to an application function. The function outputs data to various drivers, and Moon calls the drivers with the output to perform effects on the real world.</p>
+<pre><code lang="js"><span class="gray">// The increment event handler acts just like <span class="green">`Root`</span>, and it can take driver</span>
+<span class="gray">// inputs and returns driver outputs.</span>
+<span class="purple">const </span><span class="orange">increment</span> = ({ data, view }) =&gt; {
+    <span class="purple">const </span><span class="orange">dataNew</span> = data + <span class="orange">1</span>;
+
+    <span class="gray">// It returns data to the data driver to store, and a view to the view driver</span>
+    <span class="gray">// to render.</span>
+    <span class="purple">return</span> {
+        data: dataNew,
+        view: (<span class="red">&lt;View</span> <span class="orange">data</span>={dataNew}<span class="red">/&gt;</span>)
+    };
+};
+
+<span class="gray">// The view is a component that renders a button with a count.</span>
+<span class="purple">const </span><span class="orange">View</span> = ({ data }) =&gt; (<span class="red">&lt;button</span> <span class="orange">@click</span>={increment}<span class="red">&gt;</span>{data}<span class="red">&lt;/button</span><span class="red">&gt;</span>);
+
+<span class="purple">const </span><span class="orange">Root</span> = ({ data, view }) =&gt; {
+    <span class="gray">// This application receives input <span class="purple">from</span> the data and view drivers. The data</span>
+    <span class="gray">// driver provides the count state, and the view driver provides event</span>
+    <span class="gray">// information.</span>
+
+    <span class="gray">// In the beginning, the application only needs to output to the view, so it</span>
+    <span class="gray">// specifies data to send to the view driver.</span>
+    <span class="purple">return</span> {
+        view: (<span class="red">&lt;View</span> <span class="orange">data</span>={data}<span class="red">/&gt;</span>)
+    };
+};
+
+<span class="gray">// Initialize drivers.</span>
+Moon.<span class="blue">use</span>({
+    data: Moon.data.<span class="blue">driver</span>(<span class="orange">0</span>), <span class="gray">/* The data driver holds state. */
+    view: Moon.view.<span class="blue">driver</span>(<span class="green">&quot;#root&quot;</span>) /* The view driver handles changes to the DOM. */</span>
+});
+
+<span class="gray">// Run the application.</span>
+Moon.<span class="blue">run</span>(Root);
 </code></pre>
-<pre><code lang="js"><span class="purple">function</span> <span class="blue">view</span>(m, instance) {
-  <span class="purple">var</span> m0, m1, m2, m3, m4, m5;
-  <span class="purple">return</span> [
-    <span class="purple">function</span>(_0) {
-      m0 = _0;
-      m3 = m.<span class="blue">cc</span>();
-      m.<span class="blue">ac</span>(m3, m0);
-      m5 = [
-        (<span class="purple">function</span>(locals) {
-          <span class="purple">var</span> m6, m7, m8;
-          <span class="purple">return</span> [
-            <span class="purple">function</span>(_0) {
-              m6 = _0;
-              m7 = m.<span class="blue">ce</span>(<span class="green">&quot;p&quot;</span>);
-              m8 = m.<span class="blue">ctn</span>(<span class="green">&quot;&quot;</span>);
-              m.<span class="blue">ac</span>(m8, m7);
-              m.<span class="blue">ib</span>(m7, m3, m6);
-            },
-            <span class="purple">function</span>() {
-              m.<span class="blue">stc</span>(m8, instance.foo);
-            },
-            <span class="purple">function</span>() {
-              m.<span class="blue">rc</span>(m7, m6);
-            }
-          ];
-        })({}),
-        (<span class="purple">function</span>(locals) {
-          <span class="purple">var</span> m6, m7, m8;
-          <span class="purple">return</span> [
-            <span class="purple">function</span>(_0) {
-              m6 = _0;
-              m7 = m.<span class="blue">ce</span>(<span class="green">&quot;p&quot;</span>);
-              m8 = m.<span class="blue">ctn</span>(<span class="green">&quot;&quot;</span>);
-              m.<span class="blue">ac</span>(m8, m7);
-              m.<span class="blue">ib</span>(m7, m3, m6);
-            },
-            <span class="purple">function</span>() {
-              m.<span class="blue">stc</span>(m8, instance.bar);
-            },
-            <span class="purple">function</span>() {
-              m.<span class="blue">rc</span>(m7, m6);
-            }
-          ];
-        })({})
-      ];
+<p><a href="/play#%2F%2F%20The%20increment%20event%20handler%20acts%20just%20like%20%60Root%60%2C%20and%20it%20can%20take%20driver%0A%2F%2F%20inputs%20and%20returns%20driver%20outputs.%0Aconst%20increment%20%3D%20(%7B%20data%2C%20view%20%7D)%20%3D%3E%20%7B%0A%20%20%20%20const%20dataNew%20%3D%20data%20%2B%201%3B%0A%0A%20%20%20%20%2F%2F%20It%20returns%20data%20to%20the%20data%20driver%20to%20store%2C%20and%20a%20view%20to%20the%20view%20driver%0A%20%20%20%20%2F%2F%20to%20render.%0A%20%20%20%20return%20%7B%0A%20%20%20%20%20%20%20%20data%3A%20dataNew%2C%0A%20%20%20%20%20%20%20%20view%3A%20(%3CView%20data%3D%7BdataNew%7D%2F%3E)%0A%20%20%20%20%7D%3B%0A%7D%3B%0A%0A%2F%2F%20The%20view%20is%20a%20component%20that%20renders%20a%20button%20with%20a%20count.%0Aconst%20View%20%3D%20(%7B%20data%20%7D)%20%3D%3E%20(%3Cbutton%20%40click%3D%7Bincrement%7D%3E%7Bdata%7D%3C%2Fbutton%3E)%3B%0A%0Aconst%20Root%20%3D%20(%7B%20data%2C%20view%20%7D)%20%3D%3E%20%7B%0A%20%20%20%20%2F%2F%20This%20application%20receives%20input%20from%20the%20data%20and%20view%20drivers.%20The%20data%0A%20%20%20%20%2F%2F%20driver%20provides%20the%20count%20state%2C%20and%20the%20view%20driver%20provides%20event%0A%20%20%20%20%2F%2F%20information.%0A%0A%20%20%20%20%2F%2F%20In%20the%20beginning%2C%20the%20application%20only%20needs%20to%20output%20to%20the%20view%2C%20so%20it%0A%20%20%20%20%2F%2F%20specifies%20data%20to%20send%20to%20the%20view%20driver.%0A%20%20%20%20return%20%7B%0A%20%20%20%20%20%20%20%20view%3A%20(%3CView%20data%3D%7Bdata%7D%2F%3E)%0A%20%20%20%20%7D%3B%0A%7D%3B%0A%0A%2F%2F%20Initialize%20drivers.%0AMoon.use(%7B%0A%20%20%20%20data%3A%20Moon.data.driver(0)%2C%20%2F*%20The%20data%20driver%20holds%20state.%20*%2F%0A%20%20%20%20view%3A%20Moon.view.driver(%22%23root%22)%20%2F*%20The%20view%20driver%20handles%20changes%20to%20the%20DOM.%20*%2F%0A%7D)%3B%0A%0A%2F%2F%20Run%20the%20application.%0AMoon.run(Root)%3B">Try it!</a></p>
+<h2 id="functional-declarative">Functional &amp; Declarative</h2>
+<p>Many user interface libraries in the JavaScript landscape claim to be declarative but seldom incorporate purely functional ideas. Instead, they have imperative methods of updating state to update views, using function calls like <code>set</code> or reactive object property setters. These may be convenient at times, but often lead to bugs because of mutation. To get around this, they support a myriad of different libraries for immutability, leading to tooling fragmentation and confusion.</p>
+<p>Moon is different, and was designed from scratch with a novel approach to web applications, treating them as a function of driver inputs. All outputs to the browser, including the view, state, and HTTP requests, are all functions of driver inputs that capture data from outside sources and user input. There are no setter methods to learn, no lifecycle hooks to handle effects, and no need for a fragmented ecosystem of state management libraries.</p>
+<p>Instead, developers write functions that return outputs based on user events and driver inputs, and they have the freedom to create custom effects with their own drivers. State is often stored in a single state tree rather than being spread across local and global state. For example, the entire state of an application might be represented as:</p>
+<pre><code lang="js">{
+    state: <span class="green">&quot;loading&quot;</span>,
+    user: {
+        name: <span class="green">&quot;&quot;</span>,
+        picture: <span class="green">&quot;&quot;</span>
     },
-    <span class="purple">function</span>() {
-      m4 = [instance.condition, <span class="orange">true</span>];
-      m2 = m.<span class="blue">di</span>(m2, m4, m5, m0);
+    posts: {
+        state: <span class="green">&quot;loaded&quot;</span>,
+        list: [],
+        selected: <span class="orange">null</span>
     },
-    <span class="purple">function</span>() {
-      m2[<span class="orange">2</span>]();
-    }
-  ];
+    theme: <span class="green">&quot;dark&quot;</span>
 }
 </code></pre>
+<p>Rather than creating &quot;smart&quot; components with general local state, components are &quot;dumb&quot; and only encode view data. For example, instead of a <code>Toggle</code> component handling local state, it would only provide an event where the relevant global state <code>theme</code> would change.</p>
+<p>One state tree means one source of truth for an application. Developers can quickly glance at the state of the whole application and have complete flexibility on the structure and type of the state. This declarative model of applications allows for modular code consisting of pure functions that focus on the &quot;what&quot; instead of the &quot;how&quot;.</p>
+<h2 id="tiny-fast">Tiny &amp; Fast</h2>
+<p>Since Moon&#39;s only job is to provide a runtime for a functional application, it weighs less than <strong>1kb minified and gzipped</strong>. Even with the built-in drivers, it still stays around the 1kb mark. The lightweight runtime means that browsers won&#39;t have to parse and run multiple megabytes of JavaScript, a practice that is quickly becoming the status quo.</p>
+<p>The view driver is a default driver built into Moon. It uses a variety of techniques to optimize JavaScript performance for JIT (Just In Time) compilation. Under the hood, the view driver takes a virtual DOM tree as output from an application. This tree is highly optimized to have the same shape to allow for fast property access and node creation. The virtual DOM diffing algorithm was designed to run efficient transformations that make changes while touching the DOM as little as possible.</p>
+<p>Since <strong>view components are pure functions</strong> in Moon, developers can choose to optimize specific components by using standard functional programming techniques such as memoization or caching. The view driver skips over nodes that stay the same over multiple renders. This combined with the purity of components opens up a lot of potential for optimization.</p>
+<p>Using optimized algorithms and data structures, Moon runs faster than most user interface libraries while sustaining a lightweight footprint.</p>
+<p><img src="/img/size-large.png" alt="Sizes of popular frameworks relative to Moon.">
+<a class="linkImage" href="https://github.com/krausest/js-framework-benchmark"><img src="/img/speed-large.png" alt="Performance of popular frameworks relative to Moon."></a></p>
+<h2 id="intuitive-consistent">Intuitive &amp; Consistent</h2>
+<p>Moon&#39;s API only consists of two functions for initialization along with the APIs of individual drivers. The rest of an application is made from composing functions. Developers have the freedom to structure projects however they&#39;d like. Since functions are just JavaScript, they can be split up across files and imported like anything else.</p>
+<p>Meanwhile, other APIs often have a multitude of functions for managing different effects and state, and they usually require a well-defined type and structure for parameters. In addition, other view templating languages are inconsistent. They accept different types for different parts of a template and impose a learning barrier by introducing concepts like directives, flow control, and implicit children flattening.</p>
+<p>Views in Moon are based on HTML, a familiar language for defining documents. The language is an alternative syntax for function calls that can help structure views in a more organized fashion. Components in Moon are pure functions that return views, and they are called with the same syntax as tags. All control flow concepts are implemented as built-in components. They can be thought of as function calls, but they&#39;re compiled to their more efficient counterparts for performance.</p>
+<pre><code lang="js"><span class="gray">// Moon View</span>
+<span class="purple">const </span><span class="orange">paragraph</span> = (<span class="red">&lt;p</span> <span class="orange">class</span>=<span class="green">&quot;blue&quot;</span><span class="red">&gt;</span>Hello World!<span class="red">&lt;/p</span><span class="red">&gt;</span>);
+<span class="purple">const </span><span class="orange">box</span> = (<span class="red">&lt;Box</span> <span class="orange">type</span>=<span class="green">&quot;alert&quot;</span><span class="red">&gt;</span>Something went wrong!<span class="red">&lt;/Box</span><span class="red">&gt;</span>);
+<span class="purple">const </span><span class="orange">posts</span> = (<span class="red">&lt;<span class="purple">for</span></span>={post} <span class="orange">of</span>={posts}<span class="red">&gt;</span>{post}<span class="red">&lt;/<span class="purple">for</span></span><span class="red">&gt;</span>);
+
+<span class="gray">// Compiled to JS</span>
+<span class="purple">var</span> m0, m1, m2, m3, m4, m5, m6;
+
+<span class="purple">var</span> paragraph = (<span class="purple">function</span>() {
+    <span class="purple">if</span> (m0 === <span class="orange">undefined</span>) {
+        <span class="gray">// Static nodes are defined here.</span>
+        m0 = Moon.view.<span class="blue">m</span>(<span class="orange">0</span>, <span class="green">&quot;p&quot;</span>, { className: <span class="green">&quot;blue&quot;</span> }, [
+            Moon.view.<span class="blue">m</span>(<span class="orange">1</span>, <span class="green">&quot;text&quot;</span>, { <span class="green">&quot;&quot;</span>: <span class="green">&quot;Hello World!&quot;</span> }, [])
+        ]);
+    }
+
+    <span class="purple">return</span> m0;
+})();
+
+<span class="purple">var</span> box = (<span class="purple">function</span>() {
+    <span class="purple">if</span> (m1 === <span class="orange">undefined</span>) {
+        <span class="gray">// <span class="green">`<span class="red">&lt;Box</span><span class="red">/&gt;</span>`</span> is a <span class="purple">function</span> call.</span>
+        m1 = <span class="blue">Box</span>({
+            type: <span class="green">&quot;alert&quot;</span>,
+            children: [Moon.view.<span class="blue">m</span>(<span class="orange">1</span>, <span class="green">&quot;text&quot;</span>, { <span class="green">&quot;&quot;</span>: <span class="green">&quot;Something went wrong!&quot;</span> }, [])]
+        });
+    }
+
+    <span class="purple">return</span> m1;
+})();
+
+<span class="purple">var</span> posts = (<span class="purple">function</span>() {
+    <span class="purple">if</span> (m5 === <span class="orange">undefined</span>) {
+        m5 = [];
+        m6 = {};
+    }
+
+    m2 = [];
+    m3 = <span class="purple">function</span>(post) {
+        <span class="purple">return</span> Moon.view.<span class="blue">m</span>(<span class="orange">1</span>, <span class="green">&quot;text&quot;</span>, { <span class="green">&quot;&quot;</span>: post }, m5);
+    };
+
+    <span class="gray">// <span class="green">`<span class="red">&lt;<span class="purple">for</span></span><span class="red">&gt;</span>`</span> gets compiled to a <span class="green">`<span class="purple">for</span>`</span> loop <span class="purple">for</span> efficiency.</span>
+    <span class="purple">for</span> (m4 = <span class="orange">0</span>; m4 &lt; posts.length; m4++) {
+        m2.<span class="blue">push</span>(<span class="blue">m3</span>(posts[m4], m4));
+    }
+
+    <span class="purple">return</span> Moon.view.<span class="blue">m</span>(<span class="orange">0</span>, <span class="green">&quot;span&quot;</span>, m6, m2);
+})();
+</code></pre>
+<h2 id="conclusion">Conclusion</h2>
+<p>In Moon, an application is a function with inputs and outputs handled by drivers. The concept&#39;s simplicity allows for a fast implementation with a small footprint, both of which constantly get overlooked in web development today. Functional programming brings clarity and composability to applications, and single state trees can lead to a clear mental model of a complex application. It also leads to a minimal API, required only to initialize a functional application in the imperative browser environment.</p>
+<p>In essence, applications run on the Moon while drivers update the Earth.</p>
 
 				</div>
-				<div class="x-5"></div>
 			</div>
 		</div>
 	</body>

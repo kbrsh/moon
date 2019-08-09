@@ -5,9 +5,9 @@
 html, body {
 	margin: 0;
 	padding: 0;
-	background: hsl(0, 0%, 100%);
-	color: hsl(0, 0%, 10%);
-	font-size: 19.89px;
+	background-color: hsl(0, 0%, 100%);
+	color: hsl(0, 0%, 14%);
+	font-size: 21px;
 }
 
 div {
@@ -15,146 +15,42 @@ div {
 	flex-wrap: wrap;
 }
 
-button, code, input, textarea {
-	padding: 7px;
-}
-
-button, div, h1, h2, h3, h4, h5, h6, img, input, li, ol, p, pre, textarea, ul, video {
-	width: auto;
-	margin: 7px;
+button, code, div, h1, h2, h3, h5, img, input, li, ol, p, pre, textarea, ul, video {
+	margin: 0;
+	padding: 0;
 	border: none;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1, h2, h3 {
 	line-height: 1.3;
 }
 
-button, code, input, p, pre, textarea {
+button, code, h5, input, p, pre, textarea {
 	line-height: 1.5;
 }
 
 h1 {
-	font-size: 51.021116px;
+	font-size: 45px;
 }
 
 h2 {
-	font-size: 43.607791px;
+	font-size: 36px;
 }
 
 h3 {
-	font-size: 37.271617px;
-}
-
-h4 {
-	font-size: 31.856083px;
-}
-
-h5 {
-	font-size: 27.227421px;
-}
-
-h6 {
-	font-size: 23.2713px;
+	font-size: 28px;
 }
 
 p {
-	font-size: 19.89px;
+	font-size: 21px;
 }
 
-button, code, input, pre, textarea {
-	font-size: 17px;
+button, code, h5, input, pre, textarea {
+	font-size: 15px;
 }
 
 a {
-	color: hsl(200, 100%, 10%);
-	border-bottom: 1px solid hsl(200, 100%, 10%);
+	color: hsl(200, 100%, 41%);
+	border-bottom: 1px solid hsl(200, 100%, 41%);
 	text-decoration: none;
-}
-
-.x-0 {
-	max-width: 7px;
-}
-
-.x-1 {
-	max-width: 11.9px;
-}
-
-.x-2 {
-	max-width: 20.23px;
-}
-
-.x-3 {
-	max-width: 34.391px;
-}
-
-.x-4 {
-	max-width: 58.4647px;
-}
-
-.x-5 {
-	max-width: 99.38999px;
-}
-
-.x-6 {
-	max-width: 168.962983px;
-}
-
-.x-7 {
-	max-width: 287.237071px;
-}
-
-.x-8 {
-	max-width: 488.303021px;
-}
-
-.x-9 {
-	max-width: 830.115135px;
-}
-
-.x-10 {
-	max-width: 1411.19573px;
-}
-
-.s-0 {
-	margin: 7px;
-}
-
-.s-1 {
-	margin: 11.9px;
-}
-
-.s-2 {
-	margin: 20.23px;
-}
-
-.s-3 {
-	margin: 34.391px;
-}
-
-.s-4 {
-	margin: 58.4647px;
-}
-
-.s-5 {
-	margin: 99.38999px;
-}
-
-.s-6 {
-	margin: 168.962983px;
-}
-
-.s-7 {
-	margin: 287.237071px;
-}
-
-.s-8 {
-	margin: 488.303021px;
-}
-
-.s-9 {
-	margin: 830.115135px;
-}
-
-.s-10 {
-	margin: 1411.19573px;
 }

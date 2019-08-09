@@ -1,71 +1,115 @@
 html, body {
-	background: hsl(0, 0%, 10%);
+	background: url("../img/stars.png"), linear-gradient(hsl(260, 100%, 6%), hsl(200, 100%, 6%)) fixed;
 	color: hsl(0, 0%, 100%);
+}
+
+p {
+	margin-bottom: 21px;
+	color: hsl(260, 100%, 94%);
+}
+
+a {
+	color: hsl(200, 100%, 73%);
+	border-color: hsl(200, 100%, 73%);
+}
+
+.linkPlain {
+	border: none;
+}
+
+.buttonPrimary {
+	margin-right: 15px;
+	background-color: hsl(260, 100%, 51%);
+	color: hsl(260, 100%, 100%);
+}
+
+.buttonPrimary:hover, .buttonPrimary:focus {
+	background-color: hsl(260, 100%, 57%);
+}
+
+.buttonSecondary {
+	background-color: hsl(260, 100%, 31%);
+	color: hsl(260, 14%, 100%);
+}
+
+.buttonSecondary:hover, .buttonSecondary:focus {
+	background-color: hsl(260, 100%, 37%);
 }
 
 .nav a {
 	color: hsl(0, 0%, 100%);
 }
 
-#head {
+.head {
+	justify-content: center;
+	max-width: 703px;
 	margin-left: auto;
 	margin-right: auto;
 	text-align: center;
 }
 
-#head a:nth-child(3) button {
-	background-color: hsl(260, 100%, 36%);
-	color: hsl(260, 100%, 100%);
+.head img {
+	width: 136px;
+	height: 136px;
+	margin-top: 78px;
+	margin-bottom: 21px;
 }
 
-#head a:nth-child(3) button:focus {
-	border-color: hsl(260, 100%, 49%);
+.head h1 {
+	margin-bottom: 21px;
 }
 
-#head a:nth-child(4) button {
-	background: hsl(0, 0%, 36%);
-	color: hsl(0, 0%, 100%);
+.idea {
+	max-width: 703px;
+	margin-top: 210px;
+	margin-left: auto;
+	margin-right: auto;
 }
 
-#head a:nth-child(4) button:focus {
-	border-color: hsl(0, 0%, 49%);
-}
-
-.feature h3 {
-	font-weight: 700;
-	letter-spacing: 5px;
-}
-
-.feature p {
-	font-weight: 200;
-}
-
-.example-container {
+.feature {
 	justify-content: space-between;
-}
-
-.example-container, .code {
-	margin: 0;
-}
-
-.code pre {
 	width: 100%;
+	margin-top: 210px;
 }
 
-#example {
-	flex-direction: column;
+.feature-info {
+	max-width: 528px;
+}
+
+.feature-info-title {
+	margin-bottom: 21px;
+}
+
+.feature-media {
+	max-width: 528px;
+}
+
+.feature-media-code {
+	background: hsl(215, 55%, 10%);
+}
+
+.feature-media-code code {
+	background: transparent;
+}
+
+.feature-media-image {
+	max-width: 100%;
+	max-height: 210px;
+	width: auto;
+	height: auto;
+	margin-bottom: 21px;
+	border-radius: 3px;
+}
+
+.jump {
 	justify-content: center;
-	align-items: center;
-	background-color: hsl(0, 0%, 23%);
+	max-width: 703px;
+	margin-top: 210px;
+	margin-bottom: 210px;
 }
 
-#example input {
-	color: hsl(0, 0%, 100%);
-	background-color: hsl(0, 0%, 36%);
-}
-
-@media screen and (max-width: 768px) {
-	#head h1 {
-		font-size: 37.009px;
-	}
+.jump-title {
+	width: 100%;
+	margin-bottom: 21px;
+	text-align: center;
 }

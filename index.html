@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<meta name="description" content="The minimal & fast UI library.">
+		<meta name="description" content="The minimal & fast library for functional user interfaces.">
 		<meta name="author" content="Kabir Shah">
 
 		<title>Moon</title>
@@ -26,56 +26,124 @@
 	</head>
 
 	<body>
-		<div class="container x-9">
+		<div class="container">
 			<div class="nav">
 				<div class="nav-home">
-					<h2 class="nav-home"><a href="./">Moon</a></h2>
+					<h2 class="nav-home"><a href="/">Moon</a></h2>
 				</div>
 
 				<div class="nav-items">
-					<p>
-						<a href="./doc/guide.html" class="s-1">Guide</a>
-						<a href="./doc/about.html" class="s-1">About</a>
-						<a href="./doc/examples.html" class="s-1">Examples</a>
-						<a href="https://github.com/kbrsh/moon" class="s-1">GitHub</a>
-					</p>
+					<a href="/doc/guide.html">Guide</a>
+					<a href="/play">Playground</a>
+					<a href="/doc/examples.html">Examples</a>
+					<a href="https://github.com/kbrsh/moon">GitHub</a>
 				</div>
 			</div>
 
-			<section id="head" class="x-8 s-3">
-				<img src="./img/logo.png" alt="Moon Logo" class="x-6"/>
-				<h1>The minimal & fast user interface library</h1>
-				<a href="./doc/guide.html"><button class="x-6">GET STARTED</button></a>
-				<a href="./doc/about.html"><button class="x-6">ABOUT</button></a>
-			</section>
+			<div class="head">
+				<img src="./img/logo.png" alt="Moon Logo"/>
+				<h1>The minimal & fast library for functional user interfaces</h1>
+				<a class="linkPlain" href="/doc/guide.html"><button class="buttonPrimary">GET STARTED</button></a>
+				<a class="linkPlain" href="/play"><button class="buttonSecondary">PLAYGROUND</button></a>
+			</div>
 
-			<section id="feature-minimal" class="feature s-3">
-				<h3>MINIMAL</h3>
-				<p>Moon instances are composed of data and a view to display the data. Actions performed through the view update the data along with the view. The view is defined with the Moon view language — a minimalistic template language allowing powerful interpolation and logic. The data is defined with a JavaScript object containing values of any type.</p>
-				<div class="example-container">
-					<div class="code x-8">
-						<pre><code lang="mvl"><span class="red">&lt;p</span><span class="red">&gt;</span>{text}<span class="red">&lt;/p</span><span class="red">&gt;</span>
-<span class="red">&lt;input</span> <span class="orange">type</span>=<span class="green">&quot;text&quot;</span> <span class="orange">@bind</span>={text} <span class="red">/&gt;</span></code></pre>
-						<pre><code lang="js"><span class="blue">Moon</span>({
-	root: <span class="green">&quot;#root&quot;</span>,
-	text: <span class="green">&quot;Hello Moon!&quot;</span>
-});</code></pre>
-					</div>
-					<div id="example"></div>
+			<div class="idea">
+				<p>Applications today are complex, built on top of frameworks that create arbitrary abstractions fundamentally based on mutability and imperative code.</p>
+				<p>They introduce concepts like reactivity or local state or algebraic effects, all in attempt to represent views as a function of state.</p>
+				<p>In reality, applications are much more sophisticated and require third-party libraries for any effects other than updating a view.</p>
+				<p>Moon is a novel approach to web applications based on pure functions. An application is a function that uses <b>drivers</b>, programs that provide an interface to the real world.</p>
+				<p>These functions take input from drivers and return output to drivers. Drivers can be responsible for things like views, state, audio, HTTP requests, routing, and timing events.</p>
+				<p>Applications run on the Moon, and drivers update the Earth.</p>
+			</div>
+
+			<div class="feature">
+				<div class="feature-info">
+					<h2 class="feature-info-title">Functional & Declarative</h2>
+					<p>In Moon, web applications are treated as functions that take driver inputs and return driver outputs. Drivers handle the interface between the output of your application and the browser so that it can stay pure and declarative.</p>
+					<p>On the contrary, other popular frameworks claim to be "declarative" but only treat the view as a function of state. However, they treat other ideas such as local component state or effects as afterthoughts, requiring imperative and impure code.</p>
+					<p><a href="/play#const%20increment%20%3D%20(%7B%20data%2C%20view%20%7D)%20%3D%3E%20%7B%0A%20%20%20%20const%20dataNew%20%3D%20data%20%2B%201%3B%0A%0A%20%20%20%20return%20%7B%0A%20%20%20%20%20%20%20%20data%3A%20dataNew%2C%0A%20%20%20%20%20%20%20%20view%3A%20(%3CView%20data%3D%7BdataNew%7D%2F%3E)%0A%20%20%20%20%7D%3B%0A%7D%3B%0A%0Aconst%20View%20%3D%20(%7B%20data%20%7D)%20%3D%3E%20(%0A%20%20%20%20%3Cbutton%20%40click%3D%7Bincrement%7D%3E%7Bdata%7D%3C%2Fbutton%3E%0A)%3B%0A%0AMoon.use(%7B%0A%20%20%20%20data%3A%20Moon.data.driver(0)%2C%0A%20%20%20%20view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run((%7B%20data%2C%20view%20%7D)%20%3D%3E%20(%7B%0A%20%20%20%20view%3A%20(%3CView%20data%3D%7Bdata%7D%2F%3E)%0A%7D))%3B">Try it!</a></p>
 				</div>
-			</section>
+				<div class="feature-media">
+					<pre class="feature-media-code"><code lang="js"><span class="purple">const </span><span class="orange">increment</span> = ({ data, view }) =&gt; {
+    <span class="purple">const </span><span class="orange">dataNew</span> = data + <span class="orange">1</span>;
 
-			<section id="feature-fast" class="feature s-3">
-				<h3>FAST</h3>
-				<p>Moon instances are compiled from the Moon view language to lower level JavaScript DOM operations. Moon generates code to first create and initialize your application. At compile-time, Moon can identify the dynamic parts of your application and generate code to update them when needed at runtime.</p>
-				<pre><code lang="mvl"><span class="red">&lt;p</span><span class="red">&gt;</span>Static content.<span class="red">&lt;/p</span><span class="red">&gt;</span>
-<span class="red">&lt;p</span><span class="red">&gt;</span>Dynamic content: {dynamic}<span class="red">&lt;/p</span><span class="red">&gt;</span></code></pre>
-				<pre><code lang="js"><span class="purple">function</span> <span class="blue">update</span>() {
-	m.<span class="blue">stc</span>(m6, instance.dynamic);
-}</code></pre>
-			</section>
+    <span class="purple">return</span> {
+        data: dataNew,
+        view: (<span class="red">&lt;View</span> <span class="orange">data</span>={dataNew}<span class="red">/&gt;</span>)
+    };
+};
+
+<span class="purple">const </span><span class="orange">View</span> = ({ data }) =&gt; (
+    <span class="red">&lt;button</span> <span class="orange">@click</span>={increment}<span class="red">&gt;</span>{data}<span class="red">&lt;/button</span><span class="red">&gt;</span>
+);
+
+Moon.<span class="blue">use</span>({
+    data: Moon.data.<span class="blue">driver</span>(<span class="orange">0</span>),
+    view: Moon.view.<span class="blue">driver</span>(<span class="green">&quot;#root&quot;</span>)
+});
+
+Moon.<span class="blue">run</span>(({ data, view }) =&gt; ({
+    view: (<span class="red">&lt;View</span> <span class="orange">data</span>={data}<span class="red">/&gt;</span>)
+}));
+</code></pre>
+				</div>
+			</div>
+
+			<div class="feature">
+				<div class="feature-info">
+					<h2 class="feature-info-title">Tiny & Fast</h2>
+					<p>Modern web frameworks often add a lot of weight to JavaScript bundles, resulting in slower web applications and load times. This effect is especially visible when using a slow internet connection.</p>
+					<p>Since Moon is so simple at its core, where it creates an abstraction to allow drivers to handle input and output, it <b>only weighs 1kb</b> minified and gzipped. On top of that, it is specifically optimized for JavaScript engines to perform fast virtual DOM diffing and DOM operations.</p>
+				</div>
+				<div class="feature-media">
+					<img class="feature-media-image" src="/img/size.png" alt="Sizes of popular frameworks relative to Moon."/>
+					<a class="linkPlain" href="https://github.com/krausest/js-framework-benchmark"><img class="feature-media-image" src="/img/speed.png" alt="Performance of popular frameworks relative to Moon."/></a>
+				</div>
+			</div>
+
+			<div class="feature">
+				<div class="feature-info">
+					<h2 class="feature-info-title">Intuitive & Consistent</h2>
+					<p>Moon has a very minimal API surface, used solely for initializing a runtime that allows for functional applications inside the imperative browser environment. The view language was designed to mimic HTML, a language familiar to most web developers.</p>
+					<p>Other view languages often have variadic arguments that can have any type for creating view nodes. They create abstractions like directives or special template syntax for control flow.</p>
+					<p>Moon's view language is consistent, where every tag is a function call. Components are just functions that return more nodes, and they are compiled to function calls like every other node. Control flow is implemented with components as well. In essence, it is JavaScript with syntactic sugar for function calls.</p>
+				</div>
+				<div class="feature-media">
+					<pre class="feature-media-code"><code lang="js"><span class="gray">// Moon View</span>
+<span class="purple">const </span><span class="orange">posts</span> = (
+    <span class="red">&lt;<span class="purple">for</span></span>={post} <span class="orange">of</span>={posts}<span class="red">&gt;</span>
+        <span class="red">&lt;Box</span> <span class="orange">id</span>=<span class="green">&quot;my-box&quot;</span><span class="red">&gt;</span>{post}<span class="red">&lt;/Box</span><span class="red">&gt;</span>
+    <span class="red">&lt;/<span class="purple">for</span></span><span class="red">&gt;</span>
+);
+
+<span class="gray">// Compiled to JS</span>
+<span class="purple">var</span> m0, m1, m2, m3, m4;
+<span class="purple">const </span><span class="orange">posts</span> = (<span class="purple">function</span>() {
+  <span class="purple">if</span> (m3 === <span class="orange">undefined</span>) {
+    m3 = [];
+    m4 = {};
+  }
+  m0 = [];
+  m1 = <span class="purple">function</span>(post) {
+    <span class="purple">return</span> <span class="blue">Box</span>({
+      id: <span class="green">&quot;my-box&quot;</span>,
+      children: [Moon.view.<span class="blue">m</span>(<span class="green">&quot;text&quot;</span>, { <span class="green">&quot;&quot;</span>: post }, m3)]
+    });
+  };
+  <span class="purple">for</span> (m2 = <span class="orange">0</span>; m2 &lt; posts.length; m2++) {
+    m0.<span class="blue">push</span>(<span class="blue">m1</span>(posts[m2], m2));
+  }
+  <span class="purple">return</span> Moon.view.<span class="blue">m</span>(<span class="green">&quot;span&quot;</span>, m4, m0);
+})();
+</code></pre>
+				</div>
+			</div>
 		</div>
-		<script src="./js/lib/moon.min.js"></script>
-		<script src="./js/index.js"></script>
+
+		<div class="jump">
+			<h2 class="jump-title">Jump into the guide to get started.</h2>
+			<a class="linkPlain" href="/doc/guide.html"><button class="buttonPrimary">GET STARTED</button></a>
+			<a class="linkPlain" href="/play"><button class="buttonSecondary">PLAYGROUND</button></a>
+		</div>
 	</body>
 </html>

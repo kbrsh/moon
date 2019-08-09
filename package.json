@@ -23,6 +23,6 @@
   "homepage": "https://github.com/kbrsh/moon#readme",
   "devDependencies": {
     "handlebars": "^4.0.11",
-    "sold": "^2.1.0"
+    "sold": "^2.3.2"
   }
 }

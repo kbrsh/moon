@@ -1,23 +1,17 @@
 const Sold = require("sold");
 const Handlebars = require("handlebars");
 
-const CODE_RE = /<code class="lang-(\w+)">([\w\d\s.,:#@$()\[\]{}!?+*\-/="'`&;]+)<\/code>/g;
+const CODE_RE = /<code class="lang-(\w+)">([\w\d\s.,:#@$()\[\]\\{}!?+*\-/="'`&;]+)<\/code>/g;
 const STR_RE = /((?:&quot;)|'|`)((?:.|\n)*?)\1/g;
-const SPECIAL_RE = /\b(new|var|let|if|do|function|while|switch|for|foreach|in|continue|break|return)\b/g;
-const GLOBAL_VARIABLE_RE = /\b(document|window|Array|String|undefined|true|false|Object|this|Boolean|Function|Number|Math|\d+(?:\.\d+)?)\b/g;
+const SPECIAL_RE = /\b(new|var|let|if|do|function|while|switch|for|foreach|in|continue|break|return|import|from|export|default)\b/g;
+const GLOBAL_VARIABLE_RE = /\b(document|window|Array|String|undefined|null|true|false|Object|this|Boolean|Function|Number|Math|\d+(?:\.\d+)?)\b/g;
 const CONST_RE = /\b(const )([\w\d]+)/g;
 const METHODS_RE = /\b([\w\d]+)\(/g;
-const MULTILINE_COMMENT_RE  = /(\/\*.*\*\/)/g;
+const MULTILINE_COMMENT_RE  = /(\/\*(.|\n)*\*\/)/g;
 const COMMENT_RE = /(\/\/.*)/g;
 const HTML_COMMENT_RE = /(\&lt;\!\-\-(?:(?:.|\n)*)\-\-\&gt;)/g;
 const HTML_ATTRIBUTE_RE = /(\S+)=["']?((?:.(?!["']?\s+(?:\S+)=|[>"']))+.)["']?/g;
-const HTML_TAG_RE = /(&lt;\/?[\w\d-]*?)(\s(?:.|\n)*?)?(\/?&gt;)/g;
-const escapeRE = /&(?:amp|gt|lt);/g;
-const escapeMap = {
-	"&amp;": '&',
-	"&gt;": '>',
-	"&lt;": '<'
-};
+const HTML_TAG_RE = /(&lt;\/?[\w\d-]*?)((?:\s|=)(?:.|\n)*?)?(\/?&gt;)/g;
 
 Handlebars.registerHelper("ifeq", function(a, b, options) {
 	if (a === b) {
