@@ -133,46 +133,43 @@ Moon.<span class="blue">run</span>(Root);
 <span class="gray">// Compiled to JS</span>
 <span class="purple">var</span> m0, m1, m2, m3, m4, m5, m6;
 
-<span class="purple">var</span> paragraph = (<span class="purple">function</span>() {
+<span class="purple">const </span><span class="orange">paragraph</span> = (<span class="purple">function</span>() {
     <span class="purple">if</span> (m0 === <span class="orange">undefined</span>) {
         <span class="gray">// Static nodes are defined here.</span>
-        m0 = Moon.view.<span class="blue">m</span>(<span class="orange">0</span>, <span class="green">&quot;p&quot;</span>, { className: <span class="green">&quot;blue&quot;</span> }, [
-            Moon.view.<span class="blue">m</span>(<span class="orange">1</span>, <span class="green">&quot;text&quot;</span>, { <span class="green">&quot;&quot;</span>: <span class="green">&quot;Hello World!&quot;</span> }, [])
+        m0 = Moon.view.<span class="blue">m</span>(<span class="green">&quot;p&quot;</span>, { class: <span class="green">&quot;blue&quot;</span> }, [
+            Moon.view.<span class="blue">m</span>(<span class="green">&quot;text&quot;</span>, { <span class="green">&quot;&quot;</span>: <span class="green">&quot;Hello World!&quot;</span> }, [])
         ]);
     }
-
     <span class="purple">return</span> m0;
 })();
 
-<span class="purple">var</span> box = (<span class="purple">function</span>() {
+<span class="purple">const </span><span class="orange">box</span> = (<span class="purple">function</span>() {
     <span class="purple">if</span> (m1 === <span class="orange">undefined</span>) {
-        <span class="gray">// <span class="green">`<span class="red">&lt;Box</span><span class="red">/&gt;</span>`</span> is a <span class="purple">function</span> call.</span>
+        <span class="gray">// <span class="red">&lt;Box</span><span class="red">/&gt;</span> gets compiled to a <span class="purple">function</span> call.</span>
         m1 = <span class="blue">Box</span>({
             type: <span class="green">&quot;alert&quot;</span>,
-            children: [Moon.view.<span class="blue">m</span>(<span class="orange">1</span>, <span class="green">&quot;text&quot;</span>, { <span class="green">&quot;&quot;</span>: <span class="green">&quot;Something went wrong!&quot;</span> }, [])]
+            children: [Moon.view.<span class="blue">m</span>(<span class="green">&quot;text&quot;</span>, { <span class="green">&quot;&quot;</span>: <span class="green">&quot;Something went wrong!&quot;</span> }, [])]
         });
     }
-
     <span class="purple">return</span> m1;
 })();
 
-<span class="purple">var</span> posts = (<span class="purple">function</span>() {
+<span class="purple">const </span><span class="orange">posts</span> = (<span class="purple">function</span>() {
     <span class="purple">if</span> (m5 === <span class="orange">undefined</span>) {
         m5 = [];
         m6 = {};
     }
-
     m2 = [];
     m3 = <span class="purple">function</span>(post) {
-        <span class="purple">return</span> Moon.view.<span class="blue">m</span>(<span class="orange">1</span>, <span class="green">&quot;text&quot;</span>, { <span class="green">&quot;&quot;</span>: post }, m5);
+        <span class="purple">return</span> Moon.view.<span class="blue">m</span>(<span class="green">&quot;text&quot;</span>, { <span class="green">&quot;&quot;</span>: post }, m5);
     };
 
-    <span class="gray">// <span class="green">`<span class="red">&lt;<span class="purple">for</span></span><span class="red">&gt;</span>`</span> gets compiled to a <span class="green">`<span class="purple">for</span>`</span> loop <span class="purple">for</span> efficiency.</span>
+    <span class="gray">// <span class="red">&lt;<span class="purple">for</span></span><span class="red">&gt;</span> gets compiled to a <span class="purple">for</span> loop <span class="purple">for</span> efficiency.</span>
     <span class="purple">for</span> (m4 = <span class="orange">0</span>; m4 &lt; posts.length; m4++) {
         m2.<span class="blue">push</span>(<span class="blue">m3</span>(posts[m4], m4));
     }
 
-    <span class="purple">return</span> Moon.view.<span class="blue">m</span>(<span class="orange">0</span>, <span class="green">&quot;span&quot;</span>, m6, m2);
+    <span class="purple">return</span> Moon.view.<span class="blue">m</span>(<span class="green">&quot;span&quot;</span>, m6, m2);
 })();
 </code></pre>
 <h2 id="conclusion">Conclusion</h2>

@@ -110,46 +110,43 @@ const posts = (<for={post} of={posts}>{post}</for>);
 // Compiled to JS
 var m0, m1, m2, m3, m4, m5, m6;
 
-var paragraph = (function() {
+const paragraph = (function() {
 	if (m0 === undefined) {
 		// Static nodes are defined here.
-		m0 = Moon.view.m(0, "p", { className: "blue" }, [
-			Moon.view.m(1, "text", { "": "Hello World!" }, [])
+		m0 = Moon.view.m("p", { class: "blue" }, [
+			Moon.view.m("text", { "": "Hello World!" }, [])
 		]);
 	}
-
 	return m0;
 })();
 
-var box = (function() {
+const box = (function() {
 	if (m1 === undefined) {
-		// `<Box/>` is a function call.
+		// <Box/> gets compiled to a function call.
 		m1 = Box({
 			type: "alert",
-			children: [Moon.view.m(1, "text", { "": "Something went wrong!" }, [])]
+			children: [Moon.view.m("text", { "": "Something went wrong!" }, [])]
 		});
 	}
-
 	return m1;
 })();
 
-var posts = (function() {
+const posts = (function() {
 	if (m5 === undefined) {
 		m5 = [];
 		m6 = {};
 	}
-
 	m2 = [];
 	m3 = function(post) {
-		return Moon.view.m(1, "text", { "": post }, m5);
+		return Moon.view.m("text", { "": post }, m5);
 	};
 
-	// `<for>` gets compiled to a `for` loop for efficiency.
+	// <for> gets compiled to a for loop for efficiency.
 	for (m4 = 0; m4 < posts.length; m4++) {
 		m2.push(m3(posts[m4], m4));
 	}
 
-	return Moon.view.m(0, "span", m6, m2);
+	return Moon.view.m("span", m6, m2);
 })();
 ```
 
