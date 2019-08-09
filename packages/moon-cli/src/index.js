@@ -14,10 +14,22 @@ const archive = {
 	}
 };
 
-const MoonNameRE = /{# MoonName #}/g;
-
 function log(type, message) {
 	console.log(`\x1b[34m${type}\x1b[0m ${message}`);
+}
+
+function replace(content, sub, subNewString) {
+	const index = content.indexOf(sub);
+
+	if (index === -1) {
+		return content;
+	} else {
+		const left = content.slice(0, index);
+		const right = replace(content.slice(index + sub.length), sub, subNewString);
+		const subNew = Buffer.from(subNewString);
+
+		return Buffer.concat([left, subNew, right], left.length + subNew.length + right.length);
+	}
 }
 
 function download(res) {
@@ -75,8 +87,7 @@ function create(currentPath, targetPath) {
 		if (fs.statSync(nextPath).isDirectory()) {
 			create(nextPath, targetPath);
 		} else {
-			fs.writeFileSync(nextPath, fs.readFileSync(nextPath).toString().replace(MoonNameRE, name));
-
+			fs.writeFileSync(nextPath, replace(fs.readFileSync(nextPath), "{# MoonName #}", name));
 			log("create", path.relative(targetPath, nextPath));
 		}
 	}

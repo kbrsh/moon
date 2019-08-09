@@ -26,10 +26,22 @@
 			"User-Agent": "Node.js"
 		}
 	};
-	var MoonNameRE = /{# MoonName #}/g;
 
 	function log(type, message) {
 		console.log("\x1B[34m" + type + "\x1B[0m " + message);
+	}
+
+	function replace(content, sub, subNewString) {
+		var index = content.indexOf(sub);
+
+		if (index === -1) {
+			return content;
+		} else {
+			var left = content.slice(0, index);
+			var right = replace(content.slice(index + sub.length), sub, subNewString);
+			var subNew = Buffer.from(subNewString);
+			return Buffer.concat([left, subNew, right], left.length + subNew.length + right.length);
+		}
 	}
 
 	function download(res) {
@@ -77,7 +89,7 @@
 			if (fs.statSync(nextPath).isDirectory()) {
 				create(nextPath, targetPath);
 			} else {
-				fs.writeFileSync(nextPath, fs.readFileSync(nextPath).toString().replace(MoonNameRE, name));
+				fs.writeFileSync(nextPath, replace(fs.readFileSync(nextPath), "{# MoonName #}", name));
 				log("create", path.relative(targetPath, nextPath));
 			}
 		}
