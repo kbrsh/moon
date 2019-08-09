@@ -109,7 +109,15 @@ Moon.<span class="blue">run</span>(({ data, view }) =&gt; ({
 					<p>Moon's view language is consistent, where every tag is a function call. Components are just functions that return more nodes, and they are compiled to function calls like every other node. Control flow is implemented with components as well. In essence, it is JavaScript with syntactic sugar for function calls.</p>
 				</div>
 				<div class="feature-media">
-					<pre class="feature-media-code"><code lang="js"><span class="purple">var</span> m0, m1, m2, m3, m4;
+					<pre class="feature-media-code"><code lang="js"><span class="gray">// Moon View</span>
+<span class="purple">const </span><span class="orange">posts</span> = (
+    <span class="red">&lt;<span class="purple">for</span></span>={post} <span class="orange">of</span>={posts}<span class="red">&gt;</span>
+        <span class="red">&lt;Box</span> <span class="orange">id</span>=<span class="green">&quot;my-box&quot;</span><span class="red">&gt;</span>{post}<span class="red">&lt;/Box</span><span class="red">&gt;</span>
+    <span class="red">&lt;/<span class="purple">for</span></span><span class="red">&gt;</span>
+);
+
+<span class="gray">// Compiled to JS</span>
+<span class="purple">var</span> m0, m1, m2, m3, m4;
 <span class="purple">const </span><span class="orange">posts</span> = (<span class="purple">function</span>() {
     <span class="purple">if</span> (m3 === <span class="orange">undefined</span>) {
         m3 = [];
