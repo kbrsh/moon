@@ -4,7 +4,7 @@
 	</a>
 </p>
 <h1 align="center">Moon</h1>
-<p align="center">The minimal & fast UI library.</p>
+<p align="center">The minimal & fast library for functional user interfaces</p>
 <p align="center">
 	<a href="https://travis-ci.org/kbrsh/moon"><img src="https://travis-ci.org/kbrsh/moon.svg?branch=master" alt="Build Status"></a>
 	<a href="https://codecov.io/gh/kbrsh/moon"><img src="https://codecov.io/gh/kbrsh/moon/branch/master/graph/badge.svg" alt="Code Coverage"></a>
@@ -14,14 +14,14 @@
 
 ### Summary
 
-- :tada: Small file size (4kb minified + gzip)
-- :zap: Blazing fast & asynchronous rendering
+- :tada: Small file size (1kb minified + gzip)
+- :zap: Blazing fast view rendering
+- :hammer: Purely functional driver-based design
 - :rocket: Intuitive & consistent API
-- :hammer: Functional & declarative view model
 
 ### About
 
-Moon is a JavaScript library with a minimal API and fast view compiler. It splits up a web application into two parts: the view and the data. The view is responsible for displaying the data to the user, and can be thought of as a function of data. Moon compiles the view into a JavaScript program running on a 4kb runtime capable of updating the view as data changes. The data is a simple object with access to the Moon API for updating itself through events.
+See [the about page](https://kbrsh.github.io/moon/doc/about.html) for more information on why Moon was created.
 
 ### Usage
 
