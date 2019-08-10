@@ -1008,14 +1008,7 @@
 		} // Find the type.
 
 
-		if (name[0] === name[0].toUpperCase()) {
-			return {
-				prelude: prelude,
-				node: name + "({" + data + dataSeparator + "children:" + children + "})",
-				isStatic: staticData && staticChildren,
-				variable: variable
-			};
-		} else {
+		if (name === name.toLowerCase()) {
 			// Add braces around the data.
 			data = "{" + data + "}";
 
@@ -1035,6 +1028,13 @@
 			return {
 				prelude: prelude,
 				node: "Moon.view.m(\"" + name + "\"," + data + "," + children + ")",
+				isStatic: staticData && staticChildren,
+				variable: variable
+			};
+		} else {
+			return {
+				prelude: prelude,
+				node: name + "({" + data + dataSeparator + "children:" + children + "})",
 				isStatic: staticData && staticChildren,
 				variable: variable
 			};

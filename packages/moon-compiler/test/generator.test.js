@@ -67,6 +67,13 @@ test("generate static components", () => {
 	);
 });
 
+test("generate static components with dot and first character lowercase", () => {
+	assertGenerate(
+		"(<div><test.Component/></div>)",
+		"var m0;((function(){if(m0===undefined){m0=Moon.view.m(\"div\",{},[test.Component({children:[]})]);}return m0;})())"
+	);
+});
+
 test("generate static components with data", () => {
 	assertGenerate(
 		"(<div><Component foo='bar' bar='baz'/></div>)",

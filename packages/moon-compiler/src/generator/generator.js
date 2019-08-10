@@ -124,14 +124,7 @@ export default function generate(element, parent, index, variable, staticParts, 
 	}
 
 	// Find the type.
-	if (name[0] === name[0].toUpperCase()) {
-		return {
-			prelude,
-			node: `${name}({${data}${dataSeparator}children:${children}})`,
-			isStatic: staticData && staticChildren,
-			variable
-		};
-	} else {
+	if (name === name.toLowerCase()) {
 		// Add braces around the data.
 		data = `{${data}}`;
 
@@ -150,6 +143,13 @@ export default function generate(element, parent, index, variable, staticParts, 
 		return {
 			prelude,
 			node: `Moon.view.m("${name}",${data},${children})`,
+			isStatic: staticData && staticChildren,
+			variable
+		};
+	} else {
+		return {
+			prelude,
+			node: `${name}({${data}${dataSeparator}children:${children}})`,
 			isStatic: staticData && staticChildren,
 			variable
 		};
