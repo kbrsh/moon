@@ -67,22 +67,29 @@ function viewCreate(node) {
 
 				elementMoonEvent[key] = value;
 				element.addEventListener(key.slice(1), elementMoonEvent);
-			} else if (
-				key === "ariaset" ||
-				key === "dataset" ||
-				key === "style"
-			) {
-				// Set aria-*, data-*, and style attributes.
-				updateDataSet(element, key, value);
-			} else if (key === "class") {
-				// Set a className property.
-				element.className = value;
-			} else if (key === "for") {
-				// Set an htmlFor property.
-				element.htmlFor = value;
 			} else {
-				// Set a DOM property.
-				element[key] = value;
+				switch (key) {
+					case "ariaset":
+					case "dataset":
+					case "style":
+						// Set aria-*, data-*, and style attributes.
+						updateDataSet(element, key, value);
+
+						break;
+					case "class":
+						// Set a className property.
+						element.className = value;
+
+						break;
+					case "for":
+						// Set an htmlFor property.
+						element.htmlFor = value;
+
+						break;
+					default:
+						// Set a DOM property.
+						element[key] = value;
+				}
 			}
 		}
 	}
@@ -158,28 +165,37 @@ function viewPatch(nodeOld, nodeNew) {
 								nodeOldElementMoonEvent[keyNew] = valueNew;
 								nodeOldElement.addEventListener(keyNew.slice(1), nodeOldElementMoonEvent);
 							}
-						} else if (
-							keyNew === "ariaset" ||
-							keyNew === "dataset" ||
-							keyNew === "style"
-						) {
-							// If it is a set attribute, update all values in the set.
-							updateDataSet(nodeOldElement, keyNew, valueNew);
-
-							if (valueOld !== undefined) {
-								// If there was an old set, remove all old set attributes
-								// while excluding any new ones that still exist.
-								removeDataSet(nodeOldElement, keyNew, valueOld, valueNew);
-							}
-						} else if (keyNew === "class") {
-							// Update a className property.
-							nodeOldElement.className = valueNew;
-						} else if (keyNew === "for") {
-							// Update an htmlFor property.
-							nodeOldElement.htmlFor = valueNew;
 						} else {
-							// Update a DOM property.
-							nodeOldElement[keyNew] = valueNew;
+							switch (keyNew) {
+								case "ariaset":
+								case "dataset":
+								case "style":
+									// If it is a set attribute, update all values in
+									// the set.
+									updateDataSet(nodeOldElement, keyNew, valueNew);
+
+									if (valueOld !== undefined) {
+										// If there was an old set, remove all old set
+										// attributes while excluding any new ones that
+										// still exist.
+										removeDataSet(nodeOldElement, keyNew, valueOld, valueNew);
+									}
+
+									break;
+								case "class":
+									// Update a className property.
+									nodeOldElement.className = valueNew;
+
+									break;
+								case "for":
+									// Update an htmlFor property.
+									nodeOldElement.htmlFor = valueNew;
+
+									break;
+								default:
+									// Update a DOM property.
+									nodeOldElement[keyNew] = valueNew;
+							}
 						}
 					}
 				}
@@ -194,23 +210,30 @@ function viewPatch(nodeOld, nodeNew) {
 
 							delete nodeOldElementMoonEvent[keyOld];
 							nodeOldElement.removeEventListener(keyOld.slice(1), nodeOldElementMoonEvent);
-						} else if (
-							keyOld === "ariaset" ||
-							keyOld === "dataset" ||
-							keyOld === "style"
-						) {
-							// If it is a set attribute, remove all old values from the
-							// set and exclude nothing.
-							removeDataSet(nodeOldElement, keyOld, nodeOldNodeData[keyOld], {});
-						} else if (keyOld === "class") {
-							// Remove a className property.
-							nodeOldElement.className = "";
-						} else if (keyOld === "for") {
-							// Remove an htmlFor property.
-							nodeOldElement.htmlFor = "";
 						} else {
-							// Remove a DOM property.
-							removeDataProperty(nodeOldElement, nodeOldNodeName, keyOld);
+							switch (keyOld) {
+								case "ariaset":
+								case "dataset":
+								case "style":
+									// If it is a set attribute, remove all old values
+									// from the set and exclude nothing.
+									removeDataSet(nodeOldElement, keyOld, nodeOldNodeData[keyOld], {});
+
+									break;
+								case "class":
+									// Remove a className property.
+									nodeOldElement.className = "";
+
+									break;
+								case "for":
+									// Remove an htmlFor property.
+									nodeOldElement.htmlFor = "";
+
+									break;
+								default:
+									// Remove a DOM property.
+									removeDataProperty(nodeOldElement, nodeOldNodeName, keyOld);
+							}
 						}
 					}
 				}
