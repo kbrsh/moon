@@ -544,9 +544,42 @@
 		m: m
 	};
 
+	/**
+	 * Time driver
+	 *
+	 * The time driver provides time information as input. For output, it takes an
+	 * object mapping timeouts to functions, and runs those functions after those
+	 * timeouts. This can be used to implement intervals through a recursive
+	 * timeout function.
+	 */
+
+	var driver$2 = {
+		input: function input() {
+			// Return the time as input.
+			return Date.now();
+		},
+		output: function output(timeouts) {
+			var _loop = function _loop(delay) {
+				setTimeout(function () {
+					run(timeouts[delay]);
+				}, delay);
+			};
+
+			// Set the given timeouts.
+			for (var delay in timeouts) {
+				_loop(delay);
+			}
+		}
+	};
+
+	var time = {
+		driver: driver$2
+	};
+
 	var index = {
 		data: data,
 		run: run,
+		time: time,
 		use: use,
 		view: view
 	};
