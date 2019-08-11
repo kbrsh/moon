@@ -1,3 +1,5 @@
+let data;
+
 /**
  * Data driver
  *
@@ -7,15 +9,13 @@
  * should be fast, pure, functions that are cheap to call and easy to optimize
  * through caching and memoization.
  */
-export default function driver(data) {
-	return {
-		input() {
-			// Return the stored data as input.
-			return data;
-		},
-		output(dataNew) {
-			// Update the stored data when it is an output.
-			data = dataNew;
-		}
-	};
-}
+export default {
+	input() {
+		// Return the stored data as input.
+		return data;
+	},
+	output(dataNew) {
+		// Update the stored data when it is an output.
+		data = dataNew;
+	}
+};

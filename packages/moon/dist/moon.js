@@ -13,6 +13,7 @@
 }(this, function() {
 	"use strict";
 
+	var data;
 	/**
 	 * Data driver
 	 *
@@ -22,20 +23,19 @@
 	 * should be fast, pure, functions that are cheap to call and easy to optimize
 	 * through caching and memoization.
 	 */
-	function driver(data) {
-		return {
-			input: function input() {
-				// Return the stored data as input.
-				return data;
-			},
-			output: function output(dataNew) {
-				// Update the stored data when it is an output.
-				data = dataNew;
-			}
-		};
-	}
 
-	var data = {
+	var driver = {
+		input: function input() {
+			// Return the stored data as input.
+			return data;
+		},
+		output: function output(dataNew) {
+			// Update the stored data when it is an output.
+			data = dataNew;
+		}
+	};
+
+	var data$1 = {
 		driver: driver
 	};
 
@@ -640,7 +640,7 @@
 	};
 
 	var index = {
-		data: data,
+		data: data$1,
 		run: run,
 		time: time,
 		use: use,

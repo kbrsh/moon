@@ -66,7 +66,7 @@ function Root() {
 }
 
 Moon.use({
-	list: Moon.data.driver(),
+	list: Moon.data.driver,
 	view: Moon.view.driver(root)
 });
 
@@ -246,7 +246,7 @@ for (let i of Array.from({ length: 100 })) {
 	const before = shuffle(Array.from({ length: Math.floor(Math.random() * 100) }).map(x => Math.floor(Math.random() * 25)));
 	const after = shuffle(Array.from({ length: Math.floor(Math.random() * 100) }).map(x => Math.floor(Math.random() * 25)));
 
-	//test(`fuzz [${before.toString()}] -> [${after.toString()}]`, () => {
-		//assertExecute(before, after);
-	//});
+	test(`fuzz [${before.toString()}] -> [${after.toString()}]`, () => {
+		assertExecute(before, after);
+	});
 }
