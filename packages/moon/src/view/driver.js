@@ -6,7 +6,7 @@ import { removeDataProperty, removeDataSet, updateDataSet } from "moon/src/view/
 /**
  * Current view event data
  */
-let viewEvent;
+let viewEvent = null;
 
 /**
  * Moon event
@@ -74,6 +74,14 @@ function viewCreate(node) {
 					case "style":
 						// Set aria-*, data-*, and style attributes.
 						updateDataSet(element, key, value);
+
+						break;
+					case "focus":
+						// Set focus if needed. Blur isn't set because it's the
+						// default.
+						if (value) {
+							element.focus();
+						}
 
 						break;
 					case "class":
@@ -182,6 +190,15 @@ function viewPatch(nodeOld, nodeNew) {
 									}
 
 									break;
+								case "focus":
+									// Update focus/blur.
+									if (valueNew) {
+										nodeOldElement.focus();
+									} else {
+										nodeOldElement.blur();
+									}
+
+									break;
 								case "class":
 									// Update a className property.
 									nodeOldElement.className = valueNew;
@@ -218,6 +235,13 @@ function viewPatch(nodeOld, nodeNew) {
 									// If it is a set attribute, remove all old values
 									// from the set and exclude nothing.
 									removeDataSet(nodeOldElement, keyOld, nodeOldNodeData[keyOld], {});
+
+									break;
+								case "focus":
+									// Remove focus if it was focused before.
+									if (nodeOldNodeData.focus) {
+										nodeOldElement.blur();
+									}
 
 									break;
 								case "class":

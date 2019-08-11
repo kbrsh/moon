@@ -234,7 +234,7 @@
 	 * Current view event data
 	 */
 
-	var viewEvent;
+	var viewEvent = null;
 	/**
 	 * Moon event
 	 *
@@ -300,6 +300,15 @@
 						case "style":
 							// Set aria-*, data-*, and style attributes.
 							updateDataSet(element, key, value);
+							break;
+
+						case "focus":
+							// Set focus if needed. Blur isn't set because it's the
+							// default.
+							if (value) {
+								element.focus();
+							}
+
 							break;
 
 						case "class":
@@ -408,6 +417,16 @@
 
 										break;
 
+									case "focus":
+										// Update focus/blur.
+										if (valueNew) {
+											_nodeOldElement.focus();
+										} else {
+											_nodeOldElement.blur();
+										}
+
+										break;
+
 									case "class":
 										// Update a className property.
 										_nodeOldElement.className = valueNew;
@@ -444,6 +463,14 @@
 										// If it is a set attribute, remove all old values
 										// from the set and exclude nothing.
 										removeDataSet(_nodeOldElement, keyOld, nodeOldNodeData[keyOld], {});
+										break;
+
+									case "focus":
+										// Remove focus if it was focused before.
+										if (nodeOldNodeData.focus) {
+											_nodeOldElement.blur();
+										}
+
 										break;
 
 									case "class":
