@@ -32,6 +32,10 @@ body {
 	margin-right: 15px;
 }
 
+.linkPlain {
+	border: none;
+}
+
 h1, h2, h3, h5 {
 	font-weight: bold;
 }

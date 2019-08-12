@@ -13,10 +13,6 @@ a {
 	border-color: hsl(200, 100%, 73%);
 }
 
-.linkPlain {
-	border: none;
-}
-
 .buttonPrimary {
 	margin-right: 15px;
 	background-color: hsl(260, 100%, 51%);

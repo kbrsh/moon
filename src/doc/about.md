@@ -91,7 +91,7 @@ Since **view components are pure functions** in Moon, developers can choose to o
 Using optimized algorithms and data structures, Moon runs faster than most user interface libraries while sustaining a lightweight footprint.
 
 ![Sizes of popular frameworks relative to Moon.](/moon/img/size-large.png)
-<a class="linkImage" href="https://github.com/krausest/js-framework-benchmark">![Performance of popular frameworks relative to Moon.](/moon/img/speed-large.png)</a>
+<a class="linkPlain" href="https://rawgit.com/krausest/js-framework-benchmark/master/webdriver-ts-results/table.html">![Performance of popular frameworks relative to Moon.](/moon/img/speed-large.png)</a>
 
 ## Intuitive & Consistent
 
