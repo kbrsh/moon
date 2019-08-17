@@ -1259,7 +1259,7 @@
 						if (xhr.status === 0 || xhr.status === 200) {
 							var _scriptNew = document.createElement("script");
 
-							_scriptNew.text = compiler.compile(this.responseText);
+							_scriptNew.text = compiler.compile(xhr.responseText);
 							head.appendChild(_scriptNew);
 						} else {
 							error("Failed to load script with source \"" + src + "\" and status " + xhr.status + ".");

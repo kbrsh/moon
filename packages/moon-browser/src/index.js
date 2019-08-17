@@ -32,7 +32,7 @@ function load() {
 				if (xhr.readyState === xhr.DONE) {
 					if (xhr.status === 0 || xhr.status === 200) {
 						const scriptNew = document.createElement("script");
-						scriptNew.text = compiler.compile(this.responseText);
+						scriptNew.text = compiler.compile(xhr.responseText);
 						head.appendChild(scriptNew);
 					} else {
 						error(`Failed to load script with source "${src}" and status ${xhr.status}.`);
