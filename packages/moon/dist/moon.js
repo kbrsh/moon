@@ -13,6 +13,9 @@
 }(this, function() {
 	"use strict";
 
+	/*
+	 * Current global data
+	 */
 	var data;
 	/**
 	 * Data driver
@@ -639,8 +642,95 @@
 		driver: driver$2
 	};
 
+	/*
+	 * Current global response
+	 */
+
+	var response = null;
+	/*
+	 * Match HTTP headers.
+	 */
+
+	var headerRE = /^([^:]+):\s*([^]*?)\s*$/gm;
+	/**
+	 * HTTP driver
+	 *
+	 * The HTTP driver provides HTTP response information as input. For output, it
+	 * takes an array of requests. Multiple HTTP requests can be implemented with
+	 * multiple request in the array, and subsequent HTTP requests can be
+	 * implemented with another HTTP request once a response is received.
+	 */
+
+	var driver$3 = {
+		input: function input() {
+			// Return the response as output.
+			return response;
+		},
+		output: function output(requests) {
+			var _loop = function _loop(i) {
+				var request = requests[i];
+				var xhr = new XMLHttpRequest(); // Handle response types.
+
+				xhr.responseType = "responseType" in request ? request.responseType : "text"; // Handle load event.
+
+				xhr.onload = function () {
+					var responseHeaders = {};
+					var responseHeadersText = xhr.getAllResponseHeaders();
+					var responseHeader; // Parse headers to object.
+
+					while ((responseHeader = headerRE.exec(responseHeadersText)) !== null) {
+						responseHeaders[responseHeader[1]] = responseHeader[2];
+					} // Create response object.
+
+
+					response = {
+						status: xhr.status,
+						headers: responseHeaders,
+						body: xhr.response
+					}; // Run load event handler if it exists.
+
+					if ("onLoad" in request) {
+						run(request.onLoad);
+					}
+				}; // Handle error event.
+
+
+				xhr.onerror = function () {
+					// Reset response to prevent older response from being available.
+					response = null; // Run error event handler if it exists.
+
+					if ("onError" in request) {
+						run(request.onError);
+					}
+				}; // Open the request with the given method and URL.
+
+
+				xhr.open("method" in request ? request.method : "GET", request.url); // Set request headers.
+
+				var requestHeaders = request.headers;
+
+				for (var requestHeader in requestHeaders) {
+					xhr.setRequestHeader(requestHeader, requestHeaders[requestHeader]);
+				} // Send the request with the given body.
+
+
+				xhr.send("body" in request ? request.body : null);
+			};
+
+			// Make the HTTP requests.
+			for (var i = 0; i < requests.length; i++) {
+				_loop(i);
+			}
+		}
+	};
+
+	var http = {
+		driver: driver$3
+	};
+
 	var index = {
 		data: data$1,
+		http: http,
 		run: run,
 		time: time,
 		use: use,

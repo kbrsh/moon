@@ -1,3 +1,6 @@
+/*
+ * Current global data
+ */
 let data;
 
 /**
