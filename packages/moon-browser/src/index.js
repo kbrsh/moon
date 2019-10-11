@@ -28,7 +28,7 @@ function load() {
 		} else {
 			const xhr = new XMLHttpRequest();
 
-			xhr.addEventListener("load", function() {
+			xhr.onload = () => {
 				if (xhr.readyState === xhr.DONE) {
 					if (xhr.status === 0 || xhr.status === 200) {
 						const scriptNew = document.createElement("script");
@@ -41,7 +41,8 @@ function load() {
 					script.parentNode.removeChild(script);
 					load();
 				}
-			});
+			};
+
 			xhr.open("GET", src, true);
 			xhr.send();
 		}
