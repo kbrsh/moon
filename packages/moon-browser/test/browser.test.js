@@ -5,15 +5,14 @@ let status = 200;
 
 window.Moon = Moon;
 window.XMLHttpRequest = function() {
-	this.addEventListener = (type, fn) => {
+	this.open = () => {};
+	this.send = () => {
 		this.readyState = 0;
-		fn();
+		this.onload();
 
 		this.readyState = 1;
-		fn();
+		this.onload();
 	};
-	this.open = () => {};
-	this.send = () => {};
 
 	this.DONE = 1;
 

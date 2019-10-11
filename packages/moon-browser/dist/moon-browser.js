@@ -1254,7 +1254,8 @@
 				load();
 			} else {
 				var xhr = new XMLHttpRequest();
-				xhr.addEventListener("load", function () {
+
+				xhr.onload = function () {
 					if (xhr.readyState === xhr.DONE) {
 						if (xhr.status === 0 || xhr.status === 200) {
 							var _scriptNew = document.createElement("script");
@@ -1268,7 +1269,8 @@
 						script.parentNode.removeChild(script);
 						load();
 					}
-				});
+				};
+
 				xhr.open("GET", src, true);
 				xhr.send();
 			}
