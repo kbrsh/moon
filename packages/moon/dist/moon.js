@@ -707,10 +707,12 @@
 
 				xhr.open("method" in request ? request.method : "GET", request.url); // Set request headers.
 
-				var requestHeaders = request.headers;
+				if ("headers" in request) {
+					var requestHeaders = request.headers;
 
-				for (var requestHeader in requestHeaders) {
-					xhr.setRequestHeader(requestHeader, requestHeaders[requestHeader]);
+					for (var requestHeader in requestHeaders) {
+						xhr.setRequestHeader(requestHeader, requestHeaders[requestHeader]);
+					}
 				} // Send the request with the given body.
 
 

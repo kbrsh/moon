@@ -74,10 +74,12 @@ export default {
 			);
 
 			// Set request headers.
-			const requestHeaders = request.headers;
+			if ("headers" in request) {
+				const requestHeaders = request.headers;
 
-			for (const requestHeader in requestHeaders) {
-				xhr.setRequestHeader(requestHeader, requestHeaders[requestHeader]);
+				for (const requestHeader in requestHeaders) {
+					xhr.setRequestHeader(requestHeader, requestHeaders[requestHeader]);
+				}
 			}
 
 			// Send the request with the given body.
