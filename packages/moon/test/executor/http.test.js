@@ -151,3 +151,73 @@ test("default http request with error", () => {
 	open.mockClear();
 	send.mockClear();
 });
+
+test("multiple http requests", () => {
+	let run = [false, false, false];
+	error = false;
+
+	Moon.use({
+		http: Moon.http.driver
+	});
+
+	Moon.run(() => ({
+		http: [{
+			url: "https://example.com/1",
+			onLoad: ({ http }) => {
+				run[0] = true;
+				expect(setRequestHeader).not.toBeCalled();
+				expect(open).toBeCalledWith("GET", "https://example.com/1");
+				expect(send).toBeCalledWith(null);
+				expect(http).toEqual({
+					status: 200,
+					headers: {"content-length": "1084", "date": "Fri, 25 Jun 04 00:00:00 +0000", "test": "moon"},
+					body: "Moon Test"
+				});
+				setRequestHeader.mockClear();
+				open.mockClear();
+				send.mockClear();
+				return {};
+			}
+		}, {
+			url: "https://example.com/2",
+			onLoad: ({ http }) => {
+				run[1] = true;
+				expect(setRequestHeader).not.toBeCalled();
+				expect(open).toBeCalledWith("GET", "https://example.com/2");
+				expect(send).toBeCalledWith(null);
+				expect(http).toEqual({
+					status: 200,
+					headers: {"content-length": "1084", "date": "Fri, 25 Jun 04 00:00:00 +0000", "test": "moon"},
+					body: "Moon Test"
+				});
+				setRequestHeader.mockClear();
+				open.mockClear();
+				send.mockClear();
+				return {};
+			}
+		}, {
+			url: "https://example.com/3",
+			onLoad: ({ http }) => {
+				run[2] = true;
+				expect(setRequestHeader).not.toBeCalled();
+				expect(open).toBeCalledWith("GET", "https://example.com/3");
+				expect(send).toBeCalledWith(null);
+				expect(http).toEqual({
+					status: 200,
+					headers: {"content-length": "1084", "date": "Fri, 25 Jun 04 00:00:00 +0000", "test": "moon"},
+					body: "Moon Test"
+				});
+				setRequestHeader.mockClear();
+				open.mockClear();
+				send.mockClear();
+				return {};
+			}
+		}]
+	}));
+
+	expect(run).toEqual([true, true, true]);
+
+	setRequestHeader.mockClear();
+	open.mockClear();
+	send.mockClear();
+});
