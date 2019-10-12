@@ -27,6 +27,7 @@ date: Fri, 25 Jun 04 00:00:00 +0000`;
 };
 
 test("successful http request", () => {
+	let run = false;
 	error = false;
 
 	Moon.use({
@@ -36,6 +37,7 @@ test("successful http request", () => {
 	Moon.run(() => ({
 		http: [{
 			method: "GET",
+			responseType: "text",
 			url: "https://example.com",
 			headers: {
 				test: "moon request",
@@ -44,6 +46,7 @@ test("successful http request", () => {
 			},
 			body: "Moon Test Request",
 			onLoad: ({ http }) => {
+				run = true;
 				expect(setRequestHeader).toBeCalledWith("test", "moon request");
 				expect(setRequestHeader).toBeCalledWith("foo", "bar");
 				expect(setRequestHeader).toBeCalledWith("date", "Fri, 25 Jun 04 00:00:00 +0000");
@@ -58,9 +61,16 @@ test("successful http request", () => {
 			}
 		}]
 	}));
+
+	expect(run).toEqual(true);
+
+	setRequestHeader.mockClear();
+	open.mockClear();
+	send.mockClear();
 });
 
 test("failing http request", () => {
+	let run = false;
 	error = true;
 
 	Moon.use({
@@ -70,6 +80,7 @@ test("failing http request", () => {
 	Moon.run(() => ({
 		http: [{
 			method: "GET",
+			responseType: "text",
 			url: "https://example.com",
 			headers: {
 				test: "moon request",
@@ -78,6 +89,7 @@ test("failing http request", () => {
 			},
 			body: "Moon Test Request",
 			onError: ({ http }) => {
+				run = true;
 				expect(setRequestHeader).toBeCalledWith("test", "moon request");
 				expect(setRequestHeader).toBeCalledWith("foo", "bar");
 				expect(setRequestHeader).toBeCalledWith("date", "Fri, 25 Jun 04 00:00:00 +0000");
@@ -88,4 +100,54 @@ test("failing http request", () => {
 			}
 		}]
 	}));
+
+	expect(run).toEqual(true);
+
+	setRequestHeader.mockClear();
+	open.mockClear();
+	send.mockClear();
+});
+
+test("default http request", () => {
+	error = false;
+
+	Moon.use({
+		http: Moon.http.driver
+	});
+
+	Moon.run(() => ({
+		http: [{
+			url: "https://example.com"
+		}]
+	}));
+
+	expect(setRequestHeader).not.toBeCalled();
+	expect(open).toBeCalledWith("GET", "https://example.com");
+	expect(send).toBeCalledWith(null);
+
+	setRequestHeader.mockClear();
+	open.mockClear();
+	send.mockClear();
+});
+
+test("default http request with error", () => {
+	error = true;
+
+	Moon.use({
+		http: Moon.http.driver
+	});
+
+	Moon.run(() => ({
+		http: [{
+			url: "https://example.com"
+		}]
+	}));
+
+	expect(setRequestHeader).not.toBeCalled();
+	expect(open).toBeCalledWith("GET", "https://example.com");
+	expect(send).toBeCalledWith(null);
+
+	setRequestHeader.mockClear();
+	open.mockClear();
+	send.mockClear();
 });
