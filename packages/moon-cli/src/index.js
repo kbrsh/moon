@@ -250,6 +250,5 @@ Received a command that does not exist:
 	${commandName}
 
 Expected a valid command. Run \x1b[35mmoon help\x1b[0m to see valid commands.`);
-		break;
 	}
 }

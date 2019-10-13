@@ -229,7 +229,6 @@
 		default:
 			{
 				error("Unrecognized command.\n\nAttempted to execute a command.\n\nReceived a command that does not exist:\n\t" + commandName + "\n\nExpected a valid command. Run \x1B[35mmoon help\x1B[0m to see valid commands.");
-				break;
 			}
 	}
 
