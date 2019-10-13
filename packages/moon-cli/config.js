@@ -1,5 +1,5 @@
 module.exports = {
 	name: "Moon CLI",
-	exportName: "MoonCLI",
+	nameExport: "MoonCLI",
 	type: "executable"
 };

@@ -1,5 +1,5 @@
 module.exports = {
 	name: "Moon Compiler",
-	exportName: "MoonCompiler",
+	nameExport: "MoonCompiler",
 	type: "module"
 };

@@ -5,9 +5,10 @@ const uglify = require("uglify-js");
 const gzipSize = require("gzip-size");
 const fs = require("fs");
 const path = require("path");
-const pkg = require("../package.json");
-const SPACES_RE = /  /g;
-const ENV_RE = /process\.env\.MOON_ENV/g;
+const version = require("../package.json").version;
+const spacesRE = /  /g;
+const versionRE = /process\.env\.MOON_VERSION/g;
+const envRE = /process\.env\.MOON_ENV/g;
 
 const resolver = {
 	resolveId(id, origin) {
@@ -18,11 +19,11 @@ const resolver = {
 async function build(package) {
 	const options = require(`../packages/${package}/config.js`);
 	const name = options.name;
-	const exportName = options.exportName;
+	const nameExport = options.nameExport;
 	const type = options.type;
 
 	const comment = `${type === "executable" ? "#!/usr/bin/env node\n" : ""}/**
- * ${name} v${pkg.version}
+ * ${name} v${version}
  * Copyright 2016-2019 Kabir Shah
  * Released under the MIT License
  * https://kbrsh.github.io/moon
@@ -36,7 +37,7 @@ async function build(package) {
 				eslint(),
 				babel()
 			],
-			onwarn: (warning) => {
+			onwarn: warning => {
 				if (warning.code !== "CIRCULAR_DEPENDENCY") {
 					console.warn(`Rollup [Warn]: ${warning}`);
 				}
@@ -44,21 +45,22 @@ async function build(package) {
 		});
 
 		let { output } = await bundle.generate({
-			name: exportName,
+			name: nameExport,
 			format: "iife"
 		});
 
 		output = output[0].code;
-		output = output.replace(SPACES_RE, "\t");
+		output = output.replace(spacesRE, "\t");
 
 		if (type === "module") {
-			output = fs.readFileSync("./build/wrapper.js").toString().replace("MODULE_NAME", exportName).replace("MODULE_CONTENT", output.split("\n").slice(1, -3).join("\n"));
+			output = fs.readFileSync("./build/wrapper.js").toString().replace("MODULE_NAME", nameExport).replace("MODULE_CONTENT", output.split("\n").slice(1, -3).join("\n"));
 		}
 
 		output = output.replace("'use strict'", "\"use strict\"");
+		output = output.replace(versionRE, `"${version}"`);
 
-		const developmentCode = comment + output.replace(ENV_RE, '"development"');
-		const productionCode = comment + uglify.minify(output.replace(ENV_RE, '"production"'), {
+		const developmentCode = comment + output.replace(envRE, '"development"');
+		const productionCode = comment + uglify.minify(output.replace(envRE, '"production"'), {
 			output: {
 				ascii_only: true
 			}

@@ -1,5 +1,5 @@
 module.exports = {
 	name: "Moon Browser",
-	exportName: "MoonBrowser",
+	nameExport: "MoonBrowser",
 	type: "script"
 };

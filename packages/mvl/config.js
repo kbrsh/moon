@@ -1,5 +1,5 @@
 module.exports = {
 	name: "Moon MVL",
-	exportName: "MoonMVL",
+	nameExport: "MoonMVL",
 	type: "module"
 };

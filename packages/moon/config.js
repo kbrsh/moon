@@ -1,5 +1,5 @@
 module.exports = {
 	name: "Moon",
-	exportName: "Moon",
+	nameExport: "Moon",
 	type: "module"
 };
