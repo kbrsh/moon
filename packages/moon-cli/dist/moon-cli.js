@@ -17,7 +17,7 @@
 	var exec = require("child_process").exec;
 
 	var parameterRE = /<\w+>/g;
-	var optionRE = /\[\w+\]|--?\w+/g;
+	var optionRE = /(?:^|\s)(?:\[\w+\]|--?\w+)/g;
 	var help = {
 		version: {
 			usage: "moon version",

@@ -4,7 +4,7 @@ const https = require("https");
 const exec = require("child_process").exec;
 
 const parameterRE = /<\w+>/g;
-const optionRE = /\[\w+\]|--?\w+/g;
+const optionRE = /(?:^|\s)(?:\[\w+\]|--?\w+)/g;
 
 const help = {
 	version: {
