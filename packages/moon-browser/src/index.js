@@ -1,5 +1,5 @@
 import compiler from "moon-compiler/src/index";
-import { error } from "util/util";
+import { error } from "util/index";
 
 /**
  * Head element

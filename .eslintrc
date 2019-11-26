@@ -8,6 +8,7 @@
 		"node": true
 	},
 	"rules": {
+		"arrow-parens": ["error", "as-needed"],
 		"constructor-super": 2,
 		"dot-notation": 2,
 		"eqeqeq": 2,

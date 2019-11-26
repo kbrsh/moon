@@ -3,10 +3,8 @@
  *
  * @param {string} name
  * @param {Object} data
- * @param {Array} children
  */
-export default function NodeNew(name, data, children) {
+export default function NodeNew(name, data) {
 	this.name = name;
 	this.data = data;
-	this.children = children;
 }

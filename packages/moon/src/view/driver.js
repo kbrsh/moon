@@ -36,20 +36,10 @@ function viewCreate(node) {
 
 	if (nodeName === "text") {
 		// Create a text node using the text content from the default key.
-		element = document.createTextNode(node.data[""]);
+		element = document.createTextNode(node.data.value);
 	} else {
 		// Create a DOM element.
 		element = document.createElement(nodeName);
-
-		// Recursively append children.
-		const nodeChildren = node.children;
-
-		for (let i = 0; i < nodeChildren.length; i++) {
-			const childOld = viewCreate(nodeChildren[i]);
-
-			children.push(childOld);
-			element.appendChild(childOld.element);
-		}
 
 		// Set data.
 		const nodeData = node.data;
@@ -94,6 +84,15 @@ function viewCreate(node) {
 						element.htmlFor = value;
 
 						break;
+					case "children":
+						// Recursively append children.
+						for (let i = 0; i < value.length; i++) {
+							const childOld = viewCreate(value[i]);
+
+							children.push(childOld);
+							element.appendChild(childOld.element);
+						}
+						break;
 					default:
 						// Set a DOM property.
 						element[key] = value;
@@ -137,9 +136,9 @@ function viewPatch(nodeOld, nodeNew) {
 			nodeOldElement.parentNode.replaceChild(nodeOldNewElement, nodeOldElement);
 		} else if (nodeOldNodeName === "text") {
 			// If they both are text, then update the text content.
-			const nodeNewText = nodeNew.data[""];
+			const nodeNewText = nodeNew.data.value;
 
-			if (nodeOldNode.data[""] !== nodeNewText) {
+			if (nodeOldNode.data.value !== nodeNewText) {
 				nodeOld.element.data = nodeNewText;
 			}
 		} else {
@@ -209,6 +208,46 @@ function viewPatch(nodeOld, nodeNew) {
 									nodeOldElement.htmlFor = valueNew;
 
 									break;
+								case "children":
+									// Update children.
+									const childrenOld = nodeOld.children;
+									const childrenOldLength = childrenOld.length;
+									const valueNewLength = valueNew.length;
+
+									if (childrenOldLength === valueNewLength) {
+										// If the children have the same length then
+										// update both as usual.
+										for (let i = 0; i < childrenOldLength; i++) {
+											viewPatch(childrenOld[i], valueNew[i]);
+										}
+									} else if (childrenOldLength > valueNewLength) {
+										// If there are more old children than new
+										// children, update the corresponding ones and
+										// remove the extra old children.
+										for (let i = 0; i < valueNewLength; i++) {
+											viewPatch(childrenOld[i], valueNew[i]);
+										}
+
+										for (let i = valueNewLength; i < childrenOldLength; i++) {
+											nodeOldElement.removeChild(childrenOld.pop().element);
+										}
+									} else {
+										// If there are more new children than old
+										// children, update the corresponding ones and
+										// append the extra new children.
+										for (let i = 0; i < childrenOldLength; i++) {
+											viewPatch(childrenOld[i], valueNew[i]);
+										}
+
+										for (let i = childrenOldLength; i < valueNewLength; i++) {
+											const nodeOldNew = viewCreate(valueNew[i]);
+
+											childrenOld.push(nodeOldNew);
+											nodeOldElement.appendChild(nodeOldNew.element);
+										}
+									}
+
+									break;
 								default:
 									// Update a DOM property.
 									nodeOldElement[keyNew] = valueNew;
@@ -254,54 +293,20 @@ function viewPatch(nodeOld, nodeNew) {
 									nodeOldElement.htmlFor = "";
 
 									break;
+								case "children":
+									// Remove children.
+									const childrenOld = nodeOld.children;
+									const childrenOldLength = childrenOld.length;
+
+									for (let i = 0; i < childrenOldLength; i++) {
+										nodeOldElement.removeChild(childrenOld.pop().element);
+									}
+
+									break;
 								default:
 									// Remove a DOM property.
 									removeDataProperty(nodeOldElement, nodeOldNodeName, keyOld);
 							}
-						}
-					}
-				}
-			}
-
-			// Diff children.
-			const childrenNew = nodeNew.children;
-
-			if (nodeOldNode.children !== childrenNew) {
-				const childrenOld = nodeOld.children;
-				const childrenOldLength = childrenOld.length;
-				const childrenNewLength = childrenNew.length;
-
-				if (childrenOldLength === childrenNewLength) {
-					// If the children have the same length then update both as
-					// usual.
-					for (let i = 0; i < childrenOldLength; i++) {
-						viewPatch(childrenOld[i], childrenNew[i]);
-					}
-				} else {
-					const nodeOldElement = nodeOld.element;
-
-					if (childrenOldLength > childrenNewLength) {
-						// If there are more old children than new children, update the
-						// corresponding ones and remove the extra old children.
-						for (let i = 0; i < childrenNewLength; i++) {
-							viewPatch(childrenOld[i], childrenNew[i]);
-						}
-
-						for (let i = childrenNewLength; i < childrenOldLength; i++) {
-							nodeOldElement.removeChild(childrenOld.pop().element);
-						}
-					} else {
-						// If there are more new children than old children, update the
-						// corresponding ones and append the extra new children.
-						for (let i = 0; i < childrenOldLength; i++) {
-							viewPatch(childrenOld[i], childrenNew[i]);
-						}
-
-						for (let i = childrenOldLength; i < childrenNewLength; i++) {
-							const nodeOldNew = viewCreate(childrenNew[i]);
-
-							childrenOld.push(nodeOldNew);
-							nodeOldElement.appendChild(nodeOldNew.element);
 						}
 					}
 				}

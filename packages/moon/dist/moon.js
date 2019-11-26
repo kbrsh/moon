@@ -159,12 +159,10 @@
 	 *
 	 * @param {string} name
 	 * @param {Object} data
-	 * @param {Array} children
 	 */
-	function NodeNew(name, data, children) {
+	function NodeNew(name, data) {
 		this.name = name;
 		this.data = data;
-		this.children = children;
 	}
 
 	/**
@@ -267,19 +265,10 @@
 
 		if (nodeName === "text") {
 			// Create a text node using the text content from the default key.
-			element = document.createTextNode(node.data[""]);
+			element = document.createTextNode(node.data.value);
 		} else {
 			// Create a DOM element.
-			element = document.createElement(nodeName); // Recursively append children.
-
-			var nodeChildren = node.children;
-
-			for (var i = 0; i < nodeChildren.length; i++) {
-				var childOld = viewCreate(nodeChildren[i]);
-				children.push(childOld);
-				element.appendChild(childOld.element);
-			} // Set data.
-
+			element = document.createElement(nodeName); // Set data.
 
 			var nodeData = node.data;
 
@@ -324,6 +313,16 @@
 							element.htmlFor = value;
 							break;
 
+						case "children":
+							// Recursively append children.
+							for (var i = 0; i < value.length; i++) {
+								var childOld = viewCreate(value[i]);
+								children.push(childOld);
+								element.appendChild(childOld.element);
+							}
+
+							break;
+
 						default:
 							// Set a DOM property.
 							element[key] = value;
@@ -365,9 +364,9 @@
 				nodeOldElement.parentNode.replaceChild(nodeOldNewElement, nodeOldElement);
 			} else if (nodeOldNodeName === "text") {
 				// If they both are text, then update the text content.
-				var nodeNewText = nodeNew.data[""];
+				var nodeNewText = nodeNew.data.value;
 
-				if (nodeOldNode.data[""] !== nodeNewText) {
+				if (nodeOldNode.data.value !== nodeNewText) {
 					nodeOld.element.data = nodeNewText;
 				}
 			} else {
@@ -440,6 +439,48 @@
 										_nodeOldElement.htmlFor = valueNew;
 										break;
 
+									case "children":
+										// Update children.
+										var childrenOld = nodeOld.children;
+										var childrenOldLength = childrenOld.length;
+										var valueNewLength = valueNew.length;
+
+										if (childrenOldLength === valueNewLength) {
+											// If the children have the same length then
+											// update both as usual.
+											for (var i = 0; i < childrenOldLength; i++) {
+												viewPatch(childrenOld[i], valueNew[i]);
+											}
+										} else if (childrenOldLength > valueNewLength) {
+											// If there are more old children than new
+											// children, update the corresponding ones and
+											// remove the extra old children.
+											for (var _i = 0; _i < valueNewLength; _i++) {
+												viewPatch(childrenOld[_i], valueNew[_i]);
+											}
+
+											for (var _i2 = valueNewLength; _i2 < childrenOldLength; _i2++) {
+												_nodeOldElement.removeChild(childrenOld.pop().element);
+											}
+										} else {
+											// If there are more new children than old
+											// children, update the corresponding ones and
+											// append the extra new children.
+											for (var _i3 = 0; _i3 < childrenOldLength; _i3++) {
+												viewPatch(childrenOld[_i3], valueNew[_i3]);
+											}
+
+											for (var _i4 = childrenOldLength; _i4 < valueNewLength; _i4++) {
+												var _nodeOldNew = viewCreate(valueNew[_i4]);
+
+												childrenOld.push(_nodeOldNew);
+
+												_nodeOldElement.appendChild(_nodeOldNew.element);
+											}
+										}
+
+										break;
+
 									default:
 										// Update a DOM property.
 										_nodeOldElement[keyNew] = valueNew;
@@ -486,55 +527,21 @@
 										_nodeOldElement.htmlFor = "";
 										break;
 
+									case "children":
+										// Remove children.
+										var _childrenOld = nodeOld.children;
+										var _childrenOldLength = _childrenOld.length;
+
+										for (var _i5 = 0; _i5 < _childrenOldLength; _i5++) {
+											_nodeOldElement.removeChild(_childrenOld.pop().element);
+										}
+
+										break;
+
 									default:
 										// Remove a DOM property.
 										removeDataProperty(_nodeOldElement, nodeOldNodeName, keyOld);
 								}
-							}
-						}
-					}
-				} // Diff children.
-
-
-				var childrenNew = nodeNew.children;
-
-				if (nodeOldNode.children !== childrenNew) {
-					var childrenOld = nodeOld.children;
-					var childrenOldLength = childrenOld.length;
-					var childrenNewLength = childrenNew.length;
-
-					if (childrenOldLength === childrenNewLength) {
-						// If the children have the same length then update both as
-						// usual.
-						for (var i = 0; i < childrenOldLength; i++) {
-							viewPatch(childrenOld[i], childrenNew[i]);
-						}
-					} else {
-						var _nodeOldElement2 = nodeOld.element;
-
-						if (childrenOldLength > childrenNewLength) {
-							// If there are more old children than new children, update the
-							// corresponding ones and remove the extra old children.
-							for (var _i = 0; _i < childrenNewLength; _i++) {
-								viewPatch(childrenOld[_i], childrenNew[_i]);
-							}
-
-							for (var _i2 = childrenNewLength; _i2 < childrenOldLength; _i2++) {
-								_nodeOldElement2.removeChild(childrenOld.pop().element);
-							}
-						} else {
-							// If there are more new children than old children, update the
-							// corresponding ones and append the extra new children.
-							for (var _i3 = 0; _i3 < childrenOldLength; _i3++) {
-								viewPatch(childrenOld[_i3], childrenNew[_i3]);
-							}
-
-							for (var _i4 = childrenOldLength; _i4 < childrenNewLength; _i4++) {
-								var _nodeOldNew = viewCreate(childrenNew[_i4]);
-
-								childrenOld.push(_nodeOldNew);
-
-								_nodeOldElement2.appendChild(_nodeOldNew.element);
 							}
 						}
 					}
@@ -594,15 +601,26 @@
 	}
 
 	/**
-	 * Returns a new node.
-	 *
-	 * @param {string} name
-	 * @param {Object} data
-	 * @param {Array} children
+	 * HTML tag names
 	 */
 
-	function m(name, data, children) {
-		return new NodeNew(name, data, children);
+	var names = ["a", "abbr", "acronym", "address", "applet", "area", "article", "aside", "audio", "b", "base", "basefont", "bdi", "bdo", "bgsound", "big", "blink", "blockquote", "body", "br", "button", "canvas", "caption", "center", "cite", "code", "col", "colgroup", "command", "content", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "dir", "div", "dl", "dt", "element", "em", "embed", "fieldset", "figcaption", "figure", "font", "footer", "form", "frame", "frameset", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "hr", "html", "i", "iframe", "image", "img", "input", "ins", "isindex", "kbd", "keygen", "label", "legend", "li", "link", "listing", "main", "map", "mark", "marquee", "math", "menu", "menuitem", "meta", "meter", "multicol", "nav", "nextid", "nobr", "noembed", "noframes", "noscript", "object", "ol", "optgroup", "option", "output", "p", "param", "picture", "plaintext", "pre", "progress", "q", "rb", "rbc", "rp", "rt", "rtc", "ruby", "s", "samp", "script", "section", "select", "shadow", "slot", "small", "source", "spacer", "span", "strike", "strong", "style", "sub", "summary", "sup", "svg", "table", "tbody", "td", "template", "text", "textarea", "tfoot", "th", "thead", "time", "title", "tr", "track", "tt", "u", "ul", "var", "video", "wbr", "xmp"];
+	/**
+	 * Node creation functions
+	 */
+
+	var m = {};
+
+	var _loop = function _loop(i) {
+		var name = names[i];
+
+		m[name] = function (data) {
+			return new NodeNew(name, data);
+		};
+	};
+
+	for (var i = 0; i < names.length; i++) {
+		_loop(i);
 	}
 
 	var view = {

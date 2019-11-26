@@ -17,7 +17,7 @@ window.XMLHttpRequest = function() {
 	this.DONE = 1;
 
 	this.status = status;
-	this.responseText = "const paragraphSrc = (<p>Moon Test</p>);";
+	this.responseText = "const paragraphSrc = (<Moon.view.m.p>Moon Test</Moon.view.m.p>);";
 
 	status = 500;
 };
@@ -29,7 +29,7 @@ scriptNormal.text = "const foo = 7;";
 
 const scriptInline = document.createElement("script");
 scriptInline.type = "text/moon";
-scriptInline.text = "const paragraph = (<p>Moon Test</p>);";
+scriptInline.text = "const paragraph = (<Moon.view.m.p>Moon Test</Moon.view.m.p>);";
 
 const scriptSrc = document.createElement("script");
 scriptSrc.type = "text/moon";
@@ -59,7 +59,7 @@ test("transform inline script", () => {
 
 	expect(scriptBefore).toBeUndefined();
 	expect(scriptAfter).not.toBeUndefined();
-	expect(scriptAfter.text).toEqual(`var m0;const paragraph = ((function(){if(m0===undefined){m0=Moon.view.m("p",{},[Moon.view.m("text",{"":"Moon Test"},[])]);}return m0;})());`)
+	expect(scriptAfter.text).toEqual(`const paragraph = (Moon.view.m.p({children:[Moon.view.m.text({value:\"Moon Test\"})]}));`);
 });
 
 test("transform external script", () => {
@@ -68,7 +68,7 @@ test("transform external script", () => {
 
 	expect(scriptBefore).toBeUndefined();
 	expect(scriptAfter).not.toBeUndefined();
-	expect(scriptAfter.text).toEqual(`var m0;const paragraphSrc = ((function(){if(m0===undefined){m0=Moon.view.m("p",{},[Moon.view.m("text",{"":"Moon Test"},[])]);}return m0;})());`)
+	expect(scriptAfter.text).toEqual(`const paragraphSrc = (Moon.view.m.p({children:[Moon.view.m.text({value:\"Moon Test\"})]}));`);
 });
 
 test("transform external script with error", () => {

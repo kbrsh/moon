@@ -1,4 +1,5 @@
 import Moon from "moon/src/index";
+const {div} = Moon.view.m;
 
 const root = document.createElement("div");
 root.id = "index-test";

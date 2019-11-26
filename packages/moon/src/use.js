@@ -1,4 +1,4 @@
-import { error } from "util/util";
+import { error } from "util/index";
 
 /**
  * Application drivers

@@ -1,5 +1,5 @@
 import { drivers } from "moon/src/use";
-import { error } from "util/util";
+import { error } from "util/index";
 
 /**
  * Run

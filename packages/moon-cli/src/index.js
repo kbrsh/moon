@@ -72,7 +72,7 @@ function download(res) {
 	const archivePath = path.join(__dirname, "moon-template.tar.gz");
 	const stream = fs.createWriteStream(archivePath);
 
-	res.on("data", (chunk) => {
+	res.on("data", chunk => {
 		stream.write(chunk);
 	});
 
@@ -87,10 +87,10 @@ function download(res) {
 function install(archivePath) {
 	const targetPath = path.join(process.cwd(), name);
 
-	exec(`mkdir ${targetPath}`, (err) => {
+	exec(`mkdir ${targetPath}`, err => {
 		if (err) throw err;
 
-		exec(`tar -xzf ${archivePath} -C ${targetPath} --strip=1`, (err) => {
+		exec(`tar -xzf ${archivePath} -C ${targetPath} --strip=1`, err => {
 			if (err) throw err;
 
 			log("install", targetPath);
@@ -100,7 +100,7 @@ function install(archivePath) {
 }
 
 function clean(archivePath, targetPath) {
-	fs.unlink(archivePath, (err) => {
+	fs.unlink(archivePath, err => {
 		if (err) throw err;
 
 		log("clean", archivePath);
@@ -229,9 +229,9 @@ Expected a valid template. Run \x1b[35mmoon help create\x1b[0m to see usage info
 
 		log("Moon", "Generating application");
 
-		https.get(archive, (res) => {
+		https.get(archive, res => {
 			if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location !== undefined) {
-				https.get(res.headers.location, (redirectRes) => {
+				https.get(res.headers.location, redirectRes => {
 					download(redirectRes);
 				});
 			} else {
