@@ -260,8 +260,8 @@ const grammar = {
 			)),
 			parser.character("/")
 		]),
-		grammar.block,
 		grammar.string,
+		grammar.block,
 		grammar.node,
 		grammar.nodeData,
 		grammar.nodeDataChildren,

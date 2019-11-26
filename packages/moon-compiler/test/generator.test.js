@@ -14,21 +14,21 @@ test("generate static element", () => {
 test("generate dynamic element", () => {
 	assertGenerate(
 		"<div><h1>Test</h1><p>test {message}</p></div>",
-		"div({children:[h1({children:[Moon.view.m.text({value:\"Test\"})]}),p({children:[Moon.view.m.text({value:\"test \"}),Moon.view.m.text({value:(message)})]})]})"
+		"div({children:[h1({children:[Moon.view.m.text({value:\"Test\"})]}),p({children:[Moon.view.m.text({value:\"test \"}),Moon.view.m.text({value:message})]})]})"
 	);
 });
 
 test("generate static attributes", () => {
 	assertGenerate(
 		"<div><h1 id='bar' class='foo'>Test</h1><p>test {message}</p></div>",
-		"div({children:[h1 ({\"id\":'bar' ,\"class\":'foo',children:[Moon.view.m.text({value:\"Test\"})]}),p({children:[Moon.view.m.text({value:\"test \"}),Moon.view.m.text({value:(message)})]})]})"
+		"div({children:[h1 ({\"id\":'bar' ,\"class\":'foo',children:[Moon.view.m.text({value:\"Test\"})]}),p({children:[Moon.view.m.text({value:\"test \"}),Moon.view.m.text({value:message})]})]})"
 	);
 });
 
 test("generate dynamic attributes", () => {
 	assertGenerate(
 		"<div><h1 id='bar' class={foo}>Test</h1><p>test {message}</p></div>",
-		"div({children:[h1 ({\"id\":'bar' ,\"class\":(foo),children:[Moon.view.m.text({value:\"Test\"})]}),p({children:[Moon.view.m.text({value:\"test \"}),Moon.view.m.text({value:(message)})]})]})"
+		"div({children:[h1 ({\"id\":'bar' ,\"class\":(foo),children:[Moon.view.m.text({value:\"Test\"})]}),p({children:[Moon.view.m.text({value:\"test \"}),Moon.view.m.text({value:message})]})]})"
 	);
 });
 
@@ -56,7 +56,7 @@ test("generate dynamic children attribute", () => {
 test("generate events", () => {
 	assertGenerate(
 		"<div><h1 id='bar' class={foo} @click={doSomething}>Test</h1><p>test {message}</p></div>",
-		"div({children:[h1 ({\"id\":'bar' ,\"class\":(foo) ,\"@click\":(doSomething),children:[Moon.view.m.text({value:\"Test\"})]}),p({children:[Moon.view.m.text({value:\"test \"}),Moon.view.m.text({value:(message)})]})]})"
+		"div({children:[h1 ({\"id\":'bar' ,\"class\":(foo) ,\"@click\":(doSomething),children:[Moon.view.m.text({value:\"Test\"})]}),p({children:[Moon.view.m.text({value:\"test \"}),Moon.view.m.text({value:message})]})]})"
 	);
 });
 
@@ -98,7 +98,7 @@ test("generate dynamic components with data", () => {
 test("generate dynamic components with children", () => {
 	assertGenerate(
 		"<div><Component foo={bar} bar='baz'><p>{message}</p></Component></div>",
-		"div({children:[Component ({\"foo\":(bar) ,\"bar\":'baz',children:[p({children:[Moon.view.m.text({value:(message)})]})]})]})"
+		"div({children:[Component ({\"foo\":(bar) ,\"bar\":'baz',children:[p({children:[Moon.view.m.text({value:message})]})]})]})"
 	);
 });
 
@@ -154,14 +154,14 @@ test("generate if node at root", () => {
 test("generate if/else node", () => {
 	assertGenerate(
 		"<{condition ? <p>test</p> : <p>{dynamic}</p>}#>",
-		"(condition ? p({children:[Moon.view.m.text({value:\"test\"})]}) : p({children:[Moon.view.m.text({value:(dynamic)})]}))"
+		"(condition ? p({children:[Moon.view.m.text({value:\"test\"})]}) : p({children:[Moon.view.m.text({value:dynamic})]}))"
 	);
 });
 
 test("generate loop", () => {
 	assertGenerate(
 		"<span children={list.map(x => <p>{x}</p>)}/>",
-		"span ({\"children\":(list.map(x => p({children:[Moon.view.m.text({value:(x)})]})))})"
+		"span ({\"children\":(list.map(x => p({children:[Moon.view.m.text({value:x})]})))})"
 	);
 });
 
@@ -210,7 +210,7 @@ test("generate node data with name as block", () => {
 test("generate node data with name as block and data as block", () => {
 	assertGenerate(
 		`<{div + foo} {custom}/>`,
-		`(div + foo) ((custom))`
+		`(div + foo) (custom)`
 	);
 });
 
@@ -231,7 +231,7 @@ test("generate node data children with name as block and data as attributes", ()
 test("generate node data children with name as identifier and data as attributes", () => {
 	assertGenerate(
 		`<div foo="bar" bar=baz baz={foo}>child <div>here {foo}</div></div>`,
-		`div ({\"foo\":\"bar\" ,\"bar\":baz ,\"baz\":(foo),children:[Moon.view.m.text({value:\"child \"}),div({children:[Moon.view.m.text({value:\"here \"}),Moon.view.m.text({value:(foo)})]})]})`
+		`div ({\"foo\":\"bar\" ,\"bar\":baz ,\"baz\":(foo),children:[Moon.view.m.text({value:\"child \"}),div({children:[Moon.view.m.text({value:\"here \"}),Moon.view.m.text({value:foo})]})]})`
 	);
 });
 

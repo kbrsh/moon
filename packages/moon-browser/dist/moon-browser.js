@@ -219,7 +219,7 @@
 			return parser.many(parser.alternates([// Single line comment
 			parser.sequence([parser.string("//"), parser.many(parser.not(["\n"]))]), // Multi-line comment
 			parser.sequence([parser.string("/*"), parser.many(parser.not(["*/"])), parser.string("*/")]), // Regular expression
-			parser.sequence([parser.character("/"), parser.many1(parser.or(parser.and(parser.character("\\"), parser.not(["\n"])), parser.not(["/", "\n"]))), parser.character("/")]), grammar.block, grammar.string, grammar.node, grammar.nodeData, grammar.nodeDataChildren, // Anything up to a comment, regular expression, block, view, or string.
+			parser.sequence([parser.character("/"), parser.many1(parser.or(parser.and(parser.character("\\"), parser.not(["\n"])), parser.not(["/", "\n"]))), parser.character("/")]), grammar.string, grammar.block, grammar.node, grammar.nodeData, grammar.nodeDataChildren, // Anything up to a comment, regular expression, block, view, or string.
 			// Allow failed regular expression or view parses to be interpreted as
 			// operators.
 			parser.and(parser.alternates([parser.character("/"), parser.character("<"), parser.empty]), parser.many1(parser.not(["/", "{", "}", "<", "\"", "'", "`"])))]))(input, index);
@@ -315,7 +315,7 @@
 			// expression or an object using attribute syntax.
 			var _value2 = tree.value;
 			var data = _value2[4];
-			return "" + generate(_value2[1]) + generateValue(_value2[2]) + generate(_value2[3]) + "(" + (data.type === "attributes" ? "{" + generate(data).output + "}" : generateValue(data)) + ")";
+			return "" + generate(_value2[1]) + generateValue(_value2[2]) + generate(_value2[3]) + "(" + (data.type === "attributes" ? "{" + generate(data).output + "}" : generate(data.value[1])) + ")";
 		} else if (type === "nodeDataChildren") {
 			// Data and children nodes represent calling a function with a data
 			// object using attribute syntax and children.
@@ -337,7 +337,7 @@
 					var child = children[_i2];
 
 					if (child.type === "block") {
-						outputChildren += _separator + "Moon.view.m.text({value:" + generateValue(child) + "})";
+						outputChildren += _separator + "Moon.view.m.text({value:" + generate(child.value[1]) + "})";
 					} else {
 						outputChildren += _separator + generate(child);
 					}

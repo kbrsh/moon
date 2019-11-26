@@ -67,7 +67,7 @@ export default function generate(tree) {
 		const value = tree.value;
 		const data = value[4];
 
-		return `${generate(value[1])}${generateValue(value[2])}${generate(value[3])}(${data.type === "attributes" ? `{${generate(data).output}}` : generateValue(data)})`;
+		return `${generate(value[1])}${generateValue(value[2])}${generate(value[3])}(${data.type === "attributes" ? `{${generate(data).output}}` : generate(data.value[1])})`;
 	} else if (type === "nodeDataChildren") {
 		// Data and children nodes represent calling a function with a data
 		// object using attribute syntax and children.
@@ -87,7 +87,7 @@ export default function generate(tree) {
 				const child = children[i];
 
 				if (child.type === "block") {
-					outputChildren += `${separator}Moon.view.m.text({value:${generateValue(child)}})`;
+					outputChildren += `${separator}Moon.view.m.text({value:${generate(child.value[1])}})`;
 				} else {
 					outputChildren += separator + generate(child);
 				}
