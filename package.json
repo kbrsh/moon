@@ -18,13 +18,13 @@
 	},
 	"homepage": "https://github.com/kbrsh/moon#readme",
 	"devDependencies": {
-		"@babel/core": "^7.4.3",
-		"@babel/preset-env": "^7.4.3",
+		"@babel/core": "^7.7.4",
+		"@babel/preset-env": "^7.7.4",
 		"gzip-size": "^5.0.0",
-		"jest": "^24.6.0",
-		"rollup": "^1.17.0",
+		"jest": "^24.9.0",
+		"rollup": "^1.27.7",
 		"rollup-plugin-babel": "^4.3.2",
 		"rollup-plugin-eslint": "^5.1.0",
-		"uglify-js": "^3.6.0"
+		"uglify-js": "^3.7.1"
 	}
 }

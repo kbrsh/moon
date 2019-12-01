@@ -1,8 +1,13 @@
 /**
+ * Matches whitespace.
+ */
+const whitespaceRE = /^\s+$/;
+
+/**
  * Generate a parser value node.
  *
  * @param {object} tree
- * @returns {string|object} generator result
+ * @returns {string} generator result
  */
 function generateValue(tree) {
 	if (tree.type === "block") {
@@ -15,6 +20,29 @@ function generateValue(tree) {
 }
 
 /**
+ * Generate a parser attributes node.
+ *
+ * @param {object} tree
+ * @returns {object} generator result and separator
+ */
+function generateAttributes(tree) {
+	const value = tree.value;
+	let output = "";
+	let separator = "";
+
+	for (let i = 0; i < value.length; i++) {
+		const pair = value[i];
+		output += `${separator}"${generate(pair[0])}":${generateValue(pair[2])}${generate(pair[3])}`;
+		separator = ",";
+	}
+
+	return {
+		output,
+		separator
+	};
+}
+
+/**
  * Generator
  *
  * The generator takes parse nodes and converts them to strings representing
@@ -22,7 +50,7 @@ function generateValue(tree) {
  * are converted to function calls or variable references.
  *
  * @param {object} tree
- * @returns {string|object} generator result
+ * @returns {string} generator result
  */
 export default function generate(tree) {
 	const type = tree.type;
@@ -39,23 +67,6 @@ export default function generate(tree) {
 		return output;
 	} else if (type === "block") {
 		return generate(tree.value);
-	} else if (type === "text") {
-		return `Moon.view.m.text({value:${JSON.stringify(generate(tree.value))}})`;
-	} else if (type === "attributes") {
-		const value = tree.value;
-		let output = "";
-		let separator = "";
-
-		for (let i = 0; i < value.length; i++) {
-			const pair = value[i];
-			output += `${separator}"${generate(pair[0])}":${generateValue(pair[2])}${generate(pair[3])}`;
-			separator = ",";
-		}
-
-		return {
-			output,
-			separator
-		};
 	} else if (type === "node") {
 		// Nodes represent a variable reference.
 		const value = tree.value;
@@ -67,12 +78,12 @@ export default function generate(tree) {
 		const value = tree.value;
 		const data = value[4];
 
-		return `${generate(value[1])}${generateValue(value[2])}${generate(value[3])}(${data.type === "attributes" ? `{${generate(data).output}}` : generate(data.value[1])})`;
+		return `${generate(value[1])}${generateValue(value[2])}${generate(value[3])}(${data.type === "attributes" ? `{${generateAttributes(data).output}}` : generate(data.value[1])})`;
 	} else if (type === "nodeDataChildren") {
 		// Data and children nodes represent calling a function with a data
 		// object using attribute syntax and children.
 		const value = tree.value;
-		const data = generate(value[4]);
+		const data = generateAttributes(value[4]);
 		const children = value[6];
 		const childrenLength = children.length;
 		let outputChildren;
@@ -85,14 +96,27 @@ export default function generate(tree) {
 
 			for (let i = 0; i < childrenLength; i++) {
 				const child = children[i];
+				const childType = child.type;
 
-				if (child.type === "block") {
+				if (childType === "text") {
+					const childValue = generate(child.value);
+
+					if (whitespaceRE.test(childValue) && childValue.indexOf("\n") !== -1) {
+						// Text that is only whitespace with at least one newline is
+						// ignored and added only to preserve newlines in the
+						// generated code.
+						outputChildren += childValue;
+					} else {
+						outputChildren += `${separator}Moon.view.m.text({value:${JSON.stringify(childValue)}})`;
+						separator = ",";
+					}
+				} else if (childType === "block") {
 					outputChildren += `${separator}Moon.view.m.text({value:${generate(child.value[1])}})`;
+					separator = ",";
 				} else {
 					outputChildren += separator + generate(child);
+					separator = ",";
 				}
-
-				separator = ",";
 			}
 
 			outputChildren += "]";

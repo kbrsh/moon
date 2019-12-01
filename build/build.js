@@ -59,8 +59,8 @@ async function build(package) {
 		output = output.replace("'use strict'", "\"use strict\"");
 		output = output.replace(versionRE, `"${version}"`);
 
-		const developmentCode = comment + output.replace(envRE, '"development"');
-		const productionCode = comment + uglify.minify(output.replace(envRE, '"production"'), {
+		const developmentCode = comment + output.replace(envRE, "\"development\"");
+		const productionCode = comment + uglify.minify(output.replace(envRE, "\"production\""), {
 			output: {
 				ascii_only: true
 			}

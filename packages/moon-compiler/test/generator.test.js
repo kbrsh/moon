@@ -11,6 +11,19 @@ test("generate static element", () => {
 	);
 });
 
+test("generate static element with whitespace only nodes", () => {
+	assertGenerate(
+		`<div>
+			<h1>Test</h1>
+			<p>test</p>
+		</div>`,
+		`div({children:[
+			h1({children:[Moon.view.m.text({value:\"Test\"})]})
+			,p({children:[Moon.view.m.text({value:\"test\"})]})
+		]})`
+	);
+});
+
 test("generate dynamic element", () => {
 	assertGenerate(
 		"<div><h1>Test</h1><p>test {message}</p></div>",

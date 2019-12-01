@@ -202,7 +202,7 @@
 		value: function value(input, index) {
 			return parser.alternates([grammar.string, grammar.block, grammar.identifier])(input, index);
 		},
-		text: parser.type("text", parser.many1(parser.not(["{", "<"]))),
+		text: parser.type("text", parser.many1(parser.alternates([parser.and(parser.character("\\"), parser.character("{")), parser.and(parser.character("\\"), parser.character("<")), parser.not(["{", "<"])]))),
 		attributes: function attributes(input, index) {
 			return parser.type("attributes", parser.many(parser.sequence([grammar.identifier, parser.character("="), grammar.value, grammar.whitespaces])))(input, index);
 		},
@@ -248,11 +248,16 @@
 	parse.Error = ParseError;
 
 	/**
+	 * Matches whitespace.
+	 */
+	var whitespaceRE = /^\s+$/;
+	/**
 	 * Generate a parser value node.
 	 *
 	 * @param {object} tree
-	 * @returns {string|object} generator result
+	 * @returns {string} generator result
 	 */
+
 	function generateValue(tree) {
 		if (tree.type === "block") {
 			// In values, blocks are only generated to the expression inside of them.
@@ -263,6 +268,30 @@
 		}
 	}
 	/**
+	 * Generate a parser attributes node.
+	 *
+	 * @param {object} tree
+	 * @returns {object} generator result and separator
+	 */
+
+
+	function generateAttributes(tree) {
+		var value = tree.value;
+		var output = "";
+		var separator = "";
+
+		for (var i = 0; i < value.length; i++) {
+			var pair = value[i];
+			output += separator + "\"" + generate(pair[0]) + "\":" + generateValue(pair[2]) + generate(pair[3]);
+			separator = ",";
+		}
+
+		return {
+			output: output,
+			separator: separator
+		};
+	}
+	/**
 	 * Generator
 	 *
 	 * The generator takes parse nodes and converts them to strings representing
@@ -270,7 +299,7 @@
 	 * are converted to function calls or variable references.
 	 *
 	 * @param {object} tree
-	 * @returns {string|object} generator result
+	 * @returns {string} generator result
 	 */
 
 
@@ -289,66 +318,62 @@
 			return output;
 		} else if (type === "block") {
 			return generate(tree.value);
-		} else if (type === "text") {
-			return "Moon.view.m.text({value:" + JSON.stringify(generate(tree.value)) + "})";
-		} else if (type === "attributes") {
-			var value = tree.value;
-			var _output = "";
-			var separator = "";
-
-			for (var _i = 0; _i < value.length; _i++) {
-				var pair = value[_i];
-				_output += separator + "\"" + generate(pair[0]) + "\":" + generateValue(pair[2]) + generate(pair[3]);
-				separator = ",";
-			}
-
-			return {
-				output: _output,
-				separator: separator
-			};
 		} else if (type === "node") {
 			// Nodes represent a variable reference.
-			var _value = tree.value;
-			return generate(_value[1]) + generateValue(_value[2]) + generate(_value[3]);
+			var value = tree.value;
+			return generate(value[1]) + generateValue(value[2]) + generate(value[3]);
 		} else if (type === "nodeData") {
 			// Data nodes represent calling a function with either a custom data
 			// expression or an object using attribute syntax.
-			var _value2 = tree.value;
-			var data = _value2[4];
-			return "" + generate(_value2[1]) + generateValue(_value2[2]) + generate(_value2[3]) + "(" + (data.type === "attributes" ? "{" + generate(data).output + "}" : generate(data.value[1])) + ")";
+			var _value = tree.value;
+			var data = _value[4];
+			return "" + generate(_value[1]) + generateValue(_value[2]) + generate(_value[3]) + "(" + (data.type === "attributes" ? "{" + generateAttributes(data).output + "}" : generate(data.value[1])) + ")";
 		} else if (type === "nodeDataChildren") {
 			// Data and children nodes represent calling a function with a data
 			// object using attribute syntax and children.
-			var _value3 = tree.value;
+			var _value2 = tree.value;
 
-			var _data = generate(_value3[4]);
+			var _data = generateAttributes(_value2[4]);
 
-			var children = _value3[6];
+			var children = _value2[6];
 			var childrenLength = children.length;
 			var outputChildren;
 
 			if (childrenLength === 0) {
 				outputChildren = "";
 			} else {
-				var _separator = "";
+				var separator = "";
 				outputChildren = _data.separator + "children:[";
 
-				for (var _i2 = 0; _i2 < childrenLength; _i2++) {
-					var child = children[_i2];
+				for (var _i = 0; _i < childrenLength; _i++) {
+					var child = children[_i];
+					var childType = child.type;
 
-					if (child.type === "block") {
-						outputChildren += _separator + "Moon.view.m.text({value:" + generate(child.value[1]) + "})";
+					if (childType === "text") {
+						var childValue = generate(child.value);
+
+						if (whitespaceRE.test(childValue) && childValue.indexOf("\n") !== -1) {
+							// Text that is only whitespace with at least one newline is
+							// ignored and added only to preserve newlines in the
+							// generated code.
+							outputChildren += childValue;
+						} else {
+							outputChildren += separator + "Moon.view.m.text({value:" + JSON.stringify(childValue) + "})";
+							separator = ",";
+						}
+					} else if (childType === "block") {
+						outputChildren += separator + "Moon.view.m.text({value:" + generate(child.value[1]) + "})";
+						separator = ",";
 					} else {
-						outputChildren += _separator + generate(child);
+						outputChildren += separator + generate(child);
+						separator = ",";
 					}
-
-					_separator = ",";
 				}
 
 				outputChildren += "]";
 			}
 
-			return "" + generate(_value3[1]) + generateValue(_value3[2]) + generate(_value3[3]) + "({" + _data.output + outputChildren + "})";
+			return "" + generate(_value2[1]) + generateValue(_value2[2]) + generate(_value2[3]) + "({" + _data.output + outputChildren + "})";
 		}
 	}
 

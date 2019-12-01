@@ -79,11 +79,11 @@ Moon.run(Root);
 root = document.body.firstChild;
 
 function verify(list) {
-	const span = root.firstChild.nextSibling;
+	const span = root.firstChild;
 
 	for (let i = 0; i < list.length; i++) {
 		const item = list[i];
-		const element = span.childNodes[i].firstChild.nextSibling;
+		const element = span.childNodes[i].firstChild;
 
 		if (item % 2 === 0) {
 			expect(element.tagName).toEqual("P");
@@ -162,19 +162,19 @@ function verify(list) {
 		}
 	}
 
-	const h1 = span.nextSibling.nextSibling;
+	const h1 = span.nextSibling;
 
 	expect(h1.tagName).toEqual("H1");
 	expect(h1.textContent).toEqual("Moon");
 
-	const p = h1.nextSibling.nextSibling;
+	const p = h1.nextSibling;
 
 	expect(p.tagName).toEqual("P");
 	expect(p.textContent).toEqual("Partially static.");
 	expect(p.MoonEvent["@click"]).toEqual(handler1);
 	expect(p.MoonEvent["@dblclick"]).toEqual(handler2);
 
-	const input = p.nextSibling.nextSibling;
+	const input = p.nextSibling;
 
 	if (list.length > 0) {
 		const listFirst = list[0];
@@ -193,12 +193,12 @@ function verify(list) {
 		expect(input.textContent).toEqual("");
 	}
 
-	const inputBlurred = input.nextSibling.nextSibling;
+	const inputBlurred = input.nextSibling;
 
 	expect(inputBlurred.tagName).toEqual("INPUT");
 	expect(document.activeElement).not.toBe(inputBlurred);
 
-	const pChildren = inputBlurred.nextSibling.nextSibling;
+	const pChildren = inputBlurred.nextSibling;
 
 	if (list.length > 0) {
 		expect(pChildren.textContent).toEqual("Text");

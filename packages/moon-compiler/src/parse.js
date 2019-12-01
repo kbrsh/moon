@@ -197,7 +197,11 @@ const grammar = {
 		parser.character("}")
 	]))(input, index),
 	value: (input, index) => parser.alternates([grammar.string, grammar.block, grammar.identifier])(input, index),
-	text: parser.type("text", parser.many1(parser.not(["{", "<"]))),
+	text: parser.type("text", parser.many1(parser.alternates([
+		parser.and(parser.character("\\"), parser.character("{")),
+		parser.and(parser.character("\\"), parser.character("<")),
+		parser.not(["{", "<"])
+	]))),
 	attributes: (input, index) => parser.type("attributes", parser.many(parser.sequence([
 		grammar.identifier,
 		parser.character("="),

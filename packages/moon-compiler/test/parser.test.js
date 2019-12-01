@@ -12,6 +12,14 @@ test("parse text element", () => {
 	expect(parseTest(`<div>test text</div>`)).toEqual([[[{"type": "nodeDataChildren", "value": ["<", [], ["d", "i", "v"], [], {"type": "attributes", "value": []}, ">", [{"type": "text", "value": ["t", "e", "s", "t", " ", "t", "e", "x", "t"]}], "</", ["d", "i", "v"], ">"]}], "EOF"], 20]);
 });
 
+test("parse text element with escaped block delimiter", () => {
+	expect(parseTest(`<div>test \\{ escaped</div>`)).toEqual([[[{"type": "nodeDataChildren", "value": ["<", [], ["d", "i", "v"], [], {"type": "attributes", "value": []}, ">", [{"type": "text", "value": ["t", "e", "s", "t", " ", ["\\", "{"], " ", "e", "s", "c", "a", "p", "e", "d"]}], "</", ["d", "i", "v"], ">"]}], "EOF"], 26]);
+});
+
+test("parse text element with escaped node delimiter", () => {
+	expect(parseTest(`<div>test \\< escaped</div>`)).toEqual([[[{"type": "nodeDataChildren", "value": ["<", [], ["d", "i", "v"], [], {"type": "attributes", "value": []}, ">", [{"type": "text", "value": ["t", "e", "s", "t", " ", ["\\", "<"], " ", "e", "s", "c", "a", "p", "e", "d"]}], "</", ["d", "i", "v"], ">"]}], "EOF"], 26]);
+});
+
 test("parse node", () => {
 	expect(parseTest(`<div#>`)).toEqual([[[{"type":"node","value":["<",[],["d","i","v"],[],"#>"]}],"EOF"],6]);
 });
