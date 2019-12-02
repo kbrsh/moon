@@ -59,7 +59,7 @@ test("transform inline script", () => {
 
 	expect(scriptBefore).toBeUndefined();
 	expect(scriptAfter).not.toBeUndefined();
-	expect(scriptAfter.text).toEqual(`const paragraph = (Moon.view.m.p({children:[Moon.view.m.text({value:\"Moon Test\"})]}));`);
+	expect(scriptAfter.text).toEqual(`const paragraph = (Moon.view.m.p({children:[Moon.view.m.text({data:\"Moon Test\"})]}));`);
 });
 
 test("transform external script", () => {
@@ -68,7 +68,7 @@ test("transform external script", () => {
 
 	expect(scriptBefore).toBeUndefined();
 	expect(scriptAfter).not.toBeUndefined();
-	expect(scriptAfter.text).toEqual(`const paragraphSrc = (Moon.view.m.p({children:[Moon.view.m.text({value:\"Moon Test\"})]}));`);
+	expect(scriptAfter.text).toEqual(`const paragraphSrc = (Moon.view.m.p({children:[Moon.view.m.text({data:\"Moon Test\"})]}));`);
 });
 
 test("transform external script with error", () => {

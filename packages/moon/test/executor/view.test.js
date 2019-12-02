@@ -49,7 +49,7 @@ function ExecutorTest({ list, focus }) {
 					<m.input focus={false}/> :
 					<testInput#>
 				) :
-				<m.text value=""/>
+				<m.text data=""/>
 			}#>
 			<m.input {testFocusFalse}/>
 			<{list.length > 0 ?

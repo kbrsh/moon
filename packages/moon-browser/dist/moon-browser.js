@@ -358,11 +358,11 @@
 							// generated code.
 							outputChildren += childValue;
 						} else {
-							outputChildren += separator + "Moon.view.m.text({value:" + JSON.stringify(childValue) + "})";
+							outputChildren += separator + "Moon.view.m.text({data:" + JSON.stringify(childValue) + "})";
 							separator = ",";
 						}
 					} else if (childType === "block") {
-						outputChildren += separator + "Moon.view.m.text({value:" + generate(child.value[1]) + "})";
+						outputChildren += separator + "Moon.view.m.text({data:" + generate(child.value[1]) + "})";
 						separator = ",";
 					} else {
 						outputChildren += separator + generate(child);

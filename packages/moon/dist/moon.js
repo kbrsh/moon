@@ -265,7 +265,7 @@
 
 		if (nodeName === "text") {
 			// Create a text node using the text content from the default key.
-			element = document.createTextNode(node.data.value);
+			element = document.createTextNode(node.data.data);
 		} else {
 			// Create a DOM element.
 			element = document.createElement(nodeName); // Set data.
@@ -362,13 +362,6 @@
 				nodeOld.element = nodeOldNewElement;
 				nodeOld.children = nodeOldNew.children;
 				nodeOldElement.parentNode.replaceChild(nodeOldNewElement, nodeOldElement);
-			} else if (nodeOldNodeName === "text") {
-				// If they both are text, then update the text content.
-				var nodeNewText = nodeNew.data.value;
-
-				if (nodeOldNode.data.value !== nodeNewText) {
-					nodeOld.element.data = nodeNewText;
-				}
 			} else {
 				// If they are both elements, then update the data.
 				var nodeOldNodeData = nodeOldNode.data;
