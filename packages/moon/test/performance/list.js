@@ -41,17 +41,36 @@ var document = {
 	}
 };
 
-Moon({
-	name: "Item",
-	view: "<p class={item}>{item}</p>"
+var list = [];
+
+function Item(data) {
+	var item = data.item;
+
+	return Moon.view.m.p({ class: item, children: [ Moon.view.m.text({ value: item }) ] });
+}
+
+function View(data) {
+	var list = data.list;
+	var items = [];
+
+	for (var i = 0; i < list.length; i++) {
+		items.push(Item({ item: list[i].toString() }));
+	}
+
+	return Moon.view.m.span({ children: items });
+}
+
+Moon.use({
+	view: Moon.view.driver("#root")
 });
 
-Moon({
-	root: "#root",
-	view: `<for={item} of={list}><Item item={item}/></for>`,
-	data: {list: [1, 2, 3]}
-});
+Moon.run(() => ({
+	view: View({ list: [1, 2, 3] })
+}));
 
 for (var i = 0; i < 1000; i++) {
-	Moon.set({ list: Moon.get.list.concat([7]) });
+	list = list.concat([7]);
+	Moon.run(() => ({
+		view: View({ list: list })
+	}));
 }
