@@ -170,29 +170,6 @@
 	 */
 	var removeDataPropertyCache = {};
 	/**
-	 * Update an ariaset, dataset, or style property.
-	 *
-	 * @param {Object} element
-	 * @param {string} key
-	 * @param {Object} value
-	 */
-
-	function updateDataSet(element, key, value) {
-		if (key === "ariaset") {
-			// Set aria-* attributes.
-			for (var setKey in value) {
-				element.setAttribute("aria-" + setKey, value[setKey]);
-			}
-		} else {
-			// Set data-* and style attributes.
-			var set = element[key];
-
-			for (var _setKey in value) {
-				set[_setKey] = value[_setKey];
-			}
-		}
-	}
-	/**
 	 * Remove a data property.
 	 *
 	 * @param {Object} element
@@ -201,34 +178,6 @@
 
 	function removeDataProperty(element, name, key) {
 		element[key] = name in removeDataPropertyCache ? removeDataPropertyCache[name][key] : (removeDataPropertyCache[name] = document.createElement(name))[key];
-	}
-	/**
-	 * Remove all the keys from an ariaset, dataset, or style property that aren't
-	 * in `exclude`.
-	 *
-	 * @param {Object} element
-	 * @param {string} key
-	 * @param {string} value
-	 * @param {Object} exclude
-	 */
-
-	function removeDataSet(element, key, value, exclude) {
-		for (var setKey in value) {
-			if (!(setKey in exclude)) {
-				switch (key) {
-					case "ariaset":
-						element.removeAttribute("aria-" + setKey);
-						break;
-
-					case "dataset":
-						delete element.dataset[setKey];
-						break;
-
-					default:
-						element.style[setKey] = "";
-				}
-			}
-		}
 	}
 
 	/**
@@ -288,44 +237,77 @@
 				} else {
 					switch (key) {
 						case "ariaset":
+							{
+								// Set aria-* attributes.
+								for (var setKey in value) {
+									element.setAttribute("aria-" + setKey, value[setKey]);
+								}
+
+								break;
+							}
+
 						case "dataset":
+							{
+								// Set data-* attributes.
+								for (var _setKey in value) {
+									element.dataset[_setKey] = value[_setKey];
+								}
+
+								break;
+							}
+
 						case "style":
-							// Set aria-*, data-*, and style attributes.
-							updateDataSet(element, key, value);
-							break;
+							{
+								// Set style attributes.
+								for (var _setKey2 in value) {
+									element.style[_setKey2] = value[_setKey2];
+								}
+
+								break;
+							}
 
 						case "focus":
-							// Set focus if needed. Blur isn't set because it's the
-							// default.
-							if (value) {
-								element.focus();
-							}
+							{
+								// Set focus if needed. Blur isn't set because it's the
+								// default.
+								if (value) {
+									element.focus();
+								}
 
-							break;
+								break;
+							}
 
 						case "class":
-							// Set a className property.
-							element.className = value;
-							break;
-
-						case "for":
-							// Set an htmlFor property.
-							element.htmlFor = value;
-							break;
-
-						case "children":
-							// Recursively append children.
-							for (var i = 0; i < value.length; i++) {
-								var childOld = viewCreate(value[i]);
-								children.push(childOld);
-								element.appendChild(childOld.element);
+							{
+								// Set a className property.
+								element.className = value;
+								break;
 							}
 
-							break;
+						case "for":
+							{
+								// Set an htmlFor property.
+								element.htmlFor = value;
+								break;
+							}
+
+						case "children":
+							{
+								// Recursively append children.
+								for (var i = 0; i < value.length; i++) {
+									var childOld = viewCreate(value[i]);
+									children.push(childOld);
+									element.appendChild(childOld.element);
+								}
+
+								break;
+							}
 
 						default:
-							// Set a DOM property.
-							element[key] = value;
+							{
+								// Set a DOM property.
+								element[key] = value;
+							}
 					}
 				}
 			}
@@ -336,7 +318,7 @@
 		return new NodeOld(node, element, children);
 	}
 	/**
-	 * Patches an old node into a new node finding differences and applying
+	 * Patches an old node into a new node, finding differences and applying
 	 * changes to the DOM.
 	 *
 	 * @param {Object} nodeOld
@@ -346,68 +328,128 @@
 
 	function viewPatch(nodeOld, nodeNew) {
 		var nodeOldNode = nodeOld.node;
+		var nodeOldNodeName = nodeOldNode.name;
+		var nodeOldElement = nodeOld.element; // Update the old node reference. This doesn't affect the rest of the patch
+		// because it uses `nodeOldNode` instead of direct property access.
 
-		if (nodeOldNode !== nodeNew) {
-			var nodeOldNodeName = nodeOldNode.name;
-			var nodeOldElement = nodeOld.element; // Update the old node reference. This doesn't affect the rest of the
-			// patch because it uses `nodeOldNode` instead of direct property access.
+		nodeOld.node = nodeNew;
 
-			nodeOld.node = nodeNew;
+		if (nodeOldNodeName !== nodeNew.name) {
+			// If the types or name aren't the same, then replace the old node with
+			// the new one.
+			var nodeOldNew = viewCreate(nodeNew);
+			var nodeOldNewElement = nodeOldNew.element;
+			nodeOld.element = nodeOldNewElement;
+			nodeOld.children = nodeOldNew.children;
+			nodeOldElement.parentNode.replaceChild(nodeOldNewElement, nodeOldElement);
+		} else {
+			// If they are both elements, then update the data.
+			var nodeOldNodeData = nodeOldNode.data;
+			var nodeNewData = nodeNew.data; // First, go through all new data and update all of the existing data to
+			// match.
 
-			if (nodeOldNodeName !== nodeNew.name) {
-				// If the types or name aren't the same, then replace the old node
-				// with the new one.
-				var nodeOldNew = viewCreate(nodeNew);
-				var nodeOldNewElement = nodeOldNew.element;
-				nodeOld.element = nodeOldNewElement;
-				nodeOld.children = nodeOldNew.children;
-				nodeOldElement.parentNode.replaceChild(nodeOldNewElement, nodeOldElement);
-			} else {
-				// If they are both elements, then update the data.
-				var nodeOldNodeData = nodeOldNode.data;
-				var nodeNewData = nodeNew.data; // First, go through all new data and update all of the existing data
-				// to match.
+			for (var keyNew in nodeNewData) {
+				var valueOld = nodeOldNodeData[keyNew];
+				var valueNew = nodeNewData[keyNew];
 
-				for (var keyNew in nodeNewData) {
-					var valueOld = nodeOldNodeData[keyNew];
-					var valueNew = nodeNewData[keyNew];
+				if (valueOld !== valueNew) {
+					if (keyNew.charCodeAt(0) === 64) {
+						// Update an event.
+						var nodeOldElementMoonEvent = nodeOldElement.MoonEvent;
 
-					if (valueOld !== valueNew) {
-						if (keyNew.charCodeAt(0) === 64) {
-							// Update an event.
-							var nodeOldElementMoonEvent = nodeOldElement.MoonEvent;
+						if (nodeOldElementMoonEvent === null) {
+							nodeOldElementMoonEvent = nodeOldElement.MoonEvent = new MoonEvent();
+						}
 
-							if (nodeOldElementMoonEvent === null) {
-								nodeOldElementMoonEvent = nodeOldElement.MoonEvent = new MoonEvent();
-							}
-
-							if (keyNew in nodeOldElementMoonEvent) {
-								// If the event exists, update the existing event handler.
-								nodeOldElementMoonEvent[keyNew] = valueNew;
-							} else {
-								// If the event doesn't exist, add a new event listener.
-								nodeOldElementMoonEvent[keyNew] = valueNew;
-								nodeOldElement.addEventListener(keyNew.slice(1), nodeOldElementMoonEvent);
-							}
+						if (keyNew in nodeOldElementMoonEvent) {
+							// If the event exists, update the existing event handler.
+							nodeOldElementMoonEvent[keyNew] = valueNew;
 						} else {
-							switch (keyNew) {
-								case "ariaset":
-								case "dataset":
-								case "style":
-									// If it is a set attribute, update all values in the
-									// set.
-									updateDataSet(nodeOldElement, keyNew, valueNew);
+							// If the event doesn't exist, add a new event listener.
+							nodeOldElementMoonEvent[keyNew] = valueNew;
+							nodeOldElement.addEventListener(keyNew.slice(1), nodeOldElementMoonEvent);
+						}
+					} else {
+						switch (keyNew) {
+							case "ariaset":
+								{
+									// Update aria-* attributes.
+									for (var setKeyNew in valueNew) {
+										var setValueOld = valueOld === undefined ? valueOld : valueOld[setKeyNew];
+										var setValueNew = valueNew[setKeyNew];
+
+										if (setValueOld !== setValueNew) {
+											nodeOldElement.setAttribute("aria-" + setKeyNew, setValueNew);
+										}
+									} // Remove aria-* attributes from the old value that are
+									// not in the new value.
+
 
 									if (valueOld !== undefined) {
-										// If there was an old set, remove all old set
-										// attributes while excluding any new ones that
-										// still exist.
-										removeDataSet(nodeOldElement, keyNew, valueOld, valueNew);
+										for (var setKeyOld in valueOld) {
+											if (!(setKeyOld in valueNew)) {
+												nodeOldElement.removeAttribute("aria-" + setKeyOld);
+											}
+										}
 									}
 
 									break;
+								}
 
-								case "focus":
+							case "dataset":
+								{
+									// Update data-* attributes.
+									for (var _setKeyNew in valueNew) {
+										var _setValueOld = valueOld === undefined ? valueOld : valueOld[_setKeyNew];
+
+										var _setValueNew = valueNew[_setKeyNew];
+
+										if (_setValueOld !== _setValueNew) {
+											nodeOldElement.dataset[_setKeyNew] = _setValueNew;
+										}
+									} // Remove data-* attributes from the old value that are
+									// not in the new value.
+
+
+									if (valueOld !== undefined) {
+										for (var _setKeyOld in valueOld) {
+											if (!(_setKeyOld in valueNew)) {
+												delete nodeOldElement.dataset[_setKeyOld];
+											}
+										}
+									}
+
+									break;
+								}
+
+							case "style":
+								{
+									// Update style properties.
+									for (var _setKeyNew2 in valueNew) {
+										var _setValueOld2 = valueOld === undefined ? valueOld : valueOld[_setKeyNew2];
+
+										var _setValueNew2 = valueNew[_setKeyNew2];
+
+										if (_setValueOld2 !== _setValueNew2) {
+											nodeOldElement.style[_setKeyNew2] = _setValueNew2;
+										}
+									} // Remove style properties from the old value that are not
+									// in the new value.
+
+
+									if (valueOld !== undefined) {
+										for (var _setKeyOld2 in valueOld) {
+											if (!(_setKeyOld2 in valueNew)) {
+												nodeOldElement.style[_setKeyOld2] = "";
+											}
+										}
+									}
+
+									break;
+								}
+
+							case "focus":
+								{
 									// Update focus/blur.
 									if (valueNew) {
 										nodeOldElement.focus();
@@ -416,18 +458,24 @@
 									}
 
 									break;
+								}
 
-								case "class":
+							case "class":
+								{
 									// Update a className property.
 									nodeOldElement.className = valueNew;
 									break;
+								}
 
-								case "for":
+							case "for":
+								{
 									// Update an htmlFor property.
 									nodeOldElement.htmlFor = valueNew;
 									break;
+								}
 
-								case "children":
+							case "children":
+								{
 									// Update children.
 									var childrenOld = nodeOld.children;
 									var childrenOldLength = childrenOld.length;
@@ -437,14 +485,22 @@
 										// If the children have the same length then update
 										// both as usual.
 										for (var i = 0; i < childrenOldLength; i++) {
-											viewPatch(childrenOld[i], valueNew[i]);
+											var childNew = valueNew[i];
+
+											if (valueOld[i] !== childNew) {
+												viewPatch(childrenOld[i], childNew);
+											}
 										}
 									} else if (childrenOldLength > valueNewLength) {
 										// If there are more old children than new children,
-										// update the corresponding ones and remove the
-										// extra old children.
+										// update the corresponding ones and remove the extra
+										// old children.
 										for (var _i = 0; _i < valueNewLength; _i++) {
-											viewPatch(childrenOld[_i], valueNew[_i]);
+											var _childNew = valueNew[_i];
+
+											if (valueOld[_i] !== _childNew) {
+												viewPatch(childrenOld[_i], _childNew);
+											}
 										}
 
 										for (var _i2 = valueNewLength; _i2 < childrenOldLength; _i2++) {
@@ -452,10 +508,14 @@
 										}
 									} else {
 										// If there are more new children than old children,
-										// update the corresponding ones and append the
-										// extra new children.
+										// update the corresponding ones and append the extra
+										// new children.
 										for (var _i3 = 0; _i3 < childrenOldLength; _i3++) {
-											viewPatch(childrenOld[_i3], valueNew[_i3]);
+											var _childNew2 = valueNew[_i3];
+
+											if (valueOld[_i3] !== _childNew2) {
+												viewPatch(childrenOld[_i3], _childNew2);
+											}
 										}
 
 										for (var _i4 = childrenOldLength; _i4 < valueNewLength; _i4++) {
@@ -467,53 +527,79 @@
 									}
 
 									break;
+								}
 
-								default:
+							default:
+								{
 									// Update a DOM property.
 									nodeOldElement[keyNew] = valueNew;
-							}
+								}
 						}
 					}
-				} // Next, go through all of the old data and remove data that isn't in
-				// the new data.
+				}
+			} // Next, go through all of the old data and remove data that isn't in the
+			// new data.
 
 
-				for (var keyOld in nodeOldNodeData) {
-					if (!(keyOld in nodeNewData)) {
-						if (keyOld.charCodeAt(0) === 64) {
-							// Remove an event.
-							var _nodeOldElementMoonEvent = nodeOldElement.MoonEvent;
-							delete _nodeOldElementMoonEvent[keyOld];
-							nodeOldElement.removeEventListener(keyOld.slice(1), _nodeOldElementMoonEvent);
-						} else {
-							switch (keyOld) {
-								case "ariaset":
-								case "dataset":
-								case "style":
-									// If it is a set attribute, remove all old values from
-									// the set and exclude nothing.
-									removeDataSet(nodeOldElement, keyOld, nodeOldNodeData[keyOld], {});
+			for (var keyOld in nodeOldNodeData) {
+				if (!(keyOld in nodeNewData)) {
+					if (keyOld.charCodeAt(0) === 64) {
+						// Remove an event.
+						var _nodeOldElementMoonEvent = nodeOldElement.MoonEvent;
+						delete _nodeOldElementMoonEvent[keyOld];
+						nodeOldElement.removeEventListener(keyOld.slice(1), _nodeOldElementMoonEvent);
+					} else {
+						switch (keyOld) {
+							case "ariaset":
+								{
+									// Remove aria-* attributes.
+									var _valueOld = nodeOldNodeData[keyOld];
+
+									for (var _setKeyOld3 in _valueOld) {
+										nodeOldElement.removeAttribute("aria-" + _setKeyOld3);
+									}
+
 									break;
+								}
 
-								case "focus":
+							case "dataset":
+								{
+									// Remove data-* attributes.
+									var _valueOld2 = nodeOldNodeData[keyOld];
+
+									for (var _setKeyOld4 in _valueOld2) {
+										delete nodeOldElement.dataset[_setKeyOld4];
+									}
+
+									break;
+								}
+
+							case "focus":
+								{
 									// Remove focus if it was focused before.
 									if (nodeOldNodeData.focus) {
 										nodeOldElement.blur();
 									}
 
 									break;
+								}
 
-								case "class":
+							case "class":
+								{
 									// Remove a className property.
 									nodeOldElement.className = "";
 									break;
+								}
 
-								case "for":
+							case "for":
+								{
 									// Remove an htmlFor property.
 									nodeOldElement.htmlFor = "";
 									break;
+								}
 
-								case "children":
+							case "children":
+								{
 									// Remove children.
 									var _childrenOld = nodeOld.children;
 									var _childrenOldLength = _childrenOld.length;
@@ -523,11 +609,13 @@
 									}
 
 									break;
+								}
 
-								default:
+							default:
+								{
 									// Remove a DOM property.
 									removeDataProperty(nodeOldElement, nodeOldNodeName, keyOld);
-							}
+								}
 						}
 					}
 				}
@@ -571,7 +659,7 @@
 		} // Create an old node from the root element.
 
 
-		var viewOld = new NodeOld(new NodeNew(root.tagName.toLowerCase(), dataOld, []), root, []);
+		var viewOld = new NodeOld(new NodeNew(root.tagName.toLowerCase(), dataOld), root, []);
 		return {
 			input: function input() {
 				// Return the current event data as input.

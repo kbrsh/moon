@@ -8,6 +8,8 @@ let eventResult;
 root.id = "app";
 document.body.appendChild(root);
 
+const cache = {};
+
 function shuffle(arr) {
 	for (let i = arr.length - 1; i > 0; i--) {
 		const j = Math.floor(Math.random() * (i + 1));
@@ -27,19 +29,33 @@ function handler2(m) {
 	return {};
 }
 
+function ExecutorTestItem({ item, index }) {
+	if (item in cache) {
+		const cacheItem = cache[item];
+
+		if (index in cacheItem) {
+			return cacheItem[index];
+		}
+	} else {
+		cache[item] = {};
+	}
+
+	return (cache[item][index] =
+		<m.span>
+			<{item % 2 === 0 ?
+				<m.p lang="en" class={item} for={item} ariaset={{hidden: false, removeme: true}} dataset={{foo: "bar", removeme: true}} style={{color: "red", background: "blue"}} @click={handler1}>{item} {index}</p> :
+			item % 3 === 0 ?
+				<m.p lang="en" class={item} for={item} id={item} ariaset={{hidden: false, different: true}} dataset={{foo: "bar", different: true}} style={{color: "red", fontSize: "20px"}} @click={handler2}>{item} {index}</p> :
+				<m.p lang="en">{item} {index}</p>
+			}#>
+		</m.span>
+	);
+}
+
 function ExecutorTest({ list, focus }) {
 	return (
 		<m.div>
-			<m.span children={list.map((item, index) => (
-				<m.span>
-					<{item % 2 === 0 ?
-						<m.p lang="en" class={item} for={item} ariaset={{hidden: false, removeme: true}} dataset={{foo: "bar", removeme: true}} style={{color: "red", background: "blue"}} @click={handler1}>{item} {index}</p> :
-					item % 3 === 0 ?
-						<m.p lang="en" class={item} for={item} id={item} ariaset={{hidden: false, different: true}} dataset={{foo: "bar", different: true}} style={{color: "red", fontSize: "20px"}} @click={handler2}>{item} {index}</p> :
-						<m.p lang="en">{item} {index}</p>
-					}#>
-				</m.span>
-			))}/>
+			<m.span children={list.map((item, index) => <ExecutorTestItem item={item} index={index}/>)}/>
 			<m.h1>Moon</m.h1>
 			<m.p @click={handler1} @dblclick={handler2}>Partially static.</m.p>
 			<{list.length > 0 ?

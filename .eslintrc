@@ -12,6 +12,7 @@
 		"constructor-super": 2,
 		"dot-notation": 2,
 		"eqeqeq": 2,
+		"no-case-declarations": 2,
 		"no-class-assign": 2,
 		"no-compare-neg-zero": 2,
 		"no-cond-assign": 2,
