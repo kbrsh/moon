@@ -1,7 +1,7 @@
 const rollup = require("rollup");
 const babel = require("rollup-plugin-babel");
 const eslint = require("rollup-plugin-eslint").eslint;
-const uglify = require("uglify-js");
+const terser = require("terser");
 const gzipSize = require("gzip-size");
 const fs = require("fs");
 const path = require("path");
@@ -60,7 +60,7 @@ async function build(package) {
 		output = output.replace(versionRE, `"${version}"`);
 
 		const developmentCode = comment + output.replace(envRE, "\"development\"");
-		const productionCode = comment + uglify.minify(output.replace(envRE, "\"production\""), {
+		const productionCode = comment + terser.minify(output.replace(envRE, "\"production\""), {
 			output: {
 				ascii_only: true
 			}
