@@ -4,6 +4,11 @@
 const whitespaceRE = /^\s+$/;
 
 /**
+ * Matches unescaped special characters in text.
+ */
+const textSpecialRE = /([^\\])("|\n)/g;
+
+/**
  * Generate a parser value node.
  *
  * @param {object} tree
@@ -107,7 +112,7 @@ export default function generate(tree) {
 						// generated code.
 						outputChildren += childValue;
 					} else {
-						outputChildren += `${separator}Moon.view.m.text({data:${JSON.stringify(childValue)}})`;
+						outputChildren += `${separator}Moon.view.m.text({data:"${childValue.replace(textSpecialRE, (match, character, characterSpecial) => character + "\\" + characterSpecial)}"})`;
 						separator = ",";
 					}
 				} else if (childType === "block") {

@@ -11,6 +11,13 @@ test("generate static element", () => {
 	);
 });
 
+test("generate static element with escaped text", () => {
+	assertGenerate(
+		"<div>foo \\{ bar \\< baz \\\" \" \\\n \n</div>",
+		`div({children:[Moon.view.m.text({data:"foo \\{ bar \\< baz \\\" \\\" \\\n \\\n"})]})`
+	);
+});
+
 test("generate static element with whitespace only nodes", () => {
 	assertGenerate(
 		`<div>

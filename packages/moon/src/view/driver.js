@@ -11,8 +11,8 @@ let viewEvent = null;
 /**
  * Moon event
  *
- * This is used as a global event handler for any event type, and it calls the
- * corresponding handler with the event, data, and children.
+ * This is used as a global event handler for any event type, and it runs the
+ * corresponding handler with the event data as view driver input.
  */
 function MoonEvent() {}
 

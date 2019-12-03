@@ -208,7 +208,7 @@
 		value: function value(input, index) {
 			return parser.alternates([grammar.string, grammar.block, grammar.identifier])(input, index);
 		},
-		text: parser.type("text", parser.many1(parser.alternates([parser.and(parser.character("\\"), parser.character("{")), parser.and(parser.character("\\"), parser.character("<")), parser.not(["{", "<"])]))),
+		text: parser.type("text", parser.many1(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["{", "<"])))),
 		attributes: function attributes(input, index) {
 			return parser.type("attributes", parser.many(parser.sequence([grammar.identifier, parser.character("="), grammar.value, grammar.whitespaces])))(input, index);
 		},
@@ -257,6 +257,11 @@
 	 * Matches whitespace.
 	 */
 	var whitespaceRE = /^\s+$/;
+	/**
+	 * Matches unescaped special characters in text.
+	 */
+
+	var textSpecialRE = /([^\\])("|\n)/g;
 	/**
 	 * Generate a parser value node.
 	 *
@@ -364,7 +369,9 @@
 							// generated code.
 							outputChildren += childValue;
 						} else {
-							outputChildren += separator + "Moon.view.m.text({data:" + JSON.stringify(childValue) + "})";
+							outputChildren += separator + "Moon.view.m.text({data:\"" + childValue.replace(textSpecialRE, function (match, character, characterSpecial) {
+								return character + "\\" + characterSpecial;
+							}) + "\"})";
 							separator = ",";
 						}
 					} else if (childType === "block") {
