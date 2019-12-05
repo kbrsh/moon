@@ -35,8 +35,8 @@ import { error } from "util/index";
  *
  * The application runs on the Moon while drivers update the Earth.
  *
- * @param {Function} root
- * @param {Object} drivers
+ * @param {function} root
+ * @param {object} drivers
  */
 export default function run(root) {
 	// Handle invalid root type.

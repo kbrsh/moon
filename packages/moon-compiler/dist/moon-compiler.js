@@ -244,7 +244,7 @@
 	 * or a parser error.
 	 *
 	 * @param {string} input
-	 * @returns {Object} abstract syntax tree and end index or ParseError
+	 * @returns {object} abstract syntax tree and end index or ParseError
 	 */
 
 	function parse(input) {

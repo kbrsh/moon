@@ -8,7 +8,7 @@ export let drivers;
 /**
  * Sets the application drivers to new drivers.
  *
- * @param {Object} driversNew
+ * @param {object} driversNew
  */
 export function use(driversNew) {
 	// Handle invalid drivers type.

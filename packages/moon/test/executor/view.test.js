@@ -56,6 +56,11 @@ function ExecutorTest({ list, focus }) {
 	return (
 		<m.div>
 			<m.span children={list.map((item, index) => <ExecutorTestItem item={item} index={index}/>)}/>
+			<m.span children={list.map(item => <{
+				item % 2 === 0 ?
+					<m.h1>{item}</m.h1> :
+					<m.p>{item}</m.p>
+			}#>)}/>
 			<m.h1>Moon</m.h1>
 			<m.p @click={handler1} @dblclick={handler2}>Partially static.</m.p>
 			<{list.length > 0 ?
@@ -70,7 +75,7 @@ function ExecutorTest({ list, focus }) {
 			<m.input {testFocusFalse}/>
 			<{list.length > 0 ?
 				<m.p>Text</m.p> :
-				<m.p></m.p>
+				<m.p/>
 			}#>
 		</m.div>
 	);
@@ -96,10 +101,12 @@ root = document.body.firstChild;
 
 function verify(list) {
 	const span = root.firstChild;
+	const span2 = span.nextSibling;
 
 	for (let i = 0; i < list.length; i++) {
 		const item = list[i];
 		const element = span.childNodes[i].firstChild;
+		const element2 = span2.childNodes[i];
 
 		if (item % 2 === 0) {
 			expect(element.tagName).toEqual("P");
@@ -176,9 +183,15 @@ function verify(list) {
 
 			expect(eventResult).toBeUndefined();
 		}
+
+		if (item % 2 === 0) {
+			expect(element2.tagName).toEqual("H1");
+		} else {
+			expect(element2.tagName).toEqual("P");
+		}
 	}
 
-	const h1 = span.nextSibling;
+	const h1 = span2.nextSibling;
 
 	expect(h1.tagName).toEqual("H1");
 	expect(h1.textContent).toEqual("Moon");
@@ -268,6 +281,16 @@ for (let i of [2, 3, 5]) {
 			assertExecute(before, after);
 		});
 	}
+}
+
+// Remove (clear)
+for (let i of [2, 3, 5]) {
+	const before = [i, i + 1, i + 2, i + 3, i * 2];
+	const after = [];
+
+	test(`[${before.toString()}] -> [${after.toString()}]`, () => {
+		assertExecute(before, after);
+	});
 }
 
 // Fuzz

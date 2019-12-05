@@ -1,4 +1,4 @@
-import NodeNew from "moon/src/view/NodeNew";
+import ViewNode from "moon/src/view/ViewNode";
 
 /**
  * HTML tag names
@@ -9,12 +9,12 @@ const names = ["a", "abbr", "acronym", "address", "applet", "area", "article", "
  * Node creation functions.
  */
 const m = {
-	node: name => data => new NodeNew(name, data)
+	node: name => data => new ViewNode(name, data)
 };
 
 for (let i = 0; i < names.length; i++) {
 	const name = names[i];
-	m[name] = data => new NodeNew(name, data);
+	m[name] = data => new ViewNode(name, data);
 }
 
 export default m;

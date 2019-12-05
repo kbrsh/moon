@@ -6,7 +6,7 @@ const removeDataPropertyCache = {};
 /**
  * Remove a data property.
  *
- * @param {Object} element
+ * @param {object} element
  * @param {string} key
  */
 export function removeDataProperty(element, name, key) {
