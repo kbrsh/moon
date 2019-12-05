@@ -222,6 +222,8 @@
 			var nodeData = node.data;
 
 			for (var key in nodeData) {
+				var value = nodeData[key];
+
 				if (key.charCodeAt(0) === 64) {
 					// Set an event listener.
 					var elementMoonEvent = element.MoonEvent;
@@ -230,17 +232,15 @@
 						elementMoonEvent = element.MoonEvent = new MoonEvent();
 					}
 
-					elementMoonEvent[key] = nodeData[key];
+					elementMoonEvent[key] = value;
 					element.addEventListener(key.slice(1), elementMoonEvent);
 				} else {
 					switch (key) {
 						case "ariaset":
 							{
 								// Set aria-* attributes.
-								var nodeDataAriaset = nodeData.ariaset;
-
-								for (var nodeDataAriasetKey in nodeDataAriaset) {
-									element.setAttribute("aria-" + nodeDataAriasetKey, nodeDataAriaset[nodeDataAriasetKey]);
+								for (var valueKey in value) {
+									element.setAttribute("aria-" + valueKey, value[valueKey]);
 								}
 
 								break;
@@ -249,11 +249,10 @@
 						case "dataset":
 							{
 								// Set data-* attributes.
-								var nodeDataDataset = nodeData.dataset;
 								var elementDataset = element.dataset;
 
-								for (var nodeDataDatasetKey in nodeDataDataset) {
-									elementDataset[nodeDataDatasetKey] = nodeDataDataset[nodeDataDatasetKey];
+								for (var _valueKey in value) {
+									elementDataset[_valueKey] = value[_valueKey];
 								}
 
 								break;
@@ -262,11 +261,10 @@
 						case "style":
 							{
 								// Set style attributes.
-								var nodeDataStyle = nodeData.style;
 								var elementStyle = element.style;
 
-								for (var nodeDataStyleKey in nodeDataStyle) {
-									elementStyle[nodeDataStyleKey] = nodeDataStyle[nodeDataStyleKey];
+								for (var _valueKey2 in value) {
+									elementStyle[_valueKey2] = value[_valueKey2];
 								}
 
 								break;
@@ -276,7 +274,7 @@
 							{
 								// Set focus if needed. Blur isn't set because it's the
 								// default.
-								if (nodeData.focus) {
+								if (value) {
 									element.focus();
 								}
 
@@ -286,25 +284,24 @@
 						case "class":
 							{
 								// Set a className property.
-								element.className = nodeData["class"];
+								element.className = value;
 								break;
 							}
 
 						case "for":
 							{
 								// Set an htmlFor property.
-								element.htmlFor = nodeData["for"];
+								element.htmlFor = value;
 								break;
 							}
 
 						case "children":
 							{
 								// Recursively append children.
-								var nodeDataChildren = nodeData.children;
 								var elementMoonChildren = element.MoonChildren = [];
 
-								for (var i = 0; i < nodeDataChildren.length; i++) {
-									var elementChild = viewCreate(nodeDataChildren[i]);
+								for (var i = 0; i < value.length; i++) {
+									var elementChild = viewCreate(value[i]);
 									elementMoonChildren.push(elementChild);
 									element.appendChild(elementChild);
 								}
@@ -315,7 +312,7 @@
 						default:
 							{
 								// Set a DOM property.
-								element[key] = nodeData[key];
+								element[key] = value;
 							}
 					}
 				}
@@ -622,11 +619,8 @@
 
 						case "focus":
 							{
-								// Remove focus if it was focused before.
-								if (nodeOldData.focus) {
-									nodeOldElement.blur();
-								}
-
+								// Remove focus.
+								nodeOldElement.blur();
 								break;
 							}
 
