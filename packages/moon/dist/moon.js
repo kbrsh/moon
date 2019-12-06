@@ -260,7 +260,7 @@
 
 						case "style":
 							{
-								// Set style attributes.
+								// Set style properties.
 								var elementStyle = element.style;
 
 								for (var _valueKey2 in value) {

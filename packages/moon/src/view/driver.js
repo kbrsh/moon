@@ -89,7 +89,7 @@ function viewCreate(node) {
 						break;
 					}
 					case "style": {
-						// Set style attributes.
+						// Set style properties.
 						const elementStyle = element.style;
 
 						for (const valueKey in value) {
