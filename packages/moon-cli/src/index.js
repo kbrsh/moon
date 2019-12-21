@@ -30,7 +30,17 @@ const help = {
 	}
 };
 
-let repo, name;
+function log(type, message) {
+	console.log(`\x1b[34m${type}\x1b[0m ${message}`);
+}
+
+function logHelp(message) {
+	console.log(highlight(message));
+}
+
+function logError(message) {
+	console.log(`\x1b[31merror\x1b[0m ${message}`);
+}
 
 function highlight(string) {
 	return string.replace(parameterRE, "\x1b[33m$&\x1b[0m").replace(optionRE, "\x1b[36m$&\x1b[0m");
@@ -40,18 +50,6 @@ function table(object) {
 	const keys = Object.keys(object);
 	const max = Math.max.apply(null, keys.map(key => key.length));
 	return keys.map(key => "\t" + key + " ".repeat(max - key.length + 3) + object[key]).join("\n");
-}
-
-function log(type, message) {
-	console.log(`\x1b[34m${type}\x1b[0m ${message}`);
-}
-
-function logHelp(message) {
-	console.log(highlight(message));
-}
-
-function error(message) {
-	console.log(`\x1b[31merror\x1b[0m ${message}`);
 }
 
 function replace(content, sub, subNewString) {
@@ -68,7 +66,7 @@ function replace(content, sub, subNewString) {
 	}
 }
 
-function download(res) {
+function download(name, repo, res) {
 	const archivePath = path.join(__dirname, "moon-template.tar.gz");
 	const stream = fs.createWriteStream(archivePath);
 
@@ -80,31 +78,31 @@ function download(res) {
 		stream.end();
 
 		log("download", repo);
-		install(archivePath);
+		install(name, archivePath);
 	});
 }
 
-function install(archivePath) {
+function install(name, archivePath) {
 	const targetPath = path.join(process.cwd(), name);
 
 	exec(`mkdir ${targetPath}`, err => {
-		if (err) throw err;
+		if (err) logError(err);
 
 		exec(`tar -xzf ${archivePath} -C ${targetPath} --strip=1`, err => {
-			if (err) throw err;
+			if (err) logError(err);
 
 			log("install", targetPath);
-			clean(archivePath, targetPath);
+			clean(name, archivePath, targetPath);
 		});
 	});
 }
 
-function clean(archivePath, targetPath) {
+function clean(name, archivePath, targetPath) {
 	fs.unlink(archivePath, err => {
-		if (err) throw err;
+		if (err) logError(err);
 
 		log("clean", archivePath);
-		create(targetPath, targetPath);
+		create(name, targetPath, targetPath);
 		log("success", `Generated application \x1b[36m${name}\x1b[0m`);
 		console.log(`To start, run:
 	cd ${name}
@@ -113,18 +111,18 @@ function clean(archivePath, targetPath) {
 	});
 }
 
-function create(currentPath, targetPath) {
-	const files = fs.readdirSync(currentPath);
+function create(name, directoryPath, targetPath) {
+	const files = fs.readdirSync(directoryPath);
 
 	for (let i = 0; i < files.length; i++) {
 		const file = files[i];
-		const nextPath = path.join(currentPath, file);
+		const filePath = path.join(directoryPath, file);
 
-		if (fs.statSync(nextPath).isDirectory()) {
-			create(nextPath, targetPath);
+		if (fs.statSync(filePath).isDirectory()) {
+			create(name, filePath, targetPath);
 		} else {
-			fs.writeFileSync(nextPath, replace(fs.readFileSync(nextPath), "{# MoonName #}", name));
-			log("create", path.relative(targetPath, nextPath));
+			fs.writeFileSync(filePath, replace(fs.readFileSync(filePath), "{# MoonName #}", name));
+			log("create", path.relative(targetPath, filePath));
 		}
 	}
 }
@@ -195,11 +193,11 @@ ${table(tableUsageDescription)}`);
 	}
 
 	case "create": {
-		name = commandArguments[0];
-		repo = commandOptions["-t"] || commandOptions["--template"] || "kbrsh/moon-template";
+		const name = commandArguments[0];
+		const repo = commandOptions["-t"] || commandOptions["--template"] || "kbrsh/moon-template";
 
 		if (name === undefined || name.length === 0) {
-			error(`Invalid or unknown name.
+			logError(`Invalid or unknown name.
 
 Attempted to create an application.
 
@@ -209,7 +207,7 @@ Expected a valid name. Run \x1b[35mmoon help create\x1b[0m to see usage informat
 		}
 
 		if (repo === true) {
-			error(`Invalid or unknown template.
+			logError(`Invalid or unknown template.
 
 Attempted to create an application.
 
@@ -232,17 +230,17 @@ Expected a valid template. Run \x1b[35mmoon help create\x1b[0m to see usage info
 		https.get(archive, res => {
 			if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location !== undefined) {
 				https.get(res.headers.location, redirectRes => {
-					download(redirectRes);
+					download(name, repo, redirectRes);
 				});
 			} else {
-				download(res);
+				download(name, repo, res);
 			}
 		});
 		break;
 	}
 
 	default: {
-		error(`Unrecognized command.
+		logError(`Unrecognized command.
 
 Attempted to execute a command.
 

@@ -41,7 +41,18 @@
 			}
 		}
 	};
-	var repo, name;
+
+	function log(type, message) {
+		console.log("\x1B[34m" + type + "\x1B[0m " + message);
+	}
+
+	function logHelp(message) {
+		console.log(highlight(message));
+	}
+
+	function logError(message) {
+		console.log("\x1B[31merror\x1B[0m " + message);
+	}
 
 	function highlight(string) {
 		return string.replace(parameterRE, "\x1b[33m$&\x1b[0m").replace(optionRE, "\x1b[36m$&\x1b[0m");
@@ -57,18 +68,6 @@
 		}).join("\n");
 	}
 
-	function log(type, message) {
-		console.log("\x1B[34m" + type + "\x1B[0m " + message);
-	}
-
-	function logHelp(message) {
-		console.log(highlight(message));
-	}
-
-	function error(message) {
-		console.log("\x1B[31merror\x1B[0m " + message);
-	}
-
 	function replace(content, sub, subNewString) {
 		var index = content.indexOf(sub);
 
@@ -82,7 +81,7 @@
 		}
 	}
 
-	function download(res) {
+	function download(name, repo, res) {
 		var archivePath = path.join(__dirname, "moon-template.tar.gz");
 		var stream = fs.createWriteStream(archivePath);
 		res.on("data", function (chunk) {
@@ -91,44 +90,44 @@
 		res.on("end", function () {
 			stream.end();
 			log("download", repo);
-			install(archivePath);
+			install(name, archivePath);
 		});
 	}
 
-	function install(archivePath) {
+	function install(name, archivePath) {
 		var targetPath = path.join(process.cwd(), name);
 		exec("mkdir " + targetPath, function (err) {
-			if (err) throw err;
+			if (err) logError(err);
 			exec("tar -xzf " + archivePath + " -C " + targetPath + " --strip=1", function (err) {
-				if (err) throw err;
+				if (err) logError(err);
 				log("install", targetPath);
-				clean(archivePath, targetPath);
+				clean(name, archivePath, targetPath);
 			});
 		});
 	}
 
-	function clean(archivePath, targetPath) {
+	function clean(name, archivePath, targetPath) {
 		fs.unlink(archivePath, function (err) {
-			if (err) throw err;
+			if (err) logError(err);
 			log("clean", archivePath);
-			create(targetPath, targetPath);
+			create(name, targetPath, targetPath);
 			log("success", "Generated application \x1B[36m" + name + "\x1B[0m");
 			console.log("To start, run:\n\tcd " + name + "\n\tnpm install\n\tnpm run dev");
 		});
 	}
 
-	function create(currentPath, targetPath) {
-		var files = fs.readdirSync(currentPath);
+	function create(name, directoryPath, targetPath) {
+		var files = fs.readdirSync(directoryPath);
 
 		for (var i = 0; i < files.length; i++) {
 			var file = files[i];
-			var nextPath = path.join(currentPath, file);
+			var filePath = path.join(directoryPath, file);
 
-			if (fs.statSync(nextPath).isDirectory()) {
-				create(nextPath, targetPath);
+			if (fs.statSync(filePath).isDirectory()) {
+				create(name, filePath, targetPath);
 			} else {
-				fs.writeFileSync(nextPath, replace(fs.readFileSync(nextPath), "{# MoonName #}", name));
-				log("create", path.relative(targetPath, nextPath));
+				fs.writeFileSync(filePath, replace(fs.readFileSync(filePath), "{# MoonName #}", name));
+				log("create", path.relative(targetPath, filePath));
 			}
 		}
 	}
@@ -194,15 +193,15 @@
 
 		case "create":
 			{
-				name = commandArguments[0];
-				repo = commandOptions["-t"] || commandOptions["--template"] || "kbrsh/moon-template";
+				var name = commandArguments[0];
+				var repo = commandOptions["-t"] || commandOptions["--template"] || "kbrsh/moon-template";
 
 				if (name === undefined || name.length === 0) {
-					error("Invalid or unknown name.\n\nAttempted to create an application.\n\nReceived an invalid or unknown name.\n\nExpected a valid name. Run \x1B[35mmoon help create\x1B[0m to see usage information.");
+					logError("Invalid or unknown name.\n\nAttempted to create an application.\n\nReceived an invalid or unknown name.\n\nExpected a valid name. Run \x1B[35mmoon help create\x1B[0m to see usage information.");
 				}
 
 				if (repo === true) {
-					error("Invalid or unknown template.\n\nAttempted to create an application.\n\nReceived an invalid or unknown template.\n\nExpected a valid template. Run \x1B[35mmoon help create\x1B[0m to see usage information.");
+					logError("Invalid or unknown template.\n\nAttempted to create an application.\n\nReceived an invalid or unknown template.\n\nExpected a valid template. Run \x1B[35mmoon help create\x1B[0m to see usage information.");
 				}
 
 				var archive = {
@@ -217,10 +216,10 @@
 				https.get(archive, function (res) {
 					if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location !== undefined) {
 						https.get(res.headers.location, function (redirectRes) {
-							download(redirectRes);
+							download(name, repo, redirectRes);
 						});
 					} else {
-						download(res);
+						download(name, repo, res);
 					}
 				});
 				break;
@@ -228,7 +227,7 @@
 
 		default:
 			{
-				error("Unrecognized command.\n\nAttempted to execute a command.\n\nReceived a command that does not exist:\n\t" + commandName + "\n\nExpected a valid command. Run \x1B[35mmoon help\x1B[0m to see valid commands.");
+				logError("Unrecognized command.\n\nAttempted to execute a command.\n\nReceived a command that does not exist:\n\t" + commandName + "\n\nExpected a valid command. Run \x1B[35mmoon help\x1B[0m to see valid commands.");
 			}
 	}
 
