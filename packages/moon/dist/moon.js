@@ -918,23 +918,19 @@
 		var route = data.route;
 		var routeSegment = "/";
 		var routes = data.routes;
-		var routesCurrent = routes;
-		var routesCurrentView;
 
-		for (var i = 1; i <= route.length; i++) {
+		for (var i = 1; i < route.length; i++) {
 			var routeCharacter = route[i];
 
-			if (routeCharacter === undefined || routeCharacter === "/") {
-				var routesCurrentValue = routeSegment in routesCurrent ? routesCurrent[routeSegment] : routesCurrent["/*"];
-				routesCurrent = routesCurrentValue[1];
-				routesCurrentView = routesCurrentValue[0];
+			if (routeCharacter === "/") {
+				routes = (routeSegment in routes ? routes[routeSegment] : routes["/*"])[1];
 				routeSegment = "/";
 			} else {
 				routeSegment += routeCharacter;
 			}
 		}
 
-		return routesCurrentView(data);
+		return (routeSegment in routes ? routes[routeSegment] : routes["/*"])[0](data);
 	}
 
 	var route$1 = {
