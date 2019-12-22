@@ -13,35 +13,6 @@
 }(this, function() {
 	"use strict";
 
-	/*
-	 * Current global data
-	 */
-	var data;
-	/**
-	 * Data driver
-	 *
-	 * The application components are usually a function of data. This data holds
-	 * application state. Every time an application is executed, it is passed new
-	 * data and returns driver outputs that correspond to it. These driver outputs
-	 * should be fast, pure, functions that are cheap to call and easy to optimize
-	 * through caching and memoization.
-	 */
-
-	var driver = {
-		input: function input() {
-			// Return the stored data as input.
-			return data;
-		},
-		output: function output(dataNew) {
-			// Update the stored data when it is an output.
-			data = dataNew;
-		}
-	};
-
-	var data$1 = {
-		driver: driver
-	};
-
 	/**
 	 * Logs an error message to the console.
 	 * @param {string} message
@@ -140,6 +111,35 @@
 			drivers[_driver].output(output[_driver]);
 		}
 	}
+
+	/*
+	 * Current global data
+	 */
+	var data;
+	/**
+	 * Data driver
+	 *
+	 * The application components are usually a function of data. This data holds
+	 * application state. Every time an application is executed, it is passed new
+	 * data and returns driver outputs that correspond to it. These driver outputs
+	 * should be fast, pure, functions that are cheap to call and easy to optimize
+	 * through caching and memoization.
+	 */
+
+	var driver = {
+		input: function input() {
+			// Return the stored data as input.
+			return data;
+		},
+		output: function output(dataNew) {
+			// Update the stored data when it is an output.
+			data = dataNew;
+		}
+	};
+
+	var data$1 = {
+		driver: driver
+	};
 
 	/**
 	 * View Node Constructor
@@ -883,9 +883,69 @@
 		driver: driver$3
 	};
 
+	/**
+	 * Current route
+	 */
+	var route = location.pathname;
+	/**
+	 * Route driver
+	 *
+	 * The route driver provides current route path as input. For output, it takes
+	 * a new route as a string and changes the route in the browser as a result. It
+	 * also provides a router component that can be used to display different views
+	 * based on the current route.
+	 */
+
+	var driver$4 = {
+		input: function input() {
+			// Return the current route as input.
+			return route;
+		},
+		output: function output(routeNew) {
+			// Change the browser route to the new route given as output.
+			route = routeNew;
+			history.pushState(null, "", route);
+		}
+	};
+
+	/**
+	 * Returns a view given routes that map to views and the current route.
+	 *
+	 * @param {object} data
+	 * @returns {object} view
+	 */
+	function router(data) {
+		var route = data.route;
+		var routeSegment = "/";
+		var routes = data.routes;
+		var routesCurrent = routes;
+		var routesCurrentView;
+
+		for (var i = 1; i <= route.length; i++) {
+			var routeCharacter = route[i];
+
+			if (routeCharacter === undefined || routeCharacter === "/") {
+				var routesCurrentValue = routeSegment in routesCurrent ? routesCurrent[routeSegment] : routesCurrent["/*"];
+				routesCurrent = routesCurrentValue[1];
+				routesCurrentView = routesCurrentValue[0];
+				routeSegment = "/";
+			} else {
+				routeSegment += routeCharacter;
+			}
+		}
+
+		return routesCurrentView(data);
+	}
+
+	var route$1 = {
+		driver: driver$4,
+		router: router
+	};
+
 	var index = {
 		data: data$1,
 		http: http,
+		route: route$1,
 		run: run,
 		time: time,
 		use: use,
