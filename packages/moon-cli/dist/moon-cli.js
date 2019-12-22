@@ -81,42 +81,69 @@
 		}
 	}
 
-	function download(name, repo, res) {
-		var archivePath = path.join(__dirname, "moon-template.tar.gz");
-		var stream = fs.createWriteStream(archivePath);
-		res.on("data", function (chunk) {
-			stream.write(chunk);
-		});
-		res.on("end", function () {
-			stream.end();
-			log("download", repo);
-			install(name, archivePath);
+	function download(name, repo) {
+		var archive = {
+			method: "GET",
+			host: "api.github.com",
+			path: "/repos/" + repo + "/tarball/master",
+			headers: {
+				"User-Agent": "Moon"
+			}
+		};
+		https.get(archive, function (res) {
+			var statusCode = res.statusCode;
+
+			if (statusCode >= 300 && statusCode < 400) {
+				https.get(res.headers.location, function (res) {
+					var statusCode = res.statusCode;
+
+					if (statusCode >= 200 && statusCode < 300) {
+						var archivePath = path.join(__dirname, "moon-template.tar.gz");
+						var stream = fs.createWriteStream(archivePath);
+						res.on("data", function (chunk) {
+							stream.write(chunk);
+						});
+						res.on("end", function () {
+							stream.end();
+							log("downloaded", repo);
+							install(name, archivePath);
+						});
+					} else {
+						logError("Invalid download HTTP response.\n\nAttempted to download template:\n\t" + res.headers.location + "\n\nReceived error HTTP status code:\n\t" + statusCode + "\n\nExpected success HTTP status code (200-299).");
+					}
+				}).on("error", function (error) {
+					logError("Failure of download HTTP request.\n\nAttempted to download template:\n\t" + res.headers.location + "\n\nReceived error:\n\t" + error + "\n\nExpected successful HTTP request.");
+				});
+			} else {
+				logError("Invalid archive link HTTP response.\n\nAttempted to fetch archive link for template:\n\thttps://" + archive.host + archive.path + "\n\nReceived error HTTP status code:\n\t" + statusCode + "\n\nExpected redirect HTTP status code (300-399).");
+			}
+		}).on("error", function (error) {
+			logError("Failure of archive link HTTP request.\n\nAttempted to fetch archive link for template:\n\thttps://" + archive.host + archive.path + "\n\nReceived error:\n\t" + error + "\n\nExpected successful HTTP request.");
 		});
 	}
 
 	function install(name, archivePath) {
 		var targetPath = path.join(process.cwd(), name);
-		exec("mkdir " + targetPath, function (err) {
-			if (err) logError(err);
-			exec("tar -xzf " + archivePath + " -C " + targetPath + " --strip=1", function (err) {
-				if (err) logError(err);
-				log("install", targetPath);
+		exec("mkdir " + targetPath, function (error) {
+			if (error) logError(error);
+			exec("tar -xzf " + archivePath + " -C " + targetPath + " --strip=1", function (error) {
+				if (error) logError(error);
+				log("installed", targetPath);
 				clean(name, archivePath, targetPath);
 			});
 		});
 	}
 
 	function clean(name, archivePath, targetPath) {
-		fs.unlink(archivePath, function (err) {
-			if (err) logError(err);
-			log("clean", archivePath);
-			create(name, targetPath, targetPath);
-			log("success", "Generated application \x1B[36m" + name + "\x1B[0m");
-			console.log("To start, run:\n\tcd " + name + "\n\tnpm install\n\tnpm run dev");
+		fs.unlink(archivePath, function (error) {
+			if (error) logError(error);
+			log("cleaned", archivePath);
+			processDirectory(name, targetPath, targetPath);
+			log("created", "application \x1B[36m" + name + "\x1B[0m\n\nTo start, run:\n\tcd " + name + "\n\tnpm install\n\tnpm run dev");
 		});
 	}
 
-	function create(name, directoryPath, targetPath) {
+	function processDirectory(name, directoryPath, targetPath) {
 		var files = fs.readdirSync(directoryPath);
 
 		for (var i = 0; i < files.length; i++) {
@@ -124,10 +151,10 @@
 			var filePath = path.join(directoryPath, file);
 
 			if (fs.statSync(filePath).isDirectory()) {
-				create(name, filePath, targetPath);
+				processDirectory(name, filePath, targetPath);
 			} else {
 				fs.writeFileSync(filePath, replace(fs.readFileSync(filePath), "{# MoonName #}", name));
-				log("create", path.relative(targetPath, filePath));
+				log("processed", path.relative(targetPath, filePath));
 			}
 		}
 	}
@@ -204,24 +231,8 @@
 					logError("Invalid or unknown template.\n\nAttempted to create an application.\n\nReceived an invalid or unknown template.\n\nExpected a valid template. Run \x1B[35mmoon help create\x1B[0m to see usage information.");
 				}
 
-				var archive = {
-					method: "GET",
-					host: "api.github.com",
-					path: "/repos/" + repo + "/tarball/master",
-					headers: {
-						"User-Agent": "Moon"
-					}
-				};
-				log("Moon", "Generating application");
-				https.get(archive, function (res) {
-					if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location !== undefined) {
-						https.get(res.headers.location, function (redirectRes) {
-							download(name, repo, redirectRes);
-						});
-					} else {
-						download(name, repo, res);
-					}
-				});
+				log("Moon", "creating application");
+				download(name, repo);
 				break;
 			}
 
