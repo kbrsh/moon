@@ -245,6 +245,7 @@ for (let i = 1; i < argv.length; i++) {
 switch (commandName) {
 	case "version": {
 		logHelp(`Moon CLI v${process.env.MOON_VERSION}`);
+
 		break;
 	}
 
@@ -281,6 +282,7 @@ ${table(helpCommand.options)}`);
 Commands:
 ${table(tableUsageDescription)}`);
 		}
+
 		break;
 	}
 
