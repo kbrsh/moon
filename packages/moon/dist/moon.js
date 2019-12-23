@@ -945,6 +945,7 @@
 		run: run,
 		time: time,
 		use: use,
+		version: "1.0.0-beta.4",
 		view: view
 	};
 

@@ -482,7 +482,8 @@
 	var index = {
 		compile: compile,
 		generate: generate,
-		parse: parse
+		parse: parse,
+		version: "1.0.0-beta.4"
 	};
 
 	return index;

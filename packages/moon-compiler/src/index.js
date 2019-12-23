@@ -5,5 +5,6 @@ import compile from "moon-compiler/src/compile";
 export default {
 	compile,
 	generate,
-	parse
+	parse,
+	version: process.env.MOON_VERSION
 };

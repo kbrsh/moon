@@ -50,12 +50,12 @@ async function build(package) {
 		});
 
 		output = output[0].code;
-		output = output.replace(spacesRE, "\t");
 
 		if (type === "module") {
 			output = fs.readFileSync("./build/wrapper.js").toString().replace("MODULE_NAME", nameExport).replace("MODULE_CONTENT", output.split("\n").slice(1, -3).join("\n"));
 		}
 
+		output = output.replace(spacesRE, "\t");
 		output = output.replace("'use strict'", "\"use strict\"");
 		output = output.replace(versionRE, `"${version}"`);
 

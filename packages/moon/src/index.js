@@ -13,5 +13,6 @@ export default {
 	run,
 	time,
 	use,
+	version: process.env.MOON_VERSION,
 	view
 };
