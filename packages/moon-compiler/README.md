@@ -1,3 +1,3 @@
 # Moon Compiler
 
-Compiler for Moon syntax
+Moon view syntax compiler

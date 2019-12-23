@@ -1,3 +1,3 @@
 # Moon CLI
 
-Moon project generator
+Moon CLI for creating applications

@@ -1,3 +1,3 @@
 # Moon
 
-The minimal & fast UI library
+The minimal & fast library for functional user interfaces

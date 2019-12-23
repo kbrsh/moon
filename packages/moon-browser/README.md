@@ -1,3 +1,3 @@
 # Moon Browser
 
-Browser compiler for Moon syntax
+Moon view syntax compiler for the browser
