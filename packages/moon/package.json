@@ -1,7 +1,7 @@
 {
 	"name": "moon",
 	"version": "1.0.0-beta.4",
-	"description": "The minimal & fast UI library",
+	"description": "The minimal & fast library for functional user interfaces",
 	"main": "dist/moon.min.js",
 	"repository": {
 		"type": "git",
@@ -9,11 +9,12 @@
 	},
 	"keywords": [
 		"moon",
+		"minimal",
+		"fast",
+		"library",
+		"functional",
 		"user interface",
-		"UI",
-		"view",
-		"model",
-		"library"
+		"UI"
 	],
 	"author": "Kabir Shah",
 	"license": "MIT",

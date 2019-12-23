@@ -1,7 +1,7 @@
 {
 	"name": "moon-cli",
 	"version": "1.0.0-beta.4",
-	"description": "Moon project generator",
+	"description": "Moon CLI for creating applications",
 	"main": "dist/moon-cli.min.js",
 	"bin": {
 		"moon": "dist/moon-cli.min.js"
@@ -12,7 +12,9 @@
 	},
 	"keywords": [
 		"moon",
-		"cli"
+		"CLI",
+		"create",
+		"application"
 	],
 	"author": "Kabir Shah",
 	"license": "MIT",

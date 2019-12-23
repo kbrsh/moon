@@ -1,7 +1,7 @@
 {
 	"name": "moon-root",
 	"version": "1.0.0-beta.4",
-	"description": "The minimal & fast UI library",
+	"description": "The minimal & fast library for functional user interfaces",
 	"private": true,
 	"scripts": {
 		"build": "node build/build.js",

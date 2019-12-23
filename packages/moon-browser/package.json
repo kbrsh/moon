@@ -1,7 +1,7 @@
 {
 	"name": "moon-browser",
 	"version": "1.0.0-beta.4",
-	"description": "Moon compiler for the browser",
+	"description": "Moon view syntax compiler for the browser",
 	"main": "dist/moon-browser.min.js",
 	"repository": {
 		"type": "git",
@@ -9,6 +9,9 @@
 	},
 	"keywords": [
 		"moon",
+		"view",
+		"syntax",
+		"compiler",
 		"browser"
 	],
 	"author": "Kabir Shah",
