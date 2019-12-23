@@ -14,7 +14,7 @@
 
 ### Summary
 
-- :tada: Small file size (1kb minified + gzip)
+- :tada: Small file size (2kb minified + gzip)
 - :zap: Blazing fast view rendering
 - :hammer: Purely functional driver-based design
 - :rocket: Intuitive & consistent API
