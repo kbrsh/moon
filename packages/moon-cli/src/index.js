@@ -147,10 +147,30 @@ function install(name, archivePath) {
 	const targetPath = path.join(process.cwd(), name);
 
 	exec(`mkdir ${targetPath}`, error => {
-		if (error) logError(error);
+		if (error !== null) {
+			logError(`Failed directory creation.
+
+Attempted to create directory:
+	${targetPath}
+
+Received error:
+	${error}
+
+Expected successful directory creation.`);
+		}
 
 		exec(`tar -xzf ${archivePath} -C ${targetPath} --strip=1`, error => {
-			if (error) logError(error);
+			if (error !== null) {
+				logError(`Failed archive extraction.
+
+Attempted to extract archive to target:
+	${archivePath} -> ${targetPath}
+
+Received error:
+	${error}
+
+Expected successful archive extraction.`);
+			}
 
 			log("installed", targetPath);
 			clean(name, archivePath, targetPath);
@@ -160,7 +180,17 @@ function install(name, archivePath) {
 
 function clean(name, archivePath, targetPath) {
 	fs.unlink(archivePath, error => {
-		if (error) logError(error);
+		if (error !== null) {
+			logError(`Failed archive deletion.
+
+Attempted to delete archive:
+	${archivePath}
+
+Received error:
+	${error}
+
+Expected successful archive deletion.`);
+		}
 
 		log("cleaned", archivePath);
 		processDirectory(name, targetPath, targetPath);

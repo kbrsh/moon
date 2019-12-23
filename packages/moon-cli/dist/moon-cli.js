@@ -125,9 +125,15 @@
 	function install(name, archivePath) {
 		var targetPath = path.join(process.cwd(), name);
 		exec("mkdir " + targetPath, function (error) {
-			if (error) logError(error);
+			if (error !== null) {
+				logError("Failed directory creation.\n\nAttempted to create directory:\n\t" + targetPath + "\n\nReceived error:\n\t" + error + "\n\nExpected successful directory creation.");
+			}
+
 			exec("tar -xzf " + archivePath + " -C " + targetPath + " --strip=1", function (error) {
-				if (error) logError(error);
+				if (error !== null) {
+					logError("Failed archive extraction.\n\nAttempted to extract archive to target:\n\t" + archivePath + " -> " + targetPath + "\n\nReceived error:\n\t" + error + "\n\nExpected successful archive extraction.");
+				}
+
 				log("installed", targetPath);
 				clean(name, archivePath, targetPath);
 			});
@@ -136,7 +142,10 @@
 
 	function clean(name, archivePath, targetPath) {
 		fs.unlink(archivePath, function (error) {
-			if (error) logError(error);
+			if (error !== null) {
+				logError("Failed archive deletion.\n\nAttempted to delete archive:\n\t" + archivePath + "\n\nReceived error:\n\t" + error + "\n\nExpected successful archive deletion.");
+			}
+
 			log("cleaned", archivePath);
 			processDirectory(name, targetPath, targetPath);
 			log("created", "application \x1B[36m" + name + "\x1B[0m\n\nTo start, run:\n\tcd " + name + "\n\tnpm install\n\tnpm run dev");
