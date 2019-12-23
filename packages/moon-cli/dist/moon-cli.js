@@ -112,13 +112,13 @@
 						logError("Invalid download HTTP response.\n\nAttempted to download template:\n\t" + res.headers.location + "\n\nReceived error HTTP status code:\n\t" + statusCode + "\n\nExpected success HTTP status code (200-299).");
 					}
 				}).on("error", function (error) {
-					logError("Failure of download HTTP request.\n\nAttempted to download template:\n\t" + res.headers.location + "\n\nReceived error:\n\t" + error + "\n\nExpected successful HTTP request.");
+					logError("Failed download HTTP request.\n\nAttempted to download template:\n\t" + res.headers.location + "\n\nReceived error:\n\t" + error + "\n\nExpected successful HTTP request.");
 				});
 			} else {
 				logError("Invalid archive link HTTP response.\n\nAttempted to fetch archive link for template:\n\thttps://" + archive.host + archive.path + "\n\nReceived error HTTP status code:\n\t" + statusCode + "\n\nExpected redirect HTTP status code (300-399).");
 			}
 		}).on("error", function (error) {
-			logError("Failure of archive link HTTP request.\n\nAttempted to fetch archive link for template:\n\thttps://" + archive.host + archive.path + "\n\nReceived error:\n\t" + error + "\n\nExpected successful HTTP request.");
+			logError("Failed archive link HTTP request.\n\nAttempted to fetch archive link for template:\n\thttps://" + archive.host + archive.path + "\n\nReceived error:\n\t" + error + "\n\nExpected successful HTTP request.");
 		});
 	}
 

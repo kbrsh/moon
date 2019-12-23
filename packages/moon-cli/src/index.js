@@ -109,7 +109,7 @@ Received error HTTP status code:
 Expected success HTTP status code (200-299).`);
 				}
 			}).on("error", error => {
-				logError(`Failure of download HTTP request.
+				logError(`Failed download HTTP request.
 
 Attempted to download template:
 	${res.headers.location}
@@ -131,7 +131,7 @@ Received error HTTP status code:
 Expected redirect HTTP status code (300-399).`);
 		}
 	}).on("error", error => {
-		logError(`Failure of archive link HTTP request.
+		logError(`Failed archive link HTTP request.
 
 Attempted to fetch archive link for template:
 	https://${archive.host}${archive.path}
