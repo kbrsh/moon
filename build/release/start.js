@@ -2,22 +2,19 @@ const fs = require("fs");
 const path = require("path");
 const exec = require("child_process").execSync;
 
-const version = JSON.parse(fs.readFileSync("./package.json", "utf8")).version;
-const packages = fs.readdirSync("./packages");
+const version = JSON.parse(fs.readFileSync(path.join(__dirname, "../../package.json"), "utf8")).version;
+const packagesPath = path.join(__dirname, "../../packages");
+const packages = fs.readdirSync(packagesPath);
 
 for (let i = 0; i < packages.length; i++) {
-	let package = packages[i];
+	const package = packages[i];
+
 	if (package.slice(0, 4) === "moon") {
-		package = path.join("./packages", packages[i]);
+		const packageJSONPath = path.join(packagesPath, package, "package.json");
+		const packageJSON = JSON.parse(fs.readFileSync(packageJSONPath, "utf8"));
+		packageJSON.version = version;
 
-		if (fs.statSync(package).isDirectory()) {
-			const packageJSONPath = path.join(package, "package.json");
-			const packageJSON = JSON.parse(fs.readFileSync(packageJSONPath, "utf8"));
-
-			packageJSON.version = version;
-
-			fs.writeFileSync(packageJSONPath, JSON.stringify(packageJSON, null, "\t"));
-		}
+		fs.writeFileSync(packageJSONPath, JSON.stringify(packageJSON, null, "\t"));
 	}
 }
 

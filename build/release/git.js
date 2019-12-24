@@ -22,8 +22,9 @@ for (let i = 0; i < commits.length; i++) {
 	log += `* ${hash}: ${message}\n`;
 }
 
-const releaseNotePath = path.resolve("./RELEASE_NOTE");
+const releaseNotePath = path.join(__dirname, "RELEASE_NOTE");
+
 fs.writeFileSync(releaseNotePath, log);
-exec(`cat ./RELEASE_NOTE | pbcopy`);
+exec(`cat ${releaseNotePath} | pbcopy`);
 fs.unlinkSync(releaseNotePath);
 exec(`open https://github.com/kbrsh/moon/releases/edit/${tags[1]}`);
