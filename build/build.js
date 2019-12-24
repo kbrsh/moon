@@ -81,7 +81,7 @@ const packages = fs.readdirSync("./packages");
 for (let i = 0; i < packages.length; i++) {
 	const package = packages[i];
 
-	if (package.slice(0, 4) === "moon" && fs.lstatSync(`./packages/${package}`).isDirectory()) {
+	if (package.slice(0, 4) === "moon" && fs.statSync(`./packages/${package}`).isDirectory()) {
 		build(packages[i]);
 	}
 }
