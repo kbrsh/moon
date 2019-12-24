@@ -11,9 +11,9 @@ const pathTemplateArchive = path.join(__dirname, "test-moon-cli-template.tar.gz"
 const pathCLI = path.join(__dirname, "../src/index.js");
 process.env.MOON_VERSION = "test.test.test";
 
-child_process.execSync(`tar -czf ${pathTemplateArchive} -C ${__dirname} test-moon-cli-template`);
-
 // Mocks
+let httpsRequest;
+
 https.get = (options, fn) => {
 	if (typeof options === "string" && options === "test-location") {
 		fn({
@@ -27,6 +27,8 @@ https.get = (options, fn) => {
 			}
 		});
 	} else {
+		expect(options).toEqual(httpsRequest);
+
 		fn({
 			statusCode: 301,
 			headers: {
@@ -58,11 +60,17 @@ fs.createWriteStream = file => {
 };
 
 // Tests
-function MoonCLI(args) {
+function MoonCLI(args, error) {
 	console.log = jest.fn();
 	process.argv = ["node", pathCLI, ...args];
 
-	require(pathCLI);
+	if (error === undefined) {
+		require(pathCLI);
+	} else {
+		expect(() => {
+			require(pathCLI)
+		}).toThrow(error);
+	}
 
 	return console.log.mock.calls.map(call => call[0]).join("\n") + "\n";
 }
@@ -81,6 +89,10 @@ function replace(content, sub, subNewString) {
 	}
 }
 
+function init() {
+	child_process.execSync(`tar -czf ${pathTemplateArchive} -C ${__dirname} test-moon-cli-template`);
+}
+
 function clean(directory) {
 	const files = fs.readdirSync(directory);
 
@@ -95,6 +107,18 @@ function clean(directory) {
 	}
 
 	fs.rmdirSync(directory);
+}
+
+function cleanAll() {
+	fs.unlinkSync(pathTemplateArchive);
+
+	if (fs.existsSync(pathTest)) {
+		clean(pathTest);
+	}
+
+	if (fs.existsSync(pathTestArchive)) {
+		fs.unlinkSync(pathTestArchive);
+	}
 }
 
 function verify(received, expected) {
@@ -168,6 +192,17 @@ Options:
 
 test("create command", () => {
 	jest.resetModules();
+	init();
+
+	httpsRequest = {
+		method: "GET",
+		host: "api.github.com",
+		path: "/repos/kbrsh/moon-template/tarball/master",
+		headers: {
+			"User-Agent": "Moon"
+		}
+	};
+
 	expect(MoonCLI(["create", "test-moon-cli"])).toEqual(`\x1b[34mMoon\x1b[0m creating application
 \x1b[34mdownloaded\x1b[0m kbrsh/moon-template
 \x1b[34minstalled\x1b[0m ${pathTest}
@@ -188,6 +223,116 @@ To start, run:
 	npm run dev
 `);
 	verify(pathTest, pathTemplate);
-	clean(pathTest);
-	fs.unlinkSync(pathTemplateArchive);
+	cleanAll();
+});
+
+test("create command with custom template -t", () => {
+	init();
+	jest.resetModules();
+
+	httpsRequest = {
+		method: "GET",
+		host: "api.github.com",
+		path: "/repos/test-moon-cli/test-moon-cli-template/tarball/master",
+		headers: {
+			"User-Agent": "Moon"
+		}
+	};
+
+	expect(MoonCLI(["create", "test-moon-cli", "-t", "test-moon-cli/test-moon-cli-template"])).toEqual(`\x1b[34mMoon\x1b[0m creating application
+\x1b[34mdownloaded\x1b[0m test-moon-cli/test-moon-cli-template
+\x1b[34minstalled\x1b[0m ${pathTest}
+\x1b[34mcleaned\x1b[0m ${pathTestArchive}
+\x1b[34mprocessed\x1b[0m test-directory-1/test-directory-1-file-1.txt
+\x1b[34mprocessed\x1b[0m test-directory-1/test-directory-1-file-2.txt
+\x1b[34mprocessed\x1b[0m test-directory-2/test-directory-2-directory-1/test-directory-2-directory-1-file-1.txt
+\x1b[34mprocessed\x1b[0m test-directory-2/test-directory-2-directory-2/test-directory-2-directory-2-file-1.txt
+\x1b[34mprocessed\x1b[0m test-directory-2/test-directory-2-file-1.txt
+\x1b[34mprocessed\x1b[0m test-directory-2/test-directory-2-file-2.txt
+\x1b[34mprocessed\x1b[0m test-file-1.txt
+\x1b[34mprocessed\x1b[0m test-file-2.txt
+\x1b[34mcreated\x1b[0m application \x1b[36mtest-moon-cli\x1b[0m
+
+To start, run:
+	cd test-moon-cli
+	npm install
+	npm run dev
+`);
+	verify(pathTest, pathTemplate);
+	cleanAll();
+});
+
+test("create command with custom template --template", () => {
+	jest.resetModules();
+	init();
+
+	httpsRequest = {
+		method: "GET",
+		host: "api.github.com",
+		path: "/repos/test-moon-cli/test-moon-cli-template/tarball/master",
+		headers: {
+			"User-Agent": "Moon"
+		}
+	};
+
+	expect(MoonCLI(["create", "test-moon-cli", "--template", "test-moon-cli/test-moon-cli-template"])).toEqual(`\x1b[34mMoon\x1b[0m creating application
+\x1b[34mdownloaded\x1b[0m test-moon-cli/test-moon-cli-template
+\x1b[34minstalled\x1b[0m ${pathTest}
+\x1b[34mcleaned\x1b[0m ${pathTestArchive}
+\x1b[34mprocessed\x1b[0m test-directory-1/test-directory-1-file-1.txt
+\x1b[34mprocessed\x1b[0m test-directory-1/test-directory-1-file-2.txt
+\x1b[34mprocessed\x1b[0m test-directory-2/test-directory-2-directory-1/test-directory-2-directory-1-file-1.txt
+\x1b[34mprocessed\x1b[0m test-directory-2/test-directory-2-directory-2/test-directory-2-directory-2-file-1.txt
+\x1b[34mprocessed\x1b[0m test-directory-2/test-directory-2-file-1.txt
+\x1b[34mprocessed\x1b[0m test-directory-2/test-directory-2-file-2.txt
+\x1b[34mprocessed\x1b[0m test-file-1.txt
+\x1b[34mprocessed\x1b[0m test-file-2.txt
+\x1b[34mcreated\x1b[0m application \x1b[36mtest-moon-cli\x1b[0m
+
+To start, run:
+	cd test-moon-cli
+	npm install
+	npm run dev
+`);
+	verify(pathTest, pathTemplate);
+	cleanAll();
+});
+
+test("error on unknown command", () => {
+	jest.resetModules();
+	expect(MoonCLI(["unknown"])).toEqual(`\x1b[31merror\x1b[0m Unrecognized command.
+
+Attempted to execute a command.
+
+Received a command that does not exist:
+	unknown
+
+Expected a valid command. Run \x1b[35mmoon help\x1b[0m to see valid commands.
+`);
+});
+
+test("error on invalid create name", () => {
+	jest.resetModules();
+	init();
+
+	httpsRequest = {
+		method: "GET",
+		host: "api.github.com",
+		path: "/repos/kbrsh/moon-template/tarball/master",
+		headers: {
+			"User-Agent": "Moon"
+		}
+	};
+
+	expect(MoonCLI(["create"], `The "path" argument must be of type string. Received type undefined`)).toEqual(`\x1b[31merror\x1b[0m Invalid or unknown name.
+
+Attempted to create an application.
+
+Received an invalid or unknown name.
+
+Expected a valid name. Run \x1b[35mmoon help create\x1b[0m to see usage information.
+\x1b[34mMoon\x1b[0m creating application
+\x1b[34mdownloaded\x1b[0m kbrsh/moon-template
+`);
+	cleanAll(pathTest);
 });
