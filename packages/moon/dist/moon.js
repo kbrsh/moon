@@ -236,23 +236,11 @@
 					element.addEventListener(key.slice(1), elementMoonEvent);
 				} else {
 					switch (key) {
-						case "ariaset":
+						case "attributes":
 							{
-								// Set aria-* attributes.
+								// Set attributes.
 								for (var valueKey in value) {
-									element.setAttribute("aria-" + valueKey, value[valueKey]);
-								}
-
-								break;
-							}
-
-						case "dataset":
-							{
-								// Set data-* attributes.
-								var elementDataset = element.dataset;
-
-								for (var _valueKey in value) {
-									elementDataset[_valueKey] = value[_valueKey];
+									element.setAttribute(valueKey, value[valueKey]);
 								}
 
 								break;
@@ -263,8 +251,8 @@
 								// Set style properties.
 								var elementStyle = element.style;
 
-								for (var _valueKey2 in value) {
-									elementStyle[_valueKey2] = value[_valueKey2];
+								for (var _valueKey in value) {
+									elementStyle[_valueKey] = value[_valueKey];
 								}
 
 								break;
@@ -359,57 +347,27 @@
 					}
 				} else {
 					switch (keyNew) {
-						case "ariaset":
+						case "attributes":
 							{
-								// Update aria-* attributes.
+								// Update attributes.
 								if (valueOld === undefined) {
 									for (var valueNewKey in valueNew) {
-										nodeOldElement.setAttribute("aria-" + valueNewKey, valueNew[valueNewKey]);
+										nodeOldElement.setAttribute(valueNewKey, valueNew[valueNewKey]);
 									}
 								} else {
 									for (var _valueNewKey in valueNew) {
 										var valueNewValue = valueNew[_valueNewKey];
 
 										if (valueOld[_valueNewKey] !== valueNewValue) {
-											nodeOldElement.setAttribute("aria-" + _valueNewKey, valueNewValue);
+											nodeOldElement.setAttribute(_valueNewKey, valueNewValue);
 										}
-									} // Remove aria-* attributes from the old value that are
-									// not in the new value.
+									} // Remove attributes from the old value that are not in
+									// the new value.
 
 
 									for (var valueOldKey in valueOld) {
 										if (!(valueOldKey in valueNew)) {
-											nodeOldElement.removeAttribute("aria-" + valueOldKey);
-										}
-									}
-								}
-
-								break;
-							}
-
-						case "dataset":
-							{
-								// Update data-* attributes.
-								var nodeOldElementDataset = nodeOldElement.dataset;
-
-								if (valueOld === undefined) {
-									for (var _valueNewKey2 in valueNew) {
-										nodeOldElementDataset[_valueNewKey2] = valueNew[_valueNewKey2];
-									}
-								} else {
-									for (var _valueNewKey3 in valueNew) {
-										var _valueNewValue = valueNew[_valueNewKey3];
-
-										if (valueOld[_valueNewKey3] !== _valueNewValue) {
-											nodeOldElementDataset[_valueNewKey3] = _valueNewValue;
-										}
-									} // Remove data-* attributes from the old value that are
-									// not in the new value.
-
-
-									for (var _valueOldKey in valueOld) {
-										if (!(_valueOldKey in valueNew)) {
-											delete nodeOldElementDataset[_valueOldKey];
+											nodeOldElement.removeAttribute(valueOldKey);
 										}
 									}
 								}
@@ -423,23 +381,23 @@
 								var nodeOldElementStyle = nodeOldElement.style;
 
 								if (valueOld === undefined) {
-									for (var _valueNewKey4 in valueNew) {
-										nodeOldElementStyle[_valueNewKey4] = valueNew[_valueNewKey4];
+									for (var _valueNewKey2 in valueNew) {
+										nodeOldElementStyle[_valueNewKey2] = valueNew[_valueNewKey2];
 									}
 								} else {
-									for (var _valueNewKey5 in valueNew) {
-										var _valueNewValue2 = valueNew[_valueNewKey5];
+									for (var _valueNewKey3 in valueNew) {
+										var _valueNewValue = valueNew[_valueNewKey3];
 
-										if (valueOld[_valueNewKey5] !== _valueNewValue2) {
-											nodeOldElementStyle[_valueNewKey5] = _valueNewValue2;
+										if (valueOld[_valueNewKey3] !== _valueNewValue) {
+											nodeOldElementStyle[_valueNewKey3] = _valueNewValue;
 										}
 									} // Remove style properties from the old value that are not
 									// in the new value.
 
 
-									for (var _valueOldKey2 in valueOld) {
-										if (!(_valueOldKey2 in valueNew)) {
-											nodeOldElementStyle[_valueOldKey2] = "";
+									for (var _valueOldKey in valueOld) {
+										if (!(_valueOldKey in valueNew)) {
+											nodeOldElementStyle[_valueOldKey] = "";
 										}
 									}
 								}
@@ -592,26 +550,13 @@
 					nodeOldElement.removeEventListener(keyOld.slice(1), _nodeOldElementMoonEvent);
 				} else {
 					switch (keyOld) {
-						case "ariaset":
+						case "attributes":
 							{
-								// Remove aria-* attributes.
-								var _valueOld = nodeOldData.ariaset;
+								// Remove attributes.
+								var _valueOld = nodeOldData.attributes;
 
-								for (var _valueOldKey3 in _valueOld) {
-									nodeOldElement.removeAttribute("aria-" + _valueOldKey3);
-								}
-
-								break;
-							}
-
-						case "dataset":
-							{
-								// Remove data-* attributes.
-								var _valueOld2 = nodeOldData.dataset;
-								var _nodeOldElementDataset = nodeOldElement.dataset;
-
-								for (var _valueOldKey4 in _valueOld2) {
-									delete _nodeOldElementDataset[_valueOldKey4];
+								for (var _valueOldKey2 in _valueOld) {
+									nodeOldElement.removeAttribute(_valueOldKey2);
 								}
 
 								break;

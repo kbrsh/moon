@@ -43,9 +43,9 @@ function ExecutorTestItem({ item, index }) {
 	return (cache[item][index] =
 		<m.span>
 			<{item % 2 === 0 ?
-				<m.p lang="en" class={item} for={item} ariaset={{hidden: false, removeme: true}} dataset={{foo: "bar", removeme: true}} style={{color: "red", background: "blue"}} @click={handler1}>{item} {index}</p> :
+				<m.p lang="en" class={item} for={item} attributes={{"aria-hidden": false, "aria-removeme": true, "data-foo": "bar", "data-removeme": true}} style={{color: "red", background: "blue"}} @click={handler1}>{item} {index}</p> :
 			item % 3 === 0 ?
-				<m.p lang="en" class={item} for={item} id={item} ariaset={{hidden: false, different: true}} dataset={{foo: "bar", different: true}} style={{color: "red", fontSize: "20px"}} @click={handler2}>{item} {index}</p> :
+				<m.p lang="en" class={item} for={item} id={item} attributes={{"aria-hidden": false, "aria-different": true, "data-foo": "bar", "data-different": true}} style={{color: "red", fontSize: "20px"}} @click={handler2}>{item} {index}</p> :
 				<m.p lang="en">{item} {index}</p>
 			}#>
 		</m.span>

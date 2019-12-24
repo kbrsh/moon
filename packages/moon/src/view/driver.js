@@ -70,20 +70,10 @@ function viewCreate(node) {
 				element.addEventListener(key.slice(1), elementMoonEvent);
 			} else {
 				switch (key) {
-					case "ariaset": {
-						// Set aria-* attributes.
+					case "attributes": {
+						// Set attributes.
 						for (const valueKey in value) {
-							element.setAttribute("aria-" + valueKey, value[valueKey]);
-						}
-
-						break;
-					}
-					case "dataset": {
-						// Set data-* attributes.
-						const elementDataset = element.dataset;
-
-						for (const valueKey in value) {
-							elementDataset[valueKey] = value[valueKey];
+							element.setAttribute(valueKey, value[valueKey]);
 						}
 
 						break;
@@ -181,54 +171,26 @@ function viewPatch(nodeOld, nodeOldElement, nodeNew) {
 				}
 			} else {
 				switch (keyNew) {
-					case "ariaset": {
-						// Update aria-* attributes.
+					case "attributes": {
+						// Update attributes.
 						if (valueOld === undefined) {
 							for (const valueNewKey in valueNew) {
-								nodeOldElement.setAttribute("aria-" + valueNewKey, valueNew[valueNewKey]);
+								nodeOldElement.setAttribute(valueNewKey, valueNew[valueNewKey]);
 							}
 						} else {
 							for (const valueNewKey in valueNew) {
 								const valueNewValue = valueNew[valueNewKey];
 
 								if (valueOld[valueNewKey] !== valueNewValue) {
-									nodeOldElement.setAttribute("aria-" + valueNewKey, valueNewValue);
+									nodeOldElement.setAttribute(valueNewKey, valueNewValue);
 								}
 							}
 
-							// Remove aria-* attributes from the old value that are
-							// not in the new value.
+							// Remove attributes from the old value that are not in
+							// the new value.
 							for (const valueOldKey in valueOld) {
 								if (!(valueOldKey in valueNew)) {
-									nodeOldElement.removeAttribute("aria-" + valueOldKey);
-								}
-							}
-						}
-
-						break;
-					}
-					case "dataset": {
-						// Update data-* attributes.
-						const nodeOldElementDataset = nodeOldElement.dataset;
-
-						if (valueOld === undefined) {
-							for (const valueNewKey in valueNew) {
-								nodeOldElementDataset[valueNewKey] = valueNew[valueNewKey];
-							}
-						} else {
-							for (const valueNewKey in valueNew) {
-								const valueNewValue = valueNew[valueNewKey];
-
-								if (valueOld[valueNewKey] !== valueNewValue) {
-									nodeOldElementDataset[valueNewKey] = valueNewValue;
-								}
-							}
-
-							// Remove data-* attributes from the old value that are
-							// not in the new value.
-							for (const valueOldKey in valueOld) {
-								if (!(valueOldKey in valueNew)) {
-									delete nodeOldElementDataset[valueOldKey];
+									nodeOldElement.removeAttribute(valueOldKey);
 								}
 							}
 						}
@@ -406,23 +368,12 @@ function viewPatch(nodeOld, nodeOldElement, nodeNew) {
 				nodeOldElement.removeEventListener(keyOld.slice(1), nodeOldElementMoonEvent);
 			} else {
 				switch (keyOld) {
-					case "ariaset": {
-						// Remove aria-* attributes.
-						const valueOld = nodeOldData.ariaset;
+					case "attributes": {
+						// Remove attributes.
+						const valueOld = nodeOldData.attributes;
 
 						for (const valueOldKey in valueOld) {
-							nodeOldElement.removeAttribute("aria-" + valueOldKey);
-						}
-
-						break;
-					}
-					case "dataset": {
-						// Remove data-* attributes.
-						const valueOld = nodeOldData.dataset;
-						const nodeOldElementDataset = nodeOldElement.dataset;
-
-						for (const valueOldKey in valueOld) {
-							delete nodeOldElementDataset[valueOldKey];
+							nodeOldElement.removeAttribute(valueOldKey);
 						}
 
 						break;
