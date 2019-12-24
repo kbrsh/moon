@@ -17,6 +17,9 @@ let httpsArchiveLinkStatusCode = 302;
 let httpsArchiveLinkError;
 let httpsDownloadStatusCode = 200;
 let httpsDownloadError;
+let child_processMkdirError;
+let child_processTarError;
+let fsUnlinkError;
 
 https.get = (options, fn) => {
 	if (typeof options === "string" && options === "test-location") {
@@ -60,12 +63,24 @@ https.get = (options, fn) => {
 
 child_process.exec = (cmd, fn) => {
 	child_process.execSync(cmd);
-	fn(null);
+
+	if (child_processMkdirError !== undefined && cmd.slice(0, 5) === "mkdir") {
+		fn(child_processMkdirError);
+	} else if (child_processTarError !== undefined && cmd.slice(0, 3) === "tar") {
+		fn(child_processTarError);
+	} else {
+		fn(null);
+	}
 };
 
 fs.unlink = (file, fn) => {
 	fs.unlinkSync(file);
-	fn(null);
+
+	if (fsUnlinkError === undefined) {
+		fn(null);
+	} else {
+		fn(fsUnlinkError);
+	}
 };
 
 fs.createWriteStream = file => {
@@ -131,6 +146,9 @@ function cleanAll() {
 	httpsArchiveLinkError = undefined;
 	httpsDownloadStatusCode = 200;
 	httpsDownloadError = undefined;
+	child_processMkdirError = undefined;
+	child_processTarError = undefined;
+	fsUnlinkError = undefined;
 
 	fs.unlinkSync(pathTemplateArchive);
 
@@ -543,6 +561,96 @@ Received error:
 	error download
 
 Expected successful HTTP request.
+`);
+	cleanAll(pathTest);
+});
+
+test("error making directory", () => {
+	jest.resetModules();
+	init();
+
+	httpsRequest = {
+		method: "GET",
+		host: "api.github.com",
+		path: "/repos/kbrsh/moon-template/tarball/master",
+		headers: {
+			"User-Agent": "Moon"
+		}
+	};
+	child_processMkdirError = "error making directory";
+
+	expect(MoonCLI(["create", "test-moon-cli"])).toEqual(`\x1b[34mMoon\x1b[0m creating application
+\x1b[34mdownloaded\x1b[0m kbrsh/moon-template
+\x1b[31merror\x1b[0m Failed directory creation.
+
+Attempted to create directory:
+	${pathTest}
+
+Received error:
+	error making directory
+
+Expected successful directory creation.
+\x1b[34minstalled\x1b[0m ${pathTest}
+\x1b[34mcleaned\x1b[0m ${pathTestArchive}
+\x1b[34mprocessed\x1b[0m test-directory-1/test-directory-1-file-1.txt
+\x1b[34mprocessed\x1b[0m test-directory-1/test-directory-1-file-2.txt
+\x1b[34mprocessed\x1b[0m test-directory-2/test-directory-2-directory-1/test-directory-2-directory-1-file-1.txt
+\x1b[34mprocessed\x1b[0m test-directory-2/test-directory-2-directory-2/test-directory-2-directory-2-file-1.txt
+\x1b[34mprocessed\x1b[0m test-directory-2/test-directory-2-file-1.txt
+\x1b[34mprocessed\x1b[0m test-directory-2/test-directory-2-file-2.txt
+\x1b[34mprocessed\x1b[0m test-file-1.txt
+\x1b[34mprocessed\x1b[0m test-file-2.txt
+\x1b[34mcreated\x1b[0m application \x1b[36mtest-moon-cli\x1b[0m
+
+To start, run:
+	cd test-moon-cli
+	npm install
+	npm run dev
+`);
+	cleanAll(pathTest);
+});
+
+test("error extracting", () => {
+	jest.resetModules();
+	init();
+
+	httpsRequest = {
+		method: "GET",
+		host: "api.github.com",
+		path: "/repos/kbrsh/moon-template/tarball/master",
+		headers: {
+			"User-Agent": "Moon"
+		}
+	};
+	child_processTarError = "error extracting";
+
+	expect(MoonCLI(["create", "test-moon-cli"])).toEqual(`\x1b[34mMoon\x1b[0m creating application
+\x1b[34mdownloaded\x1b[0m kbrsh/moon-template
+\x1b[31merror\x1b[0m Failed archive extraction.
+
+Attempted to extract archive to target:
+	${pathTestArchive} -> ${pathTest}
+
+Received error:
+	error extracting
+
+Expected successful archive extraction.
+\x1b[34minstalled\x1b[0m ${pathTest}
+\x1b[34mcleaned\x1b[0m ${pathTestArchive}
+\x1b[34mprocessed\x1b[0m test-directory-1/test-directory-1-file-1.txt
+\x1b[34mprocessed\x1b[0m test-directory-1/test-directory-1-file-2.txt
+\x1b[34mprocessed\x1b[0m test-directory-2/test-directory-2-directory-1/test-directory-2-directory-1-file-1.txt
+\x1b[34mprocessed\x1b[0m test-directory-2/test-directory-2-directory-2/test-directory-2-directory-2-file-1.txt
+\x1b[34mprocessed\x1b[0m test-directory-2/test-directory-2-file-1.txt
+\x1b[34mprocessed\x1b[0m test-directory-2/test-directory-2-file-2.txt
+\x1b[34mprocessed\x1b[0m test-file-1.txt
+\x1b[34mprocessed\x1b[0m test-file-2.txt
+\x1b[34mcreated\x1b[0m application \x1b[36mtest-moon-cli\x1b[0m
+
+To start, run:
+	cd test-moon-cli
+	npm install
+	npm run dev
 `);
 	cleanAll(pathTest);
 });
