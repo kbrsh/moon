@@ -6,13 +6,14 @@ const gzipSize = require("gzip-size");
 const fs = require("fs");
 const path = require("path");
 const version = require("../package.json").version;
+const packagesPath = path.join(__dirname, "../packages");
 const spacesRE = /  /g;
 const versionRE = /process\.env\.MOON_VERSION/g;
 const envRE = /process\.env\.MOON_ENV/g;
 
 const resolver = {
 	resolveId(id, origin) {
-		return path.extname(id) === "" ? path.join("./packages", id) + ".js" : id;
+		return path.extname(id) === "" ? path.join(packagesPath, id) + ".js" : id;
 	}
 };
 
@@ -31,7 +32,7 @@ async function build(package) {
 
 	try {
 		const bundle = await rollup.rollup({
-			input: `./packages/${package}/src/index.js`,
+			input: path.join(packagesPath, `${package}/src/index.js`),
 			plugins: [
 				resolver,
 				eslint(),
@@ -52,36 +53,36 @@ async function build(package) {
 		output = output[0].code;
 
 		if (type === "module") {
-			output = fs.readFileSync("./build/wrapper.js", "utf8").replace("MODULE_NAME", nameExport).replace("MODULE_CONTENT", output.split("\n").slice(1, -3).join("\n"));
+			output = fs.readFileSync(path.join(__dirname, "wrapper.js"), "utf8").replace("MODULE_NAME", nameExport).replace("MODULE_CONTENT", output.split("\n").slice(1, -3).join("\n"));
 		}
 
 		output = output.replace(spacesRE, "\t");
 		output = output.replace("'use strict'", "\"use strict\"");
 		output = output.replace(versionRE, `"${version}"`);
 
-		const developmentCode = comment + output.replace(envRE, "\"development\"");
-		const productionCode = comment + terser.minify(output.replace(envRE, "\"production\""), {
+		const codeDevelopment = comment + output.replace(envRE, "\"development\"");
+		const codeProduction = comment + terser.minify(output.replace(envRE, "\"production\""), {
 			output: {
 				ascii_only: true
 			}
 		}).code;
 
-		fs.writeFileSync(`./packages/${package}/dist/${package}.js`, developmentCode);
-		fs.writeFileSync(`./packages/${package}/dist/${package}.min.js`, productionCode);
+		fs.writeFileSync(path.join(packagesPath, `${package}/dist/${package}.js`), codeDevelopment);
+		fs.writeFileSync(path.join(packagesPath, `${package}/dist/${package}.min.js`), codeProduction);
 
-		console.log(`${name} development -> ${developmentCode.length / 1000}kb / ${gzipSize.sync(developmentCode) / 1000}kb (gzip)`);
-		console.log(`${name} production -> ${productionCode.length / 1000}kb / ${gzipSize.sync(productionCode) / 1000}kb (gzip)\n`);
+		console.log(`${name} development -> ${codeDevelopment.length / 1000}kb / ${gzipSize.sync(codeDevelopment) / 1000}kb (gzip)`);
+		console.log(`${name} production -> ${codeProduction.length / 1000}kb / ${gzipSize.sync(codeProduction) / 1000}kb (gzip)\n`);
 	} catch (error) {
 		console.error(error);
 	}
 }
 
-const packages = fs.readdirSync("./packages");
+const packages = fs.readdirSync(packagesPath);
 
 for (let i = 0; i < packages.length; i++) {
 	const package = packages[i];
 
-	if (package.slice(0, 4) === "moon" && fs.statSync(`./packages/${package}`).isDirectory()) {
+	if (package.slice(0, 4) === "moon") {
 		build(packages[i]);
 	}
 }
