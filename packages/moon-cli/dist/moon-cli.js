@@ -124,32 +124,28 @@
 				"User-Agent": "Moon"
 			}
 		};
-		https.get(archive, function (res) {
-			var statusCode = res.statusCode;
-
-			if (statusCode >= 300 && statusCode < 400) {
-				https.get(res.headers.location, function (res) {
-					var statusCode = res.statusCode;
-
-					if (statusCode >= 200 && statusCode < 300) {
+		https.get(archive, function (archiveRes) {
+			if (archiveRes.statusCode === 302) {
+				https.get(archiveRes.headers.location, function (downloadRes) {
+					if (downloadRes.statusCode === 200) {
 						var archivePath = path.join(__dirname, "moon-template.tar.gz");
 						var stream = fs.createWriteStream(archivePath);
-						res.on("data", function (chunk) {
+						downloadRes.on("data", function (chunk) {
 							stream.write(chunk);
 						});
-						res.on("end", function () {
+						downloadRes.on("end", function () {
 							stream.end();
 							log("downloaded", repo);
 							install(name, archivePath);
 						});
 					} else {
-						logError("Invalid download HTTP response.\n\nAttempted to download template:\n\t" + res.headers.location + "\n\nReceived error HTTP status code:\n\t" + statusCode + "\n\nExpected success HTTP status code (200-299).");
+						logError("Invalid download HTTP response.\n\nAttempted to download template:\n\t" + archiveRes.headers.location + "\n\nReceived error HTTP status code:\n\t" + downloadRes.statusCode + "\n\nExpected OK HTTP status code 200.");
 					}
 				}).on("error", function (error) {
-					logError("Failed download HTTP request.\n\nAttempted to download template:\n\t" + res.headers.location + "\n\nReceived error:\n\t" + error + "\n\nExpected successful HTTP request.");
+					logError("Failed download HTTP request.\n\nAttempted to download template:\n\t" + archiveRes.headers.location + "\n\nReceived error:\n\t" + error + "\n\nExpected successful HTTP request.");
 				});
 			} else {
-				logError("Invalid archive link HTTP response.\n\nAttempted to fetch archive link for template:\n\thttps://" + archive.host + archive.path + "\n\nReceived error HTTP status code:\n\t" + statusCode + "\n\nExpected redirect HTTP status code (300-399).");
+				logError("Invalid archive link HTTP response.\n\nAttempted to fetch archive link for template:\n\thttps://" + archive.host + archive.path + "\n\nReceived error HTTP status code:\n\t" + archiveRes.statusCode + "\n\nExpected found HTTP status code 302.");
 			}
 		}).on("error", function (error) {
 			logError("Failed archive link HTTP request.\n\nAttempted to fetch archive link for template:\n\thttps://" + archive.host + archive.path + "\n\nReceived error:\n\t" + error + "\n\nExpected successful HTTP request.");

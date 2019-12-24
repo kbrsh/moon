@@ -13,11 +13,13 @@ process.env.MOON_VERSION = "test.test.test";
 
 // Mocks
 let httpsRequest;
+let httpsArchiveLinkStatusCode = 302;
+let httpsDownloadStatusCode = 200;
 
 https.get = (options, fn) => {
 	if (typeof options === "string" && options === "test-location") {
 		fn({
-			statusCode: 200,
+			statusCode: httpsDownloadStatusCode,
 			on: (event, fn) => {
 				if (event === "data") {
 					fn(fs.readFileSync(pathTemplateArchive));
@@ -30,7 +32,7 @@ https.get = (options, fn) => {
 		expect(options).toEqual(httpsRequest);
 
 		fn({
-			statusCode: 301,
+			statusCode: httpsArchiveLinkStatusCode,
 			headers: {
 				location: "test-location"
 			}
@@ -110,6 +112,10 @@ function clean(directory) {
 }
 
 function cleanAll() {
+	httpsRequest = undefined;
+	httpsArchiveLinkStatusCode = 302;
+	httpsDownloadStatusCode = 200;
+
 	fs.unlinkSync(pathTemplateArchive);
 
 	if (fs.existsSync(pathTest)) {
@@ -333,6 +339,104 @@ Received an invalid or unknown name.
 Expected a valid name. Run \x1b[35mmoon help create\x1b[0m to see usage information.
 \x1b[34mMoon\x1b[0m creating application
 \x1b[34mdownloaded\x1b[0m kbrsh/moon-template
+`);
+	cleanAll(pathTest);
+});
+
+test("error on invalid create template", () => {
+	jest.resetModules();
+	init();
+
+	httpsRequest = {
+		method: "GET",
+		host: "api.github.com",
+		path: "/repos/true/tarball/master",
+		headers: {
+			"User-Agent": "Moon"
+		}
+	};
+
+	expect(MoonCLI(["create", "test-moon-cli", "-t"])).toEqual(`\x1b[31merror\x1b[0m Invalid or unknown template.
+
+Attempted to create an application.
+
+Received an invalid or unknown template.
+
+Expected a valid template. Run \x1b[35mmoon help create\x1b[0m to see usage information.
+\x1b[34mMoon\x1b[0m creating application
+\x1b[34mdownloaded\x1b[0m true
+\x1b[34minstalled\x1b[0m ${pathTest}
+\x1b[34mcleaned\x1b[0m ${pathTestArchive}
+\x1b[34mprocessed\x1b[0m test-directory-1/test-directory-1-file-1.txt
+\x1b[34mprocessed\x1b[0m test-directory-1/test-directory-1-file-2.txt
+\x1b[34mprocessed\x1b[0m test-directory-2/test-directory-2-directory-1/test-directory-2-directory-1-file-1.txt
+\x1b[34mprocessed\x1b[0m test-directory-2/test-directory-2-directory-2/test-directory-2-directory-2-file-1.txt
+\x1b[34mprocessed\x1b[0m test-directory-2/test-directory-2-file-1.txt
+\x1b[34mprocessed\x1b[0m test-directory-2/test-directory-2-file-2.txt
+\x1b[34mprocessed\x1b[0m test-file-1.txt
+\x1b[34mprocessed\x1b[0m test-file-2.txt
+\x1b[34mcreated\x1b[0m application \x1b[36mtest-moon-cli\x1b[0m
+
+To start, run:
+	cd test-moon-cli
+	npm install
+	npm run dev
+`);
+	cleanAll(pathTest);
+});
+
+test("error on error HTTP status code archive link", () => {
+	jest.resetModules();
+	init();
+
+	httpsRequest = {
+		method: "GET",
+		host: "api.github.com",
+		path: "/repos/kbrsh/moon-template/tarball/master",
+		headers: {
+			"User-Agent": "Moon"
+		}
+	};
+	httpsArchiveLinkStatusCode = 500;
+
+	expect(MoonCLI(["create", "test-moon-cli"])).toEqual(`\x1b[34mMoon\x1b[0m creating application
+\x1b[31merror\x1b[0m Invalid archive link HTTP response.
+
+Attempted to fetch archive link for template:
+	https://api.github.com/repos/kbrsh/moon-template/tarball/master
+
+Received error HTTP status code:
+	500
+
+Expected found HTTP status code 302.
+`);
+	cleanAll(pathTest);
+});
+
+test("error on error HTTP status code download", () => {
+	jest.resetModules();
+	init();
+
+	httpsRequest = {
+		method: "GET",
+		host: "api.github.com",
+		path: "/repos/kbrsh/moon-template/tarball/master",
+		headers: {
+			"User-Agent": "Moon"
+		}
+	};
+	httpsDownloadStatusCode = 500;
+
+	expect(MoonCLI(["create", "test-moon-cli"])).toEqual(`\x1b[34mMoon\x1b[0m creating application
+\x1b[31merror\x1b[0m Invalid download HTTP response.
+
+Attempted to download template:
+	test-location
+
+Received error HTTP status code:
+	500
+
+Expected OK HTTP status code 200.
 `);
 	cleanAll(pathTest);
 });

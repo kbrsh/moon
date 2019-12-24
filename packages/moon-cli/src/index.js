@@ -94,22 +94,18 @@ function download(name, repo) {
 		}
 	};
 
-	https.get(archive, res => {
-		const statusCode = res.statusCode;
-
-		if (statusCode >= 300 && statusCode < 400) {
-			https.get(res.headers.location, res => {
-				const statusCode = res.statusCode;
-
-				if (statusCode >= 200 && statusCode < 300) {
+	https.get(archive, archiveRes => {
+		if (archiveRes.statusCode === 302) {
+			https.get(archiveRes.headers.location, downloadRes => {
+				if (downloadRes.statusCode === 200) {
 					const archivePath = path.join(__dirname, "moon-template.tar.gz");
 					const stream = fs.createWriteStream(archivePath);
 
-					res.on("data", chunk => {
+					downloadRes.on("data", chunk => {
 						stream.write(chunk);
 					});
 
-					res.on("end", () => {
+					downloadRes.on("end", () => {
 						stream.end();
 
 						log("downloaded", repo);
@@ -119,18 +115,18 @@ function download(name, repo) {
 					logError(`Invalid download HTTP response.
 
 Attempted to download template:
-	${res.headers.location}
+	${archiveRes.headers.location}
 
 Received error HTTP status code:
-	${statusCode}
+	${downloadRes.statusCode}
 
-Expected success HTTP status code (200-299).`);
+Expected OK HTTP status code 200.`);
 				}
 			}).on("error", error => {
 				logError(`Failed download HTTP request.
 
 Attempted to download template:
-	${res.headers.location}
+	${archiveRes.headers.location}
 
 Received error:
 	${error}
@@ -144,9 +140,9 @@ Attempted to fetch archive link for template:
 	https://${archive.host}${archive.path}
 
 Received error HTTP status code:
-	${statusCode}
+	${archiveRes.statusCode}
 
-Expected redirect HTTP status code (300-399).`);
+Expected found HTTP status code 302.`);
 		}
 	}).on("error", error => {
 		logError(`Failed archive link HTTP request.
