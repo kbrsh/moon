@@ -611,11 +611,10 @@
 	 *
 	 * The view driver is responsible for updating the DOM and rendering views.
 	 * The patch consists of walking the new tree and finding differences between
-	 * the trees. At the same time, the old tree is changed to include references
-	 * to the new one. The DOM is updated to reflect these changes as well.
-	 * Ideally, the DOM would provide an API for creating lightweight elements and
-	 * render directly from a virtual DOM, but Moon uses the imperative API for
-	 * updating it instead.
+	 * the trees. The old tree is used to compare values for performance. The DOM
+	 * is updated to reflect these changes as well. Ideally, the DOM would provide
+	 * an API for creating lightweight elements and render directly from a virtual
+	 * DOM, but Moon uses the imperative API for updating it instead.
 	 *
 	 * Since views can easily be cached, Moon skips over patches if the old and new
 	 * nodes are equal. This is also why views should be pure and immutable. They
