@@ -87,6 +87,7 @@
 
 		for (var key in object) {
 			var keyLength = key.length;
+			/* istanbul ignore next */
 
 			if (keyLength > keyLengthMax) {
 				keyLengthMax = keyLength;

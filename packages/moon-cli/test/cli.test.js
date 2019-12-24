@@ -654,3 +654,48 @@ To start, run:
 `);
 	cleanAll(pathTest);
 });
+
+test("error cleaning", () => {
+	jest.resetModules();
+	init();
+
+	httpsRequest = {
+		method: "GET",
+		host: "api.github.com",
+		path: "/repos/kbrsh/moon-template/tarball/master",
+		headers: {
+			"User-Agent": "Moon"
+		}
+	};
+	fsUnlinkError = "error cleaning";
+
+	expect(MoonCLI(["create", "test-moon-cli"])).toEqual(`\x1b[34mMoon\x1b[0m creating application
+\x1b[34mdownloaded\x1b[0m kbrsh/moon-template
+\x1b[34minstalled\x1b[0m ${pathTest}
+\x1b[31merror\x1b[0m Failed archive deletion.
+
+Attempted to delete archive:
+	${pathTestArchive}
+
+Received error:
+	error cleaning
+
+Expected successful archive deletion.
+\x1b[34mcleaned\x1b[0m ${pathTestArchive}
+\x1b[34mprocessed\x1b[0m test-directory-1/test-directory-1-file-1.txt
+\x1b[34mprocessed\x1b[0m test-directory-1/test-directory-1-file-2.txt
+\x1b[34mprocessed\x1b[0m test-directory-2/test-directory-2-directory-1/test-directory-2-directory-1-file-1.txt
+\x1b[34mprocessed\x1b[0m test-directory-2/test-directory-2-directory-2/test-directory-2-directory-2-file-1.txt
+\x1b[34mprocessed\x1b[0m test-directory-2/test-directory-2-file-1.txt
+\x1b[34mprocessed\x1b[0m test-directory-2/test-directory-2-file-2.txt
+\x1b[34mprocessed\x1b[0m test-file-1.txt
+\x1b[34mprocessed\x1b[0m test-file-2.txt
+\x1b[34mcreated\x1b[0m application \x1b[36mtest-moon-cli\x1b[0m
+
+To start, run:
+	cd test-moon-cli
+	npm install
+	npm run dev
+`);
+	cleanAll(pathTest);
+});

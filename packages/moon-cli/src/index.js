@@ -56,6 +56,7 @@ function table(object) {
 	for (const key in object) {
 		const keyLength = key.length;
 
+		/* istanbul ignore next */
 		if (keyLength > keyLengthMax) {
 			keyLengthMax = keyLength;
 		}
