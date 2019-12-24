@@ -14,7 +14,9 @@ process.env.MOON_VERSION = "test.test.test";
 // Mocks
 let httpsRequest;
 let httpsArchiveLinkStatusCode = 302;
+let httpsArchiveLinkError;
 let httpsDownloadStatusCode = 200;
+let httpsDownloadError;
 
 https.get = (options, fn) => {
 	if (typeof options === "string" && options === "test-location") {
@@ -28,6 +30,14 @@ https.get = (options, fn) => {
 				}
 			}
 		});
+
+		return {
+			on: (event, fn) => {
+				if (httpsDownloadError !== undefined && event === "error") {
+					fn(httpsDownloadError);
+				}
+			}
+		};
 	} else {
 		expect(options).toEqual(httpsRequest);
 
@@ -37,11 +47,15 @@ https.get = (options, fn) => {
 				location: "test-location"
 			}
 		});
-	}
 
-	return {
-		on: (event, fn) => {}
-	};
+		return {
+			on: (event, fn) => {
+				if (httpsArchiveLinkError !== undefined && event === "error") {
+					fn(httpsArchiveLinkError);
+				}
+			}
+		};
+	}
 };
 
 child_process.exec = (cmd, fn) => {
@@ -114,7 +128,9 @@ function clean(directory) {
 function cleanAll() {
 	httpsRequest = undefined;
 	httpsArchiveLinkStatusCode = 302;
+	httpsArchiveLinkError = undefined;
 	httpsDownloadStatusCode = 200;
+	httpsDownloadError = undefined;
 
 	fs.unlinkSync(pathTemplateArchive);
 
@@ -437,6 +453,51 @@ Received error HTTP status code:
 	500
 
 Expected OK HTTP status code 200.
+`);
+	cleanAll(pathTest);
+});
+
+test("error on HTTP error for archive link", () => {
+	jest.resetModules();
+	init();
+
+	httpsRequest = {
+		method: "GET",
+		host: "api.github.com",
+		path: "/repos/kbrsh/moon-template/tarball/master",
+		headers: {
+			"User-Agent": "Moon"
+		}
+	};
+	httpsArchiveLinkError = "error archive link";
+
+	expect(MoonCLI(["create", "test-moon-cli"])).toEqual(`\x1b[34mMoon\x1b[0m creating application
+\x1b[34mdownloaded\x1b[0m kbrsh/moon-template
+\x1b[34minstalled\x1b[0m ${pathTest}
+\x1b[34mcleaned\x1b[0m ${pathTestArchive}
+\x1b[34mprocessed\x1b[0m test-directory-1/test-directory-1-file-1.txt
+\x1b[34mprocessed\x1b[0m test-directory-1/test-directory-1-file-2.txt
+\x1b[34mprocessed\x1b[0m test-directory-2/test-directory-2-directory-1/test-directory-2-directory-1-file-1.txt
+\x1b[34mprocessed\x1b[0m test-directory-2/test-directory-2-directory-2/test-directory-2-directory-2-file-1.txt
+\x1b[34mprocessed\x1b[0m test-directory-2/test-directory-2-file-1.txt
+\x1b[34mprocessed\x1b[0m test-directory-2/test-directory-2-file-2.txt
+\x1b[34mprocessed\x1b[0m test-file-1.txt
+\x1b[34mprocessed\x1b[0m test-file-2.txt
+\x1b[34mcreated\x1b[0m application \x1b[36mtest-moon-cli\x1b[0m
+
+To start, run:
+	cd test-moon-cli
+	npm install
+	npm run dev
+\x1b[31merror\x1b[0m Failed archive link HTTP request.
+
+Attempted to fetch archive link for template:
+	https://api.github.com/repos/kbrsh/moon-template/tarball/master
+
+Received error:
+	error archive link
+
+Expected successful HTTP request.
 `);
 	cleanAll(pathTest);
 });
