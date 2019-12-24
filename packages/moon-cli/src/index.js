@@ -1,3 +1,5 @@
+import { pad } from "util/index";
+
 const fs = require("fs");
 const path = require("path");
 const https = require("https");
@@ -47,9 +49,25 @@ function highlight(string) {
 }
 
 function table(object) {
-	const keys = Object.keys(object);
-	const max = Math.max.apply(null, keys.map(key => key.length));
-	return keys.map(key => "\t" + key + " ".repeat(max - key.length + 3) + object[key]).join("\n");
+	let output = "";
+	let separator = "";
+	let keyLengthMax = 0;
+
+	for (const key in object) {
+		const keyLength = key.length;
+
+		if (keyLength > keyLengthMax) {
+			keyLengthMax = keyLength;
+		}
+	}
+
+	for (const key in object) {
+		const value = object[key];
+		output += `${separator}\t${key}${pad(value, keyLengthMax - key.length + value.length + 3)}`;
+		separator = "\n";
+	}
+
+	return output;
 }
 
 function replace(content, sub, subNewString) {

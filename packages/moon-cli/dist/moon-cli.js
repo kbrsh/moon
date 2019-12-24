@@ -8,6 +8,28 @@
 (function () {
 	"use strict";
 
+	/**
+	 * Logs an error message to the console.
+	 * @param {string} message
+	 */
+	/**
+	 * Pads a string with spaces on the left to match a certain length.
+	 *
+	 * @param {string} string
+	 * @param {number} length
+	 * @returns {string} padded string
+	 */
+
+	function pad(string, length) {
+		var remaining = length - string.length;
+
+		for (var i = 0; i < remaining; i++) {
+			string = " " + string;
+		}
+
+		return string;
+	}
+
 	var fs = require("fs");
 
 	var path = require("path");
@@ -59,13 +81,25 @@
 	}
 
 	function table(object) {
-		var keys = Object.keys(object);
-		var max = Math.max.apply(null, keys.map(function (key) {
-			return key.length;
-		}));
-		return keys.map(function (key) {
-			return "\t" + key + " ".repeat(max - key.length + 3) + object[key];
-		}).join("\n");
+		var output = "";
+		var separator = "";
+		var keyLengthMax = 0;
+
+		for (var key in object) {
+			var keyLength = key.length;
+
+			if (keyLength > keyLengthMax) {
+				keyLengthMax = keyLength;
+			}
+		}
+
+		for (var _key in object) {
+			var value = object[_key];
+			output += separator + "\t" + _key + pad(value, keyLengthMax - _key.length + value.length + 3);
+			separator = "\n";
+		}
+
+		return output;
 	}
 
 	function replace(content, sub, subNewString) {

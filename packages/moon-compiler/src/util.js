@@ -1,19 +1,4 @@
-/**
- * Pads a string with spaces on the left to match a certain length.
- *
- * @param {string} string
- * @param {number} length
- * @returns {string} padded string
- */
-function pad(string, length) {
-	const remaining = length - string.length;
-
-	for (let i = 0; i < remaining; i++) {
-		string = " " + string;
-	}
-
-	return string;
-}
+import { pad } from "util/index";
 
 /**
  * Formats lines surrounding a certain index in a string.
