@@ -2,24 +2,20 @@ import Moon from "moon/src/index.js";
 import "moon-browser/src/index.js";
 
 let status = 200;
+let error = false;
 
 window.Moon = Moon;
 window.XMLHttpRequest = function() {
 	this.open = () => {};
-	this.send = () => {
-		this.readyState = 0;
-		this.onload();
-
-		this.readyState = 1;
-		this.onload();
-	};
-
-	this.DONE = 1;
-
+	this.send = error ? () => { this.onerror(); } : () => { this.onload(); };
 	this.status = status;
-	this.responseText = "const paragraphSrc = (<Moon.view.m.p>Moon Test</Moon.view.m.p>);";
+	this.response = "const paragraphSrc = (<Moon.view.m.p>Moon Test</Moon.view.m.p>);";
 
-	status = 500;
+	if (status === 200) {
+		status = 500;
+	} else {
+		error = true;
+	}
 };
 window.console.error = jest.fn();
 
@@ -35,14 +31,19 @@ const scriptSrc = document.createElement("script");
 scriptSrc.type = "text/moon";
 scriptSrc.src = "http://localhost/scriptSrc.js";
 
-const scriptSrcError = document.createElement("script");
-scriptSrcError.type = "text/moon";
-scriptSrcError.src = "http://localhost/scriptSrc.js";
+const scriptSrcErrorResponse = document.createElement("script");
+scriptSrcErrorResponse.type = "text/moon";
+scriptSrcErrorResponse.src = "http://localhost/scriptSrc.js";
+
+const scriptSrcErrorRequest = document.createElement("script");
+scriptSrcErrorRequest.type = "text/moon";
+scriptSrcErrorRequest.src = "http://localhost/scriptSrc.js";
 
 document.body.appendChild(scriptNormal);
 document.body.appendChild(scriptInline);
 document.body.appendChild(scriptSrc);
-document.body.appendChild(scriptSrcError);
+document.body.appendChild(scriptSrcErrorResponse);
+document.body.appendChild(scriptSrcErrorRequest);
 
 window.document.dispatchEvent(new Event("DOMContentLoaded", {}));
 
@@ -54,28 +55,48 @@ test("not transform normal script", () => {
 });
 
 test("transform inline script", () => {
-	const scriptBefore = document.body.childNodes[1];
-	const scriptAfter = document.head.childNodes[0];
+	const script = document.body.childNodes[1];
 
-	expect(scriptBefore).toBeUndefined();
-	expect(scriptAfter).not.toBeUndefined();
-	expect(scriptAfter.text).toEqual(`const paragraph = (Moon.view.m.p({children:[Moon.view.m.text({data:\"Moon Test\"})]}));`);
+	expect(script).not.toBeUndefined();
+	expect(script.type).toEqual("text/javascript");
+	expect(script.text).toEqual(`const paragraph = (Moon.view.m.p({children:[Moon.view.m.text({data:\"Moon Test\"})]}));`);
 });
 
 test("transform external script", () => {
-	const scriptBefore = document.body.childNodes[2];
-	const scriptAfter = document.head.childNodes[1];
+	const script = document.body.childNodes[2];
 
-	expect(scriptBefore).toBeUndefined();
-	expect(scriptAfter).not.toBeUndefined();
-	expect(scriptAfter.text).toEqual(`const paragraphSrc = (Moon.view.m.p({children:[Moon.view.m.text({data:\"Moon Test\"})]}));`);
+	expect(script).not.toBeUndefined();
+	expect(script.type).toEqual("text/javascript");
+	expect(script.text).toEqual(`const paragraphSrc = (Moon.view.m.p({children:[Moon.view.m.text({data:\"Moon Test\"})]}));`);
 });
 
-test("transform external script with error", () => {
-	const scriptBefore = document.body.childNodes[3];
-	const scriptAfter = document.head.childNodes[2];
+test("transform external script with error response", () => {
+	const script = document.body.childNodes[3];
 
-	expect(scriptBefore).toBeUndefined();
-	expect(scriptAfter).toBeUndefined();
-	expect(console.error).toBeCalledWith(`[Moon] ERROR: Failed to load script with source "http://localhost/scriptSrc.js" and status 500.`);
+	expect(script).not.toBeUndefined();
+	expect(script.type).toEqual("text/moon");
+	expect(console.error).toBeCalledWith(`[Moon] ERROR: Invalid script HTTP response.
+
+Attempted to download script:
+	http://localhost/scriptSrc.js
+
+Received error HTTP status code:
+	500
+
+Expected OK HTTP status code 0 or 200.`);
+});
+
+test("transform external script with error request", () => {
+	const script = document.body.childNodes[4];
+
+	expect(script).not.toBeUndefined();
+	expect(script.type).toEqual("text/moon");
+	expect(console.error).toBeCalledWith(`[Moon] ERROR: Failed script HTTP request.
+
+Attempted to download script:
+	http://localhost/scriptSrc.js
+
+Received error.
+
+Expected successful HTTP request.`);
 });

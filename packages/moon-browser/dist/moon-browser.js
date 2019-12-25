@@ -450,11 +450,6 @@
 	};
 
 	/**
-	 * Head element
-	 */
-
-	var head;
-	/**
 	 * Script elements
 	 */
 
@@ -470,44 +465,47 @@
 
 			if (src.length === 0) {
 				var scriptNew = document.createElement("script");
+				scriptNew.type = "text/javascript";
 				scriptNew.text = compiler.compile(script.text);
-				head.appendChild(scriptNew);
-				script.parentNode.removeChild(script);
+				script.parentNode.replaceChild(scriptNew, script);
 				load();
 			} else {
 				var xhr = new XMLHttpRequest();
+				xhr.responseType = "text";
 
 				xhr.onload = function () {
-					if (xhr.readyState === xhr.DONE) {
-						if (xhr.status === 0 || xhr.status === 200) {
-							var _scriptNew = document.createElement("script");
+					if (xhr.status === 0 || xhr.status === 200) {
+						var _scriptNew = document.createElement("script");
 
-							_scriptNew.text = compiler.compile(xhr.responseText);
-							head.appendChild(_scriptNew);
-						} else {
-							error("Failed to load script with source \"" + src + "\" and status " + xhr.status + ".");
-						}
-
-						script.parentNode.removeChild(script);
-						load();
+						_scriptNew.type = "text/javascript";
+						_scriptNew.text = compiler.compile(xhr.response);
+						script.parentNode.replaceChild(_scriptNew, script);
+					} else {
+						error("Invalid script HTTP response.\n\nAttempted to download script:\n\t" + src + "\n\nReceived error HTTP status code:\n\t" + xhr.status + "\n\nExpected OK HTTP status code 0 or 200.");
 					}
+
+					load();
+				};
+
+				xhr.onerror = function () {
+					error("Failed script HTTP request.\n\nAttempted to download script:\n\t" + src + "\n\nReceived error.\n\nExpected successful HTTP request.");
+					load();
 				};
 
 				xhr.open("GET", src, true);
-				xhr.send();
+				xhr.send(null);
 			}
 		}
 	}
 
 	document.addEventListener("DOMContentLoaded", function () {
-		var scriptElements = document.querySelectorAll("script");
-		head = document.querySelector("head");
+		var scriptsAll = document.querySelectorAll("script");
 
-		for (var i = 0; i < scriptElements.length; i++) {
-			var scriptElement = scriptElements[i];
+		for (var i = 0; i < scriptsAll.length; i++) {
+			var script = scriptsAll[i];
 
-			if (scriptElement.type === "text/moon") {
-				scripts.push(scriptElement);
+			if (script.type === "text/moon") {
+				scripts.push(script);
 			}
 		}
 

@@ -2,11 +2,6 @@ import compiler from "moon-compiler/src/index";
 import { error } from "util/index";
 
 /**
- * Head element
- */
-let head;
-
-/**
  * Script elements
  */
 const scripts = [];
@@ -21,43 +16,63 @@ function load() {
 
 		if (src.length === 0) {
 			const scriptNew = document.createElement("script");
+			scriptNew.type = "text/javascript";
 			scriptNew.text = compiler.compile(script.text);
-			head.appendChild(scriptNew);
-			script.parentNode.removeChild(script);
+
+			script.parentNode.replaceChild(scriptNew, script);
 			load();
 		} else {
 			const xhr = new XMLHttpRequest();
+			xhr.responseType = "text";
 
 			xhr.onload = () => {
-				if (xhr.readyState === xhr.DONE) {
-					if (xhr.status === 0 || xhr.status === 200) {
-						const scriptNew = document.createElement("script");
-						scriptNew.text = compiler.compile(xhr.responseText);
-						head.appendChild(scriptNew);
-					} else {
-						error(`Failed to load script with source "${src}" and status ${xhr.status}.`);
-					}
+				if (xhr.status === 0 || xhr.status === 200) {
+					const scriptNew = document.createElement("script");
+					scriptNew.type = "text/javascript";
+					scriptNew.text = compiler.compile(xhr.response);
 
-					script.parentNode.removeChild(script);
-					load();
+					script.parentNode.replaceChild(scriptNew, script);
+				} else {
+					error(`Invalid script HTTP response.
+
+Attempted to download script:
+	${src}
+
+Received error HTTP status code:
+	${xhr.status}
+
+Expected OK HTTP status code 0 or 200.`);
 				}
+
+				load();
+			};
+
+			xhr.onerror = () => {
+				error(`Failed script HTTP request.
+
+Attempted to download script:
+	${src}
+
+Received error.
+
+Expected successful HTTP request.`);
+				load();
 			};
 
 			xhr.open("GET", src, true);
-			xhr.send();
+			xhr.send(null);
 		}
 	}
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-	const scriptElements = document.querySelectorAll("script");
-	head = document.querySelector("head");
+	const scriptsAll = document.querySelectorAll("script");
 
-	for (let i = 0; i < scriptElements.length; i++) {
-		const scriptElement = scriptElements[i];
+	for (let i = 0; i < scriptsAll.length; i++) {
+		const script = scriptsAll[i];
 
-		if (scriptElement.type === "text/moon") {
-			scripts.push(scriptElement);
+		if (script.type === "text/moon") {
+			scripts.push(script);
 		}
 	}
 
