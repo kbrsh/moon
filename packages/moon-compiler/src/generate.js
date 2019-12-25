@@ -6,46 +6,7 @@ const whitespaceRE = /^\s+$/;
 /**
  * Matches unescaped special characters in text.
  */
-const textSpecialRE = /([^\\])("|\n)/g;
-
-/**
- * Generate a parser value node.
- *
- * @param {object} tree
- * @returns {string} generator result
- */
-function generateValue(tree) {
-	if (tree.type === "block") {
-		// In values, blocks are only generated to the expression inside of them.
-		return `(${generate(tree.value[1])})`;
-	} else {
-		// All other value types are generated normally.
-		return generate(tree);
-	}
-}
-
-/**
- * Generate a parser attributes node.
- *
- * @param {object} tree
- * @returns {object} generator result and separator
- */
-function generateAttributes(tree) {
-	const value = tree.value;
-	let output = "";
-	let separator = "";
-
-	for (let i = 0; i < value.length; i++) {
-		const pair = value[i];
-		output += `${separator}"${generate(pair[0])}":${generateValue(pair[2])}${generate(pair[3])}`;
-		separator = ",";
-	}
-
-	return {
-		output,
-		separator
-	};
-}
+const textSpecialRE = /(^|[^\\])("|\n)/g;
 
 /**
  * Generator
@@ -70,63 +31,89 @@ export default function generate(tree) {
 		}
 
 		return output;
-	} else if (type === "block") {
-		return generate(tree.value);
+	} else if (type === "attributes") {
+		const value = tree.value;
+		let output = "";
+		let separator = "";
+
+		for (let i = 0; i < value.length; i++) {
+			const pair = value[i];
+			output += `${separator}"${generate(pair[0])}":${generate(pair[2])}${generate(pair[3])}`;
+			separator = ",";
+		}
+
+		return {
+			output,
+			separator
+		};
+	} else if (type === "text") {
+		const textGenerated = generate(tree.value);
+		const textGeneratedIsWhitespace = whitespaceRE.test(textGenerated) && textGenerated.indexOf("\n") !== -1;
+
+		// Text that is only whitespace with at least one newline is ignored and
+		// added only to preserve newlines in the generated code.
+		return {
+			output: textGeneratedIsWhitespace ?
+				textGenerated :
+				`Moon.view.m.text({data:"${
+					textGenerated.replace(textSpecialRE, (match, character, characterSpecial) =>
+						character + (characterSpecial === "\"" ? "\\\"" : "\\n\\\n")
+					)
+				}"})`,
+			isWhitespace: textGeneratedIsWhitespace
+		};
+	} else if (type === "interpolation") {
+		return `Moon.view.m.text({data:${generate(tree.value[1])}})`;
 	} else if (type === "node") {
 		// Nodes represent a variable reference.
 		const value = tree.value;
 
-		return generate(value[1]) + generateValue(value[2]) + generate(value[3]);
+		return generate(value[1]) + generate(value[2]) + generate(value[3]);
 	} else if (type === "nodeData") {
 		// Data nodes represent calling a function with either a custom data
 		// expression or an object using attribute syntax.
 		const value = tree.value;
-		const data = value[4];
+		const data = value[4][0];
+		const dataGenerated = generate(data);
 
-		return `${generate(value[1])}${generateValue(value[2])}${generate(value[3])}(${data.type === "attributes" ? `{${generateAttributes(data).output}}` : generate(data.value[1])})`;
+		return `${generate(value[1])}${generate(value[2])}${generate(value[3])}(${
+			data.type === "attributes" ? `{${dataGenerated.output}}` : dataGenerated
+		})`;
 	} else if (type === "nodeDataChildren") {
 		// Data and children nodes represent calling a function with a data
 		// object using attribute syntax and children.
 		const value = tree.value;
-		const data = generateAttributes(value[4]);
+		const data = generate(value[4]);
 		const children = value[6];
 		const childrenLength = children.length;
-		let outputChildren;
+		let childrenGenerated;
 
 		if (childrenLength === 0) {
-			outputChildren = "";
+			childrenGenerated = "";
 		} else {
 			let separator = "";
-			outputChildren = data.separator + "children:[";
+			childrenGenerated = data.separator + "children:[";
 
 			for (let i = 0; i < childrenLength; i++) {
 				const child = children[i];
-				const childType = child.type;
+				const childGenerated = generate(child);
 
-				if (childType === "text") {
-					const childValue = generate(child.value);
-
-					if (whitespaceRE.test(childValue) && childValue.indexOf("\n") !== -1) {
-						// Text that is only whitespace with at least one newline is
-						// ignored and added only to preserve newlines in the
-						// generated code.
-						outputChildren += childValue;
+				if (child.type === "text") {
+					if (childGenerated.isWhitespace) {
+						childrenGenerated += childGenerated.output;
 					} else {
-						outputChildren += `${separator}Moon.view.m.text({data:"${childValue.replace(textSpecialRE, (match, character, characterSpecial) => character + "\\" + characterSpecial)}"})`;
+						childrenGenerated += separator + childGenerated.output;
 						separator = ",";
 					}
-				} else if (childType === "block") {
-					outputChildren += `${separator}Moon.view.m.text({data:${generate(child.value[1])}})`;
-					separator = ",";
 				} else {
-					outputChildren += separator + generate(child);
+					childrenGenerated += separator + childGenerated;
 					separator = ",";
 				}
 			}
 
-			outputChildren += "]";
+			childrenGenerated += "]";
 		}
 
-		return `${generate(value[1])}${generateValue(value[2])}${generate(value[3])}({${data.output}${outputChildren}})`;
+		return `${generate(value[1])}${generate(value[2])}${generate(value[3])}({${data.output}${childrenGenerated}})`;
 	}
 }

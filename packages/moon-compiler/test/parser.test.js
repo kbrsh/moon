@@ -29,35 +29,35 @@ test("parse node with string name", () => {
 });
 
 test("parse node with block name", () => {
-	expect(parseTest(`<{dynamic}#>`)).toEqual([[[{"type": "node", "value": ["<", [], {"type": "block", "value": ["{", [["", ["d", "y", "n", "a", "m", "i", "c"]]], "}"]}, [], "#>"]}], "EOF"], 12]);
+	expect(parseTest(`<{dynamic}#>`)).toEqual([[[{"type": "node", "value": ["<", [], ["{", [["d", "y", "n", "a", "m", "i", "c"]], "}"], [], "#>"]}], "EOF"], 12]);
 });
 
 test("parse node data", () => {
-	expect(parseTest(`<div/>`)).toEqual([[[{"type":"nodeData","value":["<",[],["d","i","v"],[],{"type":"attributes","value":[]},"/>"]}],"EOF"],6]);
+	expect(parseTest(`<div/>`)).toEqual([[[{"type": "nodeData", "value": ["<", [], ["d", "i", "v"], [], [{"type": "attributes", "value": []}, "/>"]]}], "EOF"], 6]);
 });
 
 test("parse node data with attributes", () => {
-	expect(parseTest(`<div foo="bar" bar={1 + 2 + 3} baz="test"/>`)).toEqual([[[{"type":"nodeData","value":["<",[],["d","i","v"],[" "],{"type":"attributes","value":[[["f","o","o"],"=",["\"",["b","a","r"],"\""],[" "]],[["b","a","r"],"=",{"type":"block","value":["{",[["",["1"," ","+"," ","2"," ","+"," ","3"]]],"}"]},[" "]],[["b","a","z"],"=",["\"",["t","e","s","t"],"\""],[]]]},"/>"]}],"EOF"],43]);
+	expect(parseTest(`<div foo="bar" bar={1 + 2 + 3} baz="test"/>`)).toEqual([[[{"type":"nodeData","value":["<",[],["d","i","v"],[" "],[{"type":"attributes","value":[[["f","o","o"],"=",["\"",["b","a","r"],"\""],[" "]],[["b","a","r"],"=",["{",[["1"],[" ","+"," ","2"," ","+"," ","3"]],"}"],[" "]],[["b","a","z"],"=",["\"",["t","e","s","t"],"\""],[]]]},"/>"]]}],"EOF"],43]);
 });
 
 test("parse node data with string name and attributes", () => {
-	expect(parseTest(`<"div" foo="bar" bar={1 + 2 + 3} baz="test"/>`)).toEqual([[[{"type":"nodeData","value":["<",[],["\"",["d","i","v"],"\""],[" "],{"type":"attributes","value":[[["f","o","o"],"=",["\"",["b","a","r"],"\""],[" "]],[["b","a","r"],"=",{"type":"block","value":["{",[["",["1"," ","+"," ","2"," ","+"," ","3"]]],"}"]},[" "]],[["b","a","z"],"=",["\"",["t","e","s","t"],"\""],[]]]},"/>"]}],"EOF"],45]);
+	expect(parseTest(`<"div" foo="bar" bar={1 + 2 + 3} baz="test"/>`)).toEqual([[[{"type":"nodeData","value":["<",[],["\"",["d","i","v"],"\""],[" "],[{"type":"attributes","value":[[["f","o","o"],"=",["\"",["b","a","r"],"\""],[" "]],[["b","a","r"],"=",["{",[["1"],[" ","+"," ","2"," ","+"," ","3"]],"}"],[" "]],[["b","a","z"],"=",["\"",["t","e","s","t"],"\""],[]]]},"/>"]]}],"EOF"],45]);
 });
 
 test("parse node data with block name and attributes", () => {
-	expect(parseTest(`<{div} foo="bar" bar={1 + 2 + 3} baz="test"/>`)).toEqual([[[{"type":"nodeData","value":["<",[],{"type":"block","value":["{",[["",["d","i","v"]]],"}"]},[" "],{"type":"attributes","value":[[["f","o","o"],"=",["\"",["b","a","r"],"\""],[" "]],[["b","a","r"],"=",{"type":"block","value":["{",[["",["1"," ","+"," ","2"," ","+"," ","3"]]],"}"]},[" "]],[["b","a","z"],"=",["\"",["t","e","s","t"],"\""],[]]]},"/>"]}],"EOF"],45]);
+	expect(parseTest(`<{div} foo="bar" bar={1 + 2 + 3} baz="test"/>`)).toEqual([[[{"type":"nodeData","value":["<",[],["{",[["d","i","v"]],"}"],[" "],[{"type":"attributes","value":[[["f","o","o"],"=",["\"",["b","a","r"],"\""],[" "]],[["b","a","r"],"=",["{",[["1"],[" ","+"," ","2"," ","+"," ","3"]],"}"],[" "]],[["b","a","z"],"=",["\"",["t","e","s","t"],"\""],[]]]},"/>"]]}],"EOF"],45]);
 });
 
 test("parse node data with data", () => {
-	expect(parseTest(`<div {foo}/>`)).toEqual([[[{"type": "nodeData", "value": ["<", [], ["d", "i", "v"], [" "], {"type": "block", "value": ["{", [["", ["f", "o", "o"]]], "}"]}, "/>"]}], "EOF"], 12]);
+	expect(parseTest(`<div {foo}/>`)).toEqual([[[{"type":"nodeData","value":["<",[],["d","i","v"],[" "],[["{",[["f","o","o"]],"}"],"/>"]]}],"EOF"],12]);
 });
 
 test("parse node data with string name and data", () => {
-	expect(parseTest(`<"div" {foo}/>`)).toEqual([[[{"type": "nodeData", "value": ["<", [], ["\"", ["d", "i", "v"], "\""], [" "], {"type": "block", "value": ["{", [["", ["f", "o", "o"]]], "}"]}, "/>"]}], "EOF"], 14]);
+	expect(parseTest(`<"div" {foo}/>`)).toEqual([[[{"type":"nodeData","value":["<",[],["\"",["d","i","v"],"\""],[" "],[["{",[["f","o","o"]],"}"],"/>"]]}],"EOF"],14]);
 });
 
 test("parse node data with block name and data", () => {
-	expect(parseTest(`<{div} {foo}/>`)).toEqual([[[{"type": "nodeData", "value": ["<", [], {"type": "block", "value": ["{", [["", ["d", "i", "v"]]], "}"]}, [" "], {"type": "block", "value": ["{", [["", ["f", "o", "o"]]], "}"]}, "/>"]}], "EOF"], 14]);
+	expect(parseTest(`<{div} {foo}/>`)).toEqual([[[{"type":"nodeData","value":["<",[],["{",[["d","i","v"]],"}"],[" "],[["{",[["f","o","o"]],"}"],"/>"]]}],"EOF"],14]);
 });
 
 test("parse nested elements", () => {
@@ -66,7 +66,7 @@ test("parse nested elements", () => {
 			<h1>Title</h1>
 			<p color="blue">Text</p>
 		</div>
-	`)).toEqual([[[["",["\n","\t","\t"]],{"type":"nodeDataChildren","value":["<",[],["d","i","v"],[" "],{"type":"attributes","value":[[["d","y","n","a","m","i","c"],"=",{"type":"block","value":["{",[["",["t","r","u","e"]]],"}"]},[]]]},">",[{"type":"text","value":["\n","\t","\t","\t"]},{"type":"nodeDataChildren","value":["<",[],["h","1"],[],{"type":"attributes","value":[]},">",[{"type":"text","value":["T","i","t","l","e"]}],"</",["h","1"],">"]},{"type":"text","value":["\n","\t","\t","\t"]},{"type":"nodeDataChildren","value":["<",[],["p"],[" "],{"type":"attributes","value":[[["c","o","l","o","r"],"=",["\"",["b","l","u","e"],"\""],[]]]},">",[{"type":"text","value":["T","e","x","t"]}],"</",["p"],">"]},{"type":"text","value":["\n","\t","\t"]}],"</",["d","i","v"],">"]},["",["\n","\t"]]],"EOF"],80]);
+	`)).toEqual([[[["\n","\t","\t"],{"type":"nodeDataChildren","value":["<",[],["d","i","v"],[" "],{"type":"attributes","value":[[["d","y","n","a","m","i","c"],"=",["{",[["t","r","u","e"]],"}"],[]]]},">",[{"type":"text","value":["\n","\t","\t","\t"]},{"type":"nodeDataChildren","value":["<",[],["h","1"],[],{"type":"attributes","value":[]},">",[{"type":"text","value":["T","i","t","l","e"]}],"</",["h","1"],">"]},{"type":"text","value":["\n","\t","\t","\t"]},{"type":"nodeDataChildren","value":["<",[],["p"],[" "],{"type":"attributes","value":[[["c","o","l","o","r"],"=",["\"",["b","l","u","e"],"\""],[]]]},">",[{"type":"text","value":["T","e","x","t"]}],"</",["p"],">"]},{"type":"text","value":["\n","\t","\t"]}],"</",["d","i","v"],">"]},["\n","\t"]],"EOF"],80]);
 });
 
 test("parse nested elements with block name", () => {
@@ -75,7 +75,7 @@ test("parse nested elements with block name", () => {
 			<h1>Title</h1>
 			<p color="blue">Text</p>
 		</>
-	`)).toEqual([[[["",["\n","\t","\t"]],{"type":"nodeDataChildren","value":["<",[],{"type":"block","value":["{",[["",["d","i","v"]]],"}"]},[" "],{"type":"attributes","value":[[["d","y","n","a","m","i","c"],"=",{"type":"block","value":["{",[["",["t","r","u","e"]]],"}"]},[]]]},">",[{"type":"text","value":["\n","\t","\t","\t"]},{"type":"nodeDataChildren","value":["<",[],["h","1"],[],{"type":"attributes","value":[]},">",[{"type":"text","value":["T","i","t","l","e"]}],"</",["h","1"],">"]},{"type":"text","value":["\n","\t","\t","\t"]},{"type":"nodeDataChildren","value":["<",[],["p"],[" "],{"type":"attributes","value":[[["c","o","l","o","r"],"=",["\"",["b","l","u","e"],"\""],[]]]},">",[{"type":"text","value":["T","e","x","t"]}],"</",["p"],">"]},{"type":"text","value":["\n","\t","\t"]}],"</",[],">"]},["",["\n","\t"]]],"EOF"],79]);
+	`)).toEqual([[[["\n","\t","\t"],{"type":"nodeDataChildren","value":["<",[],["{",[["d","i","v"]],"}"],[" "],{"type":"attributes","value":[[["d","y","n","a","m","i","c"],"=",["{",[["t","r","u","e"]],"}"],[]]]},">",[{"type":"text","value":["\n","\t","\t","\t"]},{"type":"nodeDataChildren","value":["<",[],["h","1"],[],{"type":"attributes","value":[]},">",[{"type":"text","value":["T","i","t","l","e"]}],"</",["h","1"],">"]},{"type":"text","value":["\n","\t","\t","\t"]},{"type":"nodeDataChildren","value":["<",[],["p"],[" "],{"type":"attributes","value":[[["c","o","l","o","r"],"=",["\"",["b","l","u","e"],"\""],[]]]},">",[{"type":"text","value":["T","e","x","t"]}],"</",["p"],">"]},{"type":"text","value":["\n","\t","\t"]}],"</",[],">"]},["\n","\t"]],"EOF"],79]);
 });
 
 test("parse escaped character in regex", () => {
@@ -83,12 +83,12 @@ test("parse escaped character in regex", () => {
 });
 
 test("parse backslash character in end of regex", () => {
-	expect(parseTest(`/\\`)).toEqual([[[["/", ["\\"]]], "EOF"], 2]);
+	expect(parseTest(`/\\`)).toEqual([[["/", ["\\"]], "EOF"], 2]);
 });
 
-test("parse error on escaped newline in regex", () => {
+test("parse escaped newline in regex as division", () => {
 	expect(parseTest(`/\\
-/`)).toEqual({ expected: "EOF", index: 3 });
+/`)).toEqual([[["/", ["\\", "\n"], "/"], "EOF"], 4]);
 });
 
 test("parse escaped delimiters in regex", () => {

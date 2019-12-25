@@ -44,9 +44,6 @@
 		EOF: function EOF(input, index) {
 			return index === input.length ? ["EOF", index] : new ParseError("EOF", index);
 		},
-		empty: function empty(input, index) {
-			return ["", index];
-		},
 		any: function any(input, index) {
 			return index < input.length ? [input[index], index + 1] : new ParseError("any", index);
 		},
@@ -196,39 +193,35 @@
 	 */
 
 	var grammar = {
-		whitespace: parser.alternates([parser.character(" "), parser.character("\t"), parser.character("\n")]),
-		whitespaces: function whitespaces(input, index) {
-			return parser.many(grammar.whitespace)(input, index);
-		},
-		identifier: parser.many1(parser.regex(identifierRE)),
-		string: parser.alternates([parser.sequence([parser.character("\""), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["\""]))), parser.character("\"")]), parser.sequence([parser.character("'"), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["'"]))), parser.character("'")]), parser.sequence([parser.character("`"), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["`"]))), parser.character("`")])]),
-		block: function block(input, index) {
-			return parser.type("block", parser.sequence([parser.character("{"), grammar.expression, parser.character("}")]))(input, index);
-		},
+		whitespaces: parser.many(parser.alternates([parser.character(" "), parser.character("\t"), parser.character("\n")])),
 		value: function value(input, index) {
-			return parser.alternates([grammar.string, grammar.block, grammar.identifier])(input, index);
+			return parser.alternates([parser.many1(parser.regex(identifierRE)), parser.sequence([parser.character("\""), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["\""]))), parser.character("\"")]), parser.sequence([parser.character("'"), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["'"]))), parser.character("'")]), parser.sequence([parser.character("`"), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["`"]))), parser.character("`")]), parser.sequence([parser.character("("), grammar.expression, parser.character(")")]), parser.sequence([parser.character("["), grammar.expression, parser.character("]")]), parser.sequence([parser.character("{"), grammar.expression, parser.character("}")])])(input, index);
+		},
+		attributes: function attributes(input, index) {
+			return parser.type("attributes", parser.many(parser.sequence([grammar.value, parser.character("="), grammar.value, grammar.whitespaces])))(input, index);
 		},
 		text: parser.type("text", parser.many1(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["{", "<"])))),
-		attributes: function attributes(input, index) {
-			return parser.type("attributes", parser.many(parser.sequence([grammar.identifier, parser.character("="), grammar.value, grammar.whitespaces])))(input, index);
+		interpolation: function interpolation(input, index) {
+			return parser.type("interpolation", parser.sequence([parser.character("{"), grammar.expression, parser.character("}")]))(input, index);
 		},
 		node: function node(input, index) {
 			return parser.type("node", parser.sequence([parser.character("<"), grammar.whitespaces, grammar.value, grammar.whitespaces, parser.string("#>")]))(input, index);
 		},
 		nodeData: function nodeData(input, index) {
-			return parser.type("nodeData", parser.sequence([parser.character("<"), grammar.whitespaces, grammar.value, grammar.whitespaces, parser.or(grammar.block, grammar.attributes), parser.string("/>")]))(input, index);
+			return parser.type("nodeData", parser.sequence([parser.character("<"), grammar.whitespaces, grammar.value, grammar.whitespaces, parser.or(parser.and(grammar.value, parser.string("/>")), parser.and(grammar.attributes, parser.string("/>")))]))(input, index);
 		},
 		nodeDataChildren: function nodeDataChildren(input, index) {
-			return parser.type("nodeDataChildren", parser.sequence([parser.character("<"), grammar.whitespaces, grammar.value, grammar.whitespaces, grammar.attributes, parser.character(">"), parser.many(parser.alternates([grammar.node, grammar.nodeData, grammar.nodeDataChildren, grammar.block, grammar.text])), parser.string("</"), parser.many(parser.not([">"])), parser.character(">")]))(input, index);
+			return parser.type("nodeDataChildren", parser.sequence([parser.character("<"), grammar.whitespaces, grammar.value, grammar.whitespaces, grammar.attributes, parser.character(">"), parser.many(parser.alternates([grammar.node, grammar.nodeData, grammar.nodeDataChildren, grammar.text, grammar.interpolation])), parser.string("</"), parser.many(parser.not([">"])), parser.character(">")]))(input, index);
 		},
 		expression: function expression(input, index) {
 			return parser.many(parser.alternates([// Single line comment
 			parser.sequence([parser.string("//"), parser.many(parser.not(["\n"]))]), // Multi-line comment
 			parser.sequence([parser.string("/*"), parser.many(parser.not(["*/"])), parser.string("*/")]), // Regular expression
-			parser.sequence([parser.character("/"), parser.many1(parser.or(parser.and(parser.character("\\"), parser.not(["\n"])), parser.not(["/", "\n"]))), parser.character("/")]), grammar.string, grammar.block, grammar.node, grammar.nodeData, grammar.nodeDataChildren, // Anything up to a comment, regular expression, block, view, or string.
-			// Allow failed regular expression or view parses to be interpreted as
+			parser.sequence([parser.character("/"), parser.many1(parser.or(parser.and(parser.character("\\"), parser.not(["\n"])), parser.not(["/", "\n"]))), parser.character("/")]), grammar.value, grammar.node, grammar.nodeData, grammar.nodeDataChildren, // Allow failed regular expression or view parses to be interpreted as
 			// operators.
-			parser.and(parser.alternates([parser.character("/"), parser.character("<"), parser.empty]), parser.many1(parser.not(["/", "{", "}", "<", "\"", "'", "`"])))]))(input, index);
+			parser.character("/"), parser.character("<"), // Anything up to a comment, regular expression, string, parenthetical,
+			// array, object, or view.
+			parser.many1(parser.not(["/", "\"", "'", "`", "(", ")", "[", "]", "{", "}", "<"]))]))(input, index);
 		},
 		main: function main(input, index) {
 			return parser.and(grammar.expression, parser.EOF)(input, index);
@@ -261,47 +254,7 @@
 	 * Matches unescaped special characters in text.
 	 */
 
-	var textSpecialRE = /([^\\])("|\n)/g;
-	/**
-	 * Generate a parser value node.
-	 *
-	 * @param {object} tree
-	 * @returns {string} generator result
-	 */
-
-	function generateValue(tree) {
-		if (tree.type === "block") {
-			// In values, blocks are only generated to the expression inside of them.
-			return "(" + generate(tree.value[1]) + ")";
-		} else {
-			// All other value types are generated normally.
-			return generate(tree);
-		}
-	}
-	/**
-	 * Generate a parser attributes node.
-	 *
-	 * @param {object} tree
-	 * @returns {object} generator result and separator
-	 */
-
-
-	function generateAttributes(tree) {
-		var value = tree.value;
-		var output = "";
-		var separator = "";
-
-		for (var i = 0; i < value.length; i++) {
-			var pair = value[i];
-			output += separator + "\"" + generate(pair[0]) + "\":" + generateValue(pair[2]) + generate(pair[3]);
-			separator = ",";
-		}
-
-		return {
-			output: output,
-			separator: separator
-		};
-	}
+	var textSpecialRE = /(^|[^\\])("|\n)/g;
 	/**
 	 * Generator
 	 *
@@ -312,7 +265,6 @@
 	 * @param {object} tree
 	 * @returns {string} generator result
 	 */
-
 
 	function generate(tree) {
 		var type = tree.type;
@@ -327,66 +279,83 @@
 			}
 
 			return output;
-		} else if (type === "block") {
-			return generate(tree.value);
+		} else if (type === "attributes") {
+			var value = tree.value;
+			var _output = "";
+			var separator = "";
+
+			for (var _i = 0; _i < value.length; _i++) {
+				var pair = value[_i];
+				_output += separator + "\"" + generate(pair[0]) + "\":" + generate(pair[2]) + generate(pair[3]);
+				separator = ",";
+			}
+
+			return {
+				output: _output,
+				separator: separator
+			};
+		} else if (type === "text") {
+			var textGenerated = generate(tree.value);
+			var textGeneratedIsWhitespace = whitespaceRE.test(textGenerated) && textGenerated.indexOf("\n") !== -1; // Text that is only whitespace with at least one newline is ignored and
+			// added only to preserve newlines in the generated code.
+
+			return {
+				output: textGeneratedIsWhitespace ? textGenerated : "Moon.view.m.text({data:\"" + textGenerated.replace(textSpecialRE, function (match, character, characterSpecial) {
+					return character + (characterSpecial === "\"" ? "\\\"" : "\\n\\\n");
+				}) + "\"})",
+				isWhitespace: textGeneratedIsWhitespace
+			};
+		} else if (type === "interpolation") {
+			return "Moon.view.m.text({data:" + generate(tree.value[1]) + "})";
 		} else if (type === "node") {
 			// Nodes represent a variable reference.
-			var value = tree.value;
-			return generate(value[1]) + generateValue(value[2]) + generate(value[3]);
+			var _value = tree.value;
+			return generate(_value[1]) + generate(_value[2]) + generate(_value[3]);
 		} else if (type === "nodeData") {
 			// Data nodes represent calling a function with either a custom data
 			// expression or an object using attribute syntax.
-			var _value = tree.value;
-			var data = _value[4];
-			return "" + generate(_value[1]) + generateValue(_value[2]) + generate(_value[3]) + "(" + (data.type === "attributes" ? "{" + generateAttributes(data).output + "}" : generate(data.value[1])) + ")";
+			var _value2 = tree.value;
+			var data = _value2[4][0];
+			var dataGenerated = generate(data);
+			return "" + generate(_value2[1]) + generate(_value2[2]) + generate(_value2[3]) + "(" + (data.type === "attributes" ? "{" + dataGenerated.output + "}" : dataGenerated) + ")";
 		} else if (type === "nodeDataChildren") {
 			// Data and children nodes represent calling a function with a data
 			// object using attribute syntax and children.
-			var _value2 = tree.value;
+			var _value3 = tree.value;
 
-			var _data = generateAttributes(_value2[4]);
+			var _data = generate(_value3[4]);
 
-			var children = _value2[6];
+			var children = _value3[6];
 			var childrenLength = children.length;
-			var outputChildren;
+			var childrenGenerated;
 
 			if (childrenLength === 0) {
-				outputChildren = "";
+				childrenGenerated = "";
 			} else {
-				var separator = "";
-				outputChildren = _data.separator + "children:[";
+				var _separator = "";
+				childrenGenerated = _data.separator + "children:[";
 
-				for (var _i = 0; _i < childrenLength; _i++) {
-					var child = children[_i];
-					var childType = child.type;
+				for (var _i2 = 0; _i2 < childrenLength; _i2++) {
+					var child = children[_i2];
+					var childGenerated = generate(child);
 
-					if (childType === "text") {
-						var childValue = generate(child.value);
-
-						if (whitespaceRE.test(childValue) && childValue.indexOf("\n") !== -1) {
-							// Text that is only whitespace with at least one newline is
-							// ignored and added only to preserve newlines in the
-							// generated code.
-							outputChildren += childValue;
+					if (child.type === "text") {
+						if (childGenerated.isWhitespace) {
+							childrenGenerated += childGenerated.output;
 						} else {
-							outputChildren += separator + "Moon.view.m.text({data:\"" + childValue.replace(textSpecialRE, function (match, character, characterSpecial) {
-								return character + "\\" + characterSpecial;
-							}) + "\"})";
-							separator = ",";
+							childrenGenerated += _separator + childGenerated.output;
+							_separator = ",";
 						}
-					} else if (childType === "block") {
-						outputChildren += separator + "Moon.view.m.text({data:" + generate(child.value[1]) + "})";
-						separator = ",";
 					} else {
-						outputChildren += separator + generate(child);
-						separator = ",";
+						childrenGenerated += _separator + childGenerated;
+						_separator = ",";
 					}
 				}
 
-				outputChildren += "]";
+				childrenGenerated += "]";
 			}
 
-			return "" + generate(_value2[1]) + generateValue(_value2[2]) + generate(_value2[3]) + "({" + _data.output + outputChildren + "})";
+			return "" + generate(_value3[1]) + generate(_value3[2]) + generate(_value3[3]) + "({" + _data.output + childrenGenerated + "})";
 		}
 	}
 

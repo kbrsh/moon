@@ -28,7 +28,6 @@ const parser = {
 			["EOF", index] :
 			new ParseError("EOF", index);
 	},
-	empty: (input, index) => ["", index],
 	any: (input, index) => {
 		return index < input.length ?
 			[input[index], index + 1] :
@@ -171,10 +170,13 @@ const parser = {
  * Moon View Language Grammar
  */
 const grammar = {
-	whitespace: parser.alternates([parser.character(" "), parser.character("\t"), parser.character("\n")]),
-	whitespaces: (input, index) => parser.many(grammar.whitespace)(input, index),
-	identifier: parser.many1(parser.regex(identifierRE)),
-	string: parser.alternates([
+	whitespaces: parser.many(parser.alternates([
+		parser.character(" "),
+		parser.character("\t"),
+		parser.character("\n")
+	])),
+	value: (input, index) => parser.alternates([
+		parser.many1(parser.regex(identifierRE)),
 		parser.sequence([
 			parser.character("\""),
 			parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["\""]))),
@@ -189,24 +191,38 @@ const grammar = {
 			parser.character("`"),
 			parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["`"]))),
 			parser.character("`")
+		]),
+		parser.sequence([
+			parser.character("("),
+			grammar.expression,
+			parser.character(")")
+		]),
+		parser.sequence([
+			parser.character("["),
+			grammar.expression,
+			parser.character("]")
+		]),
+		parser.sequence([
+			parser.character("{"),
+			grammar.expression,
+			parser.character("}")
 		])
-	]),
-	block: (input, index) => parser.type("block", parser.sequence([
-		parser.character("{"),
-		grammar.expression,
-		parser.character("}")
-	]))(input, index),
-	value: (input, index) => parser.alternates([grammar.string, grammar.block, grammar.identifier])(input, index),
-	text: parser.type("text", parser.many1(parser.or(
-		parser.and(parser.character("\\"), parser.any),
-		parser.not(["{", "<"])
-	))),
+	])(input, index),
 	attributes: (input, index) => parser.type("attributes", parser.many(parser.sequence([
-		grammar.identifier,
+		grammar.value,
 		parser.character("="),
 		grammar.value,
 		grammar.whitespaces
 	])))(input, index),
+	text: parser.type("text", parser.many1(parser.or(
+		parser.and(parser.character("\\"), parser.any),
+		parser.not(["{", "<"])
+	))),
+	interpolation: (input, index) => parser.type("interpolation", parser.sequence([
+		parser.character("{"),
+		grammar.expression,
+		parser.character("}")
+	]))(input, index),
 	node: (input, index) => parser.type("node", parser.sequence([
 		parser.character("<"),
 		grammar.whitespaces,
@@ -219,8 +235,10 @@ const grammar = {
 		grammar.whitespaces,
 		grammar.value,
 		grammar.whitespaces,
-		parser.or(grammar.block, grammar.attributes),
-		parser.string("/>")
+		parser.or(
+			parser.and(grammar.value, parser.string("/>")),
+			parser.and(grammar.attributes, parser.string("/>"))
+		)
 	]))(input, index),
 	nodeDataChildren: (input, index) => parser.type("nodeDataChildren", parser.sequence([
 		parser.character("<"),
@@ -233,8 +251,8 @@ const grammar = {
 			grammar.node,
 			grammar.nodeData,
 			grammar.nodeDataChildren,
-			grammar.block,
-			grammar.text
+			grammar.text,
+			grammar.interpolation
 		])),
 		parser.string("</"),
 		parser.many(parser.not([">"])),
@@ -263,19 +281,19 @@ const grammar = {
 			)),
 			parser.character("/")
 		]),
-		grammar.string,
-		grammar.block,
+		grammar.value,
 		grammar.node,
 		grammar.nodeData,
 		grammar.nodeDataChildren,
 
-		// Anything up to a comment, regular expression, block, view, or string.
 		// Allow failed regular expression or view parses to be interpreted as
 		// operators.
-		parser.and(
-			parser.alternates([parser.character("/"), parser.character("<"), parser.empty]),
-			parser.many1(parser.not(["/", "{", "}", "<", "\"", "'", "`"]))
-		),
+		parser.character("/"),
+		parser.character("<"),
+
+		// Anything up to a comment, regular expression, string, parenthetical,
+		// array, object, or view.
+		parser.many1(parser.not(["/", "\"", "'", "`", "(", ")", "[", "]", "{", "}", "<"])),
 	]))(input, index),
 	main: (input, index) => parser.and(grammar.expression, parser.EOF)(input, index)
 };

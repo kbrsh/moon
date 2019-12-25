@@ -42,12 +42,12 @@ function ExecutorTestItem({ item, index }) {
 
 	return (cache[item][index] =
 		<m.span>
-			<{item % 2 === 0 ?
-				<m.p lang="en" class={item} for={item} attributes={{"aria-hidden": false, "aria-removeme": true, "data-foo": "bar", "data-removeme": true}} style={{color: "red", background: "blue"}} @click={handler1}>{item} {index}</p> :
+			<(item % 2 === 0 ?
+				<m.p lang="en" class=item for=item attributes={"aria-hidden": false, "aria-removeme": true, "data-foo": "bar", "data-removeme": true} style={color: "red", background: "blue"} @click=handler1>{item} {index}</p> :
 			item % 3 === 0 ?
-				<m.p lang="en" class={item} for={item} id={item} attributes={{"aria-hidden": false, "aria-different": true, "data-foo": "bar", "data-different": true}} style={{color: "red", fontSize: "20px"}} @click={handler2}>{item} {index}</p> :
+				<m.p lang="en" class=item for=item id=item attributes={"aria-hidden": false, "aria-different": true, "data-foo": "bar", "data-different": true} style={color: "red", fontSize: "20px"} @click=handler2>{item} {index}</p> :
 				<m.p lang="en">{item} {index}</p>
-			}#>
+			)#>
 		</m.span>
 	);
 }
@@ -55,28 +55,28 @@ function ExecutorTestItem({ item, index }) {
 function ExecutorTest({ list, focus }) {
 	return (
 		<m.div>
-			<m.span children={list.map((item, index) => <ExecutorTestItem item={item} index={index}/>)}/>
-			<m.span children={list.map(item => <{
+			<m.span children=(list.map((item, index) => <ExecutorTestItem item=item index=index/>))/>
+			<m.span children=(list.map(item => <(
 				item % 2 === 0 ?
 					<m.h1>{item}</m.h1> :
 					<m.p>{item}</m.p>
-			}#>)}/>
+			)#>))/>
 			<m.h1>Moon</m.h1>
-			<m.p @click={handler1} @dblclick={handler2}>Partially static.</m.p>
-			<{list.length > 0 ?
+			<m.p @click=handler1 @dblclick=handler2>Partially static.</m.p>
+			<(list.length > 0 ?
 				(list[0] % 2 === 0 ?
-					<m.input focus={true}/> :
+					<m.input focus=true/> :
 				list[0] % 3 === 0 ?
-					<m.input focus={false}/> :
+					<m.input focus=false/> :
 					<testInput#>
 				) :
 				<m.text data=""/>
-			}#>
-			<m.input {testFocusFalse}/>
-			<{list.length > 0 ?
+			)#>
+			<m.input testFocusFalse/>
+			<(list.length > 0 ?
 				<m.p>Text</m.p> :
 				<m.p/>
-			}#>
+			)#>
 		</m.div>
 	);
 }
@@ -86,7 +86,7 @@ function Root() {
 
 	return {
 		list,
-		view: <ExecutorTest list={list}/>
+		view: <ExecutorTest list=(list)/>
 	};
 }
 
@@ -240,12 +240,12 @@ function verify(list) {
 function assertExecute(before, after) {
 	Moon.run(() => ({
 		list: before,
-		view: (<ExecutorTest list={before}/>)
+		view: <ExecutorTest list=(before)/>
 	}));
 	verify(before);
 	Moon.run(() => ({
 		list: after,
-		view: (<ExecutorTest list={after}/>)
+		view: <ExecutorTest list=(after)/>
 	}));
 	verify(after);
 }
