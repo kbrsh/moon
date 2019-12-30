@@ -1,7 +1,9 @@
 var config = {
 	theme: "nox",
 	mode: "javascript",
-	value: `const updateTodo = ({ data, view }) => {
+	value: `const { div, h1, ul, li, input, button } = Moon.view.m;
+
+const updateTodo = ({ data, view }) => {
 	const dataNew = {
 		...data,
 		todo: view.target.value
@@ -9,7 +11,7 @@ var config = {
 
 	return {
 		data: dataNew,
-		view: (<Todos data={dataNew}/>)
+		view: <Todos data=dataNew/>
 	};
 };
 
@@ -21,7 +23,7 @@ const createTodo = ({ data }) => {
 
 	return {
 		data: dataNew,
-		view: (<Todos data={dataNew}/>)
+		view: <Todos data=dataNew/>
 	};
 };
 
@@ -36,7 +38,7 @@ const removeTodo = index => ({ data }) => {
 
 	return {
 		data: dataNew,
-		view: (<Todos data={dataNew}/>)
+		view: <Todos data=dataNew/>
 	};
 };
 
@@ -46,36 +48,38 @@ const Todos = ({ data }) => (
 		<input
 			type="text"
 			placeholder="What needs to be done?"
-			value={data.todo}
-			@input={updateTodo}
+			value=data.todo
+			@input=updateTodo
 		/>
-		<button @click={createTodo}>Create</button>
-		<for={todo, index}
-			of={data.todos}
-			name="ul"
-		>
-			<li @click={removeTodo(index)}>
+		<button @click=createTodo>Create</button>
+		<ul children=(data.todos.map((todo, index) =>
+			<li @click=(removeTodo(index))>
 				{todo}
 			</li>
-		</for>
+		))/>
 	</div>
 );
 
 Moon.use({
-	data: Moon.data.driver({
+	data: Moon.data.driver,
+	view: Moon.view.driver("#root")
+});
+
+Moon.run(() => {
+	const data = {
 		todo: "",
 		todos: [
 			"Learn Moon",
 			"Take a nap",
 			"Go shopping"
 		]
-	}),
-	view: Moon.view.driver("#root")
-});
+	};
 
-Moon.run(({ data }) => ({
-	view: (<Todos data={data}/>)
-}));`,
+	return {
+		data,
+		view: <Todos data=data/>
+	};
+});`,
 	lineNumbers: true,
 	indentWithTabs: true
 };
@@ -100,7 +104,7 @@ function render() {
 			</head>
 			<body>
 				<div id="root"></div>
-				<script src="/moon/play/js/lib/moon.js"></script>
+				<script src="/play/js/lib/moon.js"></script>
 				<script>${MoonCompiler.compile(value)}</script>
 			</body>
 		</html>

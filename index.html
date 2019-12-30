@@ -9,11 +9,11 @@
 
 		<title>Moon</title>
 
-		<link rel="shortcut icon" href="/moon/img/logo.png"/>
+		<link rel="shortcut icon" href="/img/logo.png"/>
 
-		<link rel="stylesheet" type="text/css" href="/moon/css/lib/grain.css" />
-		<link rel="stylesheet" type="text/css" href="/moon/css/styles.css" />
-		<link rel="stylesheet" type="text/css" href="/moon/css/index.css" />
+		<link rel="stylesheet" type="text/css" href="/css/lib/grain.css" />
+		<link rel="stylesheet" type="text/css" href="/css/styles.css" />
+		<link rel="stylesheet" type="text/css" href="/css/index.css" />
 
 		<script>
 			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -29,22 +29,22 @@
 		<div class="container">
 			<div class="nav">
 				<div class="nav-home">
-					<h2 class="nav-home"><a href="/moon">Moon</a></h2>
+					<h2 class="nav-home"><a href="/">Moon</a></h2>
 				</div>
 
 				<div class="nav-items">
-					<a href="/moon/doc/guide.html">Guide</a>
-					<a href="/moon/play">Playground</a>
-					<a href="/moon/doc/examples.html">Examples</a>
+					<a href="/doc/guide.html">Guide</a>
+					<a href="/play">Playground</a>
+					<a href="/doc/examples.html">Examples</a>
 					<a href="https://github.com/kbrsh/moon">GitHub</a>
 				</div>
 			</div>
 
 			<div class="head">
-				<img src="/moon/img/logo.png" alt="Moon Logo"/>
+				<img src="/img/logo.png" alt="Moon Logo"/>
 				<h1>The minimal & fast library for functional user interfaces</h1>
-				<a class="linkPlain" href="/moon/doc/guide.html"><button class="buttonPrimary">GET STARTED</button></a>
-				<a class="linkPlain" href="/moon/play"><button class="buttonSecondary">PLAYGROUND</button></a>
+				<a class="linkPlain" href="/doc/guide.html"><button class="buttonPrimary">GET STARTED</button></a>
+				<a class="linkPlain" href="/play"><button class="buttonSecondary">PLAYGROUND</button></a>
 			</div>
 
 			<div class="idea">
@@ -61,31 +61,30 @@
 					<h2 class="feature-info-title">Functional & Declarative</h2>
 					<p>In Moon, web applications are treated as functions that take driver inputs and return driver outputs. Drivers handle the interface between the output of your application and the browser so that it can stay pure and declarative.</p>
 					<p>On the contrary, other popular frameworks claim to be "declarative" but only treat the view as a function of state. However, they treat other ideas such as local component state or effects as afterthoughts, requiring imperative and impure code.</p>
-					<p><a href="/moon/play#const%20increment%20%3D%20(%7B%20data%2C%20view%20%7D)%20%3D%3E%20%7B%0A%20%20%20%20const%20dataNew%20%3D%20data%20%2B%201%3B%0A%0A%20%20%20%20return%20%7B%0A%20%20%20%20%20%20%20%20data%3A%20dataNew%2C%0A%20%20%20%20%20%20%20%20view%3A%20(%3CView%20data%3D%7BdataNew%7D%2F%3E)%0A%20%20%20%20%7D%3B%0A%7D%3B%0A%0Aconst%20View%20%3D%20(%7B%20data%20%7D)%20%3D%3E%20(%0A%20%20%20%20%3Cbutton%20%40click%3D%7Bincrement%7D%3E%7Bdata%7D%3C%2Fbutton%3E%0A)%3B%0A%0AMoon.use(%7B%0A%20%20%20%20data%3A%20Moon.data.driver(0)%2C%0A%20%20%20%20view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run((%7B%20data%2C%20view%20%7D)%20%3D%3E%20(%7B%0A%20%20%20%20view%3A%20(%3CView%20data%3D%7Bdata%7D%2F%3E)%0A%7D))%3B">Try it!</a></p>
+					<p><a href="/play#const%20button%20%3D%20Moon.view.m.button%3B%0A%0Aconst%20increment%20%3D%20(%7B%20data%20%7D)%20%3D%3E%20%7B%0A%09const%20dataNew%20%3D%20data%20%2B%201%3B%0A%0A%09return%20%7B%0A%09%09data%3A%20dataNew%2C%0A%09%09view%3A%20%3CView%20data%3DdataNew%2F%3E%0A%09%7D%3B%0A%7D%3B%0A%0Aconst%20View%20%3D%20(%7B%20data%20%7D)%20%3D%3E%0A%09%3Cbutton%20%40click%3Dincrement%3E%7Bdata%7D%3C%2Fbutton%3E%3B%0A%0AMoon.use(%7B%0A%09data%3A%20Moon.data.driver%2C%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20(%7B%0A%09data%3A%200%2C%0A%09view%3A%20%3CView%20data%3D0%2F%3E%0A%7D))%3B">Try it!</a></p>
 				</div>
 				<div class="feature-media">
-					<pre class="feature-media-code"><code lang="js"><span class="purple">const </span><span class="orange">increment</span> = ({ data, view }) =&gt; {
-    <span class="purple">const </span><span class="orange">dataNew</span> = data + <span class="orange">1</span>;
+					<pre class="feature-media-code"><code lang="js"><span class="purple">const </span><span class="orange">increment</span> = ({ data }) =&gt; {
+	<span class="purple">const </span><span class="orange">dataNew</span> = data + <span class="orange">1</span>;
 
-    <span class="purple">return</span> {
-        data: dataNew,
-        view: (<span class="red">&lt;View</span> <span class="orange">data</span>={dataNew}<span class="red">/&gt;</span>)
-    };
+	<span class="purple">return</span> {
+		data: dataNew,
+		view: <span class="red">&lt;View</span> <span class="orange">data</span>=dataNew<span class="red">/&gt;</span>
+	};
 };
 
-<span class="purple">const </span><span class="orange">View</span> = ({ data }) =&gt; (
-    <span class="red">&lt;button</span> <span class="orange">@click</span>={increment}<span class="red">&gt;</span>{data}<span class="red">&lt;/button</span><span class="red">&gt;</span>
-);
+<span class="purple">const </span><span class="orange">View</span> = ({ data }) =&gt;
+	<span class="red">&lt;button</span> <span class="orange">@click</span>=increment<span class="red">&gt;</span>{data}<span class="red">&lt;/button</span><span class="red">&gt;</span>;
 
 Moon.<span class="blue">use</span>({
-    data: Moon.data.<span class="blue">driver</span>(<span class="orange">0</span>),
-    view: Moon.view.<span class="blue">driver</span>(<span class="green">&quot;#root&quot;</span>)
+	data: Moon.data.driver,
+	view: Moon.view.<span class="blue">driver</span>(<span class="green">&quot;#root&quot;</span>)
 });
 
-Moon.<span class="blue">run</span>(({ data, view }) =&gt; ({
-    view: (<span class="red">&lt;View</span> <span class="orange">data</span>={data}<span class="red">/&gt;</span>)
-}));
-</code></pre>
+Moon.<span class="blue">run</span>(() =&gt; ({
+	data: <span class="orange">0</span>,
+	view: <span class="red">&lt;View</span> data=<span class="orange">0</span><span class="red">/&gt;</span>
+}));</code></pre>
 				</div>
 			</div>
 
@@ -93,11 +92,11 @@ Moon.<span class="blue">run</span>(({ data, view }) =&gt; ({
 				<div class="feature-info">
 					<h2 class="feature-info-title">Tiny & Fast</h2>
 					<p>Modern web frameworks often add a lot of weight to JavaScript bundles, resulting in slower web applications and load times. This effect is especially visible when using a slow internet connection.</p>
-					<p>Since Moon is so simple at its core, where it creates an abstraction to allow drivers to handle input and output, it <b>only weighs 1kb</b> minified and gzipped. On top of that, it is specifically optimized for JavaScript engines to perform fast virtual DOM diffing and DOM operations.</p>
+					<p>Since Moon is so simple at its core, where it creates an abstraction to allow drivers to handle input and output, it <b>only weighs 2kb</b> minified and gzipped. On top of that, it is specifically optimized for JavaScript engines to perform fast virtual DOM diffing and DOM operations.</p>
 				</div>
 				<div class="feature-media">
-					<img class="feature-media-image" src="/moon/img/size.png" alt="Sizes of popular frameworks relative to Moon."/>
-					<a class="linkPlain" href="https://rawgit.com/krausest/js-framework-benchmark/master/webdriver-ts-results/table.html"><img class="feature-media-image" src="/moon/img/speed.png" alt="Performance of popular frameworks relative to Moon."/></a>
+					<img class="feature-media-image" src="/img/size.png" alt="Sizes of popular frameworks relative to Moon."/>
+					<a class="linkPlain" href="https://rawgit.com/krausest/js-framework-benchmark/master/webdriver-ts-results/table.html"><img class="feature-media-image" src="/img/speed.png" alt="Performance of popular frameworks relative to Moon."/></a>
 				</div>
 			</div>
 
@@ -105,45 +104,35 @@ Moon.<span class="blue">run</span>(({ data, view }) =&gt; ({
 				<div class="feature-info">
 					<h2 class="feature-info-title">Intuitive & Consistent</h2>
 					<p>Moon has a very minimal API surface, used solely for initializing a runtime that allows for functional applications inside the imperative browser environment. The view language was designed to mimic HTML, a language familiar to most web developers.</p>
-					<p>Other view languages often have variadic arguments that can have any type for creating view nodes. They create abstractions like directives or special template syntax for control flow.</p>
-					<p>Moon's view language is consistent, where every tag is a function call. Components are just functions that return more nodes, and they are compiled to function calls like every other node. Control flow is implemented with components as well. In essence, it is JavaScript with syntactic sugar for function calls.</p>
+					<p>Other view languages often have variadic arguments that can have any type for creating view nodes. They create abstractions like directives or special template syntax for control flow. Moon's view language is consistent, where every tag is a function call and control flow is normal JavaScript.</p>
 				</div>
 				<div class="feature-media">
-					<pre class="feature-media-code"><code lang="js"><span class="gray">// Moon View</span>
+					<pre class="feature-media-code"><code lang="js"><span class="gray">// Moon view</span>
 <span class="purple">const </span><span class="orange">posts</span> = (
-    <span class="red">&lt;<span class="purple">for</span></span>={post} <span class="orange">of</span>={posts}<span class="red">&gt;</span>
-        <span class="red">&lt;Box</span> <span class="orange">id</span>=<span class="green">&quot;my-box&quot;</span><span class="red">&gt;</span>{post}<span class="red">&lt;/Box</span><span class="red">&gt;</span>
-    <span class="red">&lt;/<span class="purple">for</span></span><span class="red">&gt;</span>
+	<span class="red">&lt;div</span> <span class="orange">children</span>=(posts.<span class="blue">map</span>(post =<span class="red">&gt;</span>
+		<span class="red">&lt;Post</span> <span class="orange">id</span>=<span class="green">&quot;my-post&quot;</span><span class="red">&gt;</span>{post}<span class="red">&lt;/Post</span><span class="red">&gt;</span>
+	))/&gt;
 );
 
 <span class="gray">// Compiled to JS</span>
-<span class="purple">var</span> m0, m1, m2, m3, m4;
-<span class="purple">const </span><span class="orange">posts</span> = (<span class="purple">function</span>() {
-    <span class="purple">if</span> (m3 === <span class="orange">undefined</span>) {
-        m3 = [];
-        m4 = {};
-    }
-    m0 = [];
-    m1 = <span class="purple">function</span>(post) {
-        <span class="purple">return</span> <span class="blue">Box</span>({
-            id: <span class="green">&quot;my-box&quot;</span>,
-            children: [Moon.view.<span class="blue">m</span>(<span class="green">&quot;text&quot;</span>, { <span class="green">&quot;&quot;</span>: post }, m3)]
-        });
-    };
-    <span class="purple">for</span> (m2 = <span class="orange">0</span>; m2 &lt; posts.length; m2++) {
-        m0.<span class="blue">push</span>(<span class="blue">m1</span>(posts[m2], m2));
-    }
-    <span class="purple">return</span> Moon.view.<span class="blue">m</span>(<span class="green">&quot;span&quot;</span>, m4, m0);
-})();
-</code></pre>
+<span class="purple">const </span><span class="orange">posts</span> = (
+	<span class="blue">div</span>({
+		children: posts.<span class="blue">map</span>(post =&gt;
+			<span class="blue">Post</span>({
+				id: <span class="green">&quot;my-post&quot;</span>,
+				children: [Moon.view.m.<span class="blue">text</span>({data: post})]
+			})
+		)
+	})
+);</code></pre>
 				</div>
 			</div>
 		</div>
 
 		<div class="jump">
 			<h2 class="jump-title">Jump into the guide to get started.</h2>
-			<a class="linkPlain" href="/moon/doc/guide.html"><button class="buttonPrimary">GET STARTED</button></a>
-			<a class="linkPlain" href="/moon/play"><button class="buttonSecondary">PLAYGROUND</button></a>
+			<a class="linkPlain" href="/doc/guide.html"><button class="buttonPrimary">GET STARTED</button></a>
+			<a class="linkPlain" href="/play"><button class="buttonSecondary">PLAYGROUND</button></a>
 		</div>
 	</body>
 </html>

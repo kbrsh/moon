@@ -121,12 +121,12 @@ pre code .gray, pre code .gray span {
 
 @font-face {
 	font-family: "HK Grotesk";
-	src: url("/moon/css/fonts/HKGrotesk-Regular.otf") format("opentype");
+	src: url("/css/fonts/HKGrotesk-Regular.otf") format("opentype");
 	font-weight: normal;
 }
 
 @font-face {
 	font-family: "HK Grotesk";
-	src: url("/moon/css/fonts/HKGrotesk-Bold.otf") format("opentype");
+	src: url("/css/fonts/HKGrotesk-Bold.otf") format("opentype");
 	font-weight: bold;
 }
