@@ -1,8 +1,13 @@
-html, body {
+body {
 	background: url("/img/stars.png"), linear-gradient(hsl(260, 100%, 6%), hsl(200, 100%, 6%)) fixed;
 	color: hsl(0, 0%, 100%);
 }
 
+pre, pre code {
+	background-color: hsl(215, 55%, 10%);
+}
+
+/*
 p {
 	margin-bottom: 21px;
 	color: hsl(260, 100%, 94%);
@@ -111,3 +116,4 @@ a {
 	margin-bottom: 21px;
 	text-align: center;
 }
+*/

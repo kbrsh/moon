@@ -1,7 +1,8 @@
 var config = {
 	theme: "nox",
 	mode: "javascript",
-	value: `const { div, h1, ul, li, input, button } = Moon.view.m;
+	value: `const { div, h1, ul, li, input, button }
+	= Moon.view.m;
 
 const updateTodo = ({ data, view }) => {
 	const dataNew = {
@@ -97,7 +98,7 @@ function render() {
 	var value = editor.getValue();
 
 	result.srcdoc = `
-		<!DOCTYPE html>
+		<!doctype html>
 		<html>
 			<head>
 				<title>Moon | Playground Result</title>

@@ -1,0 +1,99 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="description" content="The minimal & fast library for functional user interfaces.">
+		<meta name="author" content="Kabir Shah">
+
+		<title>Installation | Moon</title>
+
+		<link rel="shortcut icon" href="/img/logo.png"/>
+
+		<link href="https://fonts.googleapis.com/css?family=Inconsolata&display=swap" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="/css/lib/grain.css" />
+		<link rel="stylesheet" type="text/css" href="/css/styles.css" />
+		<link rel="stylesheet" type="text/css" href="/css/post.css" />
+
+		<script>
+			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+				(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+				m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+			})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+			ga('create', 'UA-70792533-14', 'auto');
+			ga('send', 'pageview');
+		</script>
+	</head>
+
+	<body class="a-x-c a-0-x-s a-0-y-l-c a-1-x-e a-1-y-l-c m-x-5 m-y-5">
+		<h2><a href="/" class="c-f-black b-n">Moon</a></h2>
+
+		<div class="m-x-3">
+			<a href="/guide" class="c-f-black b-n">Guide</a>
+			<a href="/play" class="c-f-black b-n">Playground</a>
+			<a href="/examples" class="c-f-black b-n">Examples</a>
+			<a href="https://github.com/kbrsh/moon" class="c-f-black b-n">GitHub</a>
+		</div>
+
+		<div class="a-b"></div>
+
+		<div class="s-x-20 p-y-3">
+			<h5 class="s-x-20">DOCUMENTATION</h5>
+			
+				
+					<p class="s-x-20"><a href="/about" class="c-f-black b-n">About</a></p>
+				
+			
+				
+					<p class="s-x-20"><a href="/installation" class="c-f-purple-dark b-n">Installation</a></p>
+				
+			
+				
+					<p class="s-x-20"><a href="/guide" class="c-f-black b-n">Guide</a></p>
+				
+			
+				
+					<p class="s-x-20"><a href="/data" class="c-f-black b-n">Data</a></p>
+				
+			
+				
+					<p class="s-x-20"><a href="/views" class="c-f-black b-n">Views</a></p>
+				
+			
+				
+					<p class="s-x-20"><a href="/examples" class="c-f-black b-n">Examples</a></p>
+				
+			
+		</div>
+
+		<div class="s-x-26 m-y-3">
+			<h1>Installation</h1>
+			<p class="s-x-26">Moon can be installed with a <code class="s-b-2 p-x-2 p-y-2">&lt;script&gt;</code> tag or through <code class="s-b-2 p-x-2 p-y-2">npm</code>. The view driver uses an extension of the JavaScript language, similar to JSX, that adds HTML-like syntax for creating views.</p><h2 id="cli" class="s-x-26">CLI</h2><p class="s-x-26">Moon CLI can generate a scalable application with support for:</p><ul>
+<li><p class="s-x-26">Moon view language</p></li><li><p class="s-x-26">Hot module reloading</p></li><li><p class="s-x-26">Next generation CSS and JavaScript</p></li><li><p class="s-x-26">Optimized production builds</p></li></ul>
+<p class="s-x-26">Moon CLI can be installed through <code class="s-b-2 p-x-2 p-y-2">npm</code> and ran with <code class="s-b-2 p-x-2 p-y-2">moon &lt;name&gt;</code>.</p><pre class="s-x-26 s-b-2 p-x-4 p-y-4"><code>npm install -g moon-cli
+moon my-app</code></pre><h2 id="npm" class="s-x-26">NPM</h2><p class="s-x-26">Moon can be manually installed through <code class="s-b-2 p-x-2 p-y-2">npm</code>. To use the Moon view language with your build system, Moon provides a <code class="s-b-2 p-x-2 p-y-2">moon-compiler</code> module along with modules for most bundlers, including Webpack and Rollup.</p><pre class="s-x-26 s-b-2 p-x-4 p-y-4"><code>npm install moon
+npm install moon-compiler</code></pre><h3 id="webpack" class="s-x-26">Webpack</h3><pre class="s-x-26 s-b-2 p-x-4 p-y-4"><code>npm install moon-loader</code></pre><pre class="s-x-26 s-b-2 p-x-4 p-y-4"><code><span class="token comment">// webpack.config.js</span>
+module<span class="token punctuation">.</span>exports <span class="token operator">=</span> <span class="token punctuation">{</span>
+    module<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        rules<span class="token punctuation">:</span> <span class="token punctuation">[</span>
+            <span class="token punctuation">{</span> test<span class="token punctuation">:</span> <span class="token regex">/\.js/</span><span class="token punctuation">,</span> use<span class="token punctuation">:</span> <span class="token string">"moon-loader"</span> <span class="token punctuation">}</span>
+        <span class="token punctuation">]</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span></code></pre><h3 id="rollup" class="s-x-26">Rollup</h3><pre class="s-x-26 s-b-2 p-x-4 p-y-4"><code>npm install rollup-plugin-moon</code></pre><pre class="s-x-26 s-b-2 p-x-4 p-y-4"><code><span class="token comment">// rollup.config.js</span>
+<span class="token keyword">import</span> MoonPlugin <span class="token keyword">from</span> <span class="token string">"rollup-plugin-moon"</span><span class="token punctuation">;</span>
+
+<span class="token keyword">export</span> <span class="token keyword">default</span> <span class="token punctuation">{</span>
+    plugins<span class="token punctuation">:</span> <span class="token punctuation">[</span>
+        <span class="token function">MoonPlugin</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">]</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span></code></pre><h2 id="browser" class="s-x-26">Browser</h2><p class="s-x-26">Moon can be embedded in the browser directly with a script tag. To use the Moon view language in the browser, Moon provides a <code class="s-b-2 p-x-2 p-y-2">moon-browser</code> module that compiles <code class="s-b-2 p-x-2 p-y-2">&lt;script&gt;</code> tags with type <code class="s-b-2 p-x-2 p-y-2">&quot;text/moon&quot;</code>.</p><pre class="s-x-26 s-b-2 p-x-4 p-y-4"><code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span> <span class="token attr-name">src</span><span class="token attr-value"><span class="token operator">=</span><span class="token string">"https://unpkg.com/moon"</span></span><span class="token punctuation">></span></span><span class="token script"></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span> <span class="token attr-name">src</span><span class="token attr-value"><span class="token operator">=</span><span class="token string">"https://unpkg.com/moon-browser"</span></span><span class="token punctuation">></span></span><span class="token script"></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">></span></span>
+
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token operator">=</span><span class="token string">"text/moon"</span></span> <span class="token attr-name">src</span><span class="token attr-value"><span class="token operator">=</span><span class="token string">"scripts.js"</span></span><span class="token punctuation">></span></span><span class="token script"></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token operator">=</span><span class="token string">"text/moon"</span></span><span class="token punctuation">></span></span><span class="token script"><span class="token language-javascript">
+    <span class="token keyword">const</span> paragraph <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token operator">&lt;</span>p<span class="token operator">></span>Hello Moon<span class="token operator">!</span><span class="token operator">&lt;</span><span class="token operator">/</span>p<span class="token operator">></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">></span></span></code></pre>
+		</div>
+	</body>
+</html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
 	<head>
 		<meta charset="utf-8">
@@ -7,7 +7,7 @@
 		<meta name="description" content="The minimal & fast library for functional user interfaces.">
 		<meta name="author" content="Kabir Shah">
 
-		<title>Moon | {{title}}</title>
+		<title><%= post.title %> | Moon</title>
 
 		<link rel="shortcut icon" href="/img/logo.png"/>
 
@@ -26,36 +26,32 @@
 		</script>
 	</head>
 
-	<body>
-		<div class="container">
-			<div class="nav">
-				<div class="nav-home">
-					<h2 class="nav-home"><a href="/">Moon</a></h2>
-				</div>
+	<body class="a-x-c a-0-x-s a-0-y-l-c a-1-x-e a-1-y-l-c m-x-5 m-y-5">
+		<h2><a href="/" class="c-f-black b-n">Moon</a></h2>
 
-				<div class="nav-items">
-					<a href="/doc/guide.html">Guide</a>
-					<a href="/play">Playground</a>
-					<a href="/doc/examples.html">Examples</a>
-					<a href="https://github.com/kbrsh/moon">GitHub</a>
-				</div>
-			</div>
-			<div class="main">
-				<div class="side">
-					<h5>DOCUMENTATION</h5>
-					{{#each posts.doc}}
-					{{#ifeq @root.file file}}
-					<p><a id="active" href="/doc/{{file}}">{{title}}</a></p>
-					{{else}}
-					<p><a href="/doc/{{file}}">{{title}}</a></p>
-					{{/ifeq}}
-					{{/each}}
-				</div>
-				<div class="content">
-					<h1>{{title}}</h1>
-					{{{content}}}
-				</div>
-			</div>
+		<div class="m-x-3">
+			<a href="/guide" class="c-f-black b-n">Guide</a>
+			<a href="/play" class="c-f-black b-n">Playground</a>
+			<a href="/examples" class="c-f-black b-n">Examples</a>
+			<a href="https://github.com/kbrsh/moon" class="c-f-black b-n">GitHub</a>
+		</div>
+
+		<div class="a-b"></div>
+
+		<div class="s-x-20 p-y-3">
+			<h5 class="s-x-20">DOCUMENTATION</h5>
+			<% posts.forEach(postsPost => { %>
+				<% if (postsPost.file === post.file) { %>
+					<p class="s-x-20"><a href="/<%= postsPost.file %>" class="c-f-purple-dark b-n"><%= postsPost.title %></a></p>
+				<% } else { %>
+					<p class="s-x-20"><a href="/<%= postsPost.file %>" class="c-f-black b-n"><%= postsPost.title %></a></p>
+				<% } %>
+			<% }) %>
+		</div>
+
+		<div class="s-x-26 m-y-3">
+			<h1><%= post.title %></h1>
+			<%- post.content %>
 		</div>
 	</body>
 </html>

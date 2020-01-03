@@ -1,0 +1,129 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="description" content="The minimal & fast library for functional user interfaces.">
+		<meta name="author" content="Kabir Shah">
+
+		<title>Guide | Moon</title>
+
+		<link rel="shortcut icon" href="/img/logo.png"/>
+
+		<link href="https://fonts.googleapis.com/css?family=Inconsolata&display=swap" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="/css/lib/grain.css" />
+		<link rel="stylesheet" type="text/css" href="/css/styles.css" />
+		<link rel="stylesheet" type="text/css" href="/css/post.css" />
+
+		<script>
+			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+				(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+				m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+			})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+			ga('create', 'UA-70792533-14', 'auto');
+			ga('send', 'pageview');
+		</script>
+	</head>
+
+	<body class="a-x-c a-0-x-s a-0-y-l-c a-1-x-e a-1-y-l-c m-x-5 m-y-5">
+		<h2><a href="/" class="c-f-black b-n">Moon</a></h2>
+
+		<div class="m-x-3">
+			<a href="/guide" class="c-f-black b-n">Guide</a>
+			<a href="/play" class="c-f-black b-n">Playground</a>
+			<a href="/examples" class="c-f-black b-n">Examples</a>
+			<a href="https://github.com/kbrsh/moon" class="c-f-black b-n">GitHub</a>
+		</div>
+
+		<div class="a-b"></div>
+
+		<div class="s-x-20 p-y-3">
+			<h5 class="s-x-20">DOCUMENTATION</h5>
+			
+				
+					<p class="s-x-20"><a href="/about" class="c-f-black b-n">About</a></p>
+				
+			
+				
+					<p class="s-x-20"><a href="/installation" class="c-f-black b-n">Installation</a></p>
+				
+			
+				
+					<p class="s-x-20"><a href="/guide" class="c-f-purple-dark b-n">Guide</a></p>
+				
+			
+				
+					<p class="s-x-20"><a href="/data" class="c-f-black b-n">Data</a></p>
+				
+			
+				
+					<p class="s-x-20"><a href="/views" class="c-f-black b-n">Views</a></p>
+				
+			
+				
+					<p class="s-x-20"><a href="/examples" class="c-f-black b-n">Examples</a></p>
+				
+			
+		</div>
+
+		<div class="s-x-26 m-y-3">
+			<h1>Guide</h1>
+			<p class="s-x-26">This guide will introduce you to the basics of Moon while creating a simple todo application. Get started by <a href="/doc/installation.html">installing Moon</a> and adding the following to the <code class="s-b-2 p-x-2 p-y-2">&lt;body&gt;</code> of an HTML file. You can also follow along and load the examples in the <a href="/play">playground</a>.</p><pre class="s-x-26 s-b-2 p-x-4 p-y-4"><code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token operator">=</span><span class="token string">"root"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span></code></pre><p class="s-x-26">This is a root element where Moon&#39;s view driver will mount the view. For the following guide, along with the rest of the documentation, the above HTML is assumed.</p><p class="s-x-26">To get started with a basic todo view, add the following contents to a JavaScript file linked to the HTML page or a <code class="s-b-2 p-x-2 p-y-2">&lt;script&gt;</code> tag.</p><pre class="s-x-26 s-b-2 p-x-4 p-y-4"><code><span class="token keyword">const</span> <span class="token function-variable function">Todos</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token parameter"><span class="token punctuation">{</span> data <span class="token punctuation">}</span></span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">(</span>
+    <span class="token operator">&lt;</span><span class="token keyword">for</span><span class="token operator">=</span><span class="token punctuation">{</span>todo<span class="token punctuation">}</span> <span class="token keyword">of</span><span class="token operator">=</span><span class="token punctuation">{</span>data<span class="token punctuation">.</span>todos<span class="token punctuation">}</span> name<span class="token operator">=</span><span class="token string">"ul"</span><span class="token operator">></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>li</span><span class="token punctuation">></span></span><span class="token punctuation">{</span>todo<span class="token punctuation">}</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>li</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>for</span><span class="token punctuation">></span></span>
+<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+Moon<span class="token punctuation">.</span><span class="token function">use</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    data<span class="token punctuation">:</span> Moon<span class="token punctuation">.</span>data<span class="token punctuation">.</span><span class="token function">driver</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+        todo<span class="token punctuation">:</span> <span class="token string">""</span><span class="token punctuation">,</span>
+        todos<span class="token punctuation">:</span> <span class="token punctuation">[</span>
+            <span class="token string">"Learn Moon"</span><span class="token punctuation">,</span>
+            <span class="token string">"Take a nap"</span><span class="token punctuation">,</span>
+            <span class="token string">"Go Shopping"</span>
+        <span class="token punctuation">]</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    view<span class="token punctuation">:</span> Moon<span class="token punctuation">.</span>view<span class="token punctuation">.</span><span class="token function">driver</span><span class="token punctuation">(</span><span class="token string">"#root"</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+Moon<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter"><span class="token punctuation">{</span> data <span class="token punctuation">}</span></span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">(</span><span class="token punctuation">{</span>
+    view<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>Todos</span> <span class="token attr-name">data</span><span class="token attr-value"><span class="token operator">=</span><span class="token punctuation">{</span>data<span class="token punctuation">}</span></span><span class="token punctuation">/></span></span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre><p class="s-x-26"><a href="/play#const%20Todos%20%3D%20(%7B%20data%20%7D)%20%3D%3E%20(%0A%09%3Cfor%3D%7Btodo%7D%20of%3D%7Bdata.todos%7D%20name%3D%22ul%22%3E%0A%09%09%3Cli%3E%7Btodo%7D%3C%2Fli%3E%0A%09%3C%2Ffor%3E%0A)%3B%0A%0AMoon.use(%7B%0A%09data%3A%20Moon.data.driver(%7B%0A%09%09todo%3A%20%22%22%2C%0A%09%09todos%3A%20%5B%0A%09%09%09%22Learn%20Moon%22%2C%0A%09%09%09%22Take%20a%20nap%22%2C%0A%09%09%09%22Go%20Shopping%22%0A%09%09%5D%0A%09%7D)%2C%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run((%7B%20data%20%7D)%20%3D%3E%20(%7B%0A%09view%3A%20(%3CTodos%20data%3D%7Bdata%7D%2F%3E)%0A%7D))%3B">Try it!</a></p><p class="s-x-26">First of all, the <code class="s-b-2 p-x-2 p-y-2">Todos</code> function returns a view using the Moon view language. It uses an HTML-like syntax for creating views based on components. In this case, <code class="s-b-2 p-x-2 p-y-2">&lt;for&gt;</code> is a component. You&#39;ll notice how we pass <code class="s-b-2 p-x-2 p-y-2">name=&quot;ul&quot;</code>, which tells the <code class="s-b-2 p-x-2 p-y-2">&lt;for&gt;</code> component to wrap the loop in a <code class="s-b-2 p-x-2 p-y-2">ul</code> tag. Inside the loop, we render an <code class="s-b-2 p-x-2 p-y-2">li</code> element. The curly braces <code class="s-b-2 p-x-2 p-y-2">{}</code> are for interpolating JavaScript expressions.</p><p class="s-x-26">Everything in the view language is extra syntax for function calls. In the end, <code class="s-b-2 p-x-2 p-y-2">&lt;for&gt;</code> and <code class="s-b-2 p-x-2 p-y-2">&lt;li&gt;</code> boil down to a function call, like this:</p><pre class="s-x-26 s-b-2 p-x-4 p-y-4"><code><span class="token keyword">for</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    name<span class="token punctuation">:</span> <span class="token string">"ul"</span>
+    <span class="token keyword">of</span><span class="token punctuation">:</span> todos<span class="token punctuation">,</span>
+    <span class="token function-variable function">children</span><span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token parameter">todo</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token function">li</span><span class="token punctuation">(</span><span class="token punctuation">{</span> children<span class="token punctuation">:</span> <span class="token punctuation">[</span> <span class="token function">text</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token string">""</span><span class="token punctuation">:</span> todo <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">]</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre><p class="s-x-26">However, Moon compiles it to a normal <code class="s-b-2 p-x-2 p-y-2">for</code> loop for performance.</p><p class="s-x-26">Next, <code class="s-b-2 p-x-2 p-y-2">Moon.use</code> is called with an object. This is how Moon configures <strong>drivers</strong>, programs that give input from the real world and handle output to the real world. In our case, we call it with two properties: <code class="s-b-2 p-x-2 p-y-2">data</code> and <code class="s-b-2 p-x-2 p-y-2">view</code>.</p><p class="s-x-26">The <code class="s-b-2 p-x-2 p-y-2">data</code> input and output is handled by the Moon data driver, which gives data as input and can accept new data as output. It is responsible for storing data. We pass it with default data as configuration, storing the current new todo along with a list of all of the todos.</p><p class="s-x-26">The <code class="s-b-2 p-x-2 p-y-2">view</code> input and output is handled by the Moon view driver, which gives event information as input and can accept a new view as output. It is responsible for providing a functional interface to the DOM, and uses a virtual DOM under the hood. We pass it the <code class="s-b-2 p-x-2 p-y-2">#root</code> element to tell it where to mount.</p><p class="s-x-26">Now, an input can be added to the view to allow the user to create todos.</p><pre class="s-x-26 s-b-2 p-x-4 p-y-4"><code><span class="token keyword">const</span> <span class="token function-variable function">Todos</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token parameter"><span class="token punctuation">{</span> data <span class="token punctuation">}</span></span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token operator">=</span><span class="token string">"text"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token operator">=</span><span class="token punctuation">{</span>data<span class="token punctuation">.</span>todo<span class="token punctuation">}</span></span> <span class="token attr-name">@input</span><span class="token attr-value"><span class="token operator">=</span><span class="token punctuation">{</span>updateTodo<span class="token punctuation">}</span></span><span class="token punctuation">/></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">@click</span><span class="token attr-value"><span class="token operator">=</span><span class="token punctuation">{</span>createTodo<span class="token punctuation">}</span></span><span class="token punctuation">></span></span>Create<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">></span></span>
+
+        <span class="token operator">&lt;</span><span class="token keyword">for</span><span class="token operator">=</span><span class="token punctuation">{</span>todo<span class="token punctuation">}</span> <span class="token keyword">of</span><span class="token operator">=</span><span class="token punctuation">{</span>data<span class="token punctuation">.</span>todos<span class="token punctuation">}</span> name<span class="token operator">=</span><span class="token string">"ul"</span><span class="token operator">></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>li</span><span class="token punctuation">></span></span><span class="token punctuation">{</span>todo<span class="token punctuation">}</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>li</span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>for</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre><p class="s-x-26">The <code class="s-b-2 p-x-2 p-y-2">@</code> syntax in front of attribute names is for DOM events. In this case, we are using the <code class="s-b-2 p-x-2 p-y-2">@input</code> and <code class="s-b-2 p-x-2 p-y-2">@click</code> events. The <code class="s-b-2 p-x-2 p-y-2">@input</code> event runs a handler when the value of an input changes. The <code class="s-b-2 p-x-2 p-y-2">@click</code> event runs a handler whenever there is a click.</p><p class="s-x-26">Now we can add the event handlers.</p><pre class="s-x-26 s-b-2 p-x-4 p-y-4"><code><span class="token keyword">const</span> <span class="token function-variable function">updateTodo</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token parameter"><span class="token punctuation">{</span> data<span class="token punctuation">,</span> view <span class="token punctuation">}</span></span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> dataNew <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token operator">...</span>data<span class="token punctuation">,</span> todo<span class="token punctuation">:</span> view<span class="token punctuation">.</span>target<span class="token punctuation">.</span>value <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> <span class="token punctuation">{</span>
+        data<span class="token punctuation">:</span> dataNew<span class="token punctuation">,</span>
+        view<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>Todos</span> <span class="token attr-name">data</span><span class="token attr-value"><span class="token operator">=</span><span class="token punctuation">{</span>dataNew<span class="token punctuation">}</span></span><span class="token punctuation">/></span></span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">createTodo</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token parameter"><span class="token punctuation">{</span> data <span class="token punctuation">}</span></span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> dataNew <span class="token operator">=</span> <span class="token punctuation">{</span>
+        todo<span class="token punctuation">:</span> <span class="token string">""</span><span class="token punctuation">,</span>
+        todos<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token operator">...</span>data<span class="token punctuation">.</span>todos<span class="token punctuation">,</span> data<span class="token punctuation">.</span>todo<span class="token punctuation">]</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> <span class="token punctuation">{</span>
+        data<span class="token punctuation">:</span> dataNew<span class="token punctuation">,</span>
+        view<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>Todos</span> <span class="token attr-name">data</span><span class="token attr-value"><span class="token operator">=</span><span class="token punctuation">{</span>dataNew<span class="token punctuation">}</span></span><span class="token punctuation">/></span></span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span></code></pre><p class="s-x-26">The event handlers have the same structure as the function we passed to <code class="s-b-2 p-x-2 p-y-2">Moon.run</code>. Every time Moon runs a function, it gives it inputs from drivers and expects outputs for drivers. Event handlers are no different.</p><p class="s-x-26">For the <code class="s-b-2 p-x-2 p-y-2">updateTodo</code> event handler, we get the event data using driver input from <code class="s-b-2 p-x-2 p-y-2">view</code>. Using this, we make a copy of the data with the updated <code class="s-b-2 p-x-2 p-y-2">todo</code>, and return new data along with a new view based on that data. These are handled by drivers to store the data and update the DOM for us.</p><p class="s-x-26">For the <code class="s-b-2 p-x-2 p-y-2">createTodo</code> event handler, we don&#39;t need the event data, only the current state data. Using this, we create a new <code class="s-b-2 p-x-2 p-y-2">data</code> object with an empty <code class="s-b-2 p-x-2 p-y-2">todo</code>. This will empty the input so that it doesn&#39;t retain the old value. We also create new <code class="s-b-2 p-x-2 p-y-2">todos</code> using the current value of <code class="s-b-2 p-x-2 p-y-2">data.todo</code>. We then return the new data along with a new view based on that data for drivers to handle.</p><p class="s-x-26"><a href="/play#const%20updateTodo%20%3D%20(%7B%20data%2C%20view%20%7D)%20%3D%3E%20%7B%0A%09const%20dataNew%20%3D%20%7B%20...data%2C%20todo%3A%20view.target.value%20%7D%3B%0A%0A%09return%20%7B%0A%09%09data%3A%20dataNew%2C%0A%09%09view%3A%20(%3CTodos%20data%3D%7BdataNew%7D%2F%3E)%0A%09%7D%3B%0A%7D%3B%0A%0Aconst%20createTodo%20%3D%20(%7B%20data%20%7D)%20%3D%3E%20%7B%0A%09const%20dataNew%20%3D%20%7B%0A%09%09todo%3A%20%22%22%2C%0A%09%09todos%3A%20%5B...data.todos%2C%20data.todo%5D%0A%09%7D%3B%0A%0A%09return%20%7B%0A%09%09data%3A%20dataNew%2C%0A%09%09view%3A%20(%3CTodos%20data%3D%7BdataNew%7D%2F%3E)%0A%09%7D%3B%0A%7D%3B%0A%0Aconst%20Todos%20%3D%20(%7B%20data%20%7D)%20%3D%3E%20(%0A%09%3Cdiv%3E%0A%09%09%3Cinput%20type%3D%22text%22%20value%3D%7Bdata.todo%7D%20%40input%3D%7BupdateTodo%7D%2F%3E%0A%09%09%3Cbutton%20%40click%3D%7BcreateTodo%7D%3ECreate%3C%2Fbutton%3E%0A%0A%09%09%3Cfor%3D%7Btodo%7D%20of%3D%7Bdata.todos%7D%20name%3D%22ul%22%3E%0A%09%09%09%3Cli%3E%7Btodo%7D%3C%2Fli%3E%0A%09%09%3C%2Ffor%3E%0A%09%3C%2Fdiv%3E%0A)%3B%0A%0AMoon.use(%7B%0A%09data%3A%20Moon.data.driver(%7B%0A%09%09todo%3A%20%22%22%2C%0A%09%09todos%3A%20%5B%0A%09%09%09%22Learn%20Moon%22%2C%0A%09%09%09%22Take%20a%20nap%22%2C%0A%09%09%09%22Go%20Shopping%22%0A%09%09%5D%0A%09%7D)%2C%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run((%7B%20data%20%7D)%20%3D%3E%20(%7B%0A%09view%3A%20(%3CTodos%20data%3D%7Bdata%7D%2F%3E)%0A%7D))%3B">Try it!</a></p><p class="s-x-26">This guide resulted in an extremely basic todo application, but can be extended to support more features. Try the following exercises to test your knowledge:</p><ul>
+<li><p class="s-x-26">Add support for removing/completing todos using <a href="/doc/views.html#events">events</a> and <a href="/doc/views.html#conditionals"><code class="s-b-2 p-x-2 p-y-2">if</code></a>.</p></li><li><p class="s-x-26">Add support for editing todos using the <code class="s-b-2 p-x-2 p-y-2">@dblclick</code> event.</p></li><li><p class="s-x-26">Add support for filtering todos using <a href="/doc/data.html">data functions</a>.</p></li><li><p class="s-x-26">Make the application more modular using <a href="/doc/views.html#components">components</a>.</p></li></ul>
+<p class="s-x-26">By default, the <a href="/play">playground</a> has a fully functioning todo application that has a few more advanced features. Try extending it with what you&#39;ve learned!</p>
+		</div>
+	</body>
+</html>
