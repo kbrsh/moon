@@ -9,6 +9,7 @@ button {
 }
 
 pre {
+	position: relative;
 	background-color: hsl(200, 31%, 14%);
 }
 
@@ -17,6 +18,12 @@ code {
 	color: hsl(200, 31%, 14%);
 	background-color: hsl(200, 14%, 90%);
 	tab-size: 3;
+}
+
+pre a {
+	position: absolute;
+	top: calc(3px * var(--grain-scale));
+	right: calc(3px * var(--grain-scale));
 }
 
 pre code {
@@ -32,7 +39,7 @@ pre code {
 	color: hsl(300, 14%, 55%);
 }
 
-.token.number, .token.attr-name {
+.token.number, .token.boolean, .token.attr-name {
 	color: hsl(20, 31%, 55%);
 }
 

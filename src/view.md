@@ -7,23 +7,41 @@ The view driver is a driver that handles visual output using the DOM in a browse
 
 ## Configuration
 
-The `Moon.data.view` is a function that takes a root element where views will be mounted. This can be a query selector or a direct reference to a DOM element. The view driver will replace this element with the view structure you provide.
+The `Moon.view.driver` is a function that takes a root element where views will be mounted. This can be a query selector or a direct reference to a DOM element. The view driver will replace this element with the view structure you provide.
 
 ```js
-// Creates a view driver that mounts on an existing element using a query
-// selector.
+// Creates a view driver that mounts on an existing element using
+// a query selector.
 Moon.view.driver("#root");
 
-// Creates a view driver that mounts on an existing element using a direct DOM
-// reference.
+// Creates a view driver that mounts on an existing element using
+// a direct DOM reference.
 Moon.view.driver(document.getElementById("root"));
+```
+
+## Nodes
+
+The view driver accepts nodes as output. It also provides a large set of utility functions to create nodes. These can create HTML elements, text nodes, or custom nodes. They accept a data object as a parameter to store DOM properties, which can include information such as `class`, `style`, or `children`.
+
+```js
+// Create a div element.
+Moon.view.m.div({});
+
+// Create a text node.
+Moon.view.m.text({data: "Titan is a moon."});
+
+// Create a "custom" element.
+const custom = Moon.view.m.node("custom");
+custom({ moon: "Titan" });
 ```
 
 ## Input
 
 The view driver provides event information as input. This is useful for event handlers which return their own views, as they can have access to the DOM event information.
 
-```js
+```play
+const button = Moon.view.m.button;
+
 function handleClick({ view }) {
 	console.log(view); // MouseEvent
 	return {};
@@ -33,96 +51,213 @@ Moon.use({
 	view: Moon.view.driver("#root")
 });
 
-Moon.run(() => {
-	return {
-		view: (<button @click={handleClick}>Click Me!</button>)
-	};
-});
+Moon.run(() => ({
+	view: <button @click=handleClick>Click Me!</button>
+}));
 ```
-
-<a href="/play#function%20handleClick(%7B%20view%20%7D)%20%7B%0A%09console.log(view)%3B%20%2F%2F%20MouseEvent%0A%09return%20%7B%7D%3B%0A%7D%0A%0AMoon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20(%3Cbutton%20%40click%3D%7BhandleClick%7D%3EClick%20Me!%3C%2Fbutton%3E)%0A%09%7D%3B%0A%7D)%3B">Try it!</a>
 
 ## Output
 
 The view driver accepts a new view as output and renders it to the DOM using a performant virtual DOM diffing algorithm. This should be a completely new virtual DOM. This keeps immutability and prevents bugs, as every view completely replaces the old one.
 
-```js
+```play
+const p = Moon.view.m.p;
+
 Moon.use({
 	view: Moon.view.driver("#root")
 });
 
-Moon.run(() => {
-	return {
-		view: (<p>Hello Moon!</p>)
-	};
-});
+Moon.run(() => ({
+	view: <p>Hello Moon!</p>
+}));
 ```
 
-<a href="/play#Moon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20(%3Cp%3EHello%20Moon!%3C%2Fp%3E)%0A%09%7D%3B%0A%7D)%3B">Try it!</a>
-
-Moon views are often defined using the _Moon View Language_. The Moon view language is a template language based on HTML and adds support for data interpolation, events, and components.
+Moon views are often defined using the **Moon View Language**. The language is a DSL embedded in JavaScript based on HTML and adds syntactic sugar for function calls.
 
 ### JavaScript Syntax
 
-The Moon view language is a superset of JavaScript, and it allows a new type of expression. This expression returns view nodes, and must always be enclosed in parentheses.
+The Moon view language is a superset of JavaScript, and it introduces three new types of expressions.
 
 ```js
-// Valid
-const paragraph = (<p>Hello Moon!</p>);
+// Node with data and children
+const paragraph = <p class="titan">Hello Moon!</p>;
+const paragraph = p({
+	class: "titan",
+	children: [Moon.view.m.text({ data: "Hello Moon!" })]
+});
 
-// Invalid
-const paragraph = <p>Hello Moon!</p>;
+// Node with data
+const input = <input placeholder="First name"/>;
+const input = <input {placeholder: "First name"}/>;
+const input = input({ placeholder: "First name" });
+
+// Node
+const wrapped = <div><paragraph#></div>;
+const wrapped = div({ children: [paragraph] });
 ```
 
 ### Tags
 
-Tags return new view nodes, and they follow normal HTML tag names. They can also have data, which correspond to properties (not attributes) on DOM elements.
+Tags return new view nodes. They can also have data, which correspond to properties (not attributes) on DOM elements. Data values can be strings, identifiers, arrays, objects, or JavaScript expressions surrounded by parenthesis. There are three types of tags.
 
-Property names can be empty. Property values can also be empty, in which case they default to `true`. Otherwise, the values can be strings or interpolated JavaScript expressions surrounded by curly braces. They are special syntax for function calls, where the content between tags is another property called `children`. This can contain other tags and text.
+#### Node
 
-Additionally, Moon has special properties for `style` and `dataset`. Also, it adds `ariaset` instead of supporting `aria-*` attributes.
+A node tag is equivalent to a variable reference. For example, a node may be hoisted or stored in some other variable. A node tag can allow it to be inserted or used, especially as the child of another node.
 
-```js
-const paragraph = (
-	<div
-		="empty"
-		id={calculateId()}
-		class="blue"
-		empty
-		style={{ color: "blue" }}
-		dataset={{ foo: "bar" }}
-		ariaset={{ hidden: true }}
-	>
-		<p>Hello Moon!</p>
-	</div>
-);
+A node tag is an expression enclosed within an opening angle bracket (`<`) and a pound symbol combined with a closing angle bracket (`#>`).
+
+For example:
+
+```play
+const { div, p } = Moon.view.m;
+
+// Store a node in a variable.
+const paragraph = <p>Hello Moon!</p>;
+
+Moon.use({
+	view: Moon.view.driver("#root")
+});
+
+Moon.run(() => ({
+	// Use the node as the child of another
+	view: <div><paragraph#></div>
+}));
 ```
 
-<a href="/play#const%20calculateId%20%3D%20()%20%3D%3E%20Math.random()%3B%0A%0Aconst%20paragraph%20%3D%20(%0A%09%3Cdiv%0A%09%09%3D%22empty%22%0A%09%09id%3D%7BcalculateId()%7D%0A%09%09class%3D%22blue%22%0A%09%09empty%0A%09%09style%3D%7B%7B%20color%3A%20%22blue%22%20%7D%7D%0A%09%09dataset%3D%7B%7B%20foo%3A%20%22bar%22%20%7D%7D%0A%09%09ariaset%3D%7B%7B%20hidden%3A%20true%20%7D%7D%0A%09%3E%0A%09%09%3Cp%3EHello%20Moon!%3C%2Fp%3E%0A%09%3C%2Fdiv%3E%0A)%3B%0A%0AMoon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20paragraph%0A%09%7D%3B%0A%7D)%3B">Try it!</a>
+#### Node with Data
 
-### Text
+A node tag with data, or a self-closing tag, is used to call a function with a single data parameter. This parameter can optionally use HTML attribute syntax.
 
-Text is plaintext with support for basic HTML escape codes, which include `&amp;`, `&gt;`, `&lt;`, `&nbsp;`, and `&quot;`. The rest can be encoded as anything that is valid in a JavaScript string.
+A node tag with data is an expression along with attributes or another expression enclosed within an opening angle bracket (`<`) and a forward slash combined with a closing angle bracket (`/>`).
 
-On top of that, it supports JavaScript expressions interpolated between curly braces.
+For example:
 
-```js
-const paragraph = (
-	<p>Hello {name}! The number of moons is: {count(planets) * 21.625}.</p>
-);
+```play
+const { div, ul, li, p } = Moon.view.m;
+
+const Component = ({ moon }) => <p>The moon is {moon}.</p>;
+
+Moon.use({
+	view: Moon.view.driver("#root")
+});
+
+Moon.run(() => ({
+	view:
+		<div>
+			<Component {moon: "Titan"}/>
+			<Component moon="Europa"/>
+			<ul children=[
+				<li>Moon</li>,
+				<li>Titan</li>,
+				<li>Europa</li>
+			]/>
+		</div>
+}));
 ```
 
-<a href="/play#const%20count%20%3D%20arr%20%3D%3E%20arr.length%3B%0A%0Aconst%20name%20%3D%20%22Moon%22%3B%0Aconst%20planets%20%3D%20%5B%22Mercury%22%2C%20%22Venus%22%2C%20%22Earth%22%2C%20%22Mars%22%2C%20%22Jupiter%22%2C%20%22Saturn%22%2C%20%22Uranus%22%2C%20%22Neptune%22%5D%3B%0A%0Aconst%20paragraph%20%3D%20(%0A%09%3Cp%3EHello%20%7Bname%7D!%20The%20number%20of%20moons%20is%3A%20%7Bcount(planets)%20*%2021.625%7D.%3C%2Fp%3E%0A)%3B%0A%0AMoon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20paragraph%0A%09%7D%3B%0A%7D)%3B">Try it!</a>
+#### Node with Data and Children
+
+A node tag with data and children is used to call a function with a single data parameter. This parameter must use HTML attribute syntax and will be passed with an extra `children` property containing any child nodes. The child nodes can be any type of node, text, or interpolated expressions within curly braces.
+
+A node tag with data is an expression surrounded by angle brackets followed by children and a closing tag which can contain any text. Closing tags may even be left blank if preferred. Special characters in text can be escaped with a preceding backslash.
+
+For example:
+
+```play
+const { div, p } = Moon.view.m;
+const moon = "Titan";
+
+Moon.use({
+	view: Moon.view.driver("#root")
+});
+
+Moon.run(() => ({
+	// Create a div with an inner paragraph and an interpolated
+	// expression.
+	view:
+		<div>
+			<p>Hello Moon!</p>
+			The value of `moon` is {moon}.
+			Here are some escaped characters: \< \> \\ \{ \}
+		</div>
+}));
+```
+
+### Attributes
+
+By default, Moon uses data to directly set DOM properties on nodes. However, some attributes cannot be set using properties, such as the `aria-*`, `data-*`, or `list` attributes. To get around this, the `attributes` object can hold data that will be set as attributes.
+
+```play
+const p = Moon.view.m.p;
+
+Moon.use({
+	view: Moon.view.driver("#root")
+});
+
+Moon.run(() => ({
+	view:
+		<p attributes={
+			"data-moon": "Titan",
+			"aria-hidden": false
+		}>
+			Hello Moon!
+		</p>
+}));
+```
+
+### Style
+
+The `style` property should be set using an object.
+
+```play
+const p = Moon.view.m.p;
+
+Moon.use({
+	view: Moon.view.driver("#root")
+});
+
+Moon.run(() => ({
+	view:
+		<p style={
+			color: "white",
+			backgroundColor: "coral"
+		}>
+			Hello Moon!
+		</p>
+}));
+```
+
+### Focus
+
+The `focus` property can set focus on elements. Only one element should have this value set to true in any given view.
+
+```play
+const input = Moon.view.m.input;
+
+Moon.use({
+	view: Moon.view.driver("#root")
+});
+
+Moon.run(() => ({
+	view: <input focus=false/>
+}));
+
+Moon.run(() => ({
+	view: <input focus=true/>
+}));
+```
 
 ### Events
 
 Browser events such as `click` or `input` can be handled by creating an attribute prepended with `@` with one function as a value. This function will be ran like an application, with the DOM event available from the input from the `view` driver.
 
-```js
+```play
+const { p, button } = Moon.view.m;
+
 function handleClick({ view }) {
 	console.log(view); // MouseEvent
 	return {
-		view: (<p>New view!</p>)
+		view: <p>New view!</p>
 	};
 }
 
@@ -130,129 +265,112 @@ Moon.use({
 	view: Moon.view.driver("#root")
 });
 
-Moon.run(() => {
-	return {
-		view: (<button @click={handleClick}>Click Me!</button>)
-	};
-});
+Moon.run(() => ({
+	view: <button @click=handleClick>Click Me!</button>
+}));
 ```
-
-<a href="/play#function%20handleClick(%7B%20view%20%7D)%20%7B%0A%09console.log(view)%3B%20%2F%2F%20MouseEvent%0A%09return%20%7B%0A%09%09view%3A%20(%3Cp%3ENew%20view!%3C%2Fp%3E)%0A%09%7D%3B%0A%7D%0A%0AMoon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20(%3Cbutton%20%40click%3D%7BhandleClick%7D%3EClick%20Me!%3C%2Fbutton%3E)%0A%09%7D%3B%0A%7D)%3B">Try it!</a>
 
 ### Components
 
 Components are functions of data objects that return view nodes. They are useful for making reusable parts of your view that can be configured through data. Since the data object is also passed children, components can also render children inside of their view node result.
 
-Components should always start with an uppercase letter and return a view object so that Moon can detect which elements are components.
+```play
+const { div, p } = Moon.view.m;
 
-```js
-const Component = data => (
-	<div class="container" id={data.id}>
-		<div class="content" children={data.children}></div>
-	</div>
-);
+const Component = data =>
+	<div class="container" id=data.id>
+		<div class="content" children=data.children/>
+	</div>;
 
-const element = (
-	<Component id="my-component">
-		<p>Hello Moon!</p>
-	</Component>
-);
+Moon.use({
+	view: Moon.view.driver("#root")
+});
 
-/*
-	Results in:
-
-	<div class="container" id="my-component">
-		<div class="content">
+Moon.run(() => ({
+	view:
+		<Component id="my-component">
 			<p>Hello Moon!</p>
-		</div>
-	</div>
-*/
+		</Component>
+}));
 ```
-
-<a href="/play#const%20Component%20%3D%20data%20%3D%3E%20(%0A%09%3Cdiv%20class%3D%22container%22%20id%3D%7Bdata.id%7D%3E%0A%09%09%3Cdiv%20class%3D%22content%22%20children%3D%7Bdata.children%7D%3E%3C%2Fdiv%3E%0A%09%3C%2Fdiv%3E%0A)%3B%0A%0Aconst%20element%20%3D%20(%0A%09%3CComponent%20id%3D%22my-component%22%3E%0A%09%09%3Cp%3EHello%20Moon!%3C%2Fp%3E%0A%09%3C%2FComponent%3E%0A)%3B%0A%0AMoon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20element%0A%09%7D%3B%0A%7D)%3B">Try it!</a>
 
 ### Conditionals
 
-Elements can be rendered based on certain conditions using the `if`, `else-if`, and `else` components. These components only render their first child if the condition matches. `else-if` and `else` are not required, and `else` defaults to rendering an empty text element.
+Elements can be rendered based on certain conditions using the ternary operator or normal if statements.
 
-```js
-const conditional = (
+```play
+const { div, p } = Moon.view.m;
+const moon = "Titan";
+
+// Ternary
+const conditionalTernary =
 	<div>
-		<if={foo === "bar"}>
-			<p>Foo is bar!</p>
-		</if>
-		<else-if={condition}>
-			<p>Condition is true!</p>
-		</else-if>
-		<else>
-			<p>Condition is false!</p>
-		</else>
-	</div>
-);
-```
+		<(
+			moon === "Titan" ?
+				<p>The moon is Titan!</p> :
+				<p>The moon is not Titan, it is {moon}.</p>
+		)#>
+	</div>;
 
-<a href="/play#const%20foo%20%3D%20%22foo%22%3B%0Aconst%20condition%20%3D%20true%3B%0A%0Aconst%20conditional%20%3D%20(%0A%09%3Cdiv%3E%0A%09%09%3Cif%3D%7Bfoo%20%3D%3D%3D%20%22bar%22%7D%3E%0A%09%09%09%3Cp%3EFoo%20is%20bar!%3C%2Fp%3E%0A%09%09%3C%2Fif%3E%0A%09%09%3Celse-if%3D%7Bcondition%7D%3E%0A%09%09%09%3Cp%3ECondition%20is%20true!%3C%2Fp%3E%0A%09%09%3C%2Felse-if%3E%0A%09%09%3Celse%3E%0A%09%09%09%3Cp%3ECondition%20is%20false!%3C%2Fp%3E%0A%09%09%3C%2Felse%3E%0A%09%3C%2Fdiv%3E%0A)%3B%0A%0AMoon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20conditional%0A%09%7D%3B%0A%7D)%3B">Try it!</a>
+// If statements
+let paragraph;
+
+if (moon === "Titan") {
+	paragraph = <p>The moon is Titan!</p>;
+} else {
+	paragraph = <p>The moon is not Titan, it is {moon}.</p>;
+}
+
+const conditionalIfStatement = <div><paragraph#></div>;
+
+Moon.use({
+	view: Moon.view.driver("#root")
+});
+
+Moon.run(() => ({
+	view:
+		<div>
+			<conditionalTernary#>
+			<conditionalIfStatement#>
+		</div>
+}));
+```
 
 ### Loops
 
-Elements can be rendered multiple times for every element in an array using the `for` component. The empty property accepts two local variables that will be available to every child element. The `of` property will accept an array to iterate over, with the first local variable being the element of the array and the second being the index. The `in` property will accept an object to iterate over, with the first local being the key of the object, and the second being the value.
+Lists can be mapped to views using `map` or for loops.
 
-By default, `for` will render everything inside a `<span>` element. To customize this, you can use the `name` property to set the tag name. Also, you can use the `data` property to set the DOM property data.
+```play
+const { div, ul, li } = Moon.view.m;
+const moons = [
+	"Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn",
+	"Uranus", "Neptune"
+];
 
-```js
-// Array
-const loop = (
-	<for={value} of={array}>
-		<p>{value}</p>
-	</for>
-);
+// Map
+const loopMap =
+	<ul children=(moons.map(moon =>
+		<li>{moon}</li>
+	))/>;
 
-// Array with index local
-const loop = (
-	<for={value, index} of={array}>
-		<p>{index}: {value}</p>
-	</for>
-);
+// For loop
+const children = [];
 
-// Object
-const loop = (
-	<for={key} in={object}>
-		<p>{key}</p>
-	</for>
-);
+for (let i = 0; i < moons.length; i++) {
+	children.push(<li>{moons[i]}</li>);
+}
 
-// Object with value local
-const loop = (
-	<for={key, value} of={object}>
-		<p>{key}: {value}</p>
-	</for>
-);
+const loopFor = <ul children=children/>;
 
-// Name and data options
-const loop = (
-	<for={value} of={array} name="ul" data={{ class: "blue" }}>
-		<li>{value}</li>
-	</for>
-);
-```
+Moon.use({
+	view: Moon.view.driver("#root")
+});
 
-<a href="/play#const%20array%20%3D%20%5B%22Mercury%22%2C%20%22Venus%22%2C%20%22Earth%22%2C%20%22Mars%22%2C%20%22Jupiter%22%2C%20%22Saturn%22%2C%20%22Uranus%22%2C%20%22Neptune%22%5D%3B%0A%0A%2F%2F%20Name%20and%20data%20options%0Aconst%20loop%20%3D%20(%0A%09%3Cfor%3D%7Bvalue%7D%20of%3D%7Barray%7D%20name%3D%22ul%22%20data%3D%7B%7B%20class%3A%20%22blue%22%20%7D%7D%3E%0A%09%09%3Cli%3E%7Bvalue%7D%3C%2Fli%3E%0A%09%3C%2Ffor%3E%0A)%3B%0A%0AMoon.use(%7B%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09return%20%7B%0A%09%09view%3A%20loop%0A%09%7D%3B%0A%7D)%3B">Try it!</a>
-
-### Under the Hood
-
-View nodes are created with `Moon.view.m`. This is a function that takes a type, data, and children. Components are called with data, and one of the properties, `children`, contains child nodes.
-
-```js
-// Moon view language
-const paragraph = (<p class="blue">Hello Moon!</p>);
-const component = (<Component class="blue">Hello Moon!</Component>);
-
-// Function calls
-const paragraph = Moon.view.m("p", { class: "blue" }, [
-	Moon.view.m("text", { "": "Hello Moon!" }, [])
-]);
-
-const component = Component({ class: "blue", children: [
-	Moon.view.m("text", { "": "Hello Moon!" }, [])
-]});
+Moon.run(() => ({
+	view:
+		<div>
+			<loopMap#>
+			<loopFor#>
+		</div>
+}));
 ```

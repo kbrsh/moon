@@ -11,7 +11,10 @@ The majority of JavaScript libraries today are based on a view that changes base
 
 At its core, Moon is a runtime that calls drivers and runs a functional application in the imperative browser environment. It uses drivers to get information from the real world and provides them as input to an application function. The function outputs data to various drivers, and Moon calls the drivers with the output to perform effects on the real world.
 
-```js
+```play
+// Import nodes from the view driver.
+const button = Moon.view.m.button;
+
 // The increment event handler acts just like `Root`, and it can
 // take driver inputs and returns driver outputs.
 const increment = ({ data, view }) => {
@@ -50,8 +53,6 @@ Moon.use({
 // Run the application.
 Moon.run(Root);
 ```
-
-<a href="/play/#const%20button%20%3D%20Moon.view.m.button%3B%0A%0A%2F%2F%20The%20increment%20event%20handler%20acts%20just%20like%20%60Root%60%2C%20and%20it%20can%0A%2F%2F%20take%20driver%20inputs%20and%20returns%20driver%20outputs.%0Aconst%20increment%20%3D%20(%7B%20data%2C%20view%20%7D)%20%3D%3E%20%7B%0A%09const%20dataNew%20%3D%20data%20%2B%201%3B%0A%0A%09%2F%2F%20It%20returns%20data%20to%20the%20data%20driver%20to%20store%2C%20and%20a%20view%20to%0A%09%2F%2F%20the%20view%20driver%20to%20render.%0A%09return%20%7B%0A%09%09data%3A%20dataNew%2C%0A%09%09view%3A%20%3CView%20data%3DdataNew%2F%3E%0A%09%7D%3B%0A%7D%3B%0A%0A%2F%2F%20The%20view%20is%20a%20component%20that%20renders%20a%20button%20with%20a%20count.%0Aconst%20View%20%3D%20(%7B%20data%20%7D)%20%3D%3E%0A%09%3Cbutton%20%40click%3Dincrement%3E%7Bdata%7D%3C%2Fbutton%3E%3B%0A%0Aconst%20Root%20%3D%20()%20%3D%3E%20%7B%0A%09const%20data%20%3D%200%3B%0A%0A%09%2F%2F%20In%20the%20beginning%2C%20the%20application%20sends%20output%20to%20the%20data%0A%09%2F%2F%20driver%20to%20store%20an%20initial%20count%2C%20and%20then%20it%20sends%20output%0A%09%2F%2F%20to%20the%20view%20driver%20to%20display%20it%20on%20the%20screen.%0A%09return%20%7B%0A%09%09data%2C%0A%09%09view%3A%20%3CView%20data%3Ddata%2F%3E%0A%09%7D%3B%0A%7D%3B%0A%0A%2F%2F%20Initialize%20drivers.%0AMoon.use(%7B%0A%09data%3A%20Moon.data.driver%2C%20%2F%2F%20Holds%20state%0A%09view%3A%20Moon.view.driver(%22%23root%22)%20%2F%2F%20Handles%20changes%20to%20the%20DOM%0A%7D)%3B%0A%0A%2F%2F%20Run%20the%20application.%0AMoon.run(Root)%3B">Try it!</a>
 
 ## Functional & Declarative
 

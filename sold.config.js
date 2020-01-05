@@ -20,6 +20,8 @@ const highlight = (code, lang) => {
 	}
 };
 
+const play = code => `<pre class="s-x-26 s-b-2 p-x-4 p-y-4"><a href="/play/#${encodeURIComponent(code)}" target="_blank" class="b-n"><img src="/img/play.png" alt="Try in playground" class="s-x-5 s-y-5"/></a><code>${highlight(code, "javascript")}</code></pre>`;
+
 renderer.heading = (text, level, raw, slugger) => {
 	return `<h${level} id="${slugger.slug(text)}" class="s-x-26">${text}</h${level}>`;
 };
@@ -33,7 +35,11 @@ renderer.listitem = text => {
 };
 
 renderer.code = (code, lang, escaped) => {
-	return `<pre class="s-x-26 s-b-2 p-x-4 p-y-4"><code>${highlight(code, lang)}</code></pre>`;
+	if (lang === "play") {
+		return play(code);
+	} else {
+		return `<pre class="s-x-26 s-b-2 p-x-4 p-y-4"><code>${highlight(code, lang)}</code></pre>`;
+	}
 };
 
 renderer.codespan = code => {
@@ -48,5 +54,6 @@ Sold({
 	marked: {
 		renderer
 	},
-	highlight
+	highlight,
+	play
 });
