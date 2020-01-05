@@ -1,5 +1,5 @@
 ---
-title: Views
+title: View
 order: 4
 ---
 
