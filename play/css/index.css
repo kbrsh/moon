@@ -3,6 +3,7 @@
 }
 
 #editor .CodeMirror {
+	width: 100%;
 	height: 100%;
 	padding: calc(3px * var(--grain-scale));
 }
