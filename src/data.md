@@ -7,34 +7,29 @@ The data driver is a driver that handles persistent state. It stores data in mem
 
 Stored data can have any type, but is usually an object with different properties for storing different parts of application state.
 
-## Configuration
-
-The `Moon.data.driver` is a function that takes initial data and returns a driver.
-
-```js
-// Creates a data driver with the initial data as an object.
-Moon.data.driver({
-	count: 1,
-	user: null
-});
-```
-
 ## Input
 
 The data driver provides the current stored data as input.
 
 ```js
 Moon.use({
-	data: Moon.data.driver(1)
+	data: Moon.data.driver
 });
 
 Moon.run(({ data }) => {
-	console.log(data); // => 1
+	console.log(data); // => undefined
+	return {
+		data: "Titan"
+	};
+});
+
+Moon.run(({ data }) => {
+	console.log(data); // => "Titan"
 	return {};
 });
 ```
 
-<a href="/play#Moon.use(%7B%0A%09data%3A%20Moon.data.driver(1)%0A%7D)%3B%0A%0AMoon.run((%7B%20data%20%7D)%20%3D>%20%7B%0A%09console.log(data)%3B%20%2F%2F%20%3D>%201%0A%09return%20%7B%7D%3B%0A%7D)%3B">Try it!</a>
+<a href="/play/#Moon.use(%7B%0A%20%20%20%20data%3A%20Moon.data.driver%0A%7D)%3B%0A%0AMoon.run((%7B%20data%20%7D)%20%3D%3E%20%7B%0A%20%20%20%20console.log(data)%3B%20%2F%2F%20%3D%3E%20undefined%0A%20%20%20%20return%20%7B%0A%20%20%20%20%20%20%20%20data%3A%20%22Titan%22%0A%20%20%20%20%7D%3B%0A%7D)%3B%0A%0AMoon.run((%7B%20data%20%7D)%20%3D%3E%20%7B%0A%20%20%20%20console.log(data)%3B%20%2F%2F%20%3D%3E%20%22Titan%22%0A%20%20%20%20return%20%7B%7D%3B%0A%7D)%3B">Try it!</a>
 
 ## Output
 
@@ -42,16 +37,20 @@ The data driver accepts new data as output and stores it. This is usually a comp
 
 ```js
 Moon.use({
-	data: Moon.data.driver({
-		count: 1,
-		user: null
-	})
+	data: Moon.data.driver
 });
 
-Moon.run(({ data }) => {
-	return {
+Moon.run(() => ({
+	data: {
+		count: 1,
+		name: "Titan"
+	}
+}));
+
+Moon.run(({ data }) => ({
+	data: {
 		count: data.count + 1,
-		user: "John Doe"
-	};
-});
+		name: "Europa"
+	}
+}));
 ```
