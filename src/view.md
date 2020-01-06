@@ -92,7 +92,7 @@ const input = <input {placeholder: "First name"}/>;
 const input = input({ placeholder: "First name" });
 
 // Node
-const wrapped = <div><paragraph#></div>;
+const wrapped = <div><paragraph*></div>;
 const wrapped = div({ children: [paragraph] });
 ```
 
@@ -113,7 +113,7 @@ Tags return new view nodes. They can also have data, which correspond to propert
 
 A node tag is equivalent to a variable reference. For example, a node may be hoisted or stored in some other variable. A node tag can allow it to be inserted or used, especially as the child of another node.
 
-A node tag is an expression enclosed within an opening angle bracket (`<`) and a pound symbol combined with a closing angle bracket (`#>`).
+A node tag is an expression enclosed within an opening angle bracket (`<`) and an asterisk combined with a closing angle bracket (`*>`).
 
 For example:
 
@@ -129,7 +129,7 @@ Moon.use({
 
 Moon.run(() => ({
 	// Use the node as the child of another
-	view: <div><paragraph#></div>
+	view: <div><paragraph*></div>
 }));
 ```
 
@@ -318,7 +318,7 @@ const conditionalTernary =
 			moon === "Titan" ?
 				<p>The moon is Titan!</p> :
 				<p>The moon is not Titan, it is {moon}.</p>
-		)#>
+		)*>
 	</div>;
 
 // If statements
@@ -330,7 +330,7 @@ if (moon === "Titan") {
 	paragraph = <p>The moon is not Titan, it is {moon}.</p>;
 }
 
-const conditionalIfStatement = <div><paragraph#></div>;
+const conditionalIfStatement = <div><paragraph*></div>;
 
 Moon.use({
 	view: Moon.view.driver("#root")
@@ -339,8 +339,8 @@ Moon.use({
 Moon.run(() => ({
 	view:
 		<div>
-			<conditionalTernary#>
-			<conditionalIfStatement#>
+			<conditionalTernary*>
+			<conditionalIfStatement*>
 		</div>
 }));
 ```
@@ -378,8 +378,8 @@ Moon.use({
 Moon.run(() => ({
 	view:
 		<div>
-			<loopMap#>
-			<loopFor#>
+			<loopMap*>
+			<loopFor*>
 		</div>
 }));
 ```

@@ -108,7 +108,7 @@ Views in Moon are based on HTML, a familiar language for defining documents. The
 const paragraph = <p class="blue">Hello World!</p>;
 const box = <Box type="alert">Something went wrong!</Box>;
 const posts = <ul children=(posts.map(post => <li>{post}</li>))/>;
-const container = <div><paragraph#></div>;
+const container = <div><paragraph*></div>;
 
 // Compiled to JS
 const paragraph = p({
