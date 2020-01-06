@@ -307,7 +307,7 @@ const grammar = {
 		// parsing before consuming the closing bracket. Parentheticals, arrays,
 		// and objects, however, parse expressions before their closing
 		// delimiter, depending on the expression parser to stop before it.
-		parser.many1(parser.not(["/", "#", "\"", "'", "`", "(", ")", "[", "]", "{", "}", "<"])),
+		parser.many1(parser.not(["/", "#", "\"", "'", "`", "(", ")", "[", "]", "{", "}", "<"]))
 	]))(input, index),
 	main: (input, index) => parser.and(grammar.expression, parser.EOF)(input, index)
 };
