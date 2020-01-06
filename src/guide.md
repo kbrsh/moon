@@ -20,7 +20,7 @@ For the following guide, along with the rest of the documentation, the above HTM
 After initializing the application, add the following to the script to display a basic todo list view.
 
 ```js
-const Todos = ({ data }) =>
+const viewTodos = ({ data }) =>
 	<ul children=(data.todos.map(todo =>
 		<li>{todo}</li>
 	))/>;
@@ -42,19 +42,19 @@ Moon.run(() => {
 
 	return {
 		data,
-		view: <Todos data=data/>
+		view: <viewTodos data=data/>
 	};
 });
 ```
 
-<a href="/play/#const%20%7B%20div%2C%20h1%2C%20ul%2C%20li%2C%20input%2C%20button%20%7D%20%3D%20Moon.view.m%3B%0A%0Aconst%20Todos%20%3D%20(%7B%20data%20%7D)%20%3D%3E%0A%09%3Cul%20children%3D(data.todos.map(todo%20%3D%3E%0A%09%09%3Cli%3E%7Btodo%7D%3C%2Fli%3E%0A%09))%2F%3E%3B%0A%0AMoon.use(%7B%0A%09data%3A%20Moon.data.driver%2C%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09const%20data%20%3D%20%7B%0A%09%09todo%3A%20%22%22%2C%0A%09%09todos%3A%20%5B%0A%09%09%09%22Learn%20Moon%22%2C%0A%09%09%09%22Take%20a%20nap%22%2C%0A%09%09%09%22Go%20Shopping%22%0A%09%09%5D%0A%09%7D%3B%0A%0A%09return%20%7B%0A%09%09data%2C%0A%09%09view%3A%20%3CTodos%20data%3Ddata%2F%3E%0A%09%7D%3B%0A%7D)%3B">Try it!</a>
+<a href="/play/#const%20%7B%20div%2C%20h1%2C%20ul%2C%20li%2C%20input%2C%20button%20%7D%20%3D%20Moon.view.m%3B%0A%0Aconst%20viewTodos%20%3D%20(%7B%20data%20%7D)%20%3D%3E%0A%09%3Cul%20children%3D(data.todos.map(todo%20%3D%3E%0A%09%09%3Cli%3E%7Btodo%7D%3C%2Fli%3E%0A%09))%2F%3E%3B%0A%0AMoon.use(%7B%0A%09data%3A%20Moon.data.driver%2C%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09const%20data%20%3D%20%7B%0A%09%09todo%3A%20%22%22%2C%0A%09%09todos%3A%20%5B%0A%09%09%09%22Learn%20Moon%22%2C%0A%09%09%09%22Take%20a%20nap%22%2C%0A%09%09%09%22Go%20Shopping%22%0A%09%09%5D%0A%09%7D%3B%0A%0A%09return%20%7B%0A%09%09data%2C%0A%09%09view%3A%20%3CviewTodos%20data%3Ddata%2F%3E%0A%09%7D%3B%0A%7D)%3B">Try it!</a>
 
-First of all, the `Todos` function returns a view. It uses an HTML-like syntax for creating views based on components. In this case, the `ul` and `li` components. Rather than using the normal children syntax for `ul`, they are manually defined with an attribute. This attribute maps every single todo to an `li` element with the todo content as its text. Curly braces are used for interpolation `{todo}`.
+First of all, the `viewTodos` function returns a view. It uses an HTML-like syntax for creating views based on components. In this case, the `ul` and `li` components. Rather than using the normal children syntax for `ul`, they are manually defined with an attribute. This attribute maps every single todo to an `li` element with the todo content as its text. Curly braces are used for interpolation `{todo}`.
 
 Everything in the view language is extra syntax for function calls. In the end, it boils down to:
 
 ```js
-const Todos = ({ data }) =>
+const viewTodos = ({ data }) =>
 	ul({
 		children: data.todos.map(todo =>
 			li({ children: [Moon.view.m.text({ data: todo })] })
@@ -71,7 +71,7 @@ The `view` input and output is handled by the Moon view driver, which gives even
 Now, an input can be added to the view to allow the user to create todos.
 
 ```js
-const Todos = ({ data }) =>
+const viewTodos = ({ data }) =>
 	<div>
 		<input type="text" value=data.todo @input=updateTodo/>
 		<button @click=createTodo>Create</button>
@@ -92,7 +92,7 @@ const updateTodo = ({ data, view }) => {
 
 	return {
 		data: dataNew,
-		view: <Todos data=dataNew/>
+		view: <viewTodos data=dataNew/>
 	};
 };
 
@@ -104,7 +104,7 @@ const createTodo = ({ data }) => {
 
 	return {
 		data: dataNew,
-		view: <Todos data=dataNew/>
+		view: <viewTodos data=dataNew/>
 	};
 };
 ```
@@ -115,7 +115,7 @@ For the `updateTodo` event handler, the view driver provides event data as input
 
 For the `createTodo` event handler, new data is created again. It has an empty `todo` to clear the input and new `todos` using the current value of `data.todo`. The new data and view are returned to their corresponding drivers to make changes to the real world.
 
-<a href="/play/#const%20%7B%20div%2C%20h1%2C%20ul%2C%20li%2C%20input%2C%20button%20%7D%20%3D%20Moon.view.m%3B%0A%0Aconst%20updateTodo%20%3D%20(%7B%20data%2C%20view%20%7D)%20%3D%3E%20%7B%0A%09const%20dataNew%20%3D%20%7B%20...data%2C%20todo%3A%20view.target.value%20%7D%3B%0A%0A%09return%20%7B%0A%09%09data%3A%20dataNew%2C%0A%09%09view%3A%20%3CTodos%20data%3DdataNew%2F%3E%0A%09%7D%3B%0A%7D%3B%0A%0Aconst%20createTodo%20%3D%20(%7B%20data%20%7D)%20%3D%3E%20%7B%0A%09const%20dataNew%20%3D%20%7B%0A%09%09todo%3A%20%22%22%2C%0A%09%09todos%3A%20%5B...data.todos%2C%20data.todo%5D%0A%09%7D%3B%0A%0A%09return%20%7B%0A%09%09data%3A%20dataNew%2C%0A%09%09view%3A%20%3CTodos%20data%3DdataNew%2F%3E%0A%09%7D%3B%0A%7D%3B%0A%0Aconst%20Todos%20%3D%20(%7B%20data%20%7D)%20%3D%3E%0A%09%3Cdiv%3E%0A%09%09%3Cinput%20type%3D%22text%22%20value%3Ddata.todo%20%40input%3DupdateTodo%2F%3E%0A%09%09%3Cbutton%20%40click%3DcreateTodo%3ECreate%3C%2Fbutton%3E%0A%0A%09%09%3Cul%20children%3D(data.todos.map(todo%20%3D%3E%0A%09%09%09%3Cli%3E%7Btodo%7D%3C%2Fli%3E%0A%09%09))%2F%3E%0A%09%3C%2Fdiv%3E%3B%0A%0AMoon.use(%7B%0A%09data%3A%20Moon.data.driver%2C%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09const%20data%20%3D%20%7B%0A%09%09todo%3A%20%22%22%2C%0A%09%09todos%3A%20%5B%0A%09%09%09%22Learn%20Moon%22%2C%0A%09%09%09%22Take%20a%20nap%22%2C%0A%09%09%09%22Go%20Shopping%22%0A%09%09%5D%0A%09%7D%3B%0A%0A%09return%20%7B%0A%09%09data%2C%0A%09%09view%3A%20%3CTodos%20data%3Ddata%2F%3E%0A%09%7D%3B%0A%7D)%3B">Try it!</a>
+<a href="/play/#const%20%7B%20div%2C%20h1%2C%20ul%2C%20li%2C%20input%2C%20button%20%7D%20%3D%20Moon.view.m%3B%0A%0Aconst%20updateTodo%20%3D%20(%7B%20data%2C%20view%20%7D)%20%3D%3E%20%7B%0A%09const%20dataNew%20%3D%20%7B%20...data%2C%20todo%3A%20view.target.value%20%7D%3B%0A%0A%09return%20%7B%0A%09%09data%3A%20dataNew%2C%0A%09%09view%3A%20%3CviewTodos%20data%3DdataNew%2F%3E%0A%09%7D%3B%0A%7D%3B%0A%0Aconst%20createTodo%20%3D%20(%7B%20data%20%7D)%20%3D%3E%20%7B%0A%09const%20dataNew%20%3D%20%7B%0A%09%09todo%3A%20%22%22%2C%0A%09%09todos%3A%20%5B...data.todos%2C%20data.todo%5D%0A%09%7D%3B%0A%0A%09return%20%7B%0A%09%09data%3A%20dataNew%2C%0A%09%09view%3A%20%3CviewTodos%20data%3DdataNew%2F%3E%0A%09%7D%3B%0A%7D%3B%0A%0Aconst%20viewTodos%20%3D%20(%7B%20data%20%7D)%20%3D%3E%0A%09%3Cdiv%3E%0A%09%09%3Cinput%20type%3D%22text%22%20value%3Ddata.todo%20%40input%3DupdateTodo%2F%3E%0A%09%09%3Cbutton%20%40click%3DcreateTodo%3ECreate%3C%2Fbutton%3E%0A%0A%09%09%3Cul%20children%3D(data.todos.map(todo%20%3D%3E%0A%09%09%09%3Cli%3E%7Btodo%7D%3C%2Fli%3E%0A%09%09))%2F%3E%0A%09%3C%2Fdiv%3E%3B%0A%0AMoon.use(%7B%0A%09data%3A%20Moon.data.driver%2C%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20%7B%0A%09const%20data%20%3D%20%7B%0A%09%09todo%3A%20%22%22%2C%0A%09%09todos%3A%20%5B%0A%09%09%09%22Learn%20Moon%22%2C%0A%09%09%09%22Take%20a%20nap%22%2C%0A%09%09%09%22Go%20Shopping%22%0A%09%09%5D%0A%09%7D%3B%0A%0A%09return%20%7B%0A%09%09data%2C%0A%09%09view%3A%20%3CviewTodos%20data%3Ddata%2F%3E%0A%09%7D%3B%0A%7D)%3B">Try it!</a>
 
 This guide resulted in an extremely basic todo application, but can be extended to support more features. Try the following exercises to test your knowledge:
 

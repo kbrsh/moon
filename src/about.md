@@ -15,24 +15,24 @@ At its core, Moon is a runtime that calls drivers and runs a functional applicat
 // Import nodes from the view driver.
 const button = Moon.view.m.button;
 
-// The increment event handler acts just like `Root`, and it can
+// The increment event handler acts just like `main`, and it can
 // take driver inputs and returns driver outputs.
-const increment = ({ data, view }) => {
+const increment = ({ data }) => {
 	const dataNew = data + 1;
 
 	// It returns data to the data driver to store, and a view to
 	// the view driver to render.
 	return {
 		data: dataNew,
-		view: <View data=dataNew/>
+		view: <view data=dataNew/>
 	};
 };
 
 // The view is a component that renders a button with a count.
-const View = ({ data }) =>
+const view = ({ data }) =>
 	<button @click=increment>{data}</button>;
 
-const Root = () => {
+const main = () => {
 	const data = 0;
 
 	// In the beginning, the application sends output to the data
@@ -40,7 +40,7 @@ const Root = () => {
 	// to the view driver to display it on the screen.
 	return {
 		data,
-		view: <View data=data/>
+		view: <view data=data/>
 	};
 };
 
@@ -51,7 +51,7 @@ Moon.use({
 });
 
 // Run the application.
-Moon.run(Root);
+Moon.run(main);
 ```
 
 ## Functional & Declarative
@@ -78,7 +78,7 @@ Instead, developers write functions that return outputs based on user events and
 }
 ```
 
-Rather than creating "smart" components with general local state, components are "dumb" and only encode view data. For example, instead of a `Toggle` component handling local state, it would only provide an event where the relevant global state `theme` would change.
+Rather than creating "smart" components with general local state, components are "dumb" and only encode view data. For example, instead of a `toggle` component handling local state, it would only provide an event where the relevant global state `theme` would change.
 
 One state tree means one source of truth for an application. Developers can quickly glance at the state of the whole application and have complete flexibility on the structure and type of the state. This declarative model of applications allows for modular code consisting of pure functions that focus on the "what" instead of the "how".
 
@@ -106,7 +106,7 @@ Views in Moon are based on HTML, a familiar language for defining documents. The
 ```js
 // Moon View
 const paragraph = <p class="blue">Hello World!</p>;
-const box = <Box type="alert">Something went wrong!</Box>;
+const box = <box type="alert">Something went wrong!</box>;
 const posts = <ul children=(posts.map(post => <li>{post}</li>))/>;
 const container = <div><paragraph*></div>;
 
@@ -115,7 +115,7 @@ const paragraph = p({
 	class: "blue",
 	children: [Moon.view.m.text({ data: "Hello World!" })]
 });
-const box = Box({
+const box = box({
 	type: "alert",
 	children: [
 		Moon.view.m.text({ data: "Something went wrong!" })

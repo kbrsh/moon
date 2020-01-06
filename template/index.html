@@ -73,11 +73,11 @@ const increment = ({ data }) => {
 
 	return {
 		data: dataNew,
-		view: <View data=dataNew/>
+		view: <view data=dataNew/>
 	};
 };
 
-const View = ({ data }) =>
+const view = ({ data }) =>
 	<button @click=increment>{data}</button>;
 
 Moon.use({
@@ -87,7 +87,7 @@ Moon.use({
 
 Moon.run(() => ({
 	data: 0,
-	view: <View data=0/>
+	view: <view data=0/>
 }));`, "js") %>
 		</div>
 
@@ -116,7 +116,7 @@ Moon.run(() => ({
 			<pre class="s-x-26 s-b-2 p-x-4 p-y-4"><code><%- options.highlight(`// Moon view
 const posts = (
 	<div children=(posts.map(post =>
-		<Post id="my-post">{post}</Post>
+		<view.post id="my-post">{post}</view.post>
 	))/>
 );
 
@@ -124,7 +124,7 @@ const posts = (
 const posts = (
 	div({
 		children: posts.map(post =>
-			Post({
+			view.post({
 				id: "my-post",
 				children: [Moon.view.m.text({data: post})]
 			})

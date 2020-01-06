@@ -12,7 +12,7 @@ const updateTodo = ({ data, view }) => {
 
 	return {
 		data: dataNew,
-		view: <Todos data=dataNew/>
+		view: <viewTodos data=dataNew/>
 	};
 };
 
@@ -24,7 +24,7 @@ const createTodo = ({ data }) => {
 
 	return {
 		data: dataNew,
-		view: <Todos data=dataNew/>
+		view: <viewTodos data=dataNew/>
 	};
 };
 
@@ -39,11 +39,11 @@ const removeTodo = index => ({ data }) => {
 
 	return {
 		data: dataNew,
-		view: <Todos data=dataNew/>
+		view: <viewTodos data=dataNew/>
 	};
 };
 
-const Todos = ({ data }) => (
+const viewTodos = ({ data }) => (
 	<div>
 		<h1>Todos</h1>
 		<input
@@ -78,7 +78,7 @@ Moon.run(() => {
 
 	return {
 		data,
-		view: <Todos data=data/>
+		view: <viewTodos data=data/>
 	};
 });`,
 	lineNumbers: true,

@@ -144,7 +144,7 @@ For example:
 ```play
 const { div, ul, li, p } = Moon.view.m;
 
-const Component = ({ moon }) => <p>The moon is {moon}.</p>;
+const component = ({ moon }) => <p>The moon is {moon}.</p>;
 
 Moon.use({
 	view: Moon.view.driver("#root")
@@ -153,8 +153,8 @@ Moon.use({
 Moon.run(() => ({
 	view:
 		<div>
-			<Component {moon: "Titan"}/>
-			<Component moon="Europa"/>
+			<component {moon: "Titan"}/>
+			<component moon="Europa"/>
 			<ul children=[
 				<li>Moon</li>,
 				<li>Titan</li>,
@@ -286,7 +286,7 @@ Components are functions of data objects that return view nodes. They are useful
 ```play
 const { div, p } = Moon.view.m;
 
-const Component = data =>
+const component = data =>
 	<div class="container" id=data.id>
 		<div class="content" children=data.children/>
 	</div>;
@@ -297,9 +297,9 @@ Moon.use({
 
 Moon.run(() => ({
 	view:
-		<Component id="my-component">
+		<component id="my-component">
 			<p>Hello Moon!</p>
-		</Component>
+		</component>
 }));
 ```
 
