@@ -274,7 +274,7 @@ test("generate with multiline comments", () => {
 });
 
 test("generate with moon comments outside of node", () => {
-	assertGenerate(`console.log(# comment # "hello moon")`, "console.log(/* comment */ \"hello moon\")");
+	assertGenerate(`console.log(# comment\\# # "hello moon")`, "console.log(/* comment\\# */ \"hello moon\")");
 });
 
 test("generate with moon comments inside node", () => {

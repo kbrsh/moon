@@ -302,7 +302,11 @@ const grammar = {
 		parser.character("<"),
 
 		// Anything up to a comment, regular expression, string, parenthetical,
-		// array, object, or view.
+		// array, object, or view. Only matches to the opening bracket of a view
+		// because the view parsers do not require an expression to finish
+		// parsing before consuming the closing bracket. Parentheticals, arrays,
+		// and objects, however, parse expressions before their closing
+		// delimiter, depending on the expression parser to stop before it.
 		parser.many1(parser.not(["/", "#", "\"", "'", "`", "(", ")", "[", "]", "{", "}", "<"])),
 	]))(input, index),
 	main: (input, index) => parser.and(grammar.expression, parser.EOF)(input, index)
