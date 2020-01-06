@@ -739,6 +739,40 @@
 		driver: driver$2
 	};
 
+	/**
+	 * Storage driver
+	 *
+	 * The storage driver allows applications to receive input from local storage
+	 * and persist string key/value pairs in local storage.
+	 */
+	var driver$3 = {
+		input: function input() {
+			// Return the local storage as input.
+			return localStorage;
+		},
+		output: function output(localStorageNew) {
+			// Update the local storage when it is an output.
+			for (var keyNew in localStorageNew) {
+				var valueNew = localStorageNew[keyNew];
+
+				if (localStorage[keyNew] !== valueNew) {
+					localStorage[keyNew] = valueNew;
+				}
+			} // Remove any items that aren't in the new local storage.
+
+
+			for (var keyOld in localStorage) {
+				if (!(keyOld in localStorageNew)) {
+					delete localStorage[keyOld];
+				}
+			}
+		}
+	};
+
+	var storage = {
+		driver: driver$3
+	};
+
 	/*
 	 * Current global response
 	 */
@@ -758,7 +792,7 @@
 	 * implemented with another HTTP request once a response is received.
 	 */
 
-	var driver$3 = {
+	var driver$4 = {
 		input: function input() {
 			// Return the response as output.
 			return response;
@@ -824,7 +858,7 @@
 	};
 
 	var http = {
-		driver: driver$3
+		driver: driver$4
 	};
 
 	/**
@@ -840,7 +874,7 @@
 	 * based on the current route.
 	 */
 
-	var driver$4 = {
+	var driver$5 = {
 		input: function input() {
 			// Return the current route as input.
 			return route;
@@ -878,7 +912,7 @@
 	}
 
 	var route$1 = {
-		driver: driver$4,
+		driver: driver$5,
 		router: router
 	};
 
@@ -887,6 +921,7 @@
 		http: http,
 		route: route$1,
 		run: run,
+		storage: storage,
 		time: time,
 		use: use,
 		version: "1.0.0-beta.4",
