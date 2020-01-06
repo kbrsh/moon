@@ -3,7 +3,7 @@ title: Guide
 order: 2
 ---
 
-This guide will introduce you to the basics of Moon while creating a simple todo application. Get started by [installing Moon](/doc/installation.html) and adding the following to the `<body>` of an HTML file. You can also follow along and load the examples in the [playground](/play).
+This guide will introduce you to the basics of Moon while creating a simple todo application. Get started by [installing Moon](/installation) and adding the following to the `<body>` of an HTML file. You can also follow along and load the examples in the [playground](/play).
 
 ```html
 <div id="root"></div>
@@ -119,8 +119,8 @@ For the `createTodo` event handler, new data is created again. It has an empty `
 
 This guide resulted in an extremely basic todo application, but can be extended to support more features. Try the following exercises to test your knowledge:
 
-* Add support for removing/completing todos using [events](/doc/views.html#events) and [`if`](/doc/views.html#conditionals).
+* Add support for removing/completing todos using [events](/view#events) and [conditionals](/view#conditionals).
 * Add support for editing todos using the `@dblclick` event.
-* Make the application more modular using [components](/doc/views.html#components).
+* Make the application more modular using [components](/view#components).
 
 By default, the [playground](/play) has a fully functioning todo application that has a few more advanced features. Try extending it with what you've learned!
