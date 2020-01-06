@@ -4,8 +4,11 @@ const Prism = require("prismjs");
 
 const renderer = new marked.Renderer();
 
+const commentRE = /#(\\[^]|[^#])*#/;
 Prism.languages.markup.tag.inside["attr-value"].pattern = /=([@$\w.]+|"[^"]*"|'[^']*'|`[^`]*`|\([^)]+\)|\[[^]]+\]|\{[^}]+\})/;
 Prism.languages.markup.tag.inside["attr-value"].inside = Prism.languages.javascript;
+Prism.languages.javascript.comment.push(commentRE);
+Prism.languages.insertBefore("inside", "attr-name", { comment: commentRE }, Prism.languages.markup.tag);
 Prism.languages.javascript = Prism.languages.extend("markup", Prism.util.clone(Prism.languages.javascript));
 
 const highlight = (code, lang) => {

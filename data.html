@@ -70,13 +70,13 @@
 		<div class="s-x-26 m-y-3">
 			<h1>Data</h1>
 			<p class="s-x-26">The data driver is a driver that handles persistent state. It stores data in memory and provides it as driver input. For output, it accepts new data that it stores and provides on any subsequent runs.</p><p class="s-x-26">Stored data can have any type, but is usually an object with different properties for storing different parts of application state.</p><h2 id="input" class="s-x-26">Input</h2><p class="s-x-26">The data driver provides the current stored data as input.</p><pre class="s-x-26 s-b-2 p-x-4 p-y-4"><a href="/play/#Moon.use(%7B%0A%20%20%20%20data%3A%20Moon.data.driver%0A%7D)%3B%0A%0AMoon.run((%7B%20data%20%7D)%20%3D%3E%20%7B%0A%20%20%20%20console.log(data)%3B%20%2F%2F%20%3D%3E%20undefined%0A%20%20%20%20return%20%7B%0A%20%20%20%20%20%20%20%20data%3A%20%22Titan%22%0A%20%20%20%20%7D%3B%0A%7D)%3B%0A%0AMoon.run((%7B%20data%20%7D)%20%3D%3E%20%7B%0A%20%20%20%20console.log(data)%3B%20%2F%2F%20%3D%3E%20%22Titan%22%0A%20%20%20%20return%20%7B%7D%3B%0A%7D)%3B" target="_blank" class="b-n"><img src="/img/play.png" alt="Try in playground" class="s-x-5 s-y-5"/></a><code>Moon<span class="token punctuation">.</span><span class="token function">use</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
-    data<span class="token punctuation">:</span> Moon<span class="token punctuation">.</span>data<span class="token punctuation">.</span>driver
+    data<span class="token operator">:</span> Moon<span class="token punctuation">.</span>data<span class="token punctuation">.</span>driver
 <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
 Moon<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter"><span class="token punctuation">{</span> data <span class="token punctuation">}</span></span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
     console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// => undefined</span>
     <span class="token keyword">return</span> <span class="token punctuation">{</span>
-        data<span class="token punctuation">:</span> <span class="token string">"Titan"</span>
+        data<span class="token operator">:</span> <span class="token string">"Titan"</span>
     <span class="token punctuation">}</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
@@ -84,20 +84,20 @@ Moon<span class="token punctuation">.</span><span class="token function">run</sp
     console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// => "Titan"</span>
     <span class="token keyword">return</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre><h2 id="output" class="s-x-26">Output</h2><p class="s-x-26">The data driver accepts new data as output and stores it. This is usually a completely new state to keep immutability and prevent bugs. However, the data can be mutated and returned again since the previous data is replaced with the new one.</p><pre class="s-x-26 s-b-2 p-x-4 p-y-4"><a href="/play/#Moon.use(%7B%0A%20%20%20%20data%3A%20Moon.data.driver%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20(%7B%0A%20%20%20%20data%3A%20%7B%0A%20%20%20%20%20%20%20%20count%3A%201%2C%0A%20%20%20%20%20%20%20%20name%3A%20%22Titan%22%0A%20%20%20%20%7D%0A%7D))%3B%0A%0AMoon.run((%7B%20data%20%7D)%20%3D%3E%20(%7B%0A%20%20%20%20data%3A%20%7B%0A%20%20%20%20%20%20%20%20count%3A%20data.count%20%2B%201%2C%0A%20%20%20%20%20%20%20%20name%3A%20%22Europa%22%0A%20%20%20%20%7D%0A%7D))%3B" target="_blank" class="b-n"><img src="/img/play.png" alt="Try in playground" class="s-x-5 s-y-5"/></a><code>Moon<span class="token punctuation">.</span><span class="token function">use</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
-    data<span class="token punctuation">:</span> Moon<span class="token punctuation">.</span>data<span class="token punctuation">.</span>driver
+    data<span class="token operator">:</span> Moon<span class="token punctuation">.</span>data<span class="token punctuation">.</span>driver
 <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
 Moon<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">(</span><span class="token punctuation">{</span>
-    data<span class="token punctuation">:</span> <span class="token punctuation">{</span>
-        count<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
-        name<span class="token punctuation">:</span> <span class="token string">"Titan"</span>
+    data<span class="token operator">:</span> <span class="token punctuation">{</span>
+        count<span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+        name<span class="token operator">:</span> <span class="token string">"Titan"</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
 Moon<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter"><span class="token punctuation">{</span> data <span class="token punctuation">}</span></span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">(</span><span class="token punctuation">{</span>
-    data<span class="token punctuation">:</span> <span class="token punctuation">{</span>
-        count<span class="token punctuation">:</span> data<span class="token punctuation">.</span>count <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">,</span>
-        name<span class="token punctuation">:</span> <span class="token string">"Europa"</span>
+    data<span class="token operator">:</span> <span class="token punctuation">{</span>
+        count<span class="token operator">:</span> data<span class="token punctuation">.</span>count <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">,</span>
+        name<span class="token operator">:</span> <span class="token string">"Europa"</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
 		</div>

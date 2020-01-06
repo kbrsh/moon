@@ -75,16 +75,16 @@
 moon create my-app</code></pre><h2 id="npm" class="s-x-26">NPM</h2><p class="s-x-26">Moon can be manually installed through <code class="s-b-2 p-x-2 p-y-2">npm</code>. To use the Moon view language with your build system, Moon provides a <code class="s-b-2 p-x-2 p-y-2">moon-compiler</code> module along with modules for most bundlers, including Webpack and Rollup.</p><pre class="s-x-26 s-b-2 p-x-4 p-y-4"><code>npm install moon
 npm install moon-compiler</code></pre><h4 id="webpack" class="s-x-26">Webpack</h4><pre class="s-x-26 s-b-2 p-x-4 p-y-4"><code>npm install moon-loader</code></pre><pre class="s-x-26 s-b-2 p-x-4 p-y-4"><code><span class="token comment">// webpack.config.js</span>
 module<span class="token punctuation">.</span>exports <span class="token operator">=</span> <span class="token punctuation">{</span>
-    module<span class="token punctuation">:</span> <span class="token punctuation">{</span>
-        rules<span class="token punctuation">:</span> <span class="token punctuation">[</span>
-            <span class="token punctuation">{</span> test<span class="token punctuation">:</span> <span class="token regex">/\.js/</span><span class="token punctuation">,</span> use<span class="token punctuation">:</span> <span class="token string">"moon-loader"</span> <span class="token punctuation">}</span>
+    module<span class="token operator">:</span> <span class="token punctuation">{</span>
+        rules<span class="token operator">:</span> <span class="token punctuation">[</span>
+            <span class="token punctuation">{</span> test<span class="token operator">:</span> <span class="token regex">/\.js/</span><span class="token punctuation">,</span> use<span class="token operator">:</span> <span class="token string">"moon-loader"</span> <span class="token punctuation">}</span>
         <span class="token punctuation">]</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span><span class="token punctuation">;</span></code></pre><h4 id="rollup" class="s-x-26">Rollup</h4><pre class="s-x-26 s-b-2 p-x-4 p-y-4"><code>npm install rollup-plugin-moon</code></pre><pre class="s-x-26 s-b-2 p-x-4 p-y-4"><code><span class="token comment">// rollup.config.js</span>
 <span class="token keyword">import</span> MoonPlugin <span class="token keyword">from</span> <span class="token string">"rollup-plugin-moon"</span><span class="token punctuation">;</span>
 
 <span class="token keyword">export</span> <span class="token keyword">default</span> <span class="token punctuation">{</span>
-    plugins<span class="token punctuation">:</span> <span class="token punctuation">[</span>
+    plugins<span class="token operator">:</span> <span class="token punctuation">[</span>
         <span class="token function">MoonPlugin</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
     <span class="token punctuation">]</span>
 <span class="token punctuation">}</span><span class="token punctuation">;</span></code></pre><h2 id="browser" class="s-x-26">Browser</h2><p class="s-x-26">Moon can be embedded in the browser directly with a script tag. To use the Moon view language in the browser, Moon provides a <code class="s-b-2 p-x-2 p-y-2">moon-browser</code> module that compiles <code class="s-b-2 p-x-2 p-y-2">&lt;script&gt;</code> tags with type <code class="s-b-2 p-x-2 p-y-2">&quot;text/moon&quot;</code>.</p><pre class="s-x-26 s-b-2 p-x-4 p-y-4"><code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span> <span class="token attr-name">src</span><span class="token attr-value"><span class="token operator">=</span><span class="token string">"https://unpkg.com/moon"</span></span><span class="token punctuation">></span></span><span class="token script"></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">></span></span>

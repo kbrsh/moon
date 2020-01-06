@@ -96,6 +96,15 @@ const wrapped = <div><paragraph#></div>;
 const wrapped = div({ children: [paragraph] });
 ```
 
+### Comments
+
+The compiler ignores any text between pound signs. They can be escaped if needed. Comments are not allowed within text.
+
+```js
+# This is a comment. #
+const paragraph = <p # comment here # foo=bar>Hello Moon!</p>;
+```
+
 ### Tags
 
 Tags return new view nodes. They can also have data, which correspond to properties (not attributes) on DOM elements. Data values can be strings, identifiers, arrays, objects, or JavaScript expressions surrounded by parenthesis. There are three types of tags.

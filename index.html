@@ -72,8 +72,8 @@
 	<span class="token keyword">const</span> dataNew <span class="token operator">=</span> data <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span>
 
 	<span class="token keyword">return</span> <span class="token punctuation">{</span>
-		data<span class="token punctuation">:</span> dataNew<span class="token punctuation">,</span>
-		view<span class="token punctuation">:</span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>View</span> <span class="token attr-name">data</span><span class="token attr-value"><span class="token operator">=</span>dataNew</span><span class="token punctuation">/></span></span>
+		data<span class="token operator">:</span> dataNew<span class="token punctuation">,</span>
+		view<span class="token operator">:</span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>View</span> <span class="token attr-name">data</span><span class="token attr-value"><span class="token operator">=</span>dataNew</span><span class="token punctuation">/></span></span>
 	<span class="token punctuation">}</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span><span class="token punctuation">;</span>
 
@@ -81,13 +81,13 @@
 	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">@click</span><span class="token attr-value"><span class="token operator">=</span>increment</span><span class="token punctuation">></span></span><span class="token punctuation">{</span>data<span class="token punctuation">}</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">></span></span><span class="token punctuation">;</span>
 
 Moon<span class="token punctuation">.</span><span class="token function">use</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
-	data<span class="token punctuation">:</span> Moon<span class="token punctuation">.</span>data<span class="token punctuation">.</span>driver<span class="token punctuation">,</span>
-	view<span class="token punctuation">:</span> Moon<span class="token punctuation">.</span>view<span class="token punctuation">.</span><span class="token function">driver</span><span class="token punctuation">(</span><span class="token string">"#root"</span><span class="token punctuation">)</span>
+	data<span class="token operator">:</span> Moon<span class="token punctuation">.</span>data<span class="token punctuation">.</span>driver<span class="token punctuation">,</span>
+	view<span class="token operator">:</span> Moon<span class="token punctuation">.</span>view<span class="token punctuation">.</span><span class="token function">driver</span><span class="token punctuation">(</span><span class="token string">"#root"</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
 Moon<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">(</span><span class="token punctuation">{</span>
-	data<span class="token punctuation">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
-	view<span class="token punctuation">:</span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>View</span> <span class="token attr-name">data</span><span class="token attr-value"><span class="token operator">=</span><span class="token number">0</span></span><span class="token punctuation">/></span></span>
+	data<span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+	view<span class="token operator">:</span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>View</span> <span class="token attr-name">data</span><span class="token attr-value"><span class="token operator">=</span><span class="token number">0</span></span><span class="token punctuation">/></span></span>
 <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
 		</div>
 
@@ -123,10 +123,10 @@ Moon<span class="token punctuation">.</span><span class="token function">run</sp
 <span class="token comment">// Compiled to JS</span>
 <span class="token keyword">const</span> posts <span class="token operator">=</span> <span class="token punctuation">(</span>
 	<span class="token function">div</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
-		children<span class="token punctuation">:</span> posts<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token parameter">post</span> <span class="token operator">=></span>
+		children<span class="token operator">:</span> posts<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token parameter">post</span> <span class="token operator">=></span>
 			<span class="token function">Post</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
-				id<span class="token punctuation">:</span> <span class="token string">"my-post"</span><span class="token punctuation">,</span>
-				children<span class="token punctuation">:</span> <span class="token punctuation">[</span>Moon<span class="token punctuation">.</span>view<span class="token punctuation">.</span>m<span class="token punctuation">.</span><span class="token function">text</span><span class="token punctuation">(</span><span class="token punctuation">{</span>data<span class="token punctuation">:</span> post<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+				id<span class="token operator">:</span> <span class="token string">"my-post"</span><span class="token punctuation">,</span>
+				children<span class="token operator">:</span> <span class="token punctuation">[</span>Moon<span class="token punctuation">.</span>view<span class="token punctuation">.</span>m<span class="token punctuation">.</span><span class="token function">text</span><span class="token punctuation">(</span><span class="token punctuation">{</span>data<span class="token operator">:</span> post<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
 			<span class="token punctuation">}</span><span class="token punctuation">)</span>
 		<span class="token punctuation">)</span>
 	<span class="token punctuation">}</span><span class="token punctuation">)</span>
