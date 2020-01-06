@@ -187,35 +187,39 @@
 	 */
 
 	var grammar = {
-		whitespaces: parser.many(parser.alternates([parser.character(" "), parser.character("\t"), parser.character("\n")])),
+		whitespace: parser.alternates([parser.character(" "), parser.character("\t"), parser.character("\n")]),
+		comment: parser.type("comment", parser.sequence([parser.character("#"), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["#"]))), parser.character("#")])),
+		separator: function separator(input, index) {
+			return parser.many(parser.or(grammar.whitespace, grammar.comment))(input, index);
+		},
 		value: function value(input, index) {
 			return parser.alternates([parser.many1(parser.regex(identifierRE)), parser.sequence([parser.character("\""), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["\""]))), parser.character("\"")]), parser.sequence([parser.character("'"), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["'"]))), parser.character("'")]), parser.sequence([parser.character("`"), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["`"]))), parser.character("`")]), parser.sequence([parser.character("("), grammar.expression, parser.character(")")]), parser.sequence([parser.character("["), grammar.expression, parser.character("]")]), parser.sequence([parser.character("{"), grammar.expression, parser.character("}")])])(input, index);
 		},
 		attributes: function attributes(input, index) {
-			return parser.type("attributes", parser.many(parser.sequence([grammar.value, parser.character("="), grammar.value, grammar.whitespaces])))(input, index);
+			return parser.type("attributes", parser.many(parser.sequence([grammar.value, parser.character("="), grammar.value, grammar.separator])))(input, index);
 		},
 		text: parser.type("text", parser.many1(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["{", "<"])))),
 		interpolation: function interpolation(input, index) {
 			return parser.type("interpolation", parser.sequence([parser.character("{"), grammar.expression, parser.character("}")]))(input, index);
 		},
 		node: function node(input, index) {
-			return parser.type("node", parser.sequence([parser.character("<"), grammar.whitespaces, grammar.value, grammar.whitespaces, parser.string("#>")]))(input, index);
+			return parser.type("node", parser.sequence([parser.character("<"), grammar.separator, grammar.value, grammar.separator, parser.string("*>")]))(input, index);
 		},
 		nodeData: function nodeData(input, index) {
-			return parser.type("nodeData", parser.sequence([parser.character("<"), grammar.whitespaces, grammar.value, grammar.whitespaces, parser.or(parser.and(grammar.value, parser.string("/>")), parser.and(grammar.attributes, parser.string("/>")))]))(input, index);
+			return parser.type("nodeData", parser.sequence([parser.character("<"), grammar.separator, grammar.value, grammar.separator, parser.or(parser.and(grammar.value, parser.string("/>")), parser.and(grammar.attributes, parser.string("/>")))]))(input, index);
 		},
 		nodeDataChildren: function nodeDataChildren(input, index) {
-			return parser.type("nodeDataChildren", parser.sequence([parser.character("<"), grammar.whitespaces, grammar.value, grammar.whitespaces, grammar.attributes, parser.character(">"), parser.many(parser.alternates([grammar.node, grammar.nodeData, grammar.nodeDataChildren, grammar.text, grammar.interpolation])), parser.string("</"), parser.many(parser.not([">"])), parser.character(">")]))(input, index);
+			return parser.type("nodeDataChildren", parser.sequence([parser.character("<"), grammar.separator, grammar.value, grammar.separator, grammar.attributes, parser.character(">"), parser.many(parser.alternates([grammar.node, grammar.nodeData, grammar.nodeDataChildren, grammar.text, grammar.interpolation])), parser.string("</"), parser.many(parser.not([">"])), parser.character(">")]))(input, index);
 		},
 		expression: function expression(input, index) {
 			return parser.many(parser.alternates([// Single line comment
 			parser.sequence([parser.string("//"), parser.many(parser.not(["\n"]))]), // Multi-line comment
 			parser.sequence([parser.string("/*"), parser.many(parser.not(["*/"])), parser.string("*/")]), // Regular expression
-			parser.sequence([parser.character("/"), parser.many1(parser.or(parser.and(parser.character("\\"), parser.not(["\n"])), parser.not(["/", "\n"]))), parser.character("/")]), grammar.value, grammar.node, grammar.nodeData, grammar.nodeDataChildren, // Allow failed regular expression or view parses to be interpreted as
+			parser.sequence([parser.character("/"), parser.many1(parser.or(parser.and(parser.character("\\"), parser.not(["\n"])), parser.not(["/", "\n"]))), parser.character("/")]), grammar.comment, grammar.value, grammar.node, grammar.nodeData, grammar.nodeDataChildren, // Allow failed regular expression or view parses to be interpreted as
 			// operators.
 			parser.character("/"), parser.character("<"), // Anything up to a comment, regular expression, string, parenthetical,
 			// array, object, or view.
-			parser.many1(parser.not(["/", "\"", "'", "`", "(", ")", "[", "]", "{", "}", "<"]))]))(input, index);
+			parser.many1(parser.not(["/", "#", "\"", "'", "`", "(", ")", "[", "]", "{", "}", "<"]))]))(input, index);
 		},
 		main: function main(input, index) {
 			return parser.and(grammar.expression, parser.EOF)(input, index);
@@ -273,6 +277,8 @@
 			}
 
 			return output;
+		} else if (type === "comment") {
+			return "/*" + generate(tree.value[1]) + "*/";
 		} else if (type === "attributes") {
 			var value = tree.value;
 			var _output = "";

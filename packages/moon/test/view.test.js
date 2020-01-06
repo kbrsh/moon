@@ -47,7 +47,7 @@ function ExecutorTestItem({ item, index }) {
 			item % 3 === 0 ?
 				<m.p lang="en" class=item for=item id=item attributes={"aria-hidden": false, "aria-different": true, "data-foo": "bar", "data-different": true} style={color: "red", fontSize: "20px"} @click=handler2>{item} {index}</p> :
 				<m.p lang="en">{item} {index}</p>
-			)#>
+			)*>
 		</m.span>
 	);
 }
@@ -60,7 +60,7 @@ function ExecutorTest({ list, focus }) {
 				item % 2 === 0 ?
 					<m.h1>{item}</m.h1> :
 					<m.p>{item}</m.p>
-			)#>))/>
+			)*>))/>
 			<m.h1>Moon</m.h1>
 			<m.p @click=handler1 @dblclick=handler2>Partially static.</m.p>
 			<(list.length > 0 ?
@@ -68,15 +68,15 @@ function ExecutorTest({ list, focus }) {
 					<m.input focus=true/> :
 				list[0] % 3 === 0 ?
 					<m.input focus=false/> :
-					<testInput#>
+					<testInput*>
 				) :
 				<m.text data=""/>
-			)#>
+			)*>
 			<m.input testFocusFalse/>
 			<(list.length > 0 ?
 				<m.p>Text</m.p> :
 				<m.p/>
-			)#>
+			)*>
 		</m.div>
 	);
 }
@@ -86,7 +86,7 @@ function Root() {
 
 	return {
 		list,
-		view: <ExecutorTest list=(list)/>
+		view: <ExecutorTest list=list/>
 	};
 }
 

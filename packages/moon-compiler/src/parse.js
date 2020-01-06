@@ -170,11 +170,20 @@ const parser = {
  * Moon View Language Grammar
  */
 const grammar = {
-	whitespaces: parser.many(parser.alternates([
+	whitespace: parser.alternates([
 		parser.character(" "),
 		parser.character("\t"),
 		parser.character("\n")
+	]),
+	comment: parser.type("comment", parser.sequence([
+		parser.character("#"),
+		parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["#"]))),
+		parser.character("#")
 	])),
+	separator: (input, index) => parser.many(parser.or(
+		grammar.whitespace,
+		grammar.comment
+	))(input, index),
 	value: (input, index) => parser.alternates([
 		parser.many1(parser.regex(identifierRE)),
 		parser.sequence([
@@ -212,7 +221,7 @@ const grammar = {
 		grammar.value,
 		parser.character("="),
 		grammar.value,
-		grammar.whitespaces
+		grammar.separator
 	])))(input, index),
 	text: parser.type("text", parser.many1(parser.or(
 		parser.and(parser.character("\\"), parser.any),
@@ -225,16 +234,16 @@ const grammar = {
 	]))(input, index),
 	node: (input, index) => parser.type("node", parser.sequence([
 		parser.character("<"),
-		grammar.whitespaces,
+		grammar.separator,
 		grammar.value,
-		grammar.whitespaces,
-		parser.string("#>")
+		grammar.separator,
+		parser.string("*>")
 	]))(input, index),
 	nodeData: (input, index) => parser.type("nodeData", parser.sequence([
 		parser.character("<"),
-		grammar.whitespaces,
+		grammar.separator,
 		grammar.value,
-		grammar.whitespaces,
+		grammar.separator,
 		parser.or(
 			parser.and(grammar.value, parser.string("/>")),
 			parser.and(grammar.attributes, parser.string("/>"))
@@ -242,9 +251,9 @@ const grammar = {
 	]))(input, index),
 	nodeDataChildren: (input, index) => parser.type("nodeDataChildren", parser.sequence([
 		parser.character("<"),
-		grammar.whitespaces,
+		grammar.separator,
 		grammar.value,
-		grammar.whitespaces,
+		grammar.separator,
 		grammar.attributes,
 		parser.character(">"),
 		parser.many(parser.alternates([
@@ -281,6 +290,7 @@ const grammar = {
 			)),
 			parser.character("/")
 		]),
+		grammar.comment,
 		grammar.value,
 		grammar.node,
 		grammar.nodeData,
@@ -293,7 +303,7 @@ const grammar = {
 
 		// Anything up to a comment, regular expression, string, parenthetical,
 		// array, object, or view.
-		parser.many1(parser.not(["/", "\"", "'", "`", "(", ")", "[", "]", "{", "}", "<"])),
+		parser.many1(parser.not(["/", "#", "\"", "'", "`", "(", ")", "[", "]", "{", "}", "<"])),
 	]))(input, index),
 	main: (input, index) => parser.and(grammar.expression, parser.EOF)(input, index)
 };

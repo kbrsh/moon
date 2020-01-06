@@ -167,21 +167,21 @@ test("generate dynamic element nodes", () => {
 
 test("generate if node", () => {
 	assertGenerate(
-		`<div><(condition ? <p>test</p> : <text value=""/>)#></div>`,
+		`<div><(condition ? <p>test</p> : <text value=""/>)*></div>`,
 		"div({children:[(condition ? p({children:[Moon.view.m.text({data:\"test\"})]}) : text ({\"value\":\"\"}))]})"
 	);
 });
 
 test("generate if node at root", () => {
 	assertGenerate(
-		`<(condition ? <p>test</p> : <text value=""/>)#>`,
+		`<(condition ? <p>test</p> : <text value=""/>)*>`,
 		"(condition ? p({children:[Moon.view.m.text({data:\"test\"})]}) : text ({\"value\":\"\"}))"
 	);
 });
 
 test("generate if/else node", () => {
 	assertGenerate(
-		"<(condition ? <p>test</p> : <p>{dynamic}</p>)#>",
+		"<(condition ? <p>test</p> : <p>{dynamic}</p>)*>",
 		"(condition ? p({children:[Moon.view.m.text({data:\"test\"})]}) : p({children:[Moon.view.m.text({data:dynamic})]}))"
 	);
 });
@@ -195,21 +195,21 @@ test("generate loop", () => {
 
 test("generate node with name as identifier", () => {
 	assertGenerate(
-		`<div#>`,
+		`<div*>`,
 		`div`
 	);
 });
 
 test("generate node with name as string", () => {
 	assertGenerate(
-		`<"div foo"#>`,
+		`<"div foo"*>`,
 		`"div foo"`
 	);
 });
 
 test("generate node with name as block", () => {
 	assertGenerate(
-		`<(div + foo)#>`,
+		`<(div + foo)*>`,
 		`(div + foo)`
 	);
 });
@@ -273,6 +273,14 @@ test("generate with multiline comments", () => {
 	assertGenerate(code, code);
 });
 
+test("generate with moon comments outside of node", () => {
+	assertGenerate(`console.log(# comment # "hello moon")`, "console.log(/* comment */ \"hello moon\")");
+});
+
+test("generate with moon comments inside node", () => {
+	assertGenerate(`const hi = #test#<#sep#div#sep#foo=bar#sep##sep##sep#>test</div>#foo#;`, `const hi = /*test*//*sep*/div/*sep*/({\"foo\":bar/*sep*//*sep*//*sep*/,children:[Moon.view.m.text({data:\"test\"})]})/*foo*/;`);
+});
+
 test("generate with double quote strings", () => {
 	const code = `"<h1>not converted</h1>"`;
 	assertGenerate(code, code);
@@ -289,7 +297,7 @@ test("generate with template strings", () => {
 });
 
 test("generate with regular expressions", () => {
-	const code = "/<h1#>/";
+	const code = "/<h1*>/";
 	assertGenerate(code, code);
 });
 

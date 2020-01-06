@@ -4,6 +4,14 @@ function parseTest(input) {
 	return compiler.parse(input);
 }
 
+test("parse comment outside of node", () => {
+	expect(parseTest(`console.log(# comment # "hello moon")`)).toEqual([[[["c", "o", "n", "s", "o", "l", "e", ".", "l", "o", "g"], ["(", [{"type": "comment", "value": ["#", [" ", "c", "o", "m", "m", "e", "n", "t", " "], "#"]}, [" "], ["\"", ["h", "e", "l", "l", "o", " ", "m", "o", "o", "n"], "\""]], ")"]], "EOF"], 37]);
+});
+
+test("parse comment inside of node", () => {
+	expect(parseTest(`const hi = #test#<#sep#div#sep#foo=bar#sep##sep##sep#>test</div>#foo#;`)).toEqual([[[["c","o","n","s","t"],[" ","h","i"," ","="," "],{"type":"comment","value":["#",["t","e","s","t"],"#"]},{"type":"nodeDataChildren","value":["<",[{"type":"comment","value":["#",["s","e","p"],"#"]}],["d","i","v"],[{"type":"comment","value":["#",["s","e","p"],"#"]}],{"type":"attributes","value":[[["f","o","o"],"=",["b","a","r"],[{"type":"comment","value":["#",["s","e","p"],"#"]},{"type":"comment","value":["#",["s","e","p"],"#"]},{"type":"comment","value":["#",["s","e","p"],"#"]}]]]},">",[{"type":"text","value":["t","e","s","t"]}],"</",["d","i","v"],">"]},{"type":"comment","value":["#",["f","o","o"],"#"]},[";"]],"EOF"],70]);
+});
+
 test("parse empty element", () => {
 	expect(parseTest(`<div></div>`)).toEqual([[[{"type": "nodeDataChildren", "value": ["<", [], ["d", "i", "v"], [], {"type": "attributes", "value": []}, ">", [], "</", ["d", "i", "v"], ">"]}], "EOF"], 11]);
 });
@@ -21,15 +29,15 @@ test("parse text element with escaped node delimiter", () => {
 });
 
 test("parse node", () => {
-	expect(parseTest(`<div#>`)).toEqual([[[{"type":"node","value":["<",[],["d","i","v"],[],"#>"]}],"EOF"],6]);
+	expect(parseTest(`<div*>`)).toEqual([[[{"type":"node","value":["<",[],["d","i","v"],[],"*>"]}],"EOF"],6]);
 });
 
 test("parse node with string name", () => {
-	expect(parseTest(`<"div"#>`)).toEqual([[[{"type": "node", "value": ["<", [], ["\"", ["d", "i", "v"], "\""], [], "#>"]}], "EOF"], 8]);
+	expect(parseTest(`<"div"*>`)).toEqual([[[{"type": "node", "value": ["<", [], ["\"", ["d", "i", "v"], "\""], [], "*>"]}], "EOF"], 8]);
 });
 
 test("parse node with block name", () => {
-	expect(parseTest(`<{dynamic}#>`)).toEqual([[[{"type": "node", "value": ["<", [], ["{", [["d", "y", "n", "a", "m", "i", "c"]], "}"], [], "#>"]}], "EOF"], 12]);
+	expect(parseTest(`<{dynamic}*>`)).toEqual([[[{"type": "node", "value": ["<", [], ["{", [["d", "y", "n", "a", "m", "i", "c"]], "}"], [], "*>"]}], "EOF"], 12]);
 });
 
 test("parse node data", () => {
