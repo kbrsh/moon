@@ -1,5 +1,5 @@
 <p align="center">
-	<a href="https://kbrsh.github.io/moon" target="_blank">
+	<a href="https://moonjs.org" target="_blank">
 		<img width="125" src="https://raw.githubusercontent.com/kbrsh/moon/gh-pages/img/logo.png">
 	</a>
 </p>
@@ -9,7 +9,7 @@
 	<a href="https://travis-ci.org/kbrsh/moon"><img src="https://travis-ci.org/kbrsh/moon.svg?branch=master" alt="Build Status"></a>
 	<a href="https://codecov.io/gh/kbrsh/moon"><img src="https://codecov.io/gh/kbrsh/moon/branch/master/graph/badge.svg" alt="Code Coverage"></a>
 	<a href="https://moon-slack.herokuapp.com"><img src="https://moon-slack.herokuapp.com/badge.svg" alt="Slack"></a>
-	<a href="https://kbrsh.github.io/license"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
+	<a href="https://license.kabir.sh"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
 </p>
 
 ### Summary
@@ -21,11 +21,11 @@
 
 ### About
 
-See [the about page](https://kbrsh.github.io/moon/doc/about.html) for more information on why Moon was created.
+See [the about page](https://moonjs.org/about) for more information on why Moon was created.
 
 ### Usage
 
-See [the documentation.](https://kbrsh.github.io/moon)
+See [the documentation.](https://moonjs.org)
 
 ### Contributing
 
