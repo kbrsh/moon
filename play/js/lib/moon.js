@@ -1,5 +1,5 @@
 /**
- * Moon v1.0.0-beta.3
+ * Moon v1.0.0-beta.5
  * Copyright 2016-2019 Kabir Shah
  * Released under the MIT License
  * https://kbrsh.github.io/moon
@@ -12,32 +12,6 @@
 	}
 }(this, function() {
 	"use strict";
-
-	/**
-	 * Data driver
-	 *
-	 * The application components are usually a function of data. This data holds
-	 * application state. Every time an application is executed, it is passed new
-	 * data and returns driver outputs that correspond to it. These driver outputs
-	 * should be fast, pure, functions that are cheap to call and easy to optimize
-	 * through caching and memoization.
-	 */
-	function driver(data) {
-		return {
-			input: function input() {
-				// Return the stored data as input.
-				return data;
-			},
-			output: function output(dataNew) {
-				// Update the stored data when it is an output.
-				data = dataNew;
-			}
-		};
-	}
-
-	var data = {
-		driver: driver
-	};
 
 	/**
 	 * Logs an error message to the console.
@@ -55,7 +29,7 @@
 	/**
 	 * Sets the application drivers to new drivers.
 	 *
-	 * @param {Object} driversNew
+	 * @param {object} driversNew
 	 */
 
 	function use(driversNew) {
@@ -101,8 +75,8 @@
 	 *
 	 * The application runs on the Moon while drivers update the Earth.
 	 *
-	 * @param {Function} root
-	 * @param {Object} drivers
+	 * @param {function} root
+	 * @param {object} drivers
 	 */
 
 	function run(root) {
@@ -138,30 +112,44 @@
 		}
 	}
 
-	/**
-	 * Old Node Constructor
-	 *
-	 * @param {Object} node
-	 * @param {Object} element
-	 * @param {Array} children
+	/*
+	 * Current global data
 	 */
-	function NodeOld(node, element, children) {
-		this.node = node;
-		this.element = element;
-		this.children = children;
-	}
+	var data;
+	/**
+	 * Data driver
+	 *
+	 * The application components are usually a function of data. This data holds
+	 * application state. Every time an application is executed, it is passed new
+	 * data and returns driver outputs that correspond to it. These driver outputs
+	 * should be fast, pure, functions that are cheap to call and easy to optimize
+	 * through caching and memoization.
+	 */
+
+	var driver = {
+		input: function input() {
+			// Return the stored data as input.
+			return data;
+		},
+		output: function output(dataNew) {
+			// Update the stored data when it is an output.
+			data = dataNew;
+		}
+	};
+
+	var data$1 = {
+		driver: driver
+	};
 
 	/**
-	 * New Node Constructor
+	 * View Node Constructor
 	 *
 	 * @param {string} name
-	 * @param {Object} data
-	 * @param {Array} children
+	 * @param {object} data
 	 */
-	function NodeNew(name, data, children) {
+	function ViewNode(name, data) {
 		this.name = name;
 		this.data = data;
-		this.children = children;
 	}
 
 	/**
@@ -169,77 +157,36 @@
 	 */
 	var removeDataPropertyCache = {};
 	/**
-	 * Update an ariaset, dataset, or style property.
-	 *
-	 * @param {Object} element
-	 * @param {string} key
-	 * @param {Object} value
-	 */
-
-	function updateDataSet(element, key, value) {
-		if (key === "ariaset") {
-			// Set aria-* attributes.
-			for (var setKey in value) {
-				element.setAttribute("aria-" + setKey, value[setKey]);
-			}
-		} else {
-			// Set data-* and style attributes.
-			var set = element[key];
-
-			for (var _setKey in value) {
-				set[_setKey] = value[_setKey];
-			}
-		}
-	}
-	/**
 	 * Remove a data property.
 	 *
-	 * @param {Object} element
+	 * @param {object} element
 	 * @param {string} key
 	 */
 
 	function removeDataProperty(element, name, key) {
 		element[key] = name in removeDataPropertyCache ? removeDataPropertyCache[name][key] : (removeDataPropertyCache[name] = document.createElement(name))[key];
 	}
-	/**
-	 * Remove all the keys from an ariaset, dataset, or style property that aren't
-	 * in `exclude`.
-	 *
-	 * @param {Object} element
-	 * @param {string} key
-	 * @param {string} value
-	 * @param {Object} exclude
-	 */
-
-	function removeDataSet(element, key, value, exclude) {
-		for (var setKey in value) {
-			if (!(setKey in exclude)) {
-				switch (key) {
-					case "ariaset":
-						element.removeAttribute("aria-" + setKey);
-						break;
-
-					case "dataset":
-						delete element.dataset[setKey];
-						break;
-
-					default:
-						element.style[setKey] = "";
-				}
-			}
-		}
-	}
 
 	/**
 	 * Current view event data
 	 */
 
-	var viewEvent;
+	var viewEvent = null;
+	/**
+	 * Current view node
+	 */
+
+	var viewOld;
+	/**
+	 * Current view element
+	 */
+
+	var viewOldElement;
 	/**
 	 * Moon event
 	 *
-	 * This is used as a global event handler for any event type, and it calls the
-	 * corresponding handler with the event, data, and children.
+	 * This is used as a global event handler for any event type, and it runs the
+	 * corresponding handler with the event data as view driver input.
 	 */
 
 	function MoonEvent() {}
@@ -248,35 +195,29 @@
 		viewEvent = viewEventNew;
 		run(this["@" + viewEvent.type]);
 	};
+	/**
+	 * Modify the prototype of a node to include special Moon view properties.
+	 */
 
+
+	Node.prototype.MoonChildren = null;
 	Node.prototype.MoonEvent = null;
 	/**
-	 * Creates an old reference node from a view node.
+	 * Creates an element from a node.
 	 *
-	 * @param {Object} node
-	 * @returns {Object} node to be used as an old node
+	 * @param {object} node
+	 * @returns {object} element
 	 */
 
 	function viewCreate(node) {
 		var nodeName = node.name;
-		var children = [];
-		var element;
 
 		if (nodeName === "text") {
 			// Create a text node using the text content from the default key.
-			element = document.createTextNode(node.data[""]);
+			return document.createTextNode(node.data.data);
 		} else {
 			// Create a DOM element.
-			element = document.createElement(nodeName); // Recursively append children.
-
-			var nodeChildren = node.children;
-
-			for (var i = 0; i < nodeChildren.length; i++) {
-				var childOld = viewCreate(nodeChildren[i]);
-				children.push(childOld);
-				element.appendChild(childOld.element);
-			} // Set data.
-
+			var element = document.createElement(nodeName); // Set data.
 
 			var nodeData = node.data;
 
@@ -293,184 +234,373 @@
 
 					elementMoonEvent[key] = value;
 					element.addEventListener(key.slice(1), elementMoonEvent);
-				} else if (key === "ariaset" || key === "dataset" || key === "style") {
-					// Set aria-*, data-*, and style attributes.
-					updateDataSet(element, key, value);
-				} else if (key === "class") {
-					// Set a className property.
-					element.className = value;
-				} else if (key === "for") {
-					// Set an htmlFor property.
-					element.htmlFor = value;
 				} else {
-					// Set a DOM property.
-					element[key] = value;
+					switch (key) {
+						case "attributes":
+							{
+								// Set attributes.
+								for (var valueKey in value) {
+									element.setAttribute(valueKey, value[valueKey]);
+								}
+
+								break;
+							}
+
+						case "style":
+							{
+								// Set style properties.
+								var elementStyle = element.style;
+
+								for (var _valueKey in value) {
+									elementStyle[_valueKey] = value[_valueKey];
+								}
+
+								break;
+							}
+
+						case "focus":
+							{
+								// Set focus if needed. Blur isn't set because it's the
+								// default.
+								if (value) {
+									element.focus();
+								}
+
+								break;
+							}
+
+						case "class":
+							{
+								// Set a className property.
+								element.className = value;
+								break;
+							}
+
+						case "for":
+							{
+								// Set an htmlFor property.
+								element.htmlFor = value;
+								break;
+							}
+
+						case "children":
+							{
+								// Recursively append children.
+								var elementMoonChildren = element.MoonChildren = [];
+
+								for (var i = 0; i < value.length; i++) {
+									var elementChild = viewCreate(value[i]);
+									elementMoonChildren.push(elementChild);
+									element.appendChild(elementChild);
+								}
+
+								break;
+							}
+
+						default:
+							{
+								// Set a DOM property.
+								element[key] = value;
+							}
+					}
 				}
 			}
-		} // Return an old node with a reference to the immutable node and mutable
-		// element. This is to help performance and allow static nodes to be reused.
 
-
-		return new NodeOld(node, element, children);
+			return element;
+		}
 	}
 	/**
-	 * Patches an old node into a new node finding differences and applying
-	 * changes to the DOM.
+	 * Patches an old element's data to match a new node, using an old node as
+	 * reference.
 	 *
-	 * @param {Object} nodeOld
-	 * @param {Object} nodeNew
+	 * @param {object} nodeOld
+	 * @param {object} nodeOldElement
+	 * @param {object} nodeNew
 	 */
 
 
-	function viewPatch(nodeOld, nodeNew) {
-		var nodeOldNode = nodeOld.node;
+	function viewPatch(nodeOld, nodeOldElement, nodeNew) {
+		var nodeOldData = nodeOld.data;
+		var nodeNewData = nodeNew.data; // First, go through all new data and update all of the existing data to
+		// match.
 
-		if (nodeOldNode !== nodeNew) {
-			var nodeOldNodeName = nodeOldNode.name; // Update the old node reference. This doesn't affect the rest of the
-			// patch because it uses `nodeOldNode` instead of direct property access.
+		for (var keyNew in nodeNewData) {
+			var valueOld = nodeOldData[keyNew];
+			var valueNew = nodeNewData[keyNew];
 
-			nodeOld.node = nodeNew;
+			if (valueOld !== valueNew) {
+				if (keyNew.charCodeAt(0) === 64) {
+					// Update an event.
+					var nodeOldElementMoonEvent = nodeOldElement.MoonEvent;
 
-			if (nodeOldNodeName !== nodeNew.name) {
-				// If the types or name aren't the same, then replace the old node
-				// with the new one.
-				var nodeOldElement = nodeOld.element;
-				var nodeOldNew = viewCreate(nodeNew);
-				var nodeOldNewElement = nodeOldNew.element;
-				nodeOld.element = nodeOldNewElement;
-				nodeOld.children = nodeOldNew.children;
-				nodeOldElement.parentNode.replaceChild(nodeOldNewElement, nodeOldElement);
-			} else if (nodeOldNodeName === "text") {
-				// If they both are text, then update the text content.
-				var nodeNewText = nodeNew.data[""];
-
-				if (nodeOldNode.data[""] !== nodeNewText) {
-					nodeOld.element.data = nodeNewText;
-				}
-			} else {
-				// If they are both elements, then update the data.
-				var nodeOldNodeData = nodeOldNode.data;
-				var nodeNewData = nodeNew.data;
-
-				if (nodeOldNodeData !== nodeNewData) {
-					// First, go through all new data and update all of the existing data
-					// to match.
-					var _nodeOldElement = nodeOld.element;
-
-					for (var keyNew in nodeNewData) {
-						var valueOld = nodeOldNodeData[keyNew];
-						var valueNew = nodeNewData[keyNew];
-
-						if (valueOld !== valueNew) {
-							if (keyNew.charCodeAt(0) === 64) {
-								// Update an event.
-								var nodeOldElementMoonEvent = _nodeOldElement.MoonEvent;
-
-								if (nodeOldElementMoonEvent === null) {
-									nodeOldElementMoonEvent = _nodeOldElement.MoonEvent = new MoonEvent();
-								}
-
-								if (keyNew in nodeOldElementMoonEvent) {
-									// If the event exists, update the existing event handler.
-									nodeOldElementMoonEvent[keyNew] = valueNew;
-								} else {
-									// If the event doesn't exist, add a new event listener.
-									nodeOldElementMoonEvent[keyNew] = valueNew;
-
-									_nodeOldElement.addEventListener(keyNew.slice(1), nodeOldElementMoonEvent);
-								}
-							} else if (keyNew === "ariaset" || keyNew === "dataset" || keyNew === "style") {
-								// If it is a set attribute, update all values in the set.
-								updateDataSet(_nodeOldElement, keyNew, valueNew);
-
-								if (valueOld !== undefined) {
-									// If there was an old set, remove all old set attributes
-									// while excluding any new ones that still exist.
-									removeDataSet(_nodeOldElement, keyNew, valueOld, valueNew);
-								}
-							} else if (keyNew === "class") {
-								// Update a className property.
-								_nodeOldElement.className = valueNew;
-							} else if (keyNew === "for") {
-								// Update an htmlFor property.
-								_nodeOldElement.htmlFor = valueNew;
-							} else {
-								// Update a DOM property.
-								_nodeOldElement[keyNew] = valueNew;
-							}
-						}
-					} // Next, go through all of the old data and remove data that isn't in
-					// the new data.
-
-
-					for (var keyOld in nodeOldNodeData) {
-						if (!(keyOld in nodeNewData)) {
-							if (keyOld.charCodeAt(0) === 64) {
-								// Remove an event.
-								var _nodeOldElementMoonEvent = _nodeOldElement.MoonEvent;
-								delete _nodeOldElementMoonEvent[keyOld];
-
-								_nodeOldElement.removeEventListener(keyOld.slice(1), _nodeOldElementMoonEvent);
-							} else if (keyOld === "ariaset" || keyOld === "dataset" || keyOld === "style") {
-								// If it is a set attribute, remove all old values from the
-								// set and exclude nothing.
-								removeDataSet(_nodeOldElement, keyOld, nodeOldNodeData[keyOld], {});
-							} else if (keyOld === "class") {
-								// Remove a className property.
-								_nodeOldElement.className = "";
-							} else if (keyOld === "for") {
-								// Remove an htmlFor property.
-								_nodeOldElement.htmlFor = "";
-							} else {
-								// Remove a DOM property.
-								removeDataProperty(_nodeOldElement, nodeOldNodeName, keyOld);
-							}
-						}
+					if (nodeOldElementMoonEvent === null) {
+						nodeOldElementMoonEvent = nodeOldElement.MoonEvent = new MoonEvent();
 					}
-				} // Diff children.
 
-
-				var childrenNew = nodeNew.children;
-
-				if (nodeOldNode.children !== childrenNew) {
-					var childrenOld = nodeOld.children;
-					var childrenOldLength = childrenOld.length;
-					var childrenNewLength = childrenNew.length;
-
-					if (childrenOldLength === childrenNewLength) {
-						// If the children have the same length then update both as
-						// usual.
-						for (var i = 0; i < childrenOldLength; i++) {
-							viewPatch(childrenOld[i], childrenNew[i]);
-						}
+					if (keyNew in nodeOldElementMoonEvent) {
+						// If the event exists, update the existing event handler.
+						nodeOldElementMoonEvent[keyNew] = valueNew;
 					} else {
-						var _nodeOldElement2 = nodeOld.element;
+						// If the event doesn't exist, add a new event listener.
+						nodeOldElementMoonEvent[keyNew] = valueNew;
+						nodeOldElement.addEventListener(keyNew.slice(1), nodeOldElementMoonEvent);
+					}
+				} else {
+					switch (keyNew) {
+						case "attributes":
+							{
+								// Update attributes.
+								if (valueOld === undefined) {
+									for (var valueNewKey in valueNew) {
+										nodeOldElement.setAttribute(valueNewKey, valueNew[valueNewKey]);
+									}
+								} else {
+									for (var _valueNewKey in valueNew) {
+										var valueNewValue = valueNew[_valueNewKey];
 
-						if (childrenOldLength > childrenNewLength) {
-							// If there are more old children than new children, update the
-							// corresponding ones and remove the extra old children.
-							for (var _i = 0; _i < childrenNewLength; _i++) {
-								viewPatch(childrenOld[_i], childrenNew[_i]);
+										if (valueOld[_valueNewKey] !== valueNewValue) {
+											nodeOldElement.setAttribute(_valueNewKey, valueNewValue);
+										}
+									} // Remove attributes from the old value that are not in
+									// the new value.
+
+
+									for (var valueOldKey in valueOld) {
+										if (!(valueOldKey in valueNew)) {
+											nodeOldElement.removeAttribute(valueOldKey);
+										}
+									}
+								}
+
+								break;
 							}
 
-							for (var _i2 = childrenNewLength; _i2 < childrenOldLength; _i2++) {
-								_nodeOldElement2.removeChild(childrenOld.pop().element);
-							}
-						} else {
-							// If there are more new children than old children, update the
-							// corresponding ones and append the extra new children.
-							for (var _i3 = 0; _i3 < childrenOldLength; _i3++) {
-								viewPatch(childrenOld[_i3], childrenNew[_i3]);
+						case "style":
+							{
+								// Update style properties.
+								var nodeOldElementStyle = nodeOldElement.style;
+
+								if (valueOld === undefined) {
+									for (var _valueNewKey2 in valueNew) {
+										nodeOldElementStyle[_valueNewKey2] = valueNew[_valueNewKey2];
+									}
+								} else {
+									for (var _valueNewKey3 in valueNew) {
+										var _valueNewValue = valueNew[_valueNewKey3];
+
+										if (valueOld[_valueNewKey3] !== _valueNewValue) {
+											nodeOldElementStyle[_valueNewKey3] = _valueNewValue;
+										}
+									} // Remove style properties from the old value that are not
+									// in the new value.
+
+
+									for (var _valueOldKey in valueOld) {
+										if (!(_valueOldKey in valueNew)) {
+											nodeOldElementStyle[_valueOldKey] = "";
+										}
+									}
+								}
+
+								break;
 							}
 
-							for (var _i4 = childrenOldLength; _i4 < childrenNewLength; _i4++) {
-								var _nodeOldNew = viewCreate(childrenNew[_i4]);
+						case "focus":
+							{
+								// Update focus/blur.
+								if (valueNew) {
+									nodeOldElement.focus();
+								} else {
+									nodeOldElement.blur();
+								}
 
-								childrenOld.push(_nodeOldNew);
-
-								_nodeOldElement2.appendChild(_nodeOldNew.element);
+								break;
 							}
-						}
+
+						case "class":
+							{
+								// Update a className property.
+								nodeOldElement.className = valueNew;
+								break;
+							}
+
+						case "for":
+							{
+								// Update an htmlFor property.
+								nodeOldElement.htmlFor = valueNew;
+								break;
+							}
+
+						case "children":
+							{
+								// Update children.
+								var valueNewLength = valueNew.length;
+
+								if (valueOld === undefined) {
+									// If there were no old children, create new children.
+									var nodeOldElementMoonChildren = nodeOldElement.MoonChildren = [];
+
+									for (var i = 0; i < valueNewLength; i++) {
+										var nodeOldElementChild = viewCreate(valueNew[i]);
+										nodeOldElementMoonChildren.push(nodeOldElementChild);
+										nodeOldElement.appendChild(nodeOldElementChild);
+									}
+								} else {
+									var valueOldLength = valueOld.length;
+
+									if (valueOldLength === valueNewLength) {
+										// If the children have the same length then update
+										// both as usual.
+										var _nodeOldElementMoonChildren = nodeOldElement.MoonChildren;
+
+										for (var _i = 0; _i < valueOldLength; _i++) {
+											var valueOldNode = valueOld[_i];
+											var valueNewNode = valueNew[_i];
+
+											if (valueOldNode !== valueNewNode) {
+												if (valueOldNode.name === valueNewNode.name) {
+													viewPatch(valueOldNode, _nodeOldElementMoonChildren[_i], valueNewNode);
+												} else {
+													var valueOldElementNew = viewCreate(valueNewNode);
+													nodeOldElement.replaceChild(valueOldElementNew, _nodeOldElementMoonChildren[_i]);
+													_nodeOldElementMoonChildren[_i] = valueOldElementNew;
+												}
+											}
+										}
+									} else if (valueOldLength > valueNewLength) {
+										// If there are more old children than new children,
+										// update the corresponding ones and remove the extra
+										// old children.
+										var _nodeOldElementMoonChildren2 = nodeOldElement.MoonChildren;
+
+										for (var _i2 = 0; _i2 < valueNewLength; _i2++) {
+											var _valueOldNode = valueOld[_i2];
+											var _valueNewNode = valueNew[_i2];
+
+											if (_valueOldNode !== _valueNewNode) {
+												if (_valueOldNode.name === _valueNewNode.name) {
+													viewPatch(_valueOldNode, _nodeOldElementMoonChildren2[_i2], _valueNewNode);
+												} else {
+													var _valueOldElementNew = viewCreate(_valueNewNode);
+
+													nodeOldElement.replaceChild(_valueOldElementNew, _nodeOldElementMoonChildren2[_i2]);
+													_nodeOldElementMoonChildren2[_i2] = _valueOldElementNew;
+												}
+											}
+										}
+
+										for (var _i3 = valueNewLength; _i3 < valueOldLength; _i3++) {
+											nodeOldElement.removeChild(_nodeOldElementMoonChildren2.pop());
+										}
+									} else {
+										// If there are more new children than old children,
+										// update the corresponding ones and append the extra
+										// new children.
+										var _nodeOldElementMoonChildren3 = nodeOldElement.MoonChildren;
+
+										for (var _i4 = 0; _i4 < valueOldLength; _i4++) {
+											var _valueOldNode2 = valueOld[_i4];
+											var _valueNewNode2 = valueNew[_i4];
+
+											if (_valueOldNode2 !== _valueNewNode2) {
+												if (_valueOldNode2.name === _valueNewNode2.name) {
+													viewPatch(_valueOldNode2, _nodeOldElementMoonChildren3[_i4], _valueNewNode2);
+												} else {
+													var _valueOldElementNew2 = viewCreate(_valueNewNode2);
+
+													nodeOldElement.replaceChild(_valueOldElementNew2, _nodeOldElementMoonChildren3[_i4]);
+													_nodeOldElementMoonChildren3[_i4] = _valueOldElementNew2;
+												}
+											}
+										}
+
+										for (var _i5 = valueOldLength; _i5 < valueNewLength; _i5++) {
+											var _nodeOldElementChild = viewCreate(valueNew[_i5]);
+
+											_nodeOldElementMoonChildren3.push(_nodeOldElementChild);
+
+											nodeOldElement.appendChild(_nodeOldElementChild);
+										}
+									}
+								}
+
+								break;
+							}
+
+						default:
+							{
+								// Update a DOM property.
+								nodeOldElement[keyNew] = valueNew;
+							}
+					}
+				}
+			}
+		} // Next, go through all of the old data and remove data that isn't in the
+		// new data.
+
+
+		var nodeOldName = nodeOld.name;
+
+		for (var keyOld in nodeOldData) {
+			if (!(keyOld in nodeNewData)) {
+				if (keyOld.charCodeAt(0) === 64) {
+					// Remove an event.
+					var _nodeOldElementMoonEvent = nodeOldElement.MoonEvent;
+					delete _nodeOldElementMoonEvent[keyOld];
+					nodeOldElement.removeEventListener(keyOld.slice(1), _nodeOldElementMoonEvent);
+				} else {
+					switch (keyOld) {
+						case "attributes":
+							{
+								// Remove attributes.
+								var _valueOld = nodeOldData.attributes;
+
+								for (var _valueOldKey2 in _valueOld) {
+									nodeOldElement.removeAttribute(_valueOldKey2);
+								}
+
+								break;
+							}
+
+						case "focus":
+							{
+								// Remove focus.
+								nodeOldElement.blur();
+								break;
+							}
+
+						case "class":
+							{
+								// Remove a className property.
+								nodeOldElement.className = "";
+								break;
+							}
+
+						case "for":
+							{
+								// Remove an htmlFor property.
+								nodeOldElement.htmlFor = "";
+								break;
+							}
+
+						case "children":
+							{
+								// Remove children.
+								var _valueOldLength = nodeOldData.children.length;
+								var _nodeOldElementMoonChildren4 = nodeOldElement.MoonChildren;
+
+								for (var _i6 = 0; _i6 < _valueOldLength; _i6++) {
+									nodeOldElement.removeChild(_nodeOldElementMoonChildren4.pop());
+								}
+
+								break;
+							}
+
+						default:
+							{
+								// Remove a DOM property.
+								removeDataProperty(nodeOldElement, nodeOldName, keyOld);
+							}
 					}
 				}
 			}
@@ -481,11 +611,10 @@
 	 *
 	 * The view driver is responsible for updating the DOM and rendering views.
 	 * The patch consists of walking the new tree and finding differences between
-	 * the trees. At the same time, the old tree is changed to include references
-	 * to the new one. The DOM is updated to reflect these changes as well.
-	 * Ideally, the DOM would provide an API for creating lightweight elements and
-	 * render directly from a virtual DOM, but Moon uses the imperative API for
-	 * updating it instead.
+	 * the trees. The old tree is used to compare values for performance. The DOM
+	 * is updated to reflect these changes as well. Ideally, the DOM would provide
+	 * an API for creating lightweight elements and render directly from a virtual
+	 * DOM, but Moon uses the imperative API for updating it instead.
 	 *
 	 * Since views can easily be cached, Moon skips over patches if the old and new
 	 * nodes are equal. This is also why views should be pure and immutable. They
@@ -497,46 +626,80 @@
 	 */
 
 
-	function driver$1(root) {
+	function driver$1(viewOldElementNew) {
 		// Accept query strings as well as DOM elements.
-		if (typeof root === "string") {
-			root = document.querySelector(root);
+		if (typeof viewOldElementNew === "string") {
+			viewOldElement = document.querySelector(viewOldElementNew);
+		} else {
+			viewOldElement = viewOldElementNew;
 		} // Capture old data from the root element's attributes.
 
 
-		var rootAttributes = root.attributes;
-		var dataOld = {};
+		var viewOldElementAttributes = viewOldElement.attributes;
+		var viewOldData = {};
 
-		for (var i = 0; i < rootAttributes.length; i++) {
-			var rootAttribute = rootAttributes[i];
-			dataOld[rootAttribute.name] = rootAttribute.value;
-		} // Create an old node from the root element.
+		for (var i = 0; i < viewOldElementAttributes.length; i++) {
+			var viewOldElementAttribute = viewOldElementAttributes[i];
+			viewOldData[viewOldElementAttribute.name] = viewOldElementAttribute.value;
+		} // Create a node from the root element.
 
 
-		var viewOld = new NodeOld(new NodeNew(root.tagName.toLowerCase(), dataOld, []), root, []);
+		viewOld = new ViewNode(viewOldElement.tagName.toLowerCase(), viewOldData);
 		return {
 			input: function input() {
 				// Return the current event data as input.
 				return viewEvent;
 			},
 			output: function output(viewNew) {
-				// When given a new view, patch the old view into the new one,
-				// updating the DOM in the process.
-				viewPatch(viewOld, viewNew);
+				// When given a new view, patch the old element to match the new node
+				// using the old node as reference.
+				if (viewOld.name === viewNew.name) {
+					// If the root views have the same name, patch their data.
+					viewPatch(viewOld, viewOldElement, viewNew);
+				} else {
+					// If they have different names, create a new old view element.
+					var _viewOldElementNew = viewCreate(viewNew); // Manipulate the DOM to replace the old view.
+
+
+					viewOldElement.parentNode.replaceChild(_viewOldElementNew, viewOldElement); // Update the reference to the old view element.
+
+					viewOldElement = _viewOldElementNew;
+				} // Store the new view as the old view to be used as reference during a
+				// patch.
+
+
+				viewOld = viewNew;
 			}
 		};
 	}
 
 	/**
-	 * Returns a new node.
-	 *
-	 * @param {string} name
-	 * @param {Object} data
-	 * @param {Array} children
+	 * HTML tag names
 	 */
 
-	function m(name, data, children) {
-		return new NodeNew(name, data, children);
+	var names = ["a", "abbr", "acronym", "address", "applet", "area", "article", "aside", "audio", "b", "base", "basefont", "bdi", "bdo", "bgsound", "big", "blink", "blockquote", "body", "br", "button", "canvas", "caption", "center", "cite", "code", "col", "colgroup", "command", "content", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "dir", "div", "dl", "dt", "element", "em", "embed", "fieldset", "figcaption", "figure", "font", "footer", "form", "frame", "frameset", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "hr", "html", "i", "iframe", "image", "img", "input", "ins", "isindex", "kbd", "keygen", "label", "legend", "li", "link", "listing", "main", "map", "mark", "marquee", "math", "menu", "menuitem", "meta", "meter", "multicol", "nav", "nextid", "nobr", "noembed", "noframes", "noscript", "object", "ol", "optgroup", "option", "output", "p", "param", "picture", "plaintext", "pre", "progress", "q", "rb", "rbc", "rp", "rt", "rtc", "ruby", "s", "samp", "script", "section", "select", "shadow", "slot", "small", "source", "spacer", "span", "strike", "strong", "style", "sub", "summary", "sup", "svg", "table", "tbody", "td", "template", "text", "textarea", "tfoot", "th", "thead", "time", "title", "tr", "track", "tt", "u", "ul", "var", "video", "wbr", "xmp"];
+	/**
+	 * Node creation functions.
+	 */
+
+	var m = {
+		node: function node(name) {
+			return function (data) {
+				return new ViewNode(name, data);
+			};
+		}
+	};
+
+	var _loop = function _loop(i) {
+		var name = names[i];
+
+		m[name] = function (data) {
+			return new ViewNode(name, data);
+		};
+	};
+
+	for (var i = 0; i < names.length; i++) {
+		_loop(i);
 	}
 
 	var view = {
@@ -544,10 +707,239 @@
 		m: m
 	};
 
+	/**
+	 * Time driver
+	 *
+	 * The time driver provides time information as input. For output, it takes an
+	 * object mapping timeouts to functions, and runs those functions after those
+	 * timeouts. This can be used to implement intervals through a recursive
+	 * timeout function.
+	 */
+
+	var driver$2 = {
+		input: function input() {
+			// Return the time as input.
+			return Date.now();
+		},
+		output: function output(timeouts) {
+			var _loop = function _loop(delay) {
+				setTimeout(function () {
+					run(timeouts[delay]);
+				}, delay);
+			};
+
+			// Set the given timeouts.
+			for (var delay in timeouts) {
+				_loop(delay);
+			}
+		}
+	};
+
+	var time = {
+		driver: driver$2
+	};
+
+	/*
+	 * Current storage
+	 */
+	var storage = {};
+
+	for (var key in localStorage) {
+		if (localStorage.hasOwnProperty(key)) {
+			storage[key] = localStorage[key];
+		}
+	}
+	/**
+	 * Storage driver
+	 *
+	 * The storage driver allows applications to receive input from local storage
+	 * and persist string key/value pairs in local storage.
+	 */
+
+
+	var driver$3 = {
+		input: function input() {
+			// Return the local storage as input.
+			return storage;
+		},
+		output: function output(storageNew) {
+			// Update the local storage when it is an output.
+			for (var keyNew in storageNew) {
+				var valueNew = storageNew[keyNew];
+
+				if (storage[keyNew] !== valueNew) {
+					localStorage[keyNew] = valueNew;
+				}
+			} // Remove any items that aren't in the new local storage.
+
+
+			for (var keyOld in storage) {
+				if (!(keyOld in storageNew)) {
+					delete localStorage[keyOld];
+				}
+			} // Update the global storage reference.
+
+
+			storage = storageNew;
+		}
+	};
+
+	var storage$1 = {
+		driver: driver$3
+	};
+
+	/*
+	 * Current global response
+	 */
+
+	var response = null;
+	/*
+	 * Match HTTP headers.
+	 */
+
+	var headerRE = /^([^:]+):\s*([^]*?)\s*$/gm;
+	/**
+	 * HTTP driver
+	 *
+	 * The HTTP driver provides HTTP response information as input. For output, it
+	 * takes an array of requests. Multiple HTTP requests can be implemented with
+	 * multiple request in the array, and subsequent HTTP requests can be
+	 * implemented with another HTTP request once a response is received.
+	 */
+
+	var driver$4 = {
+		input: function input() {
+			// Return the response as output.
+			return response;
+		},
+		output: function output(requests) {
+			var _loop = function _loop(i) {
+				var request = requests[i];
+				var xhr = new XMLHttpRequest(); // Handle response types.
+
+				xhr.responseType = "responseType" in request ? request.responseType : "text"; // Handle load event.
+
+				xhr.onload = function () {
+					var responseHeaders = {};
+					var responseHeadersText = xhr.getAllResponseHeaders();
+					var responseHeader; // Parse headers to object.
+
+					while ((responseHeader = headerRE.exec(responseHeadersText)) !== null) {
+						responseHeaders[responseHeader[1]] = responseHeader[2];
+					} // Create response object.
+
+
+					response = {
+						status: xhr.status,
+						headers: responseHeaders,
+						body: xhr.response
+					}; // Run load event handler if it exists.
+
+					if ("onLoad" in request) {
+						run(request.onLoad);
+					}
+				}; // Handle error event.
+
+
+				xhr.onerror = function () {
+					// Reset response to prevent older response from being available.
+					response = null; // Run error event handler if it exists.
+
+					if ("onError" in request) {
+						run(request.onError);
+					}
+				}; // Open the request with the given method and URL.
+
+
+				xhr.open("method" in request ? request.method : "GET", request.url); // Set request headers.
+
+				if ("headers" in request) {
+					var requestHeaders = request.headers;
+
+					for (var requestHeader in requestHeaders) {
+						xhr.setRequestHeader(requestHeader, requestHeaders[requestHeader]);
+					}
+				} // Send the request with the given body.
+
+
+				xhr.send("body" in request ? request.body : null);
+			};
+
+			// Make the HTTP requests.
+			for (var i = 0; i < requests.length; i++) {
+				_loop(i);
+			}
+		}
+	};
+
+	var http = {
+		driver: driver$4
+	};
+
+	/**
+	 * Current route
+	 */
+	var route = location.pathname;
+	/**
+	 * Route driver
+	 *
+	 * The route driver provides current route path as input. For output, it takes
+	 * a new route as a string and changes the route in the browser as a result. It
+	 * also provides a router component that can be used to display different views
+	 * based on the current route.
+	 */
+
+	var driver$5 = {
+		input: function input() {
+			// Return the current route as input.
+			return route;
+		},
+		output: function output(routeNew) {
+			// Change the browser route to the new route given as output.
+			route = routeNew;
+			history.pushState(null, "", route);
+		}
+	};
+
+	/**
+	 * Returns a view given routes that map to views and the current route.
+	 *
+	 * @param {object} data
+	 * @returns {object} view
+	 */
+	function router(data) {
+		var route = data.route;
+		var routeSegment = "/";
+		var routes = data.routes;
+
+		for (var i = 1; i < route.length; i++) {
+			var routeCharacter = route[i];
+
+			if (routeCharacter === "/") {
+				routes = (routeSegment in routes ? routes[routeSegment] : routes["/*"])[1];
+				routeSegment = "/";
+			} else {
+				routeSegment += routeCharacter;
+			}
+		}
+
+		return (routeSegment in routes ? routes[routeSegment] : routes["/*"])[0](data);
+	}
+
+	var route$1 = {
+		driver: driver$5,
+		router: router
+	};
+
 	var index = {
-		data: data,
+		data: data$1,
+		http: http,
+		route: route$1,
 		run: run,
+		storage: storage$1,
+		time: time,
 		use: use,
+		version: "1.0.0-beta.5",
 		view: view
 	};
 

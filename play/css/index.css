@@ -1,33 +1,21 @@
-.playground {
-	width: 100%;
-	justify-content: space-between;
-}
-
 #editor div {
 	display: block;
 }
 
-#editor, #editor .CodeMirror {
-	width: 100%;
-	max-width: 528px;
-	height: 703px;
-}
-
 #editor .CodeMirror {
-	padding: 6px;
+	width: 100%;
+	height: 100%;
+	padding: calc(3px * var(--grain-scale));
 }
 
 #result {
-	width: 100%;
-	max-width: 528px;
-	height: 703px;
 	border: 1px solid hsl(200, 14%, 65%);
 }
 
 .cm-s-nox.CodeMirror {
 	color: hsl(200, 14%, 65%);
 	background: hsl(200, 31%, 14%);
-	font-size: 15px;
+	font-size: calc(10px * var(--grain-scale));
 }
 
 .cm-s-nox div.CodeMirror-selected {

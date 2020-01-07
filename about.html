@@ -1,0 +1,165 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="description" content="The minimal & fast library for functional user interfaces.">
+		<meta name="author" content="Kabir Shah">
+
+		<title>About | Moon</title>
+
+		<link rel="shortcut icon" href="/img/logo.png"/>
+
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inconsolata&display=swap"/>
+		<link rel="stylesheet" type="text/css" href="/css/lib/grain.min.css"/>
+		<link rel="stylesheet" type="text/css" href="/css/styles.css"/>
+		<link rel="stylesheet" type="text/css" href="/css/post.css"/>
+
+		<script>
+			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+				(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+				m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+			})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+			ga('create', 'UA-70792533-14', 'auto');
+			ga('send', 'pageview');
+		</script>
+	</head>
+
+	<body class="a-x-c a-0-x-s a-0-y-l-c a-1-x-e a-1-y-l-c m-x-5 m-y-5">
+		<h2><a href="/" class="c-f-black b-n">Moon</a></h2>
+
+		<div class="m-x-3">
+			<a href="/guide" class="c-f-black b-n">Guide</a>
+			<a href="/play" class="c-f-black b-n">Playground</a>
+			<a href="/examples" class="c-f-black b-n">Examples</a>
+			<a href="https://github.com/kbrsh/moon" class="c-f-black b-n">GitHub</a>
+		</div>
+
+		<div class="a-b"></div>
+
+		<div class="s-x-20 p-y-3">
+			<h5 class="s-x-20">DOCUMENTATION</h5>
+			
+				
+					<p class="s-x-20"><a href="/about" class="c-f-purple-dark b-n">About</a></p>
+				
+			
+				
+					<p class="s-x-20"><a href="/installation" class="c-f-black b-n">Installation</a></p>
+				
+			
+				
+					<p class="s-x-20"><a href="/guide" class="c-f-black b-n">Guide</a></p>
+				
+			
+				
+					<p class="s-x-20"><a href="/data" class="c-f-black b-n">Data</a></p>
+				
+			
+				
+					<p class="s-x-20"><a href="/view" class="c-f-black b-n">View</a></p>
+				
+			
+				
+					<p class="s-x-20"><a href="/time" class="c-f-black b-n">Time</a></p>
+				
+			
+				
+					<p class="s-x-20"><a href="/storage" class="c-f-black b-n">Storage</a></p>
+				
+			
+				
+					<p class="s-x-20"><a href="/HTTP" class="c-f-black b-n">HTTP</a></p>
+				
+			
+				
+					<p class="s-x-20"><a href="/route" class="c-f-black b-n">Route</a></p>
+				
+			
+				
+					<p class="s-x-20"><a href="/examples" class="c-f-black b-n">Examples</a></p>
+				
+			
+		</div>
+
+		<div class="s-x-26 m-y-4">
+			<h1>About</h1>
+			<p class="s-x-26">Moon is more than just another JavaScript library — it&#39;s a new paradigm for application development based on pure functions.</p><p class="s-x-26">An application is a function that uses the concept of <strong>drivers</strong>, functions that access the real world to provide information and perform effects. Drivers provide input to applications and then handle the output. It&#39;s a simple concept with endless potential. Pure functions bring clarity and immutability to application code, making it concise, modular, and easy to reason about.</p><p class="s-x-26">The majority of JavaScript libraries today are based on a view that changes based on state. In practice, however, web applications are much more complex and often need to perform side effects along with updating the view. These include audio, HTTP requests, routing, timing events, DOM manipulation, etc. While most other libraries have these features as second-class citizens, Moon handles all effects equally with drivers.</p><p class="s-x-26">At its core, Moon is a runtime that calls drivers and runs a functional application in the imperative browser environment. It uses drivers to get information from the real world and provides them as input to an application function. The function outputs data to various drivers, and Moon calls the drivers with the output to perform effects on the real world.</p><pre class="s-x-26 s-b-2 p-x-4 p-y-4"><a href="/play/#%2F%2F%20Import%20nodes%20from%20the%20view%20driver.%0Aconst%20button%20%3D%20Moon.view.m.button%3B%0A%0A%2F%2F%20The%20increment%20event%20handler%20acts%20just%20like%20%60main%60%2C%20and%20it%20can%0A%2F%2F%20take%20driver%20inputs%20and%20returns%20driver%20outputs.%0Aconst%20increment%20%3D%20(%7B%20data%20%7D)%20%3D%3E%20%7B%0A%20%20%20%20const%20dataNew%20%3D%20data%20%2B%201%3B%0A%0A%20%20%20%20%2F%2F%20It%20returns%20data%20to%20the%20data%20driver%20to%20store%2C%20and%20a%20view%20to%0A%20%20%20%20%2F%2F%20the%20view%20driver%20to%20render.%0A%20%20%20%20return%20%7B%0A%20%20%20%20%20%20%20%20data%3A%20dataNew%2C%0A%20%20%20%20%20%20%20%20view%3A%20%3Cview%20data%3DdataNew%2F%3E%0A%20%20%20%20%7D%3B%0A%7D%3B%0A%0A%2F%2F%20The%20view%20is%20a%20component%20that%20renders%20a%20button%20with%20a%20count.%0Aconst%20view%20%3D%20(%7B%20data%20%7D)%20%3D%3E%0A%20%20%20%20%3Cbutton%20%40click%3Dincrement%3E%7Bdata%7D%3C%2Fbutton%3E%3B%0A%0Aconst%20main%20%3D%20()%20%3D%3E%20%7B%0A%20%20%20%20const%20data%20%3D%200%3B%0A%0A%20%20%20%20%2F%2F%20In%20the%20beginning%2C%20the%20application%20sends%20output%20to%20the%20data%0A%20%20%20%20%2F%2F%20driver%20to%20store%20an%20initial%20count%2C%20and%20then%20it%20sends%20output%0A%20%20%20%20%2F%2F%20to%20the%20view%20driver%20to%20display%20it%20on%20the%20screen.%0A%20%20%20%20return%20%7B%0A%20%20%20%20%20%20%20%20data%2C%0A%20%20%20%20%20%20%20%20view%3A%20%3Cview%20data%3Ddata%2F%3E%0A%20%20%20%20%7D%3B%0A%7D%3B%0A%0A%2F%2F%20Initialize%20drivers.%0AMoon.use(%7B%0A%20%20%20%20data%3A%20Moon.data.driver%2C%20%2F%2F%20Holds%20state%0A%20%20%20%20view%3A%20Moon.view.driver(%22%23root%22)%20%2F%2F%20Handles%20changes%20to%20the%20DOM%0A%7D)%3B%0A%0A%2F%2F%20Run%20the%20application.%0AMoon.run(main)%3B" target="_blank" class="b-n"><img src="/img/play.png" alt="Try in playground" class="s-x-5 s-y-5"/></a><code><span class="token comment">// Import nodes from the view driver.</span>
+<span class="token keyword">const</span> button <span class="token operator">=</span> Moon<span class="token punctuation">.</span>view<span class="token punctuation">.</span>m<span class="token punctuation">.</span>button<span class="token punctuation">;</span>
+
+<span class="token comment">// The increment event handler acts just like `main`, and it can</span>
+<span class="token comment">// take driver inputs and returns driver outputs.</span>
+<span class="token keyword">const</span> <span class="token function-variable function">increment</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token parameter"><span class="token punctuation">{</span> data <span class="token punctuation">}</span></span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> dataNew <span class="token operator">=</span> data <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// It returns data to the data driver to store, and a view to</span>
+    <span class="token comment">// the view driver to render.</span>
+    <span class="token keyword">return</span> <span class="token punctuation">{</span>
+        data<span class="token operator">:</span> dataNew<span class="token punctuation">,</span>
+        view<span class="token operator">:</span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>view</span> <span class="token attr-name">data</span><span class="token attr-value"><span class="token operator">=</span>dataNew</span><span class="token punctuation">/></span></span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token comment">// The view is a component that renders a button with a count.</span>
+<span class="token keyword">const</span> <span class="token function-variable function">view</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token parameter"><span class="token punctuation">{</span> data <span class="token punctuation">}</span></span><span class="token punctuation">)</span> <span class="token operator">=></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">@click</span><span class="token attr-value"><span class="token operator">=</span>increment</span><span class="token punctuation">></span></span><span class="token punctuation">{</span>data<span class="token punctuation">}</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">></span></span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">main</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> data <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// In the beginning, the application sends output to the data</span>
+    <span class="token comment">// driver to store an initial count, and then it sends output</span>
+    <span class="token comment">// to the view driver to display it on the screen.</span>
+    <span class="token keyword">return</span> <span class="token punctuation">{</span>
+        data<span class="token punctuation">,</span>
+        view<span class="token operator">:</span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>view</span> <span class="token attr-name">data</span><span class="token attr-value"><span class="token operator">=</span>data</span><span class="token punctuation">/></span></span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token comment">// Initialize drivers.</span>
+Moon<span class="token punctuation">.</span><span class="token function">use</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    data<span class="token operator">:</span> Moon<span class="token punctuation">.</span>data<span class="token punctuation">.</span>driver<span class="token punctuation">,</span> <span class="token comment">// Holds state</span>
+    view<span class="token operator">:</span> Moon<span class="token punctuation">.</span>view<span class="token punctuation">.</span><span class="token function">driver</span><span class="token punctuation">(</span><span class="token string">"#root"</span><span class="token punctuation">)</span> <span class="token comment">// Handles changes to the DOM</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// Run the application.</span>
+Moon<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span>main<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre><h2 id="functional-amp-declarative" class="s-x-26">Functional &amp; Declarative</h2><p class="s-x-26">Many user interface libraries in the JavaScript landscape claim to be declarative but seldom incorporate purely functional ideas. Instead, they have imperative methods of updating state to update views, using function calls like <code class="s-b-2 p-x-2 p-y-2">set</code> or reactive object property setters. These may be convenient at times, but often lead to bugs because of mutation. To get around this, they support a myriad of different libraries for immutability, leading to tooling fragmentation and confusion.</p><p class="s-x-26">Moon is different and was designed from scratch with a novel approach to web applications, treating them as a function of driver inputs. All outputs to the browser, including the view, state, and HTTP requests, are all functions of driver inputs that capture data from outside sources and user input. There are no setter methods to learn, no lifecycle hooks to handle effects, and no need for a fragmented ecosystem of state management libraries.</p><p class="s-x-26">Instead, developers write functions that return outputs based on user events and driver inputs, and they have the freedom to create custom effects with their own drivers. State is often stored in a single state tree rather than being spread across local and global state. For example, the entire state of an application might be represented as:</p><pre class="s-x-26 s-b-2 p-x-4 p-y-4"><code><span class="token punctuation">{</span>
+    state<span class="token operator">:</span> <span class="token string">"loading"</span><span class="token punctuation">,</span>
+    user<span class="token operator">:</span> <span class="token punctuation">{</span>
+        name<span class="token operator">:</span> <span class="token string">""</span><span class="token punctuation">,</span>
+        picture<span class="token operator">:</span> <span class="token string">""</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    posts<span class="token operator">:</span> <span class="token punctuation">{</span>
+        state<span class="token operator">:</span> <span class="token string">"loaded"</span><span class="token punctuation">,</span>
+        list<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        selected<span class="token operator">:</span> <span class="token keyword">null</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    theme<span class="token operator">:</span> <span class="token string">"dark"</span>
+<span class="token punctuation">}</span></code></pre><p class="s-x-26">Rather than creating &quot;smart&quot; components with general local state, components are &quot;dumb&quot; and only encode view data. For example, instead of a <code class="s-b-2 p-x-2 p-y-2">toggle</code> component handling local state, it would only provide an event where the relevant global state <code class="s-b-2 p-x-2 p-y-2">theme</code> would change.</p><p class="s-x-26">One state tree means one source of truth for an application. Developers can quickly glance at the state of the whole application and have complete flexibility on the structure and type of the state. This declarative model of applications allows for modular code consisting of pure functions that focus on the &quot;what&quot; instead of the &quot;how&quot;.</p><h2 id="tiny-amp-fast" class="s-x-26">Tiny &amp; Fast</h2><p class="s-x-26">Since Moon&#39;s only job is to provide a runtime for a functional application, it weighs less than <strong>2kb minified and gzipped</strong>. Even with the built-in drivers, it still stays around the 2kb mark. The lightweight runtime means that browsers won&#39;t have to parse and run multiple megabytes of JavaScript, a practice that is quickly becoming the status quo.</p><p class="s-x-26">The view driver is a default driver built into Moon. It uses a variety of techniques to optimize JavaScript performance for JIT (Just In Time) compilation. Under the hood, the view driver takes a virtual DOM tree as output from an application. This tree is highly optimized to have the same shape to allow for fast property access and node creation. The virtual DOM diffing algorithm was designed to run efficient transformations that make changes while touching the DOM as little as possible.</p><p class="s-x-26">Since <strong>view components are pure functions</strong> in Moon, developers can choose to optimize specific components by using standard functional programming techniques such as memoization or caching. The view driver skips over nodes that stay the same over multiple renders. This combined with the purity of components opens up a lot of potential for optimization.</p><p class="s-x-26">Using optimized algorithms and data structures, Moon runs faster than most user interface libraries while sustaining a lightweight footprint.</p><p class="s-x-26"><img src="/img/size.png" alt="Sizes of popular frameworks relative to Moon.">
+<a class="b-n" href="https://rawgit.com/krausest/js-framework-benchmark/master/webdriver-ts-results/table.html"><img src="/img/speed.png" alt="Performance of popular frameworks relative to Moon."></a></p><h2 id="intuitive-amp-consistent" class="s-x-26">Intuitive &amp; Consistent</h2><p class="s-x-26">Moon&#39;s API only consists of two functions for initialization along with the APIs of individual drivers. The rest of an application is made from composing functions. Developers have the freedom to structure projects however they&#39;d like. Since functions are just JavaScript, they can be split up across files and imported like anything else.</p><p class="s-x-26">Meanwhile, other APIs often have a multitude of functions for managing different effects and state, and they usually require a well-defined type and structure for parameters. In addition, other view templating languages are inconsistent. They accept different types for different parts of a template and impose a learning barrier by introducing concepts like directives, flow control, and implicit children flattening.</p><p class="s-x-26">Views in Moon are based on HTML, a familiar language for defining documents. The language is an alternative syntax for function calls that can help structure views in a more organized fashion. Components in Moon are pure functions that return views, and they are called with the same syntax as tags.</p><pre class="s-x-26 s-b-2 p-x-4 p-y-4"><code><span class="token comment">// Moon View</span>
+<span class="token keyword">const</span> paragraph <span class="token operator">=</span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>p</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token operator">=</span><span class="token string">"blue"</span></span><span class="token punctuation">></span></span>Hello World<span class="token operator">!</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>p</span><span class="token punctuation">></span></span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> box <span class="token operator">=</span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>box</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token operator">=</span><span class="token string">"alert"</span></span><span class="token punctuation">></span></span>Something went wrong<span class="token operator">!</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>box</span><span class="token punctuation">></span></span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> posts <span class="token operator">=</span> <span class="token operator">&lt;</span>ul children<span class="token operator">=</span><span class="token punctuation">(</span>posts<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token parameter">post</span> <span class="token operator">=></span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>li</span><span class="token punctuation">></span></span><span class="token punctuation">{</span>post<span class="token punctuation">}</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>li</span><span class="token punctuation">></span></span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">/</span><span class="token operator">></span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> container <span class="token operator">=</span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>paragraph*</span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span><span class="token punctuation">;</span>
+
+<span class="token comment">// Compiled to JS</span>
+<span class="token keyword">const</span> paragraph <span class="token operator">=</span> <span class="token function">p</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    <span class="token keyword">class</span><span class="token operator">:</span> <span class="token string">"blue"</span><span class="token punctuation">,</span>
+    children<span class="token operator">:</span> <span class="token punctuation">[</span>Moon<span class="token punctuation">.</span>view<span class="token punctuation">.</span>m<span class="token punctuation">.</span><span class="token function">text</span><span class="token punctuation">(</span><span class="token punctuation">{</span> data<span class="token operator">:</span> <span class="token string">"Hello World!"</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> box <span class="token operator">=</span> <span class="token function">box</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    type<span class="token operator">:</span> <span class="token string">"alert"</span><span class="token punctuation">,</span>
+    children<span class="token operator">:</span> <span class="token punctuation">[</span>
+        Moon<span class="token punctuation">.</span>view<span class="token punctuation">.</span>m<span class="token punctuation">.</span><span class="token function">text</span><span class="token punctuation">(</span><span class="token punctuation">{</span> data<span class="token operator">:</span> <span class="token string">"Something went wrong!"</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token punctuation">]</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> posts <span class="token operator">=</span> <span class="token function">ul</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    children<span class="token operator">:</span> posts<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token parameter">post</span> <span class="token operator">=></span>
+        <span class="token function">li</span><span class="token punctuation">(</span><span class="token punctuation">{</span> children<span class="token operator">:</span> <span class="token punctuation">[</span>Moon<span class="token punctuation">.</span>view<span class="token punctuation">.</span>m<span class="token punctuation">.</span><span class="token function">text</span><span class="token punctuation">(</span><span class="token punctuation">{</span> data<span class="token operator">:</span> post <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">]</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token punctuation">)</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> container <span class="token operator">=</span> <span class="token function">div</span><span class="token punctuation">(</span><span class="token punctuation">{</span> children<span class="token operator">:</span> <span class="token punctuation">[</span>paragraph<span class="token punctuation">]</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre><h2 id="conclusion" class="s-x-26">Conclusion</h2><p class="s-x-26">In Moon, an application is a function with inputs and outputs handled by drivers. The concept&#39;s simplicity allows for a fast implementation with a small footprint, both of which constantly get overlooked in web development today. Functional programming brings clarity and composability to applications, and single state trees can lead to a clear mental model of a complex application. It also leads to a minimal API, required only to initialize a functional application in the imperative browser environment.</p><p class="s-x-26">In essence, applications run on the Moon while drivers update the Earth.</p>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="description" content="The minimal & fast library for functional user interfaces.">
+		<meta name="author" content="Kabir Shah">
+
+		<title>Time | Moon</title>
+
+		<link rel="shortcut icon" href="/img/logo.png"/>
+
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inconsolata&display=swap"/>
+		<link rel="stylesheet" type="text/css" href="/css/lib/grain.min.css"/>
+		<link rel="stylesheet" type="text/css" href="/css/styles.css"/>
+		<link rel="stylesheet" type="text/css" href="/css/post.css"/>
+
+		<script>
+			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+				(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+				m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+			})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+			ga('create', 'UA-70792533-14', 'auto');
+			ga('send', 'pageview');
+		</script>
+	</head>
+
+	<body class="a-x-c a-0-x-s a-0-y-l-c a-1-x-e a-1-y-l-c m-x-5 m-y-5">
+		<h2><a href="/" class="c-f-black b-n">Moon</a></h2>
+
+		<div class="m-x-3">
+			<a href="/guide" class="c-f-black b-n">Guide</a>
+			<a href="/play" class="c-f-black b-n">Playground</a>
+			<a href="/examples" class="c-f-black b-n">Examples</a>
+			<a href="https://github.com/kbrsh/moon" class="c-f-black b-n">GitHub</a>
+		</div>
+
+		<div class="a-b"></div>
+
+		<div class="s-x-20 p-y-3">
+			<h5 class="s-x-20">DOCUMENTATION</h5>
+			
+				
+					<p class="s-x-20"><a href="/about" class="c-f-black b-n">About</a></p>
+				
+			
+				
+					<p class="s-x-20"><a href="/installation" class="c-f-black b-n">Installation</a></p>
+				
+			
+				
+					<p class="s-x-20"><a href="/guide" class="c-f-black b-n">Guide</a></p>
+				
+			
+				
+					<p class="s-x-20"><a href="/data" class="c-f-black b-n">Data</a></p>
+				
+			
+				
+					<p class="s-x-20"><a href="/view" class="c-f-black b-n">View</a></p>
+				
+			
+				
+					<p class="s-x-20"><a href="/time" class="c-f-purple-dark b-n">Time</a></p>
+				
+			
+				
+					<p class="s-x-20"><a href="/storage" class="c-f-black b-n">Storage</a></p>
+				
+			
+				
+					<p class="s-x-20"><a href="/HTTP" class="c-f-black b-n">HTTP</a></p>
+				
+			
+				
+					<p class="s-x-20"><a href="/route" class="c-f-black b-n">Route</a></p>
+				
+			
+				
+					<p class="s-x-20"><a href="/examples" class="c-f-black b-n">Examples</a></p>
+				
+			
+		</div>
+
+		<div class="s-x-26 m-y-4">
+			<h1>Time</h1>
+			<p class="s-x-26">The time driver provides the current time and allows scheduling application functions to run after specific times.</p><h2 id="input" class="s-x-26">Input</h2><p class="s-x-26">The time driver provides the current time as the number of milliseconds passed since January 1, 1970 00:00:00 UTC (the output of <code class="s-b-2 p-x-2 p-y-2">Date.now()</code>).</p><pre class="s-x-26 s-b-2 p-x-4 p-y-4"><a href="/play/#Moon.use(%7B%0A%20%20%20%20time%3A%20Moon.time.driver%0A%7D)%3B%0A%0AMoon.run((%7B%20time%20%7D)%20%3D%3E%20%7B%0A%20%20%20%20console.log(time)%3B%0A%20%20%20%20return%20%7B%7D%3B%0A%7D)%3B" target="_blank" class="b-n"><img src="/img/play.png" alt="Try in playground" class="s-x-5 s-y-5"/></a><code>Moon<span class="token punctuation">.</span><span class="token function">use</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    time<span class="token operator">:</span> Moon<span class="token punctuation">.</span>time<span class="token punctuation">.</span>driver
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+Moon<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter"><span class="token punctuation">{</span> time <span class="token punctuation">}</span></span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>time<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre><h2 id="output" class="s-x-26">Output</h2><p class="s-x-26">The time driver accepts a map from timeouts in milliseconds to application functions. It will run each application function after the specified time has elapsed.</p><pre class="s-x-26 s-b-2 p-x-4 p-y-4"><a href="/play/#Moon.use(%7B%0A%20%20%20%20time%3A%20Moon.time.driver%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20(%7B%0A%20%20%20%20time%3A%20%7B%0A%20%20%20%20%20%20%20%201000%3A%20()%20%3D%3E%20(%7B%7D)%2C%20%2F%2F%20Runs%20after%20one%20second%0A%20%20%20%20%20%20%20%202000%3A%20()%20%3D%3E%20(%7B%7D)%2C%20%2F%2F%20Runs%20after%20two%20seconds%0A%20%20%20%20%20%20%20%203000%3A%20()%20%3D%3E%20(%7B%7D)%20%2F%2F%20Runs%20after%20three%20seconds%0A%20%20%20%20%7D%0A%7D))%3B" target="_blank" class="b-n"><img src="/img/play.png" alt="Try in playground" class="s-x-5 s-y-5"/></a><code>Moon<span class="token punctuation">.</span><span class="token function">use</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    time<span class="token operator">:</span> Moon<span class="token punctuation">.</span>time<span class="token punctuation">.</span>driver
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+Moon<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">(</span><span class="token punctuation">{</span>
+    time<span class="token operator">:</span> <span class="token punctuation">{</span>
+        <span class="token number">1000</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token comment">// Runs after one second</span>
+        <span class="token number">2000</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token comment">// Runs after two seconds</span>
+        <span class="token number">3000</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token comment">// Runs after three seconds</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre><p class="s-x-26">This can be useful to update a view, for example:</p><pre class="s-x-26 s-b-2 p-x-4 p-y-4"><a href="/play/#const%20p%20%3D%20Moon.view.m.p%3B%0A%0Aconst%20main%20%3D%20(%7B%20time%20%7D)%20%3D%3E%20(%7B%0A%20%20%20%20view%3A%0A%20%20%20%20%20%20%20%20%3Cp%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20The%20time%20is%20%7Bnew%20Date(time).toLocaleTimeString()%7D.%0A%20%20%20%20%20%20%20%20%3C%2Fp%3E%2C%0A%20%20%20%20time%3A%20%7B%201000%3A%20main%20%7D%20%2F%2F%20Recurse%20after%20one%20second.%0A%7D)%3B%0A%0AMoon.use(%7B%0A%20%20%20%20view%3A%20Moon.view.driver(%22%23root%22)%2C%0A%20%20%20%20time%3A%20Moon.time.driver%0A%7D)%3B%0A%0AMoon.run(main)%3B" target="_blank" class="b-n"><img src="/img/play.png" alt="Try in playground" class="s-x-5 s-y-5"/></a><code><span class="token keyword">const</span> p <span class="token operator">=</span> Moon<span class="token punctuation">.</span>view<span class="token punctuation">.</span>m<span class="token punctuation">.</span>p<span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">main</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token parameter"><span class="token punctuation">{</span> time <span class="token punctuation">}</span></span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">(</span><span class="token punctuation">{</span>
+    view<span class="token operator">:</span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>p</span><span class="token punctuation">></span></span>
+            The time is <span class="token punctuation">{</span><span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span>time<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">toLocaleTimeString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">}</span><span class="token punctuation">.</span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>p</span><span class="token punctuation">></span></span><span class="token punctuation">,</span>
+    time<span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token number">1000</span><span class="token operator">:</span> main <span class="token punctuation">}</span> <span class="token comment">// Recurse after one second.</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+Moon<span class="token punctuation">.</span><span class="token function">use</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    view<span class="token operator">:</span> Moon<span class="token punctuation">.</span>view<span class="token punctuation">.</span><span class="token function">driver</span><span class="token punctuation">(</span><span class="token string">"#root"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    time<span class="token operator">:</span> Moon<span class="token punctuation">.</span>time<span class="token punctuation">.</span>driver
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+Moon<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span>main<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+		</div>
+	</body>
+</html>

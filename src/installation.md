@@ -14,11 +14,11 @@ Moon CLI can generate a scalable application with support for:
 * Next generation CSS and JavaScript
 * Optimized production builds
 
-Moon CLI can be installed through `npm` and ran with `moon <name>`.
+Moon CLI can be installed through `npm` and ran with `moon`.
 
 ```sh
 npm install -g moon-cli
-moon my-app
+moon create my-app
 ```
 
 ## NPM
@@ -30,7 +30,7 @@ npm install moon
 npm install moon-compiler
 ```
 
-### Webpack
+#### Webpack
 
 ```sh
 npm install moon-loader
@@ -47,7 +47,7 @@ module.exports = {
 };
 ```
 
-### Rollup
+#### Rollup
 
 ```sh
 npm install rollup-plugin-moon
@@ -74,6 +74,6 @@ Moon can be embedded in the browser directly with a script tag. To use the Moon 
 
 <script type="text/moon" src="scripts.js"></script>
 <script type="text/moon">
-	const paragraph = (<p>Hello Moon!</p>);
+	const paragraph = <p>Hello Moon!</p>;
 </script>
 ```

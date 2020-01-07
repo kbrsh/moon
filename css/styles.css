@@ -1,12 +1,101 @@
 body {
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: center;
 	background: hsl(0, 0%, 100%);
 	color: hsl(0, 0%, 14%);
 	font-family: "HK Grotesk", sans-serif;
 }
 
+button {
+	font-weight: 700;
+}
+
+pre {
+	position: relative;
+	background-color: hsl(200, 31%, 14%);
+}
+
+code {
+	font-family: "Inconsolata", monospace;
+	color: hsl(200, 31%, 14%);
+	background-color: hsl(200, 14%, 90%);
+	tab-size: 3;
+}
+
+pre a {
+	position: absolute;
+	top: calc(3px * var(--grain-scale));
+	right: calc(3px * var(--grain-scale));
+}
+
+pre code {
+	color: hsl(200, 14%, 65%);
+	background-color: hsl(200, 31%, 14%);
+}
+
+.token.string {
+	color: hsl(100, 14%, 55%);
+}
+
+.token.keyword {
+	color: hsl(300, 14%, 55%);
+}
+
+.token.number, .token.boolean, .token.attr-name {
+	color: hsl(20, 31%, 55%);
+}
+
+.token.function, .token.tag {
+	color: hsl(200, 31%, 55%);
+}
+
+.token.attr-value {
+	color: hsl(200, 14%, 65%);
+}
+
+.token.comment {
+	color: hsl(200, 31%, 29%);
+}
+
+.b-n {
+	border: none;
+}
+
+.c-f-black {
+	color: hsl(0, 0%, 14%);
+}
+
+.c-f-gray {
+	color: hsl(0, 0%, 51%);
+}
+
+.c-f-white {
+	color: hsl(0, 0%, 100%);
+}
+
+.c-f-purple-dark {
+	color: hsl(260, 100%, 51%);
+}
+
+.c-b-purple-dark {
+	background-color: hsl(260, 100%, 51%);
+}
+
+.c-b-purple-light {
+	background-color: hsl(260, 100%, 31%);
+}
+
+@font-face {
+	font-family: "HK Grotesk";
+	src: url("/css/fonts/HKGrotesk-Regular.otf") format("opentype");
+	font-weight: 400;
+}
+
+@font-face {
+	font-family: "HK Grotesk";
+	src: url("/css/fonts/HKGrotesk-Bold.otf") format("opentype");
+	font-weight: 700;
+}
+
+/*
 .container {
 	width: 100%;
 	max-width: 1081px;
@@ -61,30 +150,6 @@ button:active {
 	background-color: hsl(0, 0%, 86%);
 }
 
-pre {
-	position: relative;
-	padding: 15px;
-	background-color: hsl(200, 31%, 14%);
-	border-radius: 3px;
-}
-
-code {
-	padding: 3px;
-	font-family: "Inconsolata", monospace;
-	color: hsl(200, 31%, 14%);
-	background-color: hsl(200, 14%, 86%);
-	border-radius: 3px;
-	tab-size: 3;
-}
-
-pre code {
-	padding: 0;
-	color: hsl(200, 14%, 65%);
-	background-color: hsl(200, 31%, 14%);
-	border-radius: 0;
-	white-space: pre-wrap;
-	word-break: break-all;
-}
 
 pre code::after {
 	position: absolute;
@@ -118,15 +183,4 @@ pre code .purple {
 pre code .gray, pre code .gray span {
 	color: hsl(200, 31%, 29%);
 }
-
-@font-face {
-	font-family: "HK Grotesk";
-	src: url("/moon/css/fonts/HKGrotesk-Regular.otf") format("opentype");
-	font-weight: normal;
-}
-
-@font-face {
-	font-family: "HK Grotesk";
-	src: url("/moon/css/fonts/HKGrotesk-Bold.otf") format("opentype");
-	font-weight: bold;
-}
+*/
