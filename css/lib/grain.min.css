@@ -78,6 +78,7 @@ a {
 .s-x-26 {width: calc(351px * var(--grain-scale));}
 .s-y-5 {height: calc(15px * var(--grain-scale));}
 .s-y-13 {height: calc(91px * var(--grain-scale));}
+.s-y-20 {height: calc(210px * var(--grain-scale));}
 .s-y-30 {height: calc(465px * var(--grain-scale));}
 .s-b-2 {border-radius: calc(3px * var(--grain-scale));}
 
