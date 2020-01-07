@@ -739,37 +739,52 @@
 		driver: driver$2
 	};
 
+	/*
+	 * Current storage
+	 */
+	var storage = {};
+
+	for (var key in localStorage) {
+		if (localStorage.hasOwnProperty(key)) {
+			storage[key] = localStorage[key];
+		}
+	}
 	/**
 	 * Storage driver
 	 *
 	 * The storage driver allows applications to receive input from local storage
 	 * and persist string key/value pairs in local storage.
 	 */
+
+
 	var driver$3 = {
 		input: function input() {
 			// Return the local storage as input.
-			return localStorage;
+			return storage;
 		},
-		output: function output(localStorageNew) {
+		output: function output(storageNew) {
 			// Update the local storage when it is an output.
-			for (var keyNew in localStorageNew) {
-				var valueNew = localStorageNew[keyNew];
+			for (var keyNew in storageNew) {
+				var valueNew = storageNew[keyNew];
 
-				if (localStorage[keyNew] !== valueNew) {
+				if (storage[keyNew] !== valueNew) {
 					localStorage[keyNew] = valueNew;
 				}
 			} // Remove any items that aren't in the new local storage.
 
 
-			for (var keyOld in localStorage) {
-				if (!(keyOld in localStorageNew)) {
+			for (var keyOld in storage) {
+				if (!(keyOld in storageNew)) {
 					delete localStorage[keyOld];
 				}
-			}
+			} // Update the global storage reference.
+
+
+			storage = storageNew;
 		}
 	};
 
-	var storage = {
+	var storage$1 = {
 		driver: driver$3
 	};
 
@@ -921,7 +936,7 @@
 		http: http,
 		route: route$1,
 		run: run,
-		storage: storage,
+		storage: storage$1,
 		time: time,
 		use: use,
 		version: "1.0.0-beta.4",
