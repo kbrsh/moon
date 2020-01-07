@@ -1,5 +1,5 @@
 /**
- * Moon v1.0.0-beta.4
+ * Moon v1.0.0-beta.5
  * Copyright 2016-2019 Kabir Shah
  * Released under the MIT License
  * https://kbrsh.github.io/moon
@@ -939,7 +939,7 @@
 		storage: storage$1,
 		time: time,
 		use: use,
-		version: "1.0.0-beta.4",
+		version: "1.0.0-beta.5",
 		view: view
 	};
 

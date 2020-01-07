@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Moon CLI v1.0.0-beta.4
+ * Moon CLI v1.0.0-beta.5
  * Copyright 2016-2019 Kabir Shah
  * Released under the MIT License
  * https://kbrsh.github.io/moon
@@ -225,7 +225,7 @@
 	switch (commandName) {
 		case "version":
 			{
-				logHelp("Moon CLI v" + "1.0.0-beta.4");
+				logHelp("Moon CLI v" + "1.0.0-beta.5");
 				break;
 			}
 
