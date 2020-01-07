@@ -25,9 +25,9 @@ async function build(package) {
 
 	const comment = `${type === "executable" ? "#!/usr/bin/env node\n" : ""}/**
  * ${name} v${version}
- * Copyright 2016-2019 Kabir Shah
+ * Copyright 2016-2020 Kabir Shah
  * Released under the MIT License
- * https://kbrsh.github.io/moon
+ * https://moonjs.org
  */\r\n`;
 
 	try {

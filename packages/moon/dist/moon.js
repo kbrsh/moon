@@ -1,8 +1,8 @@
 /**
  * Moon v1.0.0-beta.5
- * Copyright 2016-2019 Kabir Shah
+ * Copyright 2016-2020 Kabir Shah
  * Released under the MIT License
- * https://kbrsh.github.io/moon
+ * https://moonjs.org
  */
 (function(root, factory) {
 	if (typeof module === "undefined") {
