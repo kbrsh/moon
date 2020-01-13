@@ -170,18 +170,17 @@ const parser = {
  * Moon View Language Grammar
  */
 const grammar = {
-	whitespace: parser.alternates([
-		parser.character(" "),
-		parser.character("\t"),
-		parser.character("\n")
-	]),
 	comment: parser.type("comment", parser.sequence([
 		parser.character("#"),
 		parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["#"]))),
 		parser.character("#")
 	])),
 	separator: (input, index) => parser.many(parser.or(
-		grammar.whitespace,
+		parser.alternates([
+			parser.character(" "),
+			parser.character("\t"),
+			parser.character("\n")
+		]),
 		grammar.comment
 	))(input, index),
 	value: (input, index) => parser.alternates([
