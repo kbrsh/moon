@@ -364,7 +364,7 @@ test("error on invalid create name", () => {
 		}
 	};
 
-	expect(MoonCLI(["create"], `The "path" argument must be of type string. Received type undefined`)).toEqual(`\x1b[31merror\x1b[0m Invalid or unknown name.
+	expect(MoonCLI(["create"], `The "path" argument must be of type string. Received undefined`)).toEqual(`\x1b[31merror\x1b[0m Invalid or unknown name.
 
 Attempted to create an application.
 
