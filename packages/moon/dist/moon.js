@@ -75,14 +75,13 @@
 	 *
 	 * The application runs on the Moon while drivers update the Earth.
 	 *
-	 * @param {function} root
-	 * @param {object} drivers
+	 * @param {function} application
 	 */
 
-	function run(root) {
+	function run(application) {
 		// Handle invalid root type.
-		if ("development" === "development" && typeof root !== "function") {
-			error("Root parameter with an invalid type.\n\nAttempted to execute the \"root\" parameter as an application.\n\nReceived an invalid root argument:\n\t" + root + "\n\n\tThe given root has an invalid type:\n\t\t" + typeof root + "\n\nExpected the root to be a function that takes driver inputs as parameters and returns driver outputs.");
+		if ("development" === "development" && typeof application !== "function") {
+			error("Application parameter with an invalid type.\n\nAttempted to execute an application function.\n\nReceived an invalid application argument:\n\t" + application + "\n\n\tThe given application has an invalid type:\n\t\t" + typeof application + "\n\nExpected the application to be a function that takes driver inputs as parameters and returns driver outputs.");
 		} // Get inputs from all drivers.
 
 
@@ -97,11 +96,11 @@
 		} // Get the application output.
 
 
-		var output = root(input); // Execute drivers with the outputs.
+		var output = application(input); // Execute drivers with the outputs.
 
 		for (var _driver in output) {
 			if ("development" === "development" && !(_driver in drivers)) {
-				error("Use of an unknown driver.\n\nAttempted to execute an application function:\n\t" + root.name + "\n\n\tThe function attempted to output to a driver:\n\t\t" + _driver + ": " + drivers[_driver] + "\n\nReceived an undefined value when fetching the driver from the given drivers.\n\nExpected the driver to be defined.");
+				error("Use of an unknown driver.\n\nAttempted to execute a driver to receive outputs:\n\t\t" + _driver + "\n\nReceived an undefined value when fetching the driver from the given drivers.\n\nExpected the driver to be defined.");
 			}
 
 			if ("development" === "development" && !("output" in drivers[_driver])) {

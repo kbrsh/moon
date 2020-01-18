@@ -35,23 +35,22 @@ import { error } from "util/index";
  *
  * The application runs on the Moon while drivers update the Earth.
  *
- * @param {function} root
- * @param {object} drivers
+ * @param {function} application
  */
-export default function run(root) {
+export default function run(application) {
 	// Handle invalid root type.
-	if (process.env.MOON_ENV === "development" && typeof root !== "function") {
-		error(`Root parameter with an invalid type.
+	if (process.env.MOON_ENV === "development" && typeof application !== "function") {
+		error(`Application parameter with an invalid type.
 
-Attempted to execute the "root" parameter as an application.
+Attempted to execute an application function.
 
-Received an invalid root argument:
-	${root}
+Received an invalid application argument:
+	${application}
 
-	The given root has an invalid type:
-		${typeof root}
+	The given application has an invalid type:
+		${typeof application}
 
-Expected the root to be a function that takes driver inputs as parameters and returns driver outputs.`);
+Expected the application to be a function that takes driver inputs as parameters and returns driver outputs.`);
 	}
 
 	// Get inputs from all drivers.
@@ -74,18 +73,15 @@ Expected the driver to be an object with "input" and "output" functions.`);
 	}
 
 	// Get the application output.
-	const output = root(input);
+	const output = application(input);
 
 	// Execute drivers with the outputs.
 	for (const driver in output) {
 		if (process.env.MOON_ENV === "development" && !(driver in drivers)) {
 			error(`Use of an unknown driver.
 
-Attempted to execute an application function:
-	${root.name}
-
-	The function attempted to output to a driver:
-		${driver}: ${drivers[driver]}
+Attempted to execute a driver to receive outputs:
+		${driver}
 
 Received an undefined value when fetching the driver from the given drivers.
 
