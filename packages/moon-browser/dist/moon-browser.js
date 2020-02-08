@@ -1,5 +1,5 @@
 /**
- * Moon Browser v1.0.0-beta.5
+ * Moon Browser v1.0.0-beta.7
  * Copyright 2016-2020 Kabir Shah
  * Released under the MIT License
  * https://moonjs.org
@@ -455,7 +455,7 @@
 		compile: compile,
 		generate: generate,
 		parse: parse,
-		version: "1.0.0-beta.5"
+		version: "1.0.0-beta.7"
 	};
 
 	/**

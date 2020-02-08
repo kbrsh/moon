@@ -1,6 +1,6 @@
 {
 	"name": "moon-compiler",
-	"version": "1.0.0-beta.5",
+	"version": "1.0.0-beta.7",
 	"description": "Moon view syntax compiler",
 	"main": "dist/moon-compiler.min.js",
 	"repository": {
