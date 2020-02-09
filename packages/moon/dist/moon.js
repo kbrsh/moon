@@ -903,13 +903,13 @@
 	/**
 	 * Returns a view given routes that map to views and the current route.
 	 *
-	 * @param {object} data
+	 * @param {object} input
 	 * @returns {object} view
 	 */
-	function router(data) {
-		var route = data.route;
+	function router(input) {
+		var route = input.route;
 		var routeSegment = "/";
-		var routes = data.routes;
+		var routes = input.routes;
 
 		for (var i = 1; i < route.length; i++) {
 			var routeCharacter = route[i];
@@ -922,7 +922,7 @@
 			}
 		}
 
-		return (routeSegment in routes ? routes[routeSegment] : routes["/*"])[0](data);
+		return (routeSegment in routes ? routes[routeSegment] : routes["/*"])[0](input);
 	}
 
 	var route$1 = {
