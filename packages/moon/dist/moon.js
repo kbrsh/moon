@@ -590,7 +590,7 @@
 	 */
 	function wait(delay) {
 		return function (handler) {
-			setTimeout(handler, delay);
+			setTimeout(handler, delay * 1000);
 		};
 	}
 

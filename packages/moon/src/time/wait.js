@@ -5,6 +5,6 @@
  */
 export default function wait(delay) {
 	return handler => {
-		setTimeout(handler, delay);
+		setTimeout(handler, delay * 1000);
 	};
 }
