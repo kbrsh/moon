@@ -9,7 +9,7 @@ window.XMLHttpRequest = function() {
 	this.open = () => {};
 	this.send = error ? () => { this.onerror(); } : () => { this.onload(); };
 	this.status = status;
-	this.response = "const paragraphSrc = (<Moon.view.m.p>Moon Test</Moon.view.m.p>);";
+	this.response = "const paragraphSrc = (<Moon.view.components.p>Moon Test</Moon.view.components.p>);";
 
 	if (status === 200) {
 		status = 500;
@@ -25,7 +25,7 @@ scriptNormal.text = "const foo = 7;";
 
 const scriptInline = document.createElement("script");
 scriptInline.type = "text/moon";
-scriptInline.text = "const paragraph = (<Moon.view.m.p>Moon Test</Moon.view.m.p>);";
+scriptInline.text = "const paragraph = (<Moon.view.components.p>Moon Test</Moon.view.components.p>);";
 
 const scriptSrc = document.createElement("script");
 scriptSrc.type = "text/moon";
@@ -59,7 +59,7 @@ test("transform inline script", () => {
 
 	expect(script).not.toBeUndefined();
 	expect(script.type).toEqual("text/javascript");
-	expect(script.text).toEqual(`const paragraph = (Moon.view.m.p({children:[Moon.view.m.text({data:\"Moon Test\"})]}));`);
+	expect(script.text).toEqual(`const paragraph = (Moon.view.components.p({children:[Moon.view.components.text({data:\"Moon Test\"})]}));`);
 });
 
 test("transform external script", () => {
@@ -67,7 +67,7 @@ test("transform external script", () => {
 
 	expect(script).not.toBeUndefined();
 	expect(script.type).toEqual("text/javascript");
-	expect(script.text).toEqual(`const paragraphSrc = (Moon.view.m.p({children:[Moon.view.m.text({data:\"Moon Test\"})]}));`);
+	expect(script.text).toEqual(`const paragraphSrc = (Moon.view.components.p({children:[Moon.view.components.text({data:\"Moon Test\"})]}));`);
 });
 
 test("transform external script with error response", () => {

@@ -1,7 +1,7 @@
 /**
  * Matches an identifier character.
  */
-const identifierRE = /[@$\w.]/;
+const identifierRE = /[$\w.]/;
 
 /**
  * Stores an error message, a slice of tokens associated with the error, and a

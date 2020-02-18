@@ -583,20 +583,8 @@
 		return Date.now();
 	}
 
-	/**
-	 * Wait for a time in seconds before executing an event callback.
-	 *
-	 * @param {number} delay
-	 */
-	function wait(delay) {
-		return function (handler) {
-			setTimeout(handler, delay * 1000);
-		};
-	}
-
 	var time = {
-		tell: tell,
-		wait: wait
+		tell: tell
 	};
 
 	/**

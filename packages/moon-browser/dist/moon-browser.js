@@ -10,7 +10,7 @@
 	/**
 	 * Matches an identifier character.
 	 */
-	var identifierRE = /[@$\w.]/;
+	var identifierRE = /[$\w.]/;
 	/**
 	 * Stores an error message, a slice of tokens associated with the error, and a
 	 * related error for later reporting.

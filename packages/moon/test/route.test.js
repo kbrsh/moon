@@ -1,41 +1,19 @@
 import Moon from "moon/src/index";
 
-Moon.use({
-	route: Moon.route.driver
-});
-
 test("provides route as input", () => {
-	Moon.run(({ route }) => {
-		expect(route).toEqual("/");
-	});
+	expect(Moon.route.read()).toEqual("/");
 });
 
 test("changes route for output", () => {
-	Moon.run(({ route }) => {
-		expect(route).toEqual("/");
-
-		return {
-			route: "/test"
-		};
-	});
-
-	Moon.run(({ route }) => {
-		expect(route).toEqual("/test");
-
-		return {
-			route: "/test/foo"
-		};
-	});
-
-	Moon.run(({ route }) => {
-		expect(route).toEqual("/test/foo");
-
-		return {};
-	});
+	expect(Moon.route.read()).toEqual("/");
+	Moon.route.navigate("/test");
+	expect(Moon.route.read()).toEqual("/test");
+	Moon.route.navigate("/test/foo");
+	expect(Moon.route.read()).toEqual("/test/foo");
 });
 
 test("router view", () => {
-	const view = route => data => <Moon.view.m.p>{route}{data.route}{data.test}</Moon.view.m.p>;
+	const view = route => data => <Moon.view.components.p>{route}{data.route}{data.test}</Moon.view.components.p>;
 	const data = route => ({ route, test: "test-moon-route" });
 	const routes = {
 		"/": [view("/"), {}],
