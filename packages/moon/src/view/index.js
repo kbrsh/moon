@@ -1,7 +1,9 @@
-import driver from "moon/src/view/driver";
-import m from "moon/src/view/m";
+import configure from "moon/src/view/configure";
+import render from "moon/src/view/render";
+import components from "moon/src/view/components";
 
 export default {
-	driver,
-	m
+	components,
+	configure,
+	render
 };

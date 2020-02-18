@@ -1,5 +1,5 @@
-import driver from "moon/src/http/driver";
+import send from "moon/src/http/send";
 
 export default {
-	driver
+	send
 };

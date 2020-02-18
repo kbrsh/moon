@@ -1,5 +1,7 @@
-import driver from "moon/src/time/driver";
+import tell from "moon/src/time/tell";
+import wait from "moon/src/time/wait";
 
 export default {
-	driver
+	tell,
+	wait
 };

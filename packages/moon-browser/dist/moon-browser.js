@@ -303,13 +303,13 @@
 			// added only to preserve newlines in the generated code.
 
 			return {
-				output: textGeneratedIsWhitespace ? textGenerated : "Moon.view.m.text({data:\"" + textGenerated.replace(textSpecialRE, function (match, character, characterSpecial) {
+				output: textGeneratedIsWhitespace ? textGenerated : "Moon.view.components.text({data:\"" + textGenerated.replace(textSpecialRE, function (match, character, characterSpecial) {
 					return character + (characterSpecial === "\"" ? "\\\"" : "\\n\\\n");
 				}) + "\"})",
 				isWhitespace: textGeneratedIsWhitespace
 			};
 		} else if (type === "interpolation") {
-			return "Moon.view.m.text({data:" + generate(tree.value[1]) + "})";
+			return "Moon.view.components.text({data:" + generate(tree.value[1]) + "})";
 		} else if (type === "node") {
 			// Nodes represent a variable reference.
 			var _value = tree.value;

@@ -1,5 +1,4 @@
-import driver from "moon/src/storage/driver";
-
-export default {
-	driver
-};
+/**
+ * The storage transformer provides access to local storage.
+ */
+export default localStorage;

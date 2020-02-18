@@ -1,7 +1,9 @@
-import driver from "moon/src/route/driver";
+import read from "moon/src/route/read";
+import navigate from "moon/src/route/navigate";
 import router from "moon/src/route/router";
 
 export default {
-	driver,
+	navigate,
+	read,
 	router
 };

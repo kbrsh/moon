@@ -1,40 +1,27 @@
-import run from "moon/src/run";
-import ViewNode from "moon/src/view/ViewNode";
-import { removeDataProperty } from "moon/src/view/util";
-
-/**
- * Current view event data
- */
-let viewEvent = null;
-
-/**
- * Current view node
- */
-let viewOld;
-
-/**
- * Current view element
- */
-let viewOldElement;
-
-/**
- * Moon event
- *
- * This is used as a global event handler for any event type, and it runs the
- * corresponding handler with the event data as view driver input.
- */
-function MoonEvent() {}
-
-MoonEvent.prototype.handleEvent = function(viewEventNew) {
-	viewEvent = viewEventNew;
-	run(this["@" + viewEvent.type]);
-};
+import { viewOld, viewOldUpdate, viewOldElement, viewOldElementUpdate } from "moon/src/view/state";
 
 /**
  * Modify the prototype of a node to include special Moon view properties.
  */
 Node.prototype.MoonChildren = null;
-Node.prototype.MoonEvent = null;
+
+/**
+ * Cache for default property values
+ */
+const removeDataPropertyCache = {};
+
+/**
+ * Remove a data property.
+ *
+ * @param {object} element
+ * @param {string} key
+ */
+function removeDataProperty(element, name, key) {
+	element[key] =
+		name in removeDataPropertyCache ?
+		removeDataPropertyCache[name][key] :
+		(removeDataPropertyCache[name] = document.createElement(name))[key];
+}
 
 /**
  * Creates an element from a node.
@@ -58,16 +45,9 @@ function viewCreate(node) {
 		for (const key in nodeData) {
 			const value = nodeData[key];
 
-			if (key.charCodeAt(0) === 64) {
+			if (key[0] === "o" && key[1] === "n") {
 				// Set an event listener.
-				let elementMoonEvent = element.MoonEvent;
-
-				if (elementMoonEvent === null) {
-					elementMoonEvent = element.MoonEvent = new MoonEvent();
-				}
-
-				elementMoonEvent[key] = value;
-				element.addEventListener(key.slice(1), elementMoonEvent);
+				element[key.toLowerCase()] = value;
 			} else {
 				switch (key) {
 					case "attributes": {
@@ -153,22 +133,9 @@ function viewPatch(nodeOld, nodeOldElement, nodeNew) {
 		const valueNew = nodeNewData[keyNew];
 
 		if (valueOld !== valueNew) {
-			if (keyNew.charCodeAt(0) === 64) {
+			if (keyNew[0] === "o" && keyNew[1] === "n") {
 				// Update an event.
-				let nodeOldElementMoonEvent = nodeOldElement.MoonEvent;
-
-				if (nodeOldElementMoonEvent === null) {
-					nodeOldElementMoonEvent = nodeOldElement.MoonEvent = new MoonEvent();
-				}
-
-				if (keyNew in nodeOldElementMoonEvent) {
-					// If the event exists, update the existing event handler.
-					nodeOldElementMoonEvent[keyNew] = valueNew;
-				} else {
-					// If the event doesn't exist, add a new event listener.
-					nodeOldElementMoonEvent[keyNew] = valueNew;
-					nodeOldElement.addEventListener(keyNew.slice(1), nodeOldElementMoonEvent);
-				}
+				nodeOldElement[keyNew.toLowerCase()] = valueNew;
 			} else {
 				switch (keyNew) {
 					case "attributes": {
@@ -360,12 +327,9 @@ function viewPatch(nodeOld, nodeOldElement, nodeNew) {
 
 	for (const keyOld in nodeOldData) {
 		if (!(keyOld in nodeNewData)) {
-			if (keyOld.charCodeAt(0) === 64) {
+			if (keyOld[0] === "o" && keyOld[1] === "n") {
 				// Remove an event.
-				const nodeOldElementMoonEvent = nodeOldElement.MoonEvent;
-
-				delete nodeOldElementMoonEvent[keyOld];
-				nodeOldElement.removeEventListener(keyOld.slice(1), nodeOldElementMoonEvent);
+				nodeOldElement[keyOld.toLowerCase()] = null;
 			} else {
 				switch (keyOld) {
 					case "attributes": {
@@ -418,14 +382,13 @@ function viewPatch(nodeOld, nodeOldElement, nodeNew) {
 }
 
 /**
- * View driver
- *
- * The view driver is responsible for updating the DOM and rendering views.
- * The patch consists of walking the new tree and finding differences between
- * the trees. The old tree is used to compare values for performance. The DOM
- * is updated to reflect these changes as well. Ideally, the DOM would provide
- * an API for creating lightweight elements and render directly from a virtual
- * DOM, but Moon uses the imperative API for updating it instead.
+ * The view transformer renderer is responsible for updating the DOM and
+ * rendering views. The patch consists of walking the new tree and finding
+ * differences between the trees. The old tree is used to compare values for
+ * performance. The DOM is updated to reflect these changes as well. Ideally,
+ * the DOM would provide an API for creating lightweight elements and render
+ * directly from a virtual DOM, but Moon uses the imperative API for updating
+ * it instead.
  *
  * Since views can easily be cached, Moon skips over patches if the old and new
  * nodes are equal. This is also why views should be pure and immutable. They
@@ -434,52 +397,27 @@ function viewPatch(nodeOld, nodeOldElement, nodeNew) {
  * more memory, but Moon nodes are heavily optimized to work well with
  * JavaScript engines, and immutability opens up the opportunity to use
  * standard functional techniques for caching.
+ *
+ * @param {object} viewNew
  */
-export default function driver(viewOldElementNew) {
-	// Accept query strings as well as DOM elements.
-	if (typeof viewOldElementNew === "string") {
-		viewOldElement = document.querySelector(viewOldElementNew);
+export default function render(viewNew) {
+	// When given a new view, patch the old element to match the new node using
+	// the old node as reference.
+	if (viewOld.name === viewNew.name) {
+		// If the root views have the same name, patch their data.
+		viewPatch(viewOld, viewOldElement, viewNew);
 	} else {
-		viewOldElement = viewOldElementNew;
+		// If they have different names, create a new old view element.
+		const viewOldElementNew = viewCreate(viewNew);
+
+		// Manipulate the DOM to replace the old view.
+		viewOldElement.parentNode.replaceChild(viewOldElementNew, viewOldElement);
+
+		// Update the reference to the old view element.
+		viewOldElementUpdate(viewOldElementNew);
 	}
 
-	// Capture old data from the root element's attributes.
-	const viewOldElementAttributes = viewOldElement.attributes;
-	const viewOldData = {};
-
-	for (let i = 0; i < viewOldElementAttributes.length; i++) {
-		const viewOldElementAttribute = viewOldElementAttributes[i];
-		viewOldData[viewOldElementAttribute.name] = viewOldElementAttribute.value;
-	}
-
-	// Create a node from the root element.
-	viewOld = new ViewNode(viewOldElement.tagName.toLowerCase(), viewOldData);
-
-	return {
-		input() {
-			// Return the current event data as input.
-			return viewEvent;
-		},
-		output(viewNew) {
-			// When given a new view, patch the old element to match the new node
-			// using the old node as reference.
-			if (viewOld.name === viewNew.name) {
-				// If the root views have the same name, patch their data.
-				viewPatch(viewOld, viewOldElement, viewNew);
-			} else {
-				// If they have different names, create a new old view element.
-				const viewOldElementNew = viewCreate(viewNew);
-
-				// Manipulate the DOM to replace the old view.
-				viewOldElement.parentNode.replaceChild(viewOldElementNew, viewOldElement);
-
-				// Update the reference to the old view element.
-				viewOldElement = viewOldElementNew;
-			}
-
-			// Store the new view as the old view to be used as reference during a
-			// patch.
-			viewOld = viewNew;
-		}
-	};
+	// Store the new view as the old view to be used as reference during a
+	// patch.
+	viewOldUpdate(viewNew);
 }

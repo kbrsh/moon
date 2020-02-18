@@ -14,131 +14,23 @@
 	"use strict";
 
 	/**
-	 * Logs an error message to the console.
-	 * @param {string} message
-	 */
-	function error(message) {
-		console.error("[Moon] ERROR: " + message);
-	}
-
-	/**
-	 * Application drivers
+	 * Configure transformers.
+	 *
+	 * @param {object} options
 	 */
 
-	var drivers;
-	/**
-	 * Sets the application drivers to new drivers.
-	 *
-	 * @param {object} driversNew
-	 */
-
-	function use(driversNew) {
-		// Handle invalid drivers type.
-		if ("development" === "development" && typeof driversNew !== "object") {
-			error("Drivers parameter with an invalid type.\n\nAttempted to store the \"drivers\" parameter for use during execution.\n\nReceived an invalid drivers argument:\n\t" + driversNew + "\n\n\tThe given drivers have an invalid type:\n\t\t" + typeof driversNew + "\n\nExpected the drivers to be an object with keys as driver names and values as drivers.");
-		}
-
-		drivers = driversNew;
-	}
-
-	/**
-	 * Run
-	 *
-	 * Creates a new Moon application based on a root application and drivers. A
-	 * Moon application takes inputs and returns outputs -- it's just a function.
-	 * The input and output effects are created by drivers, individual modules
-	 * responsible for controlling the outside world. Ideally, these would be
-	 * standard and implemented by the browser, operating system, and computer
-	 * itself.
-	 *
-	 * Drivers control things like state data, the DOM view, timing events,
-	 * animation frames, HTTP requests, dates, audio, etc. They are all implemented
-	 * separately from Moon, but Moon comes with some drivers by default. A driver
-	 * is an object with input and output functions. The input function reads data
-	 * from the outside world and returns it, while the output function takes the
-	 * driver output returned by the application and performs effects on the
-	 * outside world.
-	 *
-	 * Instead of components, Moon views are just functions. They usually take a
-	 * `data` object as a parameter and return Moon elements, but can technically
-	 * be implemented with any structure.
-	 *
-	 * When events occur, they are detected by the application, and it returns the
-	 * value of an event handler instead. These happen with events from any driver.
-	 * Event handlers are applications as well, but since everything is a function,
-	 * they can use the root application within their own implementation.
-	 *
-	 * Essentially, Moon aims to remove unnecessary abstractions like local state,
-	 * imperative event handlers, or reactive state subscriptions. Instead, it
-	 * embraces a purely functional approach with support for drivers to interact
-	 * with the imperative API often offered by the containing environment.
-	 *
-	 * The application runs on the Moon while drivers update the Earth.
-	 *
-	 * @param {function} application
-	 */
-
-	function run(application) {
-		// Handle invalid root type.
-		if ("development" === "development" && typeof application !== "function") {
-			error("Application parameter with an invalid type.\n\nAttempted to execute an application function.\n\nReceived an invalid application argument:\n\t" + application + "\n\n\tThe given application has an invalid type:\n\t\t" + typeof application + "\n\nExpected the application to be a function that takes driver inputs as parameters and returns driver outputs.");
-		} // Get inputs from all drivers.
-
-
-		var input = {};
-
-		for (var driver in drivers) {
-			if ("development" === "development" && !("input" in drivers[driver])) {
-				error("Use of a driver without an \"input\" function.\n\nAttempted to execute a driver to receive inputs:\n\t" + driver + "\n\nReceived a driver without an \"input\" function:\n\t" + drivers[driver] + "\n\nExpected the driver to be an object with \"input\" and \"output\" functions.");
-			}
-
-			input[driver] = drivers[driver].input();
-		} // Get the application output.
-
-
-		var output = application(input); // Execute drivers with the outputs.
-
-		for (var _driver in output) {
-			if ("development" === "development" && !(_driver in drivers)) {
-				error("Use of an unknown driver.\n\nAttempted to execute a driver to receive outputs:\n\t\t" + _driver + "\n\nReceived an undefined value when fetching the driver from the given drivers.\n\nExpected the driver to be defined.");
-			}
-
-			if ("development" === "development" && !("output" in drivers[_driver])) {
-				error("Use of a driver without an \"output\" function.\n\nAttempted to execute a driver to receive outputs:\n\t" + _driver + "\n\nReceived a driver without an \"output\" function:\n\t" + drivers[_driver] + "\n\nExpected the driver to be an object with \"input\" and \"output\" functions.");
-			}
-
-			drivers[_driver].output(output[_driver]);
+	function configure(options) {
+		for (var transformer in options) {
+			Moon[transformer].configure(options[transformer]);
 		}
 	}
 
-	/*
-	 * Current global data
-	 */
-	var data;
 	/**
-	 * Data driver
-	 *
-	 * The application components are usually a function of data. This data holds
-	 * application state. Every time an application is executed, it is passed new
-	 * data and returns driver outputs that correspond to it. These driver outputs
-	 * should be fast, pure, functions that are cheap to call and easy to optimize
-	 * through caching and memoization.
+	 * The data transformer changes the state of computer memory. The application
+	 * components are usually a function of data. This data holds application state
+	 * and is changed with assignment syntax instead of utility functions.
 	 */
-
-	var driver = {
-		input: function input() {
-			// Return the stored data as input.
-			return data;
-		},
-		output: function output(dataNew) {
-			// Update the stored data when it is an output.
-			data = dataNew;
-		}
-	};
-
-	var data$1 = {
-		driver: driver
-	};
+	var data = {};
 
 	/**
 	 * View Node Constructor
@@ -152,8 +44,65 @@
 	}
 
 	/**
+	 * Global old view.
+	 */
+	var viewOld = null;
+	/**
+	 * Global old view element.
+	 */
+
+	var viewOldElement = null;
+	/**
+	 * Update the old view.
+	 *
+	 * @param {object} viewOldNew
+	 */
+
+	function viewOldUpdate(viewOldNew) {
+		viewOld = viewOldNew;
+	}
+	/**
+	 * Update the old view element.
+	 *
+	 * @param {object} viewOldElementNew
+	 */
+
+	function viewOldElementUpdate(viewOldElementNew) {
+		viewOldElement = viewOldElementNew;
+	}
+
+	/**
+	 * Configure the old view node and element.
+	 *
+	 * @param {object} options
+	 */
+
+	function configure$1(options) {
+		if ("root" in options) {
+			viewOldElementUpdate(options.root); // Capture old data from the element's attributes.
+
+			var viewOldElementAttributes = viewOldElement.attributes;
+			var viewOldData = {};
+
+			for (var i = 0; i < viewOldElementAttributes.length; i++) {
+				var viewOldElementAttribute = viewOldElementAttributes[i];
+				viewOldData[viewOldElementAttribute.name] = viewOldElementAttribute.value;
+			} // Create a node from the root element.
+
+
+			viewOldUpdate(new ViewNode(viewOldElement.tagName.toLowerCase(), viewOldData));
+		}
+	}
+
+	/**
+	 * Modify the prototype of a node to include special Moon view properties.
+	 */
+
+	Node.prototype.MoonChildren = null;
+	/**
 	 * Cache for default property values
 	 */
+
 	var removeDataPropertyCache = {};
 	/**
 	 * Remove a data property.
@@ -165,48 +114,13 @@
 	function removeDataProperty(element, name, key) {
 		element[key] = name in removeDataPropertyCache ? removeDataPropertyCache[name][key] : (removeDataPropertyCache[name] = document.createElement(name))[key];
 	}
-
-	/**
-	 * Current view event data
-	 */
-
-	var viewEvent = null;
-	/**
-	 * Current view node
-	 */
-
-	var viewOld;
-	/**
-	 * Current view element
-	 */
-
-	var viewOldElement;
-	/**
-	 * Moon event
-	 *
-	 * This is used as a global event handler for any event type, and it runs the
-	 * corresponding handler with the event data as view driver input.
-	 */
-
-	function MoonEvent() {}
-
-	MoonEvent.prototype.handleEvent = function (viewEventNew) {
-		viewEvent = viewEventNew;
-		run(this["@" + viewEvent.type]);
-	};
-	/**
-	 * Modify the prototype of a node to include special Moon view properties.
-	 */
-
-
-	Node.prototype.MoonChildren = null;
-	Node.prototype.MoonEvent = null;
 	/**
 	 * Creates an element from a node.
 	 *
 	 * @param {object} node
 	 * @returns {object} element
 	 */
+
 
 	function viewCreate(node) {
 		var nodeName = node.name;
@@ -223,16 +137,9 @@
 			for (var key in nodeData) {
 				var value = nodeData[key];
 
-				if (key.charCodeAt(0) === 64) {
+				if (key[0] === "o" && key[1] === "n") {
 					// Set an event listener.
-					var elementMoonEvent = element.MoonEvent;
-
-					if (elementMoonEvent === null) {
-						elementMoonEvent = element.MoonEvent = new MoonEvent();
-					}
-
-					elementMoonEvent[key] = value;
-					element.addEventListener(key.slice(1), elementMoonEvent);
+					element[key.toLowerCase()] = value;
 				} else {
 					switch (key) {
 						case "attributes":
@@ -328,22 +235,9 @@
 			var valueNew = nodeNewData[keyNew];
 
 			if (valueOld !== valueNew) {
-				if (keyNew.charCodeAt(0) === 64) {
+				if (keyNew[0] === "o" && keyNew[1] === "n") {
 					// Update an event.
-					var nodeOldElementMoonEvent = nodeOldElement.MoonEvent;
-
-					if (nodeOldElementMoonEvent === null) {
-						nodeOldElementMoonEvent = nodeOldElement.MoonEvent = new MoonEvent();
-					}
-
-					if (keyNew in nodeOldElementMoonEvent) {
-						// If the event exists, update the existing event handler.
-						nodeOldElementMoonEvent[keyNew] = valueNew;
-					} else {
-						// If the event doesn't exist, add a new event listener.
-						nodeOldElementMoonEvent[keyNew] = valueNew;
-						nodeOldElement.addEventListener(keyNew.slice(1), nodeOldElementMoonEvent);
-					}
+					nodeOldElement[keyNew.toLowerCase()] = valueNew;
 				} else {
 					switch (keyNew) {
 						case "attributes":
@@ -542,11 +436,9 @@
 
 		for (var keyOld in nodeOldData) {
 			if (!(keyOld in nodeNewData)) {
-				if (keyOld.charCodeAt(0) === 64) {
+				if (keyOld[0] === "o" && keyOld[1] === "n") {
 					// Remove an event.
-					var _nodeOldElementMoonEvent = nodeOldElement.MoonEvent;
-					delete _nodeOldElementMoonEvent[keyOld];
-					nodeOldElement.removeEventListener(keyOld.slice(1), _nodeOldElementMoonEvent);
+					nodeOldElement[keyOld.toLowerCase()] = null;
 				} else {
 					switch (keyOld) {
 						case "attributes":
@@ -606,14 +498,13 @@
 		}
 	}
 	/**
-	 * View driver
-	 *
-	 * The view driver is responsible for updating the DOM and rendering views.
-	 * The patch consists of walking the new tree and finding differences between
-	 * the trees. The old tree is used to compare values for performance. The DOM
-	 * is updated to reflect these changes as well. Ideally, the DOM would provide
-	 * an API for creating lightweight elements and render directly from a virtual
-	 * DOM, but Moon uses the imperative API for updating it instead.
+	 * The view transformer renderer is responsible for updating the DOM and
+	 * rendering views. The patch consists of walking the new tree and finding
+	 * differences between the trees. The old tree is used to compare values for
+	 * performance. The DOM is updated to reflect these changes as well. Ideally,
+	 * the DOM would provide an API for creating lightweight elements and render
+	 * directly from a virtual DOM, but Moon uses the imperative API for updating
+	 * it instead.
 	 *
 	 * Since views can easily be cached, Moon skips over patches if the old and new
 	 * nodes are equal. This is also why views should be pure and immutable. They
@@ -622,54 +513,29 @@
 	 * more memory, but Moon nodes are heavily optimized to work well with
 	 * JavaScript engines, and immutability opens up the opportunity to use
 	 * standard functional techniques for caching.
+	 *
+	 * @param {object} viewNew
 	 */
 
 
-	function driver$1(viewOldElementNew) {
-		// Accept query strings as well as DOM elements.
-		if (typeof viewOldElementNew === "string") {
-			viewOldElement = document.querySelector(viewOldElementNew);
+	function render(viewNew) {
+		// When given a new view, patch the old element to match the new node using
+		// the old node as reference.
+		if (viewOld.name === viewNew.name) {
+			// If the root views have the same name, patch their data.
+			viewPatch(viewOld, viewOldElement, viewNew);
 		} else {
-			viewOldElement = viewOldElementNew;
-		} // Capture old data from the root element's attributes.
+			// If they have different names, create a new old view element.
+			var viewOldElementNew = viewCreate(viewNew); // Manipulate the DOM to replace the old view.
+
+			viewOldElement.parentNode.replaceChild(viewOldElementNew, viewOldElement); // Update the reference to the old view element.
+
+			viewOldElementUpdate(viewOldElementNew);
+		} // Store the new view as the old view to be used as reference during a
+		// patch.
 
 
-		var viewOldElementAttributes = viewOldElement.attributes;
-		var viewOldData = {};
-
-		for (var i = 0; i < viewOldElementAttributes.length; i++) {
-			var viewOldElementAttribute = viewOldElementAttributes[i];
-			viewOldData[viewOldElementAttribute.name] = viewOldElementAttribute.value;
-		} // Create a node from the root element.
-
-
-		viewOld = new ViewNode(viewOldElement.tagName.toLowerCase(), viewOldData);
-		return {
-			input: function input() {
-				// Return the current event data as input.
-				return viewEvent;
-			},
-			output: function output(viewNew) {
-				// When given a new view, patch the old element to match the new node
-				// using the old node as reference.
-				if (viewOld.name === viewNew.name) {
-					// If the root views have the same name, patch their data.
-					viewPatch(viewOld, viewOldElement, viewNew);
-				} else {
-					// If they have different names, create a new old view element.
-					var _viewOldElementNew = viewCreate(viewNew); // Manipulate the DOM to replace the old view.
-
-
-					viewOldElement.parentNode.replaceChild(_viewOldElementNew, viewOldElement); // Update the reference to the old view element.
-
-					viewOldElement = _viewOldElementNew;
-				} // Store the new view as the old view to be used as reference during a
-				// patch.
-
-
-				viewOld = viewNew;
-			}
-		};
+		viewOldUpdate(viewNew);
 	}
 
 	/**
@@ -678,10 +544,13 @@
 
 	var names = ["a", "abbr", "acronym", "address", "applet", "area", "article", "aside", "audio", "b", "base", "basefont", "bdi", "bdo", "bgsound", "big", "blink", "blockquote", "body", "br", "button", "canvas", "caption", "center", "cite", "code", "col", "colgroup", "command", "content", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "dir", "div", "dl", "dt", "element", "em", "embed", "fieldset", "figcaption", "figure", "font", "footer", "form", "frame", "frameset", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "hr", "html", "i", "iframe", "image", "img", "input", "ins", "isindex", "kbd", "keygen", "label", "legend", "li", "link", "listing", "main", "map", "mark", "marquee", "math", "menu", "menuitem", "meta", "meter", "multicol", "nav", "nextid", "nobr", "noembed", "noframes", "noscript", "object", "ol", "optgroup", "option", "output", "p", "param", "picture", "plaintext", "pre", "progress", "q", "rb", "rbc", "rp", "rt", "rtc", "ruby", "s", "samp", "script", "section", "select", "shadow", "slot", "small", "source", "spacer", "span", "strike", "strong", "style", "sub", "summary", "sup", "svg", "table", "tbody", "td", "template", "text", "textarea", "tfoot", "th", "thead", "time", "title", "tr", "track", "tt", "u", "ul", "var", "video", "wbr", "xmp"];
 	/**
-	 * Node creation functions.
+	 * Components
+	 *
+	 * Each component generates a corresponding view node based on the data it is
+	 * passed as input. This data includes attributes and children.
 	 */
 
-	var m = {
+	var components = {
 		node: function node(name) {
 			return function (data) {
 				return new ViewNode(name, data);
@@ -692,7 +561,7 @@
 	var _loop = function _loop(i) {
 		var name = names[i];
 
-		m[name] = function (data) {
+		components[name] = function (data) {
 			return new ViewNode(name, data);
 		};
 	};
@@ -702,122 +571,58 @@
 	}
 
 	var view = {
-		driver: driver$1,
-		m: m
+		components: components,
+		configure: configure$1,
+		render: render
 	};
 
 	/**
-	 * Time driver
-	 *
-	 * The time driver provides time information as input. For output, it takes an
-	 * object mapping timeouts to functions, and runs those functions after those
-	 * timeouts. This can be used to implement intervals through a recursive
-	 * timeout function.
+	 * Returns the current time.
 	 */
+	function tell() {
+		return Date.now();
+	}
 
-	var driver$2 = {
-		input: function input() {
-			// Return the time as input.
-			return Date.now();
-		},
-		output: function output(timeouts) {
-			var _loop = function _loop(delay) {
-				setTimeout(function () {
-					run(timeouts[delay]);
-				}, delay);
-			};
-
-			// Set the given timeouts.
-			for (var delay in timeouts) {
-				_loop(delay);
-			}
-		}
-	};
+	/**
+	 * Wait for a time in seconds before executing an event callback.
+	 *
+	 * @param {number} delay
+	 */
+	function wait(delay) {
+		return function (handler) {
+			setTimeout(handler, delay);
+		};
+	}
 
 	var time = {
-		driver: driver$2
+		tell: tell,
+		wait: wait
 	};
 
-	/*
-	 * Current storage
-	 */
-	var storage = {};
-
-	for (var key in localStorage) {
-		if (localStorage.hasOwnProperty(key)) {
-			storage[key] = localStorage[key];
-		}
-	}
 	/**
-	 * Storage driver
-	 *
-	 * The storage driver allows applications to receive input from local storage
-	 * and persist string key/value pairs in local storage.
+	 * The storage transformer provides access to local storage.
 	 */
 
-
-	var driver$3 = {
-		input: function input() {
-			// Return the local storage as input.
-			return storage;
-		},
-		output: function output(storageNew) {
-			// Update the local storage when it is an output.
-			for (var keyNew in storageNew) {
-				var valueNew = storageNew[keyNew];
-
-				if (storage[keyNew] !== valueNew) {
-					localStorage[keyNew] = valueNew;
-				}
-			} // Remove any items that aren't in the new local storage.
-
-
-			for (var keyOld in storage) {
-				if (!(keyOld in storageNew)) {
-					delete localStorage[keyOld];
-				}
-			} // Update the global storage reference.
-
-
-			storage = storageNew;
-		}
-	};
-
-	var storage$1 = {
-		driver: driver$3
-	};
-
-	/*
-	 * Current global response
-	 */
-
-	var response = null;
 	/*
 	 * Match HTTP headers.
 	 */
-
 	var headerRE = /^([^:]+):\s*([^]*?)\s*$/gm;
 	/**
-	 * HTTP driver
+	 * Sends HTTP requests. Multiple HTTP requests can be implemented with multiple
+	 * requests in the array, and subsequent HTTP requests can be implemented with
+	 * another HTTP request once a response is received.
 	 *
-	 * The HTTP driver provides HTTP response information as input. For output, it
-	 * takes an array of requests. Multiple HTTP requests can be implemented with
-	 * multiple request in the array, and subsequent HTTP requests can be
-	 * implemented with another HTTP request once a response is received.
+	 * @param {array} requests
 	 */
 
-	var driver$4 = {
-		input: function input() {
-			// Return the response as output.
-			return response;
-		},
-		output: function output(requests) {
-			var _loop = function _loop(i) {
-				var request = requests[i];
-				var xhr = new XMLHttpRequest(); // Handle response types.
+	function send(requests) {
+		var _loop = function _loop(i) {
+			var request = requests[i];
+			var xhr = new XMLHttpRequest(); // Handle response types.
 
-				xhr.responseType = "responseType" in request ? request.responseType : "text"; // Handle load event.
+			xhr.responseType = "responseType" in request ? request.responseType : "text"; // Handle load event.
 
+			if ("onLoad" in request) {
 				xhr.onload = function () {
 					var responseHeaders = {};
 					var responseHeadersText = xhr.getAllResponseHeaders();
@@ -825,80 +630,64 @@
 
 					while ((responseHeader = headerRE.exec(responseHeadersText)) !== null) {
 						responseHeaders[responseHeader[1]] = responseHeader[2];
-					} // Create response object.
+					} // Run load event handler.
 
 
-					response = {
+					request.onLoad({
 						status: xhr.status,
 						headers: responseHeaders,
 						body: xhr.response
-					}; // Run load event handler if it exists.
-
-					if ("onLoad" in request) {
-						run(request.onLoad);
-					}
-				}; // Handle error event.
+					});
+				};
+			} // Handle error event.
 
 
-				xhr.onerror = function () {
-					// Reset response to prevent older response from being available.
-					response = null; // Run error event handler if it exists.
-
-					if ("onError" in request) {
-						run(request.onError);
-					}
-				}; // Open the request with the given method and URL.
+			if ("onError" in request) {
+				xhr.onerror = request.onError;
+			} // Open the request with the given method and URL.
 
 
-				xhr.open("method" in request ? request.method : "GET", request.url); // Set request headers.
+			xhr.open("method" in request ? request.method : "GET", request.url); // Set request headers.
 
-				if ("headers" in request) {
-					var requestHeaders = request.headers;
+			if ("headers" in request) {
+				var requestHeaders = request.headers;
 
-					for (var requestHeader in requestHeaders) {
-						xhr.setRequestHeader(requestHeader, requestHeaders[requestHeader]);
-					}
-				} // Send the request with the given body.
+				for (var requestHeader in requestHeaders) {
+					xhr.setRequestHeader(requestHeader, requestHeaders[requestHeader]);
+				}
+			} // Send the request with the given body.
 
 
-				xhr.send("body" in request ? request.body : null);
-			};
+			xhr.send("body" in request ? request.body : null);
+		};
 
-			// Make the HTTP requests.
-			for (var i = 0; i < requests.length; i++) {
-				_loop(i);
-			}
+		// Make the HTTP requests.
+		for (var i = 0; i < requests.length; i++) {
+			_loop(i);
 		}
-	};
+	}
 
 	var http = {
-		driver: driver$4
+		send: send
 	};
 
 	/**
-	 * Current route
-	 */
-	var route = location.pathname;
-	/**
-	 * Route driver
+	 * Reads and returns the current route.
 	 *
-	 * The route driver provides current route path as input. For output, it takes
-	 * a new route as a string and changes the route in the browser as a result. It
-	 * also provides a router component that can be used to display different views
-	 * based on the current route.
+	 * @returns {string} current route
 	 */
+	function read() {
+		return location.pathname;
+	}
 
-	var driver$5 = {
-		input: function input() {
-			// Return the current route as input.
-			return route;
-		},
-		output: function output(routeNew) {
-			// Change the browser route to the new route given as output.
-			route = routeNew;
-			history.pushState(null, "", route);
-		}
-	};
+	/**
+	 * Navigates to a new route.
+	 *
+	 * @param {string} routeNew
+	 */
+	function navigate(routeNew) {
+		history.pushState(null, "", routeNew);
+	}
 
 	/**
 	 * Returns a view given routes that map to views and the current route.
@@ -925,22 +714,34 @@
 		return (routeSegment in routes ? routes[routeSegment] : routes["/*"])[0](input);
 	}
 
-	var route$1 = {
-		driver: driver$5,
+	var route = {
+		navigate: navigate,
+		read: read,
 		router: router
 	};
 
-	var index = {
-		data: data$1,
+	var Moon = {
+		configure: configure,
+		data: data,
 		http: http,
-		route: route$1,
-		run: run,
-		storage: storage$1,
+		route: route,
+		storage: localStorage,
 		time: time,
 		use: use,
 		version: "1.0.0-beta.7",
 		view: view
 	};
+	/**
+	 * Register custom transformers.
+	 *
+	 * @param {object} transformers
+	 */
 
-	return index;
+	function use(transformers) {
+		for (var transformer in transformers) {
+			Moon[transformer] = transformers[transformer];
+		}
+	}
+
+	return Moon;
 }));

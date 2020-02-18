@@ -57,7 +57,7 @@ export default function generate(tree) {
 		return {
 			output: textGeneratedIsWhitespace ?
 				textGenerated :
-				`Moon.view.m.text({data:"${
+				`Moon.view.components.text({data:"${
 					textGenerated.replace(textSpecialRE, (match, character, characterSpecial) =>
 						character + (characterSpecial === "\"" ? "\\\"" : "\\n\\\n")
 					)
@@ -65,7 +65,7 @@ export default function generate(tree) {
 			isWhitespace: textGeneratedIsWhitespace
 		};
 	} else if (type === "interpolation") {
-		return `Moon.view.m.text({data:${generate(tree.value[1])}})`;
+		return `Moon.view.components.text({data:${generate(tree.value[1])}})`;
 	} else if (type === "node") {
 		// Nodes represent a variable reference.
 		const value = tree.value;
