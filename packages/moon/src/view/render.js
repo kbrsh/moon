@@ -13,14 +13,23 @@ const removeDataPropertyCache = {};
 /**
  * Remove a data property.
  *
+ * @param {object} node
  * @param {object} element
  * @param {string} key
  */
-function removeDataProperty(element, name, key) {
-	element[key] =
-		name in removeDataPropertyCache ?
-		removeDataPropertyCache[name][key] :
-		(removeDataPropertyCache[name] = document.createElement(name))[key];
+function removeDataProperty(node, element, key) {
+	const nodeName = node.name;
+
+	element[key] = (
+		nodeName in removeDataPropertyCache ?
+			removeDataPropertyCache[nodeName] :
+			(
+				removeDataPropertyCache[nodeName] =
+					nodeName === "text" ?
+						document.createTextNode("") :
+						document.createElement(nodeName)
+			)
+	)[key];
 }
 
 /**
@@ -323,8 +332,6 @@ function viewPatch(nodeOld, nodeOldElement, nodeNew) {
 
 	// Next, go through all of the old data and remove data that isn't in the
 	// new data.
-	const nodeOldName = nodeOld.name;
-
 	for (const keyOld in nodeOldData) {
 		if (!(keyOld in nodeNewData)) {
 			if (keyOld[0] === "o" && keyOld[1] === "n") {
@@ -373,7 +380,7 @@ function viewPatch(nodeOld, nodeOldElement, nodeNew) {
 					}
 					default: {
 						// Remove a DOM property.
-						removeDataProperty(nodeOldElement, nodeOldName, keyOld);
+						removeDataProperty(nodeOld, nodeOldElement, keyOld);
 					}
 				}
 			}

@@ -119,12 +119,14 @@
 	/**
 	 * Remove a data property.
 	 *
+	 * @param {object} node
 	 * @param {object} element
 	 * @param {string} key
 	 */
 
-	function removeDataProperty(element, name, key) {
-		element[key] = name in removeDataPropertyCache ? removeDataPropertyCache[name][key] : (removeDataPropertyCache[name] = document.createElement(name))[key];
+	function removeDataProperty(node, element, key) {
+		var nodeName = node.name;
+		element[key] = (nodeName in removeDataPropertyCache ? removeDataPropertyCache[nodeName] : removeDataPropertyCache[nodeName] = nodeName === "text" ? document.createTextNode("") : document.createElement(nodeName))[key];
 	}
 	/**
 	 * Creates an element from a node.
@@ -444,8 +446,6 @@
 		// new data.
 
 
-		var nodeOldName = nodeOld.name;
-
 		for (var keyOld in nodeOldData) {
 			if (!(keyOld in nodeNewData)) {
 				if (keyOld[0] === "o" && keyOld[1] === "n") {
@@ -502,7 +502,7 @@
 						default:
 							{
 								// Remove a DOM property.
-								removeDataProperty(nodeOldElement, nodeOldName, keyOld);
+								removeDataProperty(nodeOld, nodeOldElement, keyOld);
 							}
 					}
 				}

@@ -77,6 +77,10 @@ function ExecutorTest() {
 				<components.p>Text</components.p> :
 				<components.p/>
 			)*>
+			<(list.length > 0 ?
+				<components.text data="Text"/> :
+				<components.text/>
+			)*>
 		</components.div>
 	);
 }
@@ -215,6 +219,14 @@ function verify(list) {
 	} else {
 		expect(pChildren.textContent).toEqual("");
 		expect(pChildren.childNodes.length).toEqual(0);
+	}
+
+	const textRemove = pChildren.nextSibling;
+
+	if (list.length > 0) {
+		expect(textRemove.data).toEqual("Text");
+	} else {
+		expect(textRemove.data).toEqual("");
 	}
 }
 
