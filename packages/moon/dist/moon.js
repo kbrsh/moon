@@ -26,6 +26,18 @@
 	}
 
 	/**
+	 * Register custom transformers.
+	 *
+	 * @param {object} transformers
+	 */
+
+	function use(transformers) {
+		for (var transformer in transformers) {
+			Moon[transformer] = transformers[transformer];
+		}
+	}
+
+	/**
 	 * The data transformer changes the state of computer memory. The application
 	 * components are usually a function of data. This data holds application state
 	 * and is changed with assignment syntax instead of utility functions.
@@ -719,17 +731,6 @@
 		version: "1.0.0-beta.7",
 		view: view
 	};
-	/**
-	 * Register custom transformers.
-	 *
-	 * @param {object} transformers
-	 */
-
-	function use(transformers) {
-		for (var transformer in transformers) {
-			Moon[transformer] = transformers[transformer];
-		}
-	}
 
 	return Moon;
 }));
