@@ -117,24 +117,11 @@
 
 	var removeDataPropertyCache = {};
 	/**
-	 * Remove a data property.
-	 *
-	 * @param {object} node
-	 * @param {object} element
-	 * @param {string} key
-	 */
-
-	function removeDataProperty(node, element, key) {
-		var nodeName = node.name;
-		element[key] = (nodeName in removeDataPropertyCache ? removeDataPropertyCache[nodeName] : removeDataPropertyCache[nodeName] = nodeName === "text" ? document.createTextNode("") : document.createElement(nodeName))[key];
-	}
-	/**
 	 * Creates an element from a node.
 	 *
 	 * @param {object} node
 	 * @returns {object} element
 	 */
-
 
 	function viewCreate(node) {
 		var nodeName = node.name;
@@ -502,7 +489,8 @@
 						default:
 							{
 								// Remove a DOM property.
-								removeDataProperty(nodeOld, nodeOldElement, keyOld);
+								var nodeOldName = nodeOld.name;
+								nodeOldElement[keyOld] = (nodeOldName in removeDataPropertyCache ? removeDataPropertyCache[nodeOldName] : removeDataPropertyCache[nodeOldName] = nodeOldName === "text" ? document.createTextNode("") : document.createElement(nodeOldName))[keyOld];
 							}
 					}
 				}
