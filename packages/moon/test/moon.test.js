@@ -15,19 +15,3 @@ test("Moon with string root", () => {
 
 	expect(root.textContent).toEqual("Test!");
 });
-
-test("Moon with custom transformer", () => {
-	let test = 0;
-
-	Moon.use({
-		test: {
-			update: testNew => { test = testNew; },
-			configure: testInit => { test = testInit; }
-		}
-	});
-
-	Moon.configure({ test: 7 });
-	expect(test).toEqual(7);
-	Moon.test.update(49);
-	expect(test).toEqual(49);
-});

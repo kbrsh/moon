@@ -1,5 +1,4 @@
 import configure from "moon/src/configure";
-import use from "moon/src/use";
 import data from "moon/src/data/index";
 import view from "moon/src/view/index";
 import time from "moon/src/time/index";
@@ -14,7 +13,6 @@ export default {
 	route,
 	storage,
 	time,
-	use,
 	version: process.env.MOON_VERSION,
 	view
 };
