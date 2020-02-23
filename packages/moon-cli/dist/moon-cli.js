@@ -9,8 +9,7 @@
 	"use strict";
 
 	/**
-	 * Logs an error message to the console.
-	 * @param {string} message
+	 * HTML tag names
 	 */
 	/**
 	 * Pads a string with spaces on the left to match a certain length.
