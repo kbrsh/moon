@@ -469,13 +469,6 @@
 		return generate(parseOutput[0][0]);
 	}
 
-	var compiler = {
-		compile: compile,
-		generate: generate,
-		parse: parse,
-		version: "1.0.0-beta.7"
-	};
-
 	/**
 	 * Script elements
 	 */
@@ -493,7 +486,7 @@
 			if (src.length === 0) {
 				var scriptNew = document.createElement("script");
 				scriptNew.type = "text/javascript";
-				scriptNew.text = compiler.compile(script.text);
+				scriptNew.text = compile(script.text);
 				script.parentNode.replaceChild(scriptNew, script);
 				load();
 			} else {
@@ -505,7 +498,7 @@
 						var _scriptNew = document.createElement("script");
 
 						_scriptNew.type = "text/javascript";
-						_scriptNew.text = compiler.compile(xhr.response);
+						_scriptNew.text = compile(xhr.response);
 						script.parentNode.replaceChild(_scriptNew, script);
 					} else {
 						error("Invalid script HTTP response.\n\nAttempted to download script:\n\t" + src + "\n\nReceived error HTTP status code:\n\t" + xhr.status + "\n\nExpected OK HTTP status code 0 or 200.");

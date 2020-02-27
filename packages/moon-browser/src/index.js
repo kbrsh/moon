@@ -1,4 +1,4 @@
-import compiler from "moon-compiler/src/index";
+import compile from "moon-compiler/src/compile";
 import { error } from "util/index";
 
 /**
@@ -17,7 +17,7 @@ function load() {
 		if (src.length === 0) {
 			const scriptNew = document.createElement("script");
 			scriptNew.type = "text/javascript";
-			scriptNew.text = compiler.compile(script.text);
+			scriptNew.text = compile(script.text);
 
 			script.parentNode.replaceChild(scriptNew, script);
 			load();
@@ -29,7 +29,7 @@ function load() {
 				if (xhr.status === 0 || xhr.status === 200) {
 					const scriptNew = document.createElement("script");
 					scriptNew.type = "text/javascript";
-					scriptNew.text = compiler.compile(xhr.response);
+					scriptNew.text = compile(xhr.response);
 
 					script.parentNode.replaceChild(scriptNew, script);
 				} else {
