@@ -1,3 +1,5 @@
+import { names } from "util/index";
+
 /**
  * Matches whitespace.
  */
@@ -7,6 +9,20 @@ const whitespaceRE = /^\s+$/;
  * Matches unescaped special characters in text.
  */
 const textSpecialRE = /(^|[^\\])("|\n)/g;
+
+/**
+ * Generates a name for a function call.
+ *
+ * @param {string} nameTree
+ * @returns {string} function name
+ */
+function generateName(nameTree) {
+	const name = generate(nameTree);
+
+	return names.indexOf(name) === -1 ?
+		name :
+		`Moon.view.components.${name}`;
+}
 
 /**
  * Generator
@@ -57,7 +73,7 @@ export default function generate(tree) {
 		return {
 			output: textGeneratedIsWhitespace ?
 				textGenerated :
-				`Moon.view.m.text({data:"${
+				`Moon.view.components.text({data:"${
 					textGenerated.replace(textSpecialRE, (match, character, characterSpecial) =>
 						character + (characterSpecial === "\"" ? "\\\"" : "\\n\\\n")
 					)
@@ -65,12 +81,12 @@ export default function generate(tree) {
 			isWhitespace: textGeneratedIsWhitespace
 		};
 	} else if (type === "interpolation") {
-		return `Moon.view.m.text({data:${generate(tree.value[1])}})`;
+		return `Moon.view.components.text({data:${generate(tree.value[1])}})`;
 	} else if (type === "node") {
 		// Nodes represent a variable reference.
 		const value = tree.value;
 
-		return generate(value[1]) + generate(value[2]) + generate(value[3]);
+		return generate(value[1]) + generateName(value[2]) + generate(value[3]);
 	} else if (type === "nodeData") {
 		// Data nodes represent calling a function with either a custom data
 		// expression or an object using attribute syntax.
@@ -78,7 +94,7 @@ export default function generate(tree) {
 		const data = value[4][0];
 		const dataGenerated = generate(data);
 
-		return `${generate(value[1])}${generate(value[2])}${generate(value[3])}(${
+		return `${generate(value[1])}${generateName(value[2])}${generate(value[3])}(${
 			data.type === "attributes" ? `{${dataGenerated.output}}` : dataGenerated
 		})`;
 	} else if (type === "nodeDataChildren") {
@@ -116,6 +132,6 @@ export default function generate(tree) {
 			childrenGenerated += "]";
 		}
 
-		return `${generate(value[1])}${generate(value[2])}${generate(value[3])}({${data.output}${childrenGenerated}})`;
+		return `${generate(value[1])}${generateName(value[2])}${generate(value[3])}({${data.output}${childrenGenerated}})`;
 	}
 }

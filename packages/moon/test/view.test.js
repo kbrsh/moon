@@ -1,7 +1,7 @@
 import Moon from "moon/src/index";
-const m = Moon.view.m;
+const components = Moon.view.components;
 const testFocusFalse = { focus: false };
-const testInput = <m.input/>;
+const testInput = <components.input/>;
 
 let root = document.createElement("span");
 let eventResult;
@@ -19,14 +19,12 @@ function shuffle(arr) {
 	return arr;
 }
 
-function handler1(m) {
-	eventResult = m;
-	return {};
+function handler1(event) {
+	eventResult = event;
 }
 
-function handler2(m) {
-	eventResult = m;
-	return {};
+function handler2(event) {
+	eventResult = event;
 }
 
 function ExecutorTestItem({ item, index }) {
@@ -41,61 +39,55 @@ function ExecutorTestItem({ item, index }) {
 	}
 
 	return (cache[item][index] =
-		<m.span>
+		<components.span>
 			<(item % 2 === 0 ?
-				<m.p lang="en" class=item for=item attributes={"aria-hidden": false, "aria-removeme": true, "data-foo": "bar", "data-removeme": true} style={color: "red", background: "blue"} @click=handler1>{item} {index}</p> :
+				<components.p lang="en" class=item for=item attributes={"aria-hidden": false, "aria-removeme": true, "data-foo": "bar", "data-removeme": true} style={color: "red", background: "blue"} onClick=handler1>{item} {index}</p> :
 			item % 3 === 0 ?
-				<m.p lang="en" class=item for=item id=item attributes={"aria-hidden": false, "aria-different": true, "data-foo": "bar", "data-different": true} style={color: "red", fontSize: "20px"} @click=handler2>{item} {index}</p> :
-				<m.p lang="en">{item} {index}</p>
+				<components.p lang="en" class=item for=item id=item attributes={"aria-hidden": false, "aria-different": true, "data-foo": "bar", "data-different": true} style={color: "red", fontSize: "20px"} onClick=handler2>{item} {index}</p> :
+				<components.p lang="en">{item} {index}</p>
 			)*>
-		</m.span>
+		</components.span>
 	);
 }
 
-function ExecutorTest({ list, focus }) {
+function ExecutorTest() {
+	const list = Moon.data.list;
+
 	return (
-		<m.div>
-			<m.span children=(list.map((item, index) => <ExecutorTestItem item=item index=index/>))/>
-			<m.span children=(list.map(item => <(
+		<components.div>
+			<components.span children=(list.map((item, index) => <ExecutorTestItem item=item index=index/>))/>
+			<components.span children=(list.map(item => <(
 				item % 2 === 0 ?
-					<m.h1>{item}</m.h1> :
-					<m.p>{item}</m.p>
+					<components.h1>{item}</components.h1> :
+					<components.p>{item}</components.p>
 			)*>))/>
-			<m.h1>Moon</m.h1>
-			<m.p @click=handler1 @dblclick=handler2>Partially static.</m.p>
+			<components.h1>Moon</components.h1>
+			<components.p onClick=handler1 onDblClick=handler2>Partially static.</components.p>
 			<(list.length > 0 ?
 				(list[0] % 2 === 0 ?
-					<m.input focus=true/> :
+					<components.input focus=true/> :
 				list[0] % 3 === 0 ?
-					<m.input focus=false/> :
+					<components.input focus=false/> :
 					<testInput*>
 				) :
-				<m.text data=""/>
+				<components.text data=""/>
 			)*>
-			<m.input testFocusFalse/>
+			<components.input testFocusFalse/>
 			<(list.length > 0 ?
-				<m.p>Text</m.p> :
-				<m.p/>
+				<components.p>Text</components.p> :
+				<components.p/>
 			)*>
-		</m.div>
+			<(list.length > 0 ?
+				<components.text data="Text"/> :
+				<components.text/>
+			)*>
+		</components.div>
 	);
 }
 
-function Root() {
-	const list = [];
-
-	return {
-		list,
-		view: <ExecutorTest list=list/>
-	};
-}
-
-Moon.use({
-	list: Moon.data.driver,
-	view: Moon.view.driver(root)
-});
-
-Moon.run(Root);
+Moon.configure({ view: { root } });
+Moon.data.list = [];
+Moon.view.render(<ExecutorTest/>);
 
 root = document.body.firstChild;
 
@@ -123,13 +115,12 @@ function verify(list) {
 			expect(element.style.color).toEqual("red");
 			expect(element.style.background).toEqual("blue");
 			expect(element.style.fontSize).toEqual("");
-			expect(element.MoonEvent["@click"]).toBeDefined();
+			expect(element.onclick).toBeDefined();
 			expect(element.textContent).toEqual(`${item} ${i}`);
 
 			element.click();
 
-			expect(eventResult.view.constructor).toEqual(MouseEvent);
-			expect(eventResult.list).toEqual(list);
+			expect(eventResult.constructor).toEqual(MouseEvent);
 
 			eventResult = undefined;
 		} else if (item % 3 === 0) {
@@ -147,13 +138,12 @@ function verify(list) {
 			expect(element.style.color).toEqual("red");
 			expect(element.style.background).toEqual("");
 			expect(element.style.fontSize).toEqual("20px");
-			expect(element.MoonEvent["@click"]).toBeDefined();
+			expect(element.onclick).toBeDefined();
 			expect(element.textContent).toEqual(`${item} ${i}`);
 
 			element.click();
 
-			expect(eventResult.view.constructor).toEqual(MouseEvent);
-			expect(eventResult.list).toEqual(list);
+			expect(eventResult.constructor).toEqual(MouseEvent);
 
 			eventResult = undefined;
 		} else {
@@ -172,12 +162,7 @@ function verify(list) {
 			expect(element.style.background).toEqual("");
 			expect(element.style.fontSize).toEqual("");
 			expect(element.textContent).toEqual(`${item} ${i}`);
-
-			if (element.MoonEvent) {
-				expect(element.MoonEvent["@click"]).toBeUndefined();
-			} else {
-				expect(element.MoonEvent).toBeNull();
-			}
+			expect(element.onclick).toBeNull();
 
 			element.click();
 
@@ -200,8 +185,8 @@ function verify(list) {
 
 	expect(p.tagName).toEqual("P");
 	expect(p.textContent).toEqual("Partially static.");
-	expect(p.MoonEvent["@click"]).toEqual(handler1);
-	expect(p.MoonEvent["@dblclick"]).toEqual(handler2);
+	expect(p.onclick).toEqual(handler1);
+	expect(p.ondblclick).toEqual(handler2);
 
 	const input = p.nextSibling;
 
@@ -235,18 +220,23 @@ function verify(list) {
 		expect(pChildren.textContent).toEqual("");
 		expect(pChildren.childNodes.length).toEqual(0);
 	}
+
+	const textRemove = pChildren.nextSibling;
+
+	if (list.length > 0) {
+		expect(textRemove.data).toEqual("Text");
+	} else {
+		expect(textRemove.data).toEqual("");
+	}
 }
 
 function assertExecute(before, after) {
-	Moon.run(() => ({
-		list: before,
-		view: <ExecutorTest list=(before)/>
-	}));
+	Moon.data.list = before;
+	Moon.view.render(<ExecutorTest/>);
 	verify(before);
-	Moon.run(() => ({
-		list: after,
-		view: <ExecutorTest list=(after)/>
-	}));
+
+	Moon.data.list = after;
+	Moon.view.render(<ExecutorTest/>);
 	verify(after);
 }
 
@@ -307,8 +297,8 @@ for (let i of Array.from({ length: 100 })) {
 const names = ["a", "abbr", "acronym", "address", "applet", "area", "article", "aside", "audio", "b", "base", "basefont", "bdi", "bdo", "bgsound", "big", "blink", "blockquote", "body", "br", "button", "canvas", "caption", "center", "cite", "code", "col", "colgroup", "command", "content", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "dir", "div", "dl", "dt", "element", "em", "embed", "fieldset", "figcaption", "figure", "font", "footer", "form", "frame", "frameset", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "hr", "html", "i", "iframe", "image", "img", "input", "ins", "isindex", "kbd", "keygen", "label", "legend", "li", "link", "listing", "main", "map", "mark", "marquee", "math", "menu", "menuitem", "meta", "meter", "multicol", "nav", "nextid", "nobr", "noembed", "noframes", "noscript", "object", "ol", "optgroup", "option", "output", "p", "param", "picture", "plaintext", "pre", "progress", "q", "rb", "rbc", "rp", "rt", "rtc", "ruby", "s", "samp", "script", "section", "select", "shadow", "slot", "small", "source", "spacer", "span", "strike", "strong", "style", "sub", "summary", "sup", "svg", "table", "tbody", "td", "template", "text", "textarea", "tfoot", "th", "thead", "time", "title", "tr", "track", "tt", "u", "ul", "var", "video", "wbr", "xmp"];
 const data = { foo: "bar" };
 
-expect(m.node("custom")(data)).toEqual({ name: "custom", data });
+expect(components.node("custom")(data)).toEqual({ name: "custom", data });
 
 for (let name of names) {
-	expect(m[name](data)).toEqual({ name, data });
+	expect(components[name](data)).toEqual({ name, data });
 }

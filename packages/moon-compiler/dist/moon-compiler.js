@@ -16,7 +16,7 @@
 	/**
 	 * Matches an identifier character.
 	 */
-	var identifierRE = /[@$\w.]/;
+	var identifierRE = /[$\w.]/;
 	/**
 	 * Stores an error message, a slice of tokens associated with the error, and a
 	 * related error for later reporting.
@@ -254,14 +254,56 @@
 	parse.Error = ParseError;
 
 	/**
+	 * HTML tag names
+	 */
+	var names = ["a", "abbr", "acronym", "address", "applet", "area", "article", "aside", "audio", "b", "base", "basefont", "bdi", "bdo", "bgsound", "big", "blink", "blockquote", "body", "br", "button", "canvas", "caption", "center", "cite", "code", "col", "colgroup", "command", "content", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "dir", "div", "dl", "dt", "element", "em", "embed", "fieldset", "figcaption", "figure", "font", "footer", "form", "frame", "frameset", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "hr", "html", "i", "iframe", "image", "img", "input", "ins", "isindex", "kbd", "keygen", "label", "legend", "li", "link", "listing", "main", "map", "mark", "marquee", "math", "menu", "menuitem", "meta", "meter", "multicol", "nav", "nextid", "nobr", "noembed", "noframes", "noscript", "object", "ol", "optgroup", "option", "output", "p", "param", "picture", "plaintext", "pre", "progress", "q", "rb", "rbc", "rp", "rt", "rtc", "ruby", "s", "samp", "script", "section", "select", "shadow", "slot", "small", "source", "spacer", "span", "strike", "strong", "style", "sub", "summary", "sup", "svg", "table", "tbody", "td", "template", "text", "textarea", "tfoot", "th", "thead", "time", "title", "tr", "track", "tt", "u", "ul", "var", "video", "wbr", "xmp"];
+	/**
+	 * Logs an error message to the console.
+	 * @param {string} message
+	 */
+
+	function error(message) {
+		console.error("[Moon] ERROR: " + message);
+	}
+	/**
+	 * Pads a string with spaces on the left to match a certain length.
+	 *
+	 * @param {string} string
+	 * @param {number} length
+	 * @returns {string} padded string
+	 */
+
+	function pad(string, length) {
+		var remaining = length - string.length;
+
+		for (var i = 0; i < remaining; i++) {
+			string = " " + string;
+		}
+
+		return string;
+	}
+
+	/**
 	 * Matches whitespace.
 	 */
+
 	var whitespaceRE = /^\s+$/;
 	/**
 	 * Matches unescaped special characters in text.
 	 */
 
 	var textSpecialRE = /(^|[^\\])("|\n)/g;
+	/**
+	 * Generates a name for a function call.
+	 *
+	 * @param {string} nameTree
+	 * @returns {string} function name
+	 */
+
+	function generateName(nameTree) {
+		var name = generate(nameTree);
+		return names.indexOf(name) === -1 ? name : "Moon.view.components." + name;
+	}
 	/**
 	 * Generator
 	 *
@@ -272,6 +314,7 @@
 	 * @param {object} tree
 	 * @returns {string} generator result
 	 */
+
 
 	function generate(tree) {
 		var type = tree.type;
@@ -309,24 +352,24 @@
 			// added only to preserve newlines in the generated code.
 
 			return {
-				output: textGeneratedIsWhitespace ? textGenerated : "Moon.view.m.text({data:\"" + textGenerated.replace(textSpecialRE, function (match, character, characterSpecial) {
+				output: textGeneratedIsWhitespace ? textGenerated : "Moon.view.components.text({data:\"" + textGenerated.replace(textSpecialRE, function (match, character, characterSpecial) {
 					return character + (characterSpecial === "\"" ? "\\\"" : "\\n\\\n");
 				}) + "\"})",
 				isWhitespace: textGeneratedIsWhitespace
 			};
 		} else if (type === "interpolation") {
-			return "Moon.view.m.text({data:" + generate(tree.value[1]) + "})";
+			return "Moon.view.components.text({data:" + generate(tree.value[1]) + "})";
 		} else if (type === "node") {
 			// Nodes represent a variable reference.
 			var _value = tree.value;
-			return generate(_value[1]) + generate(_value[2]) + generate(_value[3]);
+			return generate(_value[1]) + generateName(_value[2]) + generate(_value[3]);
 		} else if (type === "nodeData") {
 			// Data nodes represent calling a function with either a custom data
 			// expression or an object using attribute syntax.
 			var _value2 = tree.value;
 			var data = _value2[4][0];
 			var dataGenerated = generate(data);
-			return "" + generate(_value2[1]) + generate(_value2[2]) + generate(_value2[3]) + "(" + (data.type === "attributes" ? "{" + dataGenerated.output + "}" : dataGenerated) + ")";
+			return "" + generate(_value2[1]) + generateName(_value2[2]) + generate(_value2[3]) + "(" + (data.type === "attributes" ? "{" + dataGenerated.output + "}" : dataGenerated) + ")";
 		} else if (type === "nodeDataChildren") {
 			// Data and children nodes represent calling a function with a data
 			// object using attribute syntax and children.
@@ -364,33 +407,8 @@
 				childrenGenerated += "]";
 			}
 
-			return "" + generate(_value3[1]) + generate(_value3[2]) + generate(_value3[3]) + "({" + _data.output + childrenGenerated + "})";
+			return "" + generate(_value3[1]) + generateName(_value3[2]) + generate(_value3[3]) + "({" + _data.output + childrenGenerated + "})";
 		}
-	}
-
-	/**
-	 * Logs an error message to the console.
-	 * @param {string} message
-	 */
-	function error(message) {
-		console.error("[Moon] ERROR: " + message);
-	}
-	/**
-	 * Pads a string with spaces on the left to match a certain length.
-	 *
-	 * @param {string} string
-	 * @param {number} length
-	 * @returns {string} padded string
-	 */
-
-	function pad(string, length) {
-		var remaining = length - string.length;
-
-		for (var i = 0; i < remaining; i++) {
-			string = " " + string;
-		}
-
-		return string;
 	}
 
 	/**
