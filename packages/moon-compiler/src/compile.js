@@ -12,7 +12,7 @@ import { error } from "util/index";
 export default function compile(input) {
 	const parseOutput = parse(input);
 
-	if (parseOutput instanceof parse.Error) {
+	if (process.env.MOON_ENV === "development" && parseOutput.constructor.name === "ParseError") {
 		error(`Invalid input to parser.
 
 Attempted to parse input.

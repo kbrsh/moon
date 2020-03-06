@@ -327,6 +327,4 @@ function parse(input) {
 	return grammar.main(input, 0);
 }
 
-parse.Error = ParseError;
-
 export default parse;

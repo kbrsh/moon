@@ -245,8 +245,6 @@
 		return grammar.main(input, 0);
 	}
 
-	parse.Error = ParseError;
-
 	/**
 	 * HTML tag names
 	 */
@@ -462,7 +460,7 @@
 	function compile(input) {
 		var parseOutput = parse(input);
 
-		if (parseOutput instanceof parse.Error) {
+		if ("development" === "development" && parseOutput.constructor.name === "ParseError") {
 			error("Invalid input to parser.\n\nAttempted to parse input.\n\nExpected " + parseOutput.expected + ".\n\nReceived:\n\n" + format(input, parseOutput.index));
 		}
 
