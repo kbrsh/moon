@@ -8,6 +8,15 @@ import { pad } from "util/index";
  * @returns {string} formatted lines
  */
 export function format(input, index) {
+	// Pad input at end to account for indexes after the end.
+	if (index >= input.length) {
+		const remaining = index + 1 - input.length;
+
+		for (let i = 0; i < remaining; i++) {
+			input += " ";
+		}
+	}
+
 	const lines = input.split("\n");
 	let lineNumber = 1;
 	let columnNumber = 1;

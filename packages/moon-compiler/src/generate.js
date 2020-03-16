@@ -91,7 +91,7 @@ export default function generate(tree) {
 		// Data nodes represent calling a function with either a custom data
 		// expression or an object using attribute syntax.
 		const value = tree.value;
-		const data = value[4][0];
+		const data = value[4];
 		const dataGenerated = generate(data);
 
 		return `${generate(value[1])}${generateName(value[2])}${generate(value[3])}(${

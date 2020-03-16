@@ -36,7 +36,12 @@
 			};
 		},
 		EOF: function EOF(input, index) {
-			return index === input.length ? ["EOF", index] : new ParseError("EOF", index);
+			// EOF errors should be unreachable because the expression parser should
+			// never error after looking ahead one character and stop consuming input
+			// before reaching the end.
+			return index === input.length ? ["EOF", index] :
+			/* istanbul ignore next */
+			new ParseError("EOF", index);
 		},
 		any: function any(input, index) {
 			return index < input.length ? [input[index], index + 1] : new ParseError("any", index);
@@ -80,20 +85,10 @@
 			return function (input, index) {
 				var output1 = parse1(input, index);
 
-				if (output1 instanceof ParseError) {
-					var output2 = parse2(input, index);
-
-					if (output2 instanceof ParseError) {
-						// For now, the first branch is unreachable because all uses of
-						// "or" in the grammar do not have a valid case where both
-						// alternates fail where the first one is fails after the the
-						// second.
-
-						/* istanbul ignore next */
-						return output1.index > output2.index ? output1 : output2;
-					} else {
-						return output2;
-					}
+				if (output1 instanceof ParseError && output1.index === index) {
+					// If the first parser has an error and consumes no input, then try
+					// the second parser.
+					return parse2(input, index);
 				} else {
 					return output1;
 				}
@@ -136,7 +131,7 @@
 				for (var i = 0; i < parses.length; i++) {
 					var output = parses[i](input, index);
 
-					if (output instanceof ParseError) {
+					if (output instanceof ParseError && output.index === index) {
 						if (output.index > alternatesError.index) {
 							alternatesError = output;
 						}
@@ -158,7 +153,11 @@
 					index = output[1];
 				}
 
-				return [values, index];
+				if (output.index === index) {
+					return [values, index];
+				} else {
+					return output;
+				}
 			};
 		},
 		many1: function many1(parse) {
@@ -178,7 +177,22 @@
 					index = output[1];
 				}
 
-				return [values, index];
+				if (output.index === index) {
+					return [values, index];
+				} else {
+					return output;
+				}
+			};
+		},
+		"try": function _try(parse) {
+			return function (input, index) {
+				var output = parse(input, index);
+
+				if (output instanceof ParseError) {
+					output.index = index;
+				}
+
+				return output;
 			};
 		}
 	};
@@ -205,16 +219,16 @@
 			return parser.type("node", parser.sequence([parser.character("<"), grammar.separator, grammar.value, grammar.separator, parser.string("*>")]))(input, index);
 		},
 		nodeData: function nodeData(input, index) {
-			return parser.type("nodeData", parser.sequence([parser.character("<"), grammar.separator, grammar.value, grammar.separator, parser.or(parser.and(grammar.value, parser.string("/>")), parser.and(grammar.attributes, parser.string("/>")))]))(input, index);
+			return parser.type("nodeData", parser.sequence([parser.character("<"), grammar.separator, grammar.value, grammar.separator, parser.or(parser["try"](grammar.attributes), grammar.value), parser.string("/>")]))(input, index);
 		},
 		nodeDataChildren: function nodeDataChildren(input, index) {
-			return parser.type("nodeDataChildren", parser.sequence([parser.character("<"), grammar.separator, grammar.value, grammar.separator, grammar.attributes, parser.character(">"), parser.many(parser.alternates([grammar.node, grammar.nodeData, grammar.nodeDataChildren, grammar.text, grammar.interpolation])), parser.string("</"), parser.many(parser.not([">"])), parser.character(">")]))(input, index);
+			return parser.type("nodeDataChildren", parser.sequence([parser.character("<"), grammar.separator, grammar.value, grammar.separator, grammar.attributes, parser.character(">"), parser.many(parser.alternates([parser["try"](grammar.node), parser["try"](grammar.nodeData), parser["try"](grammar.nodeDataChildren), grammar.text, grammar.interpolation])), parser.string("</"), parser.many(parser.not([">"])), parser.character(">")]))(input, index);
 		},
 		expression: function expression(input, index) {
 			return parser.many(parser.alternates([// Single line comment
 			parser.sequence([parser.string("//"), parser.many(parser.not(["\n"]))]), // Multi-line comment
 			parser.sequence([parser.string("/*"), parser.many(parser.not(["*/"])), parser.string("*/")]), // Regular expression
-			parser.sequence([parser.character("/"), parser.many1(parser.or(parser.and(parser.character("\\"), parser.not(["\n"])), parser.not(["/", "\n"]))), parser.character("/")]), grammar.comment, grammar.value, grammar.node, grammar.nodeData, grammar.nodeDataChildren, // Allow failed regular expression or view parses to be interpreted as
+			parser["try"](parser.sequence([parser.character("/"), parser.many1(parser.or(parser.and(parser.character("\\"), parser.not(["\n"])), parser.not(["/", "\n"]))), parser.character("/")])), grammar.comment, grammar.value, parser["try"](grammar.node), parser["try"](grammar.nodeData), parser["try"](grammar.nodeDataChildren), // Allow failed regular expression or view parses to be interpreted as
 			// operators.
 			parser.character("/"), parser.character("<"), // Anything up to a comment, regular expression, string, parenthetical,
 			// array, object, or view. Only matches to the opening bracket of a view
@@ -359,7 +373,7 @@
 			// Data nodes represent calling a function with either a custom data
 			// expression or an object using attribute syntax.
 			var _value2 = tree.value;
-			var data = _value2[4][0];
+			var data = _value2[4];
 			var dataGenerated = generate(data);
 			return "" + generate(_value2[1]) + generateName(_value2[2]) + generate(_value2[3]) + "(" + (data.type === "attributes" ? "{" + dataGenerated.output + "}" : dataGenerated) + ")";
 		} else if (type === "nodeDataChildren") {
@@ -412,14 +426,23 @@
 	 */
 
 	function format(input, index) {
+		// Pad input at end to account for indexes after the end.
+		if (index >= input.length) {
+			var remaining = index + 1 - input.length;
+
+			for (var i = 0; i < remaining; i++) {
+				input += " ";
+			}
+		}
+
 		var lines = input.split("\n");
 		var lineNumber = 1;
 		var columnNumber = 1;
 
-		for (var i = 0; i < input.length; i++) {
-			var character = input[i];
+		for (var _i = 0; _i < input.length; _i++) {
+			var character = input[_i];
 
-			if (i === index) {
+			if (_i === index) {
 				var lineNumberPrevious = lineNumber - 1;
 				var lineNumberNext = lineNumber + 1;
 				var lineNumberLength = Math.max(Math.floor(Math.log10(lineNumberPrevious) + 1), Math.floor(Math.log10(lineNumber) + 1), Math.floor(Math.log10(lineNumberNext) + 1)) + 2;

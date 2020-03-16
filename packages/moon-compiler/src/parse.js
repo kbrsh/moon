@@ -24,8 +24,12 @@ const parser = {
 			[{ type, value: output[0] }, output[1]];
 	},
 	EOF: (input, index) => {
+		// EOF errors should be unreachable because the expression parser should
+		// never error after looking ahead one character and stop consuming input
+		// before reaching the end.
 		return index === input.length ?
 			["EOF", index] :
+			/* istanbul ignore next */
 			new ParseError("EOF", index);
 	},
 	any: (input, index) => {
@@ -72,19 +76,10 @@ const parser = {
 	or: (parse1, parse2) => (input, index) => {
 		const output1 = parse1(input, index);
 
-		if (output1 instanceof ParseError) {
-			const output2 = parse2(input, index);
-
-			if (output2 instanceof ParseError) {
-				// For now, the first branch is unreachable because all uses of
-				// "or" in the grammar do not have a valid case where both
-				// alternates fail where the first one is fails after the the
-				// second.
-				/* istanbul ignore next */
-				return output1.index > output2.index ? output1 : output2;
-			} else {
-				return output2;
-			}
+		if (output1 instanceof ParseError && output1.index === index) {
+			// If the first parser has an error and consumes no input, then try
+			// the second parser.
+			return parse2(input, index);
 		} else {
 			return output1;
 		}
@@ -124,7 +119,7 @@ const parser = {
 		for (let i = 0; i < parses.length; i++) {
 			const output = parses[i](input, index);
 
-			if (output instanceof ParseError) {
+			if (output instanceof ParseError && output.index === index) {
 				if (output.index > alternatesError.index) {
 					alternatesError = output;
 				}
@@ -144,7 +139,11 @@ const parser = {
 			index = output[1];
 		}
 
-		return [values, index];
+		if (output.index === index) {
+			return [values, index];
+		} else {
+			return output;
+		}
 	},
 	many1: parse => (input, index) => {
 		const values = [];
@@ -162,7 +161,20 @@ const parser = {
 			index = output[1];
 		}
 
-		return [values, index];
+		if (output.index === index) {
+			return [values, index];
+		} else {
+			return output;
+		}
+	},
+	try: parse => (input, index) => {
+		const output = parse(input, index);
+
+		if (output instanceof ParseError) {
+			output.index = index;
+		}
+
+		return output;
 	}
 };
 
@@ -243,10 +255,8 @@ const grammar = {
 		grammar.separator,
 		grammar.value,
 		grammar.separator,
-		parser.or(
-			parser.and(grammar.value, parser.string("/>")),
-			parser.and(grammar.attributes, parser.string("/>"))
-		)
+		parser.or(parser.try(grammar.attributes), grammar.value),
+		parser.string("/>")
 	]))(input, index),
 	nodeDataChildren: (input, index) => parser.type("nodeDataChildren", parser.sequence([
 		parser.character("<"),
@@ -256,9 +266,9 @@ const grammar = {
 		grammar.attributes,
 		parser.character(">"),
 		parser.many(parser.alternates([
-			grammar.node,
-			grammar.nodeData,
-			grammar.nodeDataChildren,
+			parser.try(grammar.node),
+			parser.try(grammar.nodeData),
+			parser.try(grammar.nodeDataChildren),
 			grammar.text,
 			grammar.interpolation
 		])),
@@ -281,19 +291,19 @@ const grammar = {
 		]),
 
 		// Regular expression
-		parser.sequence([
+		parser.try(parser.sequence([
 			parser.character("/"),
 			parser.many1(parser.or(
 				parser.and(parser.character("\\"), parser.not(["\n"])),
 				parser.not(["/", "\n"])
 			)),
 			parser.character("/")
-		]),
+		])),
 		grammar.comment,
 		grammar.value,
-		grammar.node,
-		grammar.nodeData,
-		grammar.nodeDataChildren,
+		parser.try(grammar.node),
+		parser.try(grammar.nodeData),
+		parser.try(grammar.nodeDataChildren),
 
 		// Allow failed regular expression or view parses to be interpreted as
 		// operators.
