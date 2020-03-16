@@ -8,13 +8,9 @@ import { pad } from "util/index";
  * @returns {string} formatted lines
  */
 export function format(input, index) {
-	// Pad input at end to account for indexes after the end.
-	if (index >= input.length) {
-		const remaining = index + 1 - input.length;
-
-		for (let i = 0; i < remaining; i++) {
-			input += " ";
-		}
+	// Pad input to account for indexes after the end.
+	for (let i = input.length; i <= index; i++) {
+		input += " ";
 	}
 
 	const lines = input.split("\n");

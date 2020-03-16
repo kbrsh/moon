@@ -426,13 +426,9 @@
 	 */
 
 	function format(input, index) {
-		// Pad input at end to account for indexes after the end.
-		if (index >= input.length) {
-			var remaining = index + 1 - input.length;
-
-			for (var i = 0; i < remaining; i++) {
-				input += " ";
-			}
+		// Pad input to account for indexes after the end.
+		for (var i = input.length; i <= index; i++) {
+			input += " ";
 		}
 
 		var lines = input.split("\n");
