@@ -1,25 +1,49 @@
 localStorage.bar = "baz";
 jest.resetModules();
 
-const Moon = require("moon/src/index").default;
+const m = require("moon/src/index").default.m;
 
 test("sets storage initially", () => {
-	Moon.storage.foo = "bar";
-	Moon.storage.moon = "titan";
-	expect(localStorage).toEqual(Moon.storage);
+	m.storage.foo = "bar";
+	m.storage.moon = "titan";
+	expect(localStorage).toEqual(m.storage);
 });
 
 test("updates storage as needed", () => {
-	Moon.storage.foo = "bar";
-	Moon.storage.moon = "titan";
-	expect(localStorage).toEqual(Moon.storage);
+	m.storage.foo = "bar";
+	m.storage.moon = "titan";
+	expect(localStorage).toEqual(m.storage);
 
-	Moon.storage.foo = "bar";
-	Moon.storage.moon = "europa";
-	expect(localStorage).toEqual(Moon.storage);
+	m.storage.foo = "bar";
+	m.storage.moon = "europa";
+	expect(localStorage).toEqual(m.storage);
 });
 
 test("removes storage as needed", () => {
-	delete Moon.storage.foo;
-	expect(localStorage).toEqual(Moon.storage);
+	delete m.storage.foo;
+	expect(localStorage).toEqual(m.storage);
+});
+
+test("sets whole storage", () => {
+	m.storage = {};
+	expect(localStorage).toEqual(m.storage);
+
+	m.storage = {
+		foo: "bar",
+		moon: "titan"
+	};
+	expect(localStorage).toEqual(m.storage);
+});
+
+test("updates whole storage", () => {
+	m.storage = {
+		moon: "titan",
+		bar: "baz"
+	};
+	expect(localStorage).toEqual(m.storage);
+});
+
+test("deletes whole storage", () => {
+	m.storage = {};
+	expect(localStorage).toEqual(m.storage);
 });

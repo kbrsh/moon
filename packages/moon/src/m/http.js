@@ -3,17 +3,8 @@
  */
 const headerRE = /^([^:]+):\s*([^]*?)\s*$/gm;
 
-/**
- * Sends HTTP requests. Multiple HTTP requests can be implemented with multiple
- * requests in the array, and subsequent HTTP requests can be implemented with
- * another HTTP request once a response is received.
- *
- * @param {array} requests
- */
-export default function send(requests) {
-	// Make the HTTP requests.
-	for (let i = 0; i < requests.length; i++) {
-		const request = requests[i];
+export default {
+	set(request) {
 		const xhr = new XMLHttpRequest();
 
 		// Handle response types.
@@ -63,4 +54,4 @@ export default function send(requests) {
 		// Send the request with the given body.
 		xhr.send("body" in request ? request.body : null);
 	}
-}
+};

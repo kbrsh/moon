@@ -1,15 +1,16 @@
 import Moon from "moon/src/index";
+const m = Moon.m;
 
 test("provides route as input", () => {
-	expect(Moon.route.read()).toEqual("/");
+	expect(m.route).toEqual("/");
 });
 
 test("changes route for output", () => {
-	expect(Moon.route.read()).toEqual("/");
-	Moon.route.navigate("/test");
-	expect(Moon.route.read()).toEqual("/test");
-	Moon.route.navigate("/test/foo");
-	expect(Moon.route.read()).toEqual("/test/foo");
+	expect(m.route).toEqual("/");
+	m.route = "/test";
+	expect(m.route).toEqual("/test");
+	m.route = "/test/foo";
+	expect(m.route).toEqual("/test/foo");
 });
 
 test("router view", () => {

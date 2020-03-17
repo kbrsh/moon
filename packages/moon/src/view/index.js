@@ -1,9 +1,7 @@
-import configure from "moon/src/view/configure";
-import render from "moon/src/view/render";
+import mount from "moon/src/view/mount";
 import components from "moon/src/view/components";
 
 export default {
 	components,
-	configure,
-	render
+	mount
 };

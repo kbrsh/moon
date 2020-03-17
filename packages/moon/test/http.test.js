@@ -1,4 +1,5 @@
 import Moon from "moon/src/index";
+const m = Moon.m;
 
 const open = jest.fn();
 const send = jest.fn(function() {
@@ -30,7 +31,7 @@ test("successful http request", () => {
 	let run = false;
 	error = false;
 
-	Moon.http.send([{
+	m.http = {
 		method: "GET",
 		responseType: "text",
 		url: "https://example.com",
@@ -53,7 +54,7 @@ test("successful http request", () => {
 				body: "Moon Test"
 			});
 		}
-	}]);
+	};
 
 	expect(run).toEqual(true);
 
@@ -66,7 +67,7 @@ test("failing http request", () => {
 	let run = false;
 	error = true;
 
-	Moon.http.send([{
+	m.http = {
 		method: "GET",
 		responseType: "text",
 		url: "https://example.com",
@@ -85,7 +86,7 @@ test("failing http request", () => {
 			expect(send).toBeCalledWith("Moon Test Request");
 			expect(http).toBeUndefined();
 		}
-	}]);
+	};
 
 	expect(run).toEqual(true);
 
@@ -97,9 +98,9 @@ test("failing http request", () => {
 test("default http request", () => {
 	error = false;
 
-	Moon.http.send([{
+	m.http = {
 		url: "https://example.com"
-	}]);
+	};
 
 	expect(setRequestHeader).not.toBeCalled();
 	expect(open).toBeCalledWith("GET", "https://example.com");
@@ -113,9 +114,9 @@ test("default http request", () => {
 test("default http request with error", () => {
 	error = true;
 
-	Moon.http.send([{
+	m.http = {
 		url: "https://example.com"
-	}]);
+	};
 
 	expect(setRequestHeader).not.toBeCalled();
 	expect(open).toBeCalledWith("GET", "https://example.com");
@@ -130,7 +131,7 @@ test("multiple http requests", () => {
 	let run = [false, false, false];
 	error = false;
 
-	Moon.http.send([{
+	m.http = {
 		url: "https://example.com/1",
 		onLoad: http => {
 			run[0] = true;
@@ -146,7 +147,9 @@ test("multiple http requests", () => {
 			open.mockClear();
 			send.mockClear();
 		}
-	}, {
+	};
+
+	m.http = {
 		url: "https://example.com/2",
 		onLoad: http => {
 			run[1] = true;
@@ -162,7 +165,9 @@ test("multiple http requests", () => {
 			open.mockClear();
 			send.mockClear();
 		}
-	}, {
+	};
+
+	m.http = {
 		url: "https://example.com/3",
 		onLoad: http => {
 			run[2] = true;
@@ -178,7 +183,7 @@ test("multiple http requests", () => {
 			open.mockClear();
 			send.mockClear();
 		}
-	}]);
+	};
 
 	expect(run).toEqual([true, true, true]);
 

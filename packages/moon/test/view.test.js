@@ -1,4 +1,5 @@
 import Moon from "moon/src/index";
+const m = Moon.m;
 const components = Moon.view.components;
 const testFocusFalse = { focus: false };
 const testInput = <components.input/>;
@@ -51,7 +52,7 @@ function ExecutorTestItem({ item, index }) {
 }
 
 function ExecutorTest() {
-	const list = Moon.data.list;
+	const list = m.list;
 
 	return (
 		<components.div>
@@ -85,9 +86,9 @@ function ExecutorTest() {
 	);
 }
 
-Moon.configure({ view: { root } });
-Moon.data.list = [];
-Moon.view.render(<ExecutorTest/>);
+Moon.view.mount(root);
+m.list = [];
+m.view = <ExecutorTest/>;
 
 root = document.body.firstChild;
 
@@ -231,12 +232,12 @@ function verify(list) {
 }
 
 function assertExecute(before, after) {
-	Moon.data.list = before;
-	Moon.view.render(<ExecutorTest/>);
+	m.list = before;
+	m.view = <ExecutorTest/>;
 	verify(before);
 
-	Moon.data.list = after;
-	Moon.view.render(<ExecutorTest/>);
+	m.list = after;
+	m.view = <ExecutorTest/>;
 	verify(after);
 }
 

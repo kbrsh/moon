@@ -14,25 +14,6 @@
 	"use strict";
 
 	/**
-	 * Configure transformers.
-	 *
-	 * @param {object} options
-	 */
-
-	function configure(options) {
-		for (var transformer in options) {
-			Moon[transformer].configure(options[transformer]);
-		}
-	}
-
-	/**
-	 * The data transformer changes the state of computer memory. The application
-	 * components are usually a function of data. This data holds application state
-	 * and is changed with assignment syntax instead of utility functions.
-	 */
-	var data = {};
-
-	/**
 	 * View Node Constructor
 	 *
 	 * @param {string} name
@@ -72,38 +53,100 @@
 	}
 
 	/**
-	 * Configure the old view node and element.
-	 *
-	 * @param {object} options
+	 * Mount to a DOM element.
 	 */
 
-	function configure$1(options) {
-		if ("root" in options) {
-			viewOldElementUpdate(options.root); // Capture old data from the element's attributes.
+	function mount(element) {
+		viewOldElementUpdate(element); // Capture old data from the element's attributes.
 
-			var viewOldElementAttributes = viewOldElement.attributes;
-			var viewOldData = {};
+		var viewOldElementAttributes = viewOldElement.attributes;
+		var viewOldData = {};
 
-			for (var i = 0; i < viewOldElementAttributes.length; i++) {
-				var viewOldElementAttribute = viewOldElementAttributes[i];
-				viewOldData[viewOldElementAttribute.name] = viewOldElementAttribute.value;
-			} // Create a node from the root element.
+		for (var i = 0; i < viewOldElementAttributes.length; i++) {
+			var viewOldElementAttribute = viewOldElementAttributes[i];
+			viewOldData[viewOldElementAttribute.name] = viewOldElementAttribute.value;
+		} // Create a node from the root element.
 
 
-			viewOldUpdate(new ViewNode(viewOldElement.tagName.toLowerCase(), viewOldData));
-		}
+		viewOldUpdate(new ViewNode(viewOldElement.tagName.toLowerCase(), viewOldData));
 	}
 
 	/**
-	 * Modify the prototype of a node to include special Moon view properties.
+	 * HTML tag names
+	 */
+	var names = ["a", "abbr", "acronym", "address", "applet", "area", "article", "aside", "audio", "b", "base", "basefont", "bdi", "bdo", "bgsound", "big", "blink", "blockquote", "body", "br", "button", "canvas", "caption", "center", "cite", "code", "col", "colgroup", "command", "content", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "dir", "div", "dl", "dt", "element", "em", "embed", "fieldset", "figcaption", "figure", "font", "footer", "form", "frame", "frameset", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "hr", "html", "i", "iframe", "image", "img", "input", "ins", "isindex", "kbd", "keygen", "label", "legend", "li", "link", "listing", "main", "map", "mark", "marquee", "math", "menu", "menuitem", "meta", "meter", "multicol", "nav", "nextid", "nobr", "noembed", "noframes", "noscript", "object", "ol", "optgroup", "option", "output", "p", "param", "picture", "plaintext", "pre", "progress", "q", "rb", "rbc", "rp", "rt", "rtc", "ruby", "s", "samp", "script", "section", "select", "shadow", "slot", "small", "source", "spacer", "span", "strike", "strong", "style", "sub", "summary", "sup", "svg", "table", "tbody", "td", "template", "text", "textarea", "tfoot", "th", "thead", "time", "title", "tr", "track", "tt", "u", "ul", "var", "video", "wbr", "xmp"];
+
+	/**
+	 * Components
+	 *
+	 * Each component generates a corresponding view node based on the data it is
+	 * passed as input. This data includes attributes and children.
 	 */
 
-	Node.prototype.MoonChildren = null;
+	var components = {
+		node: function node(name) {
+			return function (data) {
+				return new ViewNode(name, data);
+			};
+		}
+	};
+
+	var _loop = function _loop(i) {
+		var name = names[i];
+
+		components[name] = function (data) {
+			return new ViewNode(name, data);
+		};
+	};
+
+	for (var i = 0; i < names.length; i++) {
+		_loop(i);
+	}
+
+	var view = {
+		components: components,
+		mount: mount
+	};
+
+	/**
+	 * Returns a view given routes that map to views and the current route.
+	 *
+	 * @param {object} input
+	 * @returns {object} view
+	 */
+	function router(input) {
+		var route = input.route;
+		var routeSegment = "/";
+		var routes = input.routes;
+
+		for (var i = 1; i < route.length; i++) {
+			var routeCharacter = route[i];
+
+			if (routeCharacter === "/") {
+				routes = (routeSegment in routes ? routes[routeSegment] : routes["/*"])[1];
+				routeSegment = "/";
+			} else {
+				routeSegment += routeCharacter;
+			}
+		}
+
+		return (routeSegment in routes ? routes[routeSegment] : routes["/*"])[0](input);
+	}
+
+	var route = {
+		router: router
+	};
+
 	/**
 	 * Cache for default property values
 	 */
 
 	var removeDataPropertyCache = {};
+	/**
+	 * Modify the prototype of a node to include special Moon view properties.
+	 */
+
+	Node.prototype.MoonChildren = null;
 	/**
 	 * Creates an element from a node.
 	 *
@@ -506,94 +549,64 @@
 	 */
 
 
-	function render(viewNew) {
-		// When given a new view, patch the old element to match the new node using
-		// the old node as reference.
-		if (viewOld.name === viewNew.name) {
-			// If the root views have the same name, patch their data.
-			viewPatch(viewOld, viewOldElement, viewNew);
-		} else {
-			// If they have different names, create a new old view element.
-			var viewOldElementNew = viewCreate(viewNew); // Manipulate the DOM to replace the old view.
+	var view$1 = {
+		set: function set(viewNew) {
+			// When given a new view, patch the old element to match the new node using
+			// the old node as reference.
+			if (viewOld.name === viewNew.name) {
+				// If the root views have the same name, patch their data.
+				viewPatch(viewOld, viewOldElement, viewNew);
+			} else {
+				// If they have different names, create a new old view element.
+				var viewOldElementNew = viewCreate(viewNew); // Manipulate the DOM to replace the old view.
 
-			viewOldElement.parentNode.replaceChild(viewOldElementNew, viewOldElement); // Update the reference to the old view element.
+				viewOldElement.parentNode.replaceChild(viewOldElementNew, viewOldElement); // Update the reference to the old view element.
 
-			viewOldElementUpdate(viewOldElementNew);
-		} // Store the new view as the old view to be used as reference during a
-		// patch.
+				viewOldElementUpdate(viewOldElementNew);
+			} // Store the new view as the old view to be used as reference during a
+			// patch.
 
 
-		viewOldUpdate(viewNew);
-	}
-
-	/**
-	 * HTML tag names
-	 */
-	var names = ["a", "abbr", "acronym", "address", "applet", "area", "article", "aside", "audio", "b", "base", "basefont", "bdi", "bdo", "bgsound", "big", "blink", "blockquote", "body", "br", "button", "canvas", "caption", "center", "cite", "code", "col", "colgroup", "command", "content", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "dir", "div", "dl", "dt", "element", "em", "embed", "fieldset", "figcaption", "figure", "font", "footer", "form", "frame", "frameset", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "hr", "html", "i", "iframe", "image", "img", "input", "ins", "isindex", "kbd", "keygen", "label", "legend", "li", "link", "listing", "main", "map", "mark", "marquee", "math", "menu", "menuitem", "meta", "meter", "multicol", "nav", "nextid", "nobr", "noembed", "noframes", "noscript", "object", "ol", "optgroup", "option", "output", "p", "param", "picture", "plaintext", "pre", "progress", "q", "rb", "rbc", "rp", "rt", "rtc", "ruby", "s", "samp", "script", "section", "select", "shadow", "slot", "small", "source", "spacer", "span", "strike", "strong", "style", "sub", "summary", "sup", "svg", "table", "tbody", "td", "template", "text", "textarea", "tfoot", "th", "thead", "time", "title", "tr", "track", "tt", "u", "ul", "var", "video", "wbr", "xmp"];
-
-	/**
-	 * Components
-	 *
-	 * Each component generates a corresponding view node based on the data it is
-	 * passed as input. This data includes attributes and children.
-	 */
-
-	var components = {
-		node: function node(name) {
-			return function (data) {
-				return new ViewNode(name, data);
-			};
+			viewOldUpdate(viewNew);
 		}
 	};
 
-	var _loop = function _loop(i) {
-		var name = names[i];
-
-		components[name] = function (data) {
-			return new ViewNode(name, data);
-		};
-	};
-
-	for (var i = 0; i < names.length; i++) {
-		_loop(i);
-	}
-
-	var view = {
-		components: components,
-		configure: configure$1,
-		render: render
-	};
-
-	/**
-	 * Returns the current time.
-	 */
-	function tell() {
-		return Date.now();
-	}
-
 	var time = {
-		tell: tell
+		get: function get() {
+			return Date.now();
+		},
+		set: function set(input) {
+			setTimeout(input[1], input[0] * 1000);
+		}
 	};
 
-	/**
-	 * The storage transformer provides access to local storage.
-	 */
+	var storage = {
+		get: function get() {
+			return localStorage;
+		},
+		set: function set(localStorageNew) {
+			for (var keyNew in localStorageNew) {
+				var valueNew = localStorageNew[keyNew];
+
+				if (localStorage[keyNew] !== valueNew) {
+					localStorage[keyNew] = valueNew;
+				}
+			}
+
+			for (var keyOld in localStorage) {
+				if (!(keyOld in localStorageNew)) {
+					delete localStorage[keyOld];
+				}
+			}
+		}
+	};
 
 	/*
 	 * Match HTTP headers.
 	 */
 	var headerRE = /^([^:]+):\s*([^]*?)\s*$/gm;
-	/**
-	 * Sends HTTP requests. Multiple HTTP requests can be implemented with multiple
-	 * requests in the array, and subsequent HTTP requests can be implemented with
-	 * another HTTP request once a response is received.
-	 *
-	 * @param {array} requests
-	 */
-
-	function send(requests) {
-		var _loop = function _loop(i) {
-			var request = requests[i];
+	var http = {
+		set: function set(request) {
 			var xhr = new XMLHttpRequest(); // Handle response types.
 
 			xhr.responseType = "responseType" in request ? request.responseType : "text"; // Handle load event.
@@ -635,77 +648,31 @@
 
 
 			xhr.send("body" in request ? request.body : null);
-		};
-
-		// Make the HTTP requests.
-		for (var i = 0; i < requests.length; i++) {
-			_loop(i);
 		}
-	}
-
-	var http = {
-		send: send
 	};
 
-	/**
-	 * Reads and returns the current route.
-	 *
-	 * @returns {string} current route
-	 */
-	function read() {
-		return location.pathname;
-	}
-
-	/**
-	 * Navigates to a new route.
-	 *
-	 * @param {string} routeNew
-	 */
-	function navigate(routeNew) {
-		history.pushState(null, "", routeNew);
-	}
-
-	/**
-	 * Returns a view given routes that map to views and the current route.
-	 *
-	 * @param {object} input
-	 * @returns {object} view
-	 */
-	function router(input) {
-		var route = input.route;
-		var routeSegment = "/";
-		var routes = input.routes;
-
-		for (var i = 1; i < route.length; i++) {
-			var routeCharacter = route[i];
-
-			if (routeCharacter === "/") {
-				routes = (routeSegment in routes ? routes[routeSegment] : routes["/*"])[1];
-				routeSegment = "/";
-			} else {
-				routeSegment += routeCharacter;
-			}
+	var route$1 = {
+		get: function get() {
+			return location.pathname;
+		},
+		set: function set(routeNew) {
+			history.pushState(null, "", routeNew);
 		}
-
-		return (routeSegment in routes ? routes[routeSegment] : routes["/*"])[0](input);
-	}
-
-	var route = {
-		navigate: navigate,
-		read: read,
-		router: router
 	};
 
-	var Moon = {
-		configure: configure,
-		data: data,
-		http: http,
+	var m = {};
+	Object.defineProperty(m, "view", view$1);
+	Object.defineProperty(m, "time", time);
+	Object.defineProperty(m, "storage", storage);
+	Object.defineProperty(m, "http", http);
+	Object.defineProperty(m, "route", route$1);
+
+	var index = {
+		m: m,
 		route: route,
-		storage: localStorage,
-		time: time,
 		version: "1.0.0-beta.7",
 		view: view
 	};
 
-	return Moon;
+	return index;
 }));

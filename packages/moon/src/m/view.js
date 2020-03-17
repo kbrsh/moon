@@ -1,14 +1,14 @@
 import { viewOld, viewOldUpdate, viewOldElement, viewOldElementUpdate } from "moon/src/view/state";
 
 /**
- * Modify the prototype of a node to include special Moon view properties.
- */
-Node.prototype.MoonChildren = null;
-
-/**
  * Cache for default property values
  */
 const removeDataPropertyCache = {};
+
+/**
+ * Modify the prototype of a node to include special Moon view properties.
+ */
+Node.prototype.MoonChildren = null;
 
 /**
  * Creates an element from a node.
@@ -395,24 +395,26 @@ function viewPatch(nodeOld, nodeOldElement, nodeNew) {
  *
  * @param {object} viewNew
  */
-export default function render(viewNew) {
-	// When given a new view, patch the old element to match the new node using
-	// the old node as reference.
-	if (viewOld.name === viewNew.name) {
-		// If the root views have the same name, patch their data.
-		viewPatch(viewOld, viewOldElement, viewNew);
-	} else {
-		// If they have different names, create a new old view element.
-		const viewOldElementNew = viewCreate(viewNew);
+export default {
+	set(viewNew) {
+		// When given a new view, patch the old element to match the new node using
+		// the old node as reference.
+		if (viewOld.name === viewNew.name) {
+			// If the root views have the same name, patch their data.
+			viewPatch(viewOld, viewOldElement, viewNew);
+		} else {
+			// If they have different names, create a new old view element.
+			const viewOldElementNew = viewCreate(viewNew);
 
-		// Manipulate the DOM to replace the old view.
-		viewOldElement.parentNode.replaceChild(viewOldElementNew, viewOldElement);
+			// Manipulate the DOM to replace the old view.
+			viewOldElement.parentNode.replaceChild(viewOldElementNew, viewOldElement);
 
-		// Update the reference to the old view element.
-		viewOldElementUpdate(viewOldElementNew);
+			// Update the reference to the old view element.
+			viewOldElementUpdate(viewOldElementNew);
+		}
+
+		// Store the new view as the old view to be used as reference during a
+		// patch.
+		viewOldUpdate(viewNew);
 	}
-
-	// Store the new view as the old view to be used as reference during a
-	// patch.
-	viewOldUpdate(viewNew);
-}
+};
