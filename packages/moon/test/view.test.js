@@ -51,8 +51,8 @@ function ExecutorTestItem({ item, index }) {
 	);
 }
 
-function ExecutorTest() {
-	const list = m.list;
+function ExecutorTest(m) {
+	const list = m.data.list;
 
 	return (
 		<components.div>
@@ -87,8 +87,8 @@ function ExecutorTest() {
 }
 
 Moon.view.mount(root);
-m.list = [];
-m.view = <ExecutorTest/>;
+m.data.list = [];
+m.view = <ExecutorTest m/>;
 
 root = document.body.firstChild;
 
@@ -232,12 +232,12 @@ function verify(list) {
 }
 
 function assertExecute(before, after) {
-	m.list = before;
-	m.view = <ExecutorTest/>;
+	m.data.list = before;
+	m.view = <ExecutorTest m/>;
 	verify(before);
 
-	m.list = after;
-	m.view = <ExecutorTest/>;
+	m.data.list = after;
+	m.view = <ExecutorTest m/>;
 	verify(after);
 }
 

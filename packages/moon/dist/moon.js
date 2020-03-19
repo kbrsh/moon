@@ -137,6 +137,8 @@
 		router: router
 	};
 
+	var data = {};
+
 	/**
 	 * Cache for default property values
 	 */
@@ -661,6 +663,7 @@
 	};
 
 	var m = {};
+	m.data = data;
 	Object.defineProperty(m, "view", view$1);
 	Object.defineProperty(m, "time", time);
 	Object.defineProperty(m, "storage", storage);

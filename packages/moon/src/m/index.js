@@ -1,3 +1,4 @@
+import data from "moon/src/m/data";
 import view from "moon/src/m/view";
 import time from "moon/src/m/time";
 import storage from "moon/src/m/storage";
@@ -6,6 +7,7 @@ import route from "moon/src/m/route";
 
 const m = {};
 
+m.data = data;
 Object.defineProperty(m, "view", view);
 Object.defineProperty(m, "time", time);
 Object.defineProperty(m, "storage", storage);
