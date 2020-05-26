@@ -307,65 +307,66 @@
 					// If there is no view or the name changed, create a new view from
 					// scratch.
 					if (name === "text") {
-						view = document.createTextNode(data.data);
+						view = document.createTextNode("");
 					} else {
-						view = document.createElement(name); // Create data properties.
+						view = document.createElement(name);
+					} // Create data properties.
 
-						for (var key in data) {
-							var value = data[key];
 
-							if (key[0] === "o" && key[1] === "n") {
-								view[key.toLowerCase()] = event(value);
-							} else {
-								switch (key) {
-									case "attributes":
-										{
-											for (var keyAttribute in value) {
-												view.setAttribute(keyAttribute, value[keyAttribute]);
-											}
+					for (var key in data) {
+						var value = data[key];
 
-											break;
+						if (key[0] === "o" && key[1] === "n") {
+							view[key.toLowerCase()] = event(value);
+						} else {
+							switch (key) {
+								case "attributes":
+									{
+										for (var keyAttribute in value) {
+											view.setAttribute(keyAttribute, value[keyAttribute]);
 										}
 
-									case "style":
-										{
-											var viewStyle = view.style;
+										break;
+									}
 
-											for (var keyStyle in value) {
-												viewStyle[keyStyle] = value[keyStyle];
-											}
+								case "style":
+									{
+										var viewStyle = view.style;
 
-											break;
+										for (var keyStyle in value) {
+											viewStyle[keyStyle] = value[keyStyle];
 										}
 
-									case "class":
-										{
-											view.className = value;
-											break;
+										break;
+									}
+
+								case "class":
+									{
+										view.className = value;
+										break;
+									}
+
+								case "for":
+									{
+										view.htmlFor = value;
+										break;
+									}
+
+								case "children":
+									{
+										for (var i = 0; i < value.length; i++) {
+											m.view = viewEmpty;
+											m = value[i](m);
+											view.appendChild(m.view);
 										}
 
-									case "for":
-										{
-											view.htmlFor = value;
-											break;
-										}
+										break;
+									}
 
-									case "children":
-										{
-											for (var i = 0; i < value.length; i++) {
-												m.view = viewEmpty;
-												m = value[i](m);
-												view.appendChild(m.view);
-											}
-
-											break;
-										}
-
-									default:
-										{
-											view[key] = value;
-										}
-								}
+								default:
+									{
+										view[key] = value;
+									}
 							}
 						}
 					} // Store name and data in cache for faster operations.
@@ -389,7 +390,7 @@
 								view.replaceChild(viewChildNew, viewChild);
 							}
 
-							viewChild = m.view = viewChild.nextSibling;
+							viewChild = m.view = viewChildNew.nextSibling;
 						}
 					}
 				} else {
@@ -421,7 +422,7 @@
 											view.replaceChild(_viewChildNew, _viewChild);
 										}
 
-										_viewChild = m.view = _viewChild.nextSibling;
+										_viewChild = m.view = _viewChildNew.nextSibling;
 									}
 								} else if (valueLength < viewValueLength) {
 									for (; _i2 < valueLength; _i2++) {
@@ -432,7 +433,7 @@
 											view.replaceChild(_viewChildNew2, _viewChild);
 										}
 
-										_viewChild = m.view = _viewChild.nextSibling;
+										_viewChild = m.view = _viewChildNew2.nextSibling;
 									}
 
 									for (; _i2 < viewValueLength; _i2++) {
@@ -447,13 +448,13 @@
 											view.replaceChild(_viewChildNew3, _viewChild);
 										}
 
-										_viewChild = m.view = _viewChild.nextSibling;
+										_viewChild = m.view = _viewChildNew3.nextSibling;
 									}
 
 									for (; _i2 < valueLength; _i2++) {
+										m.view = viewEmpty;
 										m = _value[_i2](m);
 										view.appendChild(m.view);
-										m.view = viewEmpty;
 									}
 								}
 							} else if (_value !== viewValue) {
@@ -676,6 +677,20 @@
 	});
 
 	/**
+	 * Timer component
+	 */
+
+	var timer = (function (data) {
+		return function (m) {
+			for (var delay in data) {
+				setTimeout(event(data[delay]), delay);
+			}
+
+			return m;
+		};
+	});
+
+	/**
 	 * HTTP component
 	 */
 
@@ -708,32 +723,52 @@
 		};
 	});
 
-	var timer = (function (data) {
-		return function (m) {
-			for (var delay in data) {
-				setTimeout(event(data[delay]), delay);
-			}
-
-			return m;
-		};
-	});
-
 	/**
 	 * HTML tag names
 	 */
-	var names = ["a", "abbr", "acronym", "address", "applet", "area", "article", "aside", "audio", "b", "base", "basefont", "bdi", "bdo", "bgsound", "big", "blink", "blockquote", "body", "br", "button", "canvas", "caption", "center", "cite", "code", "col", "colgroup", "command", "content", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "dir", "div", "dl", "dt", "element", "em", "embed", "fieldset", "figcaption", "figure", "font", "footer", "form", "frame", "frameset", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "hr", "html", "i", "iframe", "image", "img", "input", "ins", "isindex", "kbd", "keygen", "label", "legend", "li", "link", "listing", "main", "map", "mark", "marquee", "math", "menu", "menuitem", "meta", "meter", "multicol", "nav", "nextid", "nobr", "noembed", "noframes", "noscript", "object", "ol", "optgroup", "option", "output", "p", "param", "picture", "plaintext", "pre", "progress", "q", "rb", "rbc", "rp", "rt", "rtc", "ruby", "s", "samp", "script", "section", "select", "shadow", "slot", "small", "source", "spacer", "span", "strike", "strong", "style", "sub", "summary", "sup", "svg", "table", "tbody", "td", "template", "text", "textarea", "tfoot", "th", "thead", "time", "title", "tr", "track", "tt", "u", "ul", "var", "video", "wbr", "xmp"];
+	var names = ["root", "element", "router", "timer", "httper", "a", "abbr", "acronym", "address", "applet", "area", "article", "aside", "audio", "b", "base", "basefont", "bdi", "bdo", "bgsound", "big", "blink", "blockquote", "body", "br", "button", "canvas", "caption", "center", "cite", "code", "col", "colgroup", "command", "content", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "dir", "div", "dl", "dt", "element", "em", "embed", "fieldset", "figcaption", "figure", "font", "footer", "form", "frame", "frameset", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "hr", "html", "i", "iframe", "image", "img", "input", "ins", "isindex", "kbd", "keygen", "label", "legend", "li", "link", "listing", "main", "map", "mark", "marquee", "math", "menu", "menuitem", "meta", "meter", "multicol", "nav", "nextid", "nobr", "noembed", "noframes", "noscript", "object", "ol", "optgroup", "option", "output", "p", "param", "picture", "plaintext", "pre", "progress", "q", "rb", "rbc", "rp", "rt", "rtc", "ruby", "s", "samp", "script", "section", "select", "shadow", "slot", "small", "source", "spacer", "span", "strike", "strong", "style", "sub", "summary", "sup", "svg", "table", "tbody", "td", "template", "text", "textarea", "tfoot", "th", "thead", "time", "title", "tr", "track", "tt", "u", "ul", "var", "video", "wbr", "xmp"];
 
-	var components = {
-		root: root$2,
-		element: element,
-		router: router,
-		httper: httper,
-		timer: timer
-	};
+	var components = {};
 
 	for (var i = 0; i < names.length; i++) {
 		var name = names[i];
-		components[name] = element(name);
+
+		switch (name) {
+			case "root":
+				{
+					components.root = root$2;
+					break;
+				}
+
+			case "element":
+				{
+					components.element = element;
+					break;
+				}
+
+			case "router":
+				{
+					components.router = router;
+					break;
+				}
+
+			case "timer":
+				{
+					components.timer = timer;
+					break;
+				}
+
+			case "httper":
+				{
+					components.httper = httper;
+					break;
+				}
+
+			default:
+				{
+					components[name] = element(name);
+				}
+		}
 	}
 
 	/**

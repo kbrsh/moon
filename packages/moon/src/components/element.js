@@ -24,57 +24,57 @@ export default name => data => m => {
 		// If there is no view or the name changed, create a new view from
 		// scratch.
 		if (name === "text") {
-			view = document.createTextNode(data.data);
+			view = document.createTextNode("");
 		} else {
 			view = document.createElement(name);
+		}
 
-			// Create data properties.
-			for (const key in data) {
-				const value = data[key];
+		// Create data properties.
+		for (const key in data) {
+			const value = data[key];
 
-				if (key[0] === "o" && key[1] === "n") {
-					view[key.toLowerCase()] = event(value);
-				} else {
-					switch (key) {
-						case "attributes": {
-							for (const keyAttribute in value) {
-								view.setAttribute(keyAttribute, value[keyAttribute]);
-							}
-
-							break;
+			if (key[0] === "o" && key[1] === "n") {
+				view[key.toLowerCase()] = event(value);
+			} else {
+				switch (key) {
+					case "attributes": {
+						for (const keyAttribute in value) {
+							view.setAttribute(keyAttribute, value[keyAttribute]);
 						}
-						case "style": {
-							const viewStyle = view.style;
 
-							for (const keyStyle in value) {
-								viewStyle[keyStyle] = value[keyStyle];
-							}
+						break;
+					}
+					case "style": {
+						const viewStyle = view.style;
 
-							break;
+						for (const keyStyle in value) {
+							viewStyle[keyStyle] = value[keyStyle];
 						}
-						case "class": {
-							view.className = value;
 
-							break;
-						}
-						case "for": {
-							view.htmlFor = value;
+						break;
+					}
+					case "class": {
+						view.className = value;
 
-							break;
-						}
-						case "children": {
-							for (let i = 0; i < value.length; i++) {
-								m.view = viewEmpty;
-								m = value[i](m);
+						break;
+					}
+					case "for": {
+						view.htmlFor = value;
 
-								view.appendChild(m.view);
-							}
+						break;
+					}
+					case "children": {
+						for (let i = 0; i < value.length; i++) {
+							m.view = viewEmpty;
+							m = value[i](m);
 
-							break;
+							view.appendChild(m.view);
 						}
-						default: {
-							view[key] = value;
-						}
+
+						break;
+					}
+					default: {
+						view[key] = value;
 					}
 				}
 			}
@@ -99,7 +99,7 @@ export default name => data => m => {
 					view.replaceChild(viewChildNew, viewChild);
 				}
 
-				viewChild = m.view = viewChild.nextSibling;
+				viewChild = m.view = viewChildNew.nextSibling;
 			}
 		}
 	} else {
@@ -129,7 +129,7 @@ export default name => data => m => {
 								view.replaceChild(viewChildNew, viewChild);
 							}
 
-							viewChild = m.view = viewChild.nextSibling;
+							viewChild = m.view = viewChildNew.nextSibling;
 						}
 					} else if (valueLength < viewValueLength) {
 						for (; i < valueLength; i++) {
@@ -140,7 +140,7 @@ export default name => data => m => {
 								view.replaceChild(viewChildNew, viewChild);
 							}
 
-							viewChild = m.view = viewChild.nextSibling;
+							viewChild = m.view = viewChildNew.nextSibling;
 						}
 
 						for (; i < viewValueLength; i++) {
@@ -155,15 +155,14 @@ export default name => data => m => {
 								view.replaceChild(viewChildNew, viewChild);
 							}
 
-							viewChild = m.view = viewChild.nextSibling;
+							viewChild = m.view = viewChildNew.nextSibling;
 						}
 
 						for (; i < valueLength; i++) {
+							m.view = viewEmpty;
 							m = value[i](m);
 
 							view.appendChild(m.view);
-
-							m.view = viewEmpty;
 						}
 					}
 				} else if (value !== viewValue) {
