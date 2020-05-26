@@ -1,4 +1,14 @@
-import { viewOld, viewOldUpdate, viewOldElement, viewOldElementUpdate } from "moon/src/view/state";
+import components from "moon/src/components";
+
+/**
+ * Global DOM.
+ */
+let dom = document.body;
+
+/**
+ * Global virtual DOM.
+ */
+let vdom = components.body({});
 
 /**
  * Cache for default property values
@@ -6,51 +16,53 @@ import { viewOld, viewOldUpdate, viewOldElement, viewOldElementUpdate } from "mo
 const removeDataPropertyCache = {};
 
 /**
- * Modify the prototype of a node to include special Moon view properties.
+ * Modify the prototype of a node to provide fast access to child nodes.
  */
 Node.prototype.MoonChildren = null;
 
 /**
- * Creates an element from a node.
+ * Creates a DOM element from a view.
  *
- * @param {object} node
- * @returns {object} element
+ * @param {object} view
+ * @returns {object} dom
  */
-function viewCreate(node) {
-	const nodeName = node.name;
+function create(view) {
+	const viewName = view.name;
 
-	if (nodeName === "text") {
-		// Create a text node using the text content from the default key.
-		return document.createTextNode(node.data.data);
+	if (viewName === "text") {
+		// Create a text node using the text content from the data key.
+		return document.createTextNode(view.data.data);
 	} else {
 		// Create a DOM element.
-		const element = document.createElement(nodeName);
+		const dom = document.createElement(viewName);
 
 		// Set data.
-		const nodeData = node.data;
+		const viewData = view.data;
 
-		for (const key in nodeData) {
-			const value = nodeData[key];
+		for (const key in viewData) {
+			const value = viewData[key];
 
 			if (key[0] === "o" && key[1] === "n") {
 				// Set an event listener.
-				element[key.toLowerCase()] = value;
+				dom[key.toLowerCase()] = () => {
+					event(value);
+				};
 			} else {
 				switch (key) {
 					case "attributes": {
 						// Set attributes.
 						for (const valueKey in value) {
-							element.setAttribute(valueKey, value[valueKey]);
+							dom.setAttribute(valueKey, value[valueKey]);
 						}
 
 						break;
 					}
 					case "style": {
 						// Set style properties.
-						const elementStyle = element.style;
+						const domStyle = dom.style;
 
 						for (const valueKey in value) {
-							elementStyle[valueKey] = value[valueKey];
+							domStyle[valueKey] = value[valueKey];
 						}
 
 						break;
@@ -59,81 +71,80 @@ function viewCreate(node) {
 						// Set focus if needed. Blur isn't set because it's the
 						// default.
 						if (value) {
-							element.focus();
+							dom.focus();
 						}
-
-						break;
 					}
 					case "class": {
 						// Set a className property.
-						element.className = value;
+						dom.className = value;
 
 						break;
 					}
 					case "for": {
 						// Set an htmlFor property.
-						element.htmlFor = value;
+						dom.htmlFor = value;
 
 						break;
 					}
 					case "children": {
 						// Recursively append children.
-						const elementMoonChildren = element.MoonChildren = [];
+						const domMoonChildren = dom.MoonChildren = [];
 
 						for (let i = 0; i < value.length; i++) {
-							const elementChild = viewCreate(value[i]);
+							const domChild = viewCreate(value[i]);
 
-							elementMoonChildren.push(elementChild);
-							element.appendChild(elementChild);
+							domMoonChildren.push(domChild);
+							dom.appendChild(domChild);
 						}
 
 						break;
 					}
 					default: {
 						// Set a DOM property.
-						element[key] = value;
+						dom[key] = value;
 					}
 				}
 			}
 		}
 
-		return element;
+		return dom;
 	}
 }
 
 /**
- * Patches an old element's data to match a new node, using an old node as
- * reference.
+ * Patches a DOM element to match a view, using a virtual DOM as reference.
  *
- * @param {object} nodeOld
- * @param {object} nodeOldElement
- * @param {object} nodeNew
+ * @param {object} dom
+ * @param {object} vdom
+ * @param {object} view
  */
-function viewPatch(nodeOld, nodeOldElement, nodeNew) {
-	const nodeOldData = nodeOld.data;
-	const nodeNewData = nodeNew.data;
+function viewPatch(dom, vdom, view) {
+	const vdomData = vdom.data;
+	const viewData = view.data;
 
-	// First, go through all new data and update all of the existing data to
+	// First, go through all view data and update all of the existing data to
 	// match.
-	for (const keyNew in nodeNewData) {
-		const valueOld = nodeOldData[keyNew];
-		const valueNew = nodeNewData[keyNew];
+	for (const key in viewData) {
+		const vdomValue = vdomData[key];
+		const viewValue = viewData[key];
 
-		if (valueOld !== valueNew) {
-			if (keyNew[0] === "o" && keyNew[1] === "n") {
+		if (vdomValue !== viewValue) {
+			if (key[0] === "o" && key[1] === "n") {
 				// Update an event.
-				nodeOldElement[keyNew.toLowerCase()] = valueNew;
+				dom[key.toLowerCase()] = () => {
+					event(viewValue);
+				};
 			} else {
-				switch (keyNew) {
+				switch (key) {
 					case "attributes": {
 						// Update attributes.
-						if (valueOld === undefined) {
-							for (const valueNewKey in valueNew) {
-								nodeOldElement.setAttribute(valueNewKey, valueNew[valueNewKey]);
+						if (vdomValue === undefined) {
+							for (const key in viewValue) {
+								dom.setAttribute(key, viewValue[key]);
 							}
 						} else {
-							for (const valueNewKey in valueNew) {
-								const valueNewValue = valueNew[valueNewKey];
+							for (const key in viewValue) {
+								const viewValueValue = valueNew[valueNewKey];
 
 								if (valueOld[valueNewKey] !== valueNewValue) {
 									nodeOldElement.setAttribute(valueNewKey, valueNewValue);
@@ -376,45 +387,29 @@ function viewPatch(nodeOld, nodeOldElement, nodeNew) {
 	}
 }
 
-/**
- * The view transformer renderer is responsible for updating the DOM and
- * rendering views. The patch consists of walking the new tree and finding
- * differences between the trees. The old tree is used to compare values for
- * performance. The DOM is updated to reflect these changes as well. Ideally,
- * the DOM would provide an API for creating lightweight elements and render
- * directly from a virtual DOM, but Moon uses the imperative API for updating
- * it instead.
- *
- * Since views can easily be cached, Moon skips over patches if the old and new
- * nodes are equal. This is also why views should be pure and immutable. They
- * are created every render and stored, so if they are ever mutated, Moon will
- * skip them anyway because they have the same reference. It can use a little
- * more memory, but Moon nodes are heavily optimized to work well with
- * JavaScript engines, and immutability opens up the opportunity to use
- * standard functional techniques for caching.
- *
- * @param {object} viewNew
- */
 export default {
-	set(viewNew) {
-		// When given a new view, patch the old element to match the new node using
-		// the old node as reference.
-		if (viewOld.name === viewNew.name) {
+	get() {
+		return vdom;
+	},
+	set(view) {
+		// When given a new view, patch the old element to match the new node
+		// using the old node as reference.
+		if (vdom.name === view.name) {
 			// If the root views have the same name, patch their data.
-			viewPatch(viewOld, viewOldElement, viewNew);
+			viewPatch(dom, vdom, view);
 		} else {
 			// If they have different names, create a new old view element.
-			const viewOldElementNew = viewCreate(viewNew);
+			const domNew = create(view);
 
 			// Manipulate the DOM to replace the old view.
-			viewOldElement.parentNode.replaceChild(viewOldElementNew, viewOldElement);
+			dom.parentNode.replaceChild(domNew, dom);
 
 			// Update the reference to the old view element.
-			viewOldElementUpdate(viewOldElementNew);
+			dom = domNew;
 		}
 
 		// Store the new view as the old view to be used as reference during a
 		// patch.
-		viewOldUpdate(viewNew);
+		vdom = view;
 	}
 };
