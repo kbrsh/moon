@@ -49,6 +49,36 @@ export default function generate(tree) {
 		return output;
 	} else if (type === "comment") {
 		return `/*${generate(tree.value[1])}*/`;
+	} else if (type === "identifier") {
+		const value = tree.value;
+		const valueFirst = value[0];
+		const valueRest = value[1];
+		let output;
+
+		if (valueFirst[0].length === 0) {
+			output = generate(valueFirst);
+
+			for (let i = 0; i < valueRest.length; i++) {
+				output += generate(valueRest[i]);
+			}
+		} else {
+			output = `["${generate(valueFirst[1])}"`;
+
+			for (let i = 0; i < valueRest.length; i++) {
+				const valueRestValue = valueRest[i];
+				output += ",";
+
+				if (valueRestValue[0] === "[") {
+					output += generate(valueRestValue[1]);
+				} else {
+					output += `"${generate(valueRestValue[1])}"`;
+				}
+			}
+
+			output += "]";
+		}
+
+		return output;
 	} else if (type === "attributes") {
 		const value = tree.value;
 		let output = "";

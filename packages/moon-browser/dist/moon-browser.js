@@ -10,7 +10,7 @@
 	/**
 	 * Matches an identifier character.
 	 */
-	var identifierRE = /[$\w.]/;
+	var identifierRE = /[$\w]/;
 	/**
 	 * Stores an error message, a slice of tokens associated with the error, and a
 	 * related error for later reporting.
@@ -49,7 +49,7 @@
 		character: function character(_character) {
 			return function (input, index) {
 				var head = input[index];
-				return head === _character ? [head, index + 1] : new ParseError("\"" + _character + "\"", index);
+				return head === _character ? [head, index + 1] : new ParseError(_character, index);
 			};
 		},
 		regex: function regex(_regex) {
@@ -61,7 +61,7 @@
 		string: function string(_string) {
 			return function (input, index) {
 				var indexNew = index + _string.length;
-				return input.slice(index, indexNew) === _string ? [_string, indexNew] : new ParseError("\"" + _string + "\"", index);
+				return input.slice(index, indexNew) === _string ? [_string, indexNew] : new ParseError(_string, index);
 			};
 		},
 		not: function not(strings) {
@@ -71,13 +71,13 @@
 						var string = strings[i];
 
 						if (input.slice(index, index + string.length) === string) {
-							return new ParseError("not \"" + string + "\"", index);
+							return new ParseError("not " + string, index);
 						}
 					}
 
 					return [input[index], index + 1];
 				} else {
-					return new ParseError("not " + strings.map(JSON.stringify).join(", "), index);
+					return new ParseError("not " + strings.join(", "), index);
 				}
 			};
 		},
@@ -106,6 +106,17 @@
 				}
 			};
 		},
+		optional: function optional(parse) {
+			return function (input, index) {
+				var output = parse(input, index);
+
+				if (output instanceof ParseError && output.index === index) {
+					return [[], index];
+				} else {
+					return output;
+				}
+			};
+		},
 		sequence: function sequence(parses) {
 			return function (input, index) {
 				var values = [];
@@ -126,7 +137,7 @@
 		},
 		alternates: function alternates(parses) {
 			return function (input, index) {
-				var alternatesError = new ParseError("alternates", -1);
+				var alternatesError = new ParseError("", -1);
 
 				for (var i = 0; i < parses.length; i++) {
 					var output = parses[i](input, index);
@@ -205,8 +216,15 @@
 		separator: function separator(input, index) {
 			return parser.many(parser.or(parser.alternates([parser.character(" "), parser.character("\t"), parser.character("\n")]), grammar.comment))(input, index);
 		},
+		identifierProperty: parser.and(parser.optional(parser.character(".")), parser.many1(parser.regex(identifierRE))),
+		array: function array(input, index) {
+			return parser.sequence([parser.character("["), grammar.expression, parser.character("]")])(input, index);
+		},
+		identifier: function identifier(input, index) {
+			return parser.type("identifier", parser.and(grammar.identifierProperty, parser.many(parser.or(grammar.identifierProperty, grammar.array))))(input, index);
+		},
 		value: function value(input, index) {
-			return parser.alternates([parser.many1(parser.regex(identifierRE)), parser.sequence([parser.character("\""), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["\""]))), parser.character("\"")]), parser.sequence([parser.character("'"), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["'"]))), parser.character("'")]), parser.sequence([parser.character("`"), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["`"]))), parser.character("`")]), parser.sequence([parser.character("("), grammar.expression, parser.character(")")]), parser.sequence([parser.character("["), grammar.expression, parser.character("]")]), parser.sequence([parser.character("{"), grammar.expression, parser.character("}")])])(input, index);
+			return parser.alternates([grammar.identifier, parser.sequence([parser.character("\""), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["\""]))), parser.character("\"")]), parser.sequence([parser.character("'"), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["'"]))), parser.character("'")]), parser.sequence([parser.character("`"), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["`"]))), parser.character("`")]), parser.sequence([parser.character("("), grammar.expression, parser.character(")")]), grammar.array, parser.sequence([parser.character("{"), grammar.expression, parser.character("}")])])(input, index);
 		},
 		attributes: function attributes(input, index) {
 			return parser.type("attributes", parser.many(parser.sequence([grammar.value, parser.character("="), grammar.value, grammar.separator])))(input, index);
@@ -337,19 +355,50 @@
 			return output;
 		} else if (type === "comment") {
 			return "/*" + generate(tree.value[1]) + "*/";
-		} else if (type === "attributes") {
+		} else if (type === "identifier") {
 			var value = tree.value;
-			var _output = "";
+			var valueFirst = value[0];
+			var valueRest = value[1];
+
+			var _output;
+
+			if (valueFirst[0].length === 0) {
+				_output = generate(valueFirst);
+
+				for (var _i = 0; _i < valueRest.length; _i++) {
+					_output += generate(valueRest[_i]);
+				}
+			} else {
+				_output = "[\"" + generate(valueFirst[1]) + "\"";
+
+				for (var _i2 = 0; _i2 < valueRest.length; _i2++) {
+					var valueRestValue = valueRest[_i2];
+					_output += ",";
+
+					if (valueRestValue[0] === "[") {
+						_output += generate(valueRestValue[1]);
+					} else {
+						_output += "\"" + generate(valueRestValue[1]) + "\"";
+					}
+				}
+
+				_output += "]";
+			}
+
+			return _output;
+		} else if (type === "attributes") {
+			var _value = tree.value;
+			var _output2 = "";
 			var separator = "";
 
-			for (var _i = 0; _i < value.length; _i++) {
-				var pair = value[_i];
-				_output += separator + "\"" + generate(pair[0]) + "\":" + generate(pair[2]) + generate(pair[3]);
+			for (var _i3 = 0; _i3 < _value.length; _i3++) {
+				var pair = _value[_i3];
+				_output2 += separator + "\"" + generate(pair[0]) + "\":" + generate(pair[2]) + generate(pair[3]);
 				separator = ",";
 			}
 
 			return {
-				output: _output,
+				output: _output2,
 				separator: separator
 			};
 		} else if (type === "text") {
@@ -367,23 +416,23 @@
 			return "Moon.components.text({data:" + generate(tree.value[1]) + "})";
 		} else if (type === "node") {
 			// Nodes represent a variable reference.
-			var _value = tree.value;
-			return generate(_value[1]) + generateName(_value[2]) + generate(_value[3]);
+			var _value2 = tree.value;
+			return generate(_value2[1]) + generateName(_value2[2]) + generate(_value2[3]);
 		} else if (type === "nodeData") {
 			// Data nodes represent calling a function with either a custom data
 			// expression or an object using attribute syntax.
-			var _value2 = tree.value;
-			var data = _value2[4];
+			var _value3 = tree.value;
+			var data = _value3[4];
 			var dataGenerated = generate(data);
-			return "" + generate(_value2[1]) + generateName(_value2[2]) + generate(_value2[3]) + "(" + (data.type === "attributes" ? "{" + dataGenerated.output + "}" : dataGenerated) + ")";
+			return "" + generate(_value3[1]) + generateName(_value3[2]) + generate(_value3[3]) + "(" + (data.type === "attributes" ? "{" + dataGenerated.output + "}" : dataGenerated) + ")";
 		} else if (type === "nodeDataChildren") {
 			// Data and children nodes represent calling a function with a data
 			// object using attribute syntax and children.
-			var _value3 = tree.value;
+			var _value4 = tree.value;
 
-			var _data = generate(_value3[4]);
+			var _data = generate(_value4[4]);
 
-			var children = _value3[6];
+			var children = _value4[6];
 			var childrenLength = children.length;
 			var childrenGenerated;
 
@@ -393,8 +442,8 @@
 				var _separator = "";
 				childrenGenerated = _data.separator + "children:[";
 
-				for (var _i2 = 0; _i2 < childrenLength; _i2++) {
-					var child = children[_i2];
+				for (var _i4 = 0; _i4 < childrenLength; _i4++) {
+					var child = children[_i4];
 					var childGenerated = generate(child);
 
 					if (child.type === "text") {
@@ -413,7 +462,7 @@
 				childrenGenerated += "]";
 			}
 
-			return "" + generate(_value3[1]) + generateName(_value3[2]) + generate(_value3[3]) + "({" + _data.output + childrenGenerated + "})";
+			return "" + generate(_value4[1]) + generateName(_value4[2]) + generate(_value4[3]) + "({" + _data.output + childrenGenerated + "})";
 		}
 	}
 

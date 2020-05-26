@@ -1,7 +1,7 @@
 /**
  * Matches an identifier character.
  */
-const identifierRE = /[$\w.]/;
+const identifierRE = /[$\w]/;
 
 /**
  * Stores an error message, a slice of tokens associated with the error, and a
@@ -42,7 +42,7 @@ const parser = {
 
 		return head === character ?
 			[head, index + 1] :
-			new ParseError(`"${character}"`, index);
+			new ParseError(character, index);
 	},
 	regex: regex => (input, index) => {
 		const head = input[index];
@@ -56,7 +56,7 @@ const parser = {
 
 		return input.slice(index, indexNew) === string ?
 			[string, indexNew] :
-			new ParseError(`"${string}"`, index);
+			new ParseError(string, index);
 	},
 	not: strings => (input, index) => {
 		if (index < input.length) {
@@ -64,13 +64,13 @@ const parser = {
 				const string = strings[i];
 
 				if (input.slice(index, index + string.length) === string) {
-					return new ParseError(`not "${string}"`, index);
+					return new ParseError(`not ${string}`, index);
 				}
 			}
 
 			return [input[index], index + 1];
 		} else {
-			return new ParseError(`not ${strings.map(JSON.stringify).join(", ")}`, index);
+			return new ParseError(`not ${strings.join(", ")}`, index);
 		}
 	},
 	or: (parse1, parse2) => (input, index) => {
@@ -97,6 +97,15 @@ const parser = {
 				[[output1[0], output2[0]], output2[1]];
 		}
 	},
+	optional: parse => (input, index) => {
+		const output = parse(input, index);
+
+		if (output instanceof ParseError && output.index === index) {
+			return [[], index];
+		} else {
+			return output;
+		}
+	},
 	sequence: parses => (input, index) => {
 		const values = [];
 
@@ -114,7 +123,7 @@ const parser = {
 		return [values, index];
 	},
 	alternates: parses => (input, index) => {
-		let alternatesError = new ParseError("alternates", -1);
+		let alternatesError = new ParseError("", -1);
 
 		for (let i = 0; i < parses.length; i++) {
 			const output = parses[i](input, index);
@@ -195,8 +204,24 @@ const grammar = {
 		]),
 		grammar.comment
 	))(input, index),
+	identifierProperty: parser.and(
+		parser.optional(parser.character(".")),
+		parser.many1(parser.regex(identifierRE))
+	),
+	array: (input, index) => parser.sequence([
+		parser.character("["),
+		grammar.expression,
+		parser.character("]")
+	])(input, index),
+	identifier: (input, index) => parser.type("identifier", parser.and(
+		grammar.identifierProperty,
+		parser.many(parser.or(
+			grammar.identifierProperty,
+			grammar.array
+		))
+	))(input, index),
 	value: (input, index) => parser.alternates([
-		parser.many1(parser.regex(identifierRE)),
+		grammar.identifier,
 		parser.sequence([
 			parser.character("\""),
 			parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["\""]))),
@@ -217,11 +242,7 @@ const grammar = {
 			grammar.expression,
 			parser.character(")")
 		]),
-		parser.sequence([
-			parser.character("["),
-			grammar.expression,
-			parser.character("]")
-		]),
+		grammar.array,
 		parser.sequence([
 			parser.character("{"),
 			grammar.expression,
