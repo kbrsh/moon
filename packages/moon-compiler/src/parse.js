@@ -220,7 +220,7 @@ const grammar = {
 			grammar.brackets
 		))
 	))(input, index),
-	value: (input, index) => parser.alternates([
+	value: (input, index) => parser.type("value", parser.alternates([
 		grammar.identifier,
 		parser.sequence([
 			parser.character("\""),
@@ -248,9 +248,9 @@ const grammar = {
 			grammar.expression,
 			parser.character("}")
 		])
-	])(input, index),
+	]))(input, index),
 	attributes: (input, index) => parser.type("attributes", parser.many(parser.sequence([
-		grammar.value,
+		grammar.identifierProperty,
 		parser.character("="),
 		grammar.value,
 		grammar.separator

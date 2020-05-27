@@ -224,10 +224,10 @@
 			return parser.type("identifier", parser.and(grammar.identifierProperty, parser.many(parser.or(grammar.identifierProperty, grammar.brackets))))(input, index);
 		},
 		value: function value(input, index) {
-			return parser.alternates([grammar.identifier, parser.sequence([parser.character("\""), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["\""]))), parser.character("\"")]), parser.sequence([parser.character("'"), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["'"]))), parser.character("'")]), parser.sequence([parser.character("`"), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["`"]))), parser.character("`")]), parser.sequence([parser.character("("), grammar.expression, parser.character(")")]), grammar.brackets, parser.sequence([parser.character("{"), grammar.expression, parser.character("}")])])(input, index);
+			return parser.type("value", parser.alternates([grammar.identifier, parser.sequence([parser.character("\""), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["\""]))), parser.character("\"")]), parser.sequence([parser.character("'"), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["'"]))), parser.character("'")]), parser.sequence([parser.character("`"), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["`"]))), parser.character("`")]), parser.sequence([parser.character("("), grammar.expression, parser.character(")")]), grammar.brackets, parser.sequence([parser.character("{"), grammar.expression, parser.character("}")])]))(input, index);
 		},
 		attributes: function attributes(input, index) {
-			return parser.type("attributes", parser.many(parser.sequence([grammar.value, parser.character("="), grammar.value, grammar.separator])))(input, index);
+			return parser.type("attributes", parser.many(parser.sequence([grammar.identifierProperty, parser.character("="), grammar.value, grammar.separator])))(input, index);
 		},
 		text: parser.type("text", parser.many1(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["{", "<"])))),
 		interpolation: function interpolation(input, index) {
@@ -370,15 +370,16 @@
 			return "/*" + generate(tree.value[1]) + "*/";
 		} else if (type === "identifier") {
 			var value = tree.value;
-			var valueFirst = value[0];
 
 			var _output = generate(value);
 
-			if (valueFirst[0].length === 1) {
+			if (value[0][0].length === 1) {
 				_output = "{value:\"" + escape(_output) + "\",get:function(m){return m" + _output + ";},set:function(m,MoonValue){m" + _output + "=MoonValue;return m;}}";
 			}
 
 			return _output;
+		} else if (type === "value") {
+			return generate(tree.value);
 		} else if (type === "attributes") {
 			var _value = tree.value;
 			var _output2 = "";

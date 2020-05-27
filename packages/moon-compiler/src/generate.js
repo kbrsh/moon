@@ -63,14 +63,15 @@ export default function generate(tree) {
 		return `/*${generate(tree.value[1])}*/`;
 	} else if (type === "identifier") {
 		const value = tree.value;
-		const valueFirst = value[0];
 		let output = generate(value);
 
-		if (valueFirst[0].length === 1) {
+		if (value[0][0].length === 1) {
 			output = `{value:"${escape(output)}",get:function(m){return m${output};},set:function(m,MoonValue){m${output}=MoonValue;return m;}}`;
 		}
 
 		return output;
+	} else if (type === "value") {
+		return generate(tree.value);
 	} else if (type === "attributes") {
 		const value = tree.value;
 		let output = "";

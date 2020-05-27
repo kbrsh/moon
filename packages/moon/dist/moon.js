@@ -315,6 +315,7 @@
 	 * @param {function} set
 	 * @param {object} view
 	 * @param {string} key
+	 * @returns {function} event handler
 	 */
 
 	function referenceHandler(set, view, key) {

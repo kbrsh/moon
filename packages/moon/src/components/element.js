@@ -30,6 +30,7 @@ const viewDataDefault = {};
  * @param {function} set
  * @param {object} view
  * @param {string} key
+ * @returns {function} event handler
  */
 function referenceHandler(set, view, key) {
 	return event(m => set(m, view[key]));
