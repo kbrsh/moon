@@ -11,6 +11,18 @@ const whitespaceRE = /^\s+$/;
 const textSpecialRE = /(^|[^\\])("|\n)/g;
 
 /**
+ * Escapes text for a JavaScript string.
+ *
+ * @param {string} text
+ * @returns {string} escaped string
+ */
+function escape(text) {
+	return text.replace(textSpecialRE, (match, character, characterSpecial) =>
+		character + (characterSpecial === "\"" ? "\\\"" : "\\n\\\n")
+	);
+}
+
+/**
  * Generates a name for a function call.
  *
  * @param {string} nameTree
@@ -52,30 +64,10 @@ export default function generate(tree) {
 	} else if (type === "identifier") {
 		const value = tree.value;
 		const valueFirst = value[0];
-		const valueRest = value[1];
-		let output;
+		let output = generate(value);
 
-		if (valueFirst[0].length === 0) {
-			output = generate(valueFirst);
-
-			for (let i = 0; i < valueRest.length; i++) {
-				output += generate(valueRest[i]);
-			}
-		} else {
-			output = `["${generate(valueFirst[1])}"`;
-
-			for (let i = 0; i < valueRest.length; i++) {
-				const valueRestValue = valueRest[i];
-				output += ",";
-
-				if (valueRestValue[0] === "[") {
-					output += generate(valueRestValue[1]);
-				} else {
-					output += `"${generate(valueRestValue[1])}"`;
-				}
-			}
-
-			output += "]";
+		if (valueFirst[0].length === 1) {
+			output = `{value:"${escape(output)}",get:function(m){return m${output};},set:function(m,MoonValue){m${output}=MoonValue;return m;}}`;
 		}
 
 		return output;
@@ -103,11 +95,7 @@ export default function generate(tree) {
 		return {
 			output: textGeneratedIsWhitespace ?
 				textGenerated :
-				`Moon.components.text({data:"${
-					textGenerated.replace(textSpecialRE, (match, character, characterSpecial) =>
-						character + (characterSpecial === "\"" ? "\\\"" : "\\n\\\n")
-					)
-				}"})`,
+				`Moon.components.text({data:"${escape(textGenerated)}"})`,
 			isWhitespace: textGeneratedIsWhitespace
 		};
 	} else if (type === "interpolation") {

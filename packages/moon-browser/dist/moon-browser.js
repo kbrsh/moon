@@ -318,11 +318,24 @@
 
 	var textSpecialRE = /(^|[^\\])("|\n)/g;
 	/**
+	 * Escapes text for a JavaScript string.
+	 *
+	 * @param {string} text
+	 * @returns {string} escaped string
+	 */
+
+	function escape(text) {
+		return text.replace(textSpecialRE, function (match, character, characterSpecial) {
+			return character + (characterSpecial === "\"" ? "\\\"" : "\\n\\\n");
+		});
+	}
+	/**
 	 * Generates a name for a function call.
 	 *
 	 * @param {string} nameTree
 	 * @returns {string} function name
 	 */
+
 
 	function generateName(nameTree) {
 		var name = generate(nameTree);
@@ -358,31 +371,11 @@
 		} else if (type === "identifier") {
 			var value = tree.value;
 			var valueFirst = value[0];
-			var valueRest = value[1];
 
-			var _output;
+			var _output = generate(value);
 
-			if (valueFirst[0].length === 0) {
-				_output = generate(valueFirst);
-
-				for (var _i = 0; _i < valueRest.length; _i++) {
-					_output += generate(valueRest[_i]);
-				}
-			} else {
-				_output = "[\"" + generate(valueFirst[1]) + "\"";
-
-				for (var _i2 = 0; _i2 < valueRest.length; _i2++) {
-					var valueRestValue = valueRest[_i2];
-					_output += ",";
-
-					if (valueRestValue[0] === "[") {
-						_output += generate(valueRestValue[1]);
-					} else {
-						_output += "\"" + generate(valueRestValue[1]) + "\"";
-					}
-				}
-
-				_output += "]";
+			if (valueFirst[0].length === 1) {
+				_output = "{value:\"" + escape(_output) + "\",get:function(m){return m" + _output + ";},set:function(m,MoonValue){m" + _output + "=MoonValue;return m;}}";
 			}
 
 			return _output;
@@ -391,8 +384,8 @@
 			var _output2 = "";
 			var separator = "";
 
-			for (var _i3 = 0; _i3 < _value.length; _i3++) {
-				var pair = _value[_i3];
+			for (var _i = 0; _i < _value.length; _i++) {
+				var pair = _value[_i];
 				_output2 += separator + "\"" + generate(pair[0]) + "\":" + generate(pair[2]) + generate(pair[3]);
 				separator = ",";
 			}
@@ -407,9 +400,7 @@
 			// added only to preserve newlines in the generated code.
 
 			return {
-				output: textGeneratedIsWhitespace ? textGenerated : "Moon.components.text({data:\"" + textGenerated.replace(textSpecialRE, function (match, character, characterSpecial) {
-					return character + (characterSpecial === "\"" ? "\\\"" : "\\n\\\n");
-				}) + "\"})",
+				output: textGeneratedIsWhitespace ? textGenerated : "Moon.components.text({data:\"" + escape(textGenerated) + "\"})",
 				isWhitespace: textGeneratedIsWhitespace
 			};
 		} else if (type === "interpolation") {
@@ -442,8 +433,8 @@
 				var _separator = "";
 				childrenGenerated = _data.separator + "children:[";
 
-				for (var _i4 = 0; _i4 < childrenLength; _i4++) {
-					var child = children[_i4];
+				for (var _i2 = 0; _i2 < childrenLength; _i2++) {
+					var child = children[_i2];
 					var childGenerated = generate(child);
 
 					if (child.type === "text") {
