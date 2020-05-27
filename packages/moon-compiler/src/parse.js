@@ -1,7 +1,7 @@
 /**
  * Matches an identifier character.
  */
-const identifierRE = /[$\w]/;
+const identifierRE = /[*$\w]/;
 
 /**
  * Stores an error message, a slice of tokens associated with the error, and a
@@ -208,7 +208,7 @@ const grammar = {
 		parser.optional(parser.character(".")),
 		parser.many1(parser.regex(identifierRE))
 	),
-	array: (input, index) => parser.sequence([
+	brackets: (input, index) => parser.sequence([
 		parser.character("["),
 		grammar.expression,
 		parser.character("]")
@@ -217,7 +217,7 @@ const grammar = {
 		grammar.identifierProperty,
 		parser.many(parser.or(
 			grammar.identifierProperty,
-			grammar.array
+			grammar.brackets
 		))
 	))(input, index),
 	value: (input, index) => parser.alternates([
@@ -242,7 +242,7 @@ const grammar = {
 			grammar.expression,
 			parser.character(")")
 		]),
-		grammar.array,
+		grammar.brackets,
 		parser.sequence([
 			parser.character("{"),
 			grammar.expression,

@@ -40,6 +40,7 @@
 	 */
 	Node.prototype.MoonName = null;
 	Node.prototype.MoonData = null;
+	Node.prototype.MoonReferences = null;
 	/**
 	 * Root element
 	 */
@@ -97,8 +98,13 @@
 	};
 
 	/**
+	 * Match HTTP headers.
+	 */
+	var headerRE = /^([^:]+):\s*([^]*?)\s*$/gm;
+	/**
 	 * Load events
 	 */
+
 	var httpEventsLoad = {};
 	/**
 	 * Error events
@@ -115,17 +121,28 @@
 	 *
 	 * @param {string} name
 	 * @param {object} request
-	 * @param {function} onLoad
-	 * @param {function} onError
+	 * @param {function} handler
 	 */
 
-	function httpRequest(name, request, onLoad, onError) {
+	function httpRequest(name, request, handler) {
 		var xhr = new XMLHttpRequest(); // Handle response types.
 
 		xhr.responseType = "responseType" in request ? request.responseType : "text"; // Handle load event.
 
 		xhr.onload = function () {
-			onLoad(xhr);
+			var responseHeaders = {};
+			var responseHeadersText = xhr.getAllResponseHeaders();
+			var responseHeader; // Parse headers to object.
+
+			while ((responseHeader = headerRE.exec(responseHeadersText)) !== null) {
+				responseHeaders[responseHeader[1]] = responseHeader[2];
+			}
+
+			handler({
+				status: xhr.status,
+				headers: responseHeaders,
+				body: xhr.response
+			});
 
 			if (name in httpEventsLoad) {
 				httpEventsLoad[name]();
@@ -134,7 +151,11 @@
 
 
 		xhr.onerror = function () {
-			onError();
+			handler({
+				status: 0,
+				headers: null,
+				body: null
+			});
 
 			if (name in httpEventsError) {
 				httpEventsError[name]();
@@ -157,18 +178,26 @@
 	}
 
 	/**
-	 * Match HTTP headers.
-	 */
-
-	var headerRE = /^([^:]+):\s*([^]*?)\s*$/gm;
-	/**
 	 * Global HTTP state
 	 */
 
 	var state$1 = {};
 	/**
+	 * Create event handler for http request.
+	 *
+	 * @param {object} data
+	 * @returns {function} handler
+	 */
+
+	function httpHandler(data) {
+		return function (response) {
+			data.response = response;
+		};
+	}
+	/**
 	 * HTTP driver
 	 */
+
 
 	var http = {
 		get: function get() {
@@ -177,36 +206,12 @@
 		set: function set(http) {
 			state$1 = http;
 
-			var _loop = function _loop(name) {
+			for (var name in state$1) {
 				var data = state$1[name];
 
 				if (data.response.status === null) {
-					httpRequest(name, data.request, function (xhr) {
-						var responseHeaders = {};
-						var responseHeadersText = xhr.getAllResponseHeaders();
-						var responseHeader; // Parse headers to object.
-
-						while ((responseHeader = headerRE.exec(responseHeadersText)) !== null) {
-							responseHeaders[responseHeader[1]] = responseHeader[2];
-						}
-
-						data.response = {
-							status: xhr.status,
-							headers: responseHeaders,
-							body: xhr.response
-						};
-					}, function () {
-						data.response = {
-							status: 0,
-							headers: null,
-							body: null
-						};
-					});
+					httpRequest(name, data.request, httpHandler(data));
 				}
-			};
-
-			for (var name in state$1) {
-				_loop(name);
 			}
 		}
 	};
@@ -281,6 +286,18 @@
 	}
 
 	/**
+	 * Reference bind events
+	 */
+
+	var references = {
+		input: {
+			"*value": {
+				key: "value",
+				event: "input"
+			}
+		}
+	};
+	/**
 	 * Empty view
 	 */
 
@@ -293,8 +310,22 @@
 
 	var viewDataDefault = {};
 	/**
+	 * Create a reference event handler.
+	 *
+	 * @param {function} set
+	 * @param {object} view
+	 * @param {string} key
+	 */
+
+	function referenceHandler(set, view, key) {
+		return event(function (m) {
+			return set(m, view[key]);
+		});
+	}
+	/**
 	 * Element component
 	 */
+
 
 	var element = (function (name) {
 		return function (data) {
@@ -315,8 +346,21 @@
 
 					for (var key in data) {
 						var value = data[key];
+						var keyFirst = key[0];
 
-						if (key[0] === "o" && key[1] === "n") {
+						if (keyFirst === "*") {
+							var reference = references[name][key];
+							var referenceKey = reference.key;
+							var referenceEvent = reference.event;
+							var viewReferences = view.MoonReferences;
+
+							if (viewReferences === null) {
+								viewReferences = view.MoonReferences = {};
+							}
+
+							view[referenceKey] = value.get(m);
+							view.addEventListener(referenceEvent, viewReferences[referenceEvent] = referenceHandler(value.set, view, referenceKey));
+						} else if (keyFirst === "o" && key[1] === "n") {
 							view[key.toLowerCase()] = event(value);
 						} else {
 							switch (key) {

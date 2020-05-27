@@ -16,7 +16,7 @@
 	/**
 	 * Matches an identifier character.
 	 */
-	var identifierRE = /[$\w]/;
+	var identifierRE = /[*$\w]/;
 	/**
 	 * Stores an error message, a slice of tokens associated with the error, and a
 	 * related error for later reporting.
@@ -223,14 +223,14 @@
 			return parser.many(parser.or(parser.alternates([parser.character(" "), parser.character("\t"), parser.character("\n")]), grammar.comment))(input, index);
 		},
 		identifierProperty: parser.and(parser.optional(parser.character(".")), parser.many1(parser.regex(identifierRE))),
-		array: function array(input, index) {
+		brackets: function brackets(input, index) {
 			return parser.sequence([parser.character("["), grammar.expression, parser.character("]")])(input, index);
 		},
 		identifier: function identifier(input, index) {
-			return parser.type("identifier", parser.and(grammar.identifierProperty, parser.many(parser.or(grammar.identifierProperty, grammar.array))))(input, index);
+			return parser.type("identifier", parser.and(grammar.identifierProperty, parser.many(parser.or(grammar.identifierProperty, grammar.brackets))))(input, index);
 		},
 		value: function value(input, index) {
-			return parser.alternates([grammar.identifier, parser.sequence([parser.character("\""), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["\""]))), parser.character("\"")]), parser.sequence([parser.character("'"), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["'"]))), parser.character("'")]), parser.sequence([parser.character("`"), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["`"]))), parser.character("`")]), parser.sequence([parser.character("("), grammar.expression, parser.character(")")]), grammar.array, parser.sequence([parser.character("{"), grammar.expression, parser.character("}")])])(input, index);
+			return parser.alternates([grammar.identifier, parser.sequence([parser.character("\""), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["\""]))), parser.character("\"")]), parser.sequence([parser.character("'"), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["'"]))), parser.character("'")]), parser.sequence([parser.character("`"), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["`"]))), parser.character("`")]), parser.sequence([parser.character("("), grammar.expression, parser.character(")")]), grammar.brackets, parser.sequence([parser.character("{"), grammar.expression, parser.character("}")])])(input, index);
 		},
 		attributes: function attributes(input, index) {
 			return parser.type("attributes", parser.many(parser.sequence([grammar.value, parser.character("="), grammar.value, grammar.separator])))(input, index);

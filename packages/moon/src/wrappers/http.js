@@ -1,4 +1,9 @@
 /**
+ * Match HTTP headers.
+ */
+const headerRE = /^([^:]+):\s*([^]*?)\s*$/gm;
+
+/**
  * Load events
  */
 export const httpEventsLoad = {};
@@ -18,10 +23,9 @@ export const httpEventsError = {};
  *
  * @param {string} name
  * @param {object} request
- * @param {function} onLoad
- * @param {function} onError
+ * @param {function} handler
  */
-export function httpRequest(name, request, onLoad, onError) {
+export function httpRequest(name, request, handler) {
 	const xhr = new XMLHttpRequest();
 
 	// Handle response types.
@@ -29,7 +33,20 @@ export function httpRequest(name, request, onLoad, onError) {
 
 	// Handle load event.
 	xhr.onload = () => {
-		onLoad(xhr);
+		const responseHeaders = {};
+		const responseHeadersText = xhr.getAllResponseHeaders();
+		let responseHeader;
+
+		// Parse headers to object.
+		while ((responseHeader = headerRE.exec(responseHeadersText)) !== null) {
+			responseHeaders[responseHeader[1]] = responseHeader[2];
+		}
+
+		handler({
+			status: xhr.status,
+			headers: responseHeaders,
+			body: xhr.response
+		});
 
 		if (name in httpEventsLoad) {
 			httpEventsLoad[name]();
@@ -38,7 +55,11 @@ export function httpRequest(name, request, onLoad, onError) {
 
 	// Handle error event.
 	xhr.onerror = () => {
-		onError();
+		handler({
+			status: 0,
+			headers: null,
+			body: null
+		});
 
 		if (name in httpEventsError) {
 			httpEventsError[name]();

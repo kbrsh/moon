@@ -1,6 +1,18 @@
 import event from "moon/src/event";
 
 /**
+ * Reference bind events
+ */
+const references = {
+	input: {
+		"*value": {
+			key: "value",
+			event: "input"
+		}
+	}
+};
+
+/**
  * Empty view
  */
 const viewEmpty = document.createTextNode("");
@@ -11,6 +23,17 @@ viewEmpty.MoonData = {};
  * View Data Property Defaults
  */
 const viewDataDefault = {};
+
+/**
+ * Create a reference event handler.
+ *
+ * @param {function} set
+ * @param {object} view
+ * @param {string} key
+ */
+function referenceHandler(set, view, key) {
+	return event(m => set(m, view[key]));
+}
 
 /**
  * Element component
@@ -32,8 +55,24 @@ export default name => data => m => {
 		// Create data properties.
 		for (const key in data) {
 			const value = data[key];
+			const keyFirst = key[0];
 
-			if (key[0] === "o" && key[1] === "n") {
+			if (keyFirst === "*") {
+				const reference = references[name][key];
+				const referenceKey = reference.key;
+				const referenceEvent = reference.event;
+				let viewReferences = view.MoonReferences;
+
+				if (viewReferences === null) {
+					viewReferences = view.MoonReferences = {};
+				}
+
+				view[referenceKey] = value.get(m);
+				view.addEventListener(
+					referenceEvent,
+					viewReferences[referenceEvent] = referenceHandler(value.set, view, referenceKey)
+				);
+			} else if (keyFirst === "o" && key[1] === "n") {
 				view[key.toLowerCase()] = event(value);
 			} else {
 				switch (key) {
