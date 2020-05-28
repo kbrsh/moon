@@ -16,13 +16,35 @@ const references = {
  * Empty view
  */
 const viewEmpty = document.createTextNode("");
-viewEmpty.MoonName = "text";
+viewEmpty.MoonName = "";
 viewEmpty.MoonData = {};
 
 /**
  * View Data Property Defaults
  */
-const viewDataDefault = {};
+const viewDataDefaults = {};
+
+function viewDataDefault(name, key) {
+	return (
+		name in viewDataDefaults ?
+			viewDataDefaults[name] :
+			(
+				viewDataDefaults[name] =
+					name === "text" ?
+						document.createTextNode("") :
+						document.createElement(name)
+			)
+	)[key];
+}
+
+/**
+ * Reference event manager
+ */
+function MoonReferenceEvents() {}
+
+MoonReferenceEvents.prototype.handleEvent = function(event) {
+	this[event.type]();
+};
 
 /**
  * Create a reference event handler.
@@ -44,7 +66,7 @@ export default name => data => m => {
 	const viewName = view.MoonName;
 	const viewData = view.MoonData;
 
-	if (view === viewEmpty || name !== viewName) {
+	if (name !== viewName) {
 		// If there is no view or the name changed, create a new view from
 		// scratch.
 		if (name === "text") {
@@ -62,17 +84,15 @@ export default name => data => m => {
 				const reference = references[name][key];
 				const referenceKey = reference.key;
 				const referenceEvent = reference.event;
-				let viewReferences = view.MoonReferences;
+				let viewReferenceEvents = view.MoonReferenceEvents;
 
-				if (viewReferences === null) {
-					viewReferences = view.MoonReferences = {};
+				if (viewReferenceEvents === null) {
+					viewReferenceEvents = view.MoonReferenceEvents = new MoonReferenceEvents();
 				}
 
 				view[referenceKey] = value.get(m);
-				view.addEventListener(
-					referenceEvent,
-					viewReferences[referenceEvent] = referenceHandler(value.set, view, referenceKey)
-				);
+				viewReferenceEvents[referenceEvent] = referenceHandler(value.set, view, referenceKey);
+				view.addEventListener(referenceEvent, viewReferenceEvents);
 			} else if (keyFirst === "o" && key[1] === "n") {
 				view[key.toLowerCase()] = event(value);
 			} else {
@@ -207,7 +227,18 @@ export default name => data => m => {
 					}
 				} else if (value !== viewValue) {
 					// Other properties are updated if they haven't changed.
-					if (key[0] === "o" && key[1] === "n") {
+					const keyFirst = key[0];
+
+					if (keyFirst === "*") {
+						const reference = references[name][key];
+						const referenceKey = reference.key;
+
+						view[referenceKey] = value.get(m);
+
+						if (value.value !== viewValue.value) {
+							view.MoonReferenceEvents[reference.event] = referenceHandler(value.set, view, referenceKey);
+						}
+					} else if (keyFirst === "o" && key[1] === "n") {
 						view[key.toLowerCase()] = event(value);
 					} else {
 						switch (key) {
@@ -265,7 +296,22 @@ export default name => data => m => {
 				}
 			} else {
 				// Create data property.
-				if (key[0] === "o" && key[1] === "n") {
+				const keyFirst = key[0];
+
+				if (keyFirst === "*") {
+					const reference = references[name][key];
+					const referenceKey = reference.key;
+					const referenceEvent = reference.event;
+					let viewReferenceEvents = view.MoonReferenceEvents;
+
+					if (viewReferenceEvents === null) {
+						viewReferenceEvents = view.MoonReferenceEvents = new MoonReferenceEvents();
+					}
+
+					view[referenceKey] = value.get(m);
+					viewReferenceEvents[referenceEvent] = referenceHandler(value.set, view, referenceKey);
+					view.addEventListener(referenceEvent, viewReferenceEvents);
+				} else if (keyFirst === "o" && key[1] === "n") {
 					view[key.toLowerCase()] = event(value);
 				} else {
 					switch (key) {
@@ -316,7 +362,18 @@ export default name => data => m => {
 		// Remove data properties.
 		for (const key in viewData) {
 			if (!(key in data)) {
-				if (key[0] === "o" && key[1] === "n") {
+				const keyFirst = key[0];
+
+				if (keyFirst === "*") {
+					const reference = references[name][key];
+					const referenceKey = reference.key;
+					const referenceEvent = reference.event;
+					const viewReferenceEvents = view.MoonReferenceEvents;
+
+					view[referenceKey] = viewDataDefault(name, referenceKey);
+					viewReferenceEvents[referenceEvent] = null;
+					view.removeEventListener(referenceEvent, viewReferenceEvents);
+				} else if (keyFirst === "o" && key[1] === "n") {
 					view[key.toLowerCase()] = null;
 				} else {
 					switch (key) {
@@ -347,16 +404,7 @@ export default name => data => m => {
 							break;
 						}
 						default: {
-							view[key] = (
-								viewName in viewDataDefault ?
-									viewDataDefault[viewName] :
-									(
-										viewDataDefault[viewName] =
-											viewName === "text" ?
-												document.createTextNode("") :
-												document.createElement(viewName)
-									)
-							)[key];
+							view[key] = viewDataDefault(name, key);
 						}
 					}
 				}

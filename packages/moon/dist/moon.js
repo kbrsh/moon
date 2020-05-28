@@ -40,7 +40,7 @@
 	 */
 	Node.prototype.MoonName = null;
 	Node.prototype.MoonData = null;
-	Node.prototype.MoonReferences = null;
+	Node.prototype.MoonReferenceEvents = null;
 	/**
 	 * Root element
 	 */
@@ -302,13 +302,27 @@
 	 */
 
 	var viewEmpty = document.createTextNode("");
-	viewEmpty.MoonName = "text";
+	viewEmpty.MoonName = "";
 	viewEmpty.MoonData = {};
 	/**
 	 * View Data Property Defaults
 	 */
 
-	var viewDataDefault = {};
+	var viewDataDefaults = {};
+
+	function viewDataDefault(name, key) {
+		return (name in viewDataDefaults ? viewDataDefaults[name] : viewDataDefaults[name] = name === "text" ? document.createTextNode("") : document.createElement(name))[key];
+	}
+	/**
+	 * Reference event manager
+	 */
+
+
+	function MoonReferenceEvents() {}
+
+	MoonReferenceEvents.prototype.handleEvent = function (event) {
+		this[event.type]();
+	};
 	/**
 	 * Create a reference event handler.
 	 *
@@ -317,6 +331,7 @@
 	 * @param {string} key
 	 * @returns {function} event handler
 	 */
+
 
 	function referenceHandler(set, view, key) {
 		return event(function (m) {
@@ -335,7 +350,7 @@
 				var viewName = view.MoonName;
 				var viewData = view.MoonData;
 
-				if (view === viewEmpty || name !== viewName) {
+				if (name !== viewName) {
 					// If there is no view or the name changed, create a new view from
 					// scratch.
 					if (name === "text") {
@@ -353,14 +368,15 @@
 							var reference = references[name][key];
 							var referenceKey = reference.key;
 							var referenceEvent = reference.event;
-							var viewReferences = view.MoonReferences;
+							var viewReferenceEvents = view.MoonReferenceEvents;
 
-							if (viewReferences === null) {
-								viewReferences = view.MoonReferences = {};
+							if (viewReferenceEvents === null) {
+								viewReferenceEvents = view.MoonReferenceEvents = new MoonReferenceEvents();
 							}
 
 							view[referenceKey] = value.get(m);
-							view.addEventListener(referenceEvent, viewReferences[referenceEvent] = referenceHandler(value.set, view, referenceKey));
+							viewReferenceEvents[referenceEvent] = referenceHandler(value.set, view, referenceKey);
+							view.addEventListener(referenceEvent, viewReferenceEvents);
 						} else if (keyFirst === "o" && key[1] === "n") {
 							view[key.toLowerCase()] = event(value);
 						} else {
@@ -504,7 +520,17 @@
 								}
 							} else if (_value !== viewValue) {
 								// Other properties are updated if they haven't changed.
-								if (_key[0] === "o" && _key[1] === "n") {
+								var _keyFirst = _key[0];
+
+								if (_keyFirst === "*") {
+									var _reference = references[name][_key];
+									var _referenceKey = _reference.key;
+									view[_referenceKey] = _value.get(m);
+
+									if (_value.value !== viewValue.value) {
+										view.MoonReferenceEvents[_reference.event] = referenceHandler(_value.set, view, _referenceKey);
+									}
+								} else if (_keyFirst === "o" && _key[1] === "n") {
 									view[_key.toLowerCase()] = event(_value);
 								} else {
 									switch (_key) {
@@ -569,7 +595,22 @@
 							}
 						} else {
 							// Create data property.
-							if (_key[0] === "o" && _key[1] === "n") {
+							var _keyFirst2 = _key[0];
+
+							if (_keyFirst2 === "*") {
+								var _reference2 = references[name][_key];
+								var _referenceKey2 = _reference2.key;
+								var _referenceEvent = _reference2.event;
+								var _viewReferenceEvents = view.MoonReferenceEvents;
+
+								if (_viewReferenceEvents === null) {
+									_viewReferenceEvents = view.MoonReferenceEvents = new MoonReferenceEvents();
+								}
+
+								view[_referenceKey2] = _value.get(m);
+								_viewReferenceEvents[_referenceEvent] = referenceHandler(_value.set, view, _referenceKey2);
+								view.addEventListener(_referenceEvent, _viewReferenceEvents);
+							} else if (_keyFirst2 === "o" && _key[1] === "n") {
 								view[_key.toLowerCase()] = event(_value);
 							} else {
 								switch (_key) {
@@ -628,7 +669,17 @@
 
 					for (var _key2 in viewData) {
 						if (!(_key2 in data)) {
-							if (_key2[0] === "o" && _key2[1] === "n") {
+							var _keyFirst3 = _key2[0];
+
+							if (_keyFirst3 === "*") {
+								var _reference3 = references[name][_key2];
+								var _referenceKey3 = _reference3.key;
+								var _referenceEvent2 = _reference3.event;
+								var _viewReferenceEvents2 = view.MoonReferenceEvents;
+								view[_referenceKey3] = viewDataDefault(name, _referenceKey3);
+								_viewReferenceEvents2[_referenceEvent2] = null;
+								view.removeEventListener(_referenceEvent2, _viewReferenceEvents2);
+							} else if (_keyFirst3 === "o" && _key2[1] === "n") {
 								view[_key2.toLowerCase()] = null;
 							} else {
 								switch (_key2) {
@@ -666,7 +717,7 @@
 
 									default:
 										{
-											view[_key2] = (viewName in viewDataDefault ? viewDataDefault[viewName] : viewDataDefault[viewName] = viewName === "text" ? document.createTextNode("") : document.createElement(viewName))[_key2];
+											view[_key2] = viewDataDefault(name, _key2);
 										}
 								}
 							}
