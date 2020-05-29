@@ -1,7 +1,7 @@
 /**
  * Matches an identifier character.
  */
-const identifierRE = /[*$\w]/;
+const identifierRE = /^[*$\w]/;
 
 /**
  * Stores an error message, a slice of tokens associated with the error, and a
@@ -58,19 +58,25 @@ const parser = {
 			[string, indexNew] :
 			new ParseError(string, index);
 	},
-	not: strings => (input, index) => {
+	not: matchers => (input, index) => {
 		if (index < input.length) {
-			for (let i = 0; i < strings.length; i++) {
-				const string = strings[i];
+			for (let i = 0; i < matchers.length; i++) {
+				const matcher = matchers[i];
 
-				if (input.slice(index, index + string.length) === string) {
-					return new ParseError(`not ${string}`, index);
+				if (typeof matcher === "string") {
+					if (input.slice(index, index + matcher.length) === matcher) {
+						return new ParseError("not " + matcher, index);
+					}
+				} else {
+					if (matcher.test(input.slice(index))) {
+						return new ParseError("not " + matcher.toString(), index);
+					}
 				}
 			}
 
 			return [input[index], index + 1];
 		} else {
-			return new ParseError(`not ${strings.join(", ")}`, index);
+			return new ParseError(`not ${matchers.join(", ")}`, index);
 		}
 	},
 	or: (parse1, parse2) => (input, index) => {
@@ -265,11 +271,11 @@ const grammar = {
 		parser.character("}")
 	]))(input, index),
 	node: (input, index) => parser.type("node", parser.sequence([
-		parser.character("<"),
+		parser.string("</"),
 		grammar.separator,
 		grammar.value,
 		grammar.separator,
-		parser.string("*>")
+		parser.string("/>")
 	]))(input, index),
 	nodeData: (input, index) => parser.type("nodeData", parser.sequence([
 		parser.character("<"),
@@ -320,6 +326,11 @@ const grammar = {
 			)),
 			parser.character("/")
 		])),
+
+		// Spread operator
+		parser.try(parser.string("...")),
+
+		// Moon language additions
 		grammar.comment,
 		grammar.value,
 		parser.try(grammar.node),
@@ -331,13 +342,14 @@ const grammar = {
 		parser.character("/"),
 		parser.character("<"),
 
-		// Anything up to a comment, regular expression, string, parenthetical,
-		// array, object, or view. Only matches to the opening bracket of a view
-		// because the view parsers do not require an expression to finish
-		// parsing before consuming the closing bracket. Parentheticals, arrays,
-		// and objects, however, parse expressions before their closing
-		// delimiter, depending on the expression parser to stop before it.
-		parser.many1(parser.not(["/", "#", "\"", "'", "`", "(", ")", "[", "]", "{", "}", "<"]))
+		// Anything up to a comment, regular expression, spread operator, Moon
+		// comment, identifier, string, parenthetical, array, object, or view.
+		// Only matches to the opening bracket of a view because the view parsers
+		// do not require an expression to finish parsing before consuming the
+		// closing bracket. Parentheticals, arrays, and objects, however, parse
+		// expressions before their closing delimiter, depending on the
+		// expression parser to stop before it.
+		parser.many1(parser.not(["/", ".", "#", identifierRE, "\"", "'", "`", "(", ")", "[", "]", "{", "}", "<"]))
 	]))(input, index),
 	main: (input, index) => parser.and(grammar.expression, parser.EOF)(input, index)
 };
