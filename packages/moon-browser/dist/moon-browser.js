@@ -10,7 +10,7 @@
 	/**
 	 * Matches an identifier character.
 	 */
-	var identifierRE = /^[*$\w]/;
+	var identifierRE = /^[.*$\w]/;
 	/**
 	 * Stores an error message, a slice of tokens associated with the error, and a
 	 * related error for later reporting.
@@ -109,17 +109,6 @@
 				} else {
 					var output2 = parse2(input, output1[1]);
 					return output2 instanceof ParseError ? output2 : [[output1[0], output2[0]], output2[1]];
-				}
-			};
-		},
-		optional: function optional(parse) {
-			return function (input, index) {
-				var output = parse(input, index);
-
-				if (output instanceof ParseError && output.index === index) {
-					return [[], index];
-				} else {
-					return output;
 				}
 			};
 		},
@@ -222,18 +211,12 @@
 		separator: function separator(input, index) {
 			return parser.many(parser.or(parser.alternates([parser.character(" "), parser.character("\t"), parser.character("\n")]), grammar.comment))(input, index);
 		},
-		identifierProperty: parser.and(parser.optional(parser.character(".")), parser.many1(parser.regex(identifierRE))),
-		brackets: function brackets(input, index) {
-			return parser.sequence([parser.character("["), grammar.expression, parser.character("]")])(input, index);
-		},
-		identifier: function identifier(input, index) {
-			return parser.type("identifier", parser.and(grammar.identifierProperty, parser.many(parser.or(grammar.identifierProperty, grammar.brackets))))(input, index);
-		},
+		identifier: parser.many1(parser.regex(identifierRE)),
 		value: function value(input, index) {
-			return parser.type("value", parser.alternates([grammar.identifier, parser.sequence([parser.character("\""), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["\""]))), parser.character("\"")]), parser.sequence([parser.character("'"), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["'"]))), parser.character("'")]), parser.sequence([parser.character("`"), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["`"]))), parser.character("`")]), parser.sequence([parser.character("("), grammar.expression, parser.character(")")]), grammar.brackets, parser.sequence([parser.character("{"), grammar.expression, parser.character("}")])]))(input, index);
+			return parser.type("value", parser.alternates([grammar.identifier, parser.sequence([parser.character("\""), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["\""]))), parser.character("\"")]), parser.sequence([parser.character("'"), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["'"]))), parser.character("'")]), parser.sequence([parser.character("`"), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["`"]))), parser.character("`")]), parser.sequence([parser.character("("), grammar.expression, parser.character(")")]), parser.sequence([parser.character("["), grammar.expression, parser.character("]")]), parser.sequence([parser.character("{"), grammar.expression, parser.character("}")])]))(input, index);
 		},
 		attributes: function attributes(input, index) {
-			return parser.type("attributes", parser.many(parser.sequence([grammar.identifierProperty, parser.character("="), grammar.value, grammar.separator])))(input, index);
+			return parser.type("attributes", parser.many(parser.sequence([grammar.identifier, parser.character("="), grammar.value, grammar.separator])))(input, index);
 		},
 		text: parser.type("text", parser.many1(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["{", "<"])))),
 		interpolation: function interpolation(input, index) {
@@ -252,18 +235,17 @@
 			return parser.many(parser.alternates([// Single line comment
 			parser.sequence([parser.string("//"), parser.many(parser.not(["\n"]))]), // Multi-line comment
 			parser.sequence([parser.string("/*"), parser.many(parser.not(["*/"])), parser.string("*/")]), // Regular expression
-			parser["try"](parser.sequence([parser.character("/"), parser.many1(parser.or(parser.and(parser.character("\\"), parser.not(["\n"])), parser.not(["/", "\n"]))), parser.character("/")])), // Spread operator
-			parser["try"](parser.string("...")), // Moon language additions
+			parser["try"](parser.sequence([parser.character("/"), parser.many1(parser.or(parser.and(parser.character("\\"), parser.not(["\n"])), parser.not(["/", "\n"]))), parser.character("/")])), // Moon language additions
 			grammar.comment, grammar.value, parser["try"](grammar.node), parser["try"](grammar.nodeData), parser["try"](grammar.nodeDataChildren), // Allow failed regular expression or view parses to be interpreted as
 			// operators.
-			parser.character("/"), parser.character("<"), // Anything up to a comment, regular expression, spread operator, Moon
-			// comment, identifier, string, parenthetical, array, object, or view.
-			// Only matches to the opening bracket of a view because the view parsers
-			// do not require an expression to finish parsing before consuming the
+			parser.character("/"), parser.character("<"), // Anything up to a comment, regular expression, Moon comment,
+			// identifier, string, parenthetical, array, object, or view. Only
+			// matches to the opening bracket of a view because the view parsers do
+			// not require an expression to finish parsing before consuming the
 			// closing bracket. Parentheticals, arrays, and objects, however, parse
 			// expressions before their closing delimiter, depending on the
 			// expression parser to stop before it.
-			parser.many1(parser.not(["/", ".", "#", identifierRE, "\"", "'", "`", "(", ")", "[", "]", "{", "}", "<"]))]))(input, index);
+			parser.many1(parser.not(["/", "#", identifierRE, "\"", "'", "`", "(", ")", "[", "]", "{", "}", "<"]))]))(input, index);
 		},
 		main: function main(input, index) {
 			return parser.and(grammar.expression, parser.EOF)(input, index);
@@ -377,31 +359,27 @@
 			return output;
 		} else if (type === "comment") {
 			return "/*" + generate(tree.value[1]) + "*/";
-		} else if (type === "identifier") {
-			var value = tree.value;
-
-			var _output = generate(value);
-
-			if (value[0][0].length === 1) {
-				_output = "{value:\"" + escape(_output) + "\",get:function(m){return m" + _output + ";},set:function(m,MoonValue){m" + _output + "=MoonValue;return m;}}";
-			}
-
-			return _output;
 		} else if (type === "value") {
 			return generate(tree.value);
 		} else if (type === "attributes") {
-			var _value = tree.value;
-			var _output2 = "";
+			var value = tree.value;
+			var _output = "";
 			var separator = "";
 
-			for (var _i = 0; _i < _value.length; _i++) {
-				var pair = _value[_i];
-				_output2 += separator + "\"" + generate(pair[0]) + "\":" + generate(pair[2]) + generate(pair[3]);
+			for (var _i = 0; _i < value.length; _i++) {
+				var pair = value[_i];
+				var pairValue = generate(pair[2]);
+
+				if (pairValue[0] === "[" && pairValue[1] === ".") {
+					pairValue = "{value:\"" + escape(pairValue) + "\",get:function(m){return m" + pairValue + ";},set:function(m,MoonValue){m" + pairValue + "=MoonValue;return m;}}";
+				}
+
+				_output += separator + "\"" + generate(pair[0]) + "\":" + pairValue + generate(pair[3]);
 				separator = ",";
 			}
 
 			return {
-				output: _output2,
+				output: _output,
 				separator: separator
 			};
 		} else if (type === "text") {
@@ -417,23 +395,23 @@
 			return "Moon.components.text({data:" + generate(tree.value[1]) + "})";
 		} else if (type === "node") {
 			// Nodes represent a variable reference.
-			var _value2 = tree.value;
-			return generate(_value2[1]) + generateName(_value2[2]) + generate(_value2[3]);
+			var _value = tree.value;
+			return generate(_value[1]) + generateName(_value[2]) + generate(_value[3]);
 		} else if (type === "nodeData") {
 			// Data nodes represent calling a function with either a custom data
 			// expression or an object using attribute syntax.
-			var _value3 = tree.value;
-			var data = _value3[4];
+			var _value2 = tree.value;
+			var data = _value2[4];
 			var dataGenerated = generate(data);
-			return "" + generate(_value3[1]) + generateName(_value3[2]) + generate(_value3[3]) + "(" + (data.type === "attributes" ? "{" + dataGenerated.output + "}" : dataGenerated) + ")";
+			return "" + generate(_value2[1]) + generateName(_value2[2]) + generate(_value2[3]) + "(" + (data.type === "attributes" ? "{" + dataGenerated.output + "}" : dataGenerated) + ")";
 		} else if (type === "nodeDataChildren") {
 			// Data and children nodes represent calling a function with a data
 			// object using attribute syntax and children.
-			var _value4 = tree.value;
+			var _value3 = tree.value;
 
-			var _data = generate(_value4[4]);
+			var _data = generate(_value3[4]);
 
-			var children = _value4[6];
+			var children = _value3[6];
 			var childrenLength = children.length;
 			var childrenGenerated;
 
@@ -463,7 +441,7 @@
 				childrenGenerated += "]";
 			}
 
-			return "" + generate(_value4[1]) + generateName(_value4[2]) + generate(_value4[3]) + "({" + _data.output + childrenGenerated + "})";
+			return "" + generate(_value3[1]) + generateName(_value3[2]) + generate(_value3[3]) + "({" + _data.output + childrenGenerated + "})";
 		}
 	}
 

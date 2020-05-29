@@ -61,15 +61,6 @@ export default function generate(tree) {
 		return output;
 	} else if (type === "comment") {
 		return `/*${generate(tree.value[1])}*/`;
-	} else if (type === "identifier") {
-		const value = tree.value;
-		let output = generate(value);
-
-		if (value[0][0].length === 1) {
-			output = `{value:"${escape(output)}",get:function(m){return m${output};},set:function(m,MoonValue){m${output}=MoonValue;return m;}}`;
-		}
-
-		return output;
 	} else if (type === "value") {
 		return generate(tree.value);
 	} else if (type === "attributes") {
@@ -79,7 +70,13 @@ export default function generate(tree) {
 
 		for (let i = 0; i < value.length; i++) {
 			const pair = value[i];
-			output += `${separator}"${generate(pair[0])}":${generate(pair[2])}${generate(pair[3])}`;
+			let pairValue = generate(pair[2]);
+
+			if (pairValue[0] === "[" && pairValue[1] === ".") {
+				pairValue = `{value:"${escape(pairValue)}",get:function(m){return m${pairValue};},set:function(m,MoonValue){m${pairValue}=MoonValue;return m;}}`;
+			}
+
+			output += `${separator}"${generate(pair[0])}":${pairValue}${generate(pair[3])}`;
 			separator = ",";
 		}
 

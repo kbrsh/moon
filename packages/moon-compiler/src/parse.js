@@ -1,7 +1,7 @@
 /**
  * Matches an identifier character.
  */
-const identifierRE = /^[*$\w]/;
+const identifierRE = /^[.*$\w]/;
 
 /**
  * Stores an error message, a slice of tokens associated with the error, and a
@@ -103,15 +103,6 @@ const parser = {
 				[[output1[0], output2[0]], output2[1]];
 		}
 	},
-	optional: parse => (input, index) => {
-		const output = parse(input, index);
-
-		if (output instanceof ParseError && output.index === index) {
-			return [[], index];
-		} else {
-			return output;
-		}
-	},
 	sequence: parses => (input, index) => {
 		const values = [];
 
@@ -210,22 +201,7 @@ const grammar = {
 		]),
 		grammar.comment
 	))(input, index),
-	identifierProperty: parser.and(
-		parser.optional(parser.character(".")),
-		parser.many1(parser.regex(identifierRE))
-	),
-	brackets: (input, index) => parser.sequence([
-		parser.character("["),
-		grammar.expression,
-		parser.character("]")
-	])(input, index),
-	identifier: (input, index) => parser.type("identifier", parser.and(
-		grammar.identifierProperty,
-		parser.many(parser.or(
-			grammar.identifierProperty,
-			grammar.brackets
-		))
-	))(input, index),
+	identifier: parser.many1(parser.regex(identifierRE)),
 	value: (input, index) => parser.type("value", parser.alternates([
 		grammar.identifier,
 		parser.sequence([
@@ -248,7 +224,11 @@ const grammar = {
 			grammar.expression,
 			parser.character(")")
 		]),
-		grammar.brackets,
+		parser.sequence([
+			parser.character("["),
+			grammar.expression,
+			parser.character("]")
+		]),
 		parser.sequence([
 			parser.character("{"),
 			grammar.expression,
@@ -256,7 +236,7 @@ const grammar = {
 		])
 	]))(input, index),
 	attributes: (input, index) => parser.type("attributes", parser.many(parser.sequence([
-		grammar.identifierProperty,
+		grammar.identifier,
 		parser.character("="),
 		grammar.value,
 		grammar.separator
@@ -327,9 +307,6 @@ const grammar = {
 			parser.character("/")
 		])),
 
-		// Spread operator
-		parser.try(parser.string("...")),
-
 		// Moon language additions
 		grammar.comment,
 		grammar.value,
@@ -342,14 +319,14 @@ const grammar = {
 		parser.character("/"),
 		parser.character("<"),
 
-		// Anything up to a comment, regular expression, spread operator, Moon
-		// comment, identifier, string, parenthetical, array, object, or view.
-		// Only matches to the opening bracket of a view because the view parsers
-		// do not require an expression to finish parsing before consuming the
+		// Anything up to a comment, regular expression, Moon comment,
+		// identifier, string, parenthetical, array, object, or view. Only
+		// matches to the opening bracket of a view because the view parsers do
+		// not require an expression to finish parsing before consuming the
 		// closing bracket. Parentheticals, arrays, and objects, however, parse
 		// expressions before their closing delimiter, depending on the
 		// expression parser to stop before it.
-		parser.many1(parser.not(["/", ".", "#", identifierRE, "\"", "'", "`", "(", ")", "[", "]", "{", "}", "<"]))
+		parser.many1(parser.not(["/", "#", identifierRE, "\"", "'", "`", "(", ")", "[", "]", "{", "}", "<"]))
 	]))(input, index),
 	main: (input, index) => parser.and(grammar.expression, parser.EOF)(input, index)
 };
