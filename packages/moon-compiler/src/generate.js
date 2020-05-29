@@ -11,18 +11,6 @@ const whitespaceRE = /^\s+$/;
 const textSpecialRE = /(^|[^\\])("|\n)/g;
 
 /**
- * Escapes text for a JavaScript string.
- *
- * @param {string} text
- * @returns {string} escaped string
- */
-function escape(text) {
-	return text.replace(textSpecialRE, (match, character, characterSpecial) =>
-		character + (characterSpecial === "\"" ? "\\\"" : "\\n\\\n")
-	);
-}
-
-/**
  * Generates a name for a function call.
  *
  * @param {string} nameTree
@@ -71,7 +59,7 @@ export default function generate(tree) {
 			let pairValue = generate(pair[2]);
 
 			if (pairValue[0] === "[" && pairValue[1] === ".") {
-				pairValue = `{value:"${escape(pairValue)}",get:function(m){return m${pairValue};},set:function(m,MoonValue){m${pairValue}=MoonValue;return m;}}`;
+				pairValue = `{value:"${pairValue}",get:function(m){return m${pairValue};},set:function(m,MoonValue){m${pairValue}=MoonValue;return m;}}`;
 			}
 
 			output += `${separator}"${generate(pair[0])}":${pairValue}${generate(pair[3])}`;
@@ -91,7 +79,9 @@ export default function generate(tree) {
 		return {
 			output: textGeneratedIsWhitespace ?
 				textGenerated :
-				`Moon.components.text({data:"${escape(textGenerated)}"})`,
+				`Moon.components.text({data:"${textGenerated.replace(textSpecialRE, (match, character, characterSpecial) =>
+					character + (characterSpecial === "\"" ? "\\\"" : "\\n\\\n")
+				)}"})`,
 			isWhitespace: textGeneratedIsWhitespace
 		};
 	} else if (type === "interpolation") {
