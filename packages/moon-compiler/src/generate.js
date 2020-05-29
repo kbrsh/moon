@@ -61,8 +61,6 @@ export default function generate(tree) {
 		return output;
 	} else if (type === "comment") {
 		return `/*${generate(tree.value[1])}*/`;
-	} else if (type === "value") {
-		return generate(tree.value);
 	} else if (type === "attributes") {
 		const value = tree.value;
 		let output = "";

@@ -202,7 +202,7 @@ const grammar = {
 		grammar.comment
 	))(input, index),
 	identifier: parser.many1(parser.regex(identifierRE)),
-	value: (input, index) => parser.type("value", parser.alternates([
+	value: (input, index) => parser.alternates([
 		grammar.identifier,
 		parser.sequence([
 			parser.character("\""),
@@ -234,7 +234,7 @@ const grammar = {
 			grammar.expression,
 			parser.character("}")
 		])
-	]))(input, index),
+	])(input, index),
 	attributes: (input, index) => parser.type("attributes", parser.many(parser.sequence([
 		grammar.identifier,
 		parser.character("="),
