@@ -40,6 +40,7 @@
 	 */
 	Node.prototype.MoonName = null;
 	Node.prototype.MoonData = null;
+	Node.prototype.MoonChildren = null;
 	Node.prototype.MoonReferenceEvents = null;
 	/**
 	 * Root element
@@ -304,6 +305,7 @@
 	var viewEmpty = document.createTextNode("");
 	viewEmpty.MoonName = "";
 	viewEmpty.MoonData = {};
+	viewEmpty.MoonChildren = [];
 	/**
 	 * View Data Property Defaults
 	 */
@@ -415,10 +417,12 @@
 
 								case "children":
 									{
+										var viewChildren = view.MoonChildren = [];
+
 										for (var i = 0; i < value.length; i++) {
 											m.view = viewEmpty;
 											m = value[i](m);
-											view.appendChild(m.view);
+											viewChildren.push(view.appendChild(m.view));
 										}
 
 										break;
@@ -441,17 +445,17 @@
 					// same as last time doesn't imply they will have the same output.
 					if ("children" in data) {
 						var children = data.children;
-						var viewChild = m.view = view.firstChild;
+						var _viewChildren = view.MoonChildren;
 
 						for (var _i = 0; _i < children; _i++) {
+							var viewChild = m.view = _viewChildren[_i];
 							m = children[_i](m);
 							var viewChildNew = m.view;
 
 							if (viewChildNew !== viewChild) {
 								view.replaceChild(viewChildNew, viewChild);
+								_viewChildren[_i] = viewChildNew;
 							}
-
-							viewChild = m.view = viewChildNew.nextSibling;
 						}
 					}
 				} else {
@@ -469,53 +473,55 @@
 								// Children are updated even if they are the same as last time.
 								var valueLength = _value.length;
 								var viewValueLength = viewValue.length;
-
-								var _viewChild = m.view = view.firstChild;
-
+								var _viewChildren2 = view.MoonChildren;
 								var _i2 = 0;
 
 								if (valueLength === viewValueLength) {
 									for (; _i2 < valueLength; _i2++) {
+										var _viewChild = m.view = _viewChildren2[_i2];
+
 										m = _value[_i2](m);
 										var _viewChildNew = m.view;
 
 										if (_viewChildNew !== _viewChild) {
 											view.replaceChild(_viewChildNew, _viewChild);
+											_viewChildren2[_i2] = _viewChildNew;
 										}
-
-										_viewChild = m.view = _viewChildNew.nextSibling;
 									}
 								} else if (valueLength < viewValueLength) {
 									for (; _i2 < valueLength; _i2++) {
+										var _viewChild2 = m.view = _viewChildren2[_i2];
+
 										m = _value[_i2](m);
 										var _viewChildNew2 = m.view;
 
-										if (_viewChild !== _viewChildNew2) {
-											view.replaceChild(_viewChildNew2, _viewChild);
+										if (_viewChildNew2 !== _viewChild2) {
+											view.replaceChild(_viewChildNew2, _viewChild2);
+											_viewChildren2[_i2] = _viewChildNew2;
 										}
-
-										_viewChild = m.view = _viewChildNew2.nextSibling;
 									}
 
 									for (; _i2 < viewValueLength; _i2++) {
-										view.removeChild(view.lastChild);
+										view.removeChild(_viewChildren2.pop());
 									}
 								} else {
 									for (; _i2 < viewValueLength; _i2++) {
+										var _viewChild3 = m.view = _viewChildren2[_i2];
+
 										m = _value[_i2](m);
 										var _viewChildNew3 = m.view;
 
-										if (_viewChild !== _viewChildNew3) {
-											view.replaceChild(_viewChildNew3, _viewChild);
+										if (_viewChildNew3 !== _viewChild3) {
+											view.replaceChild(_viewChildNew3, _viewChild3);
+											_viewChildren2[_i2] = _viewChildNew3;
 										}
-
-										_viewChild = m.view = _viewChildNew3.nextSibling;
 									}
 
 									for (; _i2 < valueLength; _i2++) {
 										m.view = viewEmpty;
 										m = _value[_i2](m);
-										view.appendChild(m.view);
+
+										_viewChildren2.push(view.appendChild(m.view));
 									}
 								}
 							} else if (_value !== viewValue) {
@@ -648,10 +654,13 @@
 
 									case "children":
 										{
+											var _viewChildren3 = view.MoonChildren = [];
+
 											for (var _i3 = 0; _i3 < _value.length; _i3++) {
 												m.view = viewEmpty;
 												m = _value[_i3](m);
-												view.appendChild(m.view);
+
+												_viewChildren3.push(view.appendChild(m.view));
 											}
 
 											break;
@@ -706,10 +715,10 @@
 
 									case "children":
 										{
-											var viewChildrenLength = viewData.children.length;
+											var _viewChildren4 = view.MoonChildren;
 
-											for (var _i4 = 0; _i4 < viewChildrenLength; _i4++) {
-												view.removeChild(view.lastChild);
+											for (var _i4 = 0; _i4 < _viewChildren4.length; _i4++) {
+												view.removeChild(_viewChildren4.pop());
 											}
 
 											break;

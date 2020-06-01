@@ -18,6 +18,7 @@ const references = {
 const viewEmpty = document.createTextNode("");
 viewEmpty.MoonName = "";
 viewEmpty.MoonData = {};
+viewEmpty.MoonChildren = [];
 
 /**
  * View Data Property Defaults
@@ -124,11 +125,13 @@ export default name => data => m => {
 						break;
 					}
 					case "children": {
+						const viewChildren = view.MoonChildren = [];
+
 						for (let i = 0; i < value.length; i++) {
 							m.view = viewEmpty;
 							m = value[i](m);
 
-							view.appendChild(m.view);
+							viewChildren.push(view.appendChild(m.view));
 						}
 
 						break;
@@ -149,17 +152,17 @@ export default name => data => m => {
 		// same as last time doesn't imply they will have the same output.
 		if ("children" in data) {
 			const children = data.children;
-			let viewChild = m.view = view.firstChild;
+			const viewChildren = view.MoonChildren;
 
 			for (let i = 0; i < children; i++) {
+				const viewChild = m.view = viewChildren[i];
 				m = children[i](m);
 				const viewChildNew = m.view;
 
 				if (viewChildNew !== viewChild) {
 					view.replaceChild(viewChildNew, viewChild);
+					viewChildren[i] = viewChildNew;
 				}
-
-				viewChild = m.view = viewChildNew.nextSibling;
 			}
 		}
 	} else {
@@ -177,52 +180,52 @@ export default name => data => m => {
 					// Children are updated even if they are the same as last time.
 					const valueLength = value.length;
 					const viewValueLength = viewValue.length;
-					let viewChild = m.view = view.firstChild;
+					const viewChildren = view.MoonChildren;
 					let i = 0;
 
 					if (valueLength === viewValueLength) {
 						for (; i < valueLength; i++) {
+							const viewChild = m.view = viewChildren[i];
 							m = value[i](m);
 							const viewChildNew = m.view;
 
 							if (viewChildNew !== viewChild) {
 								view.replaceChild(viewChildNew, viewChild);
+								viewChildren[i] = viewChildNew;
 							}
-
-							viewChild = m.view = viewChildNew.nextSibling;
 						}
 					} else if (valueLength < viewValueLength) {
 						for (; i < valueLength; i++) {
+							const viewChild = m.view = viewChildren[i];
 							m = value[i](m);
 							const viewChildNew = m.view;
 
-							if (viewChild !== viewChildNew) {
+							if (viewChildNew !== viewChild) {
 								view.replaceChild(viewChildNew, viewChild);
+								viewChildren[i] = viewChildNew;
 							}
-
-							viewChild = m.view = viewChildNew.nextSibling;
 						}
 
 						for (; i < viewValueLength; i++) {
-							view.removeChild(view.lastChild);
+							view.removeChild(viewChildren.pop());
 						}
 					} else {
 						for (; i < viewValueLength; i++) {
+							const viewChild = m.view = viewChildren[i];
 							m = value[i](m);
 							const viewChildNew = m.view;
 
-							if (viewChild !== viewChildNew) {
+							if (viewChildNew !== viewChild) {
 								view.replaceChild(viewChildNew, viewChild);
+								viewChildren[i] = viewChildNew;
 							}
-
-							viewChild = m.view = viewChildNew.nextSibling;
 						}
 
 						for (; i < valueLength; i++) {
 							m.view = viewEmpty;
 							m = value[i](m);
 
-							view.appendChild(m.view);
+							viewChildren.push(view.appendChild(m.view));
 						}
 					}
 				} else if (value !== viewValue) {
@@ -342,11 +345,13 @@ export default name => data => m => {
 							break;
 						}
 						case "children": {
+							const viewChildren = view.MoonChildren = [];
+
 							for (let i = 0; i < value.length; i++) {
 								m.view = viewEmpty;
 								m = value[i](m);
 
-								view.appendChild(m.view);
+								viewChildren.push(view.appendChild(m.view));
 							}
 
 							break;
@@ -395,10 +400,10 @@ export default name => data => m => {
 							break;
 						}
 						case "children": {
-							const viewChildrenLength = viewData.children.length;
+							const viewChildren = view.MoonChildren;
 
-							for (let i = 0; i < viewChildrenLength; i++) {
-								view.removeChild(view.lastChild);
+							for (let i = 0; i < viewChildren.length; i++) {
+								view.removeChild(viewChildren.pop());
 							}
 
 							break;

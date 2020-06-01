@@ -3,6 +3,7 @@
  */
 Node.prototype.MoonName = null;
 Node.prototype.MoonData = null;
+Node.prototype.MoonChildren = null;
 Node.prototype.MoonReferenceEvents = null;
 
 /**
