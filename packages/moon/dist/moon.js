@@ -290,14 +290,16 @@
 	 * @param {object} viewNode
 	 * @param {object} viewOld
 	 * @param {object} viewNew
+	 * @param {number} index
 	 */
 
-	function viewPatch(viewNode, viewOld, viewNew) {
+	function viewPatch(viewNode, viewOld, viewNew, index) {
 		if (viewOld !== viewNew) {
 			var viewNewName = viewNew.name;
 
 			if (viewOld.name !== viewNewName) {
-				viewNode.parentNode.replaceChild(viewNodeCreate(viewNew), viewNode);
+				var viewNodeParent = viewNode.parentNode;
+				viewNodeParent.replaceChild(viewNodeParent.MoonChildren[index] = viewNodeCreate(viewNew), viewNode);
 			} else {
 				var viewOldData = viewOld.data;
 				var viewOldChildren = viewOld.children;
@@ -333,11 +335,11 @@
 
 					if (viewOldChildrenLength === viewNewChildrenLength) {
 						for (; i < viewOldChildrenLength; i++) {
-							viewPatch(viewNodeChildren[i], viewOldChildren[i], viewNewChildren[i]);
+							viewPatch(viewNodeChildren[i], viewOldChildren[i], viewNewChildren[i], i);
 						}
 					} else if (viewOldChildrenLength < viewNewChildrenLength) {
 						for (; i < viewOldChildrenLength; i++) {
-							viewPatch(viewNodeChildren[i], viewOldChildren[i], viewNewChildren[i]);
+							viewPatch(viewNodeChildren[i], viewOldChildren[i], viewNewChildren[i], i);
 						}
 
 						for (; i < viewNewChildrenLength; i++) {
@@ -345,7 +347,7 @@
 						}
 					} else {
 						for (; i < viewNewChildrenLength; i++) {
-							viewPatch(viewNodeChildren[i], viewOldChildren[i], viewNewChildren[i]);
+							viewPatch(viewNodeChildren[i], viewOldChildren[i], viewNewChildren[i], i);
 						}
 
 						for (; i < viewOldChildrenLength; i++) {
@@ -375,7 +377,7 @@
 			return root;
 		},
 		set: function set(view) {
-			viewPatch(rootNode, root, view);
+			viewPatch(rootNode, root, view, 0);
 			root = view;
 		}
 	};

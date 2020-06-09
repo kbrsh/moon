@@ -237,13 +237,16 @@ export function viewDataRemove(viewNode, viewName, viewData, key) {
  * @param {object} viewNode
  * @param {object} viewOld
  * @param {object} viewNew
+ * @param {number} index
  */
-export function viewPatch(viewNode, viewOld, viewNew) {
+export function viewPatch(viewNode, viewOld, viewNew, index) {
 	if (viewOld !== viewNew) {
 		const viewNewName = viewNew.name;
 
 		if (viewOld.name !== viewNewName) {
-			viewNode.parentNode.replaceChild(viewNodeCreate(viewNew), viewNode);
+			const viewNodeParent = viewNode.parentNode;
+
+			viewNodeParent.replaceChild(viewNodeParent.MoonChildren[index] = viewNodeCreate(viewNew), viewNode);
 		} else {
 			const viewOldData = viewOld.data;
 			const viewOldChildren = viewOld.children;
@@ -279,11 +282,11 @@ export function viewPatch(viewNode, viewOld, viewNew) {
 
 				if (viewOldChildrenLength === viewNewChildrenLength) {
 					for (; i < viewOldChildrenLength; i++) {
-						viewPatch(viewNodeChildren[i], viewOldChildren[i], viewNewChildren[i]);
+						viewPatch(viewNodeChildren[i], viewOldChildren[i], viewNewChildren[i], i);
 					}
 				} else if (viewOldChildrenLength < viewNewChildrenLength) {
 					for (; i < viewOldChildrenLength; i++) {
-						viewPatch(viewNodeChildren[i], viewOldChildren[i], viewNewChildren[i]);
+						viewPatch(viewNodeChildren[i], viewOldChildren[i], viewNewChildren[i], i);
 					}
 
 					for (; i < viewNewChildrenLength; i++) {
@@ -291,7 +294,7 @@ export function viewPatch(viewNode, viewOld, viewNew) {
 					}
 				} else {
 					for (; i < viewNewChildrenLength; i++) {
-						viewPatch(viewNodeChildren[i], viewOldChildren[i], viewNewChildren[i]);
+						viewPatch(viewNodeChildren[i], viewOldChildren[i], viewNewChildren[i], i);
 					}
 
 					for (; i < viewOldChildrenLength; i++) {

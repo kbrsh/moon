@@ -15,7 +15,8 @@ export default {
 		return root;
 	},
 	set(view) {
-		viewPatch(rootNode, root, view);
+		viewPatch(rootNode, root, view, 0);
+
 		root = view;
 	}
 };

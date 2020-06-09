@@ -42,12 +42,12 @@ const ExecutorTestItem = ({ item, index }) => m => {
 
 	return (cache[item][index] =
 		<span>
-			<(item % 2 === 0 ?
+			</(item % 2 === 0 ?
 				<p lang="en" class=item for=item attributes={"aria-hidden": false, "aria-removeme": true, "data-foo": "bar", "data-removeme": true} style={color: "red", background: "blue"} onClick=handler1>{item} {index}</p> :
 			item % 3 === 0 ?
 				<p lang="en" class=item for=item id=item attributes={"aria-hidden": false, "aria-different": true, "data-foo": "bar", "data-different": true} style={color: "red", fontSize: "20px"} onClick=handler2>{item} {index}</p> :
 				<p lang="en">{item} {index}</p>
-			)*>
+			)/>
 		</span>
 	)(m);
 }
@@ -64,31 +64,31 @@ function ExecutorTest(m) {
 	return (
 		<root>
 			<span children=(list.map((item, index) => <ExecutorTestItem item=item index=index/>))/>
-			<span children=(list.map(item => <(
+			<span children=(list.map(item => </(
 				item % 2 === 0 ?
 					<h1>{item}</h1> :
 					<p>{item}</p>
-			)*>))/>
+			)/>))/>
 			<h1>Moon</h1>
 			<p onClick=handler1 onDblClick=handler2>Partially static.</p>
-			<(list.length > 0 ?
+			</(list.length > 0 ?
 				(list[0] % 2 === 0 ?
 					<input focus=true/> :
 				list[0] % 3 === 0 ?
 					<input focus=false/> :
-					<testInput*>
+					</testInput/>
 				) :
 				<text data=""/>
-			)*>
+			)/>
 			<input testFocusFalse/>
-			<(list.length > 0 ?
+			</(list.length > 0 ?
 				<p>Text</p> :
 				<p/>
-			)*>
-			<(list.length > 0 ?
+			)/>
+			</(list.length > 0 ?
 				<text data="Text"/> :
 				<text/>
-			)*>
+			)/>
 		</root>
 	)(m);
 }
