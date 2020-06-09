@@ -117,7 +117,7 @@ export default function generate(tree) {
 			let separator = "";
 			childrenGenerated = data.separator + "children:[";
 
-			for (let i = 0; i < children.length; i++) {
+			for (let i = 0; i < childrenLength; i++) {
 				const child = children[i];
 				const childGenerated = generate(child);
 

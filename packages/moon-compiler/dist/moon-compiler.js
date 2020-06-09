@@ -425,7 +425,7 @@
 				var _separator = "";
 				childrenGenerated = _data.separator + "children:[";
 
-				for (var _i2 = 0; _i2 < children.length; _i2++) {
+				for (var _i2 = 0; _i2 < childrenLength; _i2++) {
 					var child = children[_i2];
 					var childGenerated = generate(child);
 
