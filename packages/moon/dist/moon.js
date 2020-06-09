@@ -68,6 +68,7 @@
 	 * View Data Property Defaults
 	 */
 
+
 	var viewDataDefaults = {};
 	/**
 	 * View constructor
@@ -604,17 +605,8 @@
 	};
 
 	/**
-	 * Empty view
-	 */
-
-	var viewEmpty = document.createTextNode("");
-	viewEmpty.MoonName = "";
-	viewEmpty.MoonData = {};
-	viewEmpty.MoonChildren = [];
-	/**
 	 * Empty children
 	 */
-
 
 	var childrenEmpty = [];
 	/**

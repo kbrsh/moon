@@ -7,6 +7,27 @@ Node.prototype.MoonChildren = null;
 Node.prototype.MoonReferenceEvents = null;
 
 /**
+ * Reference event manager
+ */
+function MoonReferenceEvents() {}
+
+MoonReferenceEvents.prototype.handleEvent = function(event) {
+	this[event.type]();
+};
+
+/**
+ * Create a reference event handler.
+ *
+ * @param {function} set
+ * @param {object} viewNode
+ * @param {string} key
+ * @returns {function} event handler
+ */
+function referenceHandler(set, viewNode, key) {
+	return event(m => set(m, viewNode[key]));
+}
+
+/**
  * View Data Property Defaults
  */
 const viewDataDefaults = {};
