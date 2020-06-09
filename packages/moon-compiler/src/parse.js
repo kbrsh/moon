@@ -202,6 +202,56 @@ const grammar = {
 		grammar.comment
 	))(input, index),
 	identifier: parser.many1(parser.regex(identifierRE)),
+	attributes: (input, index) => parser.type("attributes", parser.many(parser.sequence([
+		grammar.identifier,
+		parser.character("="),
+		grammar.value,
+		grammar.separator
+	])))(input, index),
+	text: parser.type("text", parser.many1(parser.or(
+		parser.and(parser.character("\\"), parser.any),
+		parser.not(["{", "<"])
+	))),
+	interpolation: (input, index) => parser.type("interpolation", parser.sequence([
+		parser.character("{"),
+		grammar.expression,
+		parser.character("}")
+	]))(input, index),
+	node: (input, index) => parser.type("node", parser.sequence([
+		parser.string("</"),
+		grammar.separator,
+		grammar.value,
+		grammar.separator,
+		parser.string("/>")
+	]))(input, index),
+	nodeData: (input, index) => parser.type("nodeData", parser.sequence([
+		parser.character("<"),
+		grammar.separator,
+		grammar.value,
+		grammar.separator,
+		parser.or(
+			parser.try(parser.and(grammar.value, parser.string("/>"))),
+			parser.and(grammar.attributes, parser.string("/>"))
+		)
+	]))(input, index),
+	nodeDataChildren: (input, index) => parser.type("nodeDataChildren", parser.sequence([
+		parser.character("<"),
+		grammar.separator,
+		grammar.value,
+		grammar.separator,
+		grammar.attributes,
+		parser.character(">"),
+		parser.many(parser.alternates([
+			parser.try(grammar.node),
+			parser.try(grammar.nodeData),
+			parser.try(grammar.nodeDataChildren),
+			grammar.text,
+			grammar.interpolation
+		])),
+		parser.string("</"),
+		parser.many(parser.not([">"])),
+		parser.character(">")
+	]))(input, index),
 	value: (input, index) => parser.alternates([
 		grammar.identifier,
 		parser.sequence([
@@ -233,56 +283,11 @@ const grammar = {
 			parser.character("{"),
 			grammar.expression,
 			parser.character("}")
-		])
+		]),
+		parser.try(grammar.node),
+		parser.try(grammar.nodeData),
+		parser.try(grammar.nodeDataChildren)
 	])(input, index),
-	attributes: (input, index) => parser.type("attributes", parser.many(parser.sequence([
-		grammar.identifier,
-		parser.character("="),
-		grammar.value,
-		grammar.separator
-	])))(input, index),
-	text: parser.type("text", parser.many1(parser.or(
-		parser.and(parser.character("\\"), parser.any),
-		parser.not(["{", "<"])
-	))),
-	interpolation: (input, index) => parser.type("interpolation", parser.sequence([
-		parser.character("{"),
-		grammar.expression,
-		parser.character("}")
-	]))(input, index),
-	node: (input, index) => parser.type("node", parser.sequence([
-		parser.string("</"),
-		grammar.separator,
-		grammar.value,
-		grammar.separator,
-		parser.string("/>")
-	]))(input, index),
-	nodeData: (input, index) => parser.type("nodeData", parser.sequence([
-		parser.character("<"),
-		grammar.separator,
-		grammar.value,
-		grammar.separator,
-		parser.or(parser.try(grammar.attributes), grammar.value),
-		parser.string("/>")
-	]))(input, index),
-	nodeDataChildren: (input, index) => parser.type("nodeDataChildren", parser.sequence([
-		parser.character("<"),
-		grammar.separator,
-		grammar.value,
-		grammar.separator,
-		grammar.attributes,
-		parser.character(">"),
-		parser.many(parser.alternates([
-			parser.try(grammar.node),
-			parser.try(grammar.nodeData),
-			parser.try(grammar.nodeDataChildren),
-			grammar.text,
-			grammar.interpolation
-		])),
-		parser.string("</"),
-		parser.many(parser.not([">"])),
-		parser.character(">")
-	]))(input, index),
 	expression: (input, index) => parser.many(parser.alternates([
 		// Single line comment
 		parser.sequence([
@@ -310,23 +315,16 @@ const grammar = {
 		// Moon language additions
 		grammar.comment,
 		grammar.value,
-		parser.try(grammar.node),
-		parser.try(grammar.nodeData),
-		parser.try(grammar.nodeDataChildren),
 
 		// Allow failed regular expression or view parses to be interpreted as
 		// operators.
 		parser.character("/"),
 		parser.character("<"),
+		parser.character(">"),
 
 		// Anything up to a comment, regular expression, Moon comment,
-		// identifier, string, parenthetical, array, object, or view. Only
-		// matches to the opening bracket of a view because the view parsers do
-		// not require an expression to finish parsing before consuming the
-		// closing bracket. Parentheticals, arrays, and objects, however, parse
-		// expressions before their closing delimiter, depending on the
-		// expression parser to stop before it.
-		parser.many1(parser.not(["/", "#", identifierRE, "\"", "'", "`", "(", ")", "[", "]", "{", "}", "<"]))
+		// identifier, string, parenthetical, array, object, or view.
+		parser.many1(parser.not(["/", "#", identifierRE, "\"", "'", "`", "(", ")", "[", "]", "{", "}", "<", ">"]))
 	]))(input, index),
 	main: (input, index) => parser.and(grammar.expression, parser.EOF)(input, index)
 };

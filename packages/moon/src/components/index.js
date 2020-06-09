@@ -1,50 +1,25 @@
 import root from "moon/src/components/root";
-import element from "moon/src/components/element";
+import { element, elementEmpty } from "moon/src/components/element";
 import router from "moon/src/components/router";
 import timer from "moon/src/components/timer";
 import httper from "moon/src/components/httper";
-import { names } from "util/index";
+import { namesElement, namesElementEmpty } from "util/index";
 
-const components = {};
+const components = {
+	root,
+	router,
+	timer,
+	httper
+};
 
-for (let i = 0; i < names.length; i++) {
-	const name = names[i];
+for (let i = 0; i < namesElement.length; i++) {
+	const name = namesElement[i];
+	components[name] = element(name);
+}
 
-	switch (name) {
-		case "root": {
-			components.root = root;
-
-			break;
-		}
-
-		case "element": {
-			components.element = element;
-
-			break;
-		}
-
-		case "router": {
-			components.router = router;
-
-			break;
-		}
-
-		case "timer": {
-			components.timer = timer;
-
-			break;
-		}
-
-		case "httper": {
-			components.httper = httper;
-
-			break;
-		}
-
-		default: {
-			components[name] = element(name);
-		}
-	}
+for (let i = 0; i < namesElementEmpty.length; i++) {
+	const name = namesElementEmpty[i];
+	components[name] = elementEmpty(name);
 }
 
 export default components;

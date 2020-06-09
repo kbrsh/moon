@@ -9,7 +9,7 @@
 	"use strict";
 
 	/**
-	 * HTML tag names
+	 * Moon component names
 	 */
 	/**
 	 * Pads a string with spaces on the left to match a certain length.

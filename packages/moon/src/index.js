@@ -1,5 +1,6 @@
 import { main } from "moon/src/main";
 import drivers from "moon/src/drivers/index";
+import wrappers from "moon/src/wrappers/index";
 import components from "moon/src/components/index";
 import event from "moon/src/event";
 import run from "moon/src/run";
@@ -30,6 +31,7 @@ import run from "moon/src/run";
 export default {
 	main,
 	drivers,
+	wrappers,
 	components,
 	event,
 	run,

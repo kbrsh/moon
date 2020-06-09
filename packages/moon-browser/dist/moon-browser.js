@@ -212,9 +212,6 @@
 			return parser.many(parser.or(parser.alternates([parser.character(" "), parser.character("\t"), parser.character("\n")]), grammar.comment))(input, index);
 		},
 		identifier: parser.many1(parser.regex(identifierRE)),
-		value: function value(input, index) {
-			return parser.alternates([grammar.identifier, parser.sequence([parser.character("\""), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["\""]))), parser.character("\"")]), parser.sequence([parser.character("'"), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["'"]))), parser.character("'")]), parser.sequence([parser.character("`"), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["`"]))), parser.character("`")]), parser.sequence([parser.character("("), grammar.expression, parser.character(")")]), parser.sequence([parser.character("["), grammar.expression, parser.character("]")]), parser.sequence([parser.character("{"), grammar.expression, parser.character("}")])])(input, index);
-		},
 		attributes: function attributes(input, index) {
 			return parser.type("attributes", parser.many(parser.sequence([grammar.identifier, parser.character("="), grammar.value, grammar.separator])))(input, index);
 		},
@@ -226,26 +223,24 @@
 			return parser.type("node", parser.sequence([parser.string("</"), grammar.separator, grammar.value, grammar.separator, parser.string("/>")]))(input, index);
 		},
 		nodeData: function nodeData(input, index) {
-			return parser.type("nodeData", parser.sequence([parser.character("<"), grammar.separator, grammar.value, grammar.separator, parser.or(parser["try"](grammar.attributes), grammar.value), parser.string("/>")]))(input, index);
+			return parser.type("nodeData", parser.sequence([parser.character("<"), grammar.separator, grammar.value, grammar.separator, parser.or(parser["try"](parser.and(grammar.value, parser.string("/>"))), parser.and(grammar.attributes, parser.string("/>")))]))(input, index);
 		},
 		nodeDataChildren: function nodeDataChildren(input, index) {
 			return parser.type("nodeDataChildren", parser.sequence([parser.character("<"), grammar.separator, grammar.value, grammar.separator, grammar.attributes, parser.character(">"), parser.many(parser.alternates([parser["try"](grammar.node), parser["try"](grammar.nodeData), parser["try"](grammar.nodeDataChildren), grammar.text, grammar.interpolation])), parser.string("</"), parser.many(parser.not([">"])), parser.character(">")]))(input, index);
+		},
+		value: function value(input, index) {
+			return parser.alternates([grammar.identifier, parser.sequence([parser.character("\""), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["\""]))), parser.character("\"")]), parser.sequence([parser.character("'"), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["'"]))), parser.character("'")]), parser.sequence([parser.character("`"), parser.many(parser.or(parser.and(parser.character("\\"), parser.any), parser.not(["`"]))), parser.character("`")]), parser.sequence([parser.character("("), grammar.expression, parser.character(")")]), parser.sequence([parser.character("["), grammar.expression, parser.character("]")]), parser.sequence([parser.character("{"), grammar.expression, parser.character("}")]), parser["try"](grammar.node), parser["try"](grammar.nodeData), parser["try"](grammar.nodeDataChildren)])(input, index);
 		},
 		expression: function expression(input, index) {
 			return parser.many(parser.alternates([// Single line comment
 			parser.sequence([parser.string("//"), parser.many(parser.not(["\n"]))]), // Multi-line comment
 			parser.sequence([parser.string("/*"), parser.many(parser.not(["*/"])), parser.string("*/")]), // Regular expression
 			parser["try"](parser.sequence([parser.character("/"), parser.many1(parser.or(parser.and(parser.character("\\"), parser.not(["\n"])), parser.not(["/", "\n"]))), parser.character("/")])), // Moon language additions
-			grammar.comment, grammar.value, parser["try"](grammar.node), parser["try"](grammar.nodeData), parser["try"](grammar.nodeDataChildren), // Allow failed regular expression or view parses to be interpreted as
+			grammar.comment, grammar.value, // Allow failed regular expression or view parses to be interpreted as
 			// operators.
-			parser.character("/"), parser.character("<"), // Anything up to a comment, regular expression, Moon comment,
-			// identifier, string, parenthetical, array, object, or view. Only
-			// matches to the opening bracket of a view because the view parsers do
-			// not require an expression to finish parsing before consuming the
-			// closing bracket. Parentheticals, arrays, and objects, however, parse
-			// expressions before their closing delimiter, depending on the
-			// expression parser to stop before it.
-			parser.many1(parser.not(["/", "#", identifierRE, "\"", "'", "`", "(", ")", "[", "]", "{", "}", "<"]))]))(input, index);
+			parser.character("/"), parser.character("<"), parser.character(">"), // Anything up to a comment, regular expression, Moon comment,
+			// identifier, string, parenthetical, array, object, or view.
+			parser.many1(parser.not(["/", "#", identifierRE, "\"", "'", "`", "(", ")", "[", "]", "{", "}", "<", ">"]))]))(input, index);
 		},
 		main: function main(input, index) {
 			return parser.and(grammar.expression, parser.EOF)(input, index);
@@ -269,9 +264,24 @@
 	}
 
 	/**
-	 * HTML tag names
+	 * Moon component names
 	 */
-	var names = ["root", "element", "router", "timer", "httper", "a", "abbr", "acronym", "address", "applet", "area", "article", "aside", "audio", "b", "base", "basefont", "bdi", "bdo", "bgsound", "big", "blink", "blockquote", "body", "br", "button", "canvas", "caption", "center", "cite", "code", "col", "colgroup", "command", "content", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "dir", "div", "dl", "dt", "element", "em", "embed", "fieldset", "figcaption", "figure", "font", "footer", "form", "frame", "frameset", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "hr", "html", "i", "iframe", "image", "img", "input", "ins", "isindex", "kbd", "keygen", "label", "legend", "li", "link", "listing", "main", "map", "mark", "marquee", "math", "menu", "menuitem", "meta", "meter", "multicol", "nav", "nextid", "nobr", "noembed", "noframes", "noscript", "object", "ol", "optgroup", "option", "output", "p", "param", "picture", "plaintext", "pre", "progress", "q", "rb", "rbc", "rp", "rt", "rtc", "ruby", "s", "samp", "script", "section", "select", "shadow", "slot", "small", "source", "spacer", "span", "strike", "strong", "style", "sub", "summary", "sup", "svg", "table", "tbody", "td", "template", "text", "textarea", "tfoot", "th", "thead", "time", "title", "tr", "track", "tt", "u", "ul", "var", "video", "wbr", "xmp"];
+	var namesMoon = ["root", "router", "timer", "httper"];
+	/**
+	 * HTML element names
+	 */
+
+	var namesElement = ["a", "abbr", "acronym", "address", "applet", "article", "aside", "audio", "b", "basefont", "bdi", "bdo", "bgsound", "big", "blink", "blockquote", "body", "button", "canvas", "caption", "center", "cite", "code", "colgroup", "command", "content", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "dir", "div", "dl", "dt", "element", "em", "fieldset", "figcaption", "figure", "font", "footer", "form", "frame", "frameset", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "html", "i", "iframe", "image", "ins", "isindex", "kbd", "label", "legend", "li", "listing", "main", "map", "mark", "marquee", "math", "menu", "menuitem", "meter", "multicol", "nav", "nextid", "nobr", "noembed", "noframes", "noscript", "object", "ol", "optgroup", "option", "output", "p", "picture", "plaintext", "pre", "progress", "q", "rb", "rbc", "rp", "rt", "rtc", "ruby", "s", "samp", "script", "section", "select", "shadow", "slot", "small", "spacer", "span", "strike", "strong", "style", "sub", "summary", "sup", "svg", "table", "tbody", "td", "template", "textarea", "tfoot", "th", "thead", "time", "title", "tr", "tt", "u", "ul", "var", "video", "xmp"];
+	/**
+	 * Empty HTML element names
+	 */
+
+	var namesElementEmpty = ["area", "base", "br", "col", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "text", "track", "wbr"];
+	/**
+	 * Component names
+	 */
+
+	var names = namesMoon.concat(namesElement).concat(namesElementEmpty);
 	/**
 	 * Logs an error message to the console.
 	 * @param {string} message
@@ -353,13 +363,14 @@
 
 			for (var _i = 0; _i < value.length; _i++) {
 				var pair = value[_i];
+				var pairKey = generate(pair[0]);
 				var pairValue = generate(pair[2]);
 
-				if (pairValue[0] === "[" && pairValue[1] === ".") {
+				if (pairKey[0] === "*") {
 					pairValue = "{value:\"" + pairValue + "\",get:function(m){return m" + pairValue + ";},set:function(m,MoonValue){m" + pairValue + "=MoonValue;return m;}}";
 				}
 
-				_output += separator + "\"" + generate(pair[0]) + "\":" + pairValue + generate(pair[3]);
+				_output += separator + "\"" + pairKey + "\":" + pairValue + generate(pair[3]);
 				separator = ",";
 			}
 
@@ -388,7 +399,7 @@
 			// Data nodes represent calling a function with either a custom data
 			// expression or an object using attribute syntax.
 			var _value2 = tree.value;
-			var data = _value2[4];
+			var data = _value2[4][0];
 			var dataGenerated = generate(data);
 			return "" + generate(_value2[1]) + generateName(_value2[2]) + generate(_value2[3]) + "(" + (data.type === "attributes" ? "{" + dataGenerated.output + "}" : dataGenerated) + ")";
 		} else if (type === "nodeDataChildren") {
@@ -408,7 +419,7 @@
 				var _separator = "";
 				childrenGenerated = _data.separator + "children:[";
 
-				for (var _i2 = 0; _i2 < childrenLength; _i2++) {
+				for (var _i2 = 0; _i2 < children.length; _i2++) {
 					var child = children[_i2];
 					var childGenerated = generate(child);
 

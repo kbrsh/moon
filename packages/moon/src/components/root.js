@@ -1,6 +1,6 @@
-import element from "moon/src/components/element";
+import { element } from "moon/src/components/element";
 
-const elementDiv = element("div");
+const rootElement = element("div");
 
 /**
  * Root component
@@ -13,5 +13,5 @@ export default data => m => {
 		history.pushState(null, "", route);
 	}
 
-	return elementDiv(data)(m);
+	return rootElement(data)(m);
 };

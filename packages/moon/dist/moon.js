@@ -36,21 +36,264 @@
 	};
 
 	/**
+	 * Return an event handler that runs a component transformer before running the
+	 * main component.
+	 *
+	 * @param {function} component
+	 * @returns {function} event handler
+	 */
+
+	function event(component) {
+		return function () {
+			for (var driver in drivers) {
+				m[driver] = drivers[driver].get();
+			}
+
+			mSet(component(m));
+			mSet(componentMain(m));
+
+			for (var _driver in drivers) {
+				drivers[_driver].set(m[_driver]);
+			}
+		};
+	}
+
+	/**
 	 * Caches for performance
 	 */
-	Node.prototype.MoonName = null;
-	Node.prototype.MoonData = null;
+
 	Node.prototype.MoonChildren = null;
 	Node.prototype.MoonReferenceEvents = null;
+	/**
+	 * View Data Property Defaults
+	 */
+
+	var viewDataDefaults = {};
+	/**
+	 * View constructor
+	 */
+
+	function View(name, data, children) {
+		this.name = name;
+		this.data = data;
+		this.children = children;
+	}
+	/**
+	 * Create a view node.
+	 *
+	 * @param {object} view
+	 */
+
+	function viewNodeCreate(view) {
+		var viewName = view.name;
+		var viewNode;
+
+		if (viewName === "text") {
+			viewNode = document.createTextNode(view.data.data);
+			viewNode.MoonChildren = [];
+		} else {
+			var viewData = view.data;
+			var viewChildren = view.children;
+			viewNode = document.createElement(viewName);
+			var viewNodeChildren = viewNode.MoonChildren = [];
+
+			for (var key in viewData) {
+				viewDataCreate(viewNode, key, viewData[key]);
+			}
+
+			for (var i = 0; i < viewChildren.length; i++) {
+				viewNodeChildren.push(viewNode.appendChild(viewNodeCreate(viewChildren[i])));
+			}
+		}
+
+		return viewNode;
+	}
+	/**
+	 * Create a data property.
+	 *
+	 * @param {object} viewNode
+	 * @param {string} key
+	 * @param {any} value
+	 */
+
+	function viewDataCreate(viewNode, key, value) {
+		switch (key) {
+			case "attributes":
+				{
+					for (var keyAttribute in value) {
+						viewNode.setAttribute(keyAttribute, value[keyAttribute]);
+					}
+
+					break;
+				}
+
+			case "style":
+				{
+					var viewNodeStyle = viewNode.style;
+
+					for (var keyStyle in value) {
+						viewNodeStyle[keyStyle] = value[keyStyle];
+					}
+
+					break;
+				}
+
+			case "class":
+				{
+					viewNode.className = value;
+					break;
+				}
+
+			case "for":
+				{
+					viewNode.htmlFor = value;
+					break;
+				}
+
+			case "children":
+				break;
+
+			default:
+				{
+					if (key[0] === "o" && key[1] === "n") {
+						viewNode[key.toLowerCase()] = event(value);
+					} else {
+						viewNode[key] = value;
+					}
+				}
+		}
+	}
+	/**
+	 * Update a data property.
+	 *
+	 * @param {object} viewNode
+	 * @param {string} key
+	 * @param {any} valueOld
+	 * @param {any} valueNew
+	 */
+
+	function viewDataUpdate(viewNode, key, valueOld, valueNew) {
+		switch (key) {
+			case "attributes":
+				{
+					for (var keyAttribute in valueNew) {
+						var valueAttributeNew = valueNew[keyAttribute];
+
+						if (!(keyAttribute in valueOld) || valueAttributeNew !== valueOld[keyAttribute]) {
+							viewNode.setAttribute(keyAttribute, valueAttributeNew);
+						}
+					}
+
+					for (var _keyAttribute in valueOld) {
+						if (!(_keyAttribute in valueNew)) {
+							viewNode.removeAttribute(_keyAttribute);
+						}
+					}
+
+					break;
+				}
+
+			case "style":
+				{
+					var viewNodeStyle = viewNode.style;
+
+					for (var keyStyle in valueNew) {
+						var valueStyleNew = valueNew[keyStyle];
+
+						if (!(keyStyle in valueOld) || valueStyleNew !== valueOld[keyStyle]) {
+							viewNodeStyle[keyStyle] = valueStyleNew;
+						}
+					}
+
+					for (var _keyStyle in valueOld) {
+						if (!(_keyStyle in valueNew)) {
+							viewNodeStyle[_keyStyle] = "";
+						}
+					}
+
+					break;
+				}
+
+			case "class":
+				{
+					viewNode.className = valueNew;
+					break;
+				}
+
+			case "for":
+				{
+					viewNode.htmlFor = valueNew;
+					break;
+				}
+
+			case "children":
+				break;
+
+			default:
+				{
+					if (key[0] === "o" && key[1] === "n") {
+						viewNode[key.toLowerCase()] = event(valueNew);
+					} else {
+						viewNode[key] = valueNew;
+					}
+				}
+		}
+	}
+	/**
+	 * Remove a data property.
+	 *
+	 * @param {object} viewNode
+	 * @param {string} viewName
+	 * @param {object} viewData
+	 * @param {string} key
+	 */
+
+	function viewDataRemove(viewNode, viewName, viewData, key) {
+		switch (key) {
+			case "attributes":
+				{
+					for (var keyAttribute in viewData.attributes) {
+						viewNode.removeAttribute(keyAttribute);
+					}
+
+					break;
+				}
+
+			case "class":
+				{
+					viewNode.className = "";
+					break;
+				}
+
+			case "for":
+				{
+					viewNode.htmlFor = "";
+					break;
+				}
+
+			case "children":
+				break;
+
+			default:
+				{
+					if (key[0] === "o" && key[1] === "n") {
+						viewNode[key.toLowerCase()] = null;
+					} else {
+						viewNode[key] = (viewName in viewDataDefaults ? viewDataDefaults[viewName] : viewDataDefaults[viewName] = viewName === "text" ? document.createTextNode("") : document.createElement(viewName))[key];
+					}
+				}
+		}
+	}
+
 	/**
 	 * Root element
 	 */
 
-	var root = document.getElementById("moon-root");
-	root.MoonName = "div";
-	root.MoonData = {
+	var root = new View("div", {
 		id: "moon-root"
-	};
+	}, []);
+	var rootNode = document.getElementById("moon-root");
+	rootNode.MoonChildren = [];
 	/**
 	 * View driver
 	 */
@@ -60,7 +303,89 @@
 			return root;
 		},
 		set: function set(view) {
+			var viewNodes = [rootNode];
+			var viewOlds = [root];
+			var viewNews = [view];
 			root = view;
+
+			while (true) {
+				var viewNode = viewNodes.pop();
+				var viewOld = viewOlds.pop();
+				var viewNew = viewNews.pop();
+
+				if (viewOld !== viewNew) {
+					var viewNewName = viewNew.name;
+
+					if (viewOld.name !== viewNewName) {
+						viewNode.parentNode.replaceChild(viewNodeCreate(viewNew), viewNode);
+					} else {
+						var viewOldData = viewOld.data;
+						var viewOldChildren = viewOld.children;
+						var viewNewData = viewNew.data;
+						var viewNewChildren = viewNew.children;
+
+						if (viewOldData !== viewNewData) {
+							for (var key in viewNewData) {
+								if (key in viewOldData) {
+									var valueOld = viewOldData[key];
+									var valueNew = viewNewData[key];
+
+									if (valueOld !== valueNew) {
+										viewDataUpdate(viewNode, key, valueOld, valueNew);
+									}
+								} else {
+									viewDataCreate(viewNode, key, viewNewData[key]);
+								}
+							}
+
+							for (var _key in viewOldData) {
+								if (!(_key in viewNewData)) {
+									viewDataRemove(viewNode, viewNewName, viewOldData, _key);
+								}
+							}
+						}
+
+						if (viewOldChildren !== viewNewChildren) {
+							var viewNodeChildren = viewNode.MoonChildren;
+							var viewOldChildrenLength = viewOldChildren.length;
+							var viewNewChildrenLength = viewNewChildren.length;
+							var i = 0;
+
+							if (viewOldChildrenLength === viewNewChildrenLength) {
+								for (; i < viewOldChildrenLength; i++) {
+									viewNodes.push(viewNodeChildren[i]);
+									viewOlds.push(viewOldChildren[i]);
+									viewNews.push(viewNewChildren[i]);
+								}
+							} else if (viewOldChildrenLength < viewNewChildrenLength) {
+								for (; i < viewOldChildrenLength; i++) {
+									viewNodes.push(viewNodeChildren[i]);
+									viewOlds.push(viewOldChildren[i]);
+									viewNews.push(viewNewChildren[i]);
+								}
+
+								for (; i < viewNewChildrenLength; i++) {
+									viewNodeChildren.push(viewNode.appendChild(viewNodeCreate(viewNewChildren[i])));
+								}
+							} else {
+								for (; i < viewNewChildrenLength; i++) {
+									viewNodes.push(viewNodeChildren[i]);
+									viewOlds.push(viewOldChildren[i]);
+									viewNews.push(viewNewChildren[i]);
+								}
+
+								for (; i < viewOldChildrenLength; i++) {
+									viewNode.removeChild(viewNodeChildren.pop());
+								}
+							}
+						}
+					}
+				}
+
+				if (viewOlds.length === 0) {
+					break;
+				}
+			}
 		}
 	};
 
@@ -263,41 +588,21 @@
 		run();
 	}
 
-	/**
-	 * Return an event handler that runs a component transformer before running the
-	 * main component.
-	 *
-	 * @param {function} component
-	 * @returns {function} event handler
-	 */
-
-	function event(component) {
-		return function () {
-			for (var driver in drivers) {
-				m[driver] = drivers[driver].get();
-			}
-
-			mSet(component(m));
-			mSet(componentMain(m));
-
-			for (var _driver in drivers) {
-				drivers[_driver].set(m[_driver]);
-			}
-		};
-	}
-
-	/**
-	 * Reference bind events
-	 */
-
-	var references = {
-		input: {
-			"*value": {
-				key: "value",
-				event: "input"
-			}
+	var wrappers = {
+		view: {
+			View: View,
+			viewNodeCreate: viewNodeCreate,
+			viewDataCreate: viewDataCreate,
+			viewDataUpdate: viewDataUpdate,
+			viewDataRemove: viewDataRemove
+		},
+		http: {
+			httpEventsLoad: httpEventsLoad,
+			httpEventsError: httpEventsError,
+			httpRequest: httpRequest
 		}
 	};
+
 	/**
 	 * Empty view
 	 */
@@ -307,440 +612,51 @@
 	viewEmpty.MoonData = {};
 	viewEmpty.MoonChildren = [];
 	/**
-	 * View Data Property Defaults
-	 */
-
-	var viewDataDefaults = {};
-
-	function viewDataDefault(name, key) {
-		return (name in viewDataDefaults ? viewDataDefaults[name] : viewDataDefaults[name] = name === "text" ? document.createTextNode("") : document.createElement(name))[key];
-	}
-	/**
-	 * Reference event manager
+	 * Empty children
 	 */
 
 
-	function MoonReferenceEvents() {}
-
-	MoonReferenceEvents.prototype.handleEvent = function (event) {
-		this[event.type]();
-	};
-	/**
-	 * Create a reference event handler.
-	 *
-	 * @param {function} set
-	 * @param {object} view
-	 * @param {string} key
-	 * @returns {function} event handler
-	 */
-
-
-	function referenceHandler(set, view, key) {
-		return event(function (m) {
-			return set(m, view[key]);
-		});
-	}
+	var childrenEmpty = [];
 	/**
 	 * Element component
 	 */
 
-
-	var element = (function (name) {
+	function element(name) {
 		return function (data) {
 			return function (m) {
-				var view = m.view;
-				var viewName = view.MoonName;
-				var viewData = view.MoonData;
+				var children;
 
-				if (name !== viewName) {
-					// If there is no view or the name changed, create a new view from
-					// scratch.
-					if (name === "text") {
-						view = document.createTextNode("");
-					} else {
-						view = document.createElement(name);
-					} // Create data properties.
+				if ("children" in data) {
+					var dataChildren = data.children;
+					children = [];
 
-
-					for (var key in data) {
-						var value = data[key];
-						var keyFirst = key[0];
-
-						if (keyFirst === "*") {
-							var reference = references[name][key];
-							var referenceKey = reference.key;
-							var referenceEvent = reference.event;
-							var viewReferenceEvents = view.MoonReferenceEvents;
-
-							if (viewReferenceEvents === null) {
-								viewReferenceEvents = view.MoonReferenceEvents = new MoonReferenceEvents();
-							}
-
-							view[referenceKey] = value.get(m);
-							viewReferenceEvents[referenceEvent] = referenceHandler(value.set, view, referenceKey);
-							view.addEventListener(referenceEvent, viewReferenceEvents);
-						} else if (keyFirst === "o" && key[1] === "n") {
-							view[key.toLowerCase()] = event(value);
-						} else {
-							switch (key) {
-								case "attributes":
-									{
-										for (var keyAttribute in value) {
-											view.setAttribute(keyAttribute, value[keyAttribute]);
-										}
-
-										break;
-									}
-
-								case "style":
-									{
-										var viewStyle = view.style;
-
-										for (var keyStyle in value) {
-											viewStyle[keyStyle] = value[keyStyle];
-										}
-
-										break;
-									}
-
-								case "class":
-									{
-										view.className = value;
-										break;
-									}
-
-								case "for":
-									{
-										view.htmlFor = value;
-										break;
-									}
-
-								case "children":
-									{
-										var viewChildren = view.MoonChildren = [];
-
-										for (var i = 0; i < value.length; i++) {
-											m.view = viewEmpty;
-											m = value[i](m);
-											viewChildren.push(view.appendChild(m.view));
-										}
-
-										break;
-									}
-
-								default:
-									{
-										view[key] = value;
-									}
-							}
-						}
-					} // Store name and data in cache for faster operations.
-
-
-					view.MoonName = name;
-					view.MoonData = data;
-				} else if (data === viewData) {
-					// If nothing changed, only run any children to transform the state. They
-					// can't be skipped because they are functions of `m`, so them being the
-					// same as last time doesn't imply they will have the same output.
-					if ("children" in data) {
-						var children = data.children;
-						var _viewChildren = view.MoonChildren;
-
-						for (var _i = 0; _i < children; _i++) {
-							var viewChild = m.view = _viewChildren[_i];
-							m = children[_i](m);
-							var viewChildNew = m.view;
-
-							if (viewChildNew !== viewChild) {
-								view.replaceChild(viewChildNew, viewChild);
-								_viewChildren[_i] = viewChildNew;
-							}
-						}
+					for (var i = 0; i < dataChildren.length; i++) {
+						m = dataChildren[i](m);
+						children.push(m.view);
 					}
 				} else {
-					// If the data doesn't match, update the view data and its cache.
-					view.MoonData = data;
-
-					for (var _key in data) {
-						var _value = data[_key];
-
-						if (_key in viewData) {
-							// Update data property.
-							var viewValue = viewData[_key];
-
-							if (_key === "children") {
-								// Children are updated even if they are the same as last time.
-								var valueLength = _value.length;
-								var viewValueLength = viewValue.length;
-								var _viewChildren2 = view.MoonChildren;
-								var _i2 = 0;
-
-								if (valueLength === viewValueLength) {
-									for (; _i2 < valueLength; _i2++) {
-										var _viewChild = m.view = _viewChildren2[_i2];
-
-										m = _value[_i2](m);
-										var _viewChildNew = m.view;
-
-										if (_viewChildNew !== _viewChild) {
-											view.replaceChild(_viewChildNew, _viewChild);
-											_viewChildren2[_i2] = _viewChildNew;
-										}
-									}
-								} else if (valueLength < viewValueLength) {
-									for (; _i2 < valueLength; _i2++) {
-										var _viewChild2 = m.view = _viewChildren2[_i2];
-
-										m = _value[_i2](m);
-										var _viewChildNew2 = m.view;
-
-										if (_viewChildNew2 !== _viewChild2) {
-											view.replaceChild(_viewChildNew2, _viewChild2);
-											_viewChildren2[_i2] = _viewChildNew2;
-										}
-									}
-
-									for (; _i2 < viewValueLength; _i2++) {
-										view.removeChild(_viewChildren2.pop());
-									}
-								} else {
-									for (; _i2 < viewValueLength; _i2++) {
-										var _viewChild3 = m.view = _viewChildren2[_i2];
-
-										m = _value[_i2](m);
-										var _viewChildNew3 = m.view;
-
-										if (_viewChildNew3 !== _viewChild3) {
-											view.replaceChild(_viewChildNew3, _viewChild3);
-											_viewChildren2[_i2] = _viewChildNew3;
-										}
-									}
-
-									for (; _i2 < valueLength; _i2++) {
-										m.view = viewEmpty;
-										m = _value[_i2](m);
-
-										_viewChildren2.push(view.appendChild(m.view));
-									}
-								}
-							} else if (_value !== viewValue) {
-								// Other properties are updated if they haven't changed.
-								var _keyFirst = _key[0];
-
-								if (_keyFirst === "*") {
-									var _reference = references[name][_key];
-									var _referenceKey = _reference.key;
-									view[_referenceKey] = _value.get(m);
-
-									if (_value.value !== viewValue.value) {
-										view.MoonReferenceEvents[_reference.event] = referenceHandler(_value.set, view, _referenceKey);
-									}
-								} else if (_keyFirst === "o" && _key[1] === "n") {
-									view[_key.toLowerCase()] = event(_value);
-								} else {
-									switch (_key) {
-										case "attributes":
-											{
-												for (var _keyAttribute in _value) {
-													var valueAttribute = _value[_keyAttribute];
-
-													if (!(_keyAttribute in viewValue) || valueAttribute !== viewValue[_keyAttribute]) {
-														view.setAttribute(_keyAttribute, valueAttribute);
-													}
-												}
-
-												for (var _keyAttribute2 in viewValue) {
-													if (!(_keyAttribute2 in _value)) {
-														view.removeAttribute(_keyAttribute2);
-													}
-												}
-
-												break;
-											}
-
-										case "style":
-											{
-												var _viewStyle = view.style;
-
-												for (var _keyStyle in _value) {
-													var valueStyle = _value[_keyStyle];
-
-													if (!(_keyStyle in viewValue) || valueStyle !== viewValue[_keyStyle]) {
-														_viewStyle[_keyStyle] = valueStyle;
-													}
-												}
-
-												for (var _keyStyle2 in viewValue) {
-													if (!(_keyStyle2 in _value)) {
-														_viewStyle[_keyStyle2] = "";
-													}
-												}
-
-												break;
-											}
-
-										case "class":
-											{
-												view.className = _value;
-												break;
-											}
-
-										case "for":
-											{
-												view.htmlFor = _value;
-												break;
-											}
-
-										default:
-											{
-												view[_key] = _value;
-											}
-									}
-								}
-							}
-						} else {
-							// Create data property.
-							var _keyFirst2 = _key[0];
-
-							if (_keyFirst2 === "*") {
-								var _reference2 = references[name][_key];
-								var _referenceKey2 = _reference2.key;
-								var _referenceEvent = _reference2.event;
-								var _viewReferenceEvents = view.MoonReferenceEvents;
-
-								if (_viewReferenceEvents === null) {
-									_viewReferenceEvents = view.MoonReferenceEvents = new MoonReferenceEvents();
-								}
-
-								view[_referenceKey2] = _value.get(m);
-								_viewReferenceEvents[_referenceEvent] = referenceHandler(_value.set, view, _referenceKey2);
-								view.addEventListener(_referenceEvent, _viewReferenceEvents);
-							} else if (_keyFirst2 === "o" && _key[1] === "n") {
-								view[_key.toLowerCase()] = event(_value);
-							} else {
-								switch (_key) {
-									case "attributes":
-										{
-											for (var _keyAttribute3 in _value) {
-												view.setAttribute(_keyAttribute3, _value[_keyAttribute3]);
-											}
-
-											break;
-										}
-
-									case "style":
-										{
-											var _viewStyle2 = view.style;
-
-											for (var _keyStyle3 in _value) {
-												_viewStyle2[_keyStyle3] = _value[_keyStyle3];
-											}
-
-											break;
-										}
-
-									case "class":
-										{
-											view.className = _value;
-											break;
-										}
-
-									case "for":
-										{
-											view.htmlFor = _value;
-											break;
-										}
-
-									case "children":
-										{
-											var _viewChildren3 = view.MoonChildren = [];
-
-											for (var _i3 = 0; _i3 < _value.length; _i3++) {
-												m.view = viewEmpty;
-												m = _value[_i3](m);
-
-												_viewChildren3.push(view.appendChild(m.view));
-											}
-
-											break;
-										}
-
-									default:
-										{
-											view[_key] = _value;
-										}
-								}
-							}
-						}
-					} // Remove data properties.
-
-
-					for (var _key2 in viewData) {
-						if (!(_key2 in data)) {
-							var _keyFirst3 = _key2[0];
-
-							if (_keyFirst3 === "*") {
-								var _reference3 = references[name][_key2];
-								var _referenceKey3 = _reference3.key;
-								var _referenceEvent2 = _reference3.event;
-								var _viewReferenceEvents2 = view.MoonReferenceEvents;
-								view[_referenceKey3] = viewDataDefault(name, _referenceKey3);
-								_viewReferenceEvents2[_referenceEvent2] = null;
-								view.removeEventListener(_referenceEvent2, _viewReferenceEvents2);
-							} else if (_keyFirst3 === "o" && _key2[1] === "n") {
-								view[_key2.toLowerCase()] = null;
-							} else {
-								switch (_key2) {
-									case "attributes":
-										{
-											for (var _keyAttribute4 in viewData.attributes) {
-												view.removeAttribute(_keyAttribute4);
-											}
-
-											break;
-										}
-
-									case "class":
-										{
-											view.className = "";
-											break;
-										}
-
-									case "for":
-										{
-											view.htmlFor = "";
-											break;
-										}
-
-									case "children":
-										{
-											var _viewChildren4 = view.MoonChildren;
-
-											for (var _i4 = 0; _i4 < _viewChildren4.length; _i4++) {
-												view.removeChild(_viewChildren4.pop());
-											}
-
-											break;
-										}
-
-									default:
-										{
-											view[_key2] = viewDataDefault(name, _key2);
-										}
-								}
-							}
-						}
-					}
+					children = childrenEmpty;
 				}
 
-				m.view = view;
+				m.view = new View(name, data, children);
 				return m;
 			};
 		};
-	});
+	}
+	/**
+	 * Empty element component
+	 */
 
-	var elementDiv = element("div");
+	function elementEmpty(name) {
+		return function (data) {
+			return function (m) {
+				m.view = new View(name, data, childrenEmpty);
+				return m;
+			};
+		};
+	}
+
+	var rootElement = element("div");
 	/**
 	 * Root component
 	 */
@@ -754,7 +670,7 @@
 				history.pushState(null, "", route);
 			}
 
-			return elementDiv(data)(m);
+			return rootElement(data)(m);
 		};
 	});
 
@@ -829,51 +745,34 @@
 	});
 
 	/**
-	 * HTML tag names
+	 * Moon component names
 	 */
-	var names = ["root", "element", "router", "timer", "httper", "a", "abbr", "acronym", "address", "applet", "area", "article", "aside", "audio", "b", "base", "basefont", "bdi", "bdo", "bgsound", "big", "blink", "blockquote", "body", "br", "button", "canvas", "caption", "center", "cite", "code", "col", "colgroup", "command", "content", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "dir", "div", "dl", "dt", "element", "em", "embed", "fieldset", "figcaption", "figure", "font", "footer", "form", "frame", "frameset", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "hr", "html", "i", "iframe", "image", "img", "input", "ins", "isindex", "kbd", "keygen", "label", "legend", "li", "link", "listing", "main", "map", "mark", "marquee", "math", "menu", "menuitem", "meta", "meter", "multicol", "nav", "nextid", "nobr", "noembed", "noframes", "noscript", "object", "ol", "optgroup", "option", "output", "p", "param", "picture", "plaintext", "pre", "progress", "q", "rb", "rbc", "rp", "rt", "rtc", "ruby", "s", "samp", "script", "section", "select", "shadow", "slot", "small", "source", "spacer", "span", "strike", "strong", "style", "sub", "summary", "sup", "svg", "table", "tbody", "td", "template", "text", "textarea", "tfoot", "th", "thead", "time", "title", "tr", "track", "tt", "u", "ul", "var", "video", "wbr", "xmp"];
+	/**
+	 * HTML element names
+	 */
 
-	var components = {};
+	var namesElement = ["a", "abbr", "acronym", "address", "applet", "article", "aside", "audio", "b", "basefont", "bdi", "bdo", "bgsound", "big", "blink", "blockquote", "body", "button", "canvas", "caption", "center", "cite", "code", "colgroup", "command", "content", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "dir", "div", "dl", "dt", "element", "em", "fieldset", "figcaption", "figure", "font", "footer", "form", "frame", "frameset", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "html", "i", "iframe", "image", "ins", "isindex", "kbd", "label", "legend", "li", "listing", "main", "map", "mark", "marquee", "math", "menu", "menuitem", "meter", "multicol", "nav", "nextid", "nobr", "noembed", "noframes", "noscript", "object", "ol", "optgroup", "option", "output", "p", "picture", "plaintext", "pre", "progress", "q", "rb", "rbc", "rp", "rt", "rtc", "ruby", "s", "samp", "script", "section", "select", "shadow", "slot", "small", "spacer", "span", "strike", "strong", "style", "sub", "summary", "sup", "svg", "table", "tbody", "td", "template", "textarea", "tfoot", "th", "thead", "time", "title", "tr", "tt", "u", "ul", "var", "video", "xmp"];
+	/**
+	 * Empty HTML element names
+	 */
 
-	for (var i = 0; i < names.length; i++) {
-		var name = names[i];
+	var namesElementEmpty = ["area", "base", "br", "col", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "text", "track", "wbr"];
 
-		switch (name) {
-			case "root":
-				{
-					components.root = root$2;
-					break;
-				}
+	var components = {
+		root: root$2,
+		router: router,
+		timer: timer,
+		httper: httper
+	};
 
-			case "element":
-				{
-					components.element = element;
-					break;
-				}
+	for (var i = 0; i < namesElement.length; i++) {
+		var name = namesElement[i];
+		components[name] = element(name);
+	}
 
-			case "router":
-				{
-					components.router = router;
-					break;
-				}
-
-			case "timer":
-				{
-					components.timer = timer;
-					break;
-				}
-
-			case "httper":
-				{
-					components.httper = httper;
-					break;
-				}
-
-			default:
-				{
-					components[name] = element(name);
-				}
-		}
+	for (var _i = 0; _i < namesElementEmpty.length; _i++) {
+		var _name = namesElementEmpty[_i];
+		components[_name] = elementEmpty(_name);
 	}
 
 	/**
@@ -903,6 +802,7 @@
 	var index = {
 		main: main,
 		drivers: drivers,
+		wrappers: wrappers,
 		components: components,
 		event: event,
 		run: run,

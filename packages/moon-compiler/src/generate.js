@@ -56,13 +56,14 @@ export default function generate(tree) {
 
 		for (let i = 0; i < value.length; i++) {
 			const pair = value[i];
+			const pairKey = generate(pair[0]);
 			let pairValue = generate(pair[2]);
 
-			if (pairValue[0] === "[" && pairValue[1] === ".") {
+			if (pairKey[0] === "*") {
 				pairValue = `{value:"${pairValue}",get:function(m){return m${pairValue};},set:function(m,MoonValue){m${pairValue}=MoonValue;return m;}}`;
 			}
 
-			output += `${separator}"${generate(pair[0])}":${pairValue}${generate(pair[3])}`;
+			output += `${separator}"${pairKey}":${pairValue}${generate(pair[3])}`;
 			separator = ",";
 		}
 
@@ -95,7 +96,7 @@ export default function generate(tree) {
 		// Data nodes represent calling a function with either a custom data
 		// expression or an object using attribute syntax.
 		const value = tree.value;
-		const data = value[4];
+		const data = value[4][0];
 		const dataGenerated = generate(data);
 
 		return `${generate(value[1])}${generateName(value[2])}${generate(value[3])}(${
@@ -116,7 +117,7 @@ export default function generate(tree) {
 			let separator = "";
 			childrenGenerated = data.separator + "children:[";
 
-			for (let i = 0; i < childrenLength; i++) {
+			for (let i = 0; i < children.length; i++) {
 				const child = children[i];
 				const childGenerated = generate(child);
 
