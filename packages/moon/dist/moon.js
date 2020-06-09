@@ -284,6 +284,78 @@
 				}
 		}
 	}
+	/**
+	 * Patch a view node into a new view, using an old view as a reference.
+	 *
+	 * @param {object} viewNode
+	 * @param {object} viewOld
+	 * @param {object} viewNew
+	 */
+
+	function viewPatch(viewNode, viewOld, viewNew) {
+		if (viewOld !== viewNew) {
+			var viewNewName = viewNew.name;
+
+			if (viewOld.name !== viewNewName) {
+				viewNode.parentNode.replaceChild(viewNodeCreate(viewNew), viewNode);
+			} else {
+				var viewOldData = viewOld.data;
+				var viewOldChildren = viewOld.children;
+				var viewNewData = viewNew.data;
+				var viewNewChildren = viewNew.children;
+
+				if (viewOldData !== viewNewData) {
+					for (var key in viewNewData) {
+						if (key in viewOldData) {
+							var valueOld = viewOldData[key];
+							var valueNew = viewNewData[key];
+
+							if (valueOld !== valueNew) {
+								viewDataUpdate(viewNode, key, valueOld, valueNew);
+							}
+						} else {
+							viewDataCreate(viewNode, key, viewNewData[key]);
+						}
+					}
+
+					for (var _key in viewOldData) {
+						if (!(_key in viewNewData)) {
+							viewDataRemove(viewNode, viewNewName, viewOldData, _key);
+						}
+					}
+				}
+
+				if (viewOldChildren !== viewNewChildren) {
+					var viewNodeChildren = viewNode.MoonChildren;
+					var viewOldChildrenLength = viewOldChildren.length;
+					var viewNewChildrenLength = viewNewChildren.length;
+					var i = 0;
+
+					if (viewOldChildrenLength === viewNewChildrenLength) {
+						for (; i < viewOldChildrenLength; i++) {
+							viewPatch(viewNodeChildren[i], viewOldChildren[i], viewNewChildren[i]);
+						}
+					} else if (viewOldChildrenLength < viewNewChildrenLength) {
+						for (; i < viewOldChildrenLength; i++) {
+							viewPatch(viewNodeChildren[i], viewOldChildren[i], viewNewChildren[i]);
+						}
+
+						for (; i < viewNewChildrenLength; i++) {
+							viewNodeChildren.push(viewNode.appendChild(viewNodeCreate(viewNewChildren[i])));
+						}
+					} else {
+						for (; i < viewNewChildrenLength; i++) {
+							viewPatch(viewNodeChildren[i], viewOldChildren[i], viewNewChildren[i]);
+						}
+
+						for (; i < viewOldChildrenLength; i++) {
+							viewNode.removeChild(viewNodeChildren.pop());
+						}
+					}
+				}
+			}
+		}
+	}
 
 	/**
 	 * Root element
@@ -303,89 +375,8 @@
 			return root;
 		},
 		set: function set(view) {
-			var viewNodes = [rootNode];
-			var viewOlds = [root];
-			var viewNews = [view];
+			viewPatch(rootNode, root, view);
 			root = view;
-
-			while (true) {
-				var viewNode = viewNodes.pop();
-				var viewOld = viewOlds.pop();
-				var viewNew = viewNews.pop();
-
-				if (viewOld !== viewNew) {
-					var viewNewName = viewNew.name;
-
-					if (viewOld.name !== viewNewName) {
-						viewNode.parentNode.replaceChild(viewNodeCreate(viewNew), viewNode);
-					} else {
-						var viewOldData = viewOld.data;
-						var viewOldChildren = viewOld.children;
-						var viewNewData = viewNew.data;
-						var viewNewChildren = viewNew.children;
-
-						if (viewOldData !== viewNewData) {
-							for (var key in viewNewData) {
-								if (key in viewOldData) {
-									var valueOld = viewOldData[key];
-									var valueNew = viewNewData[key];
-
-									if (valueOld !== valueNew) {
-										viewDataUpdate(viewNode, key, valueOld, valueNew);
-									}
-								} else {
-									viewDataCreate(viewNode, key, viewNewData[key]);
-								}
-							}
-
-							for (var _key in viewOldData) {
-								if (!(_key in viewNewData)) {
-									viewDataRemove(viewNode, viewNewName, viewOldData, _key);
-								}
-							}
-						}
-
-						if (viewOldChildren !== viewNewChildren) {
-							var viewNodeChildren = viewNode.MoonChildren;
-							var viewOldChildrenLength = viewOldChildren.length;
-							var viewNewChildrenLength = viewNewChildren.length;
-							var i = 0;
-
-							if (viewOldChildrenLength === viewNewChildrenLength) {
-								for (; i < viewOldChildrenLength; i++) {
-									viewNodes.push(viewNodeChildren[i]);
-									viewOlds.push(viewOldChildren[i]);
-									viewNews.push(viewNewChildren[i]);
-								}
-							} else if (viewOldChildrenLength < viewNewChildrenLength) {
-								for (; i < viewOldChildrenLength; i++) {
-									viewNodes.push(viewNodeChildren[i]);
-									viewOlds.push(viewOldChildren[i]);
-									viewNews.push(viewNewChildren[i]);
-								}
-
-								for (; i < viewNewChildrenLength; i++) {
-									viewNodeChildren.push(viewNode.appendChild(viewNodeCreate(viewNewChildren[i])));
-								}
-							} else {
-								for (; i < viewNewChildrenLength; i++) {
-									viewNodes.push(viewNodeChildren[i]);
-									viewOlds.push(viewOldChildren[i]);
-									viewNews.push(viewNewChildren[i]);
-								}
-
-								for (; i < viewOldChildrenLength; i++) {
-									viewNode.removeChild(viewNodeChildren.pop());
-								}
-							}
-						}
-					}
-				}
-
-				if (viewOlds.length === 0) {
-					break;
-				}
-			}
 		}
 	};
 
@@ -594,7 +585,8 @@
 			viewNodeCreate: viewNodeCreate,
 			viewDataCreate: viewDataCreate,
 			viewDataUpdate: viewDataUpdate,
-			viewDataRemove: viewDataRemove
+			viewDataRemove: viewDataRemove,
+			viewPatch: viewPatch
 		},
 		http: {
 			httpEventsLoad: httpEventsLoad,
