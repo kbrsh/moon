@@ -15,8 +15,7 @@ export default function event(component) {
 			m[driver] = drivers[driver].get();
 		}
 
-		mSet(component(m));
-		mSet(componentMain(m));
+		mSet(componentMain(component(m)));
 
 		for (const driver in drivers) {
 			drivers[driver].set(m[driver]);

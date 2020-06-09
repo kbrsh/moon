@@ -49,8 +49,7 @@
 				m[driver] = drivers[driver].get();
 			}
 
-			mSet(component(m));
-			mSet(componentMain(m));
+			mSet(componentMain(component(m)));
 
 			for (var _driver in drivers) {
 				drivers[_driver].set(m[_driver]);
