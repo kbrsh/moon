@@ -76,63 +76,175 @@
 	 * Reference bind keys and events
 	 */
 
+	/*eslint-disable*/
+
 
 	var referenceProperties = {
 		audio: {
 			"*currentTime": {
 				key: "currentTime",
-				event: "timeupdate"
+				value: function value(get, viewNode, viewData) {
+					return get;
+				},
+				event: "timeupdate",
+				handler: function handler(set, viewNode, viewData) {
+					return event(function (m) {
+						return set(m, viewNode.currentTime);
+					});
+				}
 			},
 			"*muted": {
 				key: "muted",
-				event: "volumechange"
+				value: function value(get, viewNode, viewData) {
+					return get;
+				},
+				event: "volumechange",
+				handler: function handler(set, viewNode, viewData) {
+					return event(function (m) {
+						return set(m, viewNode.muted);
+					});
+				}
 			},
 			"*paused": {
 				key: "paused",
-				event: "pause"
+				value: function value(get, viewNode, viewData) {
+					return get;
+				},
+				event: "pause",
+				handler: function handler(set, viewNode, viewData) {
+					return event(function (m) {
+						return set(m, viewNode.paused);
+					});
+				}
 			},
 			"*playbackRate": {
 				key: "playbackRate",
-				event: "ratechange"
+				value: function value(get, viewNode, viewData) {
+					return get;
+				},
+				event: "ratechange",
+				handler: function handler(set, viewNode, viewData) {
+					return event(function (m) {
+						return set(m, viewNode.playbackRate);
+					});
+				}
 			},
 			"*volume": {
 				key: "volume",
-				event: "volumechange"
+				value: function value(get, viewNode, viewData) {
+					return get;
+				},
+				event: "volumechange",
+				handler: function handler(set, viewNode, viewData) {
+					return event(function (m) {
+						return set(m, viewNode.volume);
+					});
+				}
 			}
 		},
 		input: {
 			"*checked": {
 				key: "checked",
-				event: "change"
+				value: function value(get, viewNode, viewData) {
+					return get;
+				},
+				event: "change",
+				handler: function handler(set, viewNode, viewData) {
+					return event(function (m) {
+						return set(m, viewNode.checked);
+					});
+				}
+			},
+			"*radio": {
+				key: "checked",
+				value: function value(get, viewNode, viewData) {
+					return get === viewData.value;
+				},
+				event: "change",
+				handler: function handler(set, viewNode, viewData) {
+					return event(function (m) {
+						return set(m, viewData.value);
+					});
+				}
 			},
 			"*value": {
 				key: "value",
-				event: "input"
+				value: function value(get, viewNode, viewData) {
+					return get;
+				},
+				event: "input",
+				handler: function handler(set, viewNode, viewData) {
+					return event(function (m) {
+						return set(m, viewNode.value);
+					});
+				}
 			}
 		},
 		video: {
 			"*currentTime": {
 				key: "currentTime",
-				event: "timeupdate"
+				value: function value(get, viewNode, viewData) {
+					return get;
+				},
+				event: "timeupdate",
+				handler: function handler(set, viewNode, viewData) {
+					return event(function (m) {
+						return set(m, viewNode.currentTime);
+					});
+				}
 			},
 			"*muted": {
 				key: "muted",
-				event: "volumechange"
+				value: function value(get, viewNode, viewData) {
+					return get;
+				},
+				event: "volumechange",
+				handler: function handler(set, viewNode, viewData) {
+					return event(function (m) {
+						return set(m, viewNode.muted);
+					});
+				}
 			},
 			"*paused": {
 				key: "paused",
-				event: "pause"
+				value: function value(get, viewNode, viewData) {
+					return get;
+				},
+				event: "pause",
+				handler: function handler(set, viewNode, viewData) {
+					return event(function (m) {
+						return set(m, viewNode.paused);
+					});
+				}
 			},
 			"*playbackRate": {
 				key: "playbackRate",
-				event: "ratechange"
+				value: function value(get, viewNode, viewData) {
+					return get;
+				},
+				event: "ratechange",
+				handler: function handler(set, viewNode, viewData) {
+					return event(function (m) {
+						return set(m, viewNode.playbackRate);
+					});
+				}
 			},
 			"*volume": {
 				key: "volume",
-				event: "volumechange"
+				value: function value(get, viewNode, viewData) {
+					return get;
+				},
+				event: "volumechange",
+				handler: function handler(set, viewNode, viewData) {
+					return event(function (m) {
+						return set(m, viewNode.volume);
+					});
+				}
 			}
 		}
 	};
+	/*eslint-enable*/
+
 	/**
 	 * View Data Property Defaults
 	 */
@@ -149,23 +261,8 @@
 		this.references = references;
 	}
 	/**
-	 * Create a reference event handler.
-	 *
-	 * @param {function} set
-	 * @param {object} viewNode
-	 * @param {string} key
-	 * @returns {function} event handler
-	 */
-
-	function referenceHandler(set, viewNode, key) {
-		return event(function (m) {
-			return set(m, viewNode[key]);
-		});
-	}
-	/**
 	 * Get the default data property value for a key of a view.
 	 */
-
 
 	function viewDataDefault(viewName, key) {
 		return (viewName in viewDataDefaults ? viewDataDefaults[viewName] : viewDataDefaults[viewName] = viewName === "text" ? document.createTextNode("") : document.createElement(viewName))[key];
@@ -192,7 +289,7 @@
 			var viewReferences = view.references;
 
 			for (var key in viewData) {
-				viewDataCreate(viewNode, viewName, viewReferences, key, viewData[key]);
+				viewDataCreate(viewNode, viewName, viewData, viewReferences, key, viewData[key]);
 			}
 
 			for (var i = 0; i < viewChildren.length; i++) {
@@ -207,12 +304,13 @@
 	 *
 	 * @param {object} viewNode
 	 * @param {string} viewName
+	 * @param {object} viewData
 	 * @param {object} viewReferences
 	 * @param {string} key
 	 * @param {any} value
 	 */
 
-	function viewDataCreate(viewNode, viewName, viewReferences, key, value) {
+	function viewDataCreate(viewNode, viewName, viewData, viewReferences, key, value) {
 		switch (key) {
 			case "attributes":
 				{
@@ -256,7 +354,6 @@
 					if (keyFirst === "*") {
 						var reference = viewReferences[key];
 						var referenceProperty = referenceProperties[viewName][key];
-						var referenceKey = referenceProperty.key;
 						var referenceEvent = referenceProperty.event;
 						var viewNodeReferenceEvents = viewNode.MoonReferenceEvents;
 
@@ -264,8 +361,8 @@
 							viewNodeReferenceEvents = viewNode.MoonReferenceEvents = new MoonReferenceEvents();
 						}
 
-						viewNode[referenceKey] = reference.get;
-						viewNodeReferenceEvents[referenceEvent] = referenceHandler(reference.set, viewNode, referenceKey);
+						viewNode[referenceProperty.key] = referenceProperty.value(reference.get, viewNode, viewData);
+						viewNodeReferenceEvents[referenceEvent] = referenceProperty.handler(reference.set, viewNode, viewData);
 						viewNode.addEventListener(referenceEvent, viewNodeReferenceEvents);
 					} else if (keyFirst === "o" && key[1] === "n") {
 						viewNode[key.toLowerCase()] = event(value);
@@ -280,13 +377,14 @@
 	 *
 	 * @param {object} viewNode
 	 * @param {string} viewName
+	 * @param {object} viewData
 	 * @param {object} viewReferences
 	 * @param {string} key
 	 * @param {any} valueOld
 	 * @param {any} valueNew
 	 */
 
-	function viewDataUpdate(viewNode, viewName, viewReferences, key, valueOld, valueNew) {
+	function viewDataUpdate(viewNode, viewName, viewData, viewReferences, key, valueOld, valueNew) {
 		switch (key) {
 			case "attributes":
 				{
@@ -350,11 +448,10 @@
 					if (keyFirst === "*") {
 						var reference = viewReferences[key];
 						var referenceProperty = referenceProperties[viewName][key];
-						var referenceKey = referenceProperty.key;
-						viewNode[referenceKey] = reference.get;
+						viewNode[referenceProperty.key] = referenceProperty.value(reference.get, viewNode, viewData);
 
 						if (valueOld.value !== valueNew.value) {
-							viewNode.MoonReferenceEvents[referenceProperty.event] = referenceHandler(reference.set, viewNode, referenceKey);
+							viewNode.MoonReferenceEvents[referenceProperty.event] = referenceProperty.handler(reference.set, viewNode, viewData);
 						}
 					} else if (keyFirst === "o" && key[1] === "n") {
 						viewNode[key.toLowerCase()] = event(valueNew);
@@ -450,10 +547,10 @@
 							var valueNew = viewNewData[key];
 
 							if (valueOld !== valueNew) {
-								viewDataUpdate(viewNode, viewNewName, viewNewReferences, key, valueOld, valueNew);
+								viewDataUpdate(viewNode, viewNewName, viewNewData, viewNewReferences, key, valueOld, valueNew);
 							}
 						} else {
-							viewDataCreate(viewNode, viewNewName, viewNewReferences, key, viewNewData[key]);
+							viewDataCreate(viewNode, viewNewName, viewNewData, viewNewReferences, key, viewNewData[key]);
 						}
 					}
 

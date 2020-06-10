@@ -18,62 +18,94 @@ MoonReferenceEvents.prototype.handleEvent = function(event) {
 /**
  * Reference bind keys and events
  */
+/*eslint-disable*/
 const referenceProperties = {
 	audio: {
 		"*currentTime": {
 			key: "currentTime",
-			event: "timeupdate"
+			value: (get, viewNode, viewData) => get,
+			event: "timeupdate",
+			handler: (set, viewNode, viewData) => event(m => set(m, viewNode.currentTime))
 		},
 		"*muted": {
 			key: "muted",
-			event: "volumechange"
+			value: (get, viewNode, viewData) => get,
+			event: "volumechange",
+			handler: (set, viewNode, viewData) => event(m => set(m, viewNode.muted))
 		},
 		"*paused": {
 			key: "paused",
-			event: "pause"
+			value: (get, viewNode, viewData) => get,
+			event: "pause",
+			handler: (set, viewNode, viewData) => event(m => set(m, viewNode.paused))
 		},
 		"*playbackRate": {
 			key: "playbackRate",
-			event: "ratechange"
+			value: (get, viewNode, viewData) => get,
+			event: "ratechange",
+			handler: (set, viewNode, viewData) => event(m => set(m, viewNode.playbackRate))
 		},
 		"*volume": {
 			key: "volume",
-			event: "volumechange"
+			value: (get, viewNode, viewData) => get,
+			event: "volumechange",
+			handler: (set, viewNode, viewData) => event(m => set(m, viewNode.volume))
 		}
 	},
 	input: {
 		"*checked": {
 			key: "checked",
-			event: "change"
+			value: (get, viewNode, viewData) => get,
+			event: "change",
+			handler: (set, viewNode, viewData) => event(m => set(m, viewNode.checked))
+		},
+		"*radio": {
+			key: "checked",
+			value: (get, viewNode, viewData) => get === viewData.value,
+			event: "change",
+			handler: (set, viewNode, viewData) => event(m => set(m, viewData.value))
 		},
 		"*value": {
 			key: "value",
-			event: "input"
+			value: (get, viewNode, viewData) => get,
+			event: "input",
+			handler: (set, viewNode, viewData) => event(m => set(m, viewNode.value))
 		}
 	},
 	video: {
 		"*currentTime": {
 			key: "currentTime",
-			event: "timeupdate"
+			value: (get, viewNode, viewData) => get,
+			event: "timeupdate",
+			handler: (set, viewNode, viewData) => event(m => set(m, viewNode.currentTime))
 		},
 		"*muted": {
 			key: "muted",
-			event: "volumechange"
+			value: (get, viewNode, viewData) => get,
+			event: "volumechange",
+			handler: (set, viewNode, viewData) => event(m => set(m, viewNode.muted))
 		},
 		"*paused": {
 			key: "paused",
-			event: "pause"
+			value: (get, viewNode, viewData) => get,
+			event: "pause",
+			handler: (set, viewNode, viewData) => event(m => set(m, viewNode.paused))
 		},
 		"*playbackRate": {
 			key: "playbackRate",
-			event: "ratechange"
+			value: (get, viewNode, viewData) => get,
+			event: "ratechange",
+			handler: (set, viewNode, viewData) => event(m => set(m, viewNode.playbackRate))
 		},
 		"*volume": {
 			key: "volume",
-			event: "volumechange"
+			value: (get, viewNode, viewData) => get,
+			event: "volumechange",
+			handler: (set, viewNode, viewData) => event(m => set(m, viewNode.volume))
 		}
 	}
 };
+/*eslint-enable*/
 
 /**
  * View Data Property Defaults
@@ -88,18 +120,6 @@ export function View(name, data, children, references) {
 	this.data = data;
 	this.children = children;
 	this.references = references;
-}
-
-/**
- * Create a reference event handler.
- *
- * @param {function} set
- * @param {object} viewNode
- * @param {string} key
- * @returns {function} event handler
- */
-function referenceHandler(set, viewNode, key) {
-	return event(m => set(m, viewNode[key]));
 }
 
 /**
@@ -138,7 +158,7 @@ export function viewNodeCreate(view) {
 		const viewReferences = view.references;
 
 		for (const key in viewData) {
-			viewDataCreate(viewNode, viewName, viewReferences, key, viewData[key]);
+			viewDataCreate(viewNode, viewName, viewData, viewReferences, key, viewData[key]);
 		}
 
 		for (let i = 0; i < viewChildren.length; i++) {
@@ -154,11 +174,12 @@ export function viewNodeCreate(view) {
  *
  * @param {object} viewNode
  * @param {string} viewName
+ * @param {object} viewData
  * @param {object} viewReferences
  * @param {string} key
  * @param {any} value
  */
-export function viewDataCreate(viewNode, viewName, viewReferences, key, value) {
+export function viewDataCreate(viewNode, viewName, viewData, viewReferences, key, value) {
 	switch (key) {
 		case "attributes": {
 			for (const keyAttribute in value) {
@@ -193,7 +214,6 @@ export function viewDataCreate(viewNode, viewName, viewReferences, key, value) {
 			if (keyFirst === "*") {
 				const reference = viewReferences[key];
 				const referenceProperty = referenceProperties[viewName][key];
-				const referenceKey = referenceProperty.key;
 				const referenceEvent = referenceProperty.event;
 				let viewNodeReferenceEvents = viewNode.MoonReferenceEvents;
 
@@ -201,8 +221,8 @@ export function viewDataCreate(viewNode, viewName, viewReferences, key, value) {
 					viewNodeReferenceEvents = viewNode.MoonReferenceEvents = new MoonReferenceEvents();
 				}
 
-				viewNode[referenceKey] = reference.get;
-				viewNodeReferenceEvents[referenceEvent] = referenceHandler(reference.set, viewNode, referenceKey);
+				viewNode[referenceProperty.key] = referenceProperty.value(reference.get, viewNode, viewData);
+				viewNodeReferenceEvents[referenceEvent] = referenceProperty.handler(reference.set, viewNode, viewData);
 				viewNode.addEventListener(referenceEvent, viewNodeReferenceEvents);
 			} else if (keyFirst === "o" && key[1] === "n") {
 				viewNode[key.toLowerCase()] = event(value);
@@ -218,12 +238,13 @@ export function viewDataCreate(viewNode, viewName, viewReferences, key, value) {
  *
  * @param {object} viewNode
  * @param {string} viewName
+ * @param {object} viewData
  * @param {object} viewReferences
  * @param {string} key
  * @param {any} valueOld
  * @param {any} valueNew
  */
-export function viewDataUpdate(viewNode, viewName, viewReferences, key, valueOld, valueNew) {
+export function viewDataUpdate(viewNode, viewName, viewData, viewReferences, key, valueOld, valueNew) {
 	switch (key) {
 		case "attributes": {
 			for (const keyAttribute in valueNew) {
@@ -278,11 +299,10 @@ export function viewDataUpdate(viewNode, viewName, viewReferences, key, valueOld
 			if (keyFirst === "*") {
 				const reference = viewReferences[key];
 				const referenceProperty = referenceProperties[viewName][key];
-				const referenceKey = referenceProperty.key;
-				viewNode[referenceKey] = reference.get;
+				viewNode[referenceProperty.key] = referenceProperty.value(reference.get, viewNode, viewData);
 
 				if (valueOld.value !== valueNew.value) {
-					viewNode.MoonReferenceEvents[referenceProperty.event] = referenceHandler(reference.set, viewNode, referenceKey);
+					viewNode.MoonReferenceEvents[referenceProperty.event] = referenceProperty.handler(reference.set, viewNode, viewData);
 				}
 			} else if (keyFirst === "o" && key[1] === "n") {
 				viewNode[key.toLowerCase()] = event(valueNew);
@@ -373,10 +393,10 @@ export function viewPatch(viewNode, viewOld, viewNew, index) {
 						const valueNew = viewNewData[key];
 
 						if (valueOld !== valueNew) {
-							viewDataUpdate(viewNode, viewNewName, viewNewReferences, key, valueOld, valueNew);
+							viewDataUpdate(viewNode, viewNewName, viewNewData, viewNewReferences, key, valueOld, valueNew);
 						}
 					} else {
-						viewDataCreate(viewNode, viewNewName, viewNewReferences, key, viewNewData[key]);
+						viewDataCreate(viewNode, viewNewName, viewNewData, viewNewReferences, key, viewNewData[key]);
 					}
 				}
 
