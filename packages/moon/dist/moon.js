@@ -64,25 +64,118 @@
 	Node.prototype.MoonChildren = null;
 	Node.prototype.MoonReferenceEvents = null;
 	/**
-	 * View Data Property Defaults
+	 * Reference event manager
 	 */
 
+	function MoonReferenceEvents() {}
+
+	MoonReferenceEvents.prototype.handleEvent = function (event) {
+		this[event.type]();
+	};
+	/**
+	 * Reference bind keys and events
+	 */
+
+
+	var referenceProperties = {
+		audio: {
+			"*currentTime": {
+				key: "currentTime",
+				event: "timeupdate"
+			},
+			"*muted": {
+				key: "muted",
+				event: "volumechange"
+			},
+			"*paused": {
+				key: "paused",
+				event: "pause"
+			},
+			"*playbackRate": {
+				key: "playbackRate",
+				event: "ratechange"
+			},
+			"*volume": {
+				key: "volume",
+				event: "volumechange"
+			}
+		},
+		input: {
+			"*checked": {
+				key: "checked",
+				event: "change"
+			},
+			"*value": {
+				key: "value",
+				event: "input"
+			}
+		},
+		video: {
+			"*currentTime": {
+				key: "currentTime",
+				event: "timeupdate"
+			},
+			"*muted": {
+				key: "muted",
+				event: "volumechange"
+			},
+			"*paused": {
+				key: "paused",
+				event: "pause"
+			},
+			"*playbackRate": {
+				key: "playbackRate",
+				event: "ratechange"
+			},
+			"*volume": {
+				key: "volume",
+				event: "volumechange"
+			}
+		}
+	};
+	/**
+	 * View Data Property Defaults
+	 */
 
 	var viewDataDefaults = {};
 	/**
 	 * View constructor
 	 */
 
-	function View(name, data, children) {
+	function View(name, data, children, references) {
 		this.name = name;
 		this.data = data;
 		this.children = children;
+		this.references = references;
+	}
+	/**
+	 * Create a reference event handler.
+	 *
+	 * @param {function} set
+	 * @param {object} viewNode
+	 * @param {string} key
+	 * @returns {function} event handler
+	 */
+
+	function referenceHandler(set, viewNode, key) {
+		return event(function (m) {
+			return set(m, viewNode[key]);
+		});
+	}
+	/**
+	 * Get the default data property value for a key of a view.
+	 */
+
+
+	function viewDataDefault(viewName, key) {
+		return (viewName in viewDataDefaults ? viewDataDefaults[viewName] : viewDataDefaults[viewName] = viewName === "text" ? document.createTextNode("") : document.createElement(viewName))[key];
 	}
 	/**
 	 * Create a view node.
 	 *
 	 * @param {object} view
 	 */
+
 
 	function viewNodeCreate(view) {
 		var viewName = view.name;
@@ -92,13 +185,14 @@
 			viewNode = document.createTextNode(view.data.data);
 			viewNode.MoonChildren = [];
 		} else {
-			var viewData = view.data;
-			var viewChildren = view.children;
 			viewNode = document.createElement(viewName);
 			var viewNodeChildren = viewNode.MoonChildren = [];
+			var viewData = view.data;
+			var viewChildren = view.children;
+			var viewReferences = view.references;
 
 			for (var key in viewData) {
-				viewDataCreate(viewNode, key, viewData[key]);
+				viewDataCreate(viewNode, viewName, viewReferences, key, viewData[key]);
 			}
 
 			for (var i = 0; i < viewChildren.length; i++) {
@@ -112,11 +206,13 @@
 	 * Create a data property.
 	 *
 	 * @param {object} viewNode
+	 * @param {string} viewName
+	 * @param {object} viewReferences
 	 * @param {string} key
 	 * @param {any} value
 	 */
 
-	function viewDataCreate(viewNode, key, value) {
+	function viewDataCreate(viewNode, viewName, viewReferences, key, value) {
 		switch (key) {
 			case "attributes":
 				{
@@ -155,7 +251,23 @@
 
 			default:
 				{
-					if (key[0] === "o" && key[1] === "n") {
+					var keyFirst = key[0];
+
+					if (keyFirst === "*") {
+						var reference = viewReferences[key];
+						var referenceProperty = referenceProperties[viewName][key];
+						var referenceKey = referenceProperty.key;
+						var referenceEvent = referenceProperty.event;
+						var viewNodeReferenceEvents = viewNode.MoonReferenceEvents;
+
+						if (viewNodeReferenceEvents === null) {
+							viewNodeReferenceEvents = viewNode.MoonReferenceEvents = new MoonReferenceEvents();
+						}
+
+						viewNode[referenceKey] = reference.get;
+						viewNodeReferenceEvents[referenceEvent] = referenceHandler(reference.set, viewNode, referenceKey);
+						viewNode.addEventListener(referenceEvent, viewNodeReferenceEvents);
+					} else if (keyFirst === "o" && key[1] === "n") {
 						viewNode[key.toLowerCase()] = event(value);
 					} else {
 						viewNode[key] = value;
@@ -167,12 +279,14 @@
 	 * Update a data property.
 	 *
 	 * @param {object} viewNode
+	 * @param {string} viewName
+	 * @param {object} viewReferences
 	 * @param {string} key
 	 * @param {any} valueOld
 	 * @param {any} valueNew
 	 */
 
-	function viewDataUpdate(viewNode, key, valueOld, valueNew) {
+	function viewDataUpdate(viewNode, viewName, viewReferences, key, valueOld, valueNew) {
 		switch (key) {
 			case "attributes":
 				{
@@ -231,7 +345,18 @@
 
 			default:
 				{
-					if (key[0] === "o" && key[1] === "n") {
+					var keyFirst = key[0];
+
+					if (keyFirst === "*") {
+						var reference = viewReferences[key];
+						var referenceProperty = referenceProperties[viewName][key];
+						var referenceKey = referenceProperty.key;
+						viewNode[referenceKey] = reference.get;
+
+						if (valueOld.value !== valueNew.value) {
+							viewNode.MoonReferenceEvents[referenceProperty.event] = referenceHandler(reference.set, viewNode, referenceKey);
+						}
+					} else if (keyFirst === "o" && key[1] === "n") {
 						viewNode[key.toLowerCase()] = event(valueNew);
 					} else {
 						viewNode[key] = valueNew;
@@ -276,10 +401,20 @@
 
 			default:
 				{
-					if (key[0] === "o" && key[1] === "n") {
+					var keyFirst = key[0];
+
+					if (keyFirst === "*") {
+						var referenceProperty = referenceProperties[viewName][key];
+						var referenceKey = referenceProperty.key;
+						var referenceEvent = referenceProperty.event;
+						var viewNodeReferenceEvents = viewNode.MoonReferenceEvents;
+						viewNode[referenceKey] = viewDataDefault(viewName, referenceKey);
+						viewNodeReferenceEvents[referenceEvent] = null;
+						viewNode.removeEventListener(referenceEvent, viewNodeReferenceEvents);
+					} else if (keyFirst === "o" && key[1] === "n") {
 						viewNode[key.toLowerCase()] = null;
 					} else {
-						viewNode[key] = (viewName in viewDataDefaults ? viewDataDefaults[viewName] : viewDataDefaults[viewName] = viewName === "text" ? document.createTextNode("") : document.createElement(viewName))[key];
+						viewNode[key] = viewDataDefault(viewName, key);
 					}
 				}
 		}
@@ -307,16 +442,18 @@
 				var viewNewChildren = viewNew.children;
 
 				if (viewOldData !== viewNewData) {
+					var viewNewReferences = viewNew.references;
+
 					for (var key in viewNewData) {
 						if (key in viewOldData) {
 							var valueOld = viewOldData[key];
 							var valueNew = viewNewData[key];
 
 							if (valueOld !== valueNew) {
-								viewDataUpdate(viewNode, key, valueOld, valueNew);
+								viewDataUpdate(viewNode, viewNewName, viewNewReferences, key, valueOld, valueNew);
 							}
 						} else {
-							viewDataCreate(viewNode, key, viewNewData[key]);
+							viewDataCreate(viewNode, viewNewName, viewNewReferences, key, viewNewData[key]);
 						}
 					}
 
@@ -365,7 +502,7 @@
 
 	var root = new View("div", {
 		id: "moon-root"
-	}, []);
+	}, [], {});
 	var rootNode = document.getElementById("moon-root");
 	rootNode.MoonChildren = [];
 	/**
@@ -603,6 +740,11 @@
 
 	var childrenEmpty = [];
 	/**
+	 * Empty references
+	 */
+
+	var referencesEmpty = {};
+	/**
 	 * Element component
 	 */
 
@@ -623,7 +765,7 @@
 					children = childrenEmpty;
 				}
 
-				m.view = new View(name, data, children);
+				m.view = new View(name, data, children, referencesEmpty);
 				return m;
 			};
 		};
@@ -635,7 +777,32 @@
 	function elementEmpty(name) {
 		return function (data) {
 			return function (m) {
-				m.view = new View(name, data, childrenEmpty);
+				m.view = new View(name, data, childrenEmpty, referencesEmpty);
+				return m;
+			};
+		};
+	}
+	/**
+	 * References element component
+	 */
+
+	function elementReferences(name) {
+		return function (data) {
+			return function (m) {
+				var references = {};
+
+				for (var key in data) {
+					if (key[0] === "*") {
+						var value = data[key];
+						references[key] = {
+							value: value.value,
+							get: value.get(m),
+							set: value.set
+						};
+					}
+				}
+
+				m.view = new View(name, data, childrenEmpty, references);
 				return m;
 			};
 		};
@@ -736,12 +903,17 @@
 	 * HTML element names
 	 */
 
-	var namesElement = ["a", "abbr", "acronym", "address", "applet", "article", "aside", "audio", "b", "basefont", "bdi", "bdo", "bgsound", "big", "blink", "blockquote", "body", "button", "canvas", "caption", "center", "cite", "code", "colgroup", "command", "content", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "dir", "div", "dl", "dt", "element", "em", "fieldset", "figcaption", "figure", "font", "footer", "form", "frame", "frameset", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "html", "i", "iframe", "image", "ins", "isindex", "kbd", "label", "legend", "li", "listing", "main", "map", "mark", "marquee", "math", "menu", "menuitem", "meter", "multicol", "nav", "nextid", "nobr", "noembed", "noframes", "noscript", "object", "ol", "optgroup", "option", "output", "p", "picture", "plaintext", "pre", "progress", "q", "rb", "rbc", "rp", "rt", "rtc", "ruby", "s", "samp", "script", "section", "select", "shadow", "slot", "small", "spacer", "span", "strike", "strong", "style", "sub", "summary", "sup", "svg", "table", "tbody", "td", "template", "textarea", "tfoot", "th", "thead", "time", "title", "tr", "tt", "u", "ul", "var", "video", "xmp"];
+	var namesElement = ["a", "abbr", "acronym", "address", "applet", "article", "aside", "b", "basefont", "bdi", "bdo", "bgsound", "big", "blink", "blockquote", "body", "button", "canvas", "caption", "center", "cite", "code", "colgroup", "command", "content", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "dir", "div", "dl", "dt", "element", "em", "fieldset", "figcaption", "figure", "font", "footer", "form", "frame", "frameset", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "html", "i", "iframe", "image", "ins", "isindex", "kbd", "label", "legend", "li", "listing", "main", "map", "mark", "marquee", "math", "menu", "menuitem", "meter", "multicol", "nav", "nextid", "nobr", "noembed", "noframes", "noscript", "object", "ol", "optgroup", "option", "output", "p", "picture", "plaintext", "pre", "progress", "q", "rb", "rbc", "rp", "rt", "rtc", "ruby", "s", "samp", "script", "section", "select", "shadow", "slot", "small", "spacer", "span", "strike", "strong", "style", "sub", "summary", "sup", "svg", "table", "tbody", "td", "template", "textarea", "tfoot", "th", "thead", "time", "title", "tr", "tt", "u", "ul", "var", "xmp"];
 	/**
 	 * Empty HTML element names
 	 */
 
-	var namesElementEmpty = ["area", "base", "br", "col", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "text", "track", "wbr"];
+	var namesElementEmpty = ["area", "base", "br", "col", "embed", "hr", "img", "keygen", "link", "meta", "param", "source", "text", "track", "wbr"];
+	/**
+	 * HTML element with references names
+	 */
+
+	var namesElementReferences = ["audio", "input", "video"];
 
 	var components = {
 		root: root$2,
@@ -758,6 +930,11 @@
 	for (var _i = 0; _i < namesElementEmpty.length; _i++) {
 		var _name = namesElementEmpty[_i];
 		components[_name] = elementEmpty(_name);
+	}
+
+	for (var _i2 = 0; _i2 < namesElementReferences.length; _i2++) {
+		var _name2 = namesElementReferences[_i2];
+		components[_name2] = elementReferences(_name2);
 	}
 
 	/**

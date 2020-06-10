@@ -16,6 +16,81 @@ MoonReferenceEvents.prototype.handleEvent = function(event) {
 };
 
 /**
+ * Reference bind keys and events
+ */
+const referenceProperties = {
+	audio: {
+		"*currentTime": {
+			key: "currentTime",
+			event: "timeupdate"
+		},
+		"*muted": {
+			key: "muted",
+			event: "volumechange"
+		},
+		"*paused": {
+			key: "paused",
+			event: "pause"
+		},
+		"*playbackRate": {
+			key: "playbackRate",
+			event: "ratechange"
+		},
+		"*volume": {
+			key: "volume",
+			event: "volumechange"
+		}
+	},
+	input: {
+		"*checked": {
+			key: "checked",
+			event: "change"
+		},
+		"*value": {
+			key: "value",
+			event: "input"
+		}
+	},
+	video: {
+		"*currentTime": {
+			key: "currentTime",
+			event: "timeupdate"
+		},
+		"*muted": {
+			key: "muted",
+			event: "volumechange"
+		},
+		"*paused": {
+			key: "paused",
+			event: "pause"
+		},
+		"*playbackRate": {
+			key: "playbackRate",
+			event: "ratechange"
+		},
+		"*volume": {
+			key: "volume",
+			event: "volumechange"
+		}
+	}
+};
+
+/**
+ * View Data Property Defaults
+ */
+const viewDataDefaults = {};
+
+/**
+ * View constructor
+ */
+export function View(name, data, children, references) {
+	this.name = name;
+	this.data = data;
+	this.children = children;
+	this.references = references;
+}
+
+/**
  * Create a reference event handler.
  *
  * @param {function} set
@@ -28,17 +103,19 @@ function referenceHandler(set, viewNode, key) {
 }
 
 /**
- * View Data Property Defaults
+ * Get the default data property value for a key of a view.
  */
-const viewDataDefaults = {};
-
-/**
- * View constructor
- */
-export function View(name, data, children) {
-	this.name = name;
-	this.data = data;
-	this.children = children;
+function viewDataDefault(viewName, key) {
+	return (
+		viewName in viewDataDefaults ?
+			viewDataDefaults[viewName] :
+			(
+				viewDataDefaults[viewName] =
+					viewName === "text" ?
+						document.createTextNode("") :
+						document.createElement(viewName)
+			)
+	)[key];
 }
 
 /**
@@ -54,13 +131,14 @@ export function viewNodeCreate(view) {
 		viewNode = document.createTextNode(view.data.data);
 		viewNode.MoonChildren = [];
 	} else {
-		const viewData = view.data;
-		const viewChildren = view.children;
 		viewNode = document.createElement(viewName);
 		const viewNodeChildren = viewNode.MoonChildren = [];
+		const viewData = view.data;
+		const viewChildren = view.children;
+		const viewReferences = view.references;
 
 		for (const key in viewData) {
-			viewDataCreate(viewNode, key, viewData[key]);
+			viewDataCreate(viewNode, viewName, viewReferences, key, viewData[key]);
 		}
 
 		for (let i = 0; i < viewChildren.length; i++) {
@@ -75,10 +153,12 @@ export function viewNodeCreate(view) {
  * Create a data property.
  *
  * @param {object} viewNode
+ * @param {string} viewName
+ * @param {object} viewReferences
  * @param {string} key
  * @param {any} value
  */
-export function viewDataCreate(viewNode, key, value) {
+export function viewDataCreate(viewNode, viewName, viewReferences, key, value) {
 	switch (key) {
 		case "attributes": {
 			for (const keyAttribute in value) {
@@ -108,7 +188,23 @@ export function viewDataCreate(viewNode, key, value) {
 		}
 		case "children": break;
 		default: {
-			if (key[0] === "o" && key[1] === "n") {
+			const keyFirst = key[0];
+
+			if (keyFirst === "*") {
+				const reference = viewReferences[key];
+				const referenceProperty = referenceProperties[viewName][key];
+				const referenceKey = referenceProperty.key;
+				const referenceEvent = referenceProperty.event;
+				let viewNodeReferenceEvents = viewNode.MoonReferenceEvents;
+
+				if (viewNodeReferenceEvents === null) {
+					viewNodeReferenceEvents = viewNode.MoonReferenceEvents = new MoonReferenceEvents();
+				}
+
+				viewNode[referenceKey] = reference.get;
+				viewNodeReferenceEvents[referenceEvent] = referenceHandler(reference.set, viewNode, referenceKey);
+				viewNode.addEventListener(referenceEvent, viewNodeReferenceEvents);
+			} else if (keyFirst === "o" && key[1] === "n") {
 				viewNode[key.toLowerCase()] = event(value);
 			} else {
 				viewNode[key] = value;
@@ -121,11 +217,13 @@ export function viewDataCreate(viewNode, key, value) {
  * Update a data property.
  *
  * @param {object} viewNode
+ * @param {string} viewName
+ * @param {object} viewReferences
  * @param {string} key
  * @param {any} valueOld
  * @param {any} valueNew
  */
-export function viewDataUpdate(viewNode, key, valueOld, valueNew) {
+export function viewDataUpdate(viewNode, viewName, viewReferences, key, valueOld, valueNew) {
 	switch (key) {
 		case "attributes": {
 			for (const keyAttribute in valueNew) {
@@ -175,7 +273,18 @@ export function viewDataUpdate(viewNode, key, valueOld, valueNew) {
 		}
 		case "children": break;
 		default: {
-			if (key[0] === "o" && key[1] === "n") {
+			const keyFirst = key[0];
+
+			if (keyFirst === "*") {
+				const reference = viewReferences[key];
+				const referenceProperty = referenceProperties[viewName][key];
+				const referenceKey = referenceProperty.key;
+				viewNode[referenceKey] = reference.get;
+
+				if (valueOld.value !== valueNew.value) {
+					viewNode.MoonReferenceEvents[referenceProperty.event] = referenceHandler(reference.set, viewNode, referenceKey);
+				}
+			} else if (keyFirst === "o" && key[1] === "n") {
 				viewNode[key.toLowerCase()] = event(valueNew);
 			} else {
 				viewNode[key] = valueNew;
@@ -213,19 +322,21 @@ export function viewDataRemove(viewNode, viewName, viewData, key) {
 		}
 		case "children": break;
 		default: {
-			if (key[0] === "o" && key[1] === "n") {
+			const keyFirst = key[0];
+
+			if (keyFirst === "*") {
+				const referenceProperty = referenceProperties[viewName][key];
+				const referenceKey = referenceProperty.key;
+				const referenceEvent = referenceProperty.event;
+				const viewNodeReferenceEvents = viewNode.MoonReferenceEvents;
+
+				viewNode[referenceKey] = viewDataDefault(viewName, referenceKey);
+				viewNodeReferenceEvents[referenceEvent] = null;
+				viewNode.removeEventListener(referenceEvent, viewNodeReferenceEvents);
+			} else if (keyFirst === "o" && key[1] === "n") {
 				viewNode[key.toLowerCase()] = null;
 			} else {
-				viewNode[key] = (
-					viewName in viewDataDefaults ?
-						viewDataDefaults[viewName] :
-						(
-							viewDataDefaults[viewName] =
-								viewName === "text" ?
-									document.createTextNode("") :
-									document.createElement(viewName)
-						)
-				)[key];
+				viewNode[key] = viewDataDefault(viewName, key);
 			}
 		}
 	}
@@ -254,16 +365,18 @@ export function viewPatch(viewNode, viewOld, viewNew, index) {
 			const viewNewChildren = viewNew.children;
 
 			if (viewOldData !== viewNewData) {
+				const viewNewReferences = viewNew.references;
+
 				for (const key in viewNewData) {
 					if (key in viewOldData) {
 						const valueOld = viewOldData[key];
 						const valueNew = viewNewData[key];
 
 						if (valueOld !== valueNew) {
-							viewDataUpdate(viewNode, key, valueOld, valueNew);
+							viewDataUpdate(viewNode, viewNewName, viewNewReferences, key, valueOld, valueNew);
 						}
 					} else {
-						viewDataCreate(viewNode, key, viewNewData[key]);
+						viewDataCreate(viewNode, viewNewName, viewNewReferences, key, viewNewData[key]);
 					}
 				}
 

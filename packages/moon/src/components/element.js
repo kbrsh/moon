@@ -1,21 +1,14 @@
 import { View } from "moon/src/wrappers/view";
 
 /**
- * Reference bind events
- */
-const references = {
-	input: {
-		"*value": {
-			key: "value",
-			event: "input"
-		}
-	}
-};
-
-/**
  * Empty children
  */
 const childrenEmpty = [];
+
+/**
+ * Empty references
+ */
+const referencesEmpty = {};
 
 /**
  * Element component
@@ -36,7 +29,7 @@ export function element(name) {
 			children = childrenEmpty;
 		}
 
-		m.view = new View(name, data, children);
+		m.view = new View(name, data, children, referencesEmpty);
 
 		return m;
 	};
@@ -47,7 +40,32 @@ export function element(name) {
  */
 export function elementEmpty(name) {
 	return data => m => {
-		m.view = new View(name, data, childrenEmpty);
+		m.view = new View(name, data, childrenEmpty, referencesEmpty);
+
+		return m;
+	};
+}
+
+/**
+ * References element component
+ */
+export function elementReferences(name) {
+	return data => m => {
+		const references = {};
+
+		for (const key in data) {
+			if (key[0] === "*") {
+				const value = data[key];
+
+				references[key] = {
+					value: value.value,
+					get: value.get(m),
+					set: value.set
+				};
+			}
+		}
+
+		m.view = new View(name, data, childrenEmpty, references);
 
 		return m;
 	};

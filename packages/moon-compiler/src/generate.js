@@ -57,13 +57,17 @@ export default function generate(tree) {
 		for (let i = 0; i < value.length; i++) {
 			const pair = value[i];
 			const pairKey = generate(pair[0]);
-			let pairValue = generate(pair[2]);
+			const pairValue = pair[2];
+			let pairValueGenerated;
 
 			if (pairKey[0] === "*") {
-				pairValue = `{value:"${pairValue}",get:function(m){return m${pairValue};},set:function(m,MoonValue){m${pairValue}=MoonValue;return m;}}`;
+				const pairValueInner = generate(pairValue[1]);
+				pairValueGenerated = `{value:"${pairValueInner}",get:function(m){return m${pairValueInner};},set:function(m,MoonValue){m${pairValueInner}=MoonValue;return m;}}`;
+			} else {
+				pairValueGenerated = generate(pairValue);
 			}
 
-			output += `${separator}"${pairKey}":${pairValue}${generate(pair[3])}`;
+			output += `${separator}"${pairKey}":${pairValueGenerated}${generate(pair[3])}`;
 			separator = ",";
 		}
 
