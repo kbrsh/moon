@@ -19,19 +19,38 @@
 	}
 
 	/**
+	 * Root state
+	 *
+	 * This includes the route. In theory, keys, scroll, and selection states would
+	 * belong here, but they are made implicit in practice to prevent performance
+	 * and accessibility issues.
+	 */
+	var state = {
+		route: location.pathname
+	};
+	var root = {
+		get: function get() {
+			return state;
+		},
+		set: function set(root) {
+			state = root;
+		}
+	};
+
+	/**
 	 * Global data state.
 	 */
-	var state = null;
+	var state$1 = null;
 	/**
 	 * Data driver
 	 */
 
 	var data = {
 		get: function get() {
-			return state;
+			return state$1;
 		},
 		set: function set(data) {
-			state = data;
+			state$1 = data;
 		}
 	};
 
@@ -261,7 +280,20 @@
 		this.references = references;
 	}
 	/**
+	 * Root element
+	 */
+
+	var viewRoot = new View("div", {
+		id: "moon-root"
+	}, [], {});
+	var viewRootNode = document.getElementById("moon-root");
+	viewRootNode.MoonChildren = [];
+	/**
 	 * Get the default data property value for a key of a view.
+	 *
+	 * @param {string} viewName
+	 * @param {string} key
+	 * @returns {any} default data property value
 	 */
 
 	function viewDataDefault(viewName, key) {
@@ -271,6 +303,7 @@
 	 * Create a view node.
 	 *
 	 * @param {object} view
+	 * @returns {object} viewNode
 	 */
 
 
@@ -289,11 +322,15 @@
 			var viewReferences = view.references;
 
 			for (var key in viewData) {
-				viewDataCreate(viewNode, viewName, viewData, viewReferences, key, viewData[key]);
+				viewDataCreate(viewNode, key, viewData[key]);
 			}
 
 			for (var i = 0; i < viewChildren.length; i++) {
 				viewNodeChildren.push(viewNode.appendChild(viewNodeCreate(viewChildren[i])));
+			}
+
+			for (var _key in viewReferences) {
+				viewReferenceCreate(viewNode, viewName, viewData, _key, viewReferences[_key]);
 			}
 		}
 
@@ -303,14 +340,12 @@
 	 * Create a data property.
 	 *
 	 * @param {object} viewNode
-	 * @param {string} viewName
-	 * @param {object} viewData
-	 * @param {object} viewReferences
 	 * @param {string} key
 	 * @param {any} value
 	 */
 
-	function viewDataCreate(viewNode, viewName, viewData, viewReferences, key, value) {
+
+	function viewDataCreate(viewNode, key, value) {
 		switch (key) {
 			case "attributes":
 				{
@@ -351,23 +386,12 @@
 				{
 					var keyFirst = key[0];
 
-					if (keyFirst === "*") {
-						var reference = viewReferences[key];
-						var referenceProperty = referenceProperties[viewName][key];
-						var referenceEvent = referenceProperty.event;
-						var viewNodeReferenceEvents = viewNode.MoonReferenceEvents;
-
-						if (viewNodeReferenceEvents === null) {
-							viewNodeReferenceEvents = viewNode.MoonReferenceEvents = new MoonReferenceEvents();
+					if (keyFirst !== "*") {
+						if (keyFirst === "o" && key[1] === "n") {
+							viewNode[key.toLowerCase()] = event(value);
+						} else {
+							viewNode[key] = value;
 						}
-
-						viewNode[referenceProperty.key] = referenceProperty.value(reference.get, viewNode, viewData);
-						viewNodeReferenceEvents[referenceEvent] = referenceProperty.handler(reference.set, viewNode, viewData);
-						viewNode.addEventListener(referenceEvent, viewNodeReferenceEvents);
-					} else if (keyFirst === "o" && key[1] === "n") {
-						viewNode[key.toLowerCase()] = event(value);
-					} else {
-						viewNode[key] = value;
 					}
 				}
 		}
@@ -376,15 +400,13 @@
 	 * Update a data property.
 	 *
 	 * @param {object} viewNode
-	 * @param {string} viewName
-	 * @param {object} viewData
-	 * @param {object} viewReferences
 	 * @param {string} key
 	 * @param {any} valueOld
 	 * @param {any} valueNew
 	 */
 
-	function viewDataUpdate(viewNode, viewName, viewData, viewReferences, key, valueOld, valueNew) {
+
+	function viewDataUpdate(viewNode, key, valueOld, valueNew) {
 		switch (key) {
 			case "attributes":
 				{
@@ -445,18 +467,12 @@
 				{
 					var keyFirst = key[0];
 
-					if (keyFirst === "*") {
-						var reference = viewReferences[key];
-						var referenceProperty = referenceProperties[viewName][key];
-						viewNode[referenceProperty.key] = referenceProperty.value(reference.get, viewNode, viewData);
-
-						if (valueOld.value !== valueNew.value) {
-							viewNode.MoonReferenceEvents[referenceProperty.event] = referenceProperty.handler(reference.set, viewNode, viewData);
+					if (keyFirst !== "*") {
+						if (keyFirst === "o" && key[1] === "n") {
+							viewNode[key.toLowerCase()] = event(valueNew);
+						} else {
+							viewNode[key] = valueNew;
 						}
-					} else if (keyFirst === "o" && key[1] === "n") {
-						viewNode[key.toLowerCase()] = event(valueNew);
-					} else {
-						viewNode[key] = valueNew;
 					}
 				}
 		}
@@ -469,6 +485,7 @@
 	 * @param {object} viewData
 	 * @param {string} key
 	 */
+
 
 	function viewDataRemove(viewNode, viewName, viewData, key) {
 		switch (key) {
@@ -500,21 +517,81 @@
 				{
 					var keyFirst = key[0];
 
-					if (keyFirst === "*") {
-						var referenceProperty = referenceProperties[viewName][key];
-						var referenceKey = referenceProperty.key;
-						var referenceEvent = referenceProperty.event;
-						var viewNodeReferenceEvents = viewNode.MoonReferenceEvents;
-						viewNode[referenceKey] = viewDataDefault(viewName, referenceKey);
-						viewNodeReferenceEvents[referenceEvent] = null;
-						viewNode.removeEventListener(referenceEvent, viewNodeReferenceEvents);
-					} else if (keyFirst === "o" && key[1] === "n") {
-						viewNode[key.toLowerCase()] = null;
-					} else {
-						viewNode[key] = viewDataDefault(viewName, key);
+					if (keyFirst !== "*") {
+						if (keyFirst === "o" && key[1] === "n") {
+							viewNode[key.toLowerCase()] = null;
+						} else {
+							viewNode[key] = viewDataDefault(viewName, key);
+						}
 					}
 				}
 		}
+	}
+	/**
+	 * Create a reference.
+	 *
+	 * @param {object} viewNode
+	 * @param {string} viewName
+	 * @param {object} viewData
+	 * @param {string} key
+	 * @param {object} reference
+	 */
+
+
+	function viewReferenceCreate(viewNode, viewName, viewData, key, reference) {
+		var referenceProperty = referenceProperties[viewName][key];
+		var referenceEvent = referenceProperty.event;
+		var viewNodeReferenceEvents = viewNode.MoonReferenceEvents;
+
+		if (viewNodeReferenceEvents === null) {
+			viewNodeReferenceEvents = viewNode.MoonReferenceEvents = new MoonReferenceEvents();
+		}
+
+		viewNode[referenceProperty.key] = referenceProperty.value(reference.get, viewNode, viewData);
+		viewNodeReferenceEvents[referenceEvent] = referenceProperty.handler(reference.set, viewNode, viewData);
+		viewNode.addEventListener(referenceEvent, viewNodeReferenceEvents);
+	}
+	/**
+	 * Update a reference.
+	 *
+	 * @param {object} viewNode
+	 * @param {string} viewName
+	 * @param {object} viewData
+	 * @param {string} key
+	 * @param {object} referenceOld
+	 * @param {object} referenceNew
+	 */
+
+
+	function viewReferenceUpdate(viewNode, viewName, viewData, key, referenceOld, referenceNew) {
+		var referenceProperty = referenceProperties[viewName][key];
+		var referenceNewGet = referenceNew.get;
+
+		if (referenceOld.get !== referenceNewGet) {
+			viewNode[referenceProperty.key] = referenceProperty.value(referenceNewGet, viewNode, viewData);
+		}
+
+		if (referenceOld.value !== referenceNew.value) {
+			viewNode.MoonReferenceEvents[referenceProperty.event] = referenceProperty.handler(referenceNew.set, viewNode, viewData);
+		}
+	}
+	/**
+	 * Remove a reference.
+	 *
+	 * @param {object} viewNode
+	 * @param {string} viewName
+	 * @param {string} key
+	 */
+
+
+	function viewReferenceRemove(viewNode, viewName, key) {
+		var referenceProperty = referenceProperties[viewName][key];
+		var referenceKey = referenceProperty.key;
+		var referenceEvent = referenceProperty.event;
+		var viewNodeReferenceEvents = viewNode.MoonReferenceEvents;
+		viewNode[referenceKey] = viewDataDefault(viewName, referenceKey);
+		viewNodeReferenceEvents[referenceEvent] = null;
+		viewNode.removeEventListener(referenceEvent, viewNodeReferenceEvents);
 	}
 	/**
 	 * Patch a view node into a new view, using an old view as a reference.
@@ -525,7 +602,8 @@
 	 * @param {number} index
 	 */
 
-	function viewPatch(viewNode, viewOld, viewNew, index) {
+
+	function viewPatchChild(viewNode, viewOld, viewNew, index) {
 		if (viewOld !== viewNew) {
 			var viewNewName = viewNew.name;
 
@@ -535,28 +613,28 @@
 			} else {
 				var viewOldData = viewOld.data;
 				var viewOldChildren = viewOld.children;
+				var viewOldReferences = viewOld.references;
 				var viewNewData = viewNew.data;
 				var viewNewChildren = viewNew.children;
+				var viewNewReferences = viewNew.references;
 
 				if (viewOldData !== viewNewData) {
-					var viewNewReferences = viewNew.references;
-
 					for (var key in viewNewData) {
 						if (key in viewOldData) {
 							var valueOld = viewOldData[key];
 							var valueNew = viewNewData[key];
 
 							if (valueOld !== valueNew) {
-								viewDataUpdate(viewNode, viewNewName, viewNewData, viewNewReferences, key, valueOld, valueNew);
+								viewDataUpdate(viewNode, key, valueOld, valueNew);
 							}
 						} else {
-							viewDataCreate(viewNode, viewNewName, viewNewData, viewNewReferences, key, viewNewData[key]);
+							viewDataCreate(viewNode, key, viewNewData[key]);
 						}
 					}
 
-					for (var _key in viewOldData) {
-						if (!(_key in viewNewData)) {
-							viewDataRemove(viewNode, viewNewName, viewOldData, _key);
+					for (var _key2 in viewOldData) {
+						if (!(_key2 in viewNewData)) {
+							viewDataRemove(viewNode, viewNewName, viewOldData, _key2);
 						}
 					}
 				}
@@ -569,11 +647,11 @@
 
 					if (viewOldChildrenLength === viewNewChildrenLength) {
 						for (; i < viewOldChildrenLength; i++) {
-							viewPatch(viewNodeChildren[i], viewOldChildren[i], viewNewChildren[i], i);
+							viewPatchChild(viewNodeChildren[i], viewOldChildren[i], viewNewChildren[i], i);
 						}
 					} else if (viewOldChildrenLength < viewNewChildrenLength) {
 						for (; i < viewOldChildrenLength; i++) {
-							viewPatch(viewNodeChildren[i], viewOldChildren[i], viewNewChildren[i], i);
+							viewPatchChild(viewNodeChildren[i], viewOldChildren[i], viewNewChildren[i], i);
 						}
 
 						for (; i < viewNewChildrenLength; i++) {
@@ -581,7 +659,7 @@
 						}
 					} else {
 						for (; i < viewNewChildrenLength; i++) {
-							viewPatch(viewNodeChildren[i], viewOldChildren[i], viewNewChildren[i], i);
+							viewPatchChild(viewNodeChildren[i], viewOldChildren[i], viewNewChildren[i], i);
 						}
 
 						for (; i < viewOldChildrenLength; i++) {
@@ -589,62 +667,89 @@
 						}
 					}
 				}
+
+				if (viewOldReferences !== viewNewReferences) {
+					for (var _key3 in viewNewReferences) {
+						if (_key3 in viewOldReferences) {
+							var referenceOld = viewOldReferences[_key3];
+							var referenceNew = viewNewReferences[_key3];
+
+							if (referenceOld !== referenceNew) {
+								viewReferenceUpdate(viewNode, viewNewName, viewNewData, _key3, referenceOld, referenceNew);
+							}
+						} else {
+							viewReferenceCreate(viewNode, viewNewName, viewNewData, _key3, viewNewReferences[_key3]);
+						}
+					}
+
+					for (var _key4 in viewOldReferences) {
+						if (!(_key4 in viewNewReferences)) {
+							viewReferenceRemove(viewNode, viewNewName, _key4);
+						}
+					}
+				}
 			}
 		}
 	}
-
 	/**
-	 * Root element
+	 * Patch the root node into a new view, using an old view as a reference.
+	 *
+	 * @param {object} view
 	 */
 
-	var root = new View("div", {
-		id: "moon-root"
-	}, [], {});
-	var rootNode = document.getElementById("moon-root");
-	rootNode.MoonChildren = [];
+
+	function viewPatch(view) {
+		viewPatchChild(viewRootNode, viewRoot, view, 0);
+		viewRoot = view;
+	}
+
 	/**
 	 * View driver
 	 */
 
 	var view = {
 		get: function get() {
-			return root;
+			return viewRoot;
 		},
-		set: function set(view) {
-			viewPatch(rootNode, root, view, 0);
-			root = view;
-		}
+		set: viewPatch
 	};
+
+	var timeNow = Date.now;
+	function timeWait(delay, handler) {
+		setTimeout(event(handler), delay);
+	}
 
 	/**
 	 * Time driver
 	 */
+
 	var time = {
-		get: function get() {
-			return Date.now();
-		},
+		get: timeNow,
 		set: function set() {}
 	};
+
+	var storageState = localStorage;
 
 	/**
 	 * Storage driver
 	 */
+
 	var storage = {
 		get: function get() {
-			return localStorage;
+			return storageState;
 		},
 		set: function set(storage) {
 			for (var key in storage) {
 				var value = storage[key];
 
-				if (!(key in localStorage) || value !== localStorage[key]) {
-					localStorage[key] = value;
+				if (!(key in storageState) || value !== storageState[key]) {
+					storageState[key] = value;
 				}
 			}
 
-			for (var _key in localStorage) {
+			for (var _key in storageState) {
 				if (!(_key in storage)) {
-					delete localStorage[_key];
+					delete storageState[_key];
 				}
 			}
 		}
@@ -734,7 +839,7 @@
 	 * Global HTTP state
 	 */
 
-	var state$1 = {};
+	var state$2 = {};
 	/**
 	 * Create event handler for http request.
 	 *
@@ -754,13 +859,13 @@
 
 	var http = {
 		get: function get() {
-			return state$1;
+			return state$2;
 		},
 		set: function set(http) {
-			state$1 = http;
+			state$2 = http;
 
-			for (var name in state$1) {
-				var data = state$1[name];
+			for (var name in state$2) {
+				var data = state$2[name];
 
 				if (data.response.status === null) {
 					httpRequest(name, data.request, httpHandler(data));
@@ -769,32 +874,13 @@
 		}
 	};
 
-	/**
-	 * Root state
-	 *
-	 * This includes the route. In theory, keys, scroll, and selection states would
-	 * belong here, but they are made implicit in practice to prevent performance
-	 * and accessibility issues.
-	 */
-	var state$2 = {
-		route: location.pathname
-	};
-	var root$1 = {
-		get: function get() {
-			return state$2;
-		},
-		set: function set(root) {
-			state$2 = root;
-		}
-	};
-
 	var drivers = {
+		root: root,
 		data: data,
-		http: http,
-		root: root$1,
-		storage: storage,
+		view: view,
 		time: time,
-		view: view
+		storage: storage,
+		http: http
 	};
 
 	function run() {
@@ -818,11 +904,15 @@
 	var wrappers = {
 		view: {
 			View: View,
-			viewNodeCreate: viewNodeCreate,
-			viewDataCreate: viewDataCreate,
-			viewDataUpdate: viewDataUpdate,
-			viewDataRemove: viewDataRemove,
+			viewRoot: viewRoot,
 			viewPatch: viewPatch
+		},
+		time: {
+			timeNow: timeNow,
+			timeWait: timeWait
+		},
+		storage: {
+			storageState: storageState
 		},
 		http: {
 			httpEventsLoad: httpEventsLoad,
@@ -910,7 +1000,7 @@
 	 * Root component
 	 */
 
-	var root$2 = (function (data) {
+	var root$1 = (function (data) {
 		return function (m) {
 			// Update view using root.
 			var route = m.root.route;
@@ -953,7 +1043,7 @@
 	var timer = (function (data) {
 		return function (m) {
 			for (var delay in data) {
-				setTimeout(event(data[delay]), delay);
+				timeWait(delay, data[delay]);
 			}
 
 			return m;
@@ -1013,7 +1103,7 @@
 	var namesElementReferences = ["audio", "input", "video"];
 
 	var components = {
-		root: root$2,
+		root: root$1,
 		router: router,
 		timer: timer,
 		httper: httper
@@ -1042,7 +1132,12 @@
 	 * events instead of every tick. As a result, drivers are called only when
 	 * needed.
 	 *
-	 * Drivers get data from builtin APIs and normalize it to store it in the
+	 * Wrappers around APIs are used by drivers and components for portability.
+	 * They provide a uniform interface for interacting with devices through
+	 * JavaScript. Since local events aren't always practical or available,
+	 * wrappers can also create global event buses as a part of their uniform API.
+	 *
+	 * Drivers get data from wrapper APIs and normalize it to store it in the
 	 * state. They also set data using builtin APIs. This forms an isomorphism
 	 * between the Moon state and the builtin state. This isn't always possible, so
 	 * drivers can create global variables as a part of the builtin state to allow
@@ -1053,18 +1148,15 @@
 	 * also responsible for detecting events. They do this by hooking into the
 	 * event loop for global events, checking if it is relevant locally, and
 	 * running the component in their handler before running the main component.
-	 * Hooking into local events through global listeners isn't always practical or
-	 * possible, so some APIs have wrapper implementations which create global
-	 * event buses.
 	 */
 
 	var index = {
 		main: main,
-		drivers: drivers,
-		wrappers: wrappers,
-		components: components,
 		event: event,
 		run: run,
+		wrappers: wrappers,
+		drivers: drivers,
+		components: components,
 		version: "1.0.0-beta.7"
 	};
 

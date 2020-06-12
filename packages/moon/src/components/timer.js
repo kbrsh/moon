@@ -1,11 +1,11 @@
-import event from "moon/src/event";
+import { timeWait } from "moon/src/wrappers/time";
 
 /**
  * Timer component
  */
 export default data => m => {
 	for (const delay in data) {
-		setTimeout(event(data[delay]), delay);
+		timeWait(delay, data[delay]);
 	}
 
 	return m;

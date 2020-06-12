@@ -1,9 +1,9 @@
+import { timeNow } from "moon/src/wrappers/time";
+
 /**
  * Time driver
  */
 export default {
-	get() {
-		return Date.now();
-	},
+	get: timeNow,
 	set() {}
 };

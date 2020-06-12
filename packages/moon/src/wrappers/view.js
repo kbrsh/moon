@@ -123,7 +123,18 @@ export function View(name, data, children, references) {
 }
 
 /**
+ * Root element
+ */
+export let viewRoot = new View("div", {id: "moon-root"}, [], {});
+const viewRootNode = document.getElementById("moon-root");
+viewRootNode.MoonChildren = [];
+
+/**
  * Get the default data property value for a key of a view.
+ *
+ * @param {string} viewName
+ * @param {string} key
+ * @returns {any} default data property value
  */
 function viewDataDefault(viewName, key) {
 	return (
@@ -142,8 +153,9 @@ function viewDataDefault(viewName, key) {
  * Create a view node.
  *
  * @param {object} view
+ * @returns {object} viewNode
  */
-export function viewNodeCreate(view) {
+function viewNodeCreate(view) {
 	const viewName = view.name;
 	let viewNode;
 
@@ -158,11 +170,15 @@ export function viewNodeCreate(view) {
 		const viewReferences = view.references;
 
 		for (const key in viewData) {
-			viewDataCreate(viewNode, viewName, viewData, viewReferences, key, viewData[key]);
+			viewDataCreate(viewNode, key, viewData[key]);
 		}
 
 		for (let i = 0; i < viewChildren.length; i++) {
 			viewNodeChildren.push(viewNode.appendChild(viewNodeCreate(viewChildren[i])));
+		}
+
+		for (const key in viewReferences) {
+			viewReferenceCreate(viewNode, viewName, viewData, key, viewReferences[key]);
 		}
 	}
 
@@ -173,13 +189,10 @@ export function viewNodeCreate(view) {
  * Create a data property.
  *
  * @param {object} viewNode
- * @param {string} viewName
- * @param {object} viewData
- * @param {object} viewReferences
  * @param {string} key
  * @param {any} value
  */
-export function viewDataCreate(viewNode, viewName, viewData, viewReferences, key, value) {
+function viewDataCreate(viewNode, key, value) {
 	switch (key) {
 		case "attributes": {
 			for (const keyAttribute in value) {
@@ -211,23 +224,12 @@ export function viewDataCreate(viewNode, viewName, viewData, viewReferences, key
 		default: {
 			const keyFirst = key[0];
 
-			if (keyFirst === "*") {
-				const reference = viewReferences[key];
-				const referenceProperty = referenceProperties[viewName][key];
-				const referenceEvent = referenceProperty.event;
-				let viewNodeReferenceEvents = viewNode.MoonReferenceEvents;
-
-				if (viewNodeReferenceEvents === null) {
-					viewNodeReferenceEvents = viewNode.MoonReferenceEvents = new MoonReferenceEvents();
+			if (keyFirst !== "*") {
+				if (keyFirst === "o" && key[1] === "n") {
+					viewNode[key.toLowerCase()] = event(value);
+				} else {
+					viewNode[key] = value;
 				}
-
-				viewNode[referenceProperty.key] = referenceProperty.value(reference.get, viewNode, viewData);
-				viewNodeReferenceEvents[referenceEvent] = referenceProperty.handler(reference.set, viewNode, viewData);
-				viewNode.addEventListener(referenceEvent, viewNodeReferenceEvents);
-			} else if (keyFirst === "o" && key[1] === "n") {
-				viewNode[key.toLowerCase()] = event(value);
-			} else {
-				viewNode[key] = value;
 			}
 		}
 	}
@@ -237,14 +239,11 @@ export function viewDataCreate(viewNode, viewName, viewData, viewReferences, key
  * Update a data property.
  *
  * @param {object} viewNode
- * @param {string} viewName
- * @param {object} viewData
- * @param {object} viewReferences
  * @param {string} key
  * @param {any} valueOld
  * @param {any} valueNew
  */
-export function viewDataUpdate(viewNode, viewName, viewData, viewReferences, key, valueOld, valueNew) {
+function viewDataUpdate(viewNode, key, valueOld, valueNew) {
 	switch (key) {
 		case "attributes": {
 			for (const keyAttribute in valueNew) {
@@ -296,18 +295,12 @@ export function viewDataUpdate(viewNode, viewName, viewData, viewReferences, key
 		default: {
 			const keyFirst = key[0];
 
-			if (keyFirst === "*") {
-				const reference = viewReferences[key];
-				const referenceProperty = referenceProperties[viewName][key];
-				viewNode[referenceProperty.key] = referenceProperty.value(reference.get, viewNode, viewData);
-
-				if (valueOld.value !== valueNew.value) {
-					viewNode.MoonReferenceEvents[referenceProperty.event] = referenceProperty.handler(reference.set, viewNode, viewData);
+			if (keyFirst !== "*") {
+				if (keyFirst === "o" && key[1] === "n") {
+					viewNode[key.toLowerCase()] = event(valueNew);
+				} else {
+					viewNode[key] = valueNew;
 				}
-			} else if (keyFirst === "o" && key[1] === "n") {
-				viewNode[key.toLowerCase()] = event(valueNew);
-			} else {
-				viewNode[key] = valueNew;
 			}
 		}
 	}
@@ -321,7 +314,7 @@ export function viewDataUpdate(viewNode, viewName, viewData, viewReferences, key
  * @param {object} viewData
  * @param {string} key
  */
-export function viewDataRemove(viewNode, viewName, viewData, key) {
+function viewDataRemove(viewNode, viewName, viewData, key) {
 	switch (key) {
 		case "attributes": {
 			for (const keyAttribute in viewData.attributes) {
@@ -344,22 +337,79 @@ export function viewDataRemove(viewNode, viewName, viewData, key) {
 		default: {
 			const keyFirst = key[0];
 
-			if (keyFirst === "*") {
-				const referenceProperty = referenceProperties[viewName][key];
-				const referenceKey = referenceProperty.key;
-				const referenceEvent = referenceProperty.event;
-				const viewNodeReferenceEvents = viewNode.MoonReferenceEvents;
-
-				viewNode[referenceKey] = viewDataDefault(viewName, referenceKey);
-				viewNodeReferenceEvents[referenceEvent] = null;
-				viewNode.removeEventListener(referenceEvent, viewNodeReferenceEvents);
-			} else if (keyFirst === "o" && key[1] === "n") {
-				viewNode[key.toLowerCase()] = null;
-			} else {
-				viewNode[key] = viewDataDefault(viewName, key);
+			if (keyFirst !== "*") {
+				if (keyFirst === "o" && key[1] === "n") {
+					viewNode[key.toLowerCase()] = null;
+				} else {
+					viewNode[key] = viewDataDefault(viewName, key);
+				}
 			}
 		}
 	}
+}
+
+/**
+ * Create a reference.
+ *
+ * @param {object} viewNode
+ * @param {string} viewName
+ * @param {object} viewData
+ * @param {string} key
+ * @param {object} reference
+ */
+function viewReferenceCreate(viewNode, viewName, viewData, key, reference) {
+	const referenceProperty = referenceProperties[viewName][key];
+	const referenceEvent = referenceProperty.event;
+	let viewNodeReferenceEvents = viewNode.MoonReferenceEvents;
+
+	if (viewNodeReferenceEvents === null) {
+		viewNodeReferenceEvents = viewNode.MoonReferenceEvents = new MoonReferenceEvents();
+	}
+
+	viewNode[referenceProperty.key] = referenceProperty.value(reference.get, viewNode, viewData);
+	viewNodeReferenceEvents[referenceEvent] = referenceProperty.handler(reference.set, viewNode, viewData);
+	viewNode.addEventListener(referenceEvent, viewNodeReferenceEvents);
+}
+
+/**
+ * Update a reference.
+ *
+ * @param {object} viewNode
+ * @param {string} viewName
+ * @param {object} viewData
+ * @param {string} key
+ * @param {object} referenceOld
+ * @param {object} referenceNew
+ */
+function viewReferenceUpdate(viewNode, viewName, viewData, key, referenceOld, referenceNew) {
+	const referenceProperty = referenceProperties[viewName][key];
+	const referenceNewGet = referenceNew.get;
+
+	if (referenceOld.get !== referenceNewGet) {
+		viewNode[referenceProperty.key] = referenceProperty.value(referenceNewGet, viewNode, viewData);
+	}
+
+	if (referenceOld.value !== referenceNew.value) {
+		viewNode.MoonReferenceEvents[referenceProperty.event] = referenceProperty.handler(referenceNew.set, viewNode, viewData);
+	}
+}
+
+/**
+ * Remove a reference.
+ *
+ * @param {object} viewNode
+ * @param {string} viewName
+ * @param {string} key
+ */
+function viewReferenceRemove(viewNode, viewName, key) {
+	const referenceProperty = referenceProperties[viewName][key];
+	const referenceKey = referenceProperty.key;
+	const referenceEvent = referenceProperty.event;
+	const viewNodeReferenceEvents = viewNode.MoonReferenceEvents;
+
+	viewNode[referenceKey] = viewDataDefault(viewName, referenceKey);
+	viewNodeReferenceEvents[referenceEvent] = null;
+	viewNode.removeEventListener(referenceEvent, viewNodeReferenceEvents);
 }
 
 /**
@@ -370,7 +420,7 @@ export function viewDataRemove(viewNode, viewName, viewData, key) {
  * @param {object} viewNew
  * @param {number} index
  */
-export function viewPatch(viewNode, viewOld, viewNew, index) {
+function viewPatchChild(viewNode, viewOld, viewNew, index) {
 	if (viewOld !== viewNew) {
 		const viewNewName = viewNew.name;
 
@@ -381,22 +431,22 @@ export function viewPatch(viewNode, viewOld, viewNew, index) {
 		} else {
 			const viewOldData = viewOld.data;
 			const viewOldChildren = viewOld.children;
+			const viewOldReferences = viewOld.references;
 			const viewNewData = viewNew.data;
 			const viewNewChildren = viewNew.children;
+			const viewNewReferences = viewNew.references;
 
 			if (viewOldData !== viewNewData) {
-				const viewNewReferences = viewNew.references;
-
 				for (const key in viewNewData) {
 					if (key in viewOldData) {
 						const valueOld = viewOldData[key];
 						const valueNew = viewNewData[key];
 
 						if (valueOld !== valueNew) {
-							viewDataUpdate(viewNode, viewNewName, viewNewData, viewNewReferences, key, valueOld, valueNew);
+							viewDataUpdate(viewNode, key, valueOld, valueNew);
 						}
 					} else {
-						viewDataCreate(viewNode, viewNewName, viewNewData, viewNewReferences, key, viewNewData[key]);
+						viewDataCreate(viewNode, key, viewNewData[key]);
 					}
 				}
 
@@ -415,11 +465,11 @@ export function viewPatch(viewNode, viewOld, viewNew, index) {
 
 				if (viewOldChildrenLength === viewNewChildrenLength) {
 					for (; i < viewOldChildrenLength; i++) {
-						viewPatch(viewNodeChildren[i], viewOldChildren[i], viewNewChildren[i], i);
+						viewPatchChild(viewNodeChildren[i], viewOldChildren[i], viewNewChildren[i], i);
 					}
 				} else if (viewOldChildrenLength < viewNewChildrenLength) {
 					for (; i < viewOldChildrenLength; i++) {
-						viewPatch(viewNodeChildren[i], viewOldChildren[i], viewNewChildren[i], i);
+						viewPatchChild(viewNodeChildren[i], viewOldChildren[i], viewNewChildren[i], i);
 					}
 
 					for (; i < viewNewChildrenLength; i++) {
@@ -427,7 +477,7 @@ export function viewPatch(viewNode, viewOld, viewNew, index) {
 					}
 				} else {
 					for (; i < viewNewChildrenLength; i++) {
-						viewPatch(viewNodeChildren[i], viewOldChildren[i], viewNewChildren[i], i);
+						viewPatchChild(viewNodeChildren[i], viewOldChildren[i], viewNewChildren[i], i);
 					}
 
 					for (; i < viewOldChildrenLength; i++) {
@@ -435,6 +485,37 @@ export function viewPatch(viewNode, viewOld, viewNew, index) {
 					}
 				}
 			}
+
+			if (viewOldReferences !== viewNewReferences) {
+				for (const key in viewNewReferences) {
+					if (key in viewOldReferences) {
+						const referenceOld = viewOldReferences[key];
+						const referenceNew = viewNewReferences[key];
+
+						if (referenceOld !== referenceNew) {
+							viewReferenceUpdate(viewNode, viewNewName, viewNewData, key, referenceOld, referenceNew);
+						}
+					} else {
+						viewReferenceCreate(viewNode, viewNewName, viewNewData, key, viewNewReferences[key]);
+					}
+				}
+
+				for (const key in viewOldReferences) {
+					if (!(key in viewNewReferences)) {
+						viewReferenceRemove(viewNode, viewNewName, key);
+					}
+				}
+			}
 		}
 	}
+}
+
+/**
+ * Patch the root node into a new view, using an old view as a reference.
+ *
+ * @param {object} view
+ */
+export function viewPatch(view) {
+	viewPatchChild(viewRootNode, viewRoot, view, 0);
+	viewRoot = view;
 }

@@ -1,22 +1,24 @@
+import { storageState } from "moon/src/wrappers/storage";
+
 /**
  * Storage driver
  */
 export default {
 	get() {
-		return localStorage;
+		return storageState;
 	},
 	set(storage) {
 		for (const key in storage) {
 			const value = storage[key];
 
-			if (!(key in localStorage) || value !== localStorage[key]) {
-				localStorage[key] = value;
+			if (!(key in storageState) || value !== storageState[key]) {
+				storageState[key] = value;
 			}
 		}
 
-		for (const key in localStorage) {
+		for (const key in storageState) {
 			if (!(key in storage)) {
-				delete localStorage[key];
+				delete storageState[key];
 			}
 		}
 	}
