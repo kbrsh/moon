@@ -4,6 +4,7 @@ import view from "moon/src/drivers/view";
 import time from "moon/src/drivers/time";
 import storage from "moon/src/drivers/storage";
 import http from "moon/src/drivers/http";
+import point from "moon/src/drivers/point";
 
 export default {
 	root,
@@ -11,5 +12,6 @@ export default {
 	view,
 	time,
 	storage,
-	http
+	http,
+	point
 };

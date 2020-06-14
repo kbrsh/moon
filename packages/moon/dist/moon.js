@@ -62,7 +62,7 @@
 	 * @returns {function} event handler
 	 */
 
-	function event(component) {
+	function event$1(component) {
 		return function () {
 			for (var driver in drivers) {
 				m[driver] = drivers[driver].get();
@@ -107,7 +107,7 @@
 				},
 				event: "timeupdate",
 				handler: function handler(set, viewNode, viewData) {
-					return event(function (m) {
+					return event$1(function (m) {
 						return set(m, viewNode.currentTime);
 					});
 				}
@@ -119,7 +119,7 @@
 				},
 				event: "volumechange",
 				handler: function handler(set, viewNode, viewData) {
-					return event(function (m) {
+					return event$1(function (m) {
 						return set(m, viewNode.muted);
 					});
 				}
@@ -131,7 +131,7 @@
 				},
 				event: "pause",
 				handler: function handler(set, viewNode, viewData) {
-					return event(function (m) {
+					return event$1(function (m) {
 						return set(m, viewNode.paused);
 					});
 				}
@@ -143,7 +143,7 @@
 				},
 				event: "ratechange",
 				handler: function handler(set, viewNode, viewData) {
-					return event(function (m) {
+					return event$1(function (m) {
 						return set(m, viewNode.playbackRate);
 					});
 				}
@@ -155,7 +155,7 @@
 				},
 				event: "volumechange",
 				handler: function handler(set, viewNode, viewData) {
-					return event(function (m) {
+					return event$1(function (m) {
 						return set(m, viewNode.volume);
 					});
 				}
@@ -169,7 +169,7 @@
 				},
 				event: "change",
 				handler: function handler(set, viewNode, viewData) {
-					return event(function (m) {
+					return event$1(function (m) {
 						return set(m, viewNode.checked);
 					});
 				}
@@ -181,7 +181,7 @@
 				},
 				event: "change",
 				handler: function handler(set, viewNode, viewData) {
-					return event(function (m) {
+					return event$1(function (m) {
 						return set(m, viewData.value);
 					});
 				}
@@ -193,7 +193,7 @@
 				},
 				event: "input",
 				handler: function handler(set, viewNode, viewData) {
-					return event(function (m) {
+					return event$1(function (m) {
 						return set(m, viewNode.value);
 					});
 				}
@@ -207,7 +207,7 @@
 				},
 				event: "timeupdate",
 				handler: function handler(set, viewNode, viewData) {
-					return event(function (m) {
+					return event$1(function (m) {
 						return set(m, viewNode.currentTime);
 					});
 				}
@@ -219,7 +219,7 @@
 				},
 				event: "volumechange",
 				handler: function handler(set, viewNode, viewData) {
-					return event(function (m) {
+					return event$1(function (m) {
 						return set(m, viewNode.muted);
 					});
 				}
@@ -231,7 +231,7 @@
 				},
 				event: "pause",
 				handler: function handler(set, viewNode, viewData) {
-					return event(function (m) {
+					return event$1(function (m) {
 						return set(m, viewNode.paused);
 					});
 				}
@@ -243,7 +243,7 @@
 				},
 				event: "ratechange",
 				handler: function handler(set, viewNode, viewData) {
-					return event(function (m) {
+					return event$1(function (m) {
 						return set(m, viewNode.playbackRate);
 					});
 				}
@@ -255,7 +255,7 @@
 				},
 				event: "volumechange",
 				handler: function handler(set, viewNode, viewData) {
-					return event(function (m) {
+					return event$1(function (m) {
 						return set(m, viewNode.volume);
 					});
 				}
@@ -388,7 +388,7 @@
 
 					if (keyFirst !== "*") {
 						if (keyFirst === "o" && key[1] === "n") {
-							viewNode[key.toLowerCase()] = event(value);
+							viewNode[key.toLowerCase()] = event$1(value);
 						} else {
 							viewNode[key] = value;
 						}
@@ -469,7 +469,7 @@
 
 					if (keyFirst !== "*") {
 						if (keyFirst === "o" && key[1] === "n") {
-							viewNode[key.toLowerCase()] = event(valueNew);
+							viewNode[key.toLowerCase()] = event$1(valueNew);
 						} else {
 							viewNode[key] = valueNew;
 						}
@@ -716,7 +716,7 @@
 
 	var timeNow = Date.now;
 	function timeWait(delay, handler) {
-		setTimeout(event(handler), delay);
+		setTimeout(event$1(handler), delay);
 	}
 
 	/**
@@ -874,13 +874,34 @@
 		}
 	};
 
+	function pointCoordinates() {
+		if (event === null || !(event instanceof MouseEvent)) {
+			return null;
+		} else {
+			return {
+				x: event.clientX,
+				y: event.clientY
+			};
+		}
+	}
+
+	/**
+	 * Point driver
+	 */
+
+	var point = {
+		get: pointCoordinates,
+		set: function set() {}
+	};
+
 	var drivers = {
 		root: root,
 		data: data,
 		view: view,
 		time: time,
 		storage: storage,
-		http: http
+		http: http,
+		point: point
 	};
 
 	function run() {
@@ -918,6 +939,9 @@
 			httpEventsLoad: httpEventsLoad,
 			httpEventsError: httpEventsError,
 			httpRequest: httpRequest
+		},
+		point: {
+			pointCoordinates: pointCoordinates
 		}
 	};
 
@@ -1062,11 +1086,11 @@
 				var request = data[name];
 
 				if ("onLoad" in request) {
-					httpEventsLoad[name] = event(request.onLoad);
+					httpEventsLoad[name] = event$1(request.onLoad);
 				}
 
 				if ("onError" in request) {
-					httpEventsError[name] = event(request.onError);
+					httpEventsError[name] = event$1(request.onError);
 				}
 
 				http[name] = {
@@ -1152,7 +1176,7 @@
 
 	var index = {
 		main: main,
-		event: event,
+		event: event$1,
 		run: run,
 		wrappers: wrappers,
 		drivers: drivers,
