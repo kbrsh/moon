@@ -916,7 +916,14 @@
 
 	function keyboardPressed() {
 		if (event !== null && event instanceof KeyboardEvent) {
-			keyboardPressedState = event;
+			keyboardPressedState = {
+				key: event.key,
+				keyAlt: event.altKey,
+				keyCtrl: event.ctrlKey,
+				keyMeta: event.metaKey,
+				keyShift: event.shiftKey,
+				repeating: event.repeat
+			};
 		}
 
 		return keyboardPressedState;
