@@ -874,15 +874,25 @@
 		}
 	};
 
+	/**
+	 * Point coordinate state
+	 */
+	var pointCoordinatesState = null;
+	/**
+	 * Get the coordinates of the pointer.
+	 *
+	 * @returns {object} coordinates
+	 */
+
 	function pointCoordinates() {
-		if (event === null || !(event instanceof MouseEvent)) {
-			return null;
-		} else {
-			return {
+		if (event !== null && event instanceof MouseEvent) {
+			pointCoordinatesState = {
 				x: event.clientX,
 				y: event.clientY
 			};
 		}
+
+		return pointCoordinatesState;
 	}
 
 	/**
@@ -894,6 +904,33 @@
 		set: function set() {}
 	};
 
+	/**
+	 * Keyboard pressed state
+	 */
+	var keyboardPressedState = null;
+	/**
+	 * Get the pressed keys on the keyboard.
+	 *
+	 * @returns {object} keyboard event
+	 */
+
+	function keyboardPressed() {
+		if (event !== null && event instanceof KeyboardEvent) {
+			keyboardPressedState = event;
+		}
+
+		return keyboardPressedState;
+	}
+
+	/**
+	 * Keyboard driver
+	 */
+
+	var keyboard = {
+		get: keyboardPressed,
+		set: function set() {}
+	};
+
 	var drivers = {
 		root: root,
 		data: data,
@@ -901,7 +938,8 @@
 		time: time,
 		storage: storage,
 		http: http,
-		point: point
+		point: point,
+		keyboard: keyboard
 	};
 
 	function run() {
@@ -942,6 +980,9 @@
 		},
 		point: {
 			pointCoordinates: pointCoordinates
+		},
+		keyboard: {
+			keyboardPressed: keyboardPressed
 		}
 	};
 
