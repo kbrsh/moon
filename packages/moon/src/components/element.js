@@ -15,21 +15,24 @@ const referencesEmpty = {};
  */
 export function element(name) {
 	return data => m => {
-		let children;
-
 		if ("children" in data) {
 			const dataChildren = data.children;
-			children = [];
+			const children = [];
+			const view = new View(name, data, children, referencesEmpty);
 
 			for (let i = 0; i < dataChildren.length; i++) {
+				m.view = view;
 				m = dataChildren[i](m);
-				children.push(m.view);
-			}
-		} else {
-			children = childrenEmpty;
-		}
 
-		m.view = new View(name, data, children, referencesEmpty);
+				if (m.view !== view) {
+					children.push(m.view);
+				}
+			}
+
+			m.view = view;
+		} else {
+			m.view = new View(name, data, childrenEmpty, referencesEmpty);
+		}
 
 		return m;
 	};

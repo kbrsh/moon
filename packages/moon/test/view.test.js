@@ -1,6 +1,7 @@
 let root = document.createElement("div");
 root.id = "moon-root";
 document.body.appendChild(root);
+window.event = null;
 
 jest.resetModules();
 const Moon = require("moon/src/index").default;

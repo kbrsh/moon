@@ -1010,21 +1010,25 @@
 	function element(name) {
 		return function (data) {
 			return function (m) {
-				var children;
-
 				if ("children" in data) {
 					var dataChildren = data.children;
-					children = [];
+					var children = [];
+					var view = new View(name, data, children, referencesEmpty);
 
 					for (var i = 0; i < dataChildren.length; i++) {
+						m.view = view;
 						m = dataChildren[i](m);
-						children.push(m.view);
+
+						if (m.view !== view) {
+							children.push(m.view);
+						}
 					}
+
+					m.view = view;
 				} else {
-					children = childrenEmpty;
+					m.view = new View(name, data, childrenEmpty, referencesEmpty);
 				}
 
-				m.view = new View(name, data, children, referencesEmpty);
 				return m;
 			};
 		};
