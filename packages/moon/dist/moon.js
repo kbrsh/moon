@@ -21,7 +21,7 @@
 	/**
 	 * Root state
 	 *
-	 * This includes the route. In theory, keys, scroll, and selection states would
+	 * This includes the route. In theory, keys, scroll, and focus states would
 	 * belong here, but they are made implicit in practice to prevent performance
 	 * and accessibility issues.
 	 */
