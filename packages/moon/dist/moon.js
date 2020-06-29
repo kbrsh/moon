@@ -199,6 +199,20 @@
 				}
 			}
 		},
+		textarea: {
+			"*value": {
+				key: "value",
+				value: function value(get, viewNode, viewData) {
+					return get;
+				},
+				event: "input",
+				handler: function handler(set, viewNode, viewData) {
+					return event$1(function (m) {
+						return set(m, viewNode.value);
+					});
+				}
+			}
+		},
 		video: {
 			"*currentTime": {
 				key: "currentTime",

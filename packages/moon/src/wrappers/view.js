@@ -72,6 +72,14 @@ const referenceProperties = {
 			handler: (set, viewNode, viewData) => event(m => set(m, viewNode.value))
 		}
 	},
+	textarea: {
+		"*value": {
+			key: "value",
+			value: (get, viewNode, viewData) => get,
+			event: "input",
+			handler: (set, viewNode, viewData) => event(m => set(m, viewNode.value))
+		}
+	},
 	video: {
 		"*currentTime": {
 			key: "currentTime",
