@@ -380,7 +380,7 @@
 
 				if (pairKey[0] === "*") {
 					var pairValueInner = generate(pairValue[1]);
-					pairValueGenerated = "{value:\"" + pairValueInner + "\",get:function(m){return m" + pairValueInner + ";},set:function(m,MoonValue){m" + pairValueInner + "=MoonValue;return m;}}";
+					pairValueGenerated = "{value:\"" + pairValueInner + "\",get:function(m){return " + pairValueInner + ";},set:function(m,MoonValue){" + pairValueInner + "=MoonValue;return m;}}";
 				} else {
 					pairValueGenerated = generate(pairValue);
 				}
