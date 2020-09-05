@@ -1,119 +1,12 @@
 body {
-	background: url("/img/stars.png"), linear-gradient(hsl(260, 100%, 6%), hsl(200, 100%, 6%)) fixed;
+	background-color: transparent;
+	background-image: url("/img/noise.png"), url("/img/stars.png"), linear-gradient(hsl(260, 100%, 6%), hsl(200, 100%, 6%));
+	background-blend-mode: overlay, normal, normal;
+	background-repeat: repeat, repeat, no-repeat;
+	background-attachment: scroll, scroll, fixed;
 	color: hsl(0, 0%, 100%);
 }
 
 pre, pre code {
 	background-color: hsl(215, 55%, 10%);
 }
-
-/*
-p {
-	margin-bottom: 21px;
-	color: hsl(260, 100%, 94%);
-}
-
-a {
-	color: hsl(200, 100%, 73%);
-	border-color: hsl(200, 100%, 73%);
-}
-
-.buttonPrimary {
-	margin-right: 15px;
-	background-color: hsl(260, 100%, 51%);
-	color: hsl(260, 100%, 100%);
-	cursor: pointer;
-}
-
-.buttonPrimary:hover, .buttonPrimary:focus {
-	background-color: hsl(260, 100%, 57%);
-}
-
-.buttonSecondary {
-	background-color: hsl(260, 100%, 31%);
-	color: hsl(260, 14%, 100%);
-	cursor: pointer;
-}
-
-.buttonSecondary:hover, .buttonSecondary:focus {
-	background-color: hsl(260, 100%, 37%);
-}
-
-.nav a {
-	color: hsl(0, 0%, 100%);
-}
-
-.head {
-	justify-content: center;
-	max-width: 703px;
-	margin-left: auto;
-	margin-right: auto;
-	text-align: center;
-}
-
-.head img {
-	width: 136px;
-	height: 136px;
-	margin-top: 78px;
-	margin-bottom: 21px;
-}
-
-.head h1 {
-	margin-bottom: 21px;
-}
-
-.idea {
-	max-width: 703px;
-	margin-top: 210px;
-	margin-left: auto;
-	margin-right: auto;
-}
-
-.feature {
-	justify-content: space-between;
-	width: 100%;
-	margin-top: 210px;
-}
-
-.feature-info {
-	max-width: 528px;
-}
-
-.feature-info-title {
-	margin-bottom: 21px;
-}
-
-.feature-media {
-	max-width: 528px;
-}
-
-.feature-media-code {
-	background: hsl(215, 55%, 10%);
-}
-
-.feature-media-code code {
-	background: transparent;
-}
-
-.feature-media-image {
-	max-width: 100%;
-	max-height: 210px;
-	width: auto;
-	height: auto;
-	margin-bottom: 21px;
-	border-radius: 3px;
-}
-
-.jump {
-	justify-content: center;
-	max-width: 703px;
-	margin-top: 210px;
-	margin-bottom: 210px;
-}
-
-.jump-title {
-	width: 100%;
-	margin-bottom: 21px;
-	text-align: center;
-}
-*/

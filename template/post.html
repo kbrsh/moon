@@ -25,33 +25,37 @@
 			ga('send', 'pageview');
 		</script>
 	</head>
+	<body>
+		<div class="container s-x-41 s-y-i d-y p-x-10 p-y-10 m-y-7">
+			<div class="a-y-c m-x-7">
+				<div>
+					<h2><a href="/" class="td-normal c-f-black">Moon</a></h2>
+				</div>
+				<div class="m-x-5">
+					<p><a href="/guide" class="td-normal c-f-black">Guide</a></p>
+					<p><a href="/play" class="td-normal c-f-black">Playground</a></p>
+					<p><a href="/examples" class="td-normal c-f-black">Examples</a></p>
+					<p><a href="https://github.com/kbrsh/moon" class="td-normal c-f-black">GitHub</a></p>
+				</div>
+			</div>
 
-	<body class="a-x-c a-0-x-s a-0-y-l-c a-1-x-e a-1-y-l-c m-x-5 m-y-5">
-		<h2><a href="/" class="c-f-black b-n">Moon</a></h2>
+			<div class="m-x-5">
+				<div class="s-x-15 d-y">
+					<h5>DOCUMENTATION</h5>
+					<% posts.forEach(postsPost => { %>
+						<% if (postsPost.file === post.file) { %>
+							<p><a href="/<%= postsPost.file %>" class="c-f-purple-dark td-normal"><%= postsPost.title %></a></p>
+						<% } else { %>
+							<p><a href="/<%= postsPost.file %>" class="c-f-black td-normal"><%= postsPost.title %></a></p>
+						<% } %>
+					<% }) %>
+				</div>
 
-		<div class="m-x-3">
-			<a href="/guide" class="c-f-black b-n">Guide</a>
-			<a href="/play" class="c-f-black b-n">Playground</a>
-			<a href="/examples" class="c-f-black b-n">Examples</a>
-			<a href="https://github.com/kbrsh/moon" class="c-f-black b-n">GitHub</a>
-		</div>
-
-		<div class="a-b"></div>
-
-		<div class="s-x-20 p-y-3">
-			<h5 class="s-x-20">DOCUMENTATION</h5>
-			<% posts.forEach(postsPost => { %>
-				<% if (postsPost.file === post.file) { %>
-					<p class="s-x-20"><a href="/<%= postsPost.file %>" class="c-f-purple-dark b-n"><%= postsPost.title %></a></p>
-				<% } else { %>
-					<p class="s-x-20"><a href="/<%= postsPost.file %>" class="c-f-black b-n"><%= postsPost.title %></a></p>
-				<% } %>
-			<% }) %>
-		</div>
-
-		<div class="s-x-26 m-y-4">
-			<h1><%= post.title %></h1>
-			<%- post.content %>
+				<div class="s-x-33 m-y-5 d-y">
+					<h1><%= post.title %></h1>
+					<%- post.content %>
+				</div>
+			</div>
 		</div>
 	</body>
 </html>

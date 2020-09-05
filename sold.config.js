@@ -23,25 +23,25 @@ const highlight = (code, lang) => {
 	}
 };
 
-const play = code => `<pre class="s-x-26 s-b-2 p-x-4 p-y-4"><a href="/play/#${encodeURIComponent(code)}" target="_blank" class="b-n"><img src="/img/play.png" alt="Try in playground" class="s-x-5 s-y-5"/></a><code>${highlight(code, "javascript")}</code></pre>`;
+const play = code => `<pre class="s-x-i s-b-2 p-x-4 p-y-4"><a href="/play/#${encodeURIComponent(code)}" target="_blank" class="td-normal"><img src="/img/play.png" alt="Try in playground" class="s-x-5 s-y-5"/></a><code>${highlight(code, "javascript")}</code></pre>`;
 
 renderer.heading = (text, level, raw, slugger) => {
-	return `<h${level} id="${slugger.slug(text)}" class="s-x-26">${text}</h${level}>`;
+	return `<h${level} id="${slugger.slug(text)}">${text}</h${level}>`;
 };
 
 renderer.paragraph = text => {
-	return `<p class="s-x-26">${text}</p>`;
+	return `<p>${text}</p>`;
 };
 
 renderer.listitem = text => {
-	return `<li><p class="s-x-26">${text}</p></li>`;
+	return `<li><p>${text}</p></li>`;
 };
 
 renderer.code = (code, lang, escaped) => {
 	if (lang === "play") {
 		return play(code);
 	} else {
-		return `<pre class="s-x-26 s-b-2 p-x-4 p-y-4"><code>${highlight(code, lang)}</code></pre>`;
+		return `<pre class="s-x-i s-b-2 p-x-4 p-y-4"><code>${highlight(code, lang)}</code></pre>`;
 	}
 };
 

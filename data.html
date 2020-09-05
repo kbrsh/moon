@@ -25,67 +25,69 @@
 			ga('send', 'pageview');
 		</script>
 	</head>
+	<body>
+		<div class="container s-x-41 s-y-i d-y p-x-10 p-y-10 m-y-7">
+			<div class="a-y-c m-x-7">
+				<div>
+					<h2><a href="/" class="td-normal c-f-black">Moon</a></h2>
+				</div>
+				<div class="m-x-5">
+					<p><a href="/guide" class="td-normal c-f-black">Guide</a></p>
+					<p><a href="/play" class="td-normal c-f-black">Playground</a></p>
+					<p><a href="/examples" class="td-normal c-f-black">Examples</a></p>
+					<p><a href="https://github.com/kbrsh/moon" class="td-normal c-f-black">GitHub</a></p>
+				</div>
+			</div>
 
-	<body class="a-x-c a-0-x-s a-0-y-l-c a-1-x-e a-1-y-l-c m-x-5 m-y-5">
-		<h2><a href="/" class="c-f-black b-n">Moon</a></h2>
+			<div class="m-x-5">
+				<div class="s-x-15 d-y">
+					<h5>DOCUMENTATION</h5>
+					
+						
+							<p><a href="/about" class="c-f-black td-normal">About</a></p>
+						
+					
+						
+							<p><a href="/installation" class="c-f-black td-normal">Installation</a></p>
+						
+					
+						
+							<p><a href="/guide" class="c-f-black td-normal">Guide</a></p>
+						
+					
+						
+							<p><a href="/data" class="c-f-purple-dark td-normal">Data</a></p>
+						
+					
+						
+							<p><a href="/view" class="c-f-black td-normal">View</a></p>
+						
+					
+						
+							<p><a href="/time" class="c-f-black td-normal">Time</a></p>
+						
+					
+						
+							<p><a href="/storage" class="c-f-black td-normal">Storage</a></p>
+						
+					
+						
+							<p><a href="/HTTP" class="c-f-black td-normal">HTTP</a></p>
+						
+					
+						
+							<p><a href="/route" class="c-f-black td-normal">Route</a></p>
+						
+					
+						
+							<p><a href="/examples" class="c-f-black td-normal">Examples</a></p>
+						
+					
+				</div>
 
-		<div class="m-x-3">
-			<a href="/guide" class="c-f-black b-n">Guide</a>
-			<a href="/play" class="c-f-black b-n">Playground</a>
-			<a href="/examples" class="c-f-black b-n">Examples</a>
-			<a href="https://github.com/kbrsh/moon" class="c-f-black b-n">GitHub</a>
-		</div>
-
-		<div class="a-b"></div>
-
-		<div class="s-x-20 p-y-3">
-			<h5 class="s-x-20">DOCUMENTATION</h5>
-			
-				
-					<p class="s-x-20"><a href="/about" class="c-f-black b-n">About</a></p>
-				
-			
-				
-					<p class="s-x-20"><a href="/installation" class="c-f-black b-n">Installation</a></p>
-				
-			
-				
-					<p class="s-x-20"><a href="/guide" class="c-f-black b-n">Guide</a></p>
-				
-			
-				
-					<p class="s-x-20"><a href="/data" class="c-f-purple-dark b-n">Data</a></p>
-				
-			
-				
-					<p class="s-x-20"><a href="/view" class="c-f-black b-n">View</a></p>
-				
-			
-				
-					<p class="s-x-20"><a href="/time" class="c-f-black b-n">Time</a></p>
-				
-			
-				
-					<p class="s-x-20"><a href="/storage" class="c-f-black b-n">Storage</a></p>
-				
-			
-				
-					<p class="s-x-20"><a href="/HTTP" class="c-f-black b-n">HTTP</a></p>
-				
-			
-				
-					<p class="s-x-20"><a href="/route" class="c-f-black b-n">Route</a></p>
-				
-			
-				
-					<p class="s-x-20"><a href="/examples" class="c-f-black b-n">Examples</a></p>
-				
-			
-		</div>
-
-		<div class="s-x-26 m-y-4">
-			<h1>Data</h1>
-			<p class="s-x-26">The data driver is a driver that handles persistent state. It stores data in memory and provides it as driver input. For output, it accepts new data that it stores and provides on any subsequent runs.</p><p class="s-x-26">Stored data can have any type, but is usually an object with different properties for storing different parts of application state.</p><h2 id="input" class="s-x-26">Input</h2><p class="s-x-26">The data driver provides the current stored data as input.</p><pre class="s-x-26 s-b-2 p-x-4 p-y-4"><a href="/play/#Moon.use(%7B%0A%20%20%20%20data%3A%20Moon.data.driver%0A%7D)%3B%0A%0AMoon.run((%7B%20data%20%7D)%20%3D%3E%20%7B%0A%20%20%20%20console.log(data)%3B%20%2F%2F%20%3D%3E%20undefined%0A%20%20%20%20return%20%7B%0A%20%20%20%20%20%20%20%20data%3A%20%22Titan%22%0A%20%20%20%20%7D%3B%0A%7D)%3B%0A%0AMoon.run((%7B%20data%20%7D)%20%3D%3E%20%7B%0A%20%20%20%20console.log(data)%3B%20%2F%2F%20%3D%3E%20%22Titan%22%0A%20%20%20%20return%20%7B%7D%3B%0A%7D)%3B" target="_blank" class="b-n"><img src="/img/play.png" alt="Try in playground" class="s-x-5 s-y-5"/></a><code>Moon<span class="token punctuation">.</span><span class="token function">use</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+				<div class="s-x-33 m-y-5 d-y">
+					<h1>Data</h1>
+					<p>The data driver is a driver that handles persistent state. It stores data in memory and provides it as driver input. For output, it accepts new data that it stores and provides on any subsequent runs.</p><p>Stored data can have any type, but is usually an object with different properties for storing different parts of application state.</p><h2 id="input">Input</h2><p>The data driver provides the current stored data as input.</p><pre class="s-x-i s-b-2 p-x-4 p-y-4"><a href="/play/#Moon.use(%7B%0A%20%20%20%20data%3A%20Moon.data.driver%0A%7D)%3B%0A%0AMoon.run((%7B%20data%20%7D)%20%3D%3E%20%7B%0A%20%20%20%20console.log(data)%3B%20%2F%2F%20%3D%3E%20undefined%0A%20%20%20%20return%20%7B%0A%20%20%20%20%20%20%20%20data%3A%20%22Titan%22%0A%20%20%20%20%7D%3B%0A%7D)%3B%0A%0AMoon.run((%7B%20data%20%7D)%20%3D%3E%20%7B%0A%20%20%20%20console.log(data)%3B%20%2F%2F%20%3D%3E%20%22Titan%22%0A%20%20%20%20return%20%7B%7D%3B%0A%7D)%3B" target="_blank" class="td-normal"><img src="/img/play.png" alt="Try in playground" class="s-x-5 s-y-5"/></a><code>Moon<span class="token punctuation">.</span><span class="token function">use</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
     data<span class="token operator">:</span> Moon<span class="token punctuation">.</span>data<span class="token punctuation">.</span>driver
 <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
@@ -99,7 +101,7 @@ Moon<span class="token punctuation">.</span><span class="token function">run</sp
 Moon<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter"><span class="token punctuation">{</span> data <span class="token punctuation">}</span></span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
     console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// => "Titan"</span>
     <span class="token keyword">return</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre><h2 id="output" class="s-x-26">Output</h2><p class="s-x-26">The data driver accepts new data as output and stores it. This is usually a completely new state to keep immutability and prevent bugs. However, the data can be mutated and returned again since the previous data is replaced with the new one.</p><pre class="s-x-26 s-b-2 p-x-4 p-y-4"><a href="/play/#Moon.use(%7B%0A%20%20%20%20data%3A%20Moon.data.driver%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20(%7B%0A%20%20%20%20data%3A%20%7B%0A%20%20%20%20%20%20%20%20count%3A%201%2C%0A%20%20%20%20%20%20%20%20name%3A%20%22Titan%22%0A%20%20%20%20%7D%0A%7D))%3B%0A%0AMoon.run((%7B%20data%20%7D)%20%3D%3E%20(%7B%0A%20%20%20%20data%3A%20%7B%0A%20%20%20%20%20%20%20%20count%3A%20data.count%20%2B%201%2C%0A%20%20%20%20%20%20%20%20name%3A%20%22Europa%22%0A%20%20%20%20%7D%0A%7D))%3B" target="_blank" class="b-n"><img src="/img/play.png" alt="Try in playground" class="s-x-5 s-y-5"/></a><code>Moon<span class="token punctuation">.</span><span class="token function">use</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre><h2 id="output">Output</h2><p>The data driver accepts new data as output and stores it. This is usually a completely new state to keep immutability and prevent bugs. However, the data can be mutated and returned again since the previous data is replaced with the new one.</p><pre class="s-x-i s-b-2 p-x-4 p-y-4"><a href="/play/#Moon.use(%7B%0A%20%20%20%20data%3A%20Moon.data.driver%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20(%7B%0A%20%20%20%20data%3A%20%7B%0A%20%20%20%20%20%20%20%20count%3A%201%2C%0A%20%20%20%20%20%20%20%20name%3A%20%22Titan%22%0A%20%20%20%20%7D%0A%7D))%3B%0A%0AMoon.run((%7B%20data%20%7D)%20%3D%3E%20(%7B%0A%20%20%20%20data%3A%20%7B%0A%20%20%20%20%20%20%20%20count%3A%20data.count%20%2B%201%2C%0A%20%20%20%20%20%20%20%20name%3A%20%22Europa%22%0A%20%20%20%20%7D%0A%7D))%3B" target="_blank" class="td-normal"><img src="/img/play.png" alt="Try in playground" class="s-x-5 s-y-5"/></a><code>Moon<span class="token punctuation">.</span><span class="token function">use</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
     data<span class="token operator">:</span> Moon<span class="token punctuation">.</span>data<span class="token punctuation">.</span>driver
 <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
@@ -116,6 +118,8 @@ Moon<span class="token punctuation">.</span><span class="token function">run</sp
         name<span class="token operator">:</span> <span class="token string">"Europa"</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+				</div>
+			</div>
 		</div>
 	</body>
 </html>

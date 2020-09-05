@@ -1,7 +1,11 @@
 body {
-	background: hsl(0, 0%, 100%);
-	color: hsl(0, 0%, 14%);
-	font-family: "HK Grotesk", sans-serif;
+	font-family: "HK Grotesk", Helvetica, sans-serif;
+}
+
+.container {
+	overflow: auto;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 button {
@@ -31,6 +35,14 @@ pre code {
 	background-color: hsl(200, 31%, 14%);
 }
 
+.a-y-c {
+	align-items: center;
+}
+
+.td-normal {
+	text-decoration: none;
+}
+
 .token.string {
 	color: hsl(100, 14%, 55%);
 }
@@ -53,10 +65,6 @@ pre code {
 
 .token.comment {
 	color: hsl(200, 31%, 29%);
-}
-
-.b-n {
-	border: none;
 }
 
 .c-f-black {
@@ -94,93 +102,3 @@ pre code {
 	src: url("/css/fonts/HKGrotesk-Bold.otf") format("opentype");
 	font-weight: 700;
 }
-
-/*
-.container {
-	width: 100%;
-	max-width: 1081px;
-	margin: 36px;
-}
-
-.nav {
-	justify-content: space-between;
-	align-items: center;
-	width: 100%;
-}
-
-.nav a {
-	color: hsl(0, 0%, 14%);
-	border: none;
-}
-
-.nav-home {
-	font-weight: normal;
-}
-
-.nav-items a:not(:last-child) {
-	margin-right: 15px;
-}
-
-.linkPlain {
-	border: none;
-}
-
-h1, h2, h3, h5 {
-	font-weight: bold;
-}
-
-button {
-	width: 153px;
-	padding-top: 6px;
-	padding-bottom: 6px;
-	border-radius: 3px;
-	font-family: "HK Grotesk", sans-serif;
-	font-weight: bold;
-	background-color: hsl(0, 0%, 88%);
-	color: hsl(0, 0%, 14%);
-	transition: background-color .1s ease;
-}
-
-button:hover, button:focus {
-	outline: none;
-	background-color: hsl(0, 0%, 82%);
-}
-
-button:active {
-	background-color: hsl(0, 0%, 86%);
-}
-
-
-pre code::after {
-	position: absolute;
-	top: 6px;
-	right: 6px;
-	content: attr(lang);
-	font-size: 15px;
-	color: hsl(200, 31%, 29%);
-}
-
-pre code .red, pre code .red span {
-	color: hsl(0, 31%, 55%);
-}
-
-pre code .orange {
-	color: hsl(20, 31%, 55%);
-}
-
-pre code .green, pre code .green span {
-	color: hsl(100, 14%, 55%);
-}
-
-pre code .blue {
-	color: hsl(200, 31%, 55%);
-}
-
-pre code .purple {
-	color: hsl(300, 14%, 55%);
-}
-
-pre code .gray, pre code .gray span {
-	color: hsl(200, 31%, 29%);
-}
-*/

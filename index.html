@@ -24,49 +24,53 @@
 			ga('send', 'pageview');
 		</script>
 	</head>
-
-	<body class="a-x-c a-0-x-s a-0-y-l-c a-1-x-e a-1-y-l-c m-x-5 m-y-5 m-5-y-10 m-16-y-10">
-		<h2><a href="/" class="c-f-white b-n">Moon</a></h2>
-
-		<div class="m-x-3">
-			<a href="/guide" class="c-f-white b-n">Guide</a>
-			<a href="/play" class="c-f-white b-n">Playground</a>
-			<a href="/examples" class="c-f-white b-n">Examples</a>
-			<a href="https://github.com/kbrsh/moon" class="c-f-white b-n">GitHub</a>
-		</div>
-
-		<div class="a-b"></div>
-
-		<div class="s-x-26 a-x-c a-t-c m-y-3">
-			<img src="/img/logo.png" alt="Moon Logo" class="s-x-13 s-y-13"/>
-			<h1>The minimal & fast library for functional user interfaces</h1>
-			<div class="m-x-3">
-				<a href="/guide" class="b-n"><button class="s-b-2 p-x-5 p-y-2 c-f-white c-b-purple-dark">GET STARTED</button></a>
-				<a href="/play" class="b-n"><button class="s-b-2 p-x-5 p-y-2 c-f-white c-b-purple-light">PLAYGROUND</button></a>
+	<body>
+		<div class="container s-x-41 s-y-i d-y p-x-10 p-y-10 m-y-10">
+			<div class="a-y-c m-x-7">
+				<div>
+					<h2><a href="/" class="td-normal c-f-white">Moon</a></h2>
+				</div>
+				<div class="m-x-5">
+					<p><a href="/guide" class="td-normal c-f-white">Guide</a></p>
+					<p><a href="/play" class="td-normal c-f-white">Playground</a></p>
+					<p><a href="/examples" class="td-normal c-f-white">Examples</a></p>
+					<p><a href="https://github.com/kbrsh/moon" class="td-normal c-f-white">GitHub</a></p>
+				</div>
 			</div>
-		</div>
 
-		<div class="a-b"></div>
+			<div class="p-y-10 m-y-5 a-y-c">
+				<img src="/img/logo.png" alt="Moon Logo" class="s-x-19 s-y-19"/>
+				<div class="d-y m-y-5">
+					<h1 class="s-x-30">The purely functional user interface library that's fast, tiny, and intuitive.</h1>
+					<div class="m-x-5">
+						<a href="/guide" class="b-n"><button class="s-b-2 p-x-5 p-y-2 c-f-white c-b-purple-dark">GET STARTED</button></a>
+						<a href="/play" class="b-n"><button class="s-b-2 p-x-5 p-y-2 c-f-white c-b-purple-light">PLAYGROUND</button></a>
+					</div>
+				</div>
+			</div>
 
-		<div class="s-x-26 m-y-5">
-			<p>Applications today are complex, built on top of frameworks that create abstractions fundamentally based on mutability and imperative code.</p>
-			<p>They introduce concepts like reactivity or local state or algebraic effects, all in attempt to represent views as a function of state.</p>
-			<p>In reality, applications are much more sophisticated and require third-party libraries for any effects other than updating a view.</p>
-			<p>Moon is a novel approach to web applications based on pure functions. An application is a function that uses <b>drivers</b>, programs that provide an interface to the real world.</p>
-			<p>These functions take input from drivers and return output to drivers. Drivers can be responsible for things like views, state, audio, HTTP requests, routing, and timing events.</p>
-			<p>Applications run on the Moon, and drivers update the Earth.</p>
-		</div>
+			<div class="m-x-5">
+				<div class="s-x-26 m-y-5">
+					<p>Applications today are complex, built on top of frameworks that create abstractions fundamentally based on mutability and imperative code.</p>
+					<p>They introduce concepts like reactivity or local state or algebraic effects, all in attempt to represent views as a function of state.</p>
+					<p>In reality, applications are much more sophisticated and require third-party libraries for any effects other than updating a view.</p>
+				</div>
+				<div class="s-x-26 m-y-5">
+					<p>Moon is a novel approach to web applications based on pure functions. An application is a function that uses <b>drivers</b>, programs that provide an interface to the real world.</p>
+					<p>These functions take input from drivers and return output to drivers. Drivers can be responsible for things like views, state, audio, HTTP requests, routing, and timing events.</p>
+					<p>Applications run on the Moon, and drivers update the Earth.</p>
+				</div>
+			</div>
 
-		<div class="a-b"></div>
+			<div class="m-x-5">
+				<div class="s-x-26 m-y-5">
+					<h2>Functional & Declarative</h2>
+					<p>In Moon, web applications are treated as functions that take driver inputs and return driver outputs. Drivers handle the interface between the output of your application and the browser so that it can stay pure and declarative.</p>
+					<p>On the contrary, other popular frameworks claim to be "declarative" but only treat the view as a function of state. However, they treat other ideas such as local component state or effects as afterthoughts, requiring imperative and impure code.</p>
+				</div>
 
-		<div class="s-x-26 m-y-5">
-			<h2>Functional & Declarative</h2>
-			<p>In Moon, web applications are treated as functions that take driver inputs and return driver outputs. Drivers handle the interface between the output of your application and the browser so that it can stay pure and declarative.</p>
-			<p>On the contrary, other popular frameworks claim to be "declarative" but only treat the view as a function of state. However, they treat other ideas such as local component state or effects as afterthoughts, requiring imperative and impure code.</p>
-		</div>
-
-		<div class="s-x-26 m-y-5">
-			<pre class="s-x-26 s-b-2 p-x-4 p-y-4"><a href="/play/#const%20button%20%3D%20Moon.view.m.button%3B%0A%0Aconst%20increment%20%3D%20(%7B%20data%20%7D)%20%3D%3E%20%7B%0A%09const%20dataNew%20%3D%20data%20%2B%201%3B%0A%0A%09return%20%7B%0A%09%09data%3A%20dataNew%2C%0A%09%09view%3A%20%3Cview%20data%3DdataNew%2F%3E%0A%09%7D%3B%0A%7D%3B%0A%0Aconst%20view%20%3D%20(%7B%20data%20%7D)%20%3D%3E%0A%09%3Cbutton%20%40click%3Dincrement%3E%7Bdata%7D%3C%2Fbutton%3E%3B%0A%0AMoon.use(%7B%0A%09data%3A%20Moon.data.driver%2C%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20(%7B%0A%09data%3A%200%2C%0A%09view%3A%20%3Cview%20data%3D0%2F%3E%0A%7D))%3B" target="_blank" class="b-n"><img src="/img/play.png" alt="Try in playground" class="s-x-5 s-y-5"/></a><code><span class="token keyword">const</span> button <span class="token operator">=</span> Moon<span class="token punctuation">.</span>view<span class="token punctuation">.</span>m<span class="token punctuation">.</span>button<span class="token punctuation">;</span>
+				<div class="s-x-26 m-y-5">
+					<pre class="s-x-i s-b-2 p-x-4 p-y-4"><a href="/play/#const%20button%20%3D%20Moon.view.m.button%3B%0A%0Aconst%20increment%20%3D%20(%7B%20data%20%7D)%20%3D%3E%20%7B%0A%09const%20dataNew%20%3D%20data%20%2B%201%3B%0A%0A%09return%20%7B%0A%09%09data%3A%20dataNew%2C%0A%09%09view%3A%20%3Cview%20data%3DdataNew%2F%3E%0A%09%7D%3B%0A%7D%3B%0A%0Aconst%20view%20%3D%20(%7B%20data%20%7D)%20%3D%3E%0A%09%3Cbutton%20%40click%3Dincrement%3E%7Bdata%7D%3C%2Fbutton%3E%3B%0A%0AMoon.use(%7B%0A%09data%3A%20Moon.data.driver%2C%0A%09view%3A%20Moon.view.driver(%22%23root%22)%0A%7D)%3B%0A%0AMoon.run(()%20%3D%3E%20(%7B%0A%09data%3A%200%2C%0A%09view%3A%20%3Cview%20data%3D0%2F%3E%0A%7D))%3B" target="_blank" class="td-normal"><img src="/img/play.png" alt="Try in playground" class="s-x-5 s-y-5"/></a><code><span class="token keyword">const</span> button <span class="token operator">=</span> Moon<span class="token punctuation">.</span>view<span class="token punctuation">.</span>m<span class="token punctuation">.</span>button<span class="token punctuation">;</span>
 
 <span class="token keyword">const</span> <span class="token function-variable function">increment</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token parameter"><span class="token punctuation">{</span> data <span class="token punctuation">}</span></span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
 	<span class="token keyword">const</span> dataNew <span class="token operator">=</span> data <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span>
@@ -89,31 +93,31 @@ Moon<span class="token punctuation">.</span><span class="token function">run</sp
 	data<span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
 	view<span class="token operator">:</span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>view</span> <span class="token attr-name">data</span><span class="token attr-value"><span class="token operator">=</span><span class="token number">0</span></span><span class="token punctuation">/></span></span>
 <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
-		</div>
+				</div>
+			</div>
 
-		<div class="a-b"></div>
+			<div class="m-x-5">
+				<div class="s-x-26 m-y-5">
+					<h2>Tiny & Fast</h2>
+					<p>Modern web frameworks often add a lot of weight to JavaScript bundles, resulting in slower web applications and load times. This effect is especially visible when using a slow internet connection.</p>
+					<p>Since Moon is so simple at its core, where it creates an abstraction to allow drivers to handle input and output, it <b>only weighs 2kb</b> minified and gzipped. On top of that, it is specifically optimized for JavaScript engines to perform fast virtual DOM diffing and DOM operations.</p>
+				</div>
 
-		<div class="s-x-26 m-y-5">
-			<h2>Tiny & Fast</h2>
-			<p>Modern web frameworks often add a lot of weight to JavaScript bundles, resulting in slower web applications and load times. This effect is especially visible when using a slow internet connection.</p>
-			<p>Since Moon is so simple at its core, where it creates an abstraction to allow drivers to handle input and output, it <b>only weighs 2kb</b> minified and gzipped. On top of that, it is specifically optimized for JavaScript engines to perform fast virtual DOM diffing and DOM operations.</p>
-		</div>
+				<div class="s-x-26 m-y-5">
+					<img src="/img/size.png" alt="Sizes of popular frameworks relative to Moon." class="s-x-26 s-y-20"/>
+					<a href="https://rawgit.com/krausest/js-framework-benchmark/master/webdriver-ts-results/table.html"><img src="/img/speed.png" alt="Performance of popular frameworks relative to Moon." class="s-x-26 s-y-20"/></a>
+				</div>
+			</div>
 
-		<div class="s-x-26 m-y-5">
-			<img src="/img/size.png" alt="Sizes of popular frameworks relative to Moon." class="s-x-26 s-y-20"/>
-			<a href="https://rawgit.com/krausest/js-framework-benchmark/master/webdriver-ts-results/table.html" class="b-n"><img src="/img/speed.png" alt="Performance of popular frameworks relative to Moon." class="s-x-26 s-y-20"/></a>
-		</div>
+			<div class="m-x-5">
+				<div class="s-x-26 m-y-5">
+					<h2>Intuitive & Consistent</h2>
+					<p>Moon has a very minimal API surface, used solely for initializing a runtime that allows for functional applications inside the imperative browser environment. The view language was designed to mimic HTML, a language familiar to most web developers.</p>
+					<p>Other view languages often have variadic arguments that can have any type for creating view nodes. They create abstractions like directives or special template syntax for control flow. Moon's view language is consistent, where every tag is a function call and control flow is normal JavaScript.</p>
+				</div>
 
-		<div class="a-b"></div>
-
-		<div class="s-x-26 m-y-5">
-			<h2>Intuitive & Consistent</h2>
-			<p>Moon has a very minimal API surface, used solely for initializing a runtime that allows for functional applications inside the imperative browser environment. The view language was designed to mimic HTML, a language familiar to most web developers.</p>
-			<p>Other view languages often have variadic arguments that can have any type for creating view nodes. They create abstractions like directives or special template syntax for control flow. Moon's view language is consistent, where every tag is a function call and control flow is normal JavaScript.</p>
-		</div>
-
-		<div class="s-x-26 m-y-5">
-			<pre class="s-x-26 s-b-2 p-x-4 p-y-4"><code><span class="token comment">// Moon view</span>
+				<div class="s-x-26 m-y-5">
+					<pre class="s-x-i s-b-2 p-x-4 p-y-4"><code><span class="token comment">// Moon view</span>
 <span class="token keyword">const</span> posts <span class="token operator">=</span> <span class="token punctuation">(</span>
 	<span class="token operator">&lt;</span>div children<span class="token operator">=</span><span class="token punctuation">(</span>posts<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token parameter">post</span> <span class="token operator">=></span>
 		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>view.post</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token operator">=</span><span class="token string">"my-post"</span></span><span class="token punctuation">></span></span><span class="token punctuation">{</span>post<span class="token punctuation">}</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>view.post</span><span class="token punctuation">></span></span>
@@ -131,15 +135,15 @@ Moon<span class="token punctuation">.</span><span class="token function">run</sp
 		<span class="token punctuation">)</span>
 	<span class="token punctuation">}</span><span class="token punctuation">)</span>
 <span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
-		</div>
+				</div>
+			</div>
 
-		<div class="a-b"></div>
-
-		<div class="s-x-26 a-x-c a-t-c m-y-3">
-			<h2>Jump into the guide.</h2>
-			<div class="m-x-3">
-				<a href="/guide" class="b-n"><button class="s-b-2 p-x-5 p-y-2 c-f-white c-b-purple-dark">GET STARTED</button></a>
-				<a href="/play" class="b-n"><button class="s-b-2 p-x-5 p-y-2 c-f-white c-b-purple-light">PLAYGROUND</button></a>
+			<div class="d-y m-y-3">
+				<h2>Jump into the guide.</h2>
+				<div class="m-x-5">
+					<a href="/guide" class="b-n"><button class="s-b-2 p-x-5 p-y-2 c-f-white c-b-purple-dark">GET STARTED</button></a>
+					<a href="/play" class="b-n"><button class="s-b-2 p-x-5 p-y-2 c-f-white c-b-purple-light">PLAYGROUND</button></a>
+				</div>
 			</div>
 		</div>
 	</body>

@@ -8,6 +8,11 @@
 	padding: calc(3px * var(--grain-scale));
 }
 
+#editor .CodeMirror div {
+	max-width: none;
+	max-height: none;
+}
+
 #result {
 	border: 1px solid hsl(200, 14%, 65%);
 }

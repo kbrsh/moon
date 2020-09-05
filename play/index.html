@@ -26,21 +26,25 @@
 			ga('send', 'pageview');
 		</script>
 	</head>
+	<body>
+		<div class="container s-x-41 s-y-i d-y p-x-10 p-y-10 m-y-7">
+			<div class="a-y-c m-x-7">
+				<div>
+					<h2><a href="/" class="td-normal c-f-black">Moon</a></h2>
+				</div>
+				<div class="m-x-5">
+					<p><a href="/guide" class="td-normal c-f-black">Guide</a></p>
+					<p><a href="/play" class="td-normal c-f-black">Playground</a></p>
+					<p><a href="/examples" class="td-normal c-f-black">Examples</a></p>
+					<p><a href="https://github.com/kbrsh/moon" class="td-normal c-f-black">GitHub</a></p>
+				</div>
+			</div>
 
-	<body class="a-x-c a-0-x-s a-0-y-l-c a-1-x-e a-1-y-l-c m-x-5 m-y-5">
-		<h2><a href="/" class="c-f-black b-n">Moon</a></h2>
-
-		<div class="m-x-3">
-			<a href="/guide" class="c-f-black b-n">Guide</a>
-			<a href="/play" class="c-f-black b-n">Playground</a>
-			<a href="/examples" class="c-f-black b-n">Examples</a>
-			<a href="https://github.com/kbrsh/moon" class="c-f-black b-n">GitHub</a>
+			<div class="m-x-5">
+				<div id="editor" class="s-x-26 s-y-33"></div>
+				<iframe id="result" class="s-x-26 s-y-33"></iframe>
+			</div>
 		</div>
-
-		<div class="a-b"></div>
-
-		<div id="editor" class="s-x-26 s-y-30"></div>
-		<iframe id="result" class="s-x-26 s-y-30"></iframe>
 
 		<script src="/play/js/lib/codemirror.js"></script>
 		<script src="/play/js/lib/xml.js"></script>
